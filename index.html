@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8" />
+        <!-- <link href="stylesheet.css" type "text/css" rel="stylesheet" /> -->
+        <link href="stylesheet.css" rel="stylesheet" />
+
+        <title>Numeric Elements &#8211; Software Development and Research in Applied Mathematics</title>
+
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,800,800i" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i" rel="stylesheet">
+    
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-132067264-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-132067264-1');
+    </script>
+    
+    </head>
+
+    <body>
+
+    <h1><center>NUMERIC ELEMENTS</center></h1>
+    <h3><center>Software Development and Research in Applied Mathematics</center></h3>
+
+    <p style="margin-bottom:2.0cm;"> </p>
+
+    <h2><center> Control over the oscillations of a curve </center> </h2>
+
+    <p> <b>An interactive demonstration </b> </p>
+    <p> <li> Move the B-spline control points to navigate in a curve space with an upper limit on the number of <a href="https://en.wikipedia.org/wiki/Vertex_(curve)" target="_blank" rel="noopener"> curvature extrema</a> and <a href="https://en.wikipedia.org/wiki/Inflection_point" target="_blank" rel="noopener"> inflections</a>.</li>  
+        <li> Disable the <b>controls</b> as needed to introduce oscillations. </li>
+        <li>  <img src="InsertKnotButton01.png" width="30"> : Add more control points around a selected one to add flexibility and degrees of freedom to the curve. </li>
+        </p>
+    <p style="margin-bottom:1cm;"> </p>
+
+  <!-- Rounded switch - curvature extrema -->
+  <center>  <p> <small> <b>Control of curvature extrema </b> </small> </p> <label class="switch">
+    <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
+    <span class="slider round"></span>
+    </label></center>
+
+  <!-- Rounded switch - inflexions -->
+  <center>  <p> <small> <b>Control of inflexions </b> </small> </p> <label class="switch">
+    <input type="checkbox"  checked id="toggleButtonInflections">
+    <span class="slider round"></span>
+    </label></center>
+
+
+  <!-- Rounded switch - sliding mechanism -->
+  <center>  <p> <small> <b>sliding mechanism </b> </small> </p> <label class="switch">
+    <input type="checkbox"  checked id="toggleButtonSliding">
+    <span class="slider round"></span>
+    </label></center>
+
+    <p style="margin-bottom:0.5cm;"> </p>
+
+    <canvas id="webgl" width="600" height="600">
+            Please use a browser that supports "canvas"
+    </canvas>
+
+    <script src="dist/bundle.js"></script>
+
+    <p style="margin-bottom:1cm;"> </p>
+
+  
+
+
+    <!--
+    <p><center>  <a href="about.html"> Author </a> &nbsp  &nbsp  &nbsp  <a href="closed-curve/index.html"> Closed Curve </a>   </center> </p>
+    -->
+
+    <p style="margin-bottom:1cm;"> </p>
+
+    <div id="footer" style="margin-bottom:1cm; color:rgb(100, 100, 100); font-size: 80%;">
+     <center>  &copy; 2018-2020   </center>
+    </div>
+
+    </body>
+
+</html>
