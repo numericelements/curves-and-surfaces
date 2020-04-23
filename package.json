@@ -1,0 +1,25 @@
+{
+  "name": "curves-and-surfaces",
+  "version": "1.0.0",
+  "description": "Developments on curves and surfaces",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/numericelements/curves-and-surfaces.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/numericelements/curves-and-surfaces/issues"
+  },
+  "homepage": "https://github.com/numericelements/curves-and-surfaces#readme",
+  "devDependencies": {
+    "ts-loader": "^7.0.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  }
+}
