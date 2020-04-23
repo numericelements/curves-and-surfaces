@@ -4,13 +4,10 @@ import {WebGLUtils} from "./webgl/webgl-utils"
 
 
 export function main() {
+    
     let canvas = <HTMLCanvasElement> document.getElementById("webgl")
-    //let gl = canvas.getContext("webgl")
-
     let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
-
     let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
-
     let toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding")
 
 
@@ -116,9 +113,7 @@ export function main() {
     canvas.addEventListener('touchend', touch_stop_drag, false);
 
     toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
-
     toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
-
     toggleButtonSliding.addEventListener('click', toggleSliding)
 
 
