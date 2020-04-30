@@ -105,16 +105,10 @@ var CurveShaders_1 = __webpack_require__(/*! ../views/CurveShaders */ "./src/vie
 var CurveView_1 = __webpack_require__(/*! ../views/CurveView */ "./src/views/CurveView.ts");
 var InsertKnotButtonShaders_1 = __webpack_require__(/*! ../views/InsertKnotButtonShaders */ "./src/views/InsertKnotButtonShaders.ts");
 var ClickButtonView_1 = __webpack_require__(/*! ../views/ClickButtonView */ "./src/views/ClickButtonView.ts");
+var CurvatureExtremaShaders_1 = __webpack_require__(/*! ../views/CurvatureExtremaShaders */ "./src/views/CurvatureExtremaShaders.ts");
+var CurvatureExtremaView_1 = __webpack_require__(/*! ../views/CurvatureExtremaView */ "./src/views/CurvatureExtremaView.ts");
+var InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./src/views/InflectionsView.ts");
 var CurveSceneController = /** @class */ (function () {
-    /*
-    private activeOptimizer: boolean = true
-    static optimizationCounter = 0
-    private d = new Date()
-    private frameRate = 0
-    private sampleSize = 0
-    private sampleSum = 0
-    private sliding = true
-    */
     function CurveSceneController(canvas, gl) {
         this.canvas = canvas;
         this.gl = gl;
@@ -129,9 +123,14 @@ var CurveSceneController = /** @class */ (function () {
         this.curveView = new CurveView_1.CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.insertKnotButtonShaders = new InsertKnotButtonShaders_1.InsertKnotButtonShaders(this.gl);
         this.insertKnotButtonView = new ClickButtonView_1.ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders);
+        this.curvatureExtremaShaders = new CurvatureExtremaShaders_1.CurvatureExtremaShaders(this.gl);
+        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+        this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1);
         this.curveModel.registerObserver(this.controlPointsView);
         this.curveModel.registerObserver(this.controlPolygonView);
         this.curveModel.registerObserver(this.curveView);
+        this.curveModel.registerObserver(this.curvatureExtremaView);
+        this.curveModel.registerObserver(this.inflectionsView);
     }
     CurveSceneController.prototype.renderFrame = function () {
         var px = 100, size = Math.min(window.innerWidth, window.innerHeight) - px;
@@ -143,6 +142,8 @@ var CurveSceneController = /** @class */ (function () {
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.curveView.renderFrame();
+        this.curvatureExtremaView.renderFrame();
+        this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
         this.controlPointsView.renderFrame();
         this.insertKnotButtonView.renderFrame();
@@ -211,7 +212,6 @@ var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneCon
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
 function main() {
     var canvas = document.getElementById("webgl");
-    //let gl = canvas.getContext("webgl")
     var toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
     var toggleButtonInflection = document.getElementById("toggleButtonInflections");
     var toggleButtonSliding = document.getElementById("toggleButtonSliding");
@@ -310,6 +310,237 @@ function main() {
 }
 exports.main = main;
 main();
+
+
+/***/ }),
+
+/***/ "./src/mathematics/BSpline_R1_to_R1.ts":
+/*!*********************************************!*\
+  !*** ./src/mathematics/BSpline_R1_to_R1.ts ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a one dimensional real space
+ */
+var BSpline_R1_to_R1 = /** @class */ (function () {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    function BSpline_R1_to_R1(controlPoints, knots) {
+        if (controlPoints === void 0) { controlPoints = [0]; }
+        if (knots === void 0) { knots = [0, 1]; }
+        this._controlPoints = [];
+        this._knots = [];
+        this._degree = 0;
+        this._controlPoints = controlPoints;
+        this._knots = knots;
+        this._degree = this._knots.length - this._controlPoints.length - 1;
+        if (this._degree < 0) {
+            throw new Error("Negative degree BSpline_R1_to_R1 are not supported");
+        }
+    }
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "controlPoints", {
+        get: function () {
+            return this._controlPoints;
+        },
+        set: function (controlPoints) {
+            this._controlPoints = controlPoints;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "knots", {
+        get: function () {
+            return this._knots;
+        },
+        set: function (knots) {
+            this._knots = knots;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "degree", {
+        get: function () {
+            return this._degree;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    BSpline_R1_to_R1.prototype.setControlPoint = function (index, value) {
+        this._controlPoints[index] = value;
+    };
+    /**
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    BSpline_R1_to_R1.prototype.evaluate = function (u) {
+        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
+        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
+        var result = 0;
+        for (var i = 0; i < this.degree + 1; i += 1) {
+            result += basis[i] * this._controlPoints[span - this._degree + i];
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.derivative = function () {
+        var newControlPoints = [];
+        var newKnots = [];
+        for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
+            newControlPoints[i] = (this.controlPoints[i + 1] - (this.controlPoints[i])) * (this.degree / (this.knots[i + this.degree + 1] - this.knots[i + 1]));
+        }
+        newKnots = this.knots.slice(1, this.knots.length - 1);
+        return new BSpline_R1_to_R1(newControlPoints, newKnots);
+    };
+    BSpline_R1_to_R1.prototype.bernsteinDecomposition = function () {
+        // Piegl_Tiller_NURBS_BOOK.ts
+        return Piegl_Tiller_NURBS_Book_3.decomposeFunction(this);
+    };
+    BSpline_R1_to_R1.prototype.distinctKnots = function () {
+        var result = [this.knots[0]];
+        var temp = result[0];
+        for (var i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.zeros = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        while (maxError > tolerance) {
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var i = 0; i < vertexIndex.length; i += 1) {
+                var uLeft = greville[vertexIndex[i] - 1];
+                var uRight = greville[vertexIndex[i]];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    spline.insertKnot((uLeft + uRight) / 2);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        var result = [];
+        for (var i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]]);
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.grevilleAbscissae = function () {
+        var result = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var sum = 0;
+            for (var j = i + 1; j < i + this.degree + 1; j += 1) {
+                sum += this.knots[j];
+            }
+            result.push(sum / this.degree);
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.insertKnot = function (u, times) {
+        if (times === void 0) { times = 1; }
+        if (times <= 0) {
+            return;
+        }
+        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree);
+        var multiplicity = 0;
+        var newControlPoints = [];
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+        }
+    };
+    BSpline_R1_to_R1.prototype.knotMultiplicity = function (indexFromFindSpan) {
+        var result = 0;
+        var i = 0;
+        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    };
+    /**
+     * Return a deep copy of this b-spline
+     */
+    BSpline_R1_to_R1.prototype.clone = function () {
+        return new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+    };
+    BSpline_R1_to_R1.prototype.clamp = function (u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
+        var newControlPoints = [];
+        var multiplicity = 0;
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        var times = this.degree - multiplicity + 1;
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    };
+    return BSpline_R1_to_R1;
+}());
+exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
 
 
 /***/ }),
@@ -559,6 +790,298 @@ function create_BSpline_R1_to_R2(controlPoints, knots) {
     return new BSpline_R1_to_R2(newControlPoints, knots);
 }
 exports.create_BSpline_R1_to_R2 = create_BSpline_R1_to_R2;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts":
+/*!********************************************************************!*\
+  !*** ./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
+var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+var BSpline_R1_to_R2_DifferentialProperties = /** @class */ (function () {
+    function BSpline_R1_to_R2_DifferentialProperties(spline) {
+        this.spline = spline;
+    }
+    BSpline_R1_to_R2_DifferentialProperties.prototype.expensiveComputation = function (spline) {
+        var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots);
+        var sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots);
+        var sxu = sx.derivative();
+        var syu = sy.derivative();
+        var sxuu = sxu.derivative();
+        var syuu = syu.derivative();
+        var sxuuu = sxuu.derivative();
+        var syuuu = syuu.derivative();
+        var bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition());
+        var bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition());
+        var bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition());
+        var bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition());
+        var bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition());
+        var bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition());
+        var h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
+        var h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
+        var h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
+        var h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
+        return {
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureNumerator = function () {
+        var e = this.expensiveComputation(this.spline);
+        var distinctKnots = this.spline.distinctKnots();
+        var controlPoints = e.h4.flattenControlPointsArray();
+        var curvatureNumeratorDegree = 2 * this.spline.degree - 3;
+        var knots = [];
+        for (var i = 0; i < distinctKnots.length; i += 1) {
+            for (var j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.h1 = function () {
+        var e = this.expensiveComputation(this.spline);
+        var distinctKnots = this.spline.distinctKnots();
+        var controlPoints = e.h1.flattenControlPointsArray();
+        var h1Degree = 2 * this.spline.degree - 2;
+        var knots = [];
+        for (var i = 0; i < distinctKnots.length; i += 1) {
+            for (var j = 0; j < h1Degree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.inflections = function (curvatureNumerator) {
+        if (!curvatureNumerator) {
+            curvatureNumerator = this.curvatureNumerator();
+        }
+        var zeros = curvatureNumerator.zeros();
+        var result = [];
+        for (var i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]));
+        }
+        return result;
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDerivativeNumerator = function () {
+        var e = this.expensiveComputation(this.spline);
+        var bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
+        var distinctKnots = this.spline.distinctKnots();
+        var controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
+        var curvatureDerivativeNumeratorDegree = 4 * this.spline.degree - 6;
+        var knots = [];
+        for (var i = 0; i < distinctKnots.length; i += 1) {
+            for (var j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = curvatureDerivativeNumerator.zeros();
+        var result = [];
+        for (var i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]));
+        }
+        return result;
+    };
+    return BSpline_R1_to_R2_DifferentialProperties;
+}());
+exports.BSpline_R1_to_R2_DifferentialProperties = BSpline_R1_to_R2_DifferentialProperties;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts":
+/*!************************************************************!*\
+  !*** ./src/mathematics/BernsteinDecomposition_R1_to_R1.ts ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/mathematics/BinomialCoefficient.ts");
+/**
+* A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
+*/
+var BernsteinDecomposition_R1_to_R1 = /** @class */ (function () {
+    /**
+     *
+     * @param controlPointsArray An array of array of control points
+     */
+    function BernsteinDecomposition_R1_to_R1(controlPointsArray) {
+        this.controlPointsArray = controlPointsArray;
+    }
+    BernsteinDecomposition_R1_to_R1.prototype.add = function (bd) {
+        var result = [];
+        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] + bd.controlPointsArray[i][j];
+            }
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.subtract = function (bd) {
+        var result = [];
+        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] - bd.controlPointsArray[i][j];
+            }
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.multiply = function (bd) {
+        return new BernsteinDecomposition_R1_to_R1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray));
+    };
+    /**
+     *
+     * @param bd: BernsteinDecomposition_R1_to_R1
+     * @param index: Index of the basis function
+     */
+    BernsteinDecomposition_R1_to_R1.prototype.multiplyRange = function (bd, start, lessThan) {
+        var result = [];
+        for (var i = start; i < lessThan; i += 1) {
+            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i]);
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplicationArray = function (f, g) {
+        var result = [];
+        for (var i = 0; i < f.length; i += 1) {
+            result[i] = this.bernsteinMultiplication(f[i], g[i]);
+        }
+        return result;
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplication = function (f, g) {
+        var f_degree = f.length - 1;
+        var g_degree = g.length - 1;
+        var result = [];
+        /*
+        for (let k = 0; k < f_degree + g_degree + 1; k += 1) {
+            let cp = 0;
+            for (let i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
+                let bfu = binomialCoefficient(f_degree, i);
+                let bgu = binomialCoefficient(g_degree, k - i);
+                let bfugu = binomialCoefficient(f_degree + g_degree, k);
+                cp += bfu * bgu / bfugu * f[i] * g[k - i];
+            }
+            result[k] = cp;
+        }
+        */
+        /*
+        BernsteinDecomposition_R1_to_R1.flopsCounter += 1
+        if (BernsteinDecomposition_R1_to_R1.flopsCounter % 1000 === 0) {
+          //console.log("Bernstein Multiplication")
+          //console.log(BernsteinDecomposition_R1_to_R1.flopsCounter)
+        }
+        */
+        for (var k = 0; k < f_degree + g_degree + 1; k += 1) {
+            var cp = 0;
+            for (var i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
+                var bfu = BernsteinDecomposition_R1_to_R1.binomial(f_degree, i);
+                var bgu = BernsteinDecomposition_R1_to_R1.binomial(g_degree, k - i);
+                var bfugu = BernsteinDecomposition_R1_to_R1.binomial(f_degree + g_degree, k);
+                cp += bfu * bgu / bfugu * f[i] * g[k - i];
+            }
+            result[k] = cp;
+        }
+        return result;
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.multiplyByScalar = function (value) {
+        var result = [];
+        for (var i = 0; i < this.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (var j = 0; j < this.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] * value;
+            }
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.flattenControlPointsArray = function () {
+        //return this.controlPointsArray.flat();
+        return this.controlPointsArray.reduce(function (acc, val) {
+            return acc.concat(val);
+        }, []);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.subset = function (start, lessThan) {
+        return new BernsteinDecomposition_R1_to_R1(this.controlPointsArray.slice(start, lessThan));
+    };
+    BernsteinDecomposition_R1_to_R1.binomial = BinomialCoefficient_1.memoizedBinomialCoefficient();
+    BernsteinDecomposition_R1_to_R1.flopsCounter = 0;
+    return BernsteinDecomposition_R1_to_R1;
+}());
+exports.BernsteinDecomposition_R1_to_R1 = BernsteinDecomposition_R1_to_R1;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/BinomialCoefficient.ts":
+/*!************************************************!*\
+  !*** ./src/mathematics/BinomialCoefficient.ts ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function binomialCoefficient(n, k) {
+    var result = 1;
+    if (n < k || k < 0) {
+        return 0;
+    }
+    // take advantage of symmetry
+    if (k > n - k) {
+        k = n - k;
+    }
+    for (var x = n - k + 1; x <= n; x += 1) {
+        result *= x;
+    }
+    for (var x = 1; x <= k; x += 1) {
+        result /= x;
+    }
+    return result;
+}
+exports.binomialCoefficient = binomialCoefficient;
+;
+function memoizedBinomialCoefficient() {
+    var cache = [];
+    return function (n, k) {
+        if (cache[n] !== undefined && cache[n][k] !== undefined) {
+            return cache[n][k];
+        }
+        else {
+            if (cache[n] === undefined) {
+                cache[n] = [];
+            }
+            var result = binomialCoefficient(n, k);
+            cache[n][k] = result;
+            return result;
+        }
+    };
+}
+exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
+;
 
 
 /***/ }),
@@ -1477,6 +2000,235 @@ exports.ControlPolygonView = ControlPolygonView;
 
 /***/ }),
 
+/***/ "./src/views/CurvatureExtremaShaders.ts":
+/*!**********************************************!*\
+  !*** ./src/views/CurvatureExtremaShaders.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+var CurvatureExtremaShaders = /** @class */ (function () {
+    function CurvatureExtremaShaders(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec2 a_Texture; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '    v_Texture = a_Texture; \n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision highp float; \n' +
+            'uniform vec4 a_Color; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
+            '     if (dist > 0.5) discard; \n' +
+            '     gl_FragColor = a_Color; \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    CurvatureExtremaShaders.prototype.renderFrame = function (numberOfElements) {
+        if (this.program) {
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
+        }
+    };
+    return CurvatureExtremaShaders;
+}());
+exports.CurvatureExtremaShaders = CurvatureExtremaShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/CurvatureExtremaView.ts":
+/*!*******************************************!*\
+  !*** ./src/views/CurvatureExtremaView.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+//import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
+//import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var CurvatureExtremaView = /** @class */ (function () {
+    function CurvatureExtremaView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
+        this.curvatureExtremaShaders = curvatureExtremaShaders;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+        this.z = 0;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        this.controlPoints = spline.visibleControlPoints();
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.update(spline);
+    }
+    CurvatureExtremaView.prototype.updateVerticesAndIndices = function () {
+        var size = 0.03;
+        this.vertices = new Float32Array(this.controlPoints.length * 32);
+        this.indices = new Uint8Array(this.controlPoints.length * 6);
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var x = this.controlPoints[i].x;
+            var y = this.controlPoints[i].y;
+            this.vertices[32 * i] = x - size;
+            this.vertices[32 * i + 1] = y - size;
+            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.red;
+            this.vertices[32 * i + 6] = this.green;
+            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 8] = x + size;
+            this.vertices[32 * i + 9] = y - size;
+            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.red;
+            this.vertices[32 * i + 14] = this.green;
+            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 16] = x + size;
+            this.vertices[32 * i + 17] = y + size;
+            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.red;
+            this.vertices[32 * i + 22] = this.green;
+            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 24] = x - size;
+            this.vertices[32 * i + 25] = y + size;
+            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.red;
+            this.vertices[32 * i + 30] = this.green;
+            this.vertices[32 * i + 31] = this.blue;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    CurvatureExtremaView.prototype.initVertexBuffers = function (gl) {
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        var a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Texture < 0) {
+            console.log('Failed to get the storage location of a_Texture');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    CurvatureExtremaView.prototype.renderFrame = function () {
+        var gl = this.curvatureExtremaShaders.gl, a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT, a_ColorLocation = gl.getUniformLocation(this.curvatureExtremaShaders.program, "a_Color");
+        gl.useProgram(this.curvatureExtremaShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        gl.uniform4f(a_ColorLocation, this.red, this.green, this.blue, this.alpha);
+        this.curvatureExtremaShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    };
+    CurvatureExtremaView.prototype.update = function (spline) {
+        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
+            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
+            this.controlPoints = splineDP.curvatureExtrema();
+            this.updateVerticesAndIndices();
+            this.updateBuffers();
+        }
+        /*
+        if (spline instanceof PeriodicBSpline_R1_to_R2) {
+            const splineDP = new PeriodicBSpline_R1_to_R2_DifferentialProperties(spline)
+            this.controlPoints = splineDP.curvatureExtrema()
+            this.updateVerticesAndIndices()
+            this.updateBuffers()
+        }
+        */
+    };
+    /*
+    updatePoints(points: Vector_2d[]) {
+        this.controlPoints = points;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+    */
+    CurvatureExtremaView.prototype.updateBuffers = function () {
+        var gl = this.curvatureExtremaShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return CurvatureExtremaView;
+}());
+exports.CurvatureExtremaView = CurvatureExtremaView;
+
+
+/***/ }),
+
 /***/ "./src/views/CurveShaders.ts":
 /*!***********************************!*\
   !*** ./src/views/CurveShaders.ts ***!
@@ -1647,6 +2399,186 @@ var CurveView = /** @class */ (function () {
     return CurveView;
 }());
 exports.CurveView = CurveView;
+
+
+/***/ }),
+
+/***/ "./src/views/InflectionsView.ts":
+/*!**************************************!*\
+  !*** ./src/views/InflectionsView.ts ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+//import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
+//import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var InflectionsView = /** @class */ (function () {
+    function InflectionsView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
+        this.curvatureExtremaShaders = curvatureExtremaShaders;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+        this.z = 0;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        this.controlPoints = spline.visibleControlPoints();
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.update(spline);
+    }
+    InflectionsView.prototype.updateVerticesAndIndices = function () {
+        var size = 0.025;
+        this.vertices = new Float32Array(this.controlPoints.length * 32);
+        this.indices = new Uint8Array(this.controlPoints.length * 6);
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var x = this.controlPoints[i].x;
+            var y = this.controlPoints[i].y;
+            this.vertices[32 * i] = x - size;
+            this.vertices[32 * i + 1] = y - size;
+            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.red;
+            this.vertices[32 * i + 6] = this.green;
+            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 8] = x + size;
+            this.vertices[32 * i + 9] = y - size;
+            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.red;
+            this.vertices[32 * i + 14] = this.green;
+            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 16] = x + size;
+            this.vertices[32 * i + 17] = y + size;
+            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.red;
+            this.vertices[32 * i + 22] = this.green;
+            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 24] = x - size;
+            this.vertices[32 * i + 25] = y + size;
+            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.red;
+            this.vertices[32 * i + 30] = this.green;
+            this.vertices[32 * i + 31] = this.blue;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    InflectionsView.prototype.initVertexBuffers = function (gl) {
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        var a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Texture < 0) {
+            console.log('Failed to get the storage location of a_Texture');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    InflectionsView.prototype.renderFrame = function () {
+        var gl = this.curvatureExtremaShaders.gl, a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT, a_ColorLocation = gl.getUniformLocation(this.curvatureExtremaShaders.program, "a_Color");
+        gl.useProgram(this.curvatureExtremaShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        gl.uniform4f(a_ColorLocation, this.red, this.green, this.blue, this.alpha);
+        this.curvatureExtremaShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    };
+    InflectionsView.prototype.update = function (spline) {
+        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
+            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
+            this.controlPoints = splineDP.inflections();
+            this.updateVerticesAndIndices();
+            this.updateBuffers();
+        }
+        /*
+        if (spline instanceof PeriodicBSpline_R1_to_R2) {
+            const splineDP = new PeriodicBSpline_R1_to_R2_DifferentialProperties(spline)
+            this.controlPoints = splineDP.inflections()
+            this.updateVerticesAndIndices()
+            this.updateBuffers()
+        }
+        */
+    };
+    /*
+    updatePoints(points: Vector_2d[]) {
+        this.controlPoints = points;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+    */
+    InflectionsView.prototype.updateBuffers = function () {
+        var gl = this.curvatureExtremaShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return InflectionsView;
+}());
+exports.InflectionsView = InflectionsView;
 
 
 /***/ }),

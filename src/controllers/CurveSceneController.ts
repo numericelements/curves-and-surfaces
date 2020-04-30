@@ -8,7 +8,9 @@ import { CurveView } from "../views/CurveView";
 import { SceneControllerInterface } from "./SceneControllerInterface";
 import { InsertKnotButtonShaders } from "../views/InsertKnotButtonShaders";
 import { ClickButtonView } from "../views/ClickButtonView";
-
+import { CurvatureExtremaShaders } from "../views/CurvatureExtremaShaders";
+import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
+import { InflectionsView } from "../views/InflectionsView";
 
 
 export class CurveSceneController implements SceneControllerInterface {
@@ -24,6 +26,9 @@ export class CurveSceneController implements SceneControllerInterface {
     private insertKnotButtonShaders: InsertKnotButtonShaders
     private insertKnotButtonView: ClickButtonView
     private dragging: boolean = false
+    private curvatureExtremaShaders: CurvatureExtremaShaders
+    private curvatureExtremaView: CurvatureExtremaView
+    private inflectionsView: InflectionsView
 
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext) {
@@ -36,9 +41,15 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveView = new CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1)
         this.insertKnotButtonShaders = new InsertKnotButtonShaders(this.gl)
         this.insertKnotButtonView = new ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders)
+        this.curvatureExtremaShaders = new CurvatureExtremaShaders(this.gl)
+        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1)
+        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1)
+        
         this.curveModel.registerObserver(this.controlPointsView)
         this.curveModel.registerObserver(this.controlPolygonView)
         this.curveModel.registerObserver(this.curveView);
+        this.curveModel.registerObserver(this.curvatureExtremaView)
+        this.curveModel.registerObserver(this.inflectionsView)
     }
 
     renderFrame() {
@@ -52,10 +63,11 @@ export class CurveSceneController implements SceneControllerInterface {
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.curveView.renderFrame()
+        this.curvatureExtremaView.renderFrame()
+        this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
         this.controlPointsView.renderFrame()
         this.insertKnotButtonView.renderFrame()
-
     }
 
 
