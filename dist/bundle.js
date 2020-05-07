@@ -86,6 +86,105 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./src/controllers/ControlOfInflectionAndCurvatureExtrema.ts":
+/*!*******************************************************************!*\
+  !*** ./src/controllers/ControlOfInflectionAndCurvatureExtrema.ts ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
+var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var ControlOfInflectionAndCurvatureExtrema = /** @class */ (function () {
+    function ControlOfInflectionAndCurvatureExtrema(curveModel) {
+        this.activeOptimizer = true;
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    }
+    ControlOfInflectionAndCurvatureExtrema.prototype.setWeightingFactor = function (optimizationProblem) {
+        optimizationProblem.weigthingFactors[0] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length - 1] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length * 2 - 1] = 10;
+    };
+    ControlOfInflectionAndCurvatureExtrema.prototype.newOptimizer = function (optimizationProblem) {
+        this.setWeightingFactor(optimizationProblem);
+        return new Optimizer_1.Optimizer(optimizationProblem);
+    };
+    ControlOfInflectionAndCurvatureExtrema.prototype.resetCurve = function (curveModel) {
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    };
+    ControlOfInflectionAndCurvatureExtrema.prototype.toggleControlOfCurvatureExtrema = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over curvature extrema");
+        }
+    };
+    ControlOfInflectionAndCurvatureExtrema.prototype.toggleControlOfInflections = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over inflections");
+        }
+    };
+    ControlOfInflectionAndCurvatureExtrema.prototype.toggleSliding = function () {
+        throw new Error("Method not implemented.");
+    };
+    ControlOfInflectionAndCurvatureExtrema.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        var p = this.curveModel.spline.controlPoints[selectedControlPoint];
+        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+        this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+        try {
+            this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
+            this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+        }
+        catch (e) {
+            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y);
+            console.log(e);
+        }
+    };
+    return ControlOfInflectionAndCurvatureExtrema;
+}());
+exports.ControlOfInflectionAndCurvatureExtrema = ControlOfInflectionAndCurvatureExtrema;
+
+
+/***/ }),
+
 /***/ "./src/controllers/CurveSceneController.ts":
 /*!*************************************************!*\
   !*** ./src/controllers/CurveSceneController.ts ***!
@@ -108,6 +207,7 @@ var ClickButtonView_1 = __webpack_require__(/*! ../views/ClickButtonView */ "./s
 var CurvatureExtremaShaders_1 = __webpack_require__(/*! ../views/CurvatureExtremaShaders */ "./src/views/CurvatureExtremaShaders.ts");
 var CurvatureExtremaView_1 = __webpack_require__(/*! ../views/CurvatureExtremaView */ "./src/views/CurvatureExtremaView.ts");
 var InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./src/views/InflectionsView.ts");
+var ControlOfInflectionAndCurvatureExtrema_1 = __webpack_require__(/*! ./ControlOfInflectionAndCurvatureExtrema */ "./src/controllers/ControlOfInflectionAndCurvatureExtrema.ts");
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl) {
         this.canvas = canvas;
@@ -131,6 +231,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
+        this.curveControl = new ControlOfInflectionAndCurvatureExtrema_1.ControlOfInflectionAndCurvatureExtrema(this.curveModel);
     }
     CurveSceneController.prototype.renderFrame = function () {
         var px = 100, size = Math.min(window.innerWidth, window.innerHeight) - px;
@@ -148,17 +249,18 @@ var CurveSceneController = /** @class */ (function () {
         this.controlPointsView.renderFrame();
         this.insertKnotButtonView.renderFrame();
     };
-    CurveSceneController.prototype.toggleOptimizer = function () {
-    };
     CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
+        this.curveControl.toggleControlOfCurvatureExtrema();
     };
     CurveSceneController.prototype.toggleControlOfInflections = function () {
+        this.curveControl.toggleControlOfInflections();
     };
     CurveSceneController.prototype.toggleSliding = function () {
+        //this.curveControl.toggleSliding()
     };
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
-        if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== -1) {
+        if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
             var cp = this.selectedControlPoint;
             if (cp === 0) {
                 cp += 1;
@@ -169,26 +271,26 @@ var CurveSceneController = /** @class */ (function () {
             var grevilleAbscissae = this.curveModel.spline.grevilleAbscissae();
             if (cp != null) {
                 this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
+                this.curveControl.resetCurve(this.curveModel);
                 this.curveModel.notifyObservers();
             }
         }
         this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
         this.controlPointsView.setSelected(this.selectedControlPoint);
-        if (this.selectedControlPoint !== -1) {
+        if (this.selectedControlPoint !== null) {
             this.dragging = true;
         }
     };
     CurveSceneController.prototype.leftMouseDragged_event = function (ndcX, ndcY) {
         var x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
-        if (selectedControlPoint !== -1 && selectedControlPoint != null && this.dragging === true) {
+        if (selectedControlPoint != null && this.dragging === true) {
             this.curveModel.setControlPoint(selectedControlPoint, x, y);
+            this.curveControl.optimize(selectedControlPoint, x, y);
             this.curveModel.notifyObservers();
         }
     };
     CurveSceneController.prototype.leftMouseUp_event = function () {
         this.dragging = false;
-    };
-    CurveSceneController.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
     };
     return CurveSceneController;
 }());
@@ -1086,6 +1188,1709 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 
 /***/ }),
 
+/***/ "./src/mathematics/CholeskyDecomposition.ts":
+/*!**************************************************!*\
+  !*** ./src/mathematics/CholeskyDecomposition.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * A decomposition of a positive-definite matirx into a product of a lower triangular matrix and its conjugate transpose
+ */
+var CholeskyDecomposition = /** @class */ (function () {
+    /**
+     * The values of the decomposition are stored in the lower triangular portion of the matrix g
+     * @param matrix Matrix
+     */
+    function CholeskyDecomposition(matrix) {
+        this.success = false;
+        this.CLOSE_TO_ZERO = 10e-8;
+        this.firstNonPositiveDefiniteLeadingSubmatrixSize = -1;
+        this.g = matrix.squareMatrix();
+        var n = this.g.shape[0];
+        if (this.g.get(0, 0) < this.CLOSE_TO_ZERO) {
+            return;
+        }
+        var sqrtGjj = Math.sqrt(this.g.get(0, 0));
+        for (var i = 0; i < n; i += 1) {
+            this.g.divideAt(i, 0, sqrtGjj);
+        }
+        for (var j = 1; j < n; j += 1) {
+            for (var i = j; i < n; i += 1) {
+                var sum = 0;
+                for (var k = 0; k < j; k += 1) {
+                    sum += this.g.get(i, k) * this.g.get(j, k);
+                }
+                this.g.substractAt(i, j, sum);
+            }
+            if (this.g.get(j, j) < this.CLOSE_TO_ZERO) {
+                this.firstNonPositiveDefiniteLeadingSubmatrixSize = j + 1;
+                return;
+            }
+            sqrtGjj = Math.sqrt(this.g.get(j, j));
+            for (var i = j; i < n; i += 1) {
+                this.g.divideAt(i, j, sqrtGjj);
+            }
+        }
+        for (var j = 0; j < n; j += 1) {
+            for (var i = 0; i < j; i += 1) {
+                this.g.set(i, j, 0);
+            }
+        }
+        this.success = true;
+    }
+    /**
+     * Solve the linear system
+     * @param b Vector
+     * @return The vector x
+     * @throws If the Cholesky decomposition failed
+     */
+    CholeskyDecomposition.prototype.solve = function (b) {
+        'use strict';
+        // See Numerical Recipes Third Edition p. 101
+        if (!this.success) {
+            throw new Error("CholeskyDecomposistion.success === false");
+        }
+        if (b.length !== this.g.shape[0]) {
+            throw new Error("The size of the cholesky decomposed matrix g and the vector b do not match");
+        }
+        var n = this.g.shape[0];
+        var x = b.slice();
+        // Ly = b
+        for (var i = 0; i < n; i += 1) {
+            var sum = b[i];
+            for (var k = i - 1; k >= 0; k -= 1) {
+                sum -= this.g.get(i, k) * x[k];
+            }
+            x[i] = sum / this.g.get(i, i);
+        }
+        // LT x = Y
+        for (var i = n - 1; i >= 0; i -= 1) {
+            var sum = x[i];
+            for (var k = i + 1; k < n; k += 1) {
+                sum -= this.g.get(k, i) * x[k];
+            }
+            x[i] = sum / this.g.get(i, i);
+        }
+        return x;
+    };
+    /**
+     * Solve the linear equation Lower triangular matrix LT * x = b
+     * @param b Vector
+     */
+    CholeskyDecomposition.prototype.solve_LT_result_equal_b = function (b) {
+        var n = this.g.shape[0];
+        var x = b.slice();
+        for (var i = 0; i < n; i += 1) {
+            var sum = b[i];
+            for (var k = i - 1; k >= 0; k -= 1) {
+                sum -= this.g.get(i, k) * x[k];
+            }
+            x[i] = sum / this.g.get(i, i);
+        }
+        return x;
+    };
+    return CholeskyDecomposition;
+}());
+exports.CholeskyDecomposition = CholeskyDecomposition;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/DenseMatrix.ts":
+/*!****************************************!*\
+  !*** ./src/mathematics/DenseMatrix.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * A dense matrix
+ */
+var DenseMatrix = /** @class */ (function () {
+    /**
+     * Create a square matrix
+     * @param nrows Number of rows
+     * @param ncols Number of columns
+     * @param data A row after row flat array
+     * @throws If data length is not equal to nrows*ncols
+     */
+    function DenseMatrix(nrows, ncols, data) {
+        this._shape = [nrows, ncols];
+        if (data) {
+            if (data.length !== this.shape[0] * this.shape[1]) {
+                throw new Error("Dense matrix constructor expect the data to have nrows*ncols length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            for (var i = 0; i < this.shape[0] * this.shape[1]; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(DenseMatrix.prototype, "shape", {
+        /**
+         * Returns the shape of the matrix : [number of rows, number of columns]
+         */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Return the corresponding index in the flat row by row data vector
+     * @param row The row index
+     * @param column The column index
+     */
+    DenseMatrix.prototype.dataIndex = function (row, column) {
+        var n = row * this.shape[1] + column;
+        return n;
+    };
+    /**
+     * Return the value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @return Scalar
+     * @throws If an index is out of range
+     */
+    DenseMatrix.prototype.get = function (row, column) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        return this.data[this.dataIndex(row, column)];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    DenseMatrix.prototype.set = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] = value;
+    };
+    /**
+     * Check that the column index is inside appropriate range
+     * @param index The column index
+     * @throws If index is out of range
+     */
+    DenseMatrix.prototype.checkColumnRange = function (index) {
+        if (index < 0 || index >= this.shape[1]) {
+            throw new Error("DenseMatrix column index out of range");
+        }
+    };
+    /**
+     * Check that the row index is inside appropriate range
+     * @param index The row index
+     * @throws If index is out of range
+     */
+    DenseMatrix.prototype.checkRowRange = function (index) {
+        if (index < 0 || index >= this.shape[0]) {
+            throw new Error("DenseMatrix row index out of range");
+        }
+    };
+    return DenseMatrix;
+}());
+exports.DenseMatrix = DenseMatrix;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/DiagonalMatrix.ts":
+/*!*******************************************!*\
+  !*** ./src/mathematics/DiagonalMatrix.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * An identity matrix
+ */
+var DiagonalMatrix = /** @class */ (function () {
+    /**
+     * Create a Symmetric Matrix
+     * @param size The number of rows or the number columns
+     * @param data The matrix data in a flat vector
+     */
+    function DiagonalMatrix(size, data) {
+        this._shape = [size, size];
+        if (data) {
+            if (data.length !== size) {
+                throw new Error("Diagonal matrix constructor expect the data to have size length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            var n = size;
+            for (var i = 0; i < n; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(DiagonalMatrix.prototype, "shape", {
+        /**
+         * Returns the shape of the matrix : [number of rows, number of columns]
+         */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+ * Returns the value at a given row and column position
+ * @param row The row index
+ * @param column The column index
+ * @return Scalar
+ * @throws If an index is out of range
+ */
+    DiagonalMatrix.prototype.get = function (row, column) {
+        this.checkRange(row, column);
+        return this.data[row];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    DiagonalMatrix.prototype.set = function (row, column, value) {
+        this.checkRange(row, column);
+        this.data[row] = value;
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    DiagonalMatrix.prototype.checkRange = function (row, column) {
+        if (row < 0 || row >= this.shape[0] || row != column) {
+            throw new Error("DiagonalMatrix index is out of range");
+        }
+    };
+    return DiagonalMatrix;
+}());
+exports.DiagonalMatrix = DiagonalMatrix;
+function identityMatrix(n) {
+    var result = new DiagonalMatrix(n);
+    for (var i = 0; i < n; i += 1) {
+        result.set(i, i, 1);
+    }
+    return result;
+}
+exports.identityMatrix = identityMatrix;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/MathVectorBasicOperations.ts":
+/*!******************************************************!*\
+  !*** ./src/mathematics/MathVectorBasicOperations.ts ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
+var DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/mathematics/DenseMatrix.ts");
+/**
+ * Multiply a vector by a scalar
+ * @param vector vector
+ * @param value scalar
+ */
+function multiplyVectorByScalar(vector, value) {
+    var result = [];
+    for (var i = 0; i < vector.length; i += 1) {
+        result.push(vector[i] * value);
+    }
+    return result;
+}
+exports.multiplyVectorByScalar = multiplyVectorByScalar;
+/**
+ * Divide a vector by a scalar
+ * @param vector Vector
+ * @param value Scalar
+ * @throws If the scalar value is zero
+ */
+function divideVectorByScalar(vector, value) {
+    if (value === 0) {
+        throw new Error("Division by zero");
+    }
+    var result = [];
+    for (var i = 0; i < vector.length; i += 1) {
+        result.push(vector[i] / value);
+    }
+    return result;
+}
+exports.divideVectorByScalar = divideVectorByScalar;
+/**
+ * A standard function in basic linear algebra : y = ax + y
+ * @param a Scalar
+ * @param x Vector
+ * @param y Vector
+ * @throws If x and y have different length
+ */
+function saxpy(a, x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    for (var i = 0; i < x.length; i += 1) {
+        y[i] += a * x[i];
+    }
+}
+exports.saxpy = saxpy;
+/**
+ * A standard function in basic linear algebra : z = ax + y
+ * @param a Scalar
+ * @param x Vector
+ * @param y Vector
+ * @returns ax + y
+ * @throws If x and y have different length
+ */
+function saxpy2(a, x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    var result = [];
+    for (var i = 0; i < x.length; i += 1) {
+        result.push(a * x[i] + y[i]);
+    }
+    return result;
+}
+exports.saxpy2 = saxpy2;
+/**
+ * Compute the dot product of two vectors
+ * @param x Vector
+ * @param y Vector
+ * @return The scalar result
+ * @throws If x and y have different length
+ */
+function dotProduct(x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Making the dot product of two vectors of different length");
+    }
+    var result = 0;
+    for (var i = 0; i < x.length; i += 1) {
+        result += x[i] * y[i];
+    }
+    return result;
+}
+exports.dotProduct = dotProduct;
+/**
+ * Add two vectors
+ * @param x Vector
+ * @param y Vector
+ * @return Vector
+ * @throws If x and y have different length
+ */
+function addTwoVectors(x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    var result = [];
+    for (var i = 0; i < x.length; i += 1) {
+        result.push(x[i] + y[i]);
+    }
+    return result;
+}
+exports.addTwoVectors = addTwoVectors;
+/**
+ * Add the second vector to the first vector
+ * @param x Vector
+ * @param y Vector
+ * @throws If x and y have different length
+ */
+function addSecondVectorToFirst(x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    for (var i = 0; i < x.length; i += 1) {
+        x[i] += y[i];
+    }
+}
+exports.addSecondVectorToFirst = addSecondVectorToFirst;
+/**
+ * Compute the square of the norm
+ * @param v Vector
+ * @return Non negative scalar
+ */
+function squaredNorm(v) {
+    var result = 0;
+    for (var i = 0; i < v.length; i += 1) {
+        result += v[i] * v[i];
+    }
+    return result;
+}
+exports.squaredNorm = squaredNorm;
+/**
+ * Compute the norm
+ * @param v Vector
+ * @return Non negative scalar
+ */
+function norm(v) {
+    return Math.sqrt(squaredNorm(v));
+}
+exports.norm = norm;
+/**
+ * Compute the norm p = 1
+ * @param v Vector
+ * @return Non negative scalar
+ */
+function norm1(v) {
+    var result = 0;
+    for (var i = 0; i < v.length; i += 1) {
+        result += Math.abs(v[i]);
+    }
+    return result;
+}
+exports.norm1 = norm1;
+/**
+ * Create a zero vector of size n
+ * @param n Size
+ */
+function zeroVector(n) {
+    var result = [];
+    for (var i = 0; i < n; i += 1) {
+        result.push(0);
+    }
+    return result;
+}
+exports.zeroVector = zeroVector;
+;
+/**
+ * Compute the product of a vector and its transpose
+ * @param v Vector
+ */
+function product_v_vt(v) {
+    var n = v.length;
+    var result = new SquareMatrix_1.SquareMatrix(n);
+    for (var i = 0; i < n; i += 1) {
+        for (var j = 0; j < n; j += 1) {
+            result.set(i, j, v[i] * v[j]);
+        }
+    }
+    return result;
+}
+exports.product_v_vt = product_v_vt;
+/**
+ * Compute the product of a first vector with the transpose of a second vector
+ * @param v1 The first vector taken as a column vector
+ * @param v2 The second vector taken after transposition as a row vector
+ */
+function product_v1_v2t(v1, v2) {
+    var m = v1.length;
+    var n = v2.length;
+    var result = new DenseMatrix_1.DenseMatrix(m, n);
+    for (var i = 0; i < m; i += 1) {
+        for (var j = 0; j < n; j += 1) {
+            result.set(i, j, v1[i] * v2[j]);
+        }
+    }
+    return result;
+}
+exports.product_v1_v2t = product_v1_v2t;
+function isZeroVector(v) {
+    var n = v.length;
+    for (var i = 0; i < v.length; i += 1) {
+        if (v[i] !== 0) {
+            return false;
+        }
+    }
+    return true;
+}
+exports.isZeroVector = isZeroVector;
+/**
+ * Returns a vector filled with random values between 0 and 1
+ * @param n The size of the random vector
+ */
+function randomVector(n) {
+    var result = [];
+    for (var i = 0; i < n; i += 1) {
+        result.push((Math.random() - 0.5) * 10e8);
+        //result.push((Math.random())*10e8)
+    }
+    return result;
+}
+exports.randomVector = randomVector;
+function containsNaN(v) {
+    var n = v.length;
+    for (var i = 0; i < v.length; i += 1) {
+        if (isNaN(v[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+exports.containsNaN = containsNaN;
+/**
+ * Return the sign of a number.
+ * It returns 1 if the number is positive, -1 if the number is negative and 0 if it is zero or minus zero
+ * The standard Math.sign() function doesn't work with Windows Internet Explorer
+ * @param x Number
+ */
+function sign(x) {
+    return x ? x < 0 ? -1 : 1 : 0;
+}
+exports.sign = sign;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts":
+/*!****************************************************************************!*\
+  !*** ./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts ***!
+  \****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
+var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
+var DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/mathematics/DiagonalMatrix.ts");
+var DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/mathematics/DenseMatrix.ts");
+var SymmetricMatrix_1 = __webpack_require__(/*! ./SymmetricMatrix */ "./src/mathematics/SymmetricMatrix.ts");
+var ExpensiveComputationResults = /** @class */ (function () {
+    function ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4) {
+        this.bdsxu = bdsxu;
+        this.bdsyu = bdsyu;
+        this.bdsxuu = bdsxuu;
+        this.bdsyuu = bdsyuu;
+        this.bdsxuuu = bdsxuuu;
+        this.bdsyuuu = bdsyuuu;
+        this.h1 = h1;
+        this.h2 = h2;
+        this.h3 = h3;
+        this.h4 = h4;
+    }
+    return ExpensiveComputationResults;
+}());
+var ActiveControl;
+(function (ActiveControl) {
+    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
+    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
+    ActiveControl[ActiveControl["both"] = 2] = "both";
+})(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
+var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function () {
+    //public activeControl: ActiveControl = ActiveControl.both
+    function OptimizationProblem_BSpline_R1_to_R2_inflection(target, initial, activeControl) {
+        if (activeControl === void 0) { activeControl = ActiveControl.both; }
+        this.activeControl = activeControl;
+        this.curvatureExtremaConstraintsSign = [];
+        this.curvatureExtremaInactiveConstraints = [];
+        this.inflectionConstraintsSign = [];
+        this.inflectionInactiveConstraints = [];
+        //private _hessian_f: SymmetricMatrixInterface[] | undefined = undefined
+        this._hessian_f = undefined;
+        this.isComputingHessian = false;
+        this.Dh5xx = [];
+        this.Dh6_7xy = [];
+        this.Dh8_9xx = [];
+        this.Dh10_11xy = [];
+        this.spline = initial.clone();
+        this._target = target.clone();
+        var n = this.spline.controlPoints.length;
+        this._numberOfIndependentVariables = n * 2;
+        var diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
+        this.Dsu = [];
+        this.Dsuu = [];
+        this.Dsuuu = [];
+        for (var i = 0; i < n; i += 1) {
+            diracControlPoints[i] = 1;
+            var s = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(diracControlPoints.slice(), this.spline.knots.slice());
+            var su = s.derivative();
+            var suu = su.derivative();
+            var suuu = suu.derivative();
+            this.Dsu.push(new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(su.bernsteinDecomposition()));
+            this.Dsuu.push(new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(suu.bernsteinDecomposition()));
+            this.Dsuuu.push(new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(suuu.bernsteinDecomposition()));
+            diracControlPoints[i] = 0;
+        }
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this.numberOfIndependentVariables);
+        var e = this.expensiveComputation(this.spline);
+        var curvatureNumerator = this.curvatureNumerator(e.h4);
+        this.inflectionTotalNumberOfConstraints = curvatureNumerator.length;
+        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        this.curvatureExtremaTotalNumberOfConstraints = g.length;
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g);
+        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator);
+        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        if (this.isComputingHessian) {
+            this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu);
+            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        }
+    }
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "targetSpline", {
+        set: function (spline) {
+            this._target = spline;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "curvatureExtremaConstraintsFreeIndices", {
+        get: function () {
+            return this.curvatureExtremaInactiveConstraints;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "inflectionConstraintsFreeIndices", {
+        get: function () {
+            return this.inflectionInactiveConstraints;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "numberOfIndependentVariables", {
+        get: function () {
+            return this._numberOfIndependentVariables;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "numberOfConstraints", {
+        get: function () {
+            return this._curvatureExtremaNumberOfActiveConstraints + this._inflectionNumberOfActiveConstraints;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "f0", {
+        get: function () {
+            return this._f0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "gradient_f0", {
+        get: function () {
+            return this._gradient_f0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "hessian_f0", {
+        get: function () {
+            return this._hessian_f0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "f", {
+        get: function () {
+            if (MathVectorBasicOperations_1.containsNaN(this._f)) {
+                throw new Error("OptimizationProblem_BSpline_R1_to_R2 contains Nan in its f vector");
+            }
+            return this._f;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "gradient_f", {
+        get: function () {
+            return this._gradient_f;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "hessian_f", {
+        get: function () {
+            return this._hessian_f;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.step = function (deltaX) {
+        this.spline.optimizerStep(deltaX);
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        var e = this.expensiveComputation(this.spline);
+        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g);
+        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
+        var curvatureNumerator = this.curvatureNumerator(e.h4);
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator);
+        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        if (this.isComputingHessian) {
+            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        }
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.computeConstraintsSign = function (controlPoints) {
+        var result = [];
+        for (var i = 0, n = controlPoints.length; i < n; i += 1) {
+            if (controlPoints[i] > 0) {
+                result.push(-1);
+            }
+            else {
+                result.push(1);
+            }
+        }
+        //console.log(result.length)
+        return result;
+    };
+    /**
+     * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.
+     * A curvature extremum is located between two coefficient of different signs.
+     * For the general case, the smallest coefficient in absolute value is chosen to be free.
+     * For the specific case of two successive sign changes, the coefficient in the middle is chosen.
+     *
+     * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
+     * @param controlPoints The vector of value of the function: f_i
+     */
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
+        var result = [];
+        /*
+        let previousSign = constraintsSign[0];
+        for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
+            if (previousSign !== constraintsSign[i]) {
+                if (i + 1 < n - 1 && constraintsSign[i+1] !== constraintsSign[i]){
+                    result.push(i)
+                    i += 1
+                } else if (Math.pow(controlPoints[i - 1], 2) < Math.pow(controlPoints[i], 2)) {
+                    result.push(i - 1);
+                } else {
+                    result.push(i);
+                }
+            }
+            previousSign = constraintsSign[i];
+        }
+        */
+        //console.log(result)
+        var signChangesIntervals = [];
+        var previousSign = constraintsSign[0];
+        for (var i = 1, n = constraintsSign.length; i < n; i += 1) {
+            if (previousSign !== constraintsSign[i]) {
+                signChangesIntervals.push(i - 1);
+            }
+            previousSign = constraintsSign[i];
+        }
+        var identicalSuccessiveControlPoints = [];
+        for (var i = 0, n = constraintsSign.length; i < n - 1; i += 1) {
+            if (controlPoints[i] === controlPoints[i + 1]) {
+                identicalSuccessiveControlPoints.push(i);
+            }
+        }
+        for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1 && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                result.push(signChangesIntervals[i] + 1);
+                i += 1;
+            }
+            else {
+                if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                    result.push(signChangesIntervals[i]);
+                }
+                else {
+                    result.push(signChangesIntervals[i] + 1);
+                }
+            }
+        }
+        var result1 = [];
+        for (var i = 0, n = result.length; i < n; i += 1) {
+            if (result[i] !== 0 && controlPoints[result[i] - 1] === controlPoints[result[i]]) {
+                if (i == 0) {
+                    result1.push(result[i] - 1);
+                }
+                if (i !== 0 && result[i - 1] !== result[i] - 1) {
+                    result1.push(result[i] - 1);
+                }
+            }
+            result1.push(result[i]);
+            if (result[i] !== controlPoints.length - 2 && controlPoints[result[i]] === controlPoints[result[i] + 1]) {
+                if (i == result.length - 1) {
+                    result1.push(result[i] + 1);
+                }
+                if (i !== result.length - 1 && result[i + 1] !== result[i] + 1) {
+                    result1.push(result[i] + 1);
+                }
+            }
+        }
+        return result1;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_gradient_f0 = function (spline) {
+        var result = [];
+        var n = spline.controlPoints.length;
+        for (var i = 0; i < n; i += 1) {
+            result.push(spline.controlPoints[i].x - this._target.controlPoints[i].x);
+        }
+        for (var i = 0; i < n; i += 1) {
+            result.push(spline.controlPoints[i].y - this._target.controlPoints[i].y);
+        }
+        return result;
+    };
+    //f0: function to minimize
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_f0 = function (gradient_f0) {
+        var result = 0;
+        var n = gradient_f0.length;
+        for (var i = 0; i < n; i += 1) {
+            result += Math.pow(gradient_f0[i], 2);
+        }
+        return 0.5 * result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.curvatureNumerator = function (h4) {
+        return h4.flattenControlPointsArray();
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.curvatureDerivativeNumerator = function (h1, h2, h3, h4) {
+        var g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
+        var result = g.flattenControlPointsArray();
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.g = function () {
+        var e = this.expensiveComputation(this.spline);
+        return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.gradient_g = function () {
+        var e = this.expensiveComputation(this.spline);
+        return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_curvatureExtremaConstraints = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
+        var result = [];
+        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_inflectionConstraints = function (curvatureNumerator, constraintsSign, inactiveConstraints) {
+        var result = [];
+        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        //let result: number[] = []
+        if (this.activeControl === ActiveControl.both) {
+            var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+            return r1.concat(r2);
+        }
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.expensiveComputation = function (spline) {
+        var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots), sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots), sxu = sx.derivative(), syu = sy.derivative(), sxuu = sxu.derivative(), syuu = syu.derivative(), sxuuu = sxuu.derivative(), syuuu = syuu.derivative(), bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition()), bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition()), bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition()), bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition()), bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition()), bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition()), h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu)), h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu)), h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu)), h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
+        return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4);
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
+        var dgx = [];
+        var dgy = [];
+        var m = this.spline.controlPoints.length;
+        var n = this.curvatureExtremaTotalNumberOfConstraints;
+        var result = new DenseMatrix_1.DenseMatrix(n, 2 * m);
+        for (var i = 0; i < m; i += 1) {
+            var h5 = this.Dsu[i].multiply(sxu);
+            var h6 = this.Dsu[i].multiply(syuuu);
+            var h7 = syu.multiply(this.Dsuuu[i]).multiplyByScalar(-1);
+            var h8 = this.Dsu[i].multiply(sxuu);
+            var h9 = sxu.multiply(this.Dsuu[i]);
+            var h10 = this.Dsu[i].multiply(syuu);
+            var h11 = syu.multiply(this.Dsuu[i]).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < m; i += 1) {
+            var h5 = this.Dsu[i].multiply(syu);
+            var h6 = this.Dsu[i].multiply(sxuuu).multiplyByScalar(-1);
+            var h7 = sxu.multiply(this.Dsuuu[i]);
+            var h8 = this.Dsu[i].multiply(syuu);
+            var h9 = syu.multiply(this.Dsuu[i]);
+            var h10 = this.Dsu[i].multiply(sxuu).multiplyByScalar(-1);
+            var h11 = sxu.multiply(this.Dsuu[i]);
+            dgy.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < m; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            for (var j = 0; j < n; j += 1) {
+                result.set(j, i, cpx[j]);
+                result.set(j, m + i, cpy[j]);
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === ActiveControl.both) {
+            var m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+            var _a = m1.shape, row_m1 = _a[0], n = _a[1];
+            var row_m2 = m2.shape[0];
+            var m = row_m1 + row_m2;
+            var result = new DenseMatrix_1.DenseMatrix(m, n);
+            for (var i = 0; i < row_m1; i += 1) {
+                for (var j = 0; j < n; j += 1) {
+                    result.set(i, j, m1.get(i, j));
+                }
+            }
+            for (var i = 0; i < row_m2; i += 1) {
+                for (var j = 0; j < n; j += 1) {
+                    result.set(row_m1 + i, j, m2.get(i, j));
+                }
+            }
+            return result;
+        }
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_curvatureExtremaConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+        var sxu = e.bdsxu;
+        var sxuu = e.bdsxuu;
+        var sxuuu = e.bdsxuuu;
+        var syu = e.bdsyu;
+        var syuu = e.bdsyuu;
+        var syuuu = e.bdsyuuu;
+        var h1 = e.h1;
+        var h2 = e.h2;
+        var h3 = e.h3;
+        var h4 = e.h4;
+        var dgx = [];
+        var dgy = [];
+        var controlPointsLength = this.spline.controlPoints.length;
+        var totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints;
+        var degree = this.spline.degree;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h1_subset = h1.subset(start, lessThan);
+            var h2_subset = h2.subset(start, lessThan);
+            var h3_subset = h3.subset(start, lessThan);
+            var h4_subset = h4.subset(start, lessThan);
+            var h5 = this.Dsu[i].multiplyRange(sxu, start, lessThan);
+            var h6 = this.Dsu[i].multiplyRange(syuuu, start, lessThan);
+            var h7 = syu.multiplyRange(this.Dsuuu[i], start, lessThan).multiplyByScalar(-1);
+            var h8 = this.Dsu[i].multiplyRange(sxuu, start, lessThan);
+            var h9 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            var h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h1_subset = h1.subset(start, lessThan);
+            var h2_subset = h2.subset(start, lessThan);
+            var h3_subset = h3.subset(start, lessThan);
+            var h4_subset = h4.subset(start, lessThan);
+            var h5 = this.Dsu[i].multiplyRange(syu, start, lessThan);
+            var h6 = this.Dsu[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            var h7 = sxu.multiplyRange(this.Dsuuu[i], start, lessThan);
+            var h8 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
+            var h9 = syu.multiplyRange(this.Dsuu[i], start, lessThan);
+            var h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            var start = Math.max(0, i - degree) * (4 * degree - 5);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5);
+            var deltaj = 0;
+            for (var i_1 = 0; i_1 < inactiveConstraints.length; i_1 += 1) {
+                if (inactiveConstraints[i_1] >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (var j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_inflectionConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+        var sxu = e.bdsxu;
+        var sxuu = e.bdsxuu;
+        var syu = e.bdsyu;
+        var syuu = e.bdsyuu;
+        var dgx = [];
+        var dgy = [];
+        var controlPointsLength = this.spline.controlPoints.length;
+        //const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints
+        var degree = this.spline.degree;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h10.add(h11)));
+        }
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            dgy.push(h10.add(h11));
+        }
+        /*
+        const n = constraintsSign.length - inactiveConstraints.length
+
+        const m = this.spline.controlPoints.length
+
+        let result = new DenseMatrix(n, 2 * m)
+
+        for (let i = 0; i < m; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+            let deltaj = 0
+            for (let j = 0; j < constraintsSign.length; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1
+                } else {
+                    result.set(j-deltaj, i, cpx[j] * constraintsSign[j])
+                    result.set(j-deltaj, m + i, cpy[j] * constraintsSign[j])
+                }
+            }
+        }
+        */
+        var totalNumberOfConstraints = this.inflectionConstraintsSign.length;
+        var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            var start = Math.max(0, i - degree) * (2 * degree - 2);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2);
+            var deltaj = 0;
+            for (var i_2 = 0; i_2 < inactiveConstraints.length; i_2 += 1) {
+                if (inactiveConstraints[i_2] >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (var j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_hessian_f = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4, constraintsSign, inactiveConstraints) {
+        var n = this.spline.controlPoints.length;
+        var result = [];
+        var h5x = [];
+        var h5y = [];
+        var h6x = [];
+        var h6y = [];
+        var h7x = [];
+        var h7y = [];
+        var h8x = [];
+        var h8y = [];
+        var h9x = [];
+        var h9y = [];
+        var h10x = [];
+        var h10y = [];
+        var h11x = [];
+        var h11y = [];
+        var hessian_gxx = [];
+        var hessian_gyy = [];
+        var hessian_gxy = [];
+        for (var i = 0; i < n; i += 1) {
+            hessian_gxx.push([]);
+            hessian_gyy.push([]);
+            hessian_gxy.push([]);
+        }
+        for (var i = 0; i < n; i += 1) {
+            h5x.push(this.Dsu[i].multiply(sxu));
+            h6x.push(this.Dsu[i].multiply(syuuu));
+            h7x.push(syu.multiply(this.Dsuuu[i]).multiplyByScalar(-1));
+            h8x.push(this.Dsu[i].multiply(sxuu));
+            h9x.push(sxu.multiply(this.Dsuu[i]));
+            h10x.push(this.Dsu[i].multiply(syuu));
+            h11x.push(syu.multiply(this.Dsuu[i]).multiplyByScalar(-1));
+        }
+        for (var i = 0; i < n; i += 1) {
+            h5y.push(this.Dsu[i].multiply(syu));
+            h6y.push(this.Dsu[i].multiply(sxuuu).multiplyByScalar(-1));
+            h7y.push(sxu.multiply(this.Dsuuu[i]));
+            h8y.push(this.Dsu[i].multiply(syuu));
+            h9y.push(syu.multiply(this.Dsuu[i]));
+            h10y.push(this.Dsu[i].multiply(sxuu).multiplyByScalar(-1));
+            h11y.push(sxu.multiply(this.Dsuu[i]));
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j <= i; j += 1) {
+                var term1 = this.Dh5xx[i][j].multiply(h2).multiplyByScalar(2);
+                var term2xx = ((h5x[j].multiply(h6x[i].add(h7x[i]))).add(h5x[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2);
+                var term2yy = ((h5y[j].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6y[j].add(h7y[j]))))).multiplyByScalar(2);
+                // term3 = 0
+                var term4 = this.Dh8_9xx[i][j].multiply(h4).multiplyByScalar(-3);
+                var term5xx = (((h8x[j].add(h9x[j])).multiply(h10x[i].add(h11x[i]))).add((h8x[i].add(h9x[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3);
+                var term5yy = (((h8y[j].add(h9y[j])).multiply(h10y[i].add(h11y[i]))).add((h8y[i].add(h9y[i])).multiply((h10y[j].add(h11y[j]))))).multiplyByScalar(-3);
+                // term 6 = 0
+                hessian_gxx[i][j] = (term1.add(term2xx).add(term4).add(term5xx)).flattenControlPointsArray();
+                hessian_gyy[i][j] = (term1.add(term2yy).add(term4).add(term5yy)).flattenControlPointsArray();
+            }
+        }
+        for (var i = 1; i < n; i += 1) {
+            for (var j = 0; j < i; j += 1) {
+                // term1 = 0
+                var term2xy = ((h5x[j].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2);
+                var term3 = this.Dh6_7xy[j][i].multiply(h1).multiplyByScalar(-1); //Dh_6_7xy is antisymmetric
+                // term4 = 0
+                var term5xy = (((h8x[j].add(h9x[j])).multiply((h10y[i].add(h11y[i])))).add((h8y[i].add(h9y[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3);
+                var term6 = this.Dh10_11xy[j][i].multiply(h3).multiplyByScalar(3); //Dh_10_11xy is antisymmetric
+                hessian_gxy[i][j] = (term2xy.add(term3).add(term5xy).add(term6)).flattenControlPointsArray();
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = i + 1; j < n; j += 1) {
+                // term1 = 0
+                var term2xy = ((h5x[j].multiply((h6y[i].add(h7y[i])))).add(h5y[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2);
+                var term3 = this.Dh6_7xy[i][j].multiply(h1); //Dh_6_7xy is antisymmetric
+                // term4 = 0
+                var term5xy = (((h8x[j].add(h9x[j])).multiply((h10y[i].add(h11y[i])))).add((h8y[i].add(h9y[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3);
+                var term6 = this.Dh10_11xy[i][j].multiply(h3).multiplyByScalar(-3); //Dh_10_11xy is antisymmetric
+                hessian_gxy[i][j] = (term2xy.add(term3).add(term5xy).add(term6)).flattenControlPointsArray();
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            // term1 = 0
+            var term2xy = ((h5x[i].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6x[i].add(h7x[i]))))).multiplyByScalar(2);
+            //const term3 = this.Dh6_7xy[i][i].multiply(h1)
+            // term3 = 0
+            // term4 = 0
+            var term5xy = (((h8y[i].add(h9y[i])).multiply((h10x[i].add(h11x[i])))).add((h8x[i].add(h9x[i])).multiply(h10y[i].add(h11y[i])))).multiplyByScalar(-3);
+            // term6 = 0
+            hessian_gxy[i][i] = (term2xy.add(term5xy)).flattenControlPointsArray();
+        }
+        var deltak = 0;
+        for (var k = 0; k < constraintsSign.length; k += 1) {
+            if (k === inactiveConstraints[deltak]) {
+                deltak += 1;
+            }
+            else {
+                var m = new SymmetricMatrix_1.SymmetricMatrix(2 * n);
+                for (var i = 0; i < n; i += 1) {
+                    for (var j = 0; j <= i; j += 1) {
+                        m.set(i, j, hessian_gxx[i][j][k] * constraintsSign[k]);
+                        m.set(n + i, n + j, hessian_gyy[i][j][k] * constraintsSign[k]);
+                    }
+                }
+                for (var i = 0; i < n; i += 1) {
+                    for (var j = 0; j < n; j += 1) {
+                        m.set(n + i, j, hessian_gxy[i][j][k] * constraintsSign[k]);
+                    }
+                }
+                result.push(m);
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.prepareForHessianComputation = function (Dsu, Dsuu, Dsuuu) {
+        var n = this.spline.controlPoints.length;
+        for (var i = 0; i < n; i += 1) {
+            this.Dh5xx.push([]);
+            this.Dh6_7xy.push([]);
+            this.Dh8_9xx.push([]);
+            this.Dh10_11xy.push([]);
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j <= i; j += 1) {
+                this.Dh5xx[i][j] = Dsu[i].multiply(Dsu[j]);
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < n; j += 1) {
+                this.Dh6_7xy[i][j] = (Dsu[i].multiply(Dsuuu[j])).subtract(Dsu[j].multiply(Dsuuu[i]));
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j <= i; j += 1) {
+                this.Dh8_9xx[i][j] = (Dsu[i].multiply(Dsuu[j])).add(Dsu[j].multiply(Dsuu[i]));
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < n; j += 1) {
+                this.Dh10_11xy[i][j] = (Dsu[i].multiply(Dsuu[j])).subtract(Dsu[j].multiply(Dsuu[i]));
+            }
+        }
+    };
+    /**
+     * The vector of constraint functions values: f(x + step)
+     */
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.fStep = function (step) {
+        var splineTemp = this.spline.clone();
+        splineTemp.optimizerStep(step);
+        var e = this.expensiveComputation(splineTemp);
+        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        var curvatureNumerator = this.curvatureNumerator(e.h4);
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+    };
+    /**
+     * The objective function value: f0(x + step)
+     */
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.f0Step = function (step) {
+        var splineTemp = this.spline.clone();
+        splineTemp.optimizerStep(step);
+        return this.compute_f0(this.compute_gradient_f0(splineTemp));
+    };
+    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.setTargetSpline = function (spline) {
+        this._target = spline.clone();
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._f0 = this.compute_f0(this.gradient_f0);
+    };
+    return OptimizationProblem_BSpline_R1_to_R2_inflection;
+}());
+exports.OptimizationProblem_BSpline_R1_to_R2_inflection = OptimizationProblem_BSpline_R1_to_R2_inflection;
+/*
+export class OptimizationProblem_BSpline_R1_to_R2_free_of_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
+
+    get numberOfConstraints() {
+        return 1
+    }
+
+    get f() {
+        return [-1]
+    }
+
+    get gradient_f() {
+        return new DenseMatrix(1, this.numberOfIndependentVariables)
+    }
+
+    get hessian_f() {
+        return undefined
+    }
+
+    fStep(step: number[]) {
+        return [-1]
+    }
+
+    step(deltaX: number[]) {
+        this.spline.optimizerStep(deltaX)
+        this._gradient_f0 = this.compute_gradient_f0(this.spline)
+        this._f0 = this.compute_f0(this.gradient_f0)
+    }
+    
+}
+*/
+var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(target, initial, activeControl) {
+        if (activeControl === void 0) { activeControl = ActiveControl.both; }
+        var _this = _super.call(this, target, initial, activeControl) || this;
+        _this.activeControl = activeControl;
+        _this.weigthingFactors = [];
+        for (var i = 0; i < _this.spline.controlPoints.length * 2; i += 1) {
+            _this.weigthingFactors.push(1);
+        }
+        return _this;
+    }
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "f0", {
+        get: function () {
+            var result = 0;
+            var n = this._gradient_f0.length;
+            for (var i = 0; i < n; i += 1) {
+                result += Math.pow(this._gradient_f0[i], 2) * this.weigthingFactors[i];
+            }
+            return 0.5 * result;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "gradient_f0", {
+        get: function () {
+            var result = [];
+            var n = this._gradient_f0.length;
+            for (var i = 0; i < n; i += 1) {
+                result.push(this._gradient_f0[i] * this.weigthingFactors[i]);
+            }
+            return result;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "hessian_f0", {
+        get: function () {
+            var n = this._gradient_f0.length;
+            var result = new DiagonalMatrix_1.DiagonalMatrix(n);
+            for (var i = 0; i < n; i += 1) {
+                result.set(i, i, this.weigthingFactors[i]);
+            }
+            return result;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * The objective function value: f0(x + step)
+     */
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype.f0Step = function (step) {
+        var splineTemp = this.spline.clone();
+        splineTemp.optimizerStep(step);
+        var gradient = this.compute_gradient_f0(splineTemp);
+        var n = gradient.length;
+        var result = 0;
+        for (var i = 0; i < n; i += 1) {
+            result += Math.pow(gradient[i], 2) * this.weigthingFactors[i];
+        }
+        return 0.5 * result;
+    };
+    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection;
+}(OptimizationProblem_BSpline_R1_to_R2_inflection));
+exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection;
+var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(target, initial) {
+        return _super.call(this, target, initial) || this;
+    }
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
+        return [];
+    };
+    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection;
+}(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection));
+exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection;
+var OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection(target, initial) {
+        return _super.call(this, target, initial) || this;
+    }
+    OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
+        return [];
+    };
+    return OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection;
+}(OptimizationProblem_BSpline_R1_to_R2_inflection));
+exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection = OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/Optimizer.ts":
+/*!**************************************!*\
+  !*** ./src/mathematics/Optimizer.ts ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var TrustRegionSubproblem_1 = __webpack_require__(/*! ./TrustRegionSubproblem */ "./src/mathematics/TrustRegionSubproblem.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_2 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_3 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var SymmetricMatrix_1 = __webpack_require__(/*! ./SymmetricMatrix */ "./src/mathematics/SymmetricMatrix.ts");
+var CholeskyDecomposition_1 = __webpack_require__(/*! ./CholeskyDecomposition */ "./src/mathematics/CholeskyDecomposition.ts");
+var Optimizer = /** @class */ (function () {
+    function Optimizer(o) {
+        this.o = o;
+        this.success = false;
+        if (this.o.f.length !== this.o.gradient_f.shape[0]) {
+            console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor");
+        }
+    }
+    Optimizer.prototype.optimize_using_trust_region = function (epsilon, maxTrustRadius, maxNumSteps) {
+        if (epsilon === void 0) { epsilon = 10e-8; }
+        if (maxTrustRadius === void 0) { maxTrustRadius = 10; }
+        if (maxNumSteps === void 0) { maxNumSteps = 800; }
+        this.success = false;
+        // Bibliographic reference: Numerical Optimization, second edition, Jorge Nocedal and Stephen J. Wright, p. 69
+        var numSteps = 0;
+        //let numGradientComputation = 0
+        var t = this.o.numberOfConstraints / this.o.f0;
+        var trustRadius = 9;
+        var rho;
+        var eta = 0.1; // [0, 1/4)
+        var mu = 10; // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
+        while (this.o.numberOfConstraints / t > epsilon) {
+            while (true) {
+                numSteps += 1;
+                //console.log("number of steps")
+                //console.log(numSteps) 
+                if (this.o.f.length !== this.o.gradient_f.shape[0]) {
+                    console.log("Problem about f length and gradient_f shape 0 is in the function optimize_using_trust_region");
+                }
+                var b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f);
+                var gradient = MathVectorBasicOperations_2.saxpy2(t, this.o.gradient_f0, b.gradient);
+                var hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t);
+                var trustRegionSubproblem = new TrustRegionSubproblem_1.TrustRegionSubproblem(gradient, hessian);
+                var tr = trustRegionSubproblem.solve(trustRadius);
+                var fStep = this.o.fStep(tr.step);
+                var numSteps2 = 0;
+                while (Math.max.apply(null, fStep) >= 0) {
+                    numSteps2 += 1;
+                    trustRadius *= 0.25;
+                    tr = trustRegionSubproblem.solve(trustRadius);
+                    //numGradientComputation += 1;
+                    fStep = this.o.fStep(tr.step);
+                    if (numSteps2 > 100) {
+                        throw new Error("maxSteps2 > 100");
+                    }
+                }
+                var barrierValueStep = this.barrierValue(fStep);
+                var actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep);
+                var predictedReduction = -MathVectorBasicOperations_1.dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
+                rho = actualReduction / predictedReduction;
+                if (rho < 0.25) {
+                    trustRadius *= 0.25;
+                }
+                else if (rho > 0.75 && tr.hitsBoundary) {
+                    trustRadius = Math.min(2 * trustRadius, maxTrustRadius);
+                }
+                if (rho > eta) {
+                    //numGradientComputation += 1;
+                    //console.log("number of gradient computation")
+                    //console.log(numGradientComputation) 
+                    //numGradientComputation = 0
+                    this.o.step(tr.step);
+                }
+                if (numSteps > maxNumSteps) {
+                    //throw new Error("numSteps > maxNumSteps")
+                    //break;
+                    return;
+                }
+                var newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
+                if (newtonDecrementSquared < 0) {
+                    throw new Error("newtonDecrementSquared is smaller than zero");
+                }
+                //if (newtonDecrementSquared < epsilon && !tr.hitsBoundary) {
+                if (newtonDecrementSquared < epsilon) {
+                    //console.log('break newtonDecrementSquared < epsilon && !hitsBoundary');
+                    break;
+                }
+                if (trustRadius < 10e-18) {
+                    //console.log('trustRadius < 10e-10');
+                    console.log(b);
+                    throw new Error("trust Radius < 10e-18");
+                    //break;
+                }
+            }
+            t *= mu;
+        }
+        //if (numSteps === maxNumSteps) {
+        //    return -1;
+        //}
+        //console.log(numSteps)
+        this.success = true;
+    };
+    Optimizer.prototype.optimize_using_line_search = function (epsilon, maxNumSteps) {
+        if (epsilon === void 0) { epsilon = 10e-6; }
+        if (maxNumSteps === void 0) { maxNumSteps = 300; }
+        // Bibliographic reference: Numerical Optimization, second edition, Jorge Nocedal and Stephen J. Wright, p. 69
+        var numSteps = 0;
+        var t = this.o.numberOfConstraints / this.o.f0;
+        var rho;
+        var eta = 0.1; // [0, 1/4)
+        var mu = 10; // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
+        while (this.o.numberOfConstraints / t > epsilon) {
+            while (true) {
+                numSteps += 1;
+                //console.log(numSteps) 
+                var b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f);
+                var gradient = MathVectorBasicOperations_2.saxpy2(t, this.o.gradient_f0, b.gradient);
+                var hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t);
+                var newtonStep = this.computeNewtonStep(gradient, hessian);
+                var stepRatio = this.backtrackingLineSearch(t, newtonStep, this.o.f0, b.value, this.o.gradient_f0, b.gradient);
+                if (stepRatio < 1) {
+                    //console.log(stepRatio)
+                }
+                var step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, stepRatio);
+                /*
+                if (Math.max(...this.o.fStep(step)) > 0) {
+                    console.log(Math.max(...this.o.fStep(step)))
+                }
+                */
+                //console.log(Math.max(...this.o.fStep(step)))
+                /*
+                if (Math.max(...this.o.fStep(step)) < 0) {
+                    this.o.step(step)
+                }
+                */
+                this.o.step(step);
+                if (numSteps > maxNumSteps) {
+                    //throw new Error("numSteps > maxNumSteps")
+                    //break;
+                    console.log("numSteps > maxNumSteps");
+                    return;
+                }
+                var newtonDecrementSquared = this.newtonDecrementSquared(step, t, this.o.gradient_f0, b.gradient);
+                if (newtonDecrementSquared < 0) {
+                    throw new Error("newtonDecrementSquared is smaller than zero");
+                }
+                //if (newtonDecrementSquared < epsilon && !tr.hitsBoundary) {
+                if (newtonDecrementSquared < epsilon) {
+                    //console.log('break newtonDecrementSquared < epsilon && !hitsBoundary');
+                    //console.log(numSteps)
+                    break;
+                }
+            }
+            t *= mu;
+            //console.log(t)
+        }
+        //if (numSteps === maxNumSteps) {
+        //    return -1;
+        //}
+        //console.log(numSteps)
+    };
+    Optimizer.prototype.newtonDecrementSquared = function (newtonStep, t, gradient_f0, barrierGradient) {
+        return -MathVectorBasicOperations_1.dotProduct(MathVectorBasicOperations_2.saxpy2(t, gradient_f0, barrierGradient), newtonStep);
+    };
+    Optimizer.prototype.barrierValue = function (f) {
+        //console.log(f)
+        var result = 0;
+        var n = f.length;
+        for (var i = 0; i < n; i += 1) {
+            result -= Math.log(-f[i]);
+        }
+        return result;
+    };
+    Optimizer.prototype.barrierGradient = function (f, gradient_f) {
+        var result = MathVectorBasicOperations_3.zeroVector(gradient_f.shape[1]);
+        var n = f.length;
+        var m = gradient_f.shape[1];
+        if (n !== gradient_f.shape[0]) {
+            throw new Error("barrierGradient f and gradient_f dimensions do not match");
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < m; j += 1) {
+                if (f[i] === 0) {
+                    throw new Error("barrierGradient makes a division by zero");
+                }
+                result[j] += -gradient_f.get(i, j) / f[i];
+                //console.log(result[j])
+            }
+        }
+        //console.log(gradient_f)
+        //console.log(result)
+        return result;
+    };
+    Optimizer.prototype.barrierHessian = function (f, gradient_f, hessian_f) {
+        // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 564
+        var m = gradient_f.shape[0];
+        var n = gradient_f.shape[1];
+        var result = new SymmetricMatrix_1.SymmetricMatrix(n);
+        // barrier hessian first term
+        for (var i = 0; i < m; i += 1) {
+            for (var k = 0; k < n; k += 1) {
+                for (var l = 0; l <= k; l += 1) {
+                    result.addAt(k, l, gradient_f.get(i, k) * gradient_f.get(i, l) / (f[i] * f[i]));
+                }
+            }
+        }
+        // barrier hessian second term
+        if (hessian_f) {
+            for (var i = 0; i < n; i += 1) {
+                for (var j = 0; j <= i; j += 1) {
+                    for (var k = 0; k < f.length; k += 1) {
+                        result.addAt(i, j, -hessian_f[k].get(i, j) / f[k]);
+                    }
+                }
+            }
+        }
+        return result;
+    };
+    Optimizer.prototype.barrier = function (f, gradient_f, hessian_f) {
+        /*
+        if (f.length !== gradient_f.shape[0]) {
+            console.log("Problem about f length and gradient_f shape 0 is in Optimizer in the function barrier")
+        }
+        */
+        return { value: this.barrierValue(f),
+            gradient: this.barrierGradient(f, gradient_f),
+            hessian: this.barrierHessian(f, gradient_f, hessian_f)
+        };
+    };
+    Optimizer.prototype.backtrackingLineSearch = function (t, newtonStep, f0, barrierValue, gradient_f0, barrierGradient) {
+        var alpha = 0.2;
+        var beta = 0.5;
+        var result = 1;
+        var step = newtonStep.slice();
+        while (Math.max.apply(Math, this.o.fStep(step)) > 0) {
+            result *= beta;
+            //console.log(Math.max(...this.o.fStep(step)))
+            step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, result);
+        }
+        while (t * this.o.f0Step(step) + this.barrierValue(this.o.fStep(step)) > t * f0 + barrierValue
+            + alpha * result * MathVectorBasicOperations_1.dotProduct(MathVectorBasicOperations_1.addTwoVectors(MathVectorBasicOperations_1.multiplyVectorByScalar(gradient_f0, t), barrierGradient), newtonStep)) {
+            result *= beta;
+            step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, result);
+        }
+        return result;
+    };
+    Optimizer.prototype.computeNewtonStep = function (gradient, hessian) {
+        var choleskyDecomposition = new CholeskyDecomposition_1.CholeskyDecomposition(hessian);
+        if (choleskyDecomposition.success === false) {
+            console.log("choleskyDecomposition failed");
+        }
+        return choleskyDecomposition.solve(MathVectorBasicOperations_1.multiplyVectorByScalar(gradient, -1));
+    };
+    return Optimizer;
+}());
+exports.Optimizer = Optimizer;
+
+
+/***/ }),
+
 /***/ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts":
 /*!****************************************************!*\
   !*** ./src/mathematics/Piegl_Tiller_NURBS_Book.ts ***!
@@ -1242,6 +3047,946 @@ function decomposeFunction(spline) {
     return result;
 }
 exports.decomposeFunction = decomposeFunction;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/SquareMatrix.ts":
+/*!*****************************************!*\
+  !*** ./src/mathematics/SquareMatrix.ts ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * A square matrix
+ */
+var SquareMatrix = /** @class */ (function () {
+    /**
+     * Create a square matrix
+     * @param size Number of row and column
+     * @param data A row after row flat array
+     * @throws If data length is not equal to size*size
+     */
+    function SquareMatrix(size, data) {
+        this._shape = [size, size];
+        if (data) {
+            if (data.length !== size * size) {
+                throw new Error("Square matrix constructor expect the data to have size*size length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            for (var i = 0; i < this.shape[0] * this.shape[1]; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(SquareMatrix.prototype, "shape", {
+        /**
+         * Returns the shape of the matrix : [number of rows, number of columns]
+         */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Return the corresponding index in the flat row by row data vector
+     * @param row The row index
+     * @param column The column index
+     */
+    SquareMatrix.prototype.dataIndex = function (row, column) {
+        var n = row * this._shape[1] + column;
+        return n;
+    };
+    /**
+     * Return the value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @return Scalar
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.get = function (row, column) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        return this.data[this.dataIndex(row, column)];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.set = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] = value;
+    };
+    /**
+     * Change the value of the matrix at a given row and column position by this value divided by the divisor value
+     * @param row The row index
+     * @param column The column index
+     * @param divisor The divisor value
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.divideAt = function (row, column, divisor) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] /= divisor;
+    };
+    /**
+     * Change the value of the matrix at a given row and column position by this value substracted by the subtrahend value
+     * @param row The row index
+     * @param column The column index
+     * @param divisor The divisor value
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.substractAt = function (row, column, subtrahend) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] -= subtrahend;
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.checkRowRange = function (index) {
+        if (index < 0 || index >= this.shape[0]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.checkColumnRange = function (index) {
+        if (index < 0 || index >= this.shape[1]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+     * Multiply two matrices
+     * @param that A square or a symmetric matrix
+     * @return a square matrix
+     */
+    SquareMatrix.prototype.multiplyByMatrix = function (that) {
+        if (this.shape[1] !== that.shape[0]) {
+            throw new Error("Size mismatch in matrix multiplication");
+        }
+        var result = new SquareMatrix(this.shape[1]);
+        for (var i = 0; i < this.shape[0]; i += 1) {
+            for (var j = 0; j < this.shape[0]; j += 1) {
+                var temp = 0;
+                for (var k = 0; k < this.shape[0]; k += 1) {
+                    temp += this.get(i, k) * that.get(k, j);
+                }
+                result.set(i, j, temp);
+            }
+        }
+        return result;
+    };
+    return SquareMatrix;
+}());
+exports.SquareMatrix = SquareMatrix;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/SymmetricMatrix.ts":
+/*!********************************************!*\
+  !*** ./src/mathematics/SymmetricMatrix.ts ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
+var DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/mathematics/DiagonalMatrix.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+/**
+ * A symmetric matrix
+ */
+var SymmetricMatrix = /** @class */ (function () {
+    /**
+     * Create a Symmetric Matrix
+     * @param size The number of rows or the number columns
+     * @param data The matrix data in a flat vector
+     */
+    function SymmetricMatrix(size, data) {
+        this._shape = [size, size];
+        if (data) {
+            if (data.length !== size * (size + 1) / 2) {
+                throw new Error("Square matrix constructor expect the data to have (size * (size + 1) / 2) length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            var n = (size * (size + 1)) / 2;
+            for (var i = 0; i < n; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(SymmetricMatrix.prototype, "shape", {
+        /**
+        * Returns the shape of the matrix : [number of rows, number of columns]
+        */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Returns the corresponding index in the flat data vector.
+     * In this flat data vector the upper triangular matrix is store row-wise.
+     * @param row The row index
+     * @param column The column index
+     */
+    SymmetricMatrix.prototype.dataIndex = function (row, column) {
+        if (row <= column) {
+            return row * this.shape[1] - (row - 1) * row / 2 + column - row;
+        }
+        return column * this.shape[0] - (column - 1) * column / 2 + row - column;
+    };
+    /**
+     * Returns the value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @return Scalar
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.get = function (row, column) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        return this.data[this.dataIndex(row, column)];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.set = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] = value;
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.checkRowRange = function (index) {
+        if (index < 0 || index >= this.shape[0]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+ * Check that the index is inside appropriate range
+ * @param index The column or the row index
+ * @throws If an index is out of range
+ */
+    SymmetricMatrix.prototype.checkColumnRange = function (index) {
+        if (index < 0 || index >= this.shape[1]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+     * Compute the product v^t M v
+     * @param v Vector
+     * @return Scalar
+     */
+    SymmetricMatrix.prototype.quadraticForm = function (v) {
+        var result = 0;
+        for (var i = 1; i < this.shape[1]; i += 1) {
+            for (var j = 0; j < i; j += 1) {
+                result += this.get(i, j) * v[i] * v[j];
+            }
+        }
+        result *= 2;
+        for (var i = 0; i < this.shape[1]; i += 1) {
+            result += this.get(i, i) * Math.pow(v[i], 2);
+        }
+        return result;
+    };
+    /**
+     * Return a safe copy of this matrix
+     * */
+    SymmetricMatrix.prototype.clone = function () {
+        return new SymmetricMatrix(this.shape[0], this.data);
+    };
+    /**
+     * Increases the given element of the matrix by the value
+     * @param row The row index
+     * @param column The column index
+     * @param value The number to be added
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.addAt = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(row);
+        this.data[this.dataIndex(row, column)] += value;
+    };
+    /**
+     * Increases every diagonal element of the matrix by the value
+     * @param value The number to be added
+     */
+    SymmetricMatrix.prototype.addValueOnDiagonalInPlace = function (value) {
+        var m = this.shape[0];
+        for (var i = 0; i < m; i += 1) {
+            this.data[this.dataIndex(i, i)] += value;
+        }
+    };
+    /**
+     * Returns the new matrix: this.matrix + value * I
+     * @param value
+     * @returns SymmetricMatrix
+     */
+    SymmetricMatrix.prototype.addValueOnDiagonal = function (value) {
+        var result = this.clone();
+        result.addValueOnDiagonalInPlace(value);
+        return result;
+    };
+    /**
+     * Returns a SquareMatrix with the values of this matrix
+     */
+    SymmetricMatrix.prototype.squareMatrix = function () {
+        var n = this.shape[0];
+        var result = new SquareMatrix_1.SquareMatrix(n);
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < n; j += 1) {
+                result.set(i, j, this.get(i, j));
+            }
+        }
+        return result;
+    };
+    SymmetricMatrix.prototype.plusSymmetricMatrixMultipliedByValue = function (matrix, value) {
+        if (this.shape[0] !== matrix.shape[0]) {
+            throw new Error("Adding two symmetric matrix with different shapes");
+        }
+        var result = this.clone();
+        var n = result.shape[0];
+        if (matrix instanceof DiagonalMatrix_1.DiagonalMatrix) {
+            for (var i = 0; i < n; i += 1) {
+                result.addAt(i, i, matrix.get(i, i) * value);
+            }
+            return result;
+        }
+        else {
+            for (var i = 0; i < n; i += 1) {
+                for (var j = 0; j <= i; j += 1) {
+                    result.addAt(i, j, matrix.get(i, j) * value);
+                }
+            }
+            return result;
+        }
+    };
+    SymmetricMatrix.prototype.multiplyByVector = function (v) {
+        if (this.shape[1] !== v.length) {
+            throw new Error("SymmetricMatrix multiply a vector of incorrect length");
+        }
+        var result = [];
+        var n = this.shape[1];
+        for (var i = 0; i < n; i += 1) {
+            var temp = 0;
+            for (var j = 0; j < n; j += 1) {
+                temp += this.get(i, j) * v[j];
+            }
+            result.push(temp);
+        }
+        return result;
+    };
+    SymmetricMatrix.prototype.containsNaN = function () {
+        return MathVectorBasicOperations_1.containsNaN(this.data);
+    };
+    return SymmetricMatrix;
+}());
+exports.SymmetricMatrix = SymmetricMatrix;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/TrustRegionSubproblem.ts":
+/*!**************************************************!*\
+  !*** ./src/mathematics/TrustRegionSubproblem.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_2 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_3 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_4 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_5 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_6 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_7 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_8 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_9 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
+var CholeskyDecomposition_1 = __webpack_require__(/*! ./CholeskyDecomposition */ "./src/mathematics/CholeskyDecomposition.ts");
+// Bibliographic Reference: Trust-Region Methods, Conn, Gould and Toint p. 187
+// note: lambda is never negative
+var lambdaRange;
+(function (lambdaRange) {
+    lambdaRange[lambdaRange["N"] = 0] = "N";
+    lambdaRange[lambdaRange["L"] = 1] = "L";
+    lambdaRange[lambdaRange["G"] = 2] = "G";
+    lambdaRange[lambdaRange["F"] = 3] = "F";
+})(lambdaRange || (lambdaRange = {}));
+/**
+ * A trust region subproblem solver
+ */
+var TrustRegionSubproblem = /** @class */ (function () {
+    /**
+     * Create the trust region subproblem solver
+     * @param gradient The gradient of the objective function to minimize
+     * @param hessian The hessian of the objective function to minimize
+     * @param k_easy Optional value in the range (0, 1)
+     * @param k_hard Optional value in the range (0, 1)
+     */
+    function TrustRegionSubproblem(gradient, hessian, k_easy, k_hard) {
+        if (k_easy === void 0) { k_easy = 0.1; }
+        if (k_hard === void 0) { k_hard = 0.2; }
+        this.gradient = gradient;
+        this.hessian = hessian;
+        this.k_easy = k_easy;
+        this.k_hard = k_hard;
+        this.CLOSE_TO_ZERO = 10e-8;
+        this.numberOfIterations = 0;
+        this.lambda = { current: 0, lowerBound: 0, upperBound: 0 };
+        this.hitsBoundary = true;
+        this.step = [];
+        this.stepSquaredNorm = 0;
+        this.stepNorm = 0;
+        this.range = lambdaRange.F;
+        this.lambdaPlus = 0;
+        this.hardCase = false;
+        this.gNorm = MathVectorBasicOperations_1.norm(this.gradient);
+        if (MathVectorBasicOperations_1.containsNaN(gradient)) {
+            throw new Error("The gradient parameter passed to the TrustRegionSubproblem constructor contains NaN");
+        }
+        if (hessian.containsNaN()) {
+            throw new Error("The hessian parameter passed to the TrustRegionSubproblem to constructor contains NaN");
+        }
+        this.cauchyPoint = MathVectorBasicOperations_8.zeroVector(this.gradient.length);
+    }
+    /**
+     * Find the nearly exact trust region subproblem minimizer
+     * @param trustRegionRadius The trust region radius
+     * @returns The vector .step and the boolean .hitsBoundary
+     */
+    TrustRegionSubproblem.prototype.solve = function (trustRegionRadius) {
+        // Bibliographic Reference: Trust-Region Methods, Conn, Gould and Toint p. 193
+        // see also the list of errata: ftp://ftp.numerical.rl.ac.uk/pub/trbook/trbook-errata.pdf for Algorithm 7.3.4 Step 1a
+        this.cauchyPoint = this.computeCauchyPoint(trustRegionRadius);
+        this.lambda = this.initialLambdas(trustRegionRadius);
+        this.numberOfIterations = 0;
+        var maxNumberOfIterations = 300;
+        while (true) {
+            this.numberOfIterations += 1;
+            // step 1.
+            var hessianPlusLambda = this.hessian.addValueOnDiagonal(this.lambda.current);
+            var choleskyDecomposition = new CholeskyDecomposition_1.CholeskyDecomposition(hessianPlusLambda);
+            //We have found the exact lambda, however the hessian is indefinite
+            //The idea is then to find an approximate solution increasing the lambda value by EPSILON
+            if (this.lambda.upperBound === this.lambda.lowerBound && !choleskyDecomposition.success) {
+                var EPSILON = 10e-6;
+                this.lambda.upperBound += EPSILON;
+                this.lambda.current += EPSILON;
+                hessianPlusLambda = this.hessian.addValueOnDiagonal(this.lambda.current);
+                choleskyDecomposition = new CholeskyDecomposition_1.CholeskyDecomposition(hessianPlusLambda);
+                this.range = lambdaRange.G;
+            }
+            // step 1a.
+            this.update_step_and_range(trustRegionRadius, choleskyDecomposition);
+            if (this.interiorConvergence()) {
+                break;
+            }
+            // step 2.
+            this.update_lower_and_upper_bounds();
+            // step 3.
+            this.update_lambda_lambdaPlus_lowerBound_and_step(trustRegionRadius, hessianPlusLambda, choleskyDecomposition);
+            // step 4.
+            if (this.check_for_termination_and_update_step(trustRegionRadius, hessianPlusLambda, choleskyDecomposition)) {
+                break;
+            }
+            // step 5.
+            this.update_lambda();
+            if (this.numberOfIterations > maxNumberOfIterations) {
+                throw new Error("Trust region subproblem maximum number of step exceeded");
+            }
+        }
+        //console.log(this.numberOfIterations)
+        return {
+            step: this.step,
+            hitsBoundary: this.hitsBoundary,
+            hardCase: this.hardCase
+        };
+    };
+    /**
+     * An interior solution with a zero Lagrangian multiplier implies interior convergence
+     */
+    TrustRegionSubproblem.prototype.interiorConvergence = function () {
+        // A range G corresponds to a step smaller than the trust region radius
+        if (this.lambda.current === 0 && this.range === lambdaRange.G) {
+            this.hitsBoundary = false;
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    /**
+     * Updates the lambdaRange set. Updates the step if the factorization succeeded.
+     * @param trustRegionRadius Trust region radius
+     * @param choleskyDecomposition Cholesky decomposition
+     */
+    TrustRegionSubproblem.prototype.update_step_and_range = function (trustRegionRadius, choleskyDecomposition) {
+        if (choleskyDecomposition.success) {
+            this.step = choleskyDecomposition.solve(MathVectorBasicOperations_4.multiplyVectorByScalar(this.gradient, -1));
+            this.stepSquaredNorm = MathVectorBasicOperations_3.squaredNorm(this.step);
+            this.stepNorm = Math.sqrt(this.stepSquaredNorm);
+            if (this.stepNorm < trustRegionRadius) {
+                this.range = lambdaRange.G;
+            }
+            else {
+                this.range = lambdaRange.L; // once a Newton iterate falls into L it stays there
+            }
+        }
+        else {
+            this.range = lambdaRange.N;
+        }
+    };
+    /**
+     * Update lambda.upperBound or lambda.lowerBound
+     */
+    TrustRegionSubproblem.prototype.update_lower_and_upper_bounds = function () {
+        if (this.range === lambdaRange.G) {
+            this.lambda.upperBound = this.lambda.current;
+        }
+        else {
+            this.lambda.lowerBound = this.lambda.current;
+        }
+    };
+    /**
+     * Update lambdaPlus, lambda.lowerBound, lambda.current and step
+     * @param trustRegionRadius Trust region radius
+     * @param hessianPlusLambda Hessian + lambda.current * I
+     * @param choleskyDecomposition The Cholesky Decomposition of Hessian + lambda.current * I
+     */
+    TrustRegionSubproblem.prototype.update_lambda_lambdaPlus_lowerBound_and_step = function (trustRegionRadius, hessianPlusLambda, choleskyDecomposition) {
+        // Step 3. If lambda in F
+        if (this.range === lambdaRange.L || this.range === lambdaRange.G) {
+            // Step 3a. Solve Lw = step and set lambdaPlus (algorithm 7.3.1)
+            var w = solveLowerTriangular(choleskyDecomposition.g, this.step);
+            var wSquaredNorm = MathVectorBasicOperations_3.squaredNorm(w);
+            this.lambdaPlus = this.lambda.current + (this.stepNorm / trustRegionRadius - 1) * (this.stepSquaredNorm / wSquaredNorm);
+            // Step 3b. If lambda in G
+            if (this.range === lambdaRange.G) {
+                // i. Use the LINPACK method to find a unit vector u to make <u, H(lambda), u> small.
+                var s_min = estimateSmallestSingularValue(choleskyDecomposition.g);
+                // ii. Replace lambda.lowerBound by max [lambda_lb, lambda - <u, H(lambda), u>].
+                this.lambda.lowerBound = Math.max(this.lambda.lowerBound, this.lambda.current - Math.pow(s_min.value, 2));
+                // iii. Find the root alpha of the equation || step + alpha u || = trustRegionRadius which makes
+                // the model q(step + alpha u) smallest and replace step by step + alpha u
+                var intersection = getBoundariesIntersections(this.step, s_min.vector, trustRegionRadius);
+                var t = void 0;
+                if (Math.abs(intersection.tmin) < Math.abs(intersection.tmax)) {
+                    t = intersection.tmin;
+                }
+                else {
+                    t = intersection.tmax;
+                }
+                MathVectorBasicOperations_7.saxpy(t, s_min.vector, this.step);
+                this.stepSquaredNorm = MathVectorBasicOperations_3.squaredNorm(this.step);
+                this.stepNorm = Math.sqrt(this.stepSquaredNorm);
+            }
+        }
+        else {
+            // Step 3c. Use the partial factorization to find delta and v such that (H(lambda) + delta e_k e_k^T) v = 0
+            var sls = singularLeadingSubmatrix(hessianPlusLambda, choleskyDecomposition.g, choleskyDecomposition.firstNonPositiveDefiniteLeadingSubmatrixSize);
+            // Step 3d. Replace lambda.lb by max [ lambda_lb, lambda_current + delta / || v ||^2 ]
+            var vSquaredNorm = MathVectorBasicOperations_3.squaredNorm(sls.vector);
+            this.lambda.lowerBound = Math.max(this.lambda.lowerBound, this.lambda.current + sls.delta / vSquaredNorm);
+            //lambda.current = Math.max(Math.sqrt(lambda.lb * lambda.ub), lambda.lb + this.UPDATE_COEFF * (lambda.ub - lambda.lb));
+        }
+    };
+    /**
+     * Check for termination
+     * @param trustRegionRadius Trust region radius
+     * @param hessianPlusLambda Hessian + lambda.current * I
+     * @param choleskyDecomposition The CholeskyDecomposition of Hessian + lambda.current * I
+     */
+    TrustRegionSubproblem.prototype.check_for_termination_and_update_step = function (trustRegionRadius, hessianPlusLambda, choleskyDecomposition) {
+        var terminate = false;
+        // Algorithm 7.3.5, Step 1. If lambda is in F and | ||s(lambda)|| - trustRegionRadius | <= k_easy * trustRegionRadius
+        if ((this.range === lambdaRange.L || this.range === lambdaRange.G) && Math.abs(this.stepNorm - trustRegionRadius) <= this.k_easy * trustRegionRadius) {
+            // Added test to make sure that the result is better than the Cauchy point
+            var evalResult = MathVectorBasicOperations_6.dotProduct(this.gradient, this.step) + 0.5 * this.hessian.quadraticForm(this.step);
+            var evalCauchy = MathVectorBasicOperations_6.dotProduct(this.gradient, this.cauchyPoint) + 0.5 * this.hessian.quadraticForm(this.cauchyPoint);
+            if (evalResult > evalCauchy) {
+                return false;
+            }
+            else {
+                // stop with s = s(lambda)
+                this.hitsBoundary = true;
+                terminate = true;
+            }
+        }
+        if (this.range === lambdaRange.G) {
+            // Algorithm 7.3.5, Step 2. If lambda = 0 in G
+            if (this.lambda.current === 0) {
+                this.hitsBoundary = false; // since the Lagrange Multiplier is zero
+                terminate = true;
+                return terminate;
+            }
+            // Algorithm 7.3.5, Step 3. If lambda is in G and the LINPACK method gives u and alpha such that
+            // alpha^2 <u, H(lambda), u> <= k_hard ( <s(lambda), H(lambda) * s(lambda) + lambda * trustRegionRadius^2 >)
+            var s_min = estimateSmallestSingularValue(choleskyDecomposition.g);
+            //let alpha = s_min.value
+            //let u = s_min.vector
+            var intersection = getBoundariesIntersections(this.step, s_min.vector, trustRegionRadius);
+            var t_abs_max = void 0;
+            // To do : explain better why > instead of <
+            // relative_error is smaller for <
+            // it seems that we need the worst case to make sure the result is a better solution
+            // than the Cauchy point
+            if (Math.abs(intersection.tmin) > Math.abs(intersection.tmax)) {
+                t_abs_max = intersection.tmin;
+            }
+            else {
+                t_abs_max = intersection.tmax;
+            }
+            var quadraticTerm = hessianPlusLambda.quadraticForm(this.step);
+            var relative_error = Math.pow(t_abs_max * s_min.value, 2) / (quadraticTerm + this.lambda.current * Math.pow(trustRegionRadius, 2));
+            //if (relative_error <= this.k_hard || t_abs_min < this.CLOSE_TO_ZERO) {
+            if (relative_error <= this.k_hard) {
+                //saxpy(t_abs_min, s_min.vector, this.step) done at step 3b iii.
+                this.hitsBoundary = true;
+                this.hardCase = true;
+                terminate = true;
+            }
+        }
+        return terminate;
+    };
+    /**
+     * Update lambda.current
+     */
+    TrustRegionSubproblem.prototype.update_lambda = function () {
+        //step 5.
+        if (this.range === lambdaRange.L && this.gNorm !== 0) {
+            this.lambda.current = this.lambdaPlus;
+        }
+        else if (this.range === lambdaRange.G) {
+            var hessianPlusLambda = this.hessian.clone();
+            hessianPlusLambda.addValueOnDiagonal(this.lambdaPlus);
+            var choleskyDecomposition = new CholeskyDecomposition_1.CholeskyDecomposition(hessianPlusLambda);
+            // If the factorization succeeds, then lambdaPlus is in L. Otherwise, lambdaPlus is in N
+            if (choleskyDecomposition.success) {
+                this.lambda.current = this.lambdaPlus;
+            }
+            else {
+                this.lambda.lowerBound = Math.max(this.lambda.lowerBound, this.lambdaPlus);
+                // Check lambda.lb for interior convergence ???
+                this.lambda.current = updateLambda_using_equation_7_3_14(this.lambda.lowerBound, this.lambda.upperBound);
+            }
+        }
+        else {
+            this.lambda.current = updateLambda_using_equation_7_3_14(this.lambda.lowerBound, this.lambda.upperBound);
+        }
+    };
+    /**
+     * Returns the minimizer along the steepest descent (-gradient) direction subject to trust-region bound.
+     * Note: If the gradient is a zero vector then the function returns a zero vector
+     * @param trustRegionRadius The trust region radius
+     * @return The minimizer vector deta x
+     */
+    TrustRegionSubproblem.prototype.computeCauchyPoint = function (trustRegionRadius) {
+        // Bibliographic referece: Numerical Optimizatoin, second edition, Nocedal and Wright, p. 71-72
+        var gHg = this.hessian.quadraticForm(this.gradient);
+        var gNorm = MathVectorBasicOperations_1.norm(this.gradient);
+        // return a zero step if the gradient is zero
+        if (gNorm === 0) {
+            return MathVectorBasicOperations_8.zeroVector(this.gradient.length);
+        }
+        var result = MathVectorBasicOperations_4.multiplyVectorByScalar(this.gradient, -trustRegionRadius / gNorm);
+        if (gHg <= 0) {
+            return result;
+        }
+        var tau = Math.pow(gNorm, 3) / trustRegionRadius / gHg;
+        if (tau < 1) {
+            return MathVectorBasicOperations_4.multiplyVectorByScalar(result, tau);
+        }
+        return result;
+    };
+    /**
+     * Return an initial value, an upper bound and a lower bound for lambda.
+     * @param trustRegionRadius The trust region radius
+     * @return .current (lambda intial value) .lb (lower bound) and .ub (upper bound)
+     */
+    TrustRegionSubproblem.prototype.initialLambdas = function (trustRegionRadius) {
+        // Bibliographic reference : Trust-Region Methods, Conn, Gould and Toint p. 192
+        var gershgorin = gershgorin_bounds(this.hessian);
+        var hessianFrobeniusNorm = frobeniusNorm(this.hessian);
+        var hessianInfiniteNorm = 0;
+        var minHessianDiagonal = this.hessian.get(0, 0);
+        for (var i = 0; i < this.hessian.shape[0]; i += 1) {
+            var tempInfiniteNorm = 0;
+            for (var j = 0; j < this.hessian.shape[0]; j += 1) {
+                tempInfiniteNorm += Math.abs(this.hessian.get(i, j));
+            }
+            hessianInfiniteNorm = Math.max(hessianInfiniteNorm, tempInfiniteNorm);
+            minHessianDiagonal = Math.min(minHessianDiagonal, this.hessian.get(i, i));
+        }
+        var lowerBound = Math.max(0, Math.max(-minHessianDiagonal, MathVectorBasicOperations_1.norm(this.gradient) / trustRegionRadius - Math.min(gershgorin.upperBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm))));
+        var upperBound = Math.max(0, MathVectorBasicOperations_1.norm(this.gradient) / trustRegionRadius + Math.min(-gershgorin.lowerBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm)));
+        var lambda_initial;
+        if (lowerBound === 0) {
+            lambda_initial = 0;
+        }
+        else {
+            lambda_initial = updateLambda_using_equation_7_3_14(lowerBound, upperBound);
+        }
+        return {
+            current: lambda_initial,
+            lowerBound: lowerBound,
+            upperBound: upperBound
+        };
+    };
+    return TrustRegionSubproblem;
+}());
+exports.TrustRegionSubproblem = TrustRegionSubproblem;
+/**
+ *
+ * @param A
+ * @param L
+ * @param k
+ * @return dela, vector
+ * @throws If k < 0
+ */
+function singularLeadingSubmatrix(A, L, k) {
+    if (k < 0) {
+        throw new Error('k should not be a negative value');
+    }
+    var delta = 0;
+    var l = new SquareMatrix_1.SquareMatrix(k);
+    var v = [];
+    var u = MathVectorBasicOperations_8.zeroVector(k);
+    for (var j = 0; j < k - 1; j += 1) {
+        delta += Math.pow(L.get(k - 1, j), 2);
+    }
+    delta -= A.get(k - 1, k - 1);
+    for (var i = 0; i < k - 1; i += 1) {
+        for (var j = 0; j <= i; j += 1) {
+            l.set(i, j, L.get(i, j));
+        }
+        u[i] = L.get(k - 1, i);
+    }
+    v = MathVectorBasicOperations_8.zeroVector(A.shape[0]);
+    v[k - 1] = 1;
+    if (k !== 1) {
+        var vtemp = solveLowerTriangular(l, u);
+        for (var i = 0; i < k - 1; i += 1) {
+            v[i] = vtemp[i];
+        }
+    }
+    return {
+        delta: delta,
+        vector: v
+    };
+}
+/**
+ * Estimate the smallest singular value
+ * @param lowerTriangular
+ */
+function estimateSmallestSingularValue(lowerTriangular) {
+    // Bibliographic reference :  Golub, G. H., Van Loan, C. F. (2013), "Matrix computations". Forth Edition. JHU press. pp. 140-142.
+    // Web reference: https://github.com/scipy/scipy/blob/master/scipy/optimize/_trustregion_exact.py
+    var n = lowerTriangular.shape[0];
+    var p = MathVectorBasicOperations_8.zeroVector(n);
+    var y = MathVectorBasicOperations_8.zeroVector(n);
+    var p_plus = [];
+    var p_minus = [];
+    for (var k = 0; k < n; k += 1) {
+        var y_plus = (1 - p[k]) / lowerTriangular.get(k, k);
+        var y_minus = (-1 - p[k]) / lowerTriangular.get(k, k);
+        for (var i = k + 1; i < n; i += 1) {
+            p_plus.push(p[i] + lowerTriangular.get(i, k) * y_plus);
+            p_minus.push(p[i] + lowerTriangular.get(i, k) * y_minus);
+        }
+        if (Math.abs(y_plus) + MathVectorBasicOperations_2.norm1(p_plus) >= Math.abs(y_minus) + MathVectorBasicOperations_2.norm1(p_minus)) {
+            y[k] = y_plus;
+            for (var i = k + 1; i < n; i += 1) {
+                p[i] = p_plus[i - k - 1];
+            }
+        }
+        else {
+            y[k] = y_minus;
+            for (var i = k + 1; i < n; i += 1) {
+                p[i] = p_minus[i - k - 1];
+            }
+        }
+    }
+    var v = solveUpperTriangular(lowerTriangular, y);
+    var vNorm = MathVectorBasicOperations_1.norm(v);
+    var yNorm = MathVectorBasicOperations_1.norm(y);
+    if (vNorm === 0) {
+        throw new Error("divideVectorByScalar division by zero");
+    }
+    return {
+        value: yNorm / vNorm,
+        vector: MathVectorBasicOperations_5.divideVectorByScalar(v, vNorm)
+    };
+}
+/**
+ * Solve the linear problem upper triangular matrix UT x = y
+ * @param lowerTriangular The transpose of the upper triangular matrix
+ * @param y The vector y
+ */
+function solveUpperTriangular(lowerTriangular, y) {
+    var x = y.slice();
+    var n = lowerTriangular.shape[0];
+    // LT x = y
+    for (var i = n - 1; i >= 0; i -= 1) {
+        var sum = x[i];
+        for (var k = i + 1; k < n; k += 1) {
+            sum -= lowerTriangular.get(k, i) * x[k];
+        }
+        x[i] = sum / lowerTriangular.get(i, i);
+    }
+    return x;
+}
+/**
+ * Solve the linear problem lower triangular matrix LT x = b
+ * @param lowerTriangular The lower triangular matrix
+ * @param b The vector b
+ */
+function solveLowerTriangular(lowerTriangular, b) {
+    if (lowerTriangular.shape[0] !== b.length) {
+        throw new Error('solveLowerTriangular: matrix and vector are not the same sizes');
+    }
+    var x = b.slice();
+    var n = lowerTriangular.shape[0];
+    // L x = b
+    for (var i = 0; i < n; i += 1) {
+        var sum = b[i];
+        for (var k = i - 1; k >= 0; k -= 1) {
+            sum -= lowerTriangular.get(i, k) * x[k];
+        }
+        x[i] = sum / lowerTriangular.get(i, i);
+    }
+    return x;
+}
+/**
+ * The frobenius norm
+ * @param matrix The matrix
+ * @return The square root of the sum of every elements squared
+ */
+function frobeniusNorm(matrix) {
+    var result = 0;
+    var m = matrix.shape[0];
+    var n = matrix.shape[1];
+    for (var i = 0; i < m; i += 1) {
+        for (var j = 0; j < n; j += 1) {
+            result += Math.pow(matrix.get(i, j), 2);
+        }
+    }
+    result = Math.sqrt(result);
+    return result;
+}
+exports.frobeniusNorm = frobeniusNorm;
+/**
+* Given a symmetric matrix, compute the Gershgorin upper and lower bounds for its eigenvalues
+* @param matrix Symmetric Matrix
+* @return .lb (lower bound) and .ub (upper bound)
+*/
+function gershgorin_bounds(matrix) {
+    // Bibliographic Reference : Trust-Region Methods, Conn, Gould and Toint p. 19
+    // Gershgorin Bounds : All eigenvalues of a matrix A lie in the complex plane within the intersection
+    // of n discs centered at a_(i, i) and of radii : sum of a_(i, j) for 1 ≤ i ≤ n and  j != i
+    // When the matrix is symmetric, the eigenvalues are real and the discs become intervals on the real
+    // line
+    var m = matrix.shape[0];
+    var n = matrix.shape[1];
+    var matrixRowSums = [];
+    for (var i = 0; i < m; i += 1) {
+        var rowSum = 0;
+        for (var j = 0; j < n; j += 1) {
+            rowSum += Math.abs(matrix.get(i, j));
+        }
+        matrixRowSums.push(rowSum);
+    }
+    var matrixDiagonal = [];
+    var matrixDiagonalAbsolute = [];
+    for (var i = 0; i < m; i += 1) {
+        matrixDiagonal.push(matrix.get(i, i));
+        matrixDiagonalAbsolute.push(Math.abs(matrix.get(i, i)));
+    }
+    var lb = [];
+    var ub = [];
+    for (var i = 0; i < m; i += 1) {
+        lb.push(matrixDiagonal[i] + matrixDiagonalAbsolute[i] - matrixRowSums[i]);
+        ub.push(matrixDiagonal[i] - matrixDiagonalAbsolute[i] + matrixRowSums[i]);
+    }
+    var lowerBound = Math.min.apply(null, lb);
+    var upperBound = Math.max.apply(null, ub);
+    return {
+        lowerBound: lowerBound,
+        upperBound: upperBound
+    };
+}
+exports.gershgorin_bounds = gershgorin_bounds;
+/**
+ * Solve the scalar quadratic equation ||z + t d|| == trust_radius
+ * This is like a line-sphere intersection
+ * @param z Vector
+ * @param d Vector
+ * @param trustRegionRadius
+ * @returns The two values of t, sorted from low to high
+ */
+function getBoundariesIntersections(z, d, trustRegionRadius) {
+    if (MathVectorBasicOperations_1.isZeroVector(d)) {
+        throw new Error("In getBoundariesInstersections the d vector cannot be the zero vector");
+    }
+    var a = MathVectorBasicOperations_3.squaredNorm(d);
+    var b = 2 * MathVectorBasicOperations_6.dotProduct(z, d);
+    var c = MathVectorBasicOperations_3.squaredNorm(z) - trustRegionRadius * trustRegionRadius;
+    var sqrtDiscriminant = Math.sqrt(b * b - 4 * a * c);
+    var sign_b = MathVectorBasicOperations_9.sign(b);
+    if (sign_b === 0) {
+        sign_b = 1;
+    }
+    var aux = b + sqrtDiscriminant * sign_b;
+    var ta = -aux / (2 * a);
+    var tb = -2 * c / aux;
+    return {
+        tmin: Math.min(ta, tb),
+        tmax: Math.max(ta, tb)
+    };
+}
+exports.getBoundariesIntersections = getBoundariesIntersections;
+function updateLambda_using_equation_7_3_14(lowerBound, upperBound, theta) {
+    if (theta === void 0) { theta = 0.01; }
+    // Bibliographic Reference: Trust-Region Methods, Conn, Gould and Toint p. 190
+    return Math.max(Math.sqrt(upperBound * lowerBound), lowerBound + theta * (upperBound - lowerBound));
+}
 
 
 /***/ }),
@@ -1789,7 +4534,7 @@ var ControlPointsView = /** @class */ (function () {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
         //const deltaSquared = 0.01
         //const deltaSquared = 0.001
-        var result = -1;
+        var result = null;
         for (var i = 0; i < this.controlPoints.length; i += 1) {
             if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
                 return i;

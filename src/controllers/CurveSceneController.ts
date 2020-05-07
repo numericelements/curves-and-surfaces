@@ -11,6 +11,9 @@ import { ClickButtonView } from "../views/ClickButtonView";
 import { CurvatureExtremaShaders } from "../views/CurvatureExtremaShaders";
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
+import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
+import { ControlOfInflectionAndCurvatureExtrema } from "./ControlOfInflectionAndCurvatureExtrema";
+
 
 
 export class CurveSceneController implements SceneControllerInterface {
@@ -29,6 +32,7 @@ export class CurveSceneController implements SceneControllerInterface {
     private curvatureExtremaShaders: CurvatureExtremaShaders
     private curvatureExtremaView: CurvatureExtremaView
     private inflectionsView: InflectionsView
+    private curveControl: CurveControlStrategyInterface
 
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext) {
@@ -50,6 +54,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView)
         this.curveModel.registerObserver(this.inflectionsView)
+
+        this.curveControl = new ControlOfInflectionAndCurvatureExtrema(this.curveModel)
     }
 
     renderFrame() {
@@ -71,21 +77,22 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
 
-    toggleOptimizer() {
-    }
 
     toggleControlOfCurvatureExtrema() {
+        this.curveControl.toggleControlOfCurvatureExtrema()
     }
 
     toggleControlOfInflections() {
+        this.curveControl.toggleControlOfInflections()
     }
 
 
     toggleSliding() {
+        //this.curveControl.toggleSliding()
     }
 
-    leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared:number = 0.01) {
-        if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== -1) {
+    leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {
+        if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
             
             let cp = this.selectedControlPoint
             if (cp === 0) { cp += 1}
@@ -93,13 +100,14 @@ export class CurveSceneController implements SceneControllerInterface {
             const grevilleAbscissae = this.curveModel.spline.grevilleAbscissae()
             if (cp != null) {
                 this.curveModel.spline.insertKnot(grevilleAbscissae[cp])
+                this.curveControl.resetCurve(this.curveModel)
                 this.curveModel.notifyObservers()
             }
         }
         
         this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
         this.controlPointsView.setSelected(this.selectedControlPoint);
-        if (this.selectedControlPoint !== -1) {
+        if (this.selectedControlPoint !== null) {
             this.dragging = true;
         }
     }
@@ -109,9 +117,9 @@ export class CurveSceneController implements SceneControllerInterface {
         const x = ndcX,
         y = ndcY,
         selectedControlPoint = this.controlPointsView.getSelectedControlPoint()
-        if (selectedControlPoint !== -1 && selectedControlPoint != null && this.dragging === true) {
-
+        if (selectedControlPoint != null && this.dragging === true) {
             this.curveModel.setControlPoint(selectedControlPoint, x, y)
+            this.curveControl.optimize(selectedControlPoint, x, y)
             this.curveModel.notifyObservers()
         }
 
@@ -121,7 +129,6 @@ export class CurveSceneController implements SceneControllerInterface {
         this.dragging = false;
     }
 
-    optimize(selectedControlPoint: number, ndcX: number, ndcY: number) {
-    }
+
 
 }

@@ -177,7 +177,7 @@ export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> 
     controlPointSelection(x: number, y: number, deltaSquared: number = 0.01) {
         //const deltaSquared = 0.01
         //const deltaSquared = 0.001
-        let result = -1
+        let result = null
         for (let i = 0; i < this.controlPoints.length; i += 1) {
             if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
                 return i;

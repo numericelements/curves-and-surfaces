@@ -1,8 +1,6 @@
 import { InsertKnotButtonShaders } from "./InsertKnotButtonShaders";
 
 
-
-
 export class ClickButtonView {
 
     readonly red = 0.5
