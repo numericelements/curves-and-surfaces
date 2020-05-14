@@ -85,6 +85,9 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
     }
 
     optimize(selectedControlPoint: number, ndcX: number, ndcY: number) {
+
+        if (this.activeOptimizer === false) return
+        
         const p = this.curveModel.spline.controlPoints[selectedControlPoint]
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)

@@ -291,6 +291,8 @@ var NoSlidingStrategy = /** @class */ (function () {
         throw new Error("Method not implemented.");
     };
     NoSlidingStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        if (this.activeOptimizer === false)
+            return;
         var p = this.curveModel.spline.controlPoints[selectedControlPoint];
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
@@ -391,6 +393,8 @@ var SlidingStrategy = /** @class */ (function () {
         throw new Error("Method not implemented.");
     };
     SlidingStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        if (this.activeOptimizer === false)
+            return;
         var p = this.curveModel.spline.controlPoints[selectedControlPoint];
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
