@@ -12,7 +12,8 @@ import { CurvatureExtremaShaders } from "../views/CurvatureExtremaShaders";
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { ControlOfInflectionAndCurvatureExtrema } from "./ControlOfInflectionAndCurvatureExtrema";
+import { SlidingStrategy } from "./SlidingStrategy";
+import { NoSlidingStrategy } from "./NoSlidingStrategy";
 
 
 
@@ -33,6 +34,7 @@ export class CurveSceneController implements SceneControllerInterface {
     private curvatureExtremaView: CurvatureExtremaView
     private inflectionsView: InflectionsView
     private curveControl: CurveControlStrategyInterface
+    private sliding: Boolean
 
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext) {
@@ -55,7 +57,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.curvatureExtremaView)
         this.curveModel.registerObserver(this.inflectionsView)
 
-        this.curveControl = new ControlOfInflectionAndCurvatureExtrema(this.curveModel)
+        this.curveControl = new SlidingStrategy(this.curveModel)
+        this.sliding = true
     }
 
     renderFrame() {
@@ -88,7 +91,14 @@ export class CurveSceneController implements SceneControllerInterface {
 
 
     toggleSliding() {
-        //this.curveControl.toggleSliding()
+        if (this.sliding === true) {
+            this.sliding = false
+            this.curveControl = new NoSlidingStrategy(this.curveModel)
+        }
+        else {
+            this.sliding = true
+            this.curveControl = new SlidingStrategy(this.curveModel)
+        }
     }
 
     leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {

@@ -979,8 +979,8 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflecti
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection {
 
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2) {
-        super(target, initial)
+    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+        super(target, initial, activeControl)
     }
 
     
