@@ -96,6 +96,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveSceneController = void 0;
 var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
 var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
 var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
@@ -219,6 +220,7 @@ exports.CurveSceneController = CurveSceneController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.NoSlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var NoSlidingStrategy = /** @class */ (function () {
@@ -318,6 +320,7 @@ exports.NoSlidingStrategy = NoSlidingStrategy;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var SlidingStrategy = /** @class */ (function () {
@@ -417,6 +420,7 @@ exports.SlidingStrategy = SlidingStrategy;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.main = void 0;
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
@@ -534,6 +538,7 @@ main();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSpline_R1_to_R1 = void 0;
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
@@ -566,7 +571,7 @@ var BSpline_R1_to_R1 = /** @class */ (function () {
         set: function (controlPoints) {
             this._controlPoints = controlPoints;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(BSpline_R1_to_R1.prototype, "knots", {
@@ -576,14 +581,14 @@ var BSpline_R1_to_R1 = /** @class */ (function () {
         set: function (knots) {
             this._knots = knots;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(BSpline_R1_to_R1.prototype, "degree", {
         get: function () {
             return this._degree;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     BSpline_R1_to_R1.prototype.setControlPoint = function (index, value) {
@@ -765,6 +770,7 @@ exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.create_BSpline_R1_to_R2 = exports.BSpline_R1_to_R2 = void 0;
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
@@ -797,7 +803,7 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
         set: function (controlPoints) {
             this._controlPoints = controlPoints;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     BSpline_R1_to_R2.prototype.visibleControlPoints = function () {
@@ -810,14 +816,14 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
         set: function (knots) {
             this._knots = knots;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(BSpline_R1_to_R2.prototype, "degree", {
         get: function () {
             return this._degree;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     BSpline_R1_to_R2.prototype.setControlPoint = function (index, value) {
@@ -1014,6 +1020,7 @@ exports.create_BSpline_R1_to_R2 = create_BSpline_R1_to_R2;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSpline_R1_to_R2_DifferentialProperties = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
 /**
@@ -1128,6 +1135,7 @@ exports.BSpline_R1_to_R2_DifferentialProperties = BSpline_R1_to_R2_DifferentialP
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BernsteinDecomposition_R1_to_R1 = void 0;
 var BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/mathematics/BinomialCoefficient.ts");
 /**
 * A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
@@ -1255,6 +1263,7 @@ exports.BernsteinDecomposition_R1_to_R1 = BernsteinDecomposition_R1_to_R1;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.memoizedBinomialCoefficient = exports.binomialCoefficient = void 0;
 function binomialCoefficient(n, k) {
     var result = 1;
     if (n < k || k < 0) {
@@ -1306,6 +1315,7 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CholeskyDecomposition = void 0;
 /**
  * A decomposition of a positive-definite matirx into a product of a lower triangular matrix and its conjugate transpose
  */
@@ -1419,6 +1429,7 @@ exports.CholeskyDecomposition = CholeskyDecomposition;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DenseMatrix = void 0;
 /**
  * A dense matrix
  */
@@ -1452,7 +1463,7 @@ var DenseMatrix = /** @class */ (function () {
         get: function () {
             return this._shape;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     /**
@@ -1525,6 +1536,7 @@ exports.DenseMatrix = DenseMatrix;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.identityMatrix = exports.DiagonalMatrix = void 0;
 /**
  * An identity matrix
  */
@@ -1557,7 +1569,7 @@ var DiagonalMatrix = /** @class */ (function () {
         get: function () {
             return this._shape;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     /**
@@ -1617,6 +1629,7 @@ exports.identityMatrix = identityMatrix;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.sign = exports.containsNaN = exports.randomVector = exports.isZeroVector = exports.product_v1_v2t = exports.product_v_vt = exports.zeroVector = exports.norm1 = exports.norm = exports.squaredNorm = exports.addSecondVectorToFirst = exports.addTwoVectors = exports.dotProduct = exports.saxpy2 = exports.saxpy = exports.divideVectorByScalar = exports.multiplyVectorByScalar = void 0;
 var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
 var DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/mathematics/DenseMatrix.ts");
 /**
@@ -1885,6 +1898,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = exports.OptimizationProblem_BSpline_R1_to_R2_inflection = exports.ActiveControl = void 0;
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
@@ -1972,56 +1986,56 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         set: function (spline) {
             this._target = spline;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "curvatureExtremaConstraintsFreeIndices", {
         get: function () {
             return this.curvatureExtremaInactiveConstraints;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "inflectionConstraintsFreeIndices", {
         get: function () {
             return this.inflectionInactiveConstraints;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "numberOfIndependentVariables", {
         get: function () {
             return this._numberOfIndependentVariables;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "numberOfConstraints", {
         get: function () {
             return this._curvatureExtremaNumberOfActiveConstraints + this._inflectionNumberOfActiveConstraints;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "f0", {
         get: function () {
             return this._f0;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "gradient_f0", {
         get: function () {
             return this._gradient_f0;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "hessian_f0", {
         get: function () {
             return this._hessian_f0;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "f", {
@@ -2031,21 +2045,21 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
             }
             return this._f;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "gradient_f", {
         get: function () {
             return this._gradient_f;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "hessian_f", {
         get: function () {
             return this._hessian_f;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.step = function (deltaX) {
@@ -2663,7 +2677,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
             }
             return 0.5 * result;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "gradient_f0", {
@@ -2675,7 +2689,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
             }
             return result;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "hessian_f0", {
@@ -2687,7 +2701,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
             }
             return result;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     /**
@@ -2746,6 +2760,7 @@ exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Optimizer = void 0;
 var TrustRegionSubproblem_1 = __webpack_require__(/*! ./TrustRegionSubproblem */ "./src/mathematics/TrustRegionSubproblem.ts");
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
 var MathVectorBasicOperations_2 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
@@ -3012,6 +3027,7 @@ exports.Optimizer = Optimizer;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.decomposeFunction = exports.basisFunctions = exports.clampingFindSpan = exports.findSpan = void 0;
 /**
  * Returns the span index
  * @param u parameter
@@ -3172,6 +3188,7 @@ exports.decomposeFunction = decomposeFunction;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SquareMatrix = void 0;
 /**
  * A square matrix
  */
@@ -3204,7 +3221,7 @@ var SquareMatrix = /** @class */ (function () {
         get: function () {
             return this._shape;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     /**
@@ -3322,6 +3339,7 @@ exports.SquareMatrix = SquareMatrix;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.SymmetricMatrix = void 0;
 var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
 var DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/mathematics/DiagonalMatrix.ts");
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
@@ -3357,7 +3375,7 @@ var SymmetricMatrix = /** @class */ (function () {
         get: function () {
             return this._shape;
         },
-        enumerable: true,
+        enumerable: false,
         configurable: true
     });
     /**
@@ -3541,6 +3559,7 @@ exports.SymmetricMatrix = SymmetricMatrix;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getBoundariesIntersections = exports.gershgorin_bounds = exports.frobeniusNorm = exports.TrustRegionSubproblem = void 0;
 var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
 var MathVectorBasicOperations_2 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
@@ -4115,6 +4134,7 @@ function updateLambda_using_equation_7_3_14(lowerBound, upperBound, theta) {
  * A two dimensional vector
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Vector_2d = void 0;
 var Vector_2d = /** @class */ (function () {
     function Vector_2d(x, y) {
         if (x === void 0) { x = 0; }
@@ -4169,6 +4189,7 @@ exports.Vector_2d = Vector_2d;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveModel = void 0;
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
 var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var CurveModel = /** @class */ (function () {
@@ -4284,6 +4305,7 @@ exports.CurveModel = CurveModel;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClickButtonView = void 0;
 var ClickButtonView = /** @class */ (function () {
     function ClickButtonView(x, y, clickButtonShaders) {
         this.x = x;
@@ -4443,6 +4465,7 @@ exports.ClickButtonView = ClickButtonView;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ControlPointsShaders = void 0;
 var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 var ControlPointsShaders = /** @class */ (function () {
     function ControlPointsShaders(gl) {
@@ -4510,6 +4533,7 @@ exports.ControlPointsShaders = ControlPointsShaders;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ControlPointsView = void 0;
 var ControlPointsView = /** @class */ (function () {
     function ControlPointsView(spline, controlPointsShaders, red, blue, green) {
         this.spline = spline;
@@ -4695,6 +4719,7 @@ exports.ControlPointsView = ControlPointsView;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ControlPolygonShaders = void 0;
 var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 var ControlPolygonShaders = /** @class */ (function () {
     function ControlPolygonShaders(gl) {
@@ -4735,6 +4760,7 @@ exports.ControlPolygonShaders = ControlPolygonShaders;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ControlPolygonView = void 0;
 var ControlPolygonView = /** @class */ (function () {
     function ControlPolygonView(spline, controlPolygonShaders, closed) {
         if (closed === void 0) { closed = false; }
@@ -4866,6 +4892,7 @@ exports.ControlPolygonView = ControlPolygonView;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurvatureExtremaShaders = void 0;
 var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 var CurvatureExtremaShaders = /** @class */ (function () {
     function CurvatureExtremaShaders(gl) {
@@ -4915,6 +4942,7 @@ exports.CurvatureExtremaShaders = CurvatureExtremaShaders;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurvatureExtremaView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
@@ -5095,6 +5123,7 @@ exports.CurvatureExtremaView = CurvatureExtremaView;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveShaders = void 0;
 var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 var CurveShaders = /** @class */ (function () {
     function CurveShaders(gl) {
@@ -5137,6 +5166,7 @@ exports.CurveShaders = CurveShaders;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveView = void 0;
 var CurveView = /** @class */ (function () {
     function CurveView(spline, curveShaders, red, green, blue, alpha) {
         this.spline = spline;
@@ -5269,6 +5299,7 @@ exports.CurveView = CurveView;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.InflectionsView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
@@ -5449,6 +5480,7 @@ exports.InflectionsView = InflectionsView;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.InsertKnotButtonShaders = void 0;
 var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 var InsertKnotButtonShaders = /** @class */ (function () {
     function InsertKnotButtonShaders(gl) {
@@ -5519,6 +5551,7 @@ exports.InsertKnotButtonShaders = InsertKnotButtonShaders;
 // Reference: cuon-utils.js
 // cuon-utils.js (c) 2012 kanda and matsuda
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createProgram = void 0;
 /**
  * Create the linked program object
  * @param gl GL context
@@ -5629,6 +5662,7 @@ function loadShader(gl, type, source) {
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.WebGLUtils = void 0;
 /**
  * @fileoverview This file contains functions every webgl program will need
  * a version of one way or another.
