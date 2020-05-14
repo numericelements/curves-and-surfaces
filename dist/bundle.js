@@ -86,105 +86,6 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/controllers/ControlOfInflectionAndCurvatureExtrema.ts":
-/*!*******************************************************************!*\
-  !*** ./src/controllers/ControlOfInflectionAndCurvatureExtrema.ts ***!
-  \*******************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
-var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
-var ControlOfInflectionAndCurvatureExtrema = /** @class */ (function () {
-    function ControlOfInflectionAndCurvatureExtrema(curveModel) {
-        this.activeOptimizer = true;
-        this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
-        this.optimizer = this.newOptimizer(this.optimizationProblem);
-    }
-    ControlOfInflectionAndCurvatureExtrema.prototype.setWeightingFactor = function (optimizationProblem) {
-        optimizationProblem.weigthingFactors[0] = 10;
-        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10;
-        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length - 1] = 10;
-        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length * 2 - 1] = 10;
-    };
-    ControlOfInflectionAndCurvatureExtrema.prototype.newOptimizer = function (optimizationProblem) {
-        this.setWeightingFactor(optimizationProblem);
-        return new Optimizer_1.Optimizer(optimizationProblem);
-    };
-    ControlOfInflectionAndCurvatureExtrema.prototype.resetCurve = function (curveModel) {
-        this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
-        this.optimizer = this.newOptimizer(this.optimizationProblem);
-    };
-    ControlOfInflectionAndCurvatureExtrema.prototype.toggleControlOfCurvatureExtrema = function () {
-        if (this.activeOptimizer === false) {
-            this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
-            this.optimizer = this.newOptimizer(this.optimizationProblem);
-        }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
-            this.activeOptimizer = false;
-        }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
-            this.optimizer = this.newOptimizer(this.optimizationProblem);
-        }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
-            this.optimizer = this.newOptimizer(this.optimizationProblem);
-        }
-        else {
-            console.log("Error in logic of toggle control over curvature extrema");
-        }
-    };
-    ControlOfInflectionAndCurvatureExtrema.prototype.toggleControlOfInflections = function () {
-        if (this.activeOptimizer === false) {
-            this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
-            this.optimizer = this.newOptimizer(this.optimizationProblem);
-        }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
-            this.activeOptimizer = false;
-        }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
-            this.optimizer = this.newOptimizer(this.optimizationProblem);
-        }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
-            this.optimizer = this.newOptimizer(this.optimizationProblem);
-        }
-        else {
-            console.log("Error in logic of toggle control over inflections");
-        }
-    };
-    ControlOfInflectionAndCurvatureExtrema.prototype.toggleSliding = function () {
-        throw new Error("Method not implemented.");
-    };
-    ControlOfInflectionAndCurvatureExtrema.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
-        var p = this.curveModel.spline.controlPoints[selectedControlPoint];
-        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
-        this.optimizationProblem.setTargetSpline(this.curveModel.spline);
-        try {
-            this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
-            this.curveModel.setSpline(this.optimizationProblem.spline.clone());
-        }
-        catch (e) {
-            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y);
-            console.log(e);
-        }
-    };
-    return ControlOfInflectionAndCurvatureExtrema;
-}());
-exports.ControlOfInflectionAndCurvatureExtrema = ControlOfInflectionAndCurvatureExtrema;
-
-
-/***/ }),
-
 /***/ "./src/controllers/CurveSceneController.ts":
 /*!*************************************************!*\
   !*** ./src/controllers/CurveSceneController.ts ***!
@@ -207,7 +108,8 @@ var ClickButtonView_1 = __webpack_require__(/*! ../views/ClickButtonView */ "./s
 var CurvatureExtremaShaders_1 = __webpack_require__(/*! ../views/CurvatureExtremaShaders */ "./src/views/CurvatureExtremaShaders.ts");
 var CurvatureExtremaView_1 = __webpack_require__(/*! ../views/CurvatureExtremaView */ "./src/views/CurvatureExtremaView.ts");
 var InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./src/views/InflectionsView.ts");
-var ControlOfInflectionAndCurvatureExtrema_1 = __webpack_require__(/*! ./ControlOfInflectionAndCurvatureExtrema */ "./src/controllers/ControlOfInflectionAndCurvatureExtrema.ts");
+var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
+var NoSlidingStrategy_1 = __webpack_require__(/*! ./NoSlidingStrategy */ "./src/controllers/NoSlidingStrategy.ts");
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl) {
         this.canvas = canvas;
@@ -231,7 +133,8 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
-        this.curveControl = new ControlOfInflectionAndCurvatureExtrema_1.ControlOfInflectionAndCurvatureExtrema(this.curveModel);
+        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel);
+        this.sliding = true;
     }
     CurveSceneController.prototype.renderFrame = function () {
         var px = 100, size = Math.min(window.innerWidth, window.innerHeight) - px;
@@ -256,7 +159,14 @@ var CurveSceneController = /** @class */ (function () {
         this.curveControl.toggleControlOfInflections();
     };
     CurveSceneController.prototype.toggleSliding = function () {
-        //this.curveControl.toggleSliding()
+        if (this.sliding === true) {
+            this.sliding = false;
+            this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel);
+        }
+        else {
+            this.sliding = true;
+            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel);
+        }
     };
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
@@ -295,6 +205,204 @@ var CurveSceneController = /** @class */ (function () {
     return CurveSceneController;
 }());
 exports.CurveSceneController = CurveSceneController;
+
+
+/***/ }),
+
+/***/ "./src/controllers/NoSlidingStrategy.ts":
+/*!**********************************************!*\
+  !*** ./src/controllers/NoSlidingStrategy.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
+var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var NoSlidingStrategy = /** @class */ (function () {
+    function NoSlidingStrategy(curveModel) {
+        this.activeOptimizer = true;
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    }
+    NoSlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
+        optimizationProblem.weigthingFactors[0] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length - 1] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length * 2 - 1] = 10;
+    };
+    NoSlidingStrategy.prototype.newOptimizer = function (optimizationProblem) {
+        this.setWeightingFactor(optimizationProblem);
+        return new Optimizer_1.Optimizer(optimizationProblem);
+    };
+    NoSlidingStrategy.prototype.resetCurve = function (curveModel) {
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    };
+    NoSlidingStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over curvature extrema");
+        }
+    };
+    NoSlidingStrategy.prototype.toggleControlOfInflections = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over inflections");
+        }
+    };
+    NoSlidingStrategy.prototype.toggleSliding = function () {
+        throw new Error("Method not implemented.");
+    };
+    NoSlidingStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        var p = this.curveModel.spline.controlPoints[selectedControlPoint];
+        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+        this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+        try {
+            this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
+            this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+        }
+        catch (e) {
+            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y);
+            console.log(e);
+        }
+    };
+    return NoSlidingStrategy;
+}());
+exports.NoSlidingStrategy = NoSlidingStrategy;
+
+
+/***/ }),
+
+/***/ "./src/controllers/SlidingStrategy.ts":
+/*!********************************************!*\
+  !*** ./src/controllers/SlidingStrategy.ts ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
+var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var SlidingStrategy = /** @class */ (function () {
+    function SlidingStrategy(curveModel) {
+        this.activeOptimizer = true;
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    }
+    SlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
+        optimizationProblem.weigthingFactors[0] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length - 1] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length * 2 - 1] = 10;
+    };
+    SlidingStrategy.prototype.newOptimizer = function (optimizationProblem) {
+        this.setWeightingFactor(optimizationProblem);
+        return new Optimizer_1.Optimizer(optimizationProblem);
+    };
+    SlidingStrategy.prototype.resetCurve = function (curveModel) {
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    };
+    SlidingStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over curvature extrema");
+        }
+    };
+    SlidingStrategy.prototype.toggleControlOfInflections = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over inflections");
+        }
+    };
+    SlidingStrategy.prototype.toggleSliding = function () {
+        throw new Error("Method not implemented.");
+    };
+    SlidingStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        var p = this.curveModel.spline.controlPoints[selectedControlPoint];
+        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+        this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+        try {
+            this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
+            this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+        }
+        catch (e) {
+            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y);
+            console.log(e);
+        }
+    };
+    return SlidingStrategy;
+}());
+exports.SlidingStrategy = SlidingStrategy;
 
 
 /***/ }),
@@ -2601,8 +2709,11 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection;
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(target, initial) {
-        return _super.call(this, target, initial) || this;
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(target, initial, activeControl) {
+        if (activeControl === void 0) { activeControl = ActiveControl.both; }
+        var _this = _super.call(this, target, initial, activeControl) || this;
+        _this.activeControl = activeControl;
+        return _this;
     }
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
         return [];
