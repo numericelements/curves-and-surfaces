@@ -1,5 +1,5 @@
 # B-Spline curve editor 
-Research project about the control of : 
+Research project on the control of : 
 - inflections
 - curvature extrema
 
