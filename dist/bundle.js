@@ -2098,6 +2098,17 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         //console.log(result.length)
         return result;
     };
+    OptimizationProblem_BSpline_R1_to_R2.prototype.computeSignChangeIntervals = function (constraintsSign) {
+        var signChangesIntervals = [];
+        var previousSign = constraintsSign[0];
+        for (var i = 1, n = constraintsSign.length; i < n; i += 1) {
+            if (previousSign !== constraintsSign[i]) {
+                signChangesIntervals.push(i - 1);
+            }
+            previousSign = constraintsSign[i];
+        }
+        return signChangesIntervals;
+    };
     /**
      * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.
      * A curvature extremum is located between two coefficient of different signs.
@@ -2110,38 +2121,17 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
     OptimizationProblem_BSpline_R1_to_R2.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
         var result = [];
         /*
-        let previousSign = constraintsSign[0];
+        let signChangesIntervals: number[] = []
+
+        let previousSign = constraintsSign[0]
         for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
             if (previousSign !== constraintsSign[i]) {
-                if (i + 1 < n - 1 && constraintsSign[i+1] !== constraintsSign[i]){
-                    result.push(i)
-                    i += 1
-                } else if (Math.pow(controlPoints[i - 1], 2) < Math.pow(controlPoints[i], 2)) {
-                    result.push(i - 1);
-                } else {
-                    result.push(i);
-                }
+                signChangesIntervals.push(i - 1)
             }
-            previousSign = constraintsSign[i];
+            previousSign = constraintsSign[i]
         }
         */
-        //console.log(result)
-        var signChangesIntervals = [];
-        var previousSign = constraintsSign[0];
-        for (var i = 1, n = constraintsSign.length; i < n; i += 1) {
-            if (previousSign !== constraintsSign[i]) {
-                signChangesIntervals.push(i - 1);
-            }
-            previousSign = constraintsSign[i];
-        }
-        /*
-        let identicalSuccessiveControlPoints: number[] = []
-        for (let i = 0, n = constraintsSign.length; i < n - 1; i += 1) {
-            if (controlPoints[i] === controlPoints[i + 1]){
-                identicalSuccessiveControlPoints.push(i)
-            }
-        }
-        */
+        var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
         for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (i < n - 1 && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
                 result.push(signChangesIntervals[i] + 1);
