@@ -16,7 +16,7 @@ cd  <your-project-name>
 # Serve your app:
 Open the file index.html in your browser
 
-# Install all development tools dependencies
+# Install development tools dependencies (webpack and mocha)
 $ npm i
 
 # Build your app: 
