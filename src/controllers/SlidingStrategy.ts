@@ -1,12 +1,12 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 
 
 export class SlidingStrategy implements CurveControlStrategyInterface {
     
-    private optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection
+    private optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors
     private optimizer: Optimizer
     private activeOptimizer: boolean = true
 
@@ -14,43 +14,43 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
     constructor(curveModel: CurveModel ) {
         this.curveModel = curveModel
-        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
-    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection) {
+    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         optimizationProblem.weigthingFactors[0] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length-1] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length*2-1] = 10
     }
 
-    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection) {
+    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
     }
 
     resetCurve(curveModel: CurveModel) {
         this.curveModel = curveModel
-        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
     toggleControlOfCurvatureExtrema(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.inflections ){
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else {
@@ -61,18 +61,18 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     toggleControlOfInflections(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
             this.activeOptimizer = false
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else {

@@ -28,7 +28,7 @@ export enum ActiveControl {curvatureExtrema, inflections, both}
 
 
 
-export class OptimizationProblem_BSpline_R1_to_R2_inflection implements OptimizationProblemInterface {
+export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
     public spline: BSpline_R1_to_R2
     private _target: BSpline_R1_to_R2
@@ -916,7 +916,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_free_of_constraints extends Op
 }
 */
 
-export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection extends OptimizationProblem_BSpline_R1_to_R2_inflection {
+export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends OptimizationProblem_BSpline_R1_to_R2 {
 
     public weigthingFactors: number[] = []
 
@@ -976,7 +976,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflecti
 
 
 
-export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection {
+export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
 
     constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
@@ -994,7 +994,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inact
 
 }
 
-export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection extends OptimizationProblem_BSpline_R1_to_R2_inflection {
+export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
 
 
     constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2) {

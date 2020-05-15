@@ -221,13 +221,13 @@ exports.CurveSceneController = CurveSceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NoSlidingStrategy = void 0;
-var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
+var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var NoSlidingStrategy = /** @class */ (function () {
     function NoSlidingStrategy(curveModel) {
         this.activeOptimizer = true;
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     }
     NoSlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
@@ -242,24 +242,24 @@ var NoSlidingStrategy = /** @class */ (function () {
     };
     NoSlidingStrategy.prototype.resetCurve = function (curveModel) {
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     };
     NoSlidingStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false;
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
         else {
@@ -269,18 +269,18 @@ var NoSlidingStrategy = /** @class */ (function () {
     NoSlidingStrategy.prototype.toggleControlOfInflections = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
             this.activeOptimizer = false;
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
         else {
@@ -323,13 +323,13 @@ exports.NoSlidingStrategy = NoSlidingStrategy;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SlidingStrategy = void 0;
-var OptimizationProblem_BSpline_R1_to_R2_inflection_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts");
+var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var SlidingStrategy = /** @class */ (function () {
     function SlidingStrategy(curveModel) {
         this.activeOptimizer = true;
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     }
     SlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
@@ -344,24 +344,24 @@ var SlidingStrategy = /** @class */ (function () {
     };
     SlidingStrategy.prototype.resetCurve = function (curveModel) {
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     };
     SlidingStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false;
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
         else {
@@ -371,18 +371,18 @@ var SlidingStrategy = /** @class */ (function () {
     SlidingStrategy.prototype.toggleControlOfInflections = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.inflections) {
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
             this.activeOptimizer = false;
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_inflection_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_inflection_1.ActiveControl.both);
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
         else {
@@ -1879,10 +1879,10 @@ exports.sign = sign;
 
 /***/ }),
 
-/***/ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts":
-/*!****************************************************************************!*\
-  !*** ./src/mathematics/OptimizationProblem_BSpline_R1_to_R2_inflection.ts ***!
-  \****************************************************************************/
+/***/ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts":
+/*!*****************************************************************!*\
+  !*** ./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts ***!
+  \*****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1902,7 +1902,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = exports.OptimizationProblem_BSpline_R1_to_R2_inflection = exports.ActiveControl = void 0;
+exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = exports.OptimizationProblem_BSpline_R1_to_R2 = exports.ActiveControl = void 0;
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
@@ -1930,9 +1930,9 @@ var ActiveControl;
     ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
     ActiveControl[ActiveControl["both"] = 2] = "both";
 })(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
-var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function () {
+var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
     //public activeControl: ActiveControl = ActiveControl.both
-    function OptimizationProblem_BSpline_R1_to_R2_inflection(target, initial, activeControl) {
+    function OptimizationProblem_BSpline_R1_to_R2(target, initial, activeControl) {
         if (activeControl === void 0) { activeControl = ActiveControl.both; }
         this.activeControl = activeControl;
         this.curvatureExtremaConstraintsSign = [];
@@ -1986,63 +1986,63 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         }
     }
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "targetSpline", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "targetSpline", {
         set: function (spline) {
             this._target = spline;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "curvatureExtremaConstraintsFreeIndices", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "curvatureExtremaConstraintsFreeIndices", {
         get: function () {
             return this.curvatureExtremaInactiveConstraints;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "inflectionConstraintsFreeIndices", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "inflectionConstraintsFreeIndices", {
         get: function () {
             return this.inflectionInactiveConstraints;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "numberOfIndependentVariables", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "numberOfIndependentVariables", {
         get: function () {
             return this._numberOfIndependentVariables;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "numberOfConstraints", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "numberOfConstraints", {
         get: function () {
             return this._curvatureExtremaNumberOfActiveConstraints + this._inflectionNumberOfActiveConstraints;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "f0", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "f0", {
         get: function () {
             return this._f0;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "gradient_f0", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "gradient_f0", {
         get: function () {
             return this._gradient_f0;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "hessian_f0", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "hessian_f0", {
         get: function () {
             return this._hessian_f0;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "f", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "f", {
         get: function () {
             if (MathVectorBasicOperations_1.containsNaN(this._f)) {
                 throw new Error("OptimizationProblem_BSpline_R1_to_R2 contains Nan in its f vector");
@@ -2052,21 +2052,21 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "gradient_f", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "gradient_f", {
         get: function () {
             return this._gradient_f;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_inflection.prototype, "hessian_f", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "hessian_f", {
         get: function () {
             return this._hessian_f;
         },
         enumerable: false,
         configurable: true
     });
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.step = function (deltaX) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.step = function (deltaX) {
         this.spline.optimizerStep(deltaX);
         this._gradient_f0 = this.compute_gradient_f0(this.spline);
         this._f0 = this.compute_f0(this._gradient_f0);
@@ -2085,7 +2085,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         }
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.computeConstraintsSign = function (controlPoints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.computeConstraintsSign = function (controlPoints) {
         var result = [];
         for (var i = 0, n = controlPoints.length; i < n; i += 1) {
             if (controlPoints[i] > 0) {
@@ -2107,7 +2107,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
      * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
      * @param controlPoints The vector of value of the function: f_i
      */
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
         var result = [];
         /*
         let previousSign = constraintsSign[0];
@@ -2176,7 +2176,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result1;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_gradient_f0 = function (spline) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_gradient_f0 = function (spline) {
         var result = [];
         var n = spline.controlPoints.length;
         for (var i = 0; i < n; i += 1) {
@@ -2188,7 +2188,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         return result;
     };
     //f0: function to minimize
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_f0 = function (gradient_f0) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_f0 = function (gradient_f0) {
         var result = 0;
         var n = gradient_f0.length;
         for (var i = 0; i < n; i += 1) {
@@ -2196,23 +2196,23 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return 0.5 * result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.curvatureNumerator = function (h4) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.curvatureNumerator = function (h4) {
         return h4.flattenControlPointsArray();
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.curvatureDerivativeNumerator = function (h1, h2, h3, h4) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.curvatureDerivativeNumerator = function (h1, h2, h3, h4) {
         var g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
         var result = g.flattenControlPointsArray();
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.g = function () {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.g = function () {
         var e = this.expensiveComputation(this.spline);
         return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.gradient_g = function () {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_g = function () {
         var e = this.expensiveComputation(this.spline);
         return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_curvatureExtremaConstraints = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_curvatureExtremaConstraints = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
         var result = [];
         for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
@@ -2224,7 +2224,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_inflectionConstraints = function (curvatureNumerator, constraintsSign, inactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_inflectionConstraints = function (curvatureNumerator, constraintsSign, inactiveConstraints) {
         var result = [];
         for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
@@ -2236,7 +2236,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
         //let result: number[] = []
         if (this.activeControl === ActiveControl.both) {
             var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
@@ -2250,11 +2250,11 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
             return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.expensiveComputation = function (spline) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.expensiveComputation = function (spline) {
         var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots), sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots), sxu = sx.derivative(), syu = sy.derivative(), sxuu = sxu.derivative(), syuu = syu.derivative(), sxuuu = sxuu.derivative(), syuuu = syuu.derivative(), bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition()), bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition()), bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition()), bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition()), bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition()), bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition()), h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu)), h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu)), h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu)), h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
         return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4);
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
         var dgx = [];
         var dgy = [];
         var m = this.spline.controlPoints.length;
@@ -2290,7 +2290,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
         if (this.activeControl === ActiveControl.both) {
             var m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
             var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
@@ -2317,7 +2317,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
             return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_curvatureExtremaConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_curvatureExtremaConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
         var sxu = e.bdsxu;
         var sxuu = e.bdsxuu;
         var sxuuu = e.bdsxuuu;
@@ -2390,7 +2390,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_inflectionConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_inflectionConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
         var sxu = e.bdsxu;
         var sxuu = e.bdsxuu;
         var syu = e.bdsyu;
@@ -2461,7 +2461,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.compute_hessian_f = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4, constraintsSign, inactiveConstraints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_hessian_f = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4, constraintsSign, inactiveConstraints) {
         var n = this.spline.controlPoints.length;
         var result = [];
         var h5x = [];
@@ -2573,7 +2573,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
         }
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.prepareForHessianComputation = function (Dsu, Dsuu, Dsuuu) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.prepareForHessianComputation = function (Dsu, Dsuu, Dsuuu) {
         var n = this.spline.controlPoints.length;
         for (var i = 0; i < n; i += 1) {
             this.Dh5xx.push([]);
@@ -2605,7 +2605,7 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
     /**
      * The vector of constraint functions values: f(x + step)
      */
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.fStep = function (step) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.fStep = function (step) {
         var splineTemp = this.spline.clone();
         splineTemp.optimizerStep(step);
         var e = this.expensiveComputation(splineTemp);
@@ -2616,19 +2616,19 @@ var OptimizationProblem_BSpline_R1_to_R2_inflection = /** @class */ (function ()
     /**
      * The objective function value: f0(x + step)
      */
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.f0Step = function (step) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.f0Step = function (step) {
         var splineTemp = this.spline.clone();
         splineTemp.optimizerStep(step);
         return this.compute_f0(this.compute_gradient_f0(splineTemp));
     };
-    OptimizationProblem_BSpline_R1_to_R2_inflection.prototype.setTargetSpline = function (spline) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.setTargetSpline = function (spline) {
         this._target = spline.clone();
         this._gradient_f0 = this.compute_gradient_f0(this.spline);
         this._f0 = this.compute_f0(this.gradient_f0);
     };
-    return OptimizationProblem_BSpline_R1_to_R2_inflection;
+    return OptimizationProblem_BSpline_R1_to_R2;
 }());
-exports.OptimizationProblem_BSpline_R1_to_R2_inflection = OptimizationProblem_BSpline_R1_to_R2_inflection;
+exports.OptimizationProblem_BSpline_R1_to_R2 = OptimizationProblem_BSpline_R1_to_R2;
 /*
 export class OptimizationProblem_BSpline_R1_to_R2_free_of_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
 
@@ -2660,9 +2660,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_free_of_constraints extends Op
     
 }
 */
-var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** @class */ (function (_super) {
-    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection(target, initial, activeControl) {
+var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(target, initial, activeControl) {
         if (activeControl === void 0) { activeControl = ActiveControl.both; }
         var _this = _super.call(this, target, initial, activeControl) || this;
         _this.activeControl = activeControl;
@@ -2672,7 +2672,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
         }
         return _this;
     }
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "f0", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors.prototype, "f0", {
         get: function () {
             var result = 0;
             var n = this._gradient_f0.length;
@@ -2684,7 +2684,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "gradient_f0", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors.prototype, "gradient_f0", {
         get: function () {
             var result = [];
             var n = this._gradient_f0.length;
@@ -2696,7 +2696,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype, "hessian_f0", {
+    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors.prototype, "hessian_f0", {
         get: function () {
             var n = this._gradient_f0.length;
             var result = new DiagonalMatrix_1.DiagonalMatrix(n);
@@ -2711,7 +2711,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
     /**
      * The objective function value: f0(x + step)
      */
-    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection.prototype.f0Step = function (step) {
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors.prototype.f0Step = function (step) {
         var splineTemp = this.spline.clone();
         splineTemp.optimizerStep(step);
         var gradient = this.compute_gradient_f0(splineTemp);
@@ -2722,34 +2722,34 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = /** 
         }
         return 0.5 * result;
     };
-    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection;
-}(OptimizationProblem_BSpline_R1_to_R2_inflection));
-exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection;
-var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = /** @class */ (function (_super) {
-    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection(target, initial, activeControl) {
+    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors;
+}(OptimizationProblem_BSpline_R1_to_R2));
+exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors;
+var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(target, initial, activeControl) {
         if (activeControl === void 0) { activeControl = ActiveControl.both; }
         var _this = _super.call(this, target, initial, activeControl) || this;
         _this.activeControl = activeControl;
         return _this;
     }
-    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
         return [];
     };
-    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection;
-}(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_inflection));
-exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints_inflection;
-var OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection = /** @class */ (function (_super) {
-    __extends(OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection(target, initial) {
+    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints;
+}(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors));
+exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints;
+var OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints(target, initial) {
         return _super.call(this, target, initial) || this;
     }
-    OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
+    OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints.prototype.computeInactiveConstraints = function (constraintsSign, curvatureDerivativeNumerator) {
         return [];
     };
-    return OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection;
-}(OptimizationProblem_BSpline_R1_to_R2_inflection));
-exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection = OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints_inflection;
+    return OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints;
+}(OptimizationProblem_BSpline_R1_to_R2));
+exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints;
 
 
 /***/ }),
