@@ -13,11 +13,11 @@ $ git clone https://github.com/numericelements/curves-and-surfaces.git <your-pro
 # Change directory to your project
 cd  <your-project-name>
 
-# Install all dependencies.
-$ npm i
-
 # Serve your app:
 Open the file index.html in your browser
+
+# Install all development tools dependencies
+$ npm i
 
 # Build your app: 
 npm run build
