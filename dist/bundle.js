@@ -2134,12 +2134,14 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
             }
             previousSign = constraintsSign[i];
         }
-        var identicalSuccessiveControlPoints = [];
-        for (var i = 0, n = constraintsSign.length; i < n - 1; i += 1) {
-            if (controlPoints[i] === controlPoints[i + 1]) {
-                identicalSuccessiveControlPoints.push(i);
+        /*
+        let identicalSuccessiveControlPoints: number[] = []
+        for (let i = 0, n = constraintsSign.length; i < n - 1; i += 1) {
+            if (controlPoints[i] === controlPoints[i + 1]){
+                identicalSuccessiveControlPoints.push(i)
             }
         }
+        */
         for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (i < n - 1 && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
                 result.push(signChangesIntervals[i] + 1);

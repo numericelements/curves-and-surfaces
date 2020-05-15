@@ -179,73 +179,57 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         
     });
 
-
-    it('has no repeated inactive constaints', () => {
-
-
+    it('can compute sign change intervals', () => {
         const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
-        splineInitial.insertKnot(0.1)
-        splineInitial.insertKnot(0.2)
-        splineInitial.insertKnot(0.3)
-        splineInitial.insertKnot(0.4)
-        splineInitial.insertKnot(0.5)
-        splineInitial.insertKnot(0.6)
-        splineInitial.insertKnot(0.7)
-        splineInitial.insertKnot(0.8)
-        splineInitial.insertKnot(0.9)
-
         let splineTarget = splineInitial.clone()
-
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
 
-        let result = o.computeInactiveConstraints([-1, -1, 1, 1], [3, 4, 5, 6])
+        let result = o.computeSignChangeIntervals([-1, -1, 1, 1])
         expect(result).to.eql([1])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, 1], [3, 4, 5, 6])
+    });
+
+
+    it('has no repeated inactive constaints', () => {
+        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        const knots = [0, 0, 0, 0, 1, 1, 1, 1]
+        let splineInitial = create_BSpline_R1_to_R2(cp, knots)
+        let splineTarget = splineInitial.clone()
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+
+        let result = o.computeInactiveConstraints([-1, -1, 1, 1], [-3, -4, 5, 6])
+        expect(result).to.eql([1])
+
+        result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -5, 6])
         expect(result).to.eql([2])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, -1], [3, 4, 5, 6])
+        result = o.computeInactiveConstraints([-1, -1, -1, -1], [-3, -4, -5, -6])
         expect(result).to.eql([])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, 1], [3, 4, 5, 6])
+        result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -5, 6])
         expect(result).to.eql([2])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, 1], [3, 4, 6, 5])
+        result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -6, 5])
         expect(result).to.eql([3])
 
-        result = o.computeInactiveConstraints([-1, -1, 1, -1], [3, 4, 5, 5])
+        result = o.computeInactiveConstraints([-1, -1, 1, -1], [-3, -4, 5, -5])
         expect(result).to.eql([2])
 
-        result = o.computeInactiveConstraints([1, -1, -1, -1], [3, 4, 5, 5])
+        result = o.computeInactiveConstraints([1, -1, -1, -1], [3, -4, -5, -5])
         expect(result).to.eql([0])
 
-        result = o.computeInactiveConstraints([1, -1, -1, -1], [4, 3, 5, 5])
+        result = o.computeInactiveConstraints([1, -1, -1, -1], [4, -3, -5, -5])
         expect(result).to.eql([1])
-        
-        
     });
 
 
     it('has no repeated inactive constaints and handle inflections between Bezier segments', () => {
-
-
         const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
-        splineInitial.insertKnot(0.1)
-        splineInitial.insertKnot(0.2)
-        splineInitial.insertKnot(0.3)
-        splineInitial.insertKnot(0.4)
-        splineInitial.insertKnot(0.5)
-        splineInitial.insertKnot(0.6)
-        splineInitial.insertKnot(0.7)
-        splineInitial.insertKnot(0.8)
-        splineInitial.insertKnot(0.9)
-
         let splineTarget = splineInitial.clone()
-
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
 
         let result = o.computeInactiveConstraints([1, 1, 1, 1, 1, -1, -1, -1], [3, 4, 5, 2, 2, -6, -7, -8])
@@ -259,7 +243,6 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
         result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1], [3, 4, 5, -2, -2, -6, -7, -8, -2, -2, 5, 6])
         expect(result).to.eql([3, 4, 8, 9])
-        
     });
 
     it('can take a symmetric b-spline curve', () => {

@@ -207,6 +207,18 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return result
     }
 
+    computeSignChangeIntervals(constraintsSign: number[]) {
+        let signChangesIntervals: number[] = []
+        let previousSign = constraintsSign[0]
+        for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
+            if (previousSign !== constraintsSign[i]) {
+                signChangesIntervals.push(i - 1)
+            }
+            previousSign = constraintsSign[i]
+        }
+        return signChangesIntervals
+    }
+
     /**
      * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.  
      * A curvature extremum is located between two coefficient of different signs. 
@@ -218,24 +230,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
      */
     computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
         let result: number[] = []
-        /*
-        let previousSign = constraintsSign[0];
-        for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
-            if (previousSign !== constraintsSign[i]) {
-                if (i + 1 < n - 1 && constraintsSign[i+1] !== constraintsSign[i]){
-                    result.push(i)
-                    i += 1
-                } else if (Math.pow(controlPoints[i - 1], 2) < Math.pow(controlPoints[i], 2)) {
-                    result.push(i - 1);
-                } else {
-                    result.push(i);
-                }
-            }
-            previousSign = constraintsSign[i];
-        }
-        */
-        //console.log(result)
 
+        /*
         let signChangesIntervals: number[] = []
 
         let previousSign = constraintsSign[0]
@@ -245,13 +241,9 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
             }
             previousSign = constraintsSign[i]
         }
+        */
+       let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
 
-        let identicalSuccessiveControlPoints: number[] = []
-        for (let i = 0, n = constraintsSign.length; i < n - 1; i += 1) {
-            if (controlPoints[i] === controlPoints[i + 1]){
-                identicalSuccessiveControlPoints.push(i)
-            }
-        }
 
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
