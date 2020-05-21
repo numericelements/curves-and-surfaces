@@ -34,7 +34,9 @@ export class CurveSceneController implements SceneControllerInterface {
     private curvatureExtremaView: CurvatureExtremaView
     private inflectionsView: InflectionsView
     private curveControl: CurveControlStrategyInterface
-    private sliding: Boolean
+    private sliding: boolean
+    private controlOfCurvatureExtrema: boolean
+    private controlOfInflection: boolean
 
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext) {
@@ -51,13 +53,17 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1)
         this.inflectionsView = new InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1)
         
+        this.controlOfCurvatureExtrema = true
+        this.controlOfInflection = true
+        
+        
         this.curveModel.registerObserver(this.controlPointsView)
         this.curveModel.registerObserver(this.controlPolygonView)
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView)
         this.curveModel.registerObserver(this.inflectionsView)
 
-        this.curveControl = new SlidingStrategy(this.curveModel)
+        this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
         this.sliding = true
     }
 
@@ -83,21 +89,23 @@ export class CurveSceneController implements SceneControllerInterface {
 
     toggleControlOfCurvatureExtrema() {
         this.curveControl.toggleControlOfCurvatureExtrema()
+        this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
     }
 
     toggleControlOfInflections() {
         this.curveControl.toggleControlOfInflections()
+        this.controlOfInflection = ! this.controlOfInflection
     }
 
 
     toggleSliding() {
         if (this.sliding === true) {
             this.sliding = false
-            this.curveControl = new NoSlidingStrategy(this.curveModel)
+            this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
         }
         else {
             this.sliding = true
-            this.curveControl = new SlidingStrategy(this.curveModel)
+            this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
         }
     }
 

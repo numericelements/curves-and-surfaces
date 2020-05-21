@@ -189,7 +189,57 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         let result = o.computeSignChangeIntervals([-1, -1, 1, 1])
         expect(result).to.eql([1])
 
+        let result1 = o.computeSignChangeIntervals([-1, -1, 1, 1, -1, -1])
+        expect(result1).to.eql([1, 3])
+
     });
+
+    it('can compute ControlPoints Closest To Zero at sign changes', () => {
+        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        const knots = [0, 0, 0, 0, 1, 1, 1, 1]
+        let splineInitial = create_BSpline_R1_to_R2(cp, knots)
+        let splineTarget = splineInitial.clone()
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+
+        let t1 = o.computeControlPointsClosestToZero([1], [-5, -3, 5, 5],)
+        expect(t1).to.eql([1])
+
+        let t2 = o.computeControlPointsClosestToZero([1], [-5, -5, 3, 5])
+        expect(t2).to.eql([2])
+
+        let t3 = o.computeControlPointsClosestToZero([0, 1], [5, -3, -5, 5])
+        expect(t3).to.eql([1])
+
+
+    });
+
+    it('can add Inactive Constraints For Inflections', () => {
+        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        const knots = [0, 0, 0, 0, 1, 1, 1, 1]
+        let splineInitial = create_BSpline_R1_to_R2(cp, knots)
+        let splineTarget = splineInitial.clone()
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+
+        let t1 = o.addInactiveConstraintsForInflections([1], [-5, -3, 5, 5])
+        expect(t1).to.eql([1])
+
+        let t2 = o.addInactiveConstraintsForInflections([1], [-3, -3, 5, 6])
+        expect(t2).to.eql([0, 1])
+
+        let t3 = o.addInactiveConstraintsForInflections([1, 2], [5, -2, -2, 5])
+        expect(t3).to.eql([1, 2])
+
+        let t4 = o.addInactiveConstraintsForInflections([1], [5, -2, -2, -5])
+        expect(t4).to.eql([1, 2])
+
+        let t5 = o.addInactiveConstraintsForInflections([1], [5, -2, -2.1, -5])
+        expect(t5).to.eql([1])
+
+        let t6 = o.addInactiveConstraintsForInflections([2], [5, 3, -2, -2])
+        expect(t6).to.eql([2])
+    });
+
+
 
 
     it('has no repeated inactive constaints', () => {

@@ -129,12 +129,14 @@ var CurveSceneController = /** @class */ (function () {
         this.curvatureExtremaShaders = new CurvatureExtremaShaders_1.CurvatureExtremaShaders(this.gl);
         this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1);
+        this.controlOfCurvatureExtrema = true;
+        this.controlOfInflection = true;
         this.curveModel.registerObserver(this.controlPointsView);
         this.curveModel.registerObserver(this.controlPolygonView);
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
-        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel);
+        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         this.sliding = true;
     }
     CurveSceneController.prototype.renderFrame = function () {
@@ -155,18 +157,20 @@ var CurveSceneController = /** @class */ (function () {
     };
     CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
         this.curveControl.toggleControlOfCurvatureExtrema();
+        this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
     };
     CurveSceneController.prototype.toggleControlOfInflections = function () {
         this.curveControl.toggleControlOfInflections();
+        this.controlOfInflection = !this.controlOfInflection;
     };
     CurveSceneController.prototype.toggleSliding = function () {
         if (this.sliding === true) {
             this.sliding = false;
-            this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel);
+            this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         }
         else {
             this.sliding = true;
-            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel);
+            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         }
     };
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
@@ -224,10 +228,17 @@ exports.NoSlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var NoSlidingStrategy = /** @class */ (function () {
-    function NoSlidingStrategy(curveModel) {
+    function NoSlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema) {
         this.activeOptimizer = true;
+        var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
+        if (!controlOfCurvatureExtrema) {
+            activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections;
+        }
+        else if (!controlOfInflection) {
+            activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema;
+        }
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     }
     NoSlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
@@ -326,10 +337,18 @@ exports.SlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var SlidingStrategy = /** @class */ (function () {
-    function SlidingStrategy(curveModel) {
+    function SlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema) {
         this.activeOptimizer = true;
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        //enum ActiveControl {curvatureExtrema, inflections, both}
+        var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
+        if (!controlOfCurvatureExtrema) {
+            activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections;
+        }
+        else if (!controlOfInflection) {
+            activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema;
+        }
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     }
     SlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
@@ -2109,29 +2128,8 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         }
         return signChangesIntervals;
     };
-    /**
-     * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.
-     * A curvature extremum is located between two coefficient of different signs.
-     * For the general case, the smallest coefficient in absolute value is chosen to be free.
-     * For the specific case of two successive sign changes, the coefficient in the middle is chosen.
-     *
-     * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
-     * @param controlPoints The vector of value of the function: f_i
-     */
-    OptimizationProblem_BSpline_R1_to_R2.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
+    OptimizationProblem_BSpline_R1_to_R2.prototype.computeControlPointsClosestToZero = function (signChangesIntervals, controlPoints) {
         var result = [];
-        /*
-        let signChangesIntervals: number[] = []
-
-        let previousSign = constraintsSign[0]
-        for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
-            if (previousSign !== constraintsSign[i]) {
-                signChangesIntervals.push(i - 1)
-            }
-            previousSign = constraintsSign[i]
-        }
-        */
-        var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
         for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (i < n - 1 && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
                 result.push(signChangesIntervals[i] + 1);
@@ -2146,27 +2144,45 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
                 }
             }
         }
-        var result1 = [];
-        for (var i = 0, n = result.length; i < n; i += 1) {
-            if (result[i] !== 0 && controlPoints[result[i] - 1] === controlPoints[result[i]]) {
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2.prototype.addInactiveConstraintsForInflections = function (list, controlPoints) {
+        var result = [];
+        for (var i = 0, n = list.length; i < n; i += 1) {
+            if (list[i] !== 0 && controlPoints[list[i] - 1] === controlPoints[list[i]]) {
                 if (i == 0) {
-                    result1.push(result[i] - 1);
+                    result.push(list[i] - 1);
                 }
-                if (i !== 0 && result[i - 1] !== result[i] - 1) {
-                    result1.push(result[i] - 1);
+                if (i !== 0 && list[i - 1] !== list[i] - 1) {
+                    result.push(list[i] - 1);
                 }
             }
-            result1.push(result[i]);
-            if (result[i] !== controlPoints.length - 2 && controlPoints[result[i]] === controlPoints[result[i] + 1]) {
-                if (i == result.length - 1) {
-                    result1.push(result[i] + 1);
+            result.push(list[i]);
+            if (list[i] !== controlPoints.length - 2 && controlPoints[list[i]] === controlPoints[list[i] + 1]) {
+                if (i == list.length - 1) {
+                    result.push(list[i] + 1);
                 }
-                if (i !== result.length - 1 && result[i + 1] !== result[i] + 1) {
-                    result1.push(result[i] + 1);
+                if (i !== list.length - 1 && list[i + 1] !== list[i] + 1) {
+                    result.push(list[i] + 1);
                 }
             }
         }
-        return result1;
+        return result;
+    };
+    /**
+     * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.
+     * A curvature extremum or an inflection is located between two coefficient of different signs.
+     * For the general case, the smallest coefficient in absolute value is chosen to be free.
+     * For the specific case of two successive sign changes, the coefficient in the middle is chosen.
+     *
+     * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
+     * @param controlPoints The vector of value of the function: f_i
+     */
+    OptimizationProblem_BSpline_R1_to_R2.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
+        var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
+        var controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints);
+        var result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
+        return result;
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.compute_gradient_f0 = function (spline) {
         var result = [];
@@ -2390,7 +2406,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         var dgx = [];
         var dgy = [];
         var controlPointsLength = this.spline.controlPoints.length;
-        //const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints
         var degree = this.spline.degree;
         for (var i = 0; i < controlPointsLength; i += 1) {
             var start = Math.max(0, i - degree);
@@ -2406,27 +2421,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
             var h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
             dgy.push(h10.add(h11));
         }
-        /*
-        const n = constraintsSign.length - inactiveConstraints.length
-
-        const m = this.spline.controlPoints.length
-
-        let result = new DenseMatrix(n, 2 * m)
-
-        for (let i = 0; i < m; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let deltaj = 0
-            for (let j = 0; j < constraintsSign.length; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1
-                } else {
-                    result.set(j-deltaj, i, cpx[j] * constraintsSign[j])
-                    result.set(j-deltaj, m + i, cpy[j] * constraintsSign[j])
-                }
-            }
-        }
-        */
         var totalNumberOfConstraints = this.inflectionConstraintsSign.length;
         var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
         for (var i = 0; i < controlPointsLength; i += 1) {
@@ -2621,37 +2615,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
     return OptimizationProblem_BSpline_R1_to_R2;
 }());
 exports.OptimizationProblem_BSpline_R1_to_R2 = OptimizationProblem_BSpline_R1_to_R2;
-/*
-export class OptimizationProblem_BSpline_R1_to_R2_free_of_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
-
-    get numberOfConstraints() {
-        return 1
-    }
-
-    get f() {
-        return [-1]
-    }
-
-    get gradient_f() {
-        return new DenseMatrix(1, this.numberOfIndependentVariables)
-    }
-
-    get hessian_f() {
-        return undefined
-    }
-
-    fStep(step: number[]) {
-        return [-1]
-    }
-
-    step(deltaX: number[]) {
-        this.spline.optimizerStep(deltaX)
-        this._gradient_f0 = this.compute_gradient_f0(this.spline)
-        this._f0 = this.compute_f0(this.gradient_f0)
-    }
-    
-}
-*/
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, _super);
     function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(target, initial, activeControl) {

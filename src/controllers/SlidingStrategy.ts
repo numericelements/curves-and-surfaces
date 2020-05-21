@@ -12,9 +12,19 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
     private curveModel: CurveModel
 
-    constructor(curveModel: CurveModel ) {
+    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean ) {
         this.curveModel = curveModel
-        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        //enum ActiveControl {curvatureExtrema, inflections, both}
+        let activeControl : ActiveControl = ActiveControl.both
+
+        if (!controlOfCurvatureExtrema) {
+            activeControl = ActiveControl.inflections
+        }
+        else if (!controlOfInflection) {
+            activeControl = ActiveControl.curvatureExtrema
+        }
+
+        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
 

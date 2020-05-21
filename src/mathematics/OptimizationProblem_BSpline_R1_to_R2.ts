@@ -219,32 +219,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return signChangesIntervals
     }
 
-    /**
-     * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.  
-     * A curvature extremum is located between two coefficient of different signs. 
-     * For the general case, the smallest coefficient in absolute value is chosen to be free.
-     * For the specific case of two successive sign changes, the coefficient in the middle is chosen.
-     * 
-     * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
-     * @param controlPoints The vector of value of the function: f_i
-     */
-    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+    computeControlPointsClosestToZero(signChangesIntervals: number[], controlPoints: number[]) {
         let result: number[] = []
-
-        /*
-        let signChangesIntervals: number[] = []
-
-        let previousSign = constraintsSign[0]
-        for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
-            if (previousSign !== constraintsSign[i]) {
-                signChangesIntervals.push(i - 1)
-            }
-            previousSign = constraintsSign[i]
-        }
-        */
-       let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
-
-
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
                 result.push(signChangesIntervals[i] + 1)
@@ -258,31 +234,48 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
                 }
             }
         }
+        return result
+    }
 
-        let result1: number [] = []
-        for (let i = 0, n = result.length; i < n; i += 1) {
-            if (result[i] !== 0 && controlPoints[result[i] - 1] === controlPoints[result[i]] ) {
+    addInactiveConstraintsForInflections(list: number[], controlPoints: number[]) {
+        let result: number[] = []
+        for (let i = 0, n = list.length; i < n; i += 1) {
+            if (list[i] !== 0 && controlPoints[list[i] - 1] === controlPoints[list[i]] ) {
                 if (i == 0) {
-                    result1.push(result[i] - 1)
+                    result.push(list[i] - 1)
                 }
-                if (i !== 0 && result[i-1] !== result[i] - 1) {
-                    result1.push(result[i] - 1)
-                }
-            }
-            result1.push(result[i])
-
-            if (result[i] !== controlPoints.length - 2 && controlPoints[result[i]] === controlPoints[result[i] + 1] ) {
-                if (i == result.length - 1) {
-                    result1.push(result[i] + 1)
-                }
-                if (i !== result.length - 1 && result[i + 1] !== result[i] + 1) {
-                    result1.push(result[i] + 1)
+                if (i !== 0 && list[i-1] !== list[i] - 1) {
+                    result.push(list[i] - 1)
                 }
             }
+            result.push(list[i])
 
+            if (list[i] !== controlPoints.length - 2 && controlPoints[list[i]] === controlPoints[list[i] + 1] ) {
+                if (i == list.length - 1) {
+                    result.push(list[i] + 1)
+                }
+                if (i !== list.length - 1 && list[i + 1] !== list[i] + 1) {
+                    result.push(list[i] + 1)
+                }
+            }
         }
+        return result
+    }
 
-        return result1
+    /**
+     * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.  
+     * A curvature extremum or an inflection is located between two coefficient of different signs. 
+     * For the general case, the smallest coefficient in absolute value is chosen to be free.
+     * For the specific case of two successive sign changes, the coefficient in the middle is chosen.
+     * 
+     * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
+     * @param controlPoints The vector of value of the function: f_i
+     */
+    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+        let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
+        let controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints)
+        let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
+        return result
     }
 
     compute_gradient_f0(spline: BSpline_R1_to_R2) {
@@ -593,7 +586,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         let dgx = []
         let dgy = []
         const controlPointsLength = this.spline.controlPoints.length
-        //const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints
         const degree = this.spline.degree
 
 
@@ -612,27 +604,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
             let h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
             dgy.push(h10.add(h11));
         }
-        /*
-        const n = constraintsSign.length - inactiveConstraints.length
-
-        const m = this.spline.controlPoints.length
-
-        let result = new DenseMatrix(n, 2 * m)
-
-        for (let i = 0; i < m; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let deltaj = 0
-            for (let j = 0; j < constraintsSign.length; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1
-                } else {
-                    result.set(j-deltaj, i, cpx[j] * constraintsSign[j])
-                    result.set(j-deltaj, m + i, cpy[j] * constraintsSign[j])
-                }
-            }
-        }
-        */
 
        const totalNumberOfConstraints = this.inflectionConstraintsSign.length
 
@@ -875,38 +846,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
 
 }
 
-
-/*
-export class OptimizationProblem_BSpline_R1_to_R2_free_of_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
-
-    get numberOfConstraints() {
-        return 1
-    }
-
-    get f() {
-        return [-1]
-    }
-
-    get gradient_f() {
-        return new DenseMatrix(1, this.numberOfIndependentVariables)
-    }
-
-    get hessian_f() {
-        return undefined
-    }
-
-    fStep(step: number[]) {
-        return [-1]
-    }
-
-    step(deltaX: number[]) {
-        this.spline.optimizerStep(deltaX)
-        this._gradient_f0 = this.compute_gradient_f0(this.spline)
-        this._f0 = this.compute_f0(this.gradient_f0)
-    }
-    
-}
-*/
 
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends OptimizationProblem_BSpline_R1_to_R2 {
 
