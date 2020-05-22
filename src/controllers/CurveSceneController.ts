@@ -90,21 +90,27 @@ export class CurveSceneController implements SceneControllerInterface {
     toggleControlOfCurvatureExtrema() {
         this.curveControl.toggleControlOfCurvatureExtrema()
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
+        //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
     }
 
     toggleControlOfInflections() {
         this.curveControl.toggleControlOfInflections()
         this.controlOfInflection = ! this.controlOfInflection
+        //console.log("constrol of inflections: " + this.controlOfInflection)
     }
 
 
     toggleSliding() {
         if (this.sliding === true) {
             this.sliding = false
+            //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+            //console.log("constrol of inflections: " + this.controlOfInflection)
             this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
         }
         else {
             this.sliding = true
+            //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+            //console.log("constrol of inflections: " + this.controlOfInflection)
             this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
         }
     }

@@ -158,18 +158,24 @@ var CurveSceneController = /** @class */ (function () {
     CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
         this.curveControl.toggleControlOfCurvatureExtrema();
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
+        //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
     };
     CurveSceneController.prototype.toggleControlOfInflections = function () {
         this.curveControl.toggleControlOfInflections();
         this.controlOfInflection = !this.controlOfInflection;
+        //console.log("constrol of inflections: " + this.controlOfInflection)
     };
     CurveSceneController.prototype.toggleSliding = function () {
         if (this.sliding === true) {
             this.sliding = false;
+            //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+            //console.log("constrol of inflections: " + this.controlOfInflection)
             this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         }
         else {
             this.sliding = true;
+            //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+            //console.log("constrol of inflections: " + this.controlOfInflection)
             this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         }
     };
@@ -236,6 +242,10 @@ var NoSlidingStrategy = /** @class */ (function () {
         }
         else if (!controlOfInflection) {
             activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema;
+        }
+        if (!controlOfInflection && !controlOfCurvatureExtrema) {
+            this.activeOptimizer = false;
+            //console.log("activeOptimizer in NoSlidingStrategy: " + this.activeOptimizer)
         }
         this.curveModel = curveModel;
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
@@ -347,6 +357,10 @@ var SlidingStrategy = /** @class */ (function () {
         }
         else if (!controlOfInflection) {
             activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema;
+        }
+        if (!controlOfInflection && !controlOfCurvatureExtrema) {
+            this.activeOptimizer = false;
+            //console.log("activeOptimizer in SlidingStrategy: " + this.activeOptimizer)
         }
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
         this.optimizer = this.newOptimizer(this.optimizationProblem);

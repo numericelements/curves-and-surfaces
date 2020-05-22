@@ -22,6 +22,11 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         }
         else if (!controlOfInflection) {
             activeControl = ActiveControl.curvatureExtrema
+        } 
+
+        if (!controlOfInflection && !controlOfCurvatureExtrema) {
+            this.activeOptimizer = false
+            //console.log("activeOptimizer in SlidingStrategy: " + this.activeOptimizer)
         }
 
         this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
