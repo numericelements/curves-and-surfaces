@@ -8,12 +8,14 @@ import { CurveView } from "../views/CurveView";
 import { SceneControllerInterface } from "./SceneControllerInterface";
 import { InsertKnotButtonShaders } from "../views/InsertKnotButtonShaders";
 import { ClickButtonView } from "../views/ClickButtonView";
-import { CurvatureExtremaShaders } from "../views/CurvatureExtremaShaders";
+import { DifferentialEventShaders } from "../views/DifferentialEventShaders";
+import { TransitionDifferentialEventShaders } from "../views/TransitionDifferentialEventShaders";
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { SlidingStrategy } from "./SlidingStrategy";
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
+import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 
 
 
@@ -30,8 +32,10 @@ export class CurveSceneController implements SceneControllerInterface {
     private insertKnotButtonShaders: InsertKnotButtonShaders
     private insertKnotButtonView: ClickButtonView
     private dragging: boolean = false
-    private curvatureExtremaShaders: CurvatureExtremaShaders
+    private differentialEventShaders: DifferentialEventShaders
+    private transitionDifferentialEventShaders: TransitionDifferentialEventShaders
     private curvatureExtremaView: CurvatureExtremaView
+    private transitionCurvatureExtremaView: TransitionCurvatureExtremaView
     private inflectionsView: InflectionsView
     private curveControl: CurveControlStrategyInterface
     private sliding: boolean
@@ -49,10 +53,14 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveView = new CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1)
         this.insertKnotButtonShaders = new InsertKnotButtonShaders(this.gl)
         this.insertKnotButtonView = new ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders)
-        this.curvatureExtremaShaders = new CurvatureExtremaShaders(this.gl)
-        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1)
-        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1)
-        
+        this.differentialEventShaders = new DifferentialEventShaders(this.gl)
+        this.transitionDifferentialEventShaders = new TransitionDifferentialEventShaders(this.gl)
+        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1)
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1)
+
+        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1)
+
+
         this.controlOfCurvatureExtrema = true
         this.controlOfInflection = true
         
@@ -61,6 +69,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.controlPolygonView)
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView)
+        this.curveModel.registerObserver(this.transitionCurvatureExtremaView)
         this.curveModel.registerObserver(this.inflectionsView)
 
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
@@ -79,6 +88,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.curveView.renderFrame()
         this.curvatureExtremaView.renderFrame()
+        //this.transitionCurvatureExtremaView.renderFrame()
         this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
         this.controlPointsView.renderFrame()

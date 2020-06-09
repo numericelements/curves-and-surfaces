@@ -1,6 +1,6 @@
 import { Vector_2d } from "../mathematics/Vector_2d";
 import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
-import {CurvatureExtremaShaders} from "./CurvatureExtremaShaders"
+import {DifferentialEventShaders} from "./DifferentialEventShaders"
 import { IObserver } from "../designPatterns/Observer";
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
@@ -17,7 +17,7 @@ export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
     private indices: Uint8Array = new Uint8Array([])
     private controlPoints: Vector_2d[]
 
-    constructor(spline: BSpline_R1_to_R2_interface, private curvatureExtremaShaders: CurvatureExtremaShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
+    constructor(spline: BSpline_R1_to_R2_interface, private curvatureExtremaShaders: DifferentialEventShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
         
         this.controlPoints = spline.visibleControlPoints()
 
@@ -98,8 +98,8 @@ export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
         // Write date into the buffer object
         gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
 
-        let a_Position = gl.getAttribLocation(<CurvatureExtremaShaders> this.curvatureExtremaShaders.program, 'a_Position'),
-            a_Texture = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Texture'),
+        let a_Position = gl.getAttribLocation(<DifferentialEventShaders> this.curvatureExtremaShaders.program, 'a_Position'),
+            a_Texture = gl.getAttribLocation(<DifferentialEventShaders>this.curvatureExtremaShaders.program, 'a_Texture'),
             //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
             FSIZE = this.vertices.BYTES_PER_ELEMENT;
 
@@ -144,8 +144,8 @@ export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
 
     renderFrame() {
         let gl = this.curvatureExtremaShaders.gl,
-            a_Position = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Position'),
-            a_Texture = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Texture'),
+            a_Position = gl.getAttribLocation(<DifferentialEventShaders>this.curvatureExtremaShaders.program, 'a_Position'),
+            a_Texture = gl.getAttribLocation(<DifferentialEventShaders>this.curvatureExtremaShaders.program, 'a_Texture'),
             //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
             FSIZE = this.vertices.BYTES_PER_ELEMENT,
             a_ColorLocation = gl.getUniformLocation(<WebGLProgram>this.curvatureExtremaShaders.program, "a_Color");

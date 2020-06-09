@@ -2,7 +2,7 @@ import { createProgram } from "../webgl/cuon-utils";
 
 
 
-export class CurvatureExtremaShaders {
+export class DifferentialEventShaders {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 

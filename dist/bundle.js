@@ -106,11 +106,13 @@ var CurveShaders_1 = __webpack_require__(/*! ../views/CurveShaders */ "./src/vie
 var CurveView_1 = __webpack_require__(/*! ../views/CurveView */ "./src/views/CurveView.ts");
 var InsertKnotButtonShaders_1 = __webpack_require__(/*! ../views/InsertKnotButtonShaders */ "./src/views/InsertKnotButtonShaders.ts");
 var ClickButtonView_1 = __webpack_require__(/*! ../views/ClickButtonView */ "./src/views/ClickButtonView.ts");
-var CurvatureExtremaShaders_1 = __webpack_require__(/*! ../views/CurvatureExtremaShaders */ "./src/views/CurvatureExtremaShaders.ts");
+var DifferentialEventShaders_1 = __webpack_require__(/*! ../views/DifferentialEventShaders */ "./src/views/DifferentialEventShaders.ts");
+var TransitionDifferentialEventShaders_1 = __webpack_require__(/*! ../views/TransitionDifferentialEventShaders */ "./src/views/TransitionDifferentialEventShaders.ts");
 var CurvatureExtremaView_1 = __webpack_require__(/*! ../views/CurvatureExtremaView */ "./src/views/CurvatureExtremaView.ts");
 var InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./src/views/InflectionsView.ts");
 var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
 var NoSlidingStrategy_1 = __webpack_require__(/*! ./NoSlidingStrategy */ "./src/controllers/NoSlidingStrategy.ts");
+var TransitionCurvatureExtremaView_1 = __webpack_require__(/*! ../views/TransitionCurvatureExtremaView */ "./src/views/TransitionCurvatureExtremaView.ts");
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl) {
         this.canvas = canvas;
@@ -126,15 +128,18 @@ var CurveSceneController = /** @class */ (function () {
         this.curveView = new CurveView_1.CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.insertKnotButtonShaders = new InsertKnotButtonShaders_1.InsertKnotButtonShaders(this.gl);
         this.insertKnotButtonView = new ClickButtonView_1.ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders);
-        this.curvatureExtremaShaders = new CurvatureExtremaShaders_1.CurvatureExtremaShaders(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1);
-        this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1);
+        this.differentialEventShaders = new DifferentialEventShaders_1.DifferentialEventShaders(this.gl);
+        this.transitionDifferentialEventShaders = new TransitionDifferentialEventShaders_1.TransitionDifferentialEventShaders(this.gl);
+        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+        this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.curveModel.registerObserver(this.controlPointsView);
         this.curveModel.registerObserver(this.controlPolygonView);
         this.curveModel.registerObserver(this.curveView);
         this.curveModel.registerObserver(this.curvatureExtremaView);
+        this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         this.sliding = true;
@@ -150,6 +155,7 @@ var CurveSceneController = /** @class */ (function () {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.curveView.renderFrame();
         this.curvatureExtremaView.renderFrame();
+        //this.transitionCurvatureExtremaView.renderFrame()
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
         this.controlPointsView.renderFrame();
@@ -4855,56 +4861,6 @@ exports.ControlPolygonView = ControlPolygonView;
 
 /***/ }),
 
-/***/ "./src/views/CurvatureExtremaShaders.ts":
-/*!**********************************************!*\
-  !*** ./src/views/CurvatureExtremaShaders.ts ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurvatureExtremaShaders = void 0;
-var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-var CurvatureExtremaShaders = /** @class */ (function () {
-    function CurvatureExtremaShaders(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec2 a_Texture; \n' +
-            'varying vec2 v_Texture; \n' +
-            'void main() {\n' +
-            '    v_Texture = a_Texture; \n' +
-            '    gl_Position = vec4(a_Position, 1.0); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision highp float; \n' +
-            'uniform vec4 a_Color; \n' +
-            'varying vec2 v_Texture; \n' +
-            'void main() {\n' +
-            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
-            '     if (dist > 0.5) discard; \n' +
-            '     gl_FragColor = a_Color; \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    CurvatureExtremaShaders.prototype.renderFrame = function (numberOfElements) {
-        if (this.program) {
-            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
-        }
-    };
-    return CurvatureExtremaShaders;
-}());
-exports.CurvatureExtremaShaders = CurvatureExtremaShaders;
-
-
-/***/ }),
-
 /***/ "./src/views/CurvatureExtremaView.ts":
 /*!*******************************************!*\
   !*** ./src/views/CurvatureExtremaView.ts ***!
@@ -5054,22 +5010,7 @@ var CurvatureExtremaView = /** @class */ (function () {
             this.updateVerticesAndIndices();
             this.updateBuffers();
         }
-        /*
-        if (spline instanceof PeriodicBSpline_R1_to_R2) {
-            const splineDP = new PeriodicBSpline_R1_to_R2_DifferentialProperties(spline)
-            this.controlPoints = splineDP.curvatureExtrema()
-            this.updateVerticesAndIndices()
-            this.updateBuffers()
-        }
-        */
     };
-    /*
-    updatePoints(points: Vector_2d[]) {
-        this.controlPoints = points;
-        this.updateVerticesAndIndices();
-        this.updateBuffers();
-    }
-    */
     CurvatureExtremaView.prototype.updateBuffers = function () {
         var gl = this.curvatureExtremaShaders.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -5258,6 +5199,56 @@ var CurveView = /** @class */ (function () {
     return CurveView;
 }());
 exports.CurveView = CurveView;
+
+
+/***/ }),
+
+/***/ "./src/views/DifferentialEventShaders.ts":
+/*!***********************************************!*\
+  !*** ./src/views/DifferentialEventShaders.ts ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DifferentialEventShaders = void 0;
+var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+var DifferentialEventShaders = /** @class */ (function () {
+    function DifferentialEventShaders(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec2 a_Texture; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '    v_Texture = a_Texture; \n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision highp float; \n' +
+            'uniform vec4 a_Color; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
+            '     if (dist > 0.5) discard; \n' +
+            '     gl_FragColor = a_Color; \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    DifferentialEventShaders.prototype.renderFrame = function (numberOfElements) {
+        if (this.program) {
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
+        }
+    };
+    return DifferentialEventShaders;
+}());
+exports.DifferentialEventShaders = DifferentialEventShaders;
 
 
 /***/ }),
@@ -5508,6 +5499,222 @@ var InsertKnotButtonShaders = /** @class */ (function () {
 }());
 exports.InsertKnotButtonShaders = InsertKnotButtonShaders;
 ;
+
+
+/***/ }),
+
+/***/ "./src/views/TransitionCurvatureExtremaView.ts":
+/*!*****************************************************!*\
+  !*** ./src/views/TransitionCurvatureExtremaView.ts ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TransitionCurvatureExtremaView = void 0;
+//import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
+//import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var TransitionCurvatureExtremaView = /** @class */ (function () {
+    function TransitionCurvatureExtremaView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
+        this.curvatureExtremaShaders = curvatureExtremaShaders;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+        this.z = 0;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        this.controlPoints = spline.visibleControlPoints();
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.update(spline);
+    }
+    TransitionCurvatureExtremaView.prototype.updateVerticesAndIndices = function () {
+        var size = 0.03;
+        this.vertices = new Float32Array(this.controlPoints.length * 32);
+        this.indices = new Uint8Array(this.controlPoints.length * 6);
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var x = this.controlPoints[i].x;
+            var y = this.controlPoints[i].y;
+            this.vertices[32 * i] = x - size;
+            this.vertices[32 * i + 1] = y - size;
+            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.red;
+            this.vertices[32 * i + 6] = this.green;
+            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 8] = x + size;
+            this.vertices[32 * i + 9] = y - size;
+            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.red;
+            this.vertices[32 * i + 14] = this.green;
+            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 16] = x + size;
+            this.vertices[32 * i + 17] = y + size;
+            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.red;
+            this.vertices[32 * i + 22] = this.green;
+            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 24] = x - size;
+            this.vertices[32 * i + 25] = y + size;
+            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.red;
+            this.vertices[32 * i + 30] = this.green;
+            this.vertices[32 * i + 31] = this.blue;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    TransitionCurvatureExtremaView.prototype.initVertexBuffers = function (gl) {
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        var a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Texture < 0) {
+            console.log('Failed to get the storage location of a_Texture');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    TransitionCurvatureExtremaView.prototype.renderFrame = function () {
+        var gl = this.curvatureExtremaShaders.gl, a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT, a_ColorLocation = gl.getUniformLocation(this.curvatureExtremaShaders.program, "a_Color");
+        gl.useProgram(this.curvatureExtremaShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        gl.uniform4f(a_ColorLocation, this.red, this.green, this.blue, this.alpha);
+        this.curvatureExtremaShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    };
+    TransitionCurvatureExtremaView.prototype.update = function (spline) {
+        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
+            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
+            this.controlPoints = splineDP.curvatureExtrema();
+            this.updateVerticesAndIndices();
+            this.updateBuffers();
+        }
+    };
+    TransitionCurvatureExtremaView.prototype.updateBuffers = function () {
+        var gl = this.curvatureExtremaShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return TransitionCurvatureExtremaView;
+}());
+exports.TransitionCurvatureExtremaView = TransitionCurvatureExtremaView;
+
+
+/***/ }),
+
+/***/ "./src/views/TransitionDifferentialEventShaders.ts":
+/*!*********************************************************!*\
+  !*** ./src/views/TransitionDifferentialEventShaders.ts ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TransitionDifferentialEventShaders = void 0;
+var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+var TransitionDifferentialEventShaders = /** @class */ (function () {
+    function TransitionDifferentialEventShaders(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec2 a_Texture; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '    v_Texture = a_Texture; \n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision highp float; \n' +
+            'uniform vec4 a_Color; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
+            '     if (dist > 0.4 && dist < 0.55 || dist > 0.75) discard; \n' +
+            '     gl_FragColor = a_Color; \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    TransitionDifferentialEventShaders.prototype.renderFrame = function (numberOfElements) {
+        if (this.program) {
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
+        }
+    };
+    return TransitionDifferentialEventShaders;
+}());
+exports.TransitionDifferentialEventShaders = TransitionDifferentialEventShaders;
 
 
 /***/ }),
