@@ -269,14 +269,17 @@ export class BSpline_R1_to_R1 {
         let maxError = tolerance * 2
         let vertexIndex = []
 
-        let cpZeros = spline.controlPolygonZeros()
+        let cpZeros = spline.controlPolygonNumberOfSignChanges()
         let result: Array<number> = []
         let lastInsertedKnot = 0
 
         while (maxError > tolerance) {
-            if ( cpZeros.length !== spline.controlPolygonZeros().length ) {
+            let temp = spline.controlPolygonNumberOfSignChanges()
+            if ( cpZeros !== temp ) {
                 result.push(lastInsertedKnot)
             }
+            cpZeros = temp
+
             let cpLeft = spline.controlPoints[0]
             vertexIndex = []
             let maximum = 0

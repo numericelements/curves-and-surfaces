@@ -829,13 +829,15 @@ var BSpline_R1_to_R1 = /** @class */ (function () {
         var greville = spline.grevilleAbscissae();
         var maxError = tolerance * 2;
         var vertexIndex = [];
-        var cpZeros = spline.controlPolygonZeros();
+        var cpZeros = spline.controlPolygonNumberOfSignChanges();
         var result = [];
         var lastInsertedKnot = 0;
         while (maxError > tolerance) {
-            if (cpZeros.length !== spline.controlPolygonZeros().length) {
+            var temp = spline.controlPolygonNumberOfSignChanges();
+            if (cpZeros !== temp) {
                 result.push(lastInsertedKnot);
             }
+            cpZeros = temp;
             var cpLeft = spline.controlPoints[0];
             vertexIndex = [];
             var maximum = 0;
