@@ -92,6 +92,8 @@ export class BSpline_R1_to_R1 {
         return result;
     }
 
+
+
     zeros(tolerance: number = 10e-8) {
         //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
         let spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice())
@@ -225,6 +227,92 @@ export class BSpline_R1_to_R1 {
             index += 1;
         }
 
+    }
+
+
+    controlPolygonNumberOfSignChanges() {
+        let result = 0
+        let greville = this.grevilleAbscissae()
+        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !==  Math.sign(this._controlPoints[i + 1])) {
+                result += 1
+            }
+        }
+        return result
+    }
+
+    controlPolygonZeros() {
+        let result: Array<number> = []
+        let greville = this.grevilleAbscissae()
+        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !==  Math.sign(this._controlPoints[i + 1])) {
+                result.push(this.findLineZero(  greville[i], 
+                                                this.controlPoints[i],  
+                                                greville[i + 1], 
+                                                this.controlPoints[i + 1]))
+            }
+        }
+        return result
+    }
+
+    findLineZero(x1: number, y1: number, x2: number, y2: number) {
+        // find the zero of the line y = ax + b
+        let a = (y2 - y1) / (x2 - x1)
+        let b = y1 - a * x1
+        return -b / a
+    }
+
+    zerosPolygonVsFunctionDiffViewer(tolerance: number = 10e-8) {
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        let spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice())
+        let greville = spline.grevilleAbscissae()
+        let maxError = tolerance * 2
+        let vertexIndex = []
+
+        let cpZeros = spline.controlPolygonZeros()
+        let result: Array<number> = []
+        let lastInsertedKnot = 0
+
+        while (maxError > tolerance) {
+            if ( cpZeros.length !== spline.controlPolygonZeros().length ) {
+                result.push(lastInsertedKnot)
+            }
+            let cpLeft = spline.controlPoints[0]
+            vertexIndex = []
+            let maximum = 0
+            for (let index = 1; index < spline.controlPoints.length; index += 1) {
+                let cpRight = spline.controlPoints[index]
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index)
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index)
+                }
+                cpLeft = cpRight
+            }
+            for (let i = 0; i < vertexIndex.length; i += 1) {
+                let uLeft = greville[vertexIndex[i] - 1]
+                let uRight = greville[vertexIndex[i]]
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft
+                }
+                if (uRight - uLeft > tolerance) {
+                    lastInsertedKnot = (uLeft + uRight) / 2
+                    spline.insertKnot(lastInsertedKnot)
+                    greville = spline.grevilleAbscissae()
+                }
+
+            }
+            maxError = maximum
+        }
+
+        /*
+        let result = []
+        for (let i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]])
+        }
+        */
+        return result
     }
 
 

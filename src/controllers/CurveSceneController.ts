@@ -88,7 +88,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.curveView.renderFrame()
         this.curvatureExtremaView.renderFrame()
-        //this.transitionCurvatureExtremaView.renderFrame()
+        this.transitionCurvatureExtremaView.renderFrame()
         this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
         this.controlPointsView.renderFrame()

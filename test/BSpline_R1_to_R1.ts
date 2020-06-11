@@ -38,6 +38,23 @@ describe('BSpline_R1_to_R1', () => {
         expect(s.zeros()[0]).to.be.closeTo(0.5, 10e-4)
     });
 
+    it('can compute the number of sign changes of its control polygon', () => {
+        const s1 = new  BSpline_R1_to_R1([ -1, 0, 1 ], [ 0, 0, 0, 1, 1, 1 ])
+        expect(s1.controlPolygonNumberOfSignChanges()).to.equal(2)
+
+        const s2 = new  BSpline_R1_to_R1([ -1, 0.1, 1 ], [ 0, 0, 0, 1, 1, 1 ])
+        expect(s2.controlPolygonNumberOfSignChanges()).to.equal(1)
+
+        const s3 = new  BSpline_R1_to_R1([ -1, 0.1, 1, -2 ], [ 0, 0, 0, 0.5, 1, 1, 1 ])
+        expect(s3.controlPolygonNumberOfSignChanges()).to.equal(2)
+    });
+
+    it('can compute the zeros of the control polygon', () => {
+        const s1 = new  BSpline_R1_to_R1([ -1, 1, 1 ], [ 0, 0, 0, 1, 1, 1 ])
+        expect(s1.controlPolygonZeros().length).to.equal(1)
+        expect(s1.controlPolygonZeros()[0]).to.be.closeTo(0.25, 10e-8)
+    });
+
 
 
 });

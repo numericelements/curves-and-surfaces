@@ -155,7 +155,7 @@ var CurveSceneController = /** @class */ (function () {
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
         this.curveView.renderFrame();
         this.curvatureExtremaView.renderFrame();
-        //this.transitionCurvatureExtremaView.renderFrame()
+        this.transitionCurvatureExtremaView.renderFrame();
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
         this.controlPointsView.renderFrame();
@@ -796,6 +796,81 @@ var BSpline_R1_to_R1 = /** @class */ (function () {
             index += 1;
         }
     };
+    BSpline_R1_to_R1.prototype.controlPolygonNumberOfSignChanges = function () {
+        var result = 0;
+        var greville = this.grevilleAbscissae();
+        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result += 1;
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.controlPolygonZeros = function () {
+        var result = [];
+        var greville = this.grevilleAbscissae();
+        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result.push(this.findLineZero(greville[i], this.controlPoints[i], greville[i + 1], this.controlPoints[i + 1]));
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.findLineZero = function (x1, y1, x2, y2) {
+        // find the zero of the line y = ax + b
+        var a = (y2 - y1) / (x2 - x1);
+        var b = y1 - a * x1;
+        return -b / a;
+    };
+    BSpline_R1_to_R1.prototype.zerosPolygonVsFunctionDiffViewer = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        var cpZeros = spline.controlPolygonZeros();
+        var result = [];
+        var lastInsertedKnot = 0;
+        while (maxError > tolerance) {
+            if (cpZeros.length !== spline.controlPolygonZeros().length) {
+                result.push(lastInsertedKnot);
+            }
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var i = 0; i < vertexIndex.length; i += 1) {
+                var uLeft = greville[vertexIndex[i] - 1];
+                var uRight = greville[vertexIndex[i]];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    lastInsertedKnot = (uLeft + uRight) / 2;
+                    spline.insertKnot(lastInsertedKnot);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        /*
+        let result = []
+        for (let i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]])
+        }
+        */
+        return result;
+    };
     return BSpline_R1_to_R1;
 }());
 exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
@@ -1155,6 +1230,17 @@ var BSpline_R1_to_R2_DifferentialProperties = /** @class */ (function () {
             curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
         }
         var zeros = curvatureDerivativeNumerator.zeros();
+        var result = [];
+        for (var i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]));
+        }
+        return result;
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.transitionCurvatureExtrema = function (curvatureDerivativeNumerator) {
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer();
         var result = [];
         for (var i = 0; i < zeros.length; i += 1) {
             result.push(this.spline.evaluate(zeros[i]));
@@ -5648,7 +5734,7 @@ var TransitionCurvatureExtremaView = /** @class */ (function () {
     TransitionCurvatureExtremaView.prototype.update = function (spline) {
         if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
             var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
-            this.controlPoints = splineDP.curvatureExtrema();
+            this.controlPoints = splineDP.transitionCurvatureExtrema();
             this.updateVerticesAndIndices();
             this.updateBuffers();
         }

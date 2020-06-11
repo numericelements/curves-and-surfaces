@@ -113,4 +113,16 @@ export class BSpline_R1_to_R2_DifferentialProperties {
         return result
     }
 
+    transitionCurvatureExtrema(curvatureDerivativeNumerator?: BSpline_R1_to_R1) {
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator()
+        }
+        const zeros = curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer()
+        let result = []
+        for (let i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]))
+        }
+        return result
+    }
+
 }

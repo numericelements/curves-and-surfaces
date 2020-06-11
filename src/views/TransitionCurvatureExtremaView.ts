@@ -170,7 +170,7 @@ export class TransitionCurvatureExtremaView implements IObserver<BSpline_R1_to_R
     update(spline: BSpline_R1_to_R2_interface) {
         if (spline instanceof BSpline_R1_to_R2) {
             const splineDP = new BSpline_R1_to_R2_DifferentialProperties(spline)
-            this.controlPoints = splineDP.curvatureExtrema()
+            this.controlPoints = splineDP.transitionCurvatureExtrema()
             this.updateVerticesAndIndices()
             this.updateBuffers()
         }
