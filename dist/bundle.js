@@ -472,6 +472,8 @@ function main() {
     var toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
     var toggleButtonInflection = document.getElementById("toggleButtonInflections");
     var toggleButtonSliding = document.getElementById("toggleButtonSliding");
+    var canvasFunctionA = document.getElementById("webglFunctionA");
+    var canvasFunctionB = document.getElementById("webglFunctionB");
     var gl = webgl_utils_1.WebGLUtils().setupWebGL(canvas);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');

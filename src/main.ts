@@ -10,6 +10,9 @@ export function main() {
     let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
     let toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding")
 
+    let canvasFunctionA = <HTMLCanvasElement> document.getElementById("webglFunctionA")
+    let canvasFunctionB = <HTMLCanvasElement> document.getElementById("webglFunctionB")
+
 
     let gl = WebGLUtils().setupWebGL(canvas)
 

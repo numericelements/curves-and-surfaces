@@ -13,8 +13,8 @@
     "url": "git+https://github.com/numericelements/curves-and-surfaces.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Eric Demers, Francois Guibault, Jean-Claude Leon",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/numericelements/curves-and-surfaces/issues"
   },
