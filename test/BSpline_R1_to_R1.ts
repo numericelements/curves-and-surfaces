@@ -55,6 +55,17 @@ describe('BSpline_R1_to_R1', () => {
         expect(s1.controlPolygonZeros()[0]).to.be.closeTo(0.25, 10e-8)
     });
 
+    it('can produce a curve', () => {
+        const s1 = new  BSpline_R1_to_R1([ -1, 1, 1 ], [ 0, 0, 0, 1, 1, 1 ])
+        const c1 = s1.curve()
+        expect(c1.controlPoints[0].x).to.equal(0)
+        expect(c1.controlPoints[0].y).to.equal(-1)
+        expect(c1.controlPoints[1].x).to.equal(0.5)
+        expect(c1.controlPoints[1].y).to.equal(1)
+        expect(c1.controlPoints[2].x).to.equal(1)
+        expect(c1.controlPoints[2].y).to.equal(1)
+    });
+
 
 
 });

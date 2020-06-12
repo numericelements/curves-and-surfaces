@@ -1,6 +1,8 @@
 import { findSpan, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book"
 import { basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { decomposeFunction } from "./Piegl_Tiller_NURBS_Book"
+import { Vector_2d } from "./Vector_2d"
+import { BSpline_R1_to_R2 } from "./BSpline_R1_to_R2"
 
 
 /**
@@ -316,6 +318,16 @@ export class BSpline_R1_to_R1 {
         }
         */
         return result
+    }
+
+    curve() {
+        let x = this.grevilleAbscissae()
+        let cp: Array<Vector_2d> = []
+        for (let i = 0; i < x.length; i +=1) {
+            cp.push(new Vector_2d(x[i], this._controlPoints[i]))
+        }
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+
     }
 
 
