@@ -56,6 +56,9 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
         })
 
         this.spline = this.spline.move(-0.5, 0)
+
+        this.spline = this.spline.scaleX(1.8)
+
         if (max !== 0) {
             this.spline = this.spline.scaleY(1 / (max * 2.1))
         }

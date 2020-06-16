@@ -285,6 +285,14 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
         return new BSpline_R1_to_R2(cp, this.knots.slice())
     }
 
+    scaleX(factor: number) {
+        let cp: Array<Vector_2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector_2d(element.x * factor, element.y))
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice())
+    }
+
 
 
 }

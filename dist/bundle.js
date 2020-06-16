@@ -280,6 +280,7 @@ var FunctionASceneController = /** @class */ (function () {
             }
         });
         this.spline = this.spline.move(-0.5, 0);
+        this.spline = this.spline.scaleX(1.8);
         if (max !== 0) {
             this.spline = this.spline.scaleY(1 / (max * 2.1));
         }
@@ -352,6 +353,7 @@ var FunctionBSceneController = /** @class */ (function () {
             }
         });
         this.spline = this.spline.move(-0.5, 0);
+        this.spline = this.spline.scaleX(1.8);
         if (max !== 0) {
             this.spline = this.spline.scaleY(1 / (max * 2.1));
         }
@@ -1314,6 +1316,13 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
         var cp = [];
         this._controlPoints.forEach(function (element) {
             cp.push(new Vector_2d_1.Vector_2d(element.x, element.y * factor));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.scaleX = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector_2d_1.Vector_2d(element.x * factor, element.y));
         });
         return new BSpline_R1_to_R2(cp, this.knots.slice());
     };
