@@ -60,6 +60,24 @@ canvas {
     display: block;
 }
 
+#webglFunctionA{
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  display: block;
+}
+
+#webglFunctionB{
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  display: block;
+}
+
 
 
 .switch {

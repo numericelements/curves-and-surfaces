@@ -114,9 +114,12 @@ var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/cont
 var NoSlidingStrategy_1 = __webpack_require__(/*! ./NoSlidingStrategy */ "./src/controllers/NoSlidingStrategy.ts");
 var TransitionCurvatureExtremaView_1 = __webpack_require__(/*! ../views/TransitionCurvatureExtremaView */ "./src/views/TransitionCurvatureExtremaView.ts");
 var CurveSceneController = /** @class */ (function () {
-    function CurveSceneController(canvas, gl) {
+    function CurveSceneController(canvas, gl, curveObservers) {
+        var _this = this;
+        if (curveObservers === void 0) { curveObservers = []; }
         this.canvas = canvas;
         this.gl = gl;
+        this.curveObservers = curveObservers;
         this.selectedControlPoint = null;
         this.dragging = false;
         this.curveModel = new CurveModel_1.CurveModel();
@@ -141,6 +144,10 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.curvatureExtremaView);
         this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
+        this.curveObservers.forEach(function (element) {
+            element.update(_this.curveModel.spline);
+            _this.curveModel.registerObserver(element);
+        });
         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
         this.sliding = true;
     }
@@ -160,6 +167,9 @@ var CurveSceneController = /** @class */ (function () {
         this.controlPolygonView.renderFrame();
         this.controlPointsView.renderFrame();
         this.insertKnotButtonView.renderFrame();
+        this.curveObservers.forEach(function (element) {
+            element.renderFrame();
+        });
     };
     CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
         this.curveControl.toggleControlOfCurvatureExtrema();
@@ -222,6 +232,150 @@ var CurveSceneController = /** @class */ (function () {
     return CurveSceneController;
 }());
 exports.CurveSceneController = CurveSceneController;
+
+
+/***/ }),
+
+/***/ "./src/controllers/FunctionASceneController.ts":
+/*!*****************************************************!*\
+  !*** ./src/controllers/FunctionASceneController.ts ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionASceneController = void 0;
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
+var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
+var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
+var ControlPolygonShaders_1 = __webpack_require__(/*! ../views/ControlPolygonShaders */ "./src/views/ControlPolygonShaders.ts");
+var ControlPolygonView_1 = __webpack_require__(/*! ../views/ControlPolygonView */ "./src/views/ControlPolygonView.ts");
+var CurveShaders_1 = __webpack_require__(/*! ../views/CurveShaders */ "./src/views/CurveShaders.ts");
+var CurveView_1 = __webpack_require__(/*! ../views/CurveView */ "./src/views/CurveView.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var FunctionASceneController = /** @class */ (function () {
+    function FunctionASceneController(canvas, gl) {
+        this.canvas = canvas;
+        this.gl = gl;
+        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.spline = this.spline.move(-0.5, 0);
+        this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
+        this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.spline, this.controlPointsShaders, 1, 1, 1);
+        this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
+        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.spline, this.controlPolygonShaders, false);
+        this.curveShaders = new CurveShaders_1.CurveShaders(this.gl);
+        this.curveView = new CurveView_1.CurveView(this.spline, this.curveShaders, 100 / 255, 91 / 255, 200 / 255, 1);
+        this.xAxis = new ControlPolygonView_1.ControlPolygonView(BSpline_R1_to_R2_1.create_BSpline_R1_to_R2([[-1, 0], [1, 0]], [0, 0, 1, 1]), this.controlPolygonShaders, false);
+    }
+    FunctionASceneController.prototype.update = function (message) {
+        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
+        var max = 0;
+        this.spline.controlPoints.forEach(function (element) {
+            var temp = Math.abs(element.y);
+            if (temp > max) {
+                max = temp;
+            }
+        });
+        this.spline = this.spline.move(-0.5, 0);
+        if (max !== 0) {
+            this.spline = this.spline.scaleY(1 / (max * 2.1));
+        }
+        this.controlPointsView.update(this.spline);
+        this.controlPolygonView.update(this.spline);
+        this.curveView.update(this.spline);
+    };
+    FunctionASceneController.prototype.renderFrame = function () {
+        var px = 100, size = Math.min(window.innerWidth, window.innerHeight) - px;
+        this.canvas.width = size;
+        this.canvas.height = size * 0.5;
+        this.gl.viewport(0, -this.canvas.height * 0.5, this.canvas.width, this.canvas.height * 2);
+        this.gl.clearColor(0.8, 0.8, 0.8, 1);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+        this.xAxis.renderFrame();
+        this.curveView.renderFrame();
+        this.controlPolygonView.renderFrame();
+        this.controlPointsView.renderFrame();
+    };
+    return FunctionASceneController;
+}());
+exports.FunctionASceneController = FunctionASceneController;
+
+
+/***/ }),
+
+/***/ "./src/controllers/FunctionBSceneController.ts":
+/*!*****************************************************!*\
+  !*** ./src/controllers/FunctionBSceneController.ts ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionBSceneController = void 0;
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
+var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
+var ControlPolygonShaders_1 = __webpack_require__(/*! ../views/ControlPolygonShaders */ "./src/views/ControlPolygonShaders.ts");
+var ControlPolygonView_1 = __webpack_require__(/*! ../views/ControlPolygonView */ "./src/views/ControlPolygonView.ts");
+var CurveShaders_1 = __webpack_require__(/*! ../views/CurveShaders */ "./src/views/CurveShaders.ts");
+var CurveView_1 = __webpack_require__(/*! ../views/CurveView */ "./src/views/CurveView.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var FunctionBSceneController = /** @class */ (function () {
+    function FunctionBSceneController(canvas, gl) {
+        this.canvas = canvas;
+        this.gl = gl;
+        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.spline = this.spline.move(-0.5, 0);
+        this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
+        this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.spline, this.controlPointsShaders, 1, 1, 1);
+        this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
+        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.spline, this.controlPolygonShaders, false);
+        this.curveShaders = new CurveShaders_1.CurveShaders(this.gl);
+        this.curveView = new CurveView_1.CurveView(this.spline, this.curveShaders, 216 / 255, 200 / 255, 95 / 255, 1);
+        this.xAxis = new ControlPolygonView_1.ControlPolygonView(BSpline_R1_to_R2_1.create_BSpline_R1_to_R2([[-1, 0], [1, 0]], [0, 0, 1, 1]), this.controlPolygonShaders, false);
+    }
+    FunctionBSceneController.prototype.update = function (message) {
+        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        var max = 0;
+        this.spline.controlPoints.forEach(function (element) {
+            var temp = Math.abs(element.y);
+            if (temp > max) {
+                max = temp;
+            }
+        });
+        this.spline = this.spline.move(-0.5, 0);
+        if (max !== 0) {
+            this.spline = this.spline.scaleY(1 / (max * 2.1));
+        }
+        this.controlPointsView.update(this.spline);
+        this.controlPolygonView.update(this.spline);
+        this.curveView.update(this.spline);
+    };
+    FunctionBSceneController.prototype.renderFrame = function () {
+        var px = 100, size = Math.min(window.innerWidth, window.innerHeight) - px;
+        this.canvas.width = size;
+        this.canvas.height = size * 0.5;
+        this.gl.viewport(0, -this.canvas.height * 0.5, this.canvas.width, this.canvas.height * 2);
+        this.gl.clearColor(0.7, 0.7, 0.7, 1);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+        this.xAxis.renderFrame();
+        this.curveView.renderFrame();
+        this.controlPolygonView.renderFrame();
+        this.controlPointsView.renderFrame();
+    };
+    return FunctionBSceneController;
+}());
+exports.FunctionBSceneController = FunctionBSceneController;
 
 
 /***/ }),
@@ -467,6 +621,8 @@ exports.main = void 0;
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
+var FunctionASceneController_1 = __webpack_require__(/*! ./controllers/FunctionASceneController */ "./src/controllers/FunctionASceneController.ts");
+var FunctionBSceneController_1 = __webpack_require__(/*! ./controllers/FunctionBSceneController */ "./src/controllers/FunctionBSceneController.ts");
 function main() {
     var canvas = document.getElementById("webgl");
     var toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
@@ -479,7 +635,19 @@ function main() {
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
-    var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
+    var glFunctionA = webgl_utils_1.WebGLUtils().setupWebGL(canvasFunctionA);
+    if (!glFunctionA) {
+        console.log('Failed to get the rendering context for WebGL');
+        return;
+    }
+    var glFunctionB = webgl_utils_1.WebGLUtils().setupWebGL(canvasFunctionB);
+    if (!glFunctionB) {
+        console.log('Failed to get the rendering context for WebGL');
+        return;
+    }
+    var functionASceneController = new FunctionASceneController_1.FunctionASceneController(canvasFunctionA, glFunctionA);
+    var functionBSceneController = new FunctionBSceneController_1.FunctionBSceneController(canvasFunctionB, glFunctionB);
+    var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController]);
     // let sceneController = new OvalCurveSceneController(canvas, gl)
     function mouse_get_NormalizedDeviceCoordinates(event) {
         var x, y, rect = canvas.getBoundingClientRect(), ev;
@@ -566,6 +734,7 @@ function main() {
         }
     }, false);
     sceneController.renderFrame();
+    functionASceneController.renderFrame();
 }
 exports.main = main;
 main();
@@ -587,6 +756,8 @@ exports.BSpline_R1_to_R1 = void 0;
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
+var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
  */
@@ -875,6 +1046,14 @@ var BSpline_R1_to_R1 = /** @class */ (function () {
         */
         return result;
     };
+    BSpline_R1_to_R1.prototype.curve = function () {
+        var x = this.grevilleAbscissae();
+        var cp = [];
+        for (var i = 0; i < x.length; i += 1) {
+            cp.push(new Vector_2d_1.Vector_2d(x[i], this._controlPoints[i]));
+        }
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cp, this.knots.slice());
+    };
     return BSpline_R1_to_R1;
 }());
 exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
@@ -1116,6 +1295,27 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
             newControlPoints.push(new Vector_2d_1.Vector_2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
         }
         return new BSpline_R1_to_R2(newControlPoints, newKnots);
+    };
+    BSpline_R1_to_R2.prototype.move = function (deltaX, deltaY) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(element.add(new Vector_2d_1.Vector_2d(deltaX, deltaY)));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.scale = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(element.multiply(factor));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.scaleY = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector_2d_1.Vector_2d(element.x, element.y * factor));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
     };
     return BSpline_R1_to_R2;
 }());

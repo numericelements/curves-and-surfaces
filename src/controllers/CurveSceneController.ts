@@ -16,6 +16,9 @@ import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { SlidingStrategy } from "./SlidingStrategy";
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
+import { IObserver } from "../designPatterns/Observer";
+import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
+import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 
 
 
@@ -43,7 +46,7 @@ export class CurveSceneController implements SceneControllerInterface {
     private controlOfInflection: boolean
 
 
-    constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext) {
+    constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = []) {
         this.curveModel = new CurveModel()
         this.controlPointsShaders = new ControlPointsShaders(this.gl)
         this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1)
@@ -72,6 +75,12 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.transitionCurvatureExtremaView)
         this.curveModel.registerObserver(this.inflectionsView)
 
+
+        this.curveObservers.forEach(element => {
+            element.update(this.curveModel.spline)
+            this.curveModel.registerObserver(element)
+        });
+
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
         this.sliding = true
     }
@@ -93,6 +102,11 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlPolygonView.renderFrame()
         this.controlPointsView.renderFrame()
         this.insertKnotButtonView.renderFrame()
+
+        this.curveObservers.forEach(element => {
+            element.renderFrame()
+        });
+
     }
 
 

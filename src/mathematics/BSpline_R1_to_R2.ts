@@ -261,6 +261,30 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
 
     }
 
+    move(deltaX: number, deltaY: number) {
+        let cp: Array<Vector_2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(element.add(new Vector_2d(deltaX, deltaY)))
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice())
+    }
+
+    scale(factor: number) {
+        let cp: Array<Vector_2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(element.multiply(factor))
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice())
+    }
+
+    scaleY(factor: number) {
+        let cp: Array<Vector_2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector_2d(element.x, element.y * factor))
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice())
+    }
+
 
 
 }

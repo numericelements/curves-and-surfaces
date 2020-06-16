@@ -1,6 +1,8 @@
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
+import { FunctionASceneController } from "./controllers/FunctionASceneController"
+import { FunctionBSceneController } from "./controllers/FunctionBSceneController"
 
 
 export function main() {
@@ -21,8 +23,27 @@ export function main() {
         return
     }
 
-    let sceneController = new CurveSceneController(canvas, gl)
+    let glFunctionA = WebGLUtils().setupWebGL(canvasFunctionA)
+
+    if (!glFunctionA) {
+        console.log('Failed to get the rendering context for WebGL')
+        return
+    }
+
+    let glFunctionB = WebGLUtils().setupWebGL(canvasFunctionB)
+
+    if (!glFunctionB) {
+        console.log('Failed to get the rendering context for WebGL')
+        return
+    }
+
+
+    let functionASceneController = new FunctionASceneController(canvasFunctionA, glFunctionA)
+    let functionBSceneController = new FunctionBSceneController(canvasFunctionB, glFunctionB)
+
+    let sceneController = new CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController])
     // let sceneController = new OvalCurveSceneController(canvas, gl)
+
 
 
 
@@ -138,6 +159,7 @@ export function main() {
     }, false);
 
     sceneController.renderFrame()
+    functionASceneController.renderFrame()
    
 }
 
