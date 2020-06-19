@@ -72,7 +72,7 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
         let px = 100,
         size = Math.min(window.innerWidth, window.innerHeight) - px;
         this.canvas.width = size ;
-        this.canvas.height = size * 0.5;
+        this.canvas.height = size * 0.25;
         this.gl.viewport(0, -this.canvas.height * 0.5, this.canvas.width, this.canvas.height * 2);
         this.gl.clearColor(0.8, 0.8, 0.8, 1)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT)
