@@ -90,7 +90,7 @@ export class CurveSceneController implements SceneControllerInterface {
         size = Math.min(window.innerWidth, window.innerHeight) - px;
         this.canvas.width = size;
         this.canvas.height = size;
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); 
         this.gl.clearColor(0.3, 0.3, 0.3, 1)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT)
         this.gl.enable(this.gl.BLEND);
