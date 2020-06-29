@@ -85,6 +85,8 @@ export function main() {
         }
     });
 
+    
+
     let canvasElementFunctionA = chartFunctionA.canvas?.parentNode as HTMLCanvasElement;
     canvasElementFunctionA.style.height = '600px'
     canvasElementFunctionA.style.width = '300px' 

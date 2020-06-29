@@ -86,8 +86,8 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     renderFrame() {
-        let px = 100,
-        size = Math.min(window.innerWidth, window.innerHeight) - px;
+        let px = 150
+        let size = Math.min(window.innerWidth, window.innerHeight) - px;
         this.canvas.width = size;
         this.canvas.height = size;
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); 
