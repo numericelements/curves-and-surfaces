@@ -58,12 +58,12 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
        //this.spline.insertKnot(0.9)
     
     
-
-       /*
+/*
+       
        const cp = [ [-0.5, 0.5], [-0.35, 0.4], [-0.2, 0], [0.2, 0], [0.35, 0.4] ]
        const knots = [0, 0, 0, 0, 0,  1, 1, 1, 1, 1]
        this.spline = create_BSpline_R1_to_R2(cp, knots)
-        */
+*/     
 
         
         /*

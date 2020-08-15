@@ -24,6 +24,8 @@ export function main() {
 
 
     let canvasFunctionA = <HTMLCanvasElement> document.getElementById('chartjsFunctionA')
+    
+    
     let ctxFunctionA = canvasFunctionA.getContext('2d');
 
     let canvasFunctionB = <HTMLCanvasElement> document.getElementById('chartjsFunctionB')
@@ -85,7 +87,7 @@ export function main() {
         }
     });
 
-    
+
 
     let canvasElementFunctionA = chartFunctionA.canvas?.parentNode as HTMLCanvasElement;
     canvasElementFunctionA.style.height = '600px'
