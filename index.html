@@ -24,38 +24,50 @@
         </p>
     <p style="margin-bottom:1cm;"> </p>
 
+
+    <p style="margin-bottom:0.5cm;"> </p>
+
+    <div class = "row">
+
+      <div class = "column">
+
   <!-- Rounded switch - curvature extrema -->
-  <center>  <p> <small> <b>Control of curvature extrema </b> </small> </p> <label class="switch">
+  <center>  <p> <small> <b>Curvature extrema </b> </small> </p> <label class="switch">
+  <!--<center>  <p> <small> <b>Control of curvature extrema </b> </small> </p> <label class="switch"></label> -->
     <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
     <span class="slider round"></span>
     </label></center>
 
   <!-- Rounded switch - inflexions -->
-  <center>  <p> <small> <b>Control of inflexions </b> </small> </p> <label class="switch">
+  <center>  <p> <small> <b>Inflexions </b> </small> </p> <label class="switch">
     <input type="checkbox"  checked id="toggleButtonInflections">
     <span class="slider round"></span>
     </label></center>
 
 
   <!-- Rounded switch - sliding mechanism -->
-  <center>  <p> <small> <b>sliding mechanism </b> </small> </p> <label class="switch">
+  <center>  <p> <small> <b>Sliding </b> </small> </p> <label class="switch">
     <input type="checkbox"  checked id="toggleButtonSliding">
     <span class="slider round"></span>
     </label></center>
 
     <p style="margin-bottom:0.5cm;"> </p>
 
-    <canvas id="webgl" width="600" height="600">
-            Please use a browser that supports "canvas"
-    </canvas>
+        <!--<canvas id="chartjsFunctionA"></canvas> -->
+        <canvas id="chartjsFunctionBsqrtScaled"></canvas>
+        <canvas id="chartjsFunctionB"></canvas>
+        <canvas id="chartjsCurvature"></canvas>
+       </div>
 
-    <canvas id="webglFunctionB" width="600" height="150">
-      Please use a browser that supports "canvas"
-    </canvas>
-
-    <canvas id="webglFunctionA" width="600" height="150">
+      <div class = "column">
+      <canvas id="webgl" width="600" height="600">
             Please use a browser that supports "canvas"
-    </canvas>
+      </canvas>
+      </div>
+
+    </div>
+
+   
 
 
 

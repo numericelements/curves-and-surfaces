@@ -3,6 +3,10 @@ import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
 import { FunctionASceneController } from "./controllers/FunctionASceneController"
 import { FunctionBSceneController } from "./controllers/FunctionBSceneController"
+import { FunctionBSceneControllerSqrtScaled } from "./controllers/FunctionBSceneControllerSqrtScaled"
+import { CurvatureSceneController } from "./controllers/CurvatureSceneController"
+
+import Chart from 'chart.js'
 
 
 export function main() {
@@ -12,10 +16,6 @@ export function main() {
     let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
     let toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding")
 
-    let canvasFunctionA = <HTMLCanvasElement> document.getElementById("webglFunctionA")
-    let canvasFunctionB = <HTMLCanvasElement> document.getElementById("webglFunctionB")
-
-
     let gl = WebGLUtils().setupWebGL(canvas)
 
     if (!gl) {
@@ -23,28 +23,196 @@ export function main() {
         return
     }
 
-    let glFunctionA = WebGLUtils().setupWebGL(canvasFunctionA)
-
-    if (!glFunctionA) {
-        console.log('Failed to get the rendering context for WebGL')
-        return
-    }
-
-    let glFunctionB = WebGLUtils().setupWebGL(canvasFunctionB)
-
-    if (!glFunctionB) {
-        console.log('Failed to get the rendering context for WebGL')
-        return
-    }
 
 
-    let functionASceneController = new FunctionASceneController(canvasFunctionA, glFunctionA)
-    let functionBSceneController = new FunctionBSceneController(canvasFunctionB, glFunctionB)
+    /*let canvasFunctionA = <HTMLCanvasElement> document.getElementById('chartjsFunctionA')
+    let ctxFunctionA = canvasFunctionA.getContext('2d');*/
 
-    let sceneController = new CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController])
-    // let sceneController = new OvalCurveSceneController(canvas, gl)
+    let canvasFunctionB = <HTMLCanvasElement> document.getElementById('chartjsFunctionB')
+    let ctxFunctionB = canvasFunctionB.getContext('2d');
 
+    let canvasFunctionBsqrtScaled = <HTMLCanvasElement> document.getElementById('chartjsFunctionBsqrtScaled')
+    let ctxFunctionBsqrtScaled = canvasFunctionBsqrtScaled.getContext('2d');
 
+    let canvasCurvature = <HTMLCanvasElement> document.getElementById('chartjsCurvature')
+    let ctxCurvature = canvasCurvature.getContext('2d');
+   
+
+    /*let chartFunctionA = new Chart(ctxFunctionA!, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Function A',
+                data: [{
+                    x: 0,
+                    y: 0
+                }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom'
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+    });
+    */
+
+    let chartFunctionBsqrtScaled = new Chart(ctxFunctionBsqrtScaled!, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Function B sqrt scaled',
+                data: [{
+                    x: 0,
+                    y: 0
+                }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom'
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+    });
+
+    let chartFunctionB = new Chart(ctxFunctionB!, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Function B',
+                data: [{
+                    x: 0,
+                    y: 0
+                }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom'
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+    });
+
+    /* please uncomment to get a signed curvature plot with linear axes */
+    /*
+    let chartCurvature = new Chart(ctxCurvature!, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Curvature',
+                data: [{
+                    x: 0,
+                    y: 0
+                }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom'
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+    });
+    */
+
+    /* please uncomment to get an absolute curvature plot with a logarithmic Y axis */
+    let chartCurvature = new Chart(ctxCurvature!, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Abs Curvature',
+                data: [{
+                    x: 0,
+                    y: 0
+                }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Curvature of curve'
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
+                }],
+                yAxes: [{
+                    type: 'logarithmic'
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+    });
+
+    /*let canvasElementFunctionA = chartFunctionA.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementFunctionA.style.height = '600px'
+    canvasElementFunctionA.style.width = '300px'
+    */
+
+    let canvasElementFunctionBsqrtScaled = chartFunctionBsqrtScaled.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementFunctionBsqrtScaled.style.height = '600px'
+    canvasElementFunctionBsqrtScaled.style.width = '300px' 
+
+    let canvasElementFunctionB = chartFunctionB.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementFunctionB.style.height = '600px'
+    canvasElementFunctionB.style.width = '300px' 
+
+    let canvasElementCurvature = chartCurvature.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementCurvature.style.height = '600px'
+    canvasElementCurvature.style.width = '400px' 
+ 
+
+    /*let functionASceneController = new FunctionASceneController(chartFunctionA) */
+    let functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chartFunctionBsqrtScaled)
+    let functionBSceneController = new FunctionBSceneController(chartFunctionB)
+    let curvatureSceneController = new CurvatureSceneController(chartCurvature)      
+    /*let sceneController = new CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController, curvatureSceneController])*/
+    let sceneController = new CurveSceneController(canvas, gl, [functionBsqrtScaledSceneController, functionBSceneController, curvatureSceneController])
 
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
@@ -159,7 +327,6 @@ export function main() {
     }, false);
 
     sceneController.renderFrame()
-    functionASceneController.renderFrame()
    
 }
 

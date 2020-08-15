@@ -86,11 +86,11 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     renderFrame() {
-        let px = 100,
-        size = Math.min(window.innerWidth, window.innerHeight) - px;
+        let px = 150
+        let size = Math.min(window.innerWidth, window.innerHeight) - px;
         this.canvas.width = size;
         this.canvas.height = size;
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); 
         this.gl.clearColor(0.3, 0.3, 0.3, 1)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT)
         this.gl.enable(this.gl.BLEND);
@@ -149,8 +149,17 @@ export class CurveSceneController implements SceneControllerInterface {
             if (cp != null) {
                 this.curveModel.spline.insertKnot(grevilleAbscissae[cp])
                 this.curveControl.resetCurve(this.curveModel)
+                // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
+                // JCL the curveControl must be set in accordance with the current status of controls
+                if (this.sliding == true) {
+                    this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
+                }
+                else {
+                    this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema)
+                }
                 this.curveModel.notifyObservers()
             }
+
         }
         
         this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);

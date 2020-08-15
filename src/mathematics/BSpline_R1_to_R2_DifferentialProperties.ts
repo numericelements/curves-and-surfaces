@@ -56,6 +56,14 @@ export class BSpline_R1_to_R2_DifferentialProperties {
 
     }
 
+    curvatureDenominator() {
+        const curve = this.h1()
+        const controlPoints1 = curve.controlPoints
+        let knots = curve.knots
+        return new BSpline_R1_to_R1(controlPoints1, knots)
+
+    }
+
     h1() {
         const e = this.expensiveComputation(this.spline)
         const distinctKnots = this.spline.distinctKnots()
