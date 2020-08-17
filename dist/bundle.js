@@ -37596,6 +37596,14 @@ var CurveSceneController = /** @class */ (function () {
             if (cp != null) {
                 this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
                 this.curveControl.resetCurve(this.curveModel);
+                // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
+                // JCL the curveControl must be set in accordance with the current status of controls
+                if (this.sliding == true) {
+                    this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+                }
+                else {
+                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+                }
                 this.curveModel.notifyObservers();
             }
         }
