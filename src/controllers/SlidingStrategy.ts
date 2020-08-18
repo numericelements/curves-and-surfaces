@@ -1,5 +1,5 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 
@@ -109,6 +109,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
+            console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)
             this.curveModel.setSpline(this.optimizationProblem.spline.clone())
            }
            catch(e) {

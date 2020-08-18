@@ -104,6 +104,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
 
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
@@ -234,6 +235,23 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
                 }
             }
         }
+        //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
+        if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+            let n = Math.trunc(controlPoints.length/7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
+            for(let j = 1; j < n ; j += 1) {
+                if(controlPoints[6*j]*controlPoints[6*j + 1] < 0) {
+                    //console.log("CP: " + controlPoints)
+                    if(result.indexOf(6*j) > 0 && result.indexOf(6*j + 1) < 0) {
+                        result.push(6*j + 1);
+                    } else if(result.indexOf(6*j) < 0 && result.indexOf(6*j + 1) > 0) {
+                        result.push(6*j);
+                    }
+                }
+            }
+            result.sort();
+        }
+        
         return result
     }
 

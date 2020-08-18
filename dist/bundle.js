@@ -38044,6 +38044,7 @@ var SlidingStrategy = /** @class */ (function () {
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
+            console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices);
             this.curveModel.setSpline(this.optimizationProblem.spline.clone());
         }
         catch (e) {
@@ -39931,6 +39932,7 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g);
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
+        console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints);
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
         this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator);
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
@@ -40079,6 +40081,23 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
                     result.push(signChangesIntervals[i] + 1);
                 }
             }
+        }
+        //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
+        if (this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1) * 7) {
+            var n = Math.trunc(controlPoints.length / 7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length);
+            for (var j = 1; j < n; j += 1) {
+                if (controlPoints[6 * j] * controlPoints[6 * j + 1] < 0) {
+                    //console.log("CP: " + controlPoints)
+                    if (result.indexOf(6 * j) > 0 && result.indexOf(6 * j + 1) < 0) {
+                        result.push(6 * j + 1);
+                    }
+                    else if (result.indexOf(6 * j) < 0 && result.indexOf(6 * j + 1) > 0) {
+                        result.push(6 * j);
+                    }
+                }
+            }
+            result.sort();
         }
         return result;
     };
