@@ -1,14 +1,14 @@
 <!DOCTYPE HTML>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <link href="stylesheet.css" rel="stylesheet" />
-        <title>Numeric Elements &#8211; Software Development and Research in Applied Mathematics</title>
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,800,800i" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i" rel="stylesheet">
-    </head>
+  <head>
+      <meta charset="utf-8" />
+      <link href="stylesheet.css" rel="stylesheet" />
+      <title>Numeric Elements &#8211; Software Development and Research in Applied Mathematics</title>
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,800,800i" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i" rel="stylesheet">
+  </head>
     
-    <body>
+  <body>
 
     <h1><center>NUMERIC ELEMENTS</center></h1>
     <h3><center>Software Development and Research in Applied Mathematics</center></h3>
@@ -18,64 +18,99 @@
     <h2><center> Control over the oscillations of a curve </center> </h2>
 
     <p> <b>An interactive demonstration </b> </p>
-    <p> <li> Move the B-spline control points to navigate in a curve space with an upper limit on the number of <a href="https://en.wikipedia.org/wiki/Vertex_(curve)" target="_blank" rel="noopener"> curvature extrema</a> and <a href="https://en.wikipedia.org/wiki/Inflection_point" target="_blank" rel="noopener"> inflections</a>.</li>  
+      <p> 
+        <li> Move the B-spline control points to navigate in a curve space with an upper limit on the number of <a href="https://en.wikipedia.org/wiki/Vertex_(curve)" target="_blank" rel="noopener"> curvature extrema</a> and <a href="https://en.wikipedia.org/wiki/Inflection_point" target="_blank" rel="noopener"> inflections</a>.</li>  
         <li> Disable the <b>controls</b> as needed to introduce oscillations. </li>
         <li>  <img src="InsertKnotButton.png" width="30"> : Add more control points around a selected one to add flexibility and degrees of freedom to the curve. </li>
-        </p>
+      </p>
     <p style="margin-bottom:1cm;"> </p>
 
+    <fieldset>
+      <legend>Please, select up to three functions graphs to help analyze the curve:</legend>
+      <!-- Three columns of checkboxes to select up to three function graphs to help analyzing the curve -->
+      <div class="checkbox_layout">
+        <div class="checkbox_column">
+          <div>
+            <input type="checkbox" id="chkBoxFunctionA" name="functionPlots" value="functionA">
+            <label for="chkBoxFunctionA">Function A(u)</label>
+          </div>
+        </div>
+        <div class="checkbox_column">
+          <div>
+            <input type="checkbox" id="chkBoxFunctionB" name="functionPlots" value="functionB">
+            <label for="chkBoxFunctionB">Function B(u)</label>
+          </div>
+          <div>
+            <input type="checkbox" id="chkBoxSqrtFunctionB" name="functionPlots" value="sqrtFunctionB">
+            <label for="chkBoxSqrtFunctionB">Sqrt Function B(u)</label>
+          </div>
+        </div>
+        <div class="checkbox_column">
+          <div>
+            <input type="checkbox" id="chkBoxCurvature" name="functionPlots" value="curvature">
+            <label for="chkBoxCurvature"> Curvature</label>
+          </div>
+          <div>
+            <input type="checkbox" id="chkBoxAbsCurvature" name="functionPlots" value="absCurvature">
+            <label for="chkBoxAbsCurvature"> Abs Curvature</label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
 
     <p style="margin-bottom:0.5cm;"> </p>
 
-    <div class = "row">
-
-      <div class = "column">
-
-  <!-- Rounded switch - curvature extrema -->
-  <center>  <p> <small> <b>Curvature extrema </b> </small> </p> <label class="switch">
-  <!--<center>  <p> <small> <b>Control of curvature extrema </b> </small> </p> <label class="switch"></label> -->
-    <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
-    <span class="slider round"></span>
-    </label></center>
-
-  <!-- Rounded switch - inflexions -->
-  <center>  <p> <small> <b>Inflexions </b> </small> </p> <label class="switch">
-    <input type="checkbox"  checked id="toggleButtonInflections">
-    <span class="slider round"></span>
-    </label></center>
-
-
-  <!-- Rounded switch - sliding mechanism -->
-  <center>  <p> <small> <b>Sliding </b> </small> </p> <label class="switch">
-    <input type="checkbox"  checked id="toggleButtonSliding">
-    <span class="slider round"></span>
-    </label></center>
-
-    <p style="margin-bottom:0.5cm;"> </p>
-
-        <!--<canvas id="chartjsFunctionA"></canvas> -->
-        <canvas id="chartjsFunctionBsqrtScaled"></canvas>
-        <canvas id="chartjsFunctionB"></canvas>
-        <canvas id="chartjsCurvature"></canvas>
-       </div>
-
-      <div class = "column">
-      <canvas id="webgl" width="600" height="600">
-            Please use a browser that supports "canvas"
-      </canvas>
+    <div class="wrapper">
+      <div class="wrapper_column">
+        <div class="wrapper_button">
+          <!-- Rounded switch - curvature extrema -->
+          <center>  <p class="text_control_button"> Curvature extrema </p> 
+            <label class="switch">
+              <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
+              <span class="slider round"></span>
+            </label>
+          </center>
+          <!-- Rounded switch - inflexions -->
+          <center>  <p class="text_control_button"> Inflexions </p>
+            <label class="switch">
+              <input type="checkbox"  checked id="toggleButtonInflections">
+              <span class="slider round"></span>
+            </label>
+          </center>
+          <!-- Rounded switch - sliding mechanism -->
+          <center>  <p class="text_control_button"> Sliding</p>
+            <label class="switch">
+              <input type="checkbox"  checked id="toggleButtonSliding">
+              <span class="slider round"></span>
+            </label>
+          </center>
+        </div>
+        <div hidden class="wrapper_chart" id="charts">
+          <canvas id="chart1"></canvas>
+          <canvas id="chart2"></canvas>
+          <canvas id="chart3"></canvas>
+        </div>
       </div>
 
+      <!-- <p style="margin-bottom:0.5cm;"> </p> -->
+      <div>
+        <canvas id="webgl" width="600" height="600"> Please use a browser that supports "canvas" </canvas>
+      </div>
+      <!-- Rounded switch - Curve Clamping at origin -->
+      <div class="wrapper_button">
+        <center>  <p class="text_control_button"> Clamping </p> 
+          <label class="switch">
+            <input type="checkbox"  checked id="toggleButtonCurveClamping">
+            <span class="slider round"></span>
+          </label>
+        </center>
+      </div>
     </div>
-
-   
-
 
 
     <script src="dist/bundle.js"></script>
 
     <p style="margin-bottom:1cm;"> </p>
-
-  
 
 
     <!--
@@ -85,9 +120,9 @@
     <p style="margin-bottom:1cm;"> </p>
 
     <div id="footer" style="margin-bottom:1cm; color:rgb(100, 100, 100); font-size: 80%;">
-     <center>  &copy; 2018-2020   </center>
+      <center>  &copy; 2018-2020   </center>
     </div>
 
-    </body>
+  </body>
 
 </html>

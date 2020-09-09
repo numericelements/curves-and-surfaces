@@ -1,5 +1,6 @@
 
 
+
 body {
     margin: 0;
     padding: 0;
@@ -31,7 +32,7 @@ p {
     margin-right: 100px;
     margin-bottom: 0px;
     padding: 0px;
-    font-size: 90%;
+    font-size: 120%;
     color: rgb(100, 100, 100);}
 
 li {
@@ -41,6 +42,8 @@ li {
     padding: 0px;
     font-size: 120%;
     color: rgb(100, 100, 100);}
+
+
 
 a:link {
     text-decoration: none;
@@ -60,6 +63,48 @@ canvas {
     display: block;
 }
 
+.text_control_button {
+  font-size: small;
+  font-weight: bold;
+  margin-top: 0%;
+  margin-bottom: 0%;
+  color: rgb(100, 100, 100);
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 2fr 4fr 1fr;
+  grid-template-rows: repeat(auto-fit);
+}
+
+.wrapper_button {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(3,auto-fit);
+}
+
+.wrapper_chart {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fit);
+}
+
+.wrapper_column {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fit);
+}
+
+.checkbox_layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: repeat(auto-fit);
+}
+.checkbox_column {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(auto-fit);
+}
 
 /*#webglFunctionA{
   padding-left: 0;
@@ -68,7 +113,7 @@ canvas {
   margin-right: auto;
   margin-top: 10px;
   display: block;
-}*/
+}
 
 #webglFunctionBsqrtScaled{
   padding-left: 0;
@@ -95,7 +140,7 @@ canvas {
   margin-right: auto;
   margin-top: 10px;
   display: block;
-}
+}*/
 
 
 
@@ -161,16 +206,3 @@ canvas {
     border-radius: 50%;
   }
 
-  /* Three image containers (use 25% for four, and 50% for two, etc) */
-.column {
-  float: left;
-  width: 50.0%;
-  padding: 5px;
-}
-
-/* Clear floats after image containers */
-.row::after {
-  content: "";
-  clear: both;
-  display: table;
-}

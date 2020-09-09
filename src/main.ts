@@ -5,16 +5,46 @@ import { FunctionASceneController } from "./controllers/FunctionASceneController
 import { FunctionBSceneController } from "./controllers/FunctionBSceneController"
 import { FunctionBSceneControllerSqrtScaled } from "./controllers/FunctionBSceneControllerSqrtScaled"
 import { CurvatureSceneController } from "./controllers/CurvatureSceneController"
+import { AbsCurvatureSceneController } from "./controllers/AbsCurvatureSceneController"
+import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
+import { BSpline_R1_to_R2_interface } from "./mathematics/BSplineInterfaces"
 
-import Chart from 'chart.js'
+import { Chart } from "chart.js";
 
 
 export function main() {
     
     let canvas = <HTMLCanvasElement> document.getElementById("webgl")
+
+    /* JCL Get control button IDs for curve control*/
     let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
     let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
     let toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding")
+    let toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping")
+
+    /* JCL 2020/09/07 Get checkboxes IDs for the selection of function graphs*/
+    let checkBoxFunctionA = <HTMLButtonElement> document.getElementById("chkBoxFunctionA")
+    let checkBoxFunctionB = <HTMLButtonElement> document.getElementById("chkBoxFunctionB")
+    let checkBoxFunctionBsqrtScaled = <HTMLButtonElement> document.getElementById("chkBoxSqrtFunctionB")
+    let checkBoxCurvature = <HTMLButtonElement> document.getElementById("chkBoxCurvature")
+    let checkBoxAbsCurvature = <HTMLButtonElement> document.getElementById("chkBoxAbsCurvature")
+    /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
+    let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
+
+    /* JCL 2020/09/08 Set the reference parameters for the function graphs */
+    const MAX_NB_GRAPHS = 3;
+    let canvasFunctionA = null;
+    let ctxFunctionA = null;
+    let chartFunctionA = null;
+    let functionASceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
+    let canvasFunctionB = null;
+    let ctxFunctionB = null;
+    let chartFunctionB = null;
+    let functionBSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
+    let functionBsqrtScaledSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
+    let curvatureSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
+    let absCurvatureSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
+    let stackOfAvailableCharts: Array<string> = ["available", "available", "available"];
 
     let gl = WebGLUtils().setupWebGL(canvas)
 
@@ -23,26 +53,24 @@ export function main() {
         return
     }
 
-
-
     /*let canvasFunctionA = <HTMLCanvasElement> document.getElementById('chartjsFunctionA')
     let ctxFunctionA = canvasFunctionA.getContext('2d');*/
 
-    let canvasFunctionB = <HTMLCanvasElement> document.getElementById('chartjsFunctionB')
-    let ctxFunctionB = canvasFunctionB.getContext('2d');
+    let canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1')
+    let ctxChart1 = canvasChart1.getContext('2d');
 
-    let canvasFunctionBsqrtScaled = <HTMLCanvasElement> document.getElementById('chartjsFunctionBsqrtScaled')
-    let ctxFunctionBsqrtScaled = canvasFunctionBsqrtScaled.getContext('2d');
+    let canvasChart2 = <HTMLCanvasElement> document.getElementById('chart2')
+    let ctxChart2 = canvasChart2.getContext('2d');
 
-    let canvasCurvature = <HTMLCanvasElement> document.getElementById('chartjsCurvature')
-    let ctxCurvature = canvasCurvature.getContext('2d');
+    let canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3')
+    let ctxChart3 = canvasChart3.getContext('2d');
    
 
-    /*let chartFunctionA = new Chart(ctxFunctionA!, {
+    let chart1 = new Chart(ctxChart1!, {
         type: 'scatter',
         data: {
             datasets: [{
-                label: 'Function A',
+                label: 'tbd',
                 data: [{
                     x: 0,
                     y: 0
@@ -53,38 +81,18 @@ export function main() {
             }]
         },
         options: {
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom'
-                }]
+            title: {
+                display: true,
+                text: 'Graph1 tbd'
             },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-    */
-
-    let chartFunctionBsqrtScaled = new Chart(ctxFunctionBsqrtScaled!, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Function B sqrt scaled',
-                data: [{
-                    x: 0,
-                    y: 0
-                }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }]
-        },
-        options: {
             scales: {
                 xAxes: [{
                     type: 'linear',
-                    position: 'bottom'
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
                 }]
             },
             animation: {
@@ -93,11 +101,11 @@ export function main() {
         }
     });
 
-    let chartFunctionB = new Chart(ctxFunctionB!, {
+    let chart2 = new Chart(ctxChart2!, {
         type: 'scatter',
         data: {
             datasets: [{
-                label: 'Function B',
+                label: 'tbd',
                 data: [{
                     x: 0,
                     y: 0
@@ -108,10 +116,18 @@ export function main() {
             }]
         },
         options: {
+            title: {
+                display: true,
+                text: 'Graph2 tbd'
+            },
             scales: {
                 xAxes: [{
                     type: 'linear',
-                    position: 'bottom'
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
                 }]
             },
             animation: {
@@ -150,12 +166,11 @@ export function main() {
     });
     */
 
-    /* please uncomment to get an absolute curvature plot with a logarithmic Y axis */
-    let chartCurvature = new Chart(ctxCurvature!, {
+    let chart3 = new Chart(ctxChart3!, {
         type: 'scatter',
         data: {
             datasets: [{
-                label: 'Abs Curvature',
+                label: 'tbd',
                 data: [{
                     x: 0,
                     y: 0
@@ -168,7 +183,7 @@ export function main() {
         options: {
             title: {
                 display: true,
-                text: 'Curvature of curve'
+                text: 'Graph3 tbd'
             },
             scales: {
                 xAxes: [{
@@ -180,7 +195,7 @@ export function main() {
                     }
                 }],
                 yAxes: [{
-                    type: 'logarithmic'
+                    type: 'linear'
                 }]
             },
             animation: {
@@ -189,30 +204,52 @@ export function main() {
         }
     });
 
-    /*let canvasElementFunctionA = chartFunctionA.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementFunctionA.style.height = '600px'
-    canvasElementFunctionA.style.width = '300px'
-    */
+
+    let canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementChart1.style.height = '600px'
+    canvasElementChart1.style.width = '400px'
+
+    let canvasElementChart2 = chart2.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementChart2.style.height = '600px'
+    canvasElementChart2.style.width = '400px'
+
+    let canvasElementChart3 = chart3.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementChart3.style.height = '600px'
+    canvasElementChart3.style.width = '400px'
+
+    /*let canvasElementCurvature = chartCurvature.canvas?.parentNode as HTMLCanvasElement;
+    canvasElementCurvature.style.height = '600px'
+    canvasElementCurvature.style.width = '400px'
 
     let canvasElementFunctionBsqrtScaled = chartFunctionBsqrtScaled.canvas?.parentNode as HTMLCanvasElement;
     canvasElementFunctionBsqrtScaled.style.height = '600px'
     canvasElementFunctionBsqrtScaled.style.width = '300px' 
-
-    let canvasElementFunctionB = chartFunctionB.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementFunctionB.style.height = '600px'
-    canvasElementFunctionB.style.width = '300px' 
-
-    let canvasElementCurvature = chartCurvature.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementCurvature.style.height = '600px'
-    canvasElementCurvature.style.width = '400px' 
  
 
-    /*let functionASceneController = new FunctionASceneController(chartFunctionA) */
+    /*let functionASceneController = new FunctionASceneController(chartFunctionA) 
+    let functionBSceneController = new FunctionBSceneController(chartFunctionB) *
     let functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chartFunctionBsqrtScaled)
-    let functionBSceneController = new FunctionBSceneController(chartFunctionB)
+
     let curvatureSceneController = new CurvatureSceneController(chartCurvature)      
     /*let sceneController = new CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController, curvatureSceneController])*/
-    let sceneController = new CurveSceneController(canvas, gl, [functionBsqrtScaledSceneController, functionBSceneController, curvatureSceneController])
+    /*let sceneController = new CurveSceneController(canvas, gl, [functionBsqrtScaledSceneController, functionBSceneController, curvatureSceneController])*/
+
+    /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
+    let sceneController = new CurveSceneController(canvas, gl)
+
+    /*let att = functionB.hasAttribute('display');
+    let disp = functionB.getAttribute('display'); */
+    let id = document.getElementById('chartjsFunctionB');
+    let functionB = document.getElementById('chartjsFunctionB')?.style.display;
+    console.log("state chart function B: " + functionB);
+    /*if(id !== null) {
+        let style = window.getComputedStyle(id, null);
+        console.log("style chart function B: " + style.getPropertyValue("display"));
+        style.setProperty("display", "none", "important");
+        style = window.getComputedStyle(id, null);
+        console.log("style chart function B bis: " + style.getPropertyValue("display"));
+    }*/
+
 
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
@@ -275,14 +312,12 @@ export function main() {
         sceneController.leftMouseDragged_event(c[0], c[1]);
         sceneController.renderFrame();
         ev.preventDefault();
-
     }
 
     function touch_stop_drag(ev: TouchEvent) {
         sceneController.leftMouseUp_event();
         ev.preventDefault();
     }
-
 
     function toggleControlOfCurvatureExtrema() {
         sceneController.toggleControlOfCurvatureExtrema()
@@ -296,6 +331,265 @@ export function main() {
         sceneController.toggleSliding()
     }
 
+    function toggleCurveClamping() {
+        sceneController.toggleCurveClamping()
+    }
+
+    /* JCL 2020/09/07 Add callbacks for checkbox processing */
+    function chkboxFunctionA() {
+        let chkboxValue = sceneController.chkboxFunctionA();
+        switch(chkboxValue) {
+            case "functionB": {
+                checkBoxFunctionB.click();
+                break;
+            }
+            case "sqrtFunctionB": {
+                checkBoxFunctionBsqrtScaled.click();
+                break;
+            }
+            case "curvature": {
+                checkBoxCurvature.click();
+                break;
+            }
+            case "absCurvature": {
+                checkBoxAbsCurvature.click();
+                break;
+            }
+            case "functionA": {
+                let indexChart = stackOfAvailableCharts.indexOf("available")
+                switch(indexChart) {
+                    case 0: {
+                        functionASceneController = new FunctionASceneController(chart1);
+                        break;
+                    }
+                    case 1: {
+                        functionASceneController = new FunctionASceneController(chart2);
+                        break;
+                    }
+                    case 2: {
+                        functionASceneController = new FunctionASceneController(chart3);
+                        break;
+                    }
+                    default: {
+                        console.log("Error: no available chart");
+                        break;
+                    }
+                }
+                stackOfAvailableCharts[indexChart] = "functionA"
+                sceneController.addCurveObserver(functionASceneController)
+                break;
+            }
+            case "-functionA": {
+                let indexChart = stackOfAvailableCharts.indexOf("functionA")
+                stackOfAvailableCharts[indexChart] = "available"
+                sceneController.removeCurveObserver(functionASceneController)
+            }
+        }
+    }
+
+    function chkboxFunctionB() {
+        let chkboxValue = sceneController.chkboxFunctionB();
+        switch(chkboxValue) {
+            case "functionA": {
+                checkBoxFunctionA.click();
+                break;
+            }
+            case "sqrtFunctionB": {
+                checkBoxFunctionBsqrtScaled.click();
+                break;
+            }
+            case "curvature": {
+                checkBoxCurvature.click();
+                break;
+            }
+            case "absCurvature": {
+                checkBoxAbsCurvature.click();
+                break;
+            }
+            case "functionB": {
+                let indexChart = stackOfAvailableCharts.indexOf("available")
+                switch(indexChart) {
+                    case 0: {
+                        functionBSceneController = new FunctionBSceneController(chart1);
+                        break;
+                    }
+                    case 1: {
+                        functionBSceneController = new FunctionBSceneController(chart2);
+                        break;
+                    }
+                    case 2: {
+                        functionBSceneController = new FunctionBSceneController(chart3);
+                        break;
+                    }
+                    default: {
+                        console.log("Error: no available chart");
+                        break;
+                    }
+                }
+                stackOfAvailableCharts[indexChart] = "functionB"
+                sceneController.addCurveObserver(functionBSceneController)
+                break;
+            }
+            case "-functionB": {
+                let indexChart = stackOfAvailableCharts.indexOf("functionB")
+                stackOfAvailableCharts[indexChart] = "available"
+                sceneController.removeCurveObserver(functionBSceneController)
+            }
+        }
+    }
+
+    function chkboxFunctionBsqrtScaled() {
+        let chkboxValue = sceneController.chkboxFunctionBsqrtScaled();
+        switch(chkboxValue) {
+            case "functionA": {
+                checkBoxFunctionA.click();
+                break;
+            }
+            case "functionB": {
+                checkBoxFunctionB.click();
+                break;
+            }
+            case "curvature": {
+                checkBoxCurvature.click();
+                break;
+            }
+            case "absCurvature": {
+                checkBoxAbsCurvature.click();
+                break;
+            }
+            case "sqrtFunctionB": {
+                let indexChart = stackOfAvailableCharts.indexOf("available")
+                switch(indexChart) {
+                    case 0: {
+                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chart1);
+                        break;
+                    }
+                    case 1: {
+                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chart2);
+                        break;
+                    }
+                    case 2: {
+                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chart3);
+                        break;
+                    }
+                    default: {
+                        console.log("Error: no available chart");
+                        break;
+                    }
+                }
+                stackOfAvailableCharts[indexChart] = "sqrtFunctionB"
+                sceneController.addCurveObserver(functionBsqrtScaledSceneController)
+                break;
+            }
+            case "-sqrtFunctionB": {
+                let indexChart = stackOfAvailableCharts.indexOf("sqrtFunctionB")
+                stackOfAvailableCharts[indexChart] = "available"
+                sceneController.removeCurveObserver(functionBsqrtScaledSceneController)
+            }
+        }
+    }
+
+    function chkboxCurvature() {
+        let chkboxValue = sceneController.chkboxCurvature();
+        switch(chkboxValue) {
+            case "functionA": {
+                checkBoxFunctionA.click();
+                break;
+            }
+            case "functionB": {
+                checkBoxFunctionB.click();
+                break;
+            }
+            case "sqrtFunctionB": {
+                checkBoxFunctionBsqrtScaled.click();
+                break;
+            }
+            case "absCurvature": {
+                checkBoxAbsCurvature.click();
+                break;
+            }
+            case "curvature": {
+                let indexChart = stackOfAvailableCharts.indexOf("available")
+                switch(indexChart) {
+                    case 0: {
+                        curvatureSceneController = new CurvatureSceneController(chart1);
+                        break;
+                    }
+                    case 1: {
+                        curvatureSceneController = new CurvatureSceneController(chart2);
+                        break;
+                    }
+                    case 2: {
+                        curvatureSceneController = new CurvatureSceneController(chart3);
+                        break;
+                    }
+                    default: {
+                        console.log("Error: no available chart");
+                        break;
+                    }
+                }
+                stackOfAvailableCharts[indexChart] = "curvature"
+                sceneController.addCurveObserver(curvatureSceneController)
+                break;
+            }
+            case "-curvature": {
+                let indexChart = stackOfAvailableCharts.indexOf("curvature")
+                stackOfAvailableCharts[indexChart] = "available"
+                sceneController.removeCurveObserver(curvatureSceneController)
+            }
+        }
+    }
+
+    function chkboxAbsCurvature() {
+        let chkboxValue = sceneController.chkboxAbsCurvature()
+        switch(chkboxValue) {
+            case "functionA": {
+                checkBoxFunctionA.click();
+                break;
+            }
+            case "functionB": {
+                checkBoxFunctionB.click();
+                break;
+            }
+            case "sqrtFunctionB": {
+                checkBoxFunctionBsqrtScaled.click();
+                break;
+            }
+            case "curvature": {
+                checkBoxCurvature.click();
+                break;
+            }
+            case "absCurvature": {
+                let indexChart = stackOfAvailableCharts.indexOf("available")
+                switch(indexChart) {
+                    case 0: {
+                        absCurvatureSceneController = new AbsCurvatureSceneController(chart1);
+                        break;
+                    }
+                    case 1: {
+                        absCurvatureSceneController = new AbsCurvatureSceneController(chart2);
+                        break;
+                    }
+                    case 2: {
+                        absCurvatureSceneController = new AbsCurvatureSceneController(chart3);
+                        break;
+                    }
+                    default: {
+                        console.log("Error: no available chart");
+                        break;
+                    }
+                }
+                stackOfAvailableCharts[indexChart] = "absCurvature"
+                sceneController.addCurveObserver(absCurvatureSceneController)
+                break;
+            }
+            case "-absCurvature": {
+                let indexChart = stackOfAvailableCharts.indexOf("absCurvature")
+                stackOfAvailableCharts[indexChart] = "available"
+                sceneController.removeCurveObserver(absCurvatureSceneController)
+            }
+        }
+    }
 
     canvas.addEventListener('mousedown', mouse_click, false);
     canvas.addEventListener('mousemove', mouse_drag, false);
@@ -307,6 +601,14 @@ export function main() {
     toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
     toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
     toggleButtonSliding.addEventListener('click', toggleSliding)
+    toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping)
+
+    /* JCL 2020/09/07 Add event handlers for checkbox processing */
+    checkBoxFunctionA.addEventListener('click',chkboxFunctionA);
+    checkBoxFunctionB.addEventListener('click',chkboxFunctionB);
+    checkBoxFunctionBsqrtScaled.addEventListener('click',chkboxFunctionBsqrtScaled);
+    checkBoxCurvature.addEventListener('click',chkboxCurvature);
+    checkBoxAbsCurvature.addEventListener('click',chkboxAbsCurvature)
 
 
     // Prevent scrolling when touching the canvas

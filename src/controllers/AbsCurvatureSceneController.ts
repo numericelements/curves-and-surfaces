@@ -1,39 +1,30 @@
-import { IObserver } from "../designPatterns/Observer";
 import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
 import { BSpline_R1_to_R1 } from "../mathematics/BSpline_R1_to_R1";
-import { ControlPointsShaders } from "../views/ControlPointsShaders";
-import { ControlPointsView } from "../views/ControlPointsView";
-import { ControlPolygonShaders } from "../views/ControlPolygonShaders";
-import { ControlPolygonView } from "../views/ControlPolygonView";
-import { CurveShaders } from "../views/CurveShaders";
-import { CurveView } from "../views/CurveView";
 import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
-import { Chart } from "chart.js";
+import Chart from 'chart.js'
 import { Vector_2d } from "../mathematics/Vector_2d";
 
 
-export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
+export class AbsCurvatureSceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
 
 
-    private spline: BSpline_R1_to_R2
+    private splineNumerator: BSpline_R1_to_R2
+    private splineDenominator: BSpline_R1_to_R2
     private readonly POINT_SEQUENCE_SIZE = 100
 
     constructor(private chart: Chart) {
         
-        this.spline = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
+        this.splineNumerator = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
+        this.splineDenominator = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
     }
 
 
 
     update(message: BSpline_R1_to_R2): void {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve()
-
-        let newDataCP: Chart.ChartPoint[] = [] 
-        this.spline.controlPoints.forEach(element => {
-            newDataCP.push({x: element.x, y: element.y})
-        });
+        this.splineNumerator = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve()
+        this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve()
 
         let newDataSpline: Chart.ChartPoint[] = [] 
         let points = this.pointSequenceOnSpline()
@@ -42,25 +33,18 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
         });
 
         this.chart.data.datasets! = [{
-            label: 'Control Polygon',
-            data: newDataCP,
-            fill: false,
-            lineTension: 0,
-            showLine: true
-        },
-        {
-            label: 'Function A',
+            label: 'Abs Curvature',
             data: newDataSpline,
             fill: false,
             showLine: true,
             pointRadius: 0, 
-            borderColor: 'rgba(200, 0, 0, 0.5)'
+            borderColor: 'rgba(0, 200, 0, 0.5)'
         }]
 
         this.chart.options! = {
             title: {
                 display: true,
-                text: 'Function A(u)'
+                text: 'Absolute curvature'
             },
             scales: {
                 xAxes: [{
@@ -70,13 +54,15 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
                         display: true,
                         labelString: 'u parameter'
                     }
+                }],
+                yAxes: [{
+                    type: 'logarithmic'
                 }]
             },
             animation: {
                 duration: 0
             }
-        }
-    
+       }
 
         this.chart.update()
     }
@@ -86,11 +72,15 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
     }
 
     pointSequenceOnSpline() {
-        const start = this.spline.knots[this.spline.degree]
-        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1]
+        const start = this.splineNumerator.knots[this.splineNumerator.degree]
+        const end = this.splineNumerator.knots[this.splineNumerator.knots.length - this.splineNumerator.degree - 1]
         let result: Vector_2d[] = [];
         for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
-            let point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            let pointNumerator = this.splineNumerator.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            let pointDenominator = this.splineDenominator.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            let point = pointNumerator;
+            point.y = point.y/Math.pow(pointDenominator.y, (3/2));
+            point.y = Math.abs(point.y);
             result.push(point);
         }
         return result

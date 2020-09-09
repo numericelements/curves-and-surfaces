@@ -61,6 +61,26 @@ export class FunctionBSceneControllerSqrtScaled implements IRenderFrameObserver<
            borderColor: 'rgba(000, 0, 200, 0.5)'
        }]
 
+       this.chart.options! = {
+        title: {
+            display: true,
+            text: 'Function (+/-)sqrt[abs(B(u))]'
+        },
+        scales: {
+            xAxes: [{
+                type: 'linear',
+                position: 'bottom',
+                scaleLabel: {
+                    display: true,
+                    labelString: 'u parameter'
+                }
+            }]
+        },
+        animation: {
+            duration: 0
+        }
+   }
+
        this.chart.update()
 
     }

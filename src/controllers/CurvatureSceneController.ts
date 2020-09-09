@@ -33,15 +33,32 @@ export class CurvatureSceneController implements IRenderFrameObserver<BSpline_R1
         });
 
         this.chart.data.datasets! = [{
-            /*label: 'Curvature',*/
-            label: 'Abs Curvature',
+            label: 'Curvature',
             data: newDataSpline,
             fill: false,
             showLine: true,
             pointRadius: 0, 
             borderColor: 'rgba(0, 200, 0, 0.5)'
-        }
-    ]
+        }]
+        this.chart.options! = {
+            title: {
+                display: true,
+                text: 'Curvature of curve'
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+       }
 
         this.chart.update()
     }
@@ -59,7 +76,6 @@ export class CurvatureSceneController implements IRenderFrameObserver<BSpline_R1
             let pointDenominator = this.splineDenominator.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
             let point = pointNumerator;
             point.y = point.y/Math.pow(pointDenominator.y, (3/2));
-            point.y = Math.abs(point.y);
             result.push(point);
         }
         return result

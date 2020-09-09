@@ -44,6 +44,15 @@ export class CurveSceneController implements SceneControllerInterface {
     private sliding: boolean
     private controlOfCurvatureExtrema: boolean
     private controlOfInflection: boolean
+    private controlOfCurveClamping: boolean
+    /* JCL 2020/09/07 Add controls to monitor function graphs display */
+    private controlOfGraphFunctionA: boolean
+    private controlOfGraphFunctionB: boolean
+    private controlOfGraphFunctionBsqrtScaled: boolean
+    private controlOfGraphCurvature: boolean
+    private controlOfGraphAbsCurvature: boolean
+    private stackOfSelectedGraphs: Array<string> = []
+    private readonly MAX_NB_GRAPHS = 3
 
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = []) {
@@ -66,6 +75,14 @@ export class CurveSceneController implements SceneControllerInterface {
 
         this.controlOfCurvatureExtrema = true
         this.controlOfInflection = true
+        this.controlOfCurveClamping = false
+
+        /* JCL 2020/09/07 Add monitoring of checkboxes to select the proper graphs to display */
+        this.controlOfGraphFunctionA = false
+        this.controlOfGraphFunctionB = false
+        this.controlOfGraphFunctionBsqrtScaled = false
+        this.controlOfGraphCurvature = false
+        this.controlOfGraphAbsCurvature = false
         
         
         this.curveModel.registerObserver(this.controlPointsView)
@@ -109,7 +126,121 @@ export class CurveSceneController implements SceneControllerInterface {
 
     }
 
+    addCurveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+        curveObserver.update(this.curveModel.spline);
+        this.curveModel.registerObserver(curveObserver);
+    }
 
+    removeCurveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+        curveObserver.update(this.curveModel.spline);
+        this.curveModel.removeObserver(curveObserver);
+    }
+
+    toggleCurveClamping() {
+        this.controlOfCurveClamping = !this.controlOfCurveClamping
+        console.log("control of curve clamping: " + this.controlOfCurveClamping)
+    } 
+
+    /* 2020/09/07 Add management of function graphs display */
+    chkboxFunctionA() {
+        this.controlOfGraphFunctionA = !this.controlOfGraphFunctionA
+        let result =  ""
+        if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
+            this.stackOfSelectedGraphs.push("functionA")
+            result = "functionA"
+            console.log("push A")
+        } else if(this.stackOfSelectedGraphs.indexOf("functionA") !== -1){
+            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionA"), 1)
+            result = "-functionA"
+            console.log("remove A")
+        } else {
+            result =  this.stackOfSelectedGraphs[0]
+            this.stackOfSelectedGraphs.push("functionA")
+            console.log("send click" + result)
+        }
+        console.log("functionA graph display: " + this.controlOfGraphFunctionA + " result " + result + " stack " + this.stackOfSelectedGraphs)
+        return result
+    }
+
+    chkboxFunctionB() {
+        this.controlOfGraphFunctionB = !this.controlOfGraphFunctionB
+        let result =  ""
+        if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
+            this.stackOfSelectedGraphs.push("functionB")
+            result = "functionB"
+            console.log("push B")
+        } else if(this.stackOfSelectedGraphs.indexOf("functionB") !== -1){
+            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionB"), 1)
+            result = "-functionB"
+            console.log("remove B")
+        } else {
+            result =  this.stackOfSelectedGraphs[0]
+            this.stackOfSelectedGraphs.push("functionB")
+            console.log("send click" + result)
+        }
+        console.log("functionB graph display: " + this.controlOfGraphFunctionB + " result " + result + " stack " + this.stackOfSelectedGraphs)
+        return result
+    }
+
+    chkboxFunctionBsqrtScaled() {
+        this.controlOfGraphFunctionBsqrtScaled = !this.controlOfGraphFunctionBsqrtScaled
+        let result =  ""
+        if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
+            this.stackOfSelectedGraphs.push("sqrtFunctionB")
+            result = "sqrtFunctionB"
+            console.log("push sqrtB")
+        } else if(this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") !== -1){
+            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("sqrtFunctionB"), 1)
+            result = "-sqrtFunctionB"
+            console.log("remove sqrtB")
+        } else {
+            result =  this.stackOfSelectedGraphs[0]
+            this.stackOfSelectedGraphs.push("sqrtFunctionB")
+            console.log("send click" + result)
+        }
+        console.log("functionBsqrtScaled graph display: " + this.controlOfGraphFunctionBsqrtScaled + " result " + result + " stack " + this.stackOfSelectedGraphs)
+        return result
+    }
+
+    chkboxCurvature() {
+        this.controlOfGraphCurvature = !this.controlOfGraphCurvature
+        let result =  ""
+        if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
+            this.stackOfSelectedGraphs.push("curvature")
+            result = "curvature"
+            console.log("push curvature")
+        } else if(this.stackOfSelectedGraphs.indexOf("curvature") !== -1){
+            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("curvature"), 1)
+            result = "-curvature"
+            console.log("remove curvature")
+        } else {
+            result =  this.stackOfSelectedGraphs[0]
+            this.stackOfSelectedGraphs.push("curvature")
+            console.log("send click" + result)
+        }
+        console.log("curvature graph display: " + this.controlOfGraphCurvature + " result " + result + " stack " + this.stackOfSelectedGraphs)
+        return result
+    }
+
+    chkboxAbsCurvature() {
+        this.controlOfGraphAbsCurvature = !this.controlOfGraphAbsCurvature
+        let result =  ""
+        if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
+            this.stackOfSelectedGraphs.push("absCurvature")
+            result = "absCurvature"
+            console.log("push absCurvature")
+        } else if(this.stackOfSelectedGraphs.indexOf("absCurvature") !== -1){
+            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("absCurvature"), 1)
+            result = "-absCurvature"
+            console.log("remove absCurvature")
+        } else {
+            result =  this.stackOfSelectedGraphs[0]
+            this.stackOfSelectedGraphs.push("absCurvature")
+            console.log("send click" + result)
+        }
+        console.log("curvature graph display: " + this.controlOfGraphAbsCurvature + " result " + result + " stack " + this.stackOfSelectedGraphs)
+        return result
+    }
 
     toggleControlOfCurvatureExtrema() {
         this.curveControl.toggleControlOfCurvatureExtrema()
