@@ -177,6 +177,8 @@ export class TransitionCurvatureExtremaView implements IObserver<BSpline_R1_to_R
 
     }
 
+    reset(message: BSpline_R1_to_R2_interface): void {
+    }
 
     updateBuffers() {
         var gl = this.curvatureExtremaShaders.gl;

@@ -192,6 +192,9 @@ export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
 
     }
 
+    reset(message: BSpline_R1_to_R2_interface): void {
+    }
+
     /*
     updatePoints(points: Vector_2d[]) {
         this.controlPoints = points;

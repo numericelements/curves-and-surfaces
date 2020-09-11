@@ -81,6 +81,54 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
         this.chart.update()
     }
 
+    reset(message: BSpline_R1_to_R2): void{
+        console.log("reset chart FunctionA")
+        /*this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve() */
+        let newDataCP: Chart.ChartPoint[] = [] 
+        /*this.spline.controlPoints.forEach(element => {
+            newDataCP.push({x: 0.0, y: 0.0})
+        });*/
+
+        let newDataSpline: Chart.ChartPoint[] = [] 
+        /*let points = this.pointSequenceOnSpline()
+        points.forEach(element => {
+            newDataSpline.push({x: 0.0, y: 0.0})
+        });*/
+        this.chart.data.datasets! = [{
+            label: 'tbd',
+            data: newDataCP,
+            fill: false,
+            lineTension: 0,
+            showLine: true
+        },
+        {
+            label: 'tbd',
+            data: newDataSpline,
+            fill: false,
+            showLine: true
+        }]
+        this.chart.options! = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+        this.chart.update()
+    }
+
     renderFrame() {
 
     }

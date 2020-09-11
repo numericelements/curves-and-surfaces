@@ -1,6 +1,7 @@
 
 export interface IObserver<T> {
     update(message: T): void
+    reset(message: T): void
 }
 
 export interface IObservable<T> {

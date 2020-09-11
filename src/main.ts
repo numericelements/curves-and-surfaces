@@ -33,13 +33,7 @@ export function main() {
 
     /* JCL 2020/09/08 Set the reference parameters for the function graphs */
     const MAX_NB_GRAPHS = 3;
-    let canvasFunctionA = null;
-    let ctxFunctionA = null;
-    let chartFunctionA = null;
     let functionASceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
-    let canvasFunctionB = null;
-    let ctxFunctionB = null;
-    let chartFunctionB = null;
     let functionBSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
     let functionBsqrtScaledSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
     let curvatureSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
@@ -136,36 +130,6 @@ export function main() {
         }
     });
 
-    /* please uncomment to get a signed curvature plot with linear axes */
-    /*
-    let chartCurvature = new Chart(ctxCurvature!, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Curvature',
-                data: [{
-                    x: 0,
-                    y: 0
-                }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }]
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom'
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-    */
-
     let chart3 = new Chart(ctxChart3!, {
         type: 'scatter',
         data: {
@@ -216,23 +180,6 @@ export function main() {
     let canvasElementChart3 = chart3.canvas?.parentNode as HTMLCanvasElement;
     canvasElementChart3.style.height = '600px'
     canvasElementChart3.style.width = '400px'
-
-    /*let canvasElementCurvature = chartCurvature.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementCurvature.style.height = '600px'
-    canvasElementCurvature.style.width = '400px'
-
-    let canvasElementFunctionBsqrtScaled = chartFunctionBsqrtScaled.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementFunctionBsqrtScaled.style.height = '600px'
-    canvasElementFunctionBsqrtScaled.style.width = '300px' 
- 
-
-    /*let functionASceneController = new FunctionASceneController(chartFunctionA) 
-    let functionBSceneController = new FunctionBSceneController(chartFunctionB) *
-    let functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chartFunctionBsqrtScaled)
-
-    let curvatureSceneController = new CurvatureSceneController(chartCurvature)      
-    /*let sceneController = new CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController, curvatureSceneController])*/
-    /*let sceneController = new CurveSceneController(canvas, gl, [functionBsqrtScaledSceneController, functionBSceneController, curvatureSceneController])*/
 
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     let sceneController = new CurveSceneController(canvas, gl)
@@ -337,24 +284,37 @@ export function main() {
 
     /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
-        let chkboxValue = sceneController.chkboxFunctionA();
-        switch(chkboxValue) {
-            case "functionB": {
+        let chkboxValue: string = ""
+        let functionSceneControllerToRemove: string = ""
+        let eventToBeProcessed = sceneController.chkboxFunctionA();
+        if(eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0]
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0]
+            chkboxValue = eventToBeProcessed[1]
+        }
+        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
+        switch(functionSceneControllerToRemove) {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        /* JCL 2020/09/07 Process the event related to the checkbox */
+        switch(chkboxValue) {
             case "functionA": {
                 let indexChart = stackOfAvailableCharts.indexOf("available")
                 switch(indexChart) {
@@ -382,30 +342,43 @@ export function main() {
             case "-functionA": {
                 let indexChart = stackOfAvailableCharts.indexOf("functionA")
                 stackOfAvailableCharts[indexChart] = "available"
+                sceneController.resetCurveObserver(functionASceneController)
                 sceneController.removeCurveObserver(functionASceneController)
             }
         }
     }
 
     function chkboxFunctionB() {
-        let chkboxValue = sceneController.chkboxFunctionB();
-        switch(chkboxValue) {
-            case "functionA": {
+        let chkboxValue: string = ""
+        let functionSceneControllerToRemove: string = ""
+        let eventToBeProcessed = sceneController.chkboxFunctionB();
+        if(eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0]
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0]
+            chkboxValue = eventToBeProcessed[1]
+        }
+        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
+        switch(functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        switch(chkboxValue) {
             case "functionB": {
                 let indexChart = stackOfAvailableCharts.indexOf("available")
                 switch(indexChart) {
@@ -439,24 +412,35 @@ export function main() {
     }
 
     function chkboxFunctionBsqrtScaled() {
-        let chkboxValue = sceneController.chkboxFunctionBsqrtScaled();
-        switch(chkboxValue) {
-            case "functionA": {
+        let chkboxValue: string = ""
+        let functionSceneControllerToRemove: string = ""
+        let eventToBeProcessed = sceneController.chkboxFunctionBsqrtScaled();
+        if(eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0]
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0]
+            chkboxValue = eventToBeProcessed[1]
+        }
+        switch(functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "functionB": {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        switch(chkboxValue) {
             case "sqrtFunctionB": {
                 let indexChart = stackOfAvailableCharts.indexOf("available")
                 switch(indexChart) {
@@ -490,24 +474,35 @@ export function main() {
     }
 
     function chkboxCurvature() {
-        let chkboxValue = sceneController.chkboxCurvature();
-        switch(chkboxValue) {
-            case "functionA": {
+        let chkboxValue: string = ""
+        let functionSceneControllerToRemove: string = ""
+        let eventToBeProcessed = sceneController.chkboxCurvature();
+        if(eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0]
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0]
+            chkboxValue = eventToBeProcessed[1]
+        }
+        switch(functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "functionB": {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        switch(chkboxValue) {
             case "curvature": {
                 let indexChart = stackOfAvailableCharts.indexOf("available")
                 switch(indexChart) {
@@ -541,24 +536,35 @@ export function main() {
     }
 
     function chkboxAbsCurvature() {
-        let chkboxValue = sceneController.chkboxAbsCurvature()
-        switch(chkboxValue) {
-            case "functionA": {
+        let chkboxValue: string = ""
+        let functionSceneControllerToRemove: string = ""
+        let eventToBeProcessed = sceneController.chkboxAbsCurvature();
+        if(eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0]
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0]
+            chkboxValue = eventToBeProcessed[1]
+        }
+        switch(functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "functionB": {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
+        }
+        switch(chkboxValue) {
             case "absCurvature": {
                 let indexChart = stackOfAvailableCharts.indexOf("available")
                 switch(indexChart) {

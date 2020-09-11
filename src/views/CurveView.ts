@@ -82,6 +82,9 @@ export class CurveView implements IObserver<BSpline_R1_to_R2_interface> {
         this.updateBuffers();
     }
 
+    reset(message: BSpline_R1_to_R2_interface): void {
+    }
+
     updateBuffers() {
         const gl = this.curveShaders.gl;
         // Bind the buffer objects to targets

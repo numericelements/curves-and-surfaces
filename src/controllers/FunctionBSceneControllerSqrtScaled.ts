@@ -29,12 +29,6 @@ export class FunctionBSceneControllerSqrtScaled implements IRenderFrameObserver<
     update(message: BSpline_R1_to_R2): void {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve()
 
-       /*let newDataCP: Chart.ChartPoint[] = [] 
-       this.spline.controlPoints.forEach(element => {
-           newDataCP.push({x: element.x, y: element.y})
-       });
-       */
-
        let newDataSpline: Chart.ChartPoint[] = [] 
        let points = this.pointSequenceOnSpline()
        points.forEach(element => {
@@ -61,28 +55,31 @@ export class FunctionBSceneControllerSqrtScaled implements IRenderFrameObserver<
            borderColor: 'rgba(000, 0, 200, 0.5)'
        }]
 
-       this.chart.options! = {
-        title: {
-            display: true,
-            text: 'Function (+/-)sqrt[abs(B(u))]'
-        },
-        scales: {
-            xAxes: [{
-                type: 'linear',
-                position: 'bottom',
-                scaleLabel: {
-                    display: true,
-                    labelString: 'u parameter'
-                }
-            }]
-        },
-        animation: {
-            duration: 0
+        this.chart.options! = {
+            title: {
+                display: true,
+                text: 'Function (+/-)sqrt[abs(B(u))]'
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
+                }]
+            },
+            animation: {
+                duration: 0
+            }
         }
-   }
 
-       this.chart.update()
+        this.chart.update()
 
+    }
+
+    reset(message: BSpline_R1_to_R2): void {
     }
 
     renderFrame() {

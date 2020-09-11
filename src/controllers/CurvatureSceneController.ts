@@ -3,7 +3,7 @@ import { BSpline_R1_to_R1 } from "../mathematics/BSpline_R1_to_R1";
 import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
-import Chart from 'chart.js'
+import { Chart } from "chart.js";
 import { Vector_2d } from "../mathematics/Vector_2d";
 
 
@@ -60,6 +60,39 @@ export class CurvatureSceneController implements IRenderFrameObserver<BSpline_R1
             }
        }
 
+        this.chart.update()
+    }
+
+    reset(message: BSpline_R1_to_R2): void{
+        this.chart.data.datasets! = [{
+            label: 'tbd',
+            data: [{
+                x: 0,
+                y: 0
+            }],
+            fill: false,
+            lineTension: 0,
+            showLine: true
+           }]
+        this.chart.options! = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
         this.chart.update()
     }
 

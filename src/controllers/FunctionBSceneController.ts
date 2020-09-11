@@ -81,6 +81,39 @@ export class FunctionBSceneController implements IRenderFrameObserver<BSpline_R1
 
     }
 
+    reset(message: BSpline_R1_to_R2): void{
+        this.chart.data.datasets! = [{
+            label: 'tbd',
+            data: [{
+                x: 0,
+                y: 0
+            }],
+            fill: false,
+            lineTension: 0,
+            showLine: true
+           }]
+        this.chart.options! = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'u parameter'
+                    }
+                }]
+            },
+            animation: {
+                duration: 0
+            }
+        }
+        this.chart.update()
+    }
+
     renderFrame() {
     }
 

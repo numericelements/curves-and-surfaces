@@ -136,6 +136,11 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.removeObserver(curveObserver);
     }
 
+    resetCurveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+        curveObserver.reset(this.curveModel.spline);
+        /*this.curveModel.registerObserver(curveObserver);*/
+    }
+
     toggleCurveClamping() {
         this.controlOfCurveClamping = !this.controlOfCurveClamping
         console.log("control of curve clamping: " + this.controlOfCurveClamping)
@@ -144,19 +149,30 @@ export class CurveSceneController implements SceneControllerInterface {
     /* 2020/09/07 Add management of function graphs display */
     chkboxFunctionA() {
         this.controlOfGraphFunctionA = !this.controlOfGraphFunctionA
-        let result =  ""
+        let result: Array<string> = []
         if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
+            /* JCL 2020/09/09 There only one event because the stack is not full yet */
             this.stackOfSelectedGraphs.push("functionA")
-            result = "functionA"
+            result.push("functionA")
             console.log("push A")
+        } else if(!this.controlOfGraphFunctionA && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
+            /* JCL 2020/09/09 There only one event because the stack is full and it is the event processing to remove effectively the controller */
+            result.push("-functionA")
+            this.stackOfSelectedGraphs.shift()
+            console.log("push -A to remove")
         } else if(this.stackOfSelectedGraphs.indexOf("functionA") !== -1){
+            /* JCL 2020/09/09 There only one event because whether the stack is full or not what matters is the removal of only one graph */
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionA"), 1)
-            result = "-functionA"
+            result.push("-functionA")
             console.log("remove A")
         } else {
-            result =  this.stackOfSelectedGraphs[0]
+            /* JCL 2020/09/09 There are two events because whether the stack is full and one graph is added that does not exists already
+                Consequently, the first graph of the stack must be removed (second event) */
+            let controlOfGraphToRemove = "-"
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]))
+            result.push("functionA")
             this.stackOfSelectedGraphs.push("functionA")
-            console.log("send click" + result)
+            console.log("send click " + result)
         }
         console.log("functionA graph display: " + this.controlOfGraphFunctionA + " result " + result + " stack " + this.stackOfSelectedGraphs)
         return result
@@ -164,19 +180,25 @@ export class CurveSceneController implements SceneControllerInterface {
 
     chkboxFunctionB() {
         this.controlOfGraphFunctionB = !this.controlOfGraphFunctionB
-        let result =  ""
+        let result: Array<string> = []
         if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
             this.stackOfSelectedGraphs.push("functionB")
-            result = "functionB"
+            result.push("functionB")
             console.log("push B")
+        } else if(!this.controlOfGraphFunctionB && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
+            result.push("-functionB")
+            this.stackOfSelectedGraphs.shift()
+            console.log("push -B to remove")
         } else if(this.stackOfSelectedGraphs.indexOf("functionB") !== -1){
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionB"), 1)
-            result = "-functionB"
+            result.push("-functionB")
             console.log("remove B")
         } else {
-            result =  this.stackOfSelectedGraphs[0]
+            let controlOfGraphToRemove = "-"
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]))
+            result.push("functionB")
             this.stackOfSelectedGraphs.push("functionB")
-            console.log("send click" + result)
+            console.log("send click " + result)
         }
         console.log("functionB graph display: " + this.controlOfGraphFunctionB + " result " + result + " stack " + this.stackOfSelectedGraphs)
         return result
@@ -184,17 +206,23 @@ export class CurveSceneController implements SceneControllerInterface {
 
     chkboxFunctionBsqrtScaled() {
         this.controlOfGraphFunctionBsqrtScaled = !this.controlOfGraphFunctionBsqrtScaled
-        let result =  ""
+        let result: Array<string> = []
         if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
             this.stackOfSelectedGraphs.push("sqrtFunctionB")
-            result = "sqrtFunctionB"
+            result.push("sqrtFunctionB")
             console.log("push sqrtB")
+        } else if(!this.controlOfGraphFunctionBsqrtScaled && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
+            result.push("-sqrtFunctionB")
+            this.stackOfSelectedGraphs.shift()
+            console.log("push -sqrtB to remove")
         } else if(this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") !== -1){
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("sqrtFunctionB"), 1)
-            result = "-sqrtFunctionB"
+            result.push("-sqrtFunctionB")
             console.log("remove sqrtB")
         } else {
-            result =  this.stackOfSelectedGraphs[0]
+            let controlOfGraphToRemove = "-"
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]))
+            result.push("sqrtFunctionB")
             this.stackOfSelectedGraphs.push("sqrtFunctionB")
             console.log("send click" + result)
         }
@@ -204,17 +232,23 @@ export class CurveSceneController implements SceneControllerInterface {
 
     chkboxCurvature() {
         this.controlOfGraphCurvature = !this.controlOfGraphCurvature
-        let result =  ""
+        let result: Array<string> = []
         if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
             this.stackOfSelectedGraphs.push("curvature")
-            result = "curvature"
+            result.push("curvature")
             console.log("push curvature")
+        } else if(!this.controlOfGraphCurvature && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
+            result.push("-curvature")
+            this.stackOfSelectedGraphs.shift()
+            console.log("push -curvature to remove")
         } else if(this.stackOfSelectedGraphs.indexOf("curvature") !== -1){
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("curvature"), 1)
-            result = "-curvature"
+            result.push("-curvature")
             console.log("remove curvature")
         } else {
-            result =  this.stackOfSelectedGraphs[0]
+            let controlOfGraphToRemove = "-"
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]))
+            result.push("curvature")
             this.stackOfSelectedGraphs.push("curvature")
             console.log("send click" + result)
         }
@@ -224,17 +258,23 @@ export class CurveSceneController implements SceneControllerInterface {
 
     chkboxAbsCurvature() {
         this.controlOfGraphAbsCurvature = !this.controlOfGraphAbsCurvature
-        let result =  ""
+        let result: Array<string> = []
         if(this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
             this.stackOfSelectedGraphs.push("absCurvature")
-            result = "absCurvature"
+            result.push("absCurvature")
             console.log("push absCurvature")
+        } else if(!this.controlOfGraphAbsCurvature && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
+            result.push("-absCurvature")
+            this.stackOfSelectedGraphs.shift()
+            console.log("push -absCurvature to remove")
         } else if(this.stackOfSelectedGraphs.indexOf("absCurvature") !== -1){
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("absCurvature"), 1)
-            result = "-absCurvature"
+            result.push("-absCurvature")
             console.log("remove absCurvature")
         } else {
-            result =  this.stackOfSelectedGraphs[0]
+            let controlOfGraphToRemove = "-"
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]))
+            result.push("absCurvature")
             this.stackOfSelectedGraphs.push("absCurvature")
             console.log("send click" + result)
         }

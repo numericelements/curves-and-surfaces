@@ -37532,6 +37532,38 @@ var AbsCurvatureSceneController = /** @class */ (function () {
         };
         this.chart.update();
     };
+    AbsCurvatureSceneController.prototype.reset = function (message) {
+        this.chart.data.datasets = [{
+                label: 'tbd',
+                data: [{
+                        x: 0,
+                        y: 0
+                    }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }];
+        this.chart.options = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
+            },
+            scales: {
+                xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'u parameter'
+                        }
+                    }]
+            },
+            animation: {
+                duration: 0
+            }
+        };
+        this.chart.update();
+    };
     AbsCurvatureSceneController.prototype.renderFrame = function () {
     };
     AbsCurvatureSceneController.prototype.pointSequenceOnSpline = function () {
@@ -37595,6 +37627,38 @@ var CurvatureSceneController = /** @class */ (function () {
             title: {
                 display: true,
                 text: 'Curvature of curve'
+            },
+            scales: {
+                xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'u parameter'
+                        }
+                    }]
+            },
+            animation: {
+                duration: 0
+            }
+        };
+        this.chart.update();
+    };
+    CurvatureSceneController.prototype.reset = function (message) {
+        this.chart.data.datasets = [{
+                label: 'tbd',
+                data: [{
+                        x: 0,
+                        y: 0
+                    }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }];
+        this.chart.options = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
             },
             scales: {
                 xAxes: [{
@@ -37737,6 +37801,10 @@ var CurveSceneController = /** @class */ (function () {
         curveObserver.update(this.curveModel.spline);
         this.curveModel.removeObserver(curveObserver);
     };
+    CurveSceneController.prototype.resetCurveObserver = function (curveObserver) {
+        curveObserver.reset(this.curveModel.spline);
+        /*this.curveModel.registerObserver(curveObserver);*/
+    };
     CurveSceneController.prototype.toggleCurveClamping = function () {
         this.controlOfCurveClamping = !this.controlOfCurveClamping;
         console.log("control of curve clamping: " + this.controlOfCurveClamping);
@@ -37744,61 +37812,87 @@ var CurveSceneController = /** @class */ (function () {
     /* 2020/09/07 Add management of function graphs display */
     CurveSceneController.prototype.chkboxFunctionA = function () {
         this.controlOfGraphFunctionA = !this.controlOfGraphFunctionA;
-        var result = "";
+        var result = [];
         if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
+            /* JCL 2020/09/09 There only one event because the stack is not full yet */
             this.stackOfSelectedGraphs.push("functionA");
-            result = "functionA";
+            result.push("functionA");
             console.log("push A");
         }
+        else if (!this.controlOfGraphFunctionA && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
+            /* JCL 2020/09/09 There only one event because the stack is full and it is the event processing to remove effectively the controller */
+            result.push("-functionA");
+            this.stackOfSelectedGraphs.shift();
+            console.log("push -A to remove");
+        }
         else if (this.stackOfSelectedGraphs.indexOf("functionA") !== -1) {
+            /* JCL 2020/09/09 There only one event because whether the stack is full or not what matters is the removal of only one graph */
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionA"), 1);
-            result = "-functionA";
+            result.push("-functionA");
             console.log("remove A");
         }
         else {
-            result = this.stackOfSelectedGraphs[0];
+            /* JCL 2020/09/09 There are two events because whether the stack is full and one graph is added that does not exists already
+                Consequently, the first graph of the stack must be removed (second event) */
+            var controlOfGraphToRemove = "-";
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
+            result.push("functionA");
             this.stackOfSelectedGraphs.push("functionA");
-            console.log("send click" + result);
+            console.log("send click " + result);
         }
         console.log("functionA graph display: " + this.controlOfGraphFunctionA + " result " + result + " stack " + this.stackOfSelectedGraphs);
         return result;
     };
     CurveSceneController.prototype.chkboxFunctionB = function () {
         this.controlOfGraphFunctionB = !this.controlOfGraphFunctionB;
-        var result = "";
+        var result = [];
         if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
             this.stackOfSelectedGraphs.push("functionB");
-            result = "functionB";
+            result.push("functionB");
             console.log("push B");
+        }
+        else if (!this.controlOfGraphFunctionB && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
+            result.push("-functionB");
+            this.stackOfSelectedGraphs.shift();
+            console.log("push -B to remove");
         }
         else if (this.stackOfSelectedGraphs.indexOf("functionB") !== -1) {
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionB"), 1);
-            result = "-functionB";
+            result.push("-functionB");
             console.log("remove B");
         }
         else {
-            result = this.stackOfSelectedGraphs[0];
+            var controlOfGraphToRemove = "-";
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
+            result.push("functionB");
             this.stackOfSelectedGraphs.push("functionB");
-            console.log("send click" + result);
+            console.log("send click " + result);
         }
         console.log("functionB graph display: " + this.controlOfGraphFunctionB + " result " + result + " stack " + this.stackOfSelectedGraphs);
         return result;
     };
     CurveSceneController.prototype.chkboxFunctionBsqrtScaled = function () {
         this.controlOfGraphFunctionBsqrtScaled = !this.controlOfGraphFunctionBsqrtScaled;
-        var result = "";
+        var result = [];
         if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
             this.stackOfSelectedGraphs.push("sqrtFunctionB");
-            result = "sqrtFunctionB";
+            result.push("sqrtFunctionB");
             console.log("push sqrtB");
+        }
+        else if (!this.controlOfGraphFunctionBsqrtScaled && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
+            result.push("-sqrtFunctionB");
+            this.stackOfSelectedGraphs.shift();
+            console.log("push -sqrtB to remove");
         }
         else if (this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") !== -1) {
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("sqrtFunctionB"), 1);
-            result = "-sqrtFunctionB";
+            result.push("-sqrtFunctionB");
             console.log("remove sqrtB");
         }
         else {
-            result = this.stackOfSelectedGraphs[0];
+            var controlOfGraphToRemove = "-";
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
+            result.push("sqrtFunctionB");
             this.stackOfSelectedGraphs.push("sqrtFunctionB");
             console.log("send click" + result);
         }
@@ -37807,19 +37901,26 @@ var CurveSceneController = /** @class */ (function () {
     };
     CurveSceneController.prototype.chkboxCurvature = function () {
         this.controlOfGraphCurvature = !this.controlOfGraphCurvature;
-        var result = "";
+        var result = [];
         if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
             this.stackOfSelectedGraphs.push("curvature");
-            result = "curvature";
+            result.push("curvature");
             console.log("push curvature");
+        }
+        else if (!this.controlOfGraphCurvature && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
+            result.push("-curvature");
+            this.stackOfSelectedGraphs.shift();
+            console.log("push -curvature to remove");
         }
         else if (this.stackOfSelectedGraphs.indexOf("curvature") !== -1) {
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("curvature"), 1);
-            result = "-curvature";
+            result.push("-curvature");
             console.log("remove curvature");
         }
         else {
-            result = this.stackOfSelectedGraphs[0];
+            var controlOfGraphToRemove = "-";
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
+            result.push("curvature");
             this.stackOfSelectedGraphs.push("curvature");
             console.log("send click" + result);
         }
@@ -37828,19 +37929,26 @@ var CurveSceneController = /** @class */ (function () {
     };
     CurveSceneController.prototype.chkboxAbsCurvature = function () {
         this.controlOfGraphAbsCurvature = !this.controlOfGraphAbsCurvature;
-        var result = "";
+        var result = [];
         if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
             this.stackOfSelectedGraphs.push("absCurvature");
-            result = "absCurvature";
+            result.push("absCurvature");
             console.log("push absCurvature");
+        }
+        else if (!this.controlOfGraphAbsCurvature && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
+            result.push("-absCurvature");
+            this.stackOfSelectedGraphs.shift();
+            console.log("push -absCurvature to remove");
         }
         else if (this.stackOfSelectedGraphs.indexOf("absCurvature") !== -1) {
             this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("absCurvature"), 1);
-            result = "-absCurvature";
+            result.push("-absCurvature");
             console.log("remove absCurvature");
         }
         else {
-            result = this.stackOfSelectedGraphs[0];
+            var controlOfGraphToRemove = "-";
+            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
+            result.push("absCurvature");
             this.stackOfSelectedGraphs.push("absCurvature");
             console.log("send click" + result);
         }
@@ -37986,6 +38094,52 @@ var FunctionASceneController = /** @class */ (function () {
         };
         this.chart.update();
     };
+    FunctionASceneController.prototype.reset = function (message) {
+        console.log("reset chart FunctionA");
+        /*this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve() */
+        var newDataCP = [];
+        /*this.spline.controlPoints.forEach(element => {
+            newDataCP.push({x: 0.0, y: 0.0})
+        });*/
+        var newDataSpline = [];
+        /*let points = this.pointSequenceOnSpline()
+        points.forEach(element => {
+            newDataSpline.push({x: 0.0, y: 0.0})
+        });*/
+        this.chart.data.datasets = [{
+                label: 'tbd',
+                data: newDataCP,
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            },
+            {
+                label: 'tbd',
+                data: newDataSpline,
+                fill: false,
+                showLine: true
+            }];
+        this.chart.options = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
+            },
+            scales: {
+                xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'u parameter'
+                        }
+                    }]
+            },
+            animation: {
+                duration: 0
+            }
+        };
+        this.chart.update();
+    };
     FunctionASceneController.prototype.renderFrame = function () {
     };
     FunctionASceneController.prototype.pointSequenceOnSpline = function () {
@@ -38073,6 +38227,38 @@ var FunctionBSceneController = /** @class */ (function () {
         };
         this.chart.update();
     };
+    FunctionBSceneController.prototype.reset = function (message) {
+        this.chart.data.datasets = [{
+                label: 'tbd',
+                data: [{
+                        x: 0,
+                        y: 0
+                    }],
+                fill: false,
+                lineTension: 0,
+                showLine: true
+            }];
+        this.chart.options = {
+            title: {
+                display: true,
+                text: 'Graph tbd'
+            },
+            scales: {
+                xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'u parameter'
+                        }
+                    }]
+            },
+            animation: {
+                duration: 0
+            }
+        };
+        this.chart.update();
+    };
     FunctionBSceneController.prototype.renderFrame = function () {
     };
     FunctionBSceneController.prototype.pointSequenceOnSpline = function () {
@@ -38113,11 +38299,6 @@ var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
     }
     FunctionBSceneControllerSqrtScaled.prototype.update = function (message) {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
-        /*let newDataCP: Chart.ChartPoint[] = []
-        this.spline.controlPoints.forEach(element => {
-            newDataCP.push({x: element.x, y: element.y})
-        });
-        */
         var newDataSpline = [];
         var points = this.pointSequenceOnSpline();
         points.forEach(function (element) {
@@ -38160,6 +38341,8 @@ var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
             }
         };
         this.chart.update();
+    };
+    FunctionBSceneControllerSqrtScaled.prototype.reset = function (message) {
     };
     FunctionBSceneControllerSqrtScaled.prototype.renderFrame = function () {
     };
@@ -38446,13 +38629,7 @@ function main() {
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
     /* JCL 2020/09/08 Set the reference parameters for the function graphs */
     var MAX_NB_GRAPHS = 3;
-    var canvasFunctionA = null;
-    var ctxFunctionA = null;
-    var chartFunctionA = null;
     var functionASceneController;
-    var canvasFunctionB = null;
-    var ctxFunctionB = null;
-    var chartFunctionB = null;
     var functionBSceneController;
     var functionBsqrtScaledSceneController;
     var curvatureSceneController;
@@ -38539,35 +38716,6 @@ function main() {
             }
         }
     });
-    /* please uncomment to get a signed curvature plot with linear axes */
-    /*
-    let chartCurvature = new Chart(ctxCurvature!, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Curvature',
-                data: [{
-                    x: 0,
-                    y: 0
-                }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }]
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom'
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-    */
     var chart3 = new chart_js_1.Chart(ctxChart3, {
         type: 'scatter',
         data: {
@@ -38614,22 +38762,6 @@ function main() {
     var canvasElementChart3 = (_c = chart3.canvas) === null || _c === void 0 ? void 0 : _c.parentNode;
     canvasElementChart3.style.height = '600px';
     canvasElementChart3.style.width = '400px';
-    /*let canvasElementCurvature = chartCurvature.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementCurvature.style.height = '600px'
-    canvasElementCurvature.style.width = '400px'
-
-    let canvasElementFunctionBsqrtScaled = chartFunctionBsqrtScaled.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementFunctionBsqrtScaled.style.height = '600px'
-    canvasElementFunctionBsqrtScaled.style.width = '300px'
- 
-
-    /*let functionASceneController = new FunctionASceneController(chartFunctionA)
-    let functionBSceneController = new FunctionBSceneController(chartFunctionB) *
-    let functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chartFunctionBsqrtScaled)
-
-    let curvatureSceneController = new CurvatureSceneController(chartCurvature)
-    /*let sceneController = new CurveSceneController(canvas, gl, [functionASceneController, functionBSceneController, curvatureSceneController])*/
-    /*let sceneController = new CurveSceneController(canvas, gl, [functionBsqrtScaledSceneController, functionBSceneController, curvatureSceneController])*/
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
     /*let att = functionB.hasAttribute('display');
@@ -38708,24 +38840,37 @@ function main() {
     }
     /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
-        var chkboxValue = sceneController.chkboxFunctionA();
-        switch (chkboxValue) {
-            case "functionB": {
+        var chkboxValue = "";
+        var functionSceneControllerToRemove = "";
+        var eventToBeProcessed = sceneController.chkboxFunctionA();
+        if (eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0];
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0];
+            chkboxValue = eventToBeProcessed[1];
+        }
+        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
+        switch (functionSceneControllerToRemove) {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        /* JCL 2020/09/07 Process the event related to the checkbox */
+        switch (chkboxValue) {
             case "functionA": {
                 var indexChart = stackOfAvailableCharts.indexOf("available");
                 switch (indexChart) {
@@ -38753,29 +38898,42 @@ function main() {
             case "-functionA": {
                 var indexChart = stackOfAvailableCharts.indexOf("functionA");
                 stackOfAvailableCharts[indexChart] = "available";
+                sceneController.resetCurveObserver(functionASceneController);
                 sceneController.removeCurveObserver(functionASceneController);
             }
         }
     }
     function chkboxFunctionB() {
-        var chkboxValue = sceneController.chkboxFunctionB();
-        switch (chkboxValue) {
-            case "functionA": {
+        var chkboxValue = "";
+        var functionSceneControllerToRemove = "";
+        var eventToBeProcessed = sceneController.chkboxFunctionB();
+        if (eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0];
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0];
+            chkboxValue = eventToBeProcessed[1];
+        }
+        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
+        switch (functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        switch (chkboxValue) {
             case "functionB": {
                 var indexChart = stackOfAvailableCharts.indexOf("available");
                 switch (indexChart) {
@@ -38808,24 +38966,35 @@ function main() {
         }
     }
     function chkboxFunctionBsqrtScaled() {
-        var chkboxValue = sceneController.chkboxFunctionBsqrtScaled();
-        switch (chkboxValue) {
-            case "functionA": {
+        var chkboxValue = "";
+        var functionSceneControllerToRemove = "";
+        var eventToBeProcessed = sceneController.chkboxFunctionBsqrtScaled();
+        if (eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0];
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0];
+            chkboxValue = eventToBeProcessed[1];
+        }
+        switch (functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "functionB": {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        switch (chkboxValue) {
             case "sqrtFunctionB": {
                 var indexChart = stackOfAvailableCharts.indexOf("available");
                 switch (indexChart) {
@@ -38858,24 +39027,35 @@ function main() {
         }
     }
     function chkboxCurvature() {
-        var chkboxValue = sceneController.chkboxCurvature();
-        switch (chkboxValue) {
-            case "functionA": {
+        var chkboxValue = "";
+        var functionSceneControllerToRemove = "";
+        var eventToBeProcessed = sceneController.chkboxCurvature();
+        if (eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0];
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0];
+            chkboxValue = eventToBeProcessed[1];
+        }
+        switch (functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "functionB": {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "absCurvature": {
+            case "-absCurvature": {
                 checkBoxAbsCurvature.click();
                 break;
             }
+        }
+        switch (chkboxValue) {
             case "curvature": {
                 var indexChart = stackOfAvailableCharts.indexOf("available");
                 switch (indexChart) {
@@ -38908,24 +39088,35 @@ function main() {
         }
     }
     function chkboxAbsCurvature() {
-        var chkboxValue = sceneController.chkboxAbsCurvature();
-        switch (chkboxValue) {
-            case "functionA": {
+        var chkboxValue = "";
+        var functionSceneControllerToRemove = "";
+        var eventToBeProcessed = sceneController.chkboxAbsCurvature();
+        if (eventToBeProcessed.length < 2) {
+            chkboxValue = eventToBeProcessed[0];
+        }
+        else {
+            functionSceneControllerToRemove = eventToBeProcessed[0];
+            chkboxValue = eventToBeProcessed[1];
+        }
+        switch (functionSceneControllerToRemove) {
+            case "-functionA": {
                 checkBoxFunctionA.click();
                 break;
             }
-            case "functionB": {
+            case "-functionB": {
                 checkBoxFunctionB.click();
                 break;
             }
-            case "sqrtFunctionB": {
+            case "-sqrtFunctionB": {
                 checkBoxFunctionBsqrtScaled.click();
                 break;
             }
-            case "curvature": {
+            case "-curvature": {
                 checkBoxCurvature.click();
                 break;
             }
+        }
+        switch (chkboxValue) {
             case "absCurvature": {
                 var indexChart = stackOfAvailableCharts.indexOf("available");
                 switch (indexChart) {
@@ -43235,6 +43426,8 @@ var ControlPointsView = /** @class */ (function () {
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
+    ControlPointsView.prototype.reset = function (message) {
+    };
     ControlPointsView.prototype.updatePoints = function (points) {
         this.controlPoints = points;
         this.updateVerticesAndIndices();
@@ -43419,6 +43612,8 @@ var ControlPolygonView = /** @class */ (function () {
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
+    ControlPolygonView.prototype.reset = function (message) {
+    };
     ControlPolygonView.prototype.updateBuffers = function () {
         var gl = this.controlPolygonShaders.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -43585,6 +43780,8 @@ var CurvatureExtremaView = /** @class */ (function () {
             this.updateBuffers();
         }
     };
+    CurvatureExtremaView.prototype.reset = function (message) {
+    };
     CurvatureExtremaView.prototype.updateBuffers = function () {
         var gl = this.curvatureExtremaShaders.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -43719,6 +43916,8 @@ var CurveView = /** @class */ (function () {
         this.updatePointSequenceOnSpline();
         this.updateVertices();
         this.updateBuffers();
+    };
+    CurveView.prototype.reset = function (message) {
     };
     CurveView.prototype.updateBuffers = function () {
         var gl = this.curveShaders.gl;
@@ -43985,6 +44184,8 @@ var InflectionsView = /** @class */ (function () {
         }
         */
     };
+    InflectionsView.prototype.reset = function (message) {
+    };
     /*
     updatePoints(points: Vector_2d[]) {
         this.controlPoints = points;
@@ -44226,6 +44427,8 @@ var TransitionCurvatureExtremaView = /** @class */ (function () {
             this.updateVerticesAndIndices();
             this.updateBuffers();
         }
+    };
+    TransitionCurvatureExtremaView.prototype.reset = function (message) {
     };
     TransitionCurvatureExtremaView.prototype.updateBuffers = function () {
         var gl = this.curvatureExtremaShaders.gl;
