@@ -10,7 +10,7 @@ import { CurveView } from "../views/CurveView";
 import { BSpline_R1_to_R1 } from "../mathematics/BSpline_R1_to_R1";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
-import Chart from 'chart.js'
+import Chart from "chart.js";
 import { Vector_2d } from "../mathematics/Vector_2d";
 
 
