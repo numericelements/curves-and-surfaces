@@ -342,8 +342,125 @@ export function main() {
             case "-functionA": {
                 let indexChart = stackOfAvailableCharts.indexOf("functionA")
                 stackOfAvailableCharts[indexChart] = "available"
-                sceneController.resetCurveObserver(functionASceneController)
                 sceneController.removeCurveObserver(functionASceneController)
+                switch(indexChart) {
+                    case 0: {
+                        chart1.destroy();
+                        chart1 = new Chart(ctxChart1!, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                    label: 'tbd',
+                                    data: [{
+                                        x: 0,
+                                        y: 0
+                                    }],
+                                    fill: false,
+                                    lineTension: 0,
+                                    showLine: true
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Graph1 tbd'
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        type: 'linear',
+                                        position: 'bottom',
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'u parameter'
+                                        }
+                                    }]
+                                },
+                                animation: {
+                                    duration: 0
+                                }
+                            }
+                        });
+                        canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
+                        canvasElementChart1.style.height = '600px'
+                        canvasElementChart1.style.width = '400px'
+                        break;
+                    }
+                    case 1: {
+                        chart2.destroy();
+                        chart2 = new Chart(ctxChart2!, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                    label: 'tbd',
+                                    data: [{
+                                        x: 0,
+                                        y: 0
+                                    }],
+                                    fill: false,
+                                    lineTension: 0,
+                                    showLine: true
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Graph2 tbd'
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        type: 'linear',
+                                        position: 'bottom',
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'u parameter'
+                                        }
+                                    }]
+                                },
+                                animation: {
+                                    duration: 0
+                                }
+                            }
+                        });
+                    }
+                    case 2: {
+                        chart3.destroy();
+                        chart3 = new Chart(ctxChart3!, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                    label: 'tbd',
+                                    data: [{
+                                        x: 0,
+                                        y: 0
+                                    }],
+                                    fill: false,
+                                    lineTension: 0,
+                                    showLine: true
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Graph3 tbd'
+                                },
+                                scales: {
+                                    xAxes: [{
+                                        type: 'linear',
+                                        position: 'bottom',
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'u parameter'
+                                        }
+                                    }]
+                                },
+                                animation: {
+                                    duration: 0
+                                }
+                            }
+                        });
+                    }
+                }
+
             }
         }
     }

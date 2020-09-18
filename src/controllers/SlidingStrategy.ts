@@ -104,12 +104,20 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         if (this.activeOptimizer === false) return
 
         const p = this.curveModel.spline.controlPoints[selectedControlPoint]
+        /* JCL 2020/09/17 Take into account the increment of the optimizer*/
+        console.log("optimize: ds0X " + this.optimizer.increment[0] + " ndcX " + ndcX + " ds0Y " + this.optimizer.increment[this.curveModel.spline.controlPoints.length] + " ndcY " + ndcY)
+        ndcX = ndcX - this.optimizer.increment[0]
+        ndcY = ndcY - this.optimizer.increment[this.curveModel.spline.controlPoints.length]
+        console.log("optimize: ndcX " + ndcX + " ndcY " + ndcY)
+
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
-
+        
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
             console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)
+            /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
+            this.optimizationProblem.spline.relocateAfterOptimization(this.optimizer.increment)
             this.curveModel.setSpline(this.optimizationProblem.spline.clone())
            }
            catch(e) {

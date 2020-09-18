@@ -38572,11 +38572,18 @@ var SlidingStrategy = /** @class */ (function () {
         if (this.activeOptimizer === false)
             return;
         var p = this.curveModel.spline.controlPoints[selectedControlPoint];
+        /* JCL 2020/09/17 Take into account the increment of the optimizer*/
+        console.log("optimize: ds0X " + this.optimizer.increment[0] + " ndcX " + ndcX + " ds0Y " + this.optimizer.increment[this.curveModel.spline.controlPoints.length] + " ndcY " + ndcY);
+        ndcX = ndcX - this.optimizer.increment[0];
+        ndcY = ndcY - this.optimizer.increment[this.curveModel.spline.controlPoints.length];
+        console.log("optimize: ndcX " + ndcX + " ndcY " + ndcY);
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
             console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices);
+            /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
+            this.optimizationProblem.spline.relocateAfterOptimization(this.optimizer.increment);
             this.curveModel.setSpline(this.optimizationProblem.spline.clone());
         }
         catch (e) {
@@ -38840,6 +38847,7 @@ function main() {
     }
     /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
+        var _a;
         var chkboxValue = "";
         var functionSceneControllerToRemove = "";
         var eventToBeProcessed = sceneController.chkboxFunctionA();
@@ -38898,8 +38906,124 @@ function main() {
             case "-functionA": {
                 var indexChart = stackOfAvailableCharts.indexOf("functionA");
                 stackOfAvailableCharts[indexChart] = "available";
-                sceneController.resetCurveObserver(functionASceneController);
                 sceneController.removeCurveObserver(functionASceneController);
+                switch (indexChart) {
+                    case 0: {
+                        chart1.destroy();
+                        chart1 = new chart_js_1.Chart(ctxChart1, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                        label: 'tbd',
+                                        data: [{
+                                                x: 0,
+                                                y: 0
+                                            }],
+                                        fill: false,
+                                        lineTension: 0,
+                                        showLine: true
+                                    }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Graph1 tbd'
+                                },
+                                scales: {
+                                    xAxes: [{
+                                            type: 'linear',
+                                            position: 'bottom',
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: 'u parameter'
+                                            }
+                                        }]
+                                },
+                                animation: {
+                                    duration: 0
+                                }
+                            }
+                        });
+                        canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
+                        canvasElementChart1.style.height = '600px';
+                        canvasElementChart1.style.width = '400px';
+                        break;
+                    }
+                    case 1: {
+                        chart2.destroy();
+                        chart2 = new chart_js_1.Chart(ctxChart2, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                        label: 'tbd',
+                                        data: [{
+                                                x: 0,
+                                                y: 0
+                                            }],
+                                        fill: false,
+                                        lineTension: 0,
+                                        showLine: true
+                                    }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Graph2 tbd'
+                                },
+                                scales: {
+                                    xAxes: [{
+                                            type: 'linear',
+                                            position: 'bottom',
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: 'u parameter'
+                                            }
+                                        }]
+                                },
+                                animation: {
+                                    duration: 0
+                                }
+                            }
+                        });
+                    }
+                    case 2: {
+                        chart3.destroy();
+                        chart3 = new chart_js_1.Chart(ctxChart3, {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                        label: 'tbd',
+                                        data: [{
+                                                x: 0,
+                                                y: 0
+                                            }],
+                                        fill: false,
+                                        lineTension: 0,
+                                        showLine: true
+                                    }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Graph3 tbd'
+                                },
+                                scales: {
+                                    xAxes: [{
+                                            type: 'linear',
+                                            position: 'bottom',
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: 'u parameter'
+                                            }
+                                        }]
+                                },
+                                animation: {
+                                    duration: 0
+                                }
+                            }
+                        });
+                    }
+                }
             }
         }
     }
@@ -39604,11 +39728,42 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
         }
         return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
     };
+    /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
+    BSpline_R1_to_R2.prototype.relocateAfterOptimization = function (step) {
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            this.controlPoints[i].x -= step[0];
+            this.controlPoints[i].y -= step[this.controlPoints.length];
+        }
+    };
     BSpline_R1_to_R2.prototype.optimizerStep = function (step) {
+        /*let dispX: number[] = []
+        dispX[0] = step[0]
+        let dispY: number[] = []
+        let tolerance = 1.0E-6
+        let translation: boolean = true
+        dispY[0] = step[this.controlPoints.length]
+        for (let i = 1; i < this.controlPoints.length; i += 1) {
+            dispX[i] = step[i]
+            dispY[i] = step[i + this.controlPoints.length]
+            if(Math.abs(dispX[0] - dispX[i]) > tolerance || Math.abs(dispY[0] - dispY[i]) > tolerance) {
+                translation =  false
+            }
+        }
+        if (translation) {
+            console.log(" optimizerStep: inc X = " + dispX[0] + " inc Y = " + dispY[0])
+        } else console.log(" optimizerStep: no translation ")*/
+        /* JCL 2020/09/17 correct the control point displacements to get the one fixed */
+        /*for (let i = 1; i < this.controlPoints.length; i += 1) {
+            step[i] = step[i] - step[0]
+            step[i + this.controlPoints.length] = step[i + this.controlPoints.length] - step[this.controlPoints.length]
+        }
+        step[0] = 0.0
+        step[this.controlPoints.length] = 0.0 */
         for (var i = 0; i < this.controlPoints.length; i += 1) {
             this.controlPoints[i].x += step[i];
             this.controlPoints[i].y += step[i + this.controlPoints.length];
         }
+        /*console.log("optStep: stpX0 " + step[0] + " stpY0 " + step[this.controlPoints.length] + "stpX1" + step[1] + " stpY1 " + step[this.controlPoints.length+1])*/
     };
     BSpline_R1_to_R2.prototype.getControlPointsX = function () {
         var result = [];
@@ -41517,9 +41672,13 @@ var Optimizer = /** @class */ (function () {
     function Optimizer(o) {
         this.o = o;
         this.success = false;
+        /* JCL 2020/09/17 Add increment to track displacement of extreme control points */
+        this.increment = [];
         if (this.o.f.length !== this.o.gradient_f.shape[0]) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor");
         }
+        /* JCL 2020/09/17 Initializes increment */
+        this.increment = MathVectorBasicOperations_3.zeroVector(this.o.f.length);
     }
     Optimizer.prototype.optimize_using_trust_region = function (epsilon, maxTrustRadius, maxNumSteps) {
         if (epsilon === void 0) { epsilon = 10e-8; }
@@ -41534,6 +41693,8 @@ var Optimizer = /** @class */ (function () {
         var rho;
         var eta = 0.1; // [0, 1/4)
         var mu = 10; // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
+        /* JCL 2020/09/18 Collect the elementary steps prior to shift the control polygon */
+        var globalStep = MathVectorBasicOperations_3.zeroVector(this.o.f.length);
         while (this.o.numberOfConstraints / t > epsilon) {
             while (true) {
                 numSteps += 1;
@@ -41562,6 +41723,10 @@ var Optimizer = /** @class */ (function () {
                 var barrierValueStep = this.barrierValue(fStep);
                 var actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep);
                 var predictedReduction = -MathVectorBasicOperations_1.dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
+                /* JCL 2020/09/17 update the global step */
+                for (var i = 0; i < this.o.f.length; i += 1) {
+                    globalStep[i] += tr.step[i];
+                }
                 rho = actualReduction / predictedReduction;
                 if (rho < 0.25) {
                     trustRadius *= 0.25;
@@ -41603,6 +41768,8 @@ var Optimizer = /** @class */ (function () {
         //    return -1;
         //}
         //console.log(numSteps)
+        /* JCL 2020/09/18 Assign the global step to increment for the corresponding control point movement */
+        this.increment = globalStep;
         this.success = true;
     };
     Optimizer.prototype.optimize_using_line_search = function (epsilon, maxNumSteps) {

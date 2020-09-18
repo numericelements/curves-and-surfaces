@@ -13,13 +13,16 @@ import { CholeskyDecomposition } from "./CholeskyDecomposition";
 export class Optimizer {
 
     public success = false
+    /* JCL 2020/09/17 Add increment to track displacement of extreme control points */
+    public increment: number[] = []
 
     constructor(private o: OptimizationProblemInterface ) {
 
         if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor")
         }
-
+        /* JCL 2020/09/17 Initializes increment */
+        this.increment = zeroVector(this.o.f.length)
         
     }
 
@@ -36,6 +39,10 @@ export class Optimizer {
         let rho: number 
         const eta = 0.1 // [0, 1/4)
         const mu = 10 // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
+
+        /* JCL 2020/09/18 Collect the elementary steps prior to shift the control polygon */
+        let globalStep: number[] = zeroVector(this.o.f.length)
+
         while (this.o.numberOfConstraints / t > epsilon) {
             while (true) {
                 numSteps += 1;
@@ -71,6 +78,12 @@ export class Optimizer {
                 let barrierValueStep = this.barrierValue(fStep)
                 let actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep);
                 let predictedReduction = -dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
+
+                /* JCL 2020/09/17 update the global step */
+                for(let i = 0; i < this.o.f.length; i += 1) {
+                    globalStep[i] += tr.step[i]
+                }
+                
 
                 rho = actualReduction / predictedReduction;
                 if (rho < 0.25) {
@@ -112,6 +125,9 @@ export class Optimizer {
         //    return -1;
         //}
         //console.log(numSteps)
+
+        /* JCL 2020/09/18 Assign the global step to increment for the corresponding control point movement */
+        this.increment = globalStep
 
         this.success = true
 

@@ -85,6 +85,14 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
         return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
     }
 
+    /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
+    relocateAfterOptimization(step: number[]) {
+        for (let i = 0; i < this.controlPoints.length; i += 1) {
+            this.controlPoints[i].x -= step[0];
+            this.controlPoints[i].y -= step[this.controlPoints.length];
+        }
+    }
+
     optimizerStep(step: number[]) {
         for (let i = 0; i < this.controlPoints.length; i += 1) {
             this.controlPoints[i].x += step[i];
