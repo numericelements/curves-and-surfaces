@@ -37708,7 +37708,7 @@ exports.CurvatureSceneController = CurvatureSceneController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveSceneController = void 0;
+exports.CurveSceneController = exports.ActiveLocationControl = void 0;
 var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
 var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
 var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
@@ -37725,6 +37725,18 @@ var InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./s
 var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
 var NoSlidingStrategy_1 = __webpack_require__(/*! ./NoSlidingStrategy */ "./src/controllers/NoSlidingStrategy.ts");
 var TransitionCurvatureExtremaView_1 = __webpack_require__(/*! ../views/TransitionCurvatureExtremaView */ "./src/views/TransitionCurvatureExtremaView.ts");
+/* JCL 2020/09/24 Add the visualization of clamped control points */
+var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlPointView */ "./src/views/ClampedControlPointView.ts");
+/*import { Tagged_Vector_2d } from "../mathematics/Tagged_Vector_2d";*/
+/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+var ActiveLocationControl;
+(function (ActiveLocationControl) {
+    ActiveLocationControl[ActiveLocationControl["firstControlPoint"] = 0] = "firstControlPoint";
+    ActiveLocationControl[ActiveLocationControl["lastControlPoint"] = 1] = "lastControlPoint";
+    ActiveLocationControl[ActiveLocationControl["both"] = 2] = "both";
+    ActiveLocationControl[ActiveLocationControl["none"] = 3] = "none";
+    ActiveLocationControl[ActiveLocationControl["stopDeforming"] = 4] = "stopDeforming";
+})(ActiveLocationControl = exports.ActiveLocationControl || (exports.ActiveLocationControl = {}));
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl, curveObservers) {
         var _this = this;
@@ -37736,11 +37748,17 @@ var CurveSceneController = /** @class */ (function () {
         this.dragging = false;
         this.stackOfSelectedGraphs = [];
         this.MAX_NB_GRAPHS = 3;
+        /* JCL 2020/09/24 Add visualization and selection of clamped control points */
+        this.clampedControlPointView = null;
+        this.clampedControlPoints = [];
+        /* JCL 2020/09/23 Add management of the curve location */
+        this.activeLocationControl = ActiveLocationControl.none;
         this.curveModel = new CurveModel_1.CurveModel();
         this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
         this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1);
         this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
-        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false);
+        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
+        /*this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 1.0, 1) */
         this.curveShaders = new CurveShaders_1.CurveShaders(this.gl);
         this.curveView = new CurveView_1.CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.insertKnotButtonShaders = new InsertKnotButtonShaders_1.InsertKnotButtonShaders(this.gl);
@@ -37750,9 +37768,16 @@ var CurveSceneController = /** @class */ (function () {
         this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
+        /* JCL 2020/09/24 Add default clamped control point */
+        var clampedControlPoint = [];
+        clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+        /*let taggedControlPoint = new Tagged_Vector_2d(this.curveModel.spline.controlPoints[0], 0)*/
+        this.clampedControlPoints.push(0);
+        this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+        this.activeLocationControl = ActiveLocationControl.firstControlPoint;
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
-        this.controlOfCurveClamping = false;
+        this.controlOfCurveClamping = true;
         /* JCL 2020/09/07 Add monitoring of checkboxes to select the proper graphs to display */
         this.controlOfGraphFunctionA = false;
         this.controlOfGraphFunctionB = false;
@@ -37769,7 +37794,9 @@ var CurveSceneController = /** @class */ (function () {
             element.update(_this.curveModel.spline);
             _this.curveModel.registerObserver(element);
         });
-        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+        /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
+        this.clampedControlPointView.update(clampedControlPoint);
+        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         this.sliding = true;
     }
     CurveSceneController.prototype.renderFrame = function () {
@@ -37787,11 +37814,21 @@ var CurveSceneController = /** @class */ (function () {
         this.transitionCurvatureExtremaView.renderFrame();
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
+        if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
+            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 1.0, 1);
+        }
+        else {
+            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
+        }
         this.controlPointsView.renderFrame();
         this.insertKnotButtonView.renderFrame();
         this.curveObservers.forEach(function (element) {
             element.renderFrame();
         });
+        /* JCL 2020/09/24 Add the display of clamped control points */
+        if (this.controlOfCurveClamping && this.clampedControlPointView !== null) {
+            this.clampedControlPointView.renderFrame();
+        }
     };
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
         curveObserver.update(this.curveModel.spline);
@@ -37805,9 +37842,23 @@ var CurveSceneController = /** @class */ (function () {
         curveObserver.reset(this.curveModel.spline);
         /*this.curveModel.registerObserver(curveObserver);*/
     };
+    /* JCL 20202/09/24 Monitor rigid body movements of the curve in accordance with the button status */
     CurveSceneController.prototype.toggleCurveClamping = function () {
         this.controlOfCurveClamping = !this.controlOfCurveClamping;
         console.log("control of curve clamping: " + this.controlOfCurveClamping);
+        if (this.controlOfCurveClamping) {
+            /* JCL 2020/09/24 Update the location of the clamped control point */
+            var clampedControlPoint = [];
+            clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+            this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+            this.clampedControlPoints = [];
+            this.clampedControlPoints.push(0);
+            this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+            if (this.clampedControlPointView !== null)
+                this.clampedControlPointView.update(clampedControlPoint);
+        }
+        else
+            this.activeLocationControl = ActiveLocationControl.none;
     };
     /* 2020/09/07 Add management of function graphs display */
     CurveSceneController.prototype.chkboxFunctionA = function () {
@@ -37970,13 +38021,13 @@ var CurveSceneController = /** @class */ (function () {
             this.sliding = false;
             //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
             //console.log("constrol of inflections: " + this.controlOfInflection)
-            this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+            this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         }
         else {
             this.sliding = true;
             //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
             //console.log("constrol of inflections: " + this.controlOfInflection)
-            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         }
     };
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
@@ -37996,13 +38047,23 @@ var CurveSceneController = /** @class */ (function () {
                 // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                 // JCL the curveControl must be set in accordance with the current status of controls
                 if (this.sliding == true) {
-                    this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+                    this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
                 else {
-                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
+                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
                 this.curveModel.notifyObservers();
             }
+        }
+        if (this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
+            /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
+            if (this.sliding == true) {
+                this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            }
+            else {
+                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            }
+            this.curveModel.notifyObservers();
         }
         this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
         this.controlPointsView.setSelected(this.selectedControlPoint);
@@ -38012,14 +38073,95 @@ var CurveSceneController = /** @class */ (function () {
     };
     CurveSceneController.prototype.leftMouseDragged_event = function (ndcX, ndcY) {
         var x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
-        if (selectedControlPoint != null && this.dragging === true) {
+        /* JCL 2020/09/27 Add clamping condition when dragging a control point */
+        if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
             this.curveModel.setControlPoint(selectedControlPoint, x, y);
             this.curveControl.optimize(selectedControlPoint, x, y);
             this.curveModel.notifyObservers();
+            if (this.clampedControlPoints.length > 0) {
+                var clampedControlPoint = [];
+                for (var i = 0; i < this.clampedControlPoints.length; i += 1) {
+                    clampedControlPoint.push(this.curveModel.spline.controlPoints[this.clampedControlPoints[i]]);
+                }
+                if (this.clampedControlPointView !== null)
+                    this.clampedControlPointView.update(clampedControlPoint);
+            }
         }
     };
     CurveSceneController.prototype.leftMouseUp_event = function () {
         this.dragging = false;
+        if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
+            this.activeLocationControl = ActiveLocationControl.both;
+            this.selectedControlPoint = null;
+        }
+    };
+    /* JCL 2020/09/25 Management of the dble click on a clamped control point */
+    CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY, deltaSquared) {
+        if (deltaSquared === void 0) { deltaSquared = 0.01; }
+        var result;
+        if (this.controlOfCurveClamping) {
+            if (this.clampedControlPointView !== null) {
+                var selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
+                if (selectedClampedControlPoint !== null) {
+                    if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] === selectedClampedControlPoint) {
+                        console.log("dlble_click: no cp left");
+                        this.clampedControlPointView = null;
+                        this.clampedControlPoints.pop();
+                        this.activeLocationControl = ActiveLocationControl.none;
+                        return result = false;
+                    }
+                    else if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint
+                        && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
+                        console.log("dlble_click: two cp clamped");
+                        this.clampedControlPoints.push(selectedClampedControlPoint);
+                        var clampedControlPoint = [];
+                        clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+                        clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
+                        this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+                        this.activeLocationControl = ActiveLocationControl.both;
+                        return result = true;
+                    }
+                    else if (this.clampedControlPoints.length === 2) {
+                        if (selectedClampedControlPoint === 0) {
+                            console.log("dlble_click: last cp left");
+                            if (this.clampedControlPoints[1] === selectedClampedControlPoint) {
+                                this.clampedControlPoints.pop();
+                            }
+                            else
+                                this.clampedControlPoints.splice(0, 1);
+                            var clampedControlPoint = [];
+                            clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
+                            this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+                            this.activeLocationControl = ActiveLocationControl.lastControlPoint;
+                            console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
+                        }
+                        else if (selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
+                            console.log("dlble_click: first cp left");
+                            if (this.clampedControlPoints[1] === selectedClampedControlPoint) {
+                                this.clampedControlPoints.pop();
+                            }
+                            else
+                                this.clampedControlPoints.splice(0, 1);
+                            var clampedControlPoint = [];
+                            clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+                            this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+                            this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+                            console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
+                        }
+                        return result = true;
+                    }
+                    else
+                        return result = true;
+                }
+                else
+                    return result = true;
+            }
+            else
+                return result = true;
+        }
+        else
+            return result = true;
     };
     return CurveSceneController;
 }());
@@ -38376,10 +38518,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NoSlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var NoSlidingStrategy = /** @class */ (function () {
-    function NoSlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema) {
+    function NoSlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, curveSceneController) {
         this.activeOptimizer = true;
         var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
+        /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
+        this.curveSceneController = curveSceneController;
         if (!controlOfCurvatureExtrema) {
             activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections;
         }
@@ -38462,6 +38607,33 @@ var NoSlidingStrategy = /** @class */ (function () {
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
+            /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
+            /*console.log("optimize : " + this.curveSceneController.activeLocationControl)*/
+            var delta = [];
+            for (var i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
+                var inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i]);
+                delta.push(inc);
+            }
+            if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+            }
+            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                    /*console.log("optimize: s0sn constant")*/
+                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
+                    delta[delta.length - 1] = delta[0];
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                }
+                else {
+                    /*console.log("optimize: s0sn variable -> stop evolving")*/
+                    this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                }
+            }
+            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+            }
             this.curveModel.setSpline(this.optimizationProblem.spline.clone());
         }
         catch (e) {
@@ -38489,12 +38661,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var SlidingStrategy = /** @class */ (function () {
-    function SlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema) {
+    function SlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, curveSceneController) {
         this.activeOptimizer = true;
         this.curveModel = curveModel;
         //enum ActiveControl {curvatureExtrema, inflections, both}
         var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
+        /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
+        this.curveSceneController = curveSceneController;
         if (!controlOfCurvatureExtrema) {
             activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections;
         }
@@ -38572,18 +38747,39 @@ var SlidingStrategy = /** @class */ (function () {
         if (this.activeOptimizer === false)
             return;
         var p = this.curveModel.spline.controlPoints[selectedControlPoint];
-        /* JCL 2020/09/17 Take into account the increment of the optimizer*/
-        console.log("optimize: ds0X " + this.optimizer.increment[0] + " ndcX " + ndcX + " ds0Y " + this.optimizer.increment[this.curveModel.spline.controlPoints.length] + " ndcY " + ndcY);
-        ndcX = ndcX - this.optimizer.increment[0];
-        ndcY = ndcY - this.optimizer.increment[this.curveModel.spline.controlPoints.length];
-        console.log("optimize: ndcX " + ndcX + " ndcY " + ndcY);
+        /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
-            console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices);
+            /*console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)*/
             /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
-            this.optimizationProblem.spline.relocateAfterOptimization(this.optimizer.increment);
+            /*console.log("optimize : " + this.curveSceneController.activeLocationControl)*/
+            var delta = [];
+            for (var i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
+                var inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i]);
+                delta.push(inc);
+            }
+            if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+            }
+            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                    /*console.log("optimize: s0sn constant")*/
+                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
+                    delta[delta.length - 1] = delta[0];
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                }
+                else {
+                    /*console.log("optimize: s0sn variable -> stop evolving")*/
+                    this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                }
+            }
+            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+            }
             this.curveModel.setSpline(this.optimizationProblem.spline.clone());
         }
         catch (e) {
@@ -38762,13 +38958,13 @@ function main() {
     });
     var canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
     canvasElementChart1.style.height = '600px';
-    canvasElementChart1.style.width = '400px';
+    canvasElementChart1.style.width = '700px';
     var canvasElementChart2 = (_b = chart2.canvas) === null || _b === void 0 ? void 0 : _b.parentNode;
     canvasElementChart2.style.height = '600px';
-    canvasElementChart2.style.width = '400px';
+    canvasElementChart2.style.width = '700px';
     var canvasElementChart3 = (_c = chart3.canvas) === null || _c === void 0 ? void 0 : _c.parentNode;
     canvasElementChart3.style.height = '600px';
-    canvasElementChart3.style.width = '400px';
+    canvasElementChart3.style.width = '700px';
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
     /*let att = functionB.hasAttribute('display');
@@ -38802,6 +38998,16 @@ function main() {
         var c = mouse_get_NormalizedDeviceCoordinates(ev);
         sceneController.leftMouseDown_event(c[0], c[1], 0.0005);
         sceneController.renderFrame();
+        ev.preventDefault();
+    }
+    /* JCL 2020/09/24 Add event processing with mouse double click for clamped control point selection/deselection */
+    function mouse_double_click(ev) {
+        var c = mouse_get_NormalizedDeviceCoordinates(ev);
+        var active_clamping = sceneController.dbleClick_event(c[0], c[1], 0.0005);
+        sceneController.renderFrame();
+        console.log("mouse_double_click: " + active_clamping);
+        if (!active_clamping)
+            toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
     //function drag(ev, canvas) {
@@ -38946,7 +39152,7 @@ function main() {
                         });
                         canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
                         canvasElementChart1.style.height = '600px';
-                        canvasElementChart1.style.width = '400px';
+                        canvasElementChart1.style.width = '600px';
                         break;
                     }
                     case 1: {
@@ -39278,6 +39484,8 @@ function main() {
     canvas.addEventListener('touchstart', touch_click, false);
     canvas.addEventListener('touchmove', touch_drag, false);
     canvas.addEventListener('touchend', touch_stop_drag, false);
+    /* JCL 2020/09/25 Add dble click event processing */
+    canvas.addEventListener('dblclick', mouse_double_click, false);
     toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema);
     toggleButtonInflection.addEventListener('click', toggleControlOfInflections);
     toggleButtonSliding.addEventListener('click', toggleSliding);
@@ -39645,6 +39853,7 @@ exports.create_BSpline_R1_to_R2 = exports.BSpline_R1_to_R2 = void 0;
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
 var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var CurveSceneController_1 = __webpack_require__(/*! ../controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
@@ -39729,41 +39938,34 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
         return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
     };
     /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
-    BSpline_R1_to_R2.prototype.relocateAfterOptimization = function (step) {
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            this.controlPoints[i].x -= step[0];
-            this.controlPoints[i].y -= step[this.controlPoints.length];
+    BSpline_R1_to_R2.prototype.relocateAfterOptimization = function (step, activeLocationControl) {
+        if (activeLocationControl !== CurveSceneController_1.ActiveLocationControl.stopDeforming) {
+            var index = 0;
+            if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint || activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                index = 0;
+            }
+            else if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                index = this.controlPoints.length - 1;
+            }
+            for (var i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[index].x;
+                this.controlPoints[i].y -= step[index].y;
+            }
+            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
+        }
+        else {
+            for (var i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[i].x;
+                this.controlPoints[i].y -= step[i].y;
+            }
+            /*console.log("relocAfterOptim: relocate all ") */
         }
     };
     BSpline_R1_to_R2.prototype.optimizerStep = function (step) {
-        /*let dispX: number[] = []
-        dispX[0] = step[0]
-        let dispY: number[] = []
-        let tolerance = 1.0E-6
-        let translation: boolean = true
-        dispY[0] = step[this.controlPoints.length]
-        for (let i = 1; i < this.controlPoints.length; i += 1) {
-            dispX[i] = step[i]
-            dispY[i] = step[i + this.controlPoints.length]
-            if(Math.abs(dispX[0] - dispX[i]) > tolerance || Math.abs(dispY[0] - dispY[i]) > tolerance) {
-                translation =  false
-            }
-        }
-        if (translation) {
-            console.log(" optimizerStep: inc X = " + dispX[0] + " inc Y = " + dispY[0])
-        } else console.log(" optimizerStep: no translation ")*/
-        /* JCL 2020/09/17 correct the control point displacements to get the one fixed */
-        /*for (let i = 1; i < this.controlPoints.length; i += 1) {
-            step[i] = step[i] - step[0]
-            step[i + this.controlPoints.length] = step[i + this.controlPoints.length] - step[this.controlPoints.length]
-        }
-        step[0] = 0.0
-        step[this.controlPoints.length] = 0.0 */
         for (var i = 0; i < this.controlPoints.length; i += 1) {
             this.controlPoints[i].x += step[i];
             this.controlPoints[i].y += step[i + this.controlPoints.length];
         }
-        /*console.log("optStep: stpX0 " + step[0] + " stpY0 " + step[this.controlPoints.length] + "stpX1" + step[1] + " stpY1 " + step[this.controlPoints.length+1])*/
     };
     BSpline_R1_to_R2.prototype.getControlPointsX = function () {
         var result = [];
@@ -40873,6 +41075,8 @@ var ActiveControl;
     ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
     ActiveControl[ActiveControl["both"] = 2] = "both";
 })(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
+/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+/*export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none} */
 var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
     //public activeControl: ActiveControl = ActiveControl.both
     function OptimizationProblem_BSpline_R1_to_R2(target, initial, activeControl) {
@@ -41672,13 +41876,9 @@ var Optimizer = /** @class */ (function () {
     function Optimizer(o) {
         this.o = o;
         this.success = false;
-        /* JCL 2020/09/17 Add increment to track displacement of extreme control points */
-        this.increment = [];
         if (this.o.f.length !== this.o.gradient_f.shape[0]) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor");
         }
-        /* JCL 2020/09/17 Initializes increment */
-        this.increment = MathVectorBasicOperations_3.zeroVector(this.o.f.length);
     }
     Optimizer.prototype.optimize_using_trust_region = function (epsilon, maxTrustRadius, maxNumSteps) {
         if (epsilon === void 0) { epsilon = 10e-8; }
@@ -41744,6 +41944,7 @@ var Optimizer = /** @class */ (function () {
                 if (numSteps > maxNumSteps) {
                     //throw new Error("numSteps > maxNumSteps")
                     //break;
+                    console.log("optimizer: max number of iterations reached ");
                     return;
                 }
                 var newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
@@ -41768,8 +41969,6 @@ var Optimizer = /** @class */ (function () {
         //    return -1;
         //}
         //console.log(numSteps)
-        /* JCL 2020/09/18 Assign the global step to increment for the corresponding control point movement */
-        this.increment = globalStep;
         this.success = true;
     };
     Optimizer.prototype.optimize_using_line_search = function (epsilon, maxNumSteps) {
@@ -43085,6 +43284,9 @@ var Vector_2d = /** @class */ (function () {
         'use strict';
         return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
     };
+    Vector_2d.prototype.norm = function () {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    };
     return Vector_2d;
 }());
 exports.Vector_2d = Vector_2d;
@@ -43202,6 +43404,200 @@ var CurveModel = /** @class */ (function () {
     return CurveModel;
 }());
 exports.CurveModel = CurveModel;
+
+
+/***/ }),
+
+/***/ "./src/views/ClampedControlPointView.ts":
+/*!**********************************************!*\
+  !*** ./src/views/ClampedControlPointView.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClampedControlPointView = void 0;
+/*import { IObserver } from "../designPatterns/Observer";*/
+/*export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> {*/
+var ClampedControlPointView = /** @class */ (function () {
+    /*private controlPoints: Vector_2d[]*/
+    /*constructor(private spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {*/
+    function ClampedControlPointView(controlPoints, controlPointsShaders, red, blue, green) {
+        /*this.controlPoints = spline.visibleControlPoints()*/
+        this.controlPoints = controlPoints;
+        this.controlPointsShaders = controlPointsShaders;
+        this.red = red;
+        this.blue = blue;
+        this.green = green;
+        this.z = 0;
+        this.clampedControlPoint = null;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers(this.controlPointsShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    ClampedControlPointView.prototype.updateVerticesAndIndices = function () {
+        var size = 0.03;
+        //const size = 0.05
+        this.vertices = new Float32Array(this.controlPoints.length * 32);
+        this.indices = new Uint8Array(this.controlPoints.length * 6);
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var x = this.controlPoints[i].x;
+            var y = this.controlPoints[i].y;
+            this.vertices[32 * i] = x - size;
+            this.vertices[32 * i + 1] = y - size;
+            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.red;
+            this.vertices[32 * i + 6] = this.green;
+            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 8] = x + size;
+            this.vertices[32 * i + 9] = y - size;
+            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.red;
+            this.vertices[32 * i + 14] = this.green;
+            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 16] = x + size;
+            this.vertices[32 * i + 17] = y + size;
+            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.red;
+            this.vertices[32 * i + 22] = this.green;
+            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 24] = x - size;
+            this.vertices[32 * i + 25] = y + size;
+            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.red;
+            this.vertices[32 * i + 30] = this.green;
+            this.vertices[32 * i + 31] = this.blue;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    ClampedControlPointView.prototype.initVertexBuffers = function (gl) {
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        var a_Position = gl.getAttribLocation(this.controlPointsShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.controlPointsShaders.program, 'a_Texture'), a_Color = gl.getAttribLocation(this.controlPointsShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Texture < 0) {
+            console.log('Failed to get the storage location of a_Texture');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 8, FSIZE * 5);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    ClampedControlPointView.prototype.renderFrame = function () {
+        var gl = this.controlPointsShaders.gl, a_Position = gl.getAttribLocation(this.controlPointsShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.controlPointsShaders.program, 'a_Texture'), a_Color = gl.getAttribLocation(this.controlPointsShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.controlPointsShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 8, FSIZE * 5);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        gl.enableVertexAttribArray(a_Color);
+        this.controlPointsShaders.renderFrame(this.indices.length, this.clampedControlPoint);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    };
+    ClampedControlPointView.prototype.controlPointSelection = function (allCurveControlPoints, x, y, deltaSquared) {
+        if (deltaSquared === void 0) { deltaSquared = 0.01; }
+        //const deltaSquared = 0.01
+        //const deltaSquared = 0.001
+        var result = null;
+        for (var i = 0; i < allCurveControlPoints.length; i += 1) {
+            if (Math.pow(x - allCurveControlPoints[i].x, 2) + Math.pow(y - allCurveControlPoints[i].y, 2) < deltaSquared) {
+                return i;
+            }
+        }
+        return result;
+    };
+    /*update(spline: BSpline_R1_to_R2_interface) {*/
+    ClampedControlPointView.prototype.update = function (controlPoints) {
+        /*this.controlPoints = spline.visibleControlPoints();*/
+        this.controlPoints = controlPoints;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    };
+    /*reset(message: BSpline_R1_to_R2_interface): void {
+    }*/
+    ClampedControlPointView.prototype.updatePoints = function (points) {
+        this.controlPoints = points;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    };
+    ClampedControlPointView.prototype.updateBuffers = function () {
+        var gl = this.controlPointsShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    ClampedControlPointView.prototype.getSelectedControlPoint = function () {
+        return this.clampedControlPoint;
+    };
+    ClampedControlPointView.prototype.setSelected = function (controlPointIndex) {
+        this.clampedControlPoint = controlPointIndex;
+    };
+    return ClampedControlPointView;
+}());
+exports.ClampedControlPointView = ClampedControlPointView;
 
 
 /***/ }),
@@ -43643,8 +44039,13 @@ var ControlPolygonShaders = /** @class */ (function () {
             '    gl_Position = vec4(a_Position, 1.0); \n' +
             '}\n';
         // Fragment shader program
-        this.FSHADER_SOURCE = 'void main() {\n' +
-            '     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +
+        this.FSHADER_SOURCE = 
+        /* JCL 2020/09/28 Add control management of the control polygon */
+        'precision mediump float; \n' +
+            'uniform vec4 fColor; \n' +
+            'void main() {\n' +
+            '    gl_FragColor = fColor; \n' +
+            /*'     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +  */
             '}\n';
         this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
@@ -43675,11 +44076,15 @@ exports.ControlPolygonShaders = ControlPolygonShaders;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ControlPolygonView = void 0;
 var ControlPolygonView = /** @class */ (function () {
-    function ControlPolygonView(spline, controlPolygonShaders, closed) {
+    function ControlPolygonView(spline, controlPolygonShaders, closed, red, green, blue, alpha) {
         if (closed === void 0) { closed = false; }
         this.spline = spline;
         this.controlPolygonShaders = controlPolygonShaders;
         this.closed = closed;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
         this.z = 0;
         this.selectedControlPoint = null;
         this.vertexBuffer = null;
@@ -43761,11 +44166,14 @@ var ControlPolygonView = /** @class */ (function () {
     ControlPolygonView.prototype.renderFrame = function () {
         var gl = this.controlPolygonShaders.gl;
         var a_Position = gl.getAttribLocation(this.controlPolygonShaders.program, 'a_Position');
+        /* JCL 2020/09/28 Add the management of the control polygon color */
+        var fColorLocation = gl.getUniformLocation(this.controlPolygonShaders.program, "fColor");
         gl.useProgram(this.controlPolygonShaders.program);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(a_Position);
+        gl.uniform4f(fColorLocation, this.red, this.green, this.blue, this.alpha);
         this.controlPolygonShaders.renderFrame(this.indices.length);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);

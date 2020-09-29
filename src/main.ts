@@ -171,15 +171,15 @@ export function main() {
 
     let canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
     canvasElementChart1.style.height = '600px'
-    canvasElementChart1.style.width = '400px'
+    canvasElementChart1.style.width = '700px'
 
     let canvasElementChart2 = chart2.canvas?.parentNode as HTMLCanvasElement;
     canvasElementChart2.style.height = '600px'
-    canvasElementChart2.style.width = '400px'
+    canvasElementChart2.style.width = '700px'
 
     let canvasElementChart3 = chart3.canvas?.parentNode as HTMLCanvasElement;
     canvasElementChart3.style.height = '600px'
-    canvasElementChart3.style.width = '400px'
+    canvasElementChart3.style.width = '700px'
 
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     let sceneController = new CurveSceneController(canvas, gl)
@@ -228,6 +228,16 @@ export function main() {
         let c = mouse_get_NormalizedDeviceCoordinates(ev);
         sceneController.leftMouseDown_event(c[0], c[1], 0.0005);
         sceneController.renderFrame();
+        ev.preventDefault();
+    }
+
+    /* JCL 2020/09/24 Add event processing with mouse double click for clamped control point selection/deselection */
+    function mouse_double_click(ev: MouseEvent) {
+        let c = mouse_get_NormalizedDeviceCoordinates(ev);
+        let active_clamping = sceneController.dbleClick_event(c[0], c[1], 0.0005);
+        sceneController.renderFrame();
+        console.log("mouse_double_click: " + active_clamping);
+        if(!active_clamping) toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
 
@@ -382,7 +392,7 @@ export function main() {
                         });
                         canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
                         canvasElementChart1.style.height = '600px'
-                        canvasElementChart1.style.width = '400px'
+                        canvasElementChart1.style.width = '700px'
                         break;
                     }
                     case 1: {
@@ -720,6 +730,8 @@ export function main() {
     canvas.addEventListener('touchstart', touch_click, false);
     canvas.addEventListener('touchmove', touch_drag, false);
     canvas.addEventListener('touchend', touch_stop_drag, false);
+    /* JCL 2020/09/25 Add dble click event processing */
+    canvas.addEventListener('dblclick', mouse_double_click, false);
 
     toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
     toggleButtonInflection.addEventListener('click', toggleControlOfInflections)

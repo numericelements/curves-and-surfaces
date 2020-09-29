@@ -2,6 +2,9 @@ import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
+import { Vector_2d } from "../mathematics/Vector_2d";
+import { CurveSceneController, ActiveLocationControl } from "./CurveSceneController"
+
 
 
 export class SlidingStrategy implements CurveControlStrategyInterface {
@@ -11,11 +14,16 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     private activeOptimizer: boolean = true
 
     private curveModel: CurveModel
+    /* JCL 2020/09/23 Add management of the curve location */
+    private curveSceneController: CurveSceneController
 
-    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean ) {
+    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, curveSceneController: CurveSceneController ) {
         this.curveModel = curveModel
         //enum ActiveControl {curvatureExtrema, inflections, both}
         let activeControl : ActiveControl = ActiveControl.both
+
+        /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
+        this.curveSceneController = curveSceneController
 
         if (!controlOfCurvatureExtrema) {
             activeControl = ActiveControl.inflections
@@ -104,26 +112,44 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         if (this.activeOptimizer === false) return
 
         const p = this.curveModel.spline.controlPoints[selectedControlPoint]
-        /* JCL 2020/09/17 Take into account the increment of the optimizer*/
-        console.log("optimize: ds0X " + this.optimizer.increment[0] + " ndcX " + ndcX + " ds0Y " + this.optimizer.increment[this.curveModel.spline.controlPoints.length] + " ndcY " + ndcY)
-        ndcX = ndcX - this.optimizer.increment[0]
-        ndcY = ndcY - this.optimizer.increment[this.curveModel.spline.controlPoints.length]
-        console.log("optimize: ndcX " + ndcX + " ndcY " + ndcY)
-
+        /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
         
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
-            console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)
+            /*console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)*/
             /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
-            this.optimizationProblem.spline.relocateAfterOptimization(this.optimizer.increment)
+            /*console.log("optimize : " + this.curveSceneController.activeLocationControl)*/
+            let delta: Vector_2d[] = []
+            for(let i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
+                let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
+                delta.push(inc)
+            }
+            if(this.curveSceneController.activeLocationControl === ActiveLocationControl.firstControlPoint) {
+                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.both) {
+                if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                    /*console.log("optimize: s0sn constant")*/
+                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
+                    delta[delta.length - 1] = delta[0]
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                } else {
+                    /*console.log("optimize: s0sn variable -> stop evolving")*/
+                    this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                }
+            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+            }
+
             this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-           }
-           catch(e) {
+        }
+            catch(e) {
             this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y)
             console.log(e)
-           }
+        }
 
 
     }

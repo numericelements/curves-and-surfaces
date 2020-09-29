@@ -14,7 +14,8 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
     private indices: Uint8Array = new Uint8Array([])
     private controlPoints: Vector_2d[]
 
-    constructor(private spline: BSpline_R1_to_R2_interface, private controlPolygonShaders: ControlPolygonShaders, private closed: boolean = false ) {
+    constructor(private spline: BSpline_R1_to_R2_interface, private controlPolygonShaders: ControlPolygonShaders, private closed: boolean = false,
+        private red: number, private green: number, private blue: number, private alpha: number ) {
 
         this.controlPoints = spline.visibleControlPoints()
         if (this.closed) {
@@ -116,12 +117,16 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
 
         const gl = this.controlPolygonShaders.gl
         const a_Position = gl.getAttribLocation(<ControlPolygonShaders>this.controlPolygonShaders.program, 'a_Position')
+        /* JCL 2020/09/28 Add the management of the control polygon color */
+        const fColorLocation = gl.getUniformLocation(<ControlPolygonShaders>this.controlPolygonShaders.program, "fColor")
 
         gl.useProgram(this.controlPolygonShaders.program);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(a_Position);
+
+        gl.uniform4f(fColorLocation, this.red, this.green, this.blue, this.alpha);
 
         this.controlPolygonShaders.renderFrame(this.indices.length);
 

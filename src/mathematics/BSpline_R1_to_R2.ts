@@ -3,6 +3,8 @@ import { basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { Vector_2d } from "./Vector_2d"
 import { BSpline_R1_to_R2_interface } from "./BSplineInterfaces";
 
+import { ActiveLocationControl } from "../controllers/CurveSceneController"
+
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
@@ -86,11 +88,27 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
     }
 
     /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
-    relocateAfterOptimization(step: number[]) {
-        for (let i = 0; i < this.controlPoints.length; i += 1) {
-            this.controlPoints[i].x -= step[0];
-            this.controlPoints[i].y -= step[this.controlPoints.length];
+    relocateAfterOptimization(step: Array<Vector_2d>, activeLocationControl: ActiveLocationControl) {
+        if(activeLocationControl !== ActiveLocationControl.stopDeforming) {
+            let index = 0
+            if(activeLocationControl === ActiveLocationControl.firstControlPoint || activeLocationControl === ActiveLocationControl.both) {
+                index = 0
+            } else if(activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                index = this.controlPoints.length - 1
+            }
+            for (let i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[index].x;
+                this.controlPoints[i].y -= step[index].y;
+            }
+            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
+        } else {
+            for (let i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[i].x;
+                this.controlPoints[i].y -= step[i].y;
+            }
+            /*console.log("relocAfterOptim: relocate all ") */
         }
+
     }
 
     optimizerStep(step: number[]) {

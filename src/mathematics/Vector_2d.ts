@@ -42,4 +42,8 @@ export class Vector_2d {
         return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
     }
 
+    norm() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
+
 }

@@ -13,16 +13,12 @@ import { CholeskyDecomposition } from "./CholeskyDecomposition";
 export class Optimizer {
 
     public success = false
-    /* JCL 2020/09/17 Add increment to track displacement of extreme control points */
-    public increment: number[] = []
 
     constructor(private o: OptimizationProblemInterface ) {
 
         if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor")
         }
-        /* JCL 2020/09/17 Initializes increment */
-        this.increment = zeroVector(this.o.f.length)
         
     }
 
@@ -101,6 +97,7 @@ export class Optimizer {
                 if (numSteps > maxNumSteps) {
                     //throw new Error("numSteps > maxNumSteps")
                     //break;
+                    console.log("optimizer: max number of iterations reached ")
                     return
                 }
                 let newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
@@ -125,9 +122,6 @@ export class Optimizer {
         //    return -1;
         //}
         //console.log(numSteps)
-
-        /* JCL 2020/09/18 Assign the global step to increment for the corresponding control point movement */
-        this.increment = globalStep
 
         this.success = true
 

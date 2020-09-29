@@ -26,6 +26,9 @@ class ExpensiveComputationResults {
 
 export enum ActiveControl {curvatureExtrema, inflections, both}
 
+/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+/*export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none} */
+
 
 
 export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {

@@ -11,8 +11,12 @@ export class ControlPolygonShaders {
 
    // Fragment shader program
    private readonly FSHADER_SOURCE = 
+   /* JCL 2020/09/28 Add control management of the control polygon */
+        'precision mediump float; \n' +
+        'uniform vec4 fColor; \n' +
         'void main() {\n' +
-        '     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +
+        '    gl_FragColor = fColor; \n' +
+        /*'     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +  */
         '}\n';
 
         //   open curve     '     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +
