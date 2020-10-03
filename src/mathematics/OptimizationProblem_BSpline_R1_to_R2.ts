@@ -223,6 +223,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return signChangesIntervals
     }
 
+
     computeControlPointsClosestToZero(signChangesIntervals: number[], controlPoints: number[]) {
         let result: number[] = []
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
@@ -239,7 +240,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
             }
         }
         //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
-        if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+        /* JCL 2020/10/02 modification as alternative to sliding mechanism */
+        /*if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
             let n = Math.trunc(controlPoints.length/7);
             console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
             for(let j = 1; j < n ; j += 1) {
@@ -253,7 +255,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
                 }
             }
             result.sort();
-        }
+        }*/
         
         return result
     }

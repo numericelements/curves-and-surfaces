@@ -37728,6 +37728,9 @@ var TransitionCurvatureExtremaView_1 = __webpack_require__(/*! ../views/Transiti
 /* JCL 2020/09/24 Add the visualization of clamped control points */
 var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlPointView */ "./src/views/ClampedControlPointView.ts");
 /*import { Tagged_Vector_2d } from "../mathematics/Tagged_Vector_2d";*/
+/* JCL 2020/10/02 Add the visualization of knots */
+var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
+var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ "./src/views/CurveKnotsShaders.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
 (function (ActiveLocationControl) {
@@ -37768,6 +37771,8 @@ var CurveSceneController = /** @class */ (function () {
         this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
         this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
+        this.curveKnotsShaders = new CurveKnotsShaders_1.CurveKnotsShaders(this.gl);
+        this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
         /* JCL 2020/09/24 Add default clamped control point */
         var clampedControlPoint = [];
         clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
@@ -37790,6 +37795,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.curvatureExtremaView);
         this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
+        this.curveModel.registerObserver(this.curveKnotsView);
         this.curveObservers.forEach(function (element) {
             element.update(_this.curveModel.spline);
             _this.curveModel.registerObserver(element);
@@ -37814,8 +37820,9 @@ var CurveSceneController = /** @class */ (function () {
         this.transitionCurvatureExtremaView.renderFrame();
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
+        this.curveKnotsView.renderFrame();
         if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 1.0, 1);
+            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 0.9, 1);
         }
         else {
             this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
@@ -39152,7 +39159,7 @@ function main() {
                         });
                         canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
                         canvasElementChart1.style.height = '600px';
-                        canvasElementChart1.style.width = '600px';
+                        canvasElementChart1.style.width = '700px';
                         break;
                     }
                     case 1: {
@@ -41274,22 +41281,22 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
             }
         }
         //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
-        if (this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1) * 7) {
-            var n = Math.trunc(controlPoints.length / 7);
-            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length);
-            for (var j = 1; j < n; j += 1) {
-                if (controlPoints[6 * j] * controlPoints[6 * j + 1] < 0) {
+        /* JCL 2020/10/02 modification as alternative to sliding mechanism */
+        /*if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+            let n = Math.trunc(controlPoints.length/7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
+            for(let j = 1; j < n ; j += 1) {
+                if(controlPoints[6*j]*controlPoints[6*j + 1] < 0) {
                     //console.log("CP: " + controlPoints)
-                    if (result.indexOf(6 * j) > 0 && result.indexOf(6 * j + 1) < 0) {
-                        result.push(6 * j + 1);
-                    }
-                    else if (result.indexOf(6 * j) < 0 && result.indexOf(6 * j + 1) > 0) {
-                        result.push(6 * j);
+                    if(result.indexOf(6*j) > 0 && result.indexOf(6*j + 1) < 0) {
+                        result.push(6*j + 1);
+                    } else if(result.indexOf(6*j) < 0 && result.indexOf(6*j + 1) > 0) {
+                        result.push(6*j);
                     }
                 }
             }
             result.sort();
-        }
+        }*/
         return result;
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.addInactiveConstraintsForInflections = function (list, controlPoints) {
@@ -44369,6 +44376,223 @@ var CurvatureExtremaView = /** @class */ (function () {
     return CurvatureExtremaView;
 }());
 exports.CurvatureExtremaView = CurvatureExtremaView;
+
+
+/***/ }),
+
+/***/ "./src/views/CurveKnotsShaders.ts":
+/*!****************************************!*\
+  !*** ./src/views/CurveKnotsShaders.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveKnotsShaders = void 0;
+var cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+var CurveKnotsShaders = /** @class */ (function () {
+    function CurveKnotsShaders(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'void main() {\n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 
+        // 'precision highp float; \n' +
+        'precision mediump float; \n' +
+            'uniform vec4 fColor; \n' +
+            'void main() {\n' +
+            '    gl_FragColor = fColor; \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    CurveKnotsShaders.prototype.renderFrame = function (numberOfElements) {
+        if (this.program) {
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
+        }
+    };
+    return CurveKnotsShaders;
+}());
+exports.CurveKnotsShaders = CurveKnotsShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/CurveKnotsView.ts":
+/*!*************************************!*\
+  !*** ./src/views/CurveKnotsView.ts ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveKnotsView = void 0;
+var CurveKnotsView = /** @class */ (function () {
+    function CurveKnotsView(spline, curveKnotsShaders, red, green, blue, alpha) {
+        this.spline = spline;
+        this.curveKnotsShaders = curveKnotsShaders;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+        this.z = 0;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        this.knotAbscissae = [];
+        this.pointSequenceOnSpline = [];
+        this.knotVector = this.spline.knots;
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers(this.curveKnotsShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    CurveKnotsView.prototype.updatePointAtKnotOnSpline = function () {
+        this.knotVector = this.spline.knots;
+        var start = this.knotVector[0];
+        var end = this.knotVector[this.knotVector.length - 1];
+        this.knotAbscissae = [];
+        this.knotAbscissae.push(start);
+        for (var knotIndex = 1; knotIndex < this.knotVector.length; knotIndex += 1) {
+            if (this.knotVector[knotIndex] !== this.knotAbscissae[this.knotAbscissae.length - 1])
+                this.knotAbscissae.push(this.knotVector[knotIndex]);
+        }
+        this.pointSequenceOnSpline = [];
+        for (var i = 0; i < this.knotAbscissae.length; i += 1) {
+            var point = this.spline.evaluate(this.knotAbscissae[i]);
+            this.pointSequenceOnSpline.push(point);
+        }
+    };
+    CurveKnotsView.prototype.updateVerticesAndIndices = function () {
+        var size = 0.01;
+        this.vertices = new Float32Array(this.knotAbscissae.length * 32);
+        this.indices = new Uint8Array(this.knotAbscissae.length * 6);
+        for (var i = 0; i < this.knotAbscissae.length; i += 1) {
+            var x = this.pointSequenceOnSpline[i].x;
+            var y = this.pointSequenceOnSpline[i].y;
+            this.vertices[32 * i] = x - size;
+            this.vertices[32 * i + 1] = y - size;
+            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.red;
+            this.vertices[32 * i + 6] = this.green;
+            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 8] = x + size;
+            this.vertices[32 * i + 9] = y - size;
+            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.red;
+            this.vertices[32 * i + 14] = this.green;
+            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 16] = x + size;
+            this.vertices[32 * i + 17] = y + size;
+            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.red;
+            this.vertices[32 * i + 22] = this.green;
+            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 24] = x - size;
+            this.vertices[32 * i + 25] = y + size;
+            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.red;
+            this.vertices[32 * i + 30] = this.green;
+            this.vertices[32 * i + 31] = this.blue;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    CurveKnotsView.prototype.initVertexBuffers = function (gl) {
+        this.updatePointAtKnotOnSpline();
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        var a_Position = gl.getAttribLocation(this.curveKnotsShaders.program, 'a_Position');
+        var fColor = gl.getUniformLocation(this.curveKnotsShaders.program, 'fColor');
+        var FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    CurveKnotsView.prototype.renderFrame = function () {
+        var gl = this.curveKnotsShaders.gl, a_Position = gl.getAttribLocation(this.curveKnotsShaders.program, 'a_Position'), fColor = gl.getUniformLocation(this.curveKnotsShaders.program, 'fColor'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.curveKnotsShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.uniform4f(fColor, this.red, this.green, this.blue, this.alpha);
+        this.curveKnotsShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    };
+    CurveKnotsView.prototype.update = function (spline) {
+        this.spline = spline;
+        this.updatePointAtKnotOnSpline();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    };
+    CurveKnotsView.prototype.reset = function (message) {
+    };
+    CurveKnotsView.prototype.updateBuffers = function () {
+        var gl = this.curveKnotsShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return CurveKnotsView;
+}());
+exports.CurveKnotsView = CurveKnotsView;
 
 
 /***/ }),

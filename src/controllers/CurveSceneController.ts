@@ -24,6 +24,9 @@ import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { ClampedControlPointView } from "../views/ClampedControlPointView"
 import { Vector_2d } from "../mathematics/Vector_2d";
 /*import { Tagged_Vector_2d } from "../mathematics/Tagged_Vector_2d";*/
+/* JCL 2020/10/02 Add the visualization of knots */
+import { CurveKnotsView } from "../views/CurveKnotsView"
+import { CurveKnotsShaders } from "../views/CurveKnotsShaders";
 
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
@@ -66,6 +69,10 @@ export class CurveSceneController implements SceneControllerInterface {
     /* JCL 2020/09/23 Add management of the curve location */
     public activeLocationControl: ActiveLocationControl = ActiveLocationControl.none
 
+    /* JCL 2020/10/02 Add the visualization of knots */
+    private curveKnotsView: CurveKnotsView
+    private curveKnotsShaders: CurveKnotsShaders
+
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = []) {
         this.curveModel = new CurveModel()
@@ -84,6 +91,9 @@ export class CurveSceneController implements SceneControllerInterface {
         this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1)
 
         this.inflectionsView = new InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1)
+
+        this.curveKnotsShaders = new CurveKnotsShaders(this.gl)
+        this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1)
 
         /* JCL 2020/09/24 Add default clamped control point */
         let clampedControlPoint: Vector_2d[] = []
@@ -113,6 +123,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.transitionCurvatureExtremaView)
         this.curveModel.registerObserver(this.inflectionsView)
 
+        this.curveModel.registerObserver(this.curveKnotsView)
+
 
         this.curveObservers.forEach(element => {
             element.update(this.curveModel.spline)
@@ -140,8 +152,10 @@ export class CurveSceneController implements SceneControllerInterface {
         this.transitionCurvatureExtremaView.renderFrame()
         this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
+
+        this.curveKnotsView.renderFrame()
         if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-            this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 1.0, 1)
+            this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 0.9, 1)
         } else {
             this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05)
         }
