@@ -1,5 +1,5 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 import { Vector_2d } from "../mathematics/Vector_2d";
@@ -37,7 +37,9 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             //console.log("activeOptimizer in SlidingStrategy: " + this.activeOptimizer)
         }
 
+        /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+        /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
@@ -56,6 +58,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     resetCurve(curveModel: CurveModel) {
         this.curveModel = curveModel
         this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
@@ -63,6 +66,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
@@ -70,10 +74,12 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.both) {
             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.inflections ){
             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else {
@@ -85,6 +91,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)*/
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
@@ -92,10 +99,12 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.both) {
             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else {

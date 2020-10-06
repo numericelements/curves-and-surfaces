@@ -183,6 +183,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
@@ -936,15 +937,10 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inact
     constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
         super(target, initial, activeControl)
     }
-
     
     computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
         return []
     }
-    
-
-
-
 
 }
 
@@ -958,8 +954,55 @@ export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extend
     computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
         return []
     }
+}
 
+/* JCL 2020/10/06 derive a class to process cubics with specific desactivation constraint process at discontinuities of B(u) */
+export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
+    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+        super(target, initial, activeControl)
+    }
 
+    computeControlPointsClosestToZeroForCubics(signChangesIntervals: number[], controlPoints: number[]) {
+        let result: number[] = []
+        for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                result.push(signChangesIntervals[i] + 1)
+                i += 1
+            }
+            else {
+                if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                    result.push(signChangesIntervals[i]);
+                } else {
+                    result.push(signChangesIntervals[i] + 1);
+                }
+            }
+        }
+        //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
+        /* JCL 2020/10/02 modification as alternative to sliding mechanism */
+        if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+            let n = Math.trunc(controlPoints.length/7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
+            for(let j = 1; j < n ; j += 1) {
+                if(controlPoints[6*j]*controlPoints[6*j + 1] < 0) {
+                    //console.log("CP: " + controlPoints)
+                    if(result.indexOf(6*j) > 0 && result.indexOf(6*j + 1) < 0) {
+                        result.push(6*j + 1);
+                    } else if(result.indexOf(6*j) < 0 && result.indexOf(6*j + 1) > 0) {
+                        result.push(6*j);
+                    }
+                }
+            }
+            result.sort();
+        }
+        
+        return result
+    }
 
+    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+        let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
+        let controlPointsClosestToZero = this.computeControlPointsClosestToZeroForCubics(signChangesIntervals, controlPoints)
+        let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
+        return result
+    }
 }

@@ -3,6 +3,8 @@ import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders"
 import { IObserver } from "../designPatterns/Observer";
 
+import { BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
+
 
 export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
 
@@ -12,13 +14,11 @@ export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
 
-    private knotVector: number[]
     private knotAbscissae: number[] = []
     private pointSequenceOnSpline: Vector_2d[] = []
 
     constructor(private spline: BSpline_R1_to_R2_interface, private curveKnotsShaders: CurveKnotsShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
 
-        this.knotVector = this.spline.knots;
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.curveKnotsShaders.gl);
         if (check < 0) {
@@ -28,14 +28,8 @@ export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
     
     
     updatePointAtKnotOnSpline() {
-        this.knotVector = this.spline.knots
-        const start = this.knotVector[0]
-        const end = this.knotVector[this.knotVector.length - 1]
-        this.knotAbscissae = []
-        this.knotAbscissae.push(start);
-        for(let knotIndex = 1; knotIndex < this.knotVector.length; knotIndex += 1) {
-            if(this.knotVector[knotIndex] !== this.knotAbscissae[this.knotAbscissae.length - 1]) this.knotAbscissae.push(this.knotVector[knotIndex])
-        }
+        let splineTemp = new BSpline_R1_to_R2(this.spline.visibleControlPoints(), this.spline.knots)
+        this.knotAbscissae = splineTemp.distinctKnots()
         this.pointSequenceOnSpline = [];
         for (let i = 0; i < this.knotAbscissae.length; i += 1) {
             let point = this.spline.evaluate(this.knotAbscissae[i]);

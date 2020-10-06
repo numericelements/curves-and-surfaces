@@ -144,7 +144,7 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
             }
         }
         return result;
-        }
+    }
 
     moveControlPoint(i: number, deltaX: number, deltaY: number) {
         if (i < 0 || i >= this.controlPoints.length - this.degree) {
