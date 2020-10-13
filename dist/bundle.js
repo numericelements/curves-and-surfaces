@@ -37731,6 +37731,7 @@ var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlP
 /* JCL 2020/10/02 Add the visualization of knots */
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
 var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ "./src/views/CurveKnotsShaders.ts");
+var SequenceBSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/SequenceBSpline_R1_to_R2 */ "./src/mathematics/SequenceBSpline_R1_to_R2.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
 (function (ActiveLocationControl) {
@@ -38051,6 +38052,15 @@ var CurveSceneController = /** @class */ (function () {
             if (cp != null) {
                 this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
                 this.curveControl.resetCurve(this.curveModel);
+                if (this.activeLocationControl === ActiveLocationControl.both) {
+                    if (this.clampedControlPoints[0] === 0)
+                        this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                    else
+                        this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                }
+                else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                    this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                }
                 // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                 // JCL the curveControl must be set in accordance with the current status of controls
                 if (this.sliding == true) {
@@ -38100,6 +38110,37 @@ var CurveSceneController = /** @class */ (function () {
         if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
             this.activeLocationControl = ActiveLocationControl.both;
             this.selectedControlPoint = null;
+        }
+    };
+    /* JCL 2020/10/07 Add the curve degree elevation process */
+    CurveSceneController.prototype.inputSelectDegree = function (curveDegree) {
+        if (curveDegree > this.curveModel.spline.degree) {
+            var controlPoints = this.curveModel.spline.controlPoints;
+            var knots = this.curveModel.spline.knots;
+            for (var i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                var aSpline = new SequenceBSpline_R1_to_R2_1.SequenceBSpline_R1_to_R2(controlPoints, knots);
+                var newSpline = aSpline.degreeIncrease();
+                controlPoints = newSpline.controlPoints;
+                knots = newSpline.knots;
+            }
+            this.curveModel.spline.renewCurve(controlPoints, knots);
+            this.curveControl.resetCurve(this.curveModel);
+            if (this.activeLocationControl === ActiveLocationControl.both) {
+                if (this.clampedControlPoints[0] === 0)
+                    this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                else
+                    this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+            }
+            else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+            }
+            if (this.sliding == true) {
+                this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            }
+            else {
+                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            }
+            this.curveModel.notifyObservers();
         }
     };
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
@@ -38783,14 +38824,13 @@ var SlidingStrategy = /** @class */ (function () {
             else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
                 if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                     /*console.log("optimize: s0sn constant")*/
-                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
+                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
                     delta[delta.length - 1] = delta[0];
                     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                 }
                 else {
                     /*console.log("optimize: s0sn variable -> stop evolving")*/
                     this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                 }
             }
             else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
@@ -38844,6 +38884,8 @@ function main() {
     var checkBoxFunctionBsqrtScaled = document.getElementById("chkBoxSqrtFunctionB");
     var checkBoxCurvature = document.getElementById("chkBoxCurvature");
     var checkBoxAbsCurvature = document.getElementById("chkBoxAbsCurvature");
+    var inputDegree = document.getElementById("curveDegree");
+    var currentCurveDegree = "3";
     /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
     /* JCL 2020/09/08 Set the reference parameters for the function graphs */
@@ -39494,6 +39536,29 @@ function main() {
             }
         }
     }
+    function inputSelectDegree() {
+        console.log("select" + inputDegree.value);
+        var optionName = "option";
+        var curveDegree;
+        if (!isNaN(Number(inputDegree.value))) {
+            curveDegree = Number(inputDegree.value);
+            currentCurveDegree = inputDegree.value;
+            sceneController.inputSelectDegree(curveDegree);
+            if (curveDegree > 3) {
+                for (var i = 1; i < (curveDegree - 2); i += 1) {
+                    console.log("select" + optionName + i.toString());
+                    var option = document.getElementById(optionName + i.toString());
+                    if (option !== null)
+                        option.setAttribute("disabled", "");
+                    else
+                        throw new Error('No id found to identify an Option in the Selector');
+                }
+            }
+        }
+        else {
+            throw new Error('The selected option cannot be converted into a Number');
+        }
+    }
     canvas.addEventListener('mousedown', mouse_click, false);
     canvas.addEventListener('mousemove', mouse_drag, false);
     canvas.addEventListener('mouseup', mouse_stop_drag, false);
@@ -39512,6 +39577,7 @@ function main() {
     checkBoxFunctionBsqrtScaled.addEventListener('click', chkboxFunctionBsqrtScaled);
     checkBoxCurvature.addEventListener('click', chkboxCurvature);
     checkBoxAbsCurvature.addEventListener('click', chkboxAbsCurvature);
+    inputDegree.addEventListener('input', inputSelectDegree);
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {
         if (e.target === canvas) {
@@ -40142,6 +40208,11 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
             cp.push(new Vector_2d_1.Vector_2d(element.x * factor, element.y));
         });
         return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.renewCurve = function (newControlPoints, newKnotSequence) {
+        this._knots = newKnotSequence.slice();
+        this._controlPoints = newControlPoints.slice();
+        this._degree = this._knots.length - this._controlPoints.length - 1;
     };
     return BSpline_R1_to_R2;
 }());
@@ -41239,7 +41310,7 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g);
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
-        console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints);
+        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
         var curvatureNumerator = this.curvatureNumerator(e.h4);
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
         this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator);
@@ -42357,6 +42428,119 @@ function decomposeFunction(spline) {
     return result;
 }
 exports.decomposeFunction = decomposeFunction;
+
+
+/***/ }),
+
+/***/ "./src/mathematics/SequenceBSpline_R1_to_R2.ts":
+/*!*****************************************************!*\
+  !*** ./src/mathematics/SequenceBSpline_R1_to_R2.ts ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SequenceBSpline_R1_to_R2 = void 0;
+var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+/**
+ * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
+ * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
+ */
+var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
+    __extends(SequenceBSpline_R1_to_R2, _super);
+    function SequenceBSpline_R1_to_R2() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.controlPolygons = [];
+        _this.knotVectors = [];
+        return _this;
+    }
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    SequenceBSpline_R1_to_R2.prototype.setControlPoints = function (controlPoints) {
+        this.controlPoints = controlPoints;
+    };
+    /**
+     * Return a deep copy of this b-spline
+     */
+    SequenceBSpline_R1_to_R2.prototype.clone = function () {
+        var cloneControlPoints = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            cloneControlPoints.push(new Vector_2d_1.Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y));
+        }
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
+    };
+    /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
+    SequenceBSpline_R1_to_R2.prototype.degreeIncrease = function () {
+        var degree = this.degree;
+        this.generateIntermediateSplinesForDegreeElevation();
+        var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
+        if (this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
+            for (var i = 1; i <= this.degree; i += 1) {
+                var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
+                var j = 0, k = 0;
+                while (j < splineHigherDegree.knots.length) {
+                    if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
+                        splineTemp.insertKnot(splineHigherDegree.knots[j]);
+                    }
+                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
+                        splineHigherDegree.insertKnot(splineTemp.knots[k]);
+                    }
+                    j += 1;
+                    k += 1;
+                }
+                for (var j_1 = 0; j_1 < splineHigherDegree.controlPoints.length; j_1 += 1) {
+                    splineHigherDegree.controlPoints[j_1] = splineHigherDegree.controlPoints[j_1].add(splineTemp.controlPoints[j_1]);
+                }
+            }
+            for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
+                splineHigherDegree.controlPoints[j] = splineHigherDegree.controlPoints[j].multiply(1 / (degree + 1));
+            }
+            console.log("degreeIncrease: " + splineHigherDegree.knots);
+        }
+        else
+            throw new Error('incompatible knot vector of the input spline');
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
+    };
+    SequenceBSpline_R1_to_R2.prototype.generateIntermediateSplinesForDegreeElevation = function () {
+        for (var i = 0; i <= this.degree; i += 1) {
+            var knotVector = this.knots.slice();
+            var controlPolygon = this.controlPoints.slice();
+            var nullVector = [];
+            var k = 0;
+            for (var j = i; j < this.knots.length; j += this.degree + 1) {
+                nullVector = knotVector.splice((j + k), 0, this.knots[j]);
+                if (j < this.controlPoints.length) {
+                    var controlPoint = this.controlPoints[j];
+                    nullVector = controlPolygon.splice((j + k), 0, controlPoint);
+                }
+                k += 1;
+            }
+            this.knotVectors.push(knotVector);
+            this.controlPolygons.push(controlPolygon);
+        }
+    };
+    return SequenceBSpline_R1_to_R2;
+}(BSpline_R1_to_R2_1.BSpline_R1_to_R2));
+exports.SequenceBSpline_R1_to_R2 = SequenceBSpline_R1_to_R2;
 
 
 /***/ }),

@@ -28,6 +28,8 @@ export function main() {
     let checkBoxFunctionBsqrtScaled = <HTMLButtonElement> document.getElementById("chkBoxSqrtFunctionB")
     let checkBoxCurvature = <HTMLButtonElement> document.getElementById("chkBoxCurvature")
     let checkBoxAbsCurvature = <HTMLButtonElement> document.getElementById("chkBoxAbsCurvature")
+    let inputDegree = <HTMLSelectElement> document.getElementById("curveDegree")
+    let currentCurveDegree = "3"
     /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
 
@@ -724,6 +726,27 @@ export function main() {
         }
     }
 
+    function inputSelectDegree() {
+        console.log("select" + inputDegree.value);
+        let optionName = "option"
+        let curveDegree: number;
+        if(!isNaN(Number(inputDegree.value))){
+            curveDegree = Number(inputDegree.value);
+            currentCurveDegree = inputDegree.value;
+            sceneController.inputSelectDegree(curveDegree);
+            if(curveDegree > 3) {
+                for(let i = 1; i < (curveDegree - 2); i += 1) {
+                    console.log("select" + optionName + i.toString());
+                    let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                    if(option !== null) option.setAttribute("disabled", "");
+                    else throw new Error('No id found to identify an Option in the Selector');
+                }
+            }
+        } else {
+              throw new Error('The selected option cannot be converted into a Number');
+        }
+    }
+
     canvas.addEventListener('mousedown', mouse_click, false);
     canvas.addEventListener('mousemove', mouse_drag, false);
     canvas.addEventListener('mouseup', mouse_stop_drag, false);
@@ -743,7 +766,9 @@ export function main() {
     checkBoxFunctionB.addEventListener('click',chkboxFunctionB);
     checkBoxFunctionBsqrtScaled.addEventListener('click',chkboxFunctionBsqrtScaled);
     checkBoxCurvature.addEventListener('click',chkboxCurvature);
-    checkBoxAbsCurvature.addEventListener('click',chkboxAbsCurvature)
+    checkBoxAbsCurvature.addEventListener('click',chkboxAbsCurvature);
+
+    inputDegree.addEventListener('input', inputSelectDegree);
 
 
     // Prevent scrolling when touching the canvas

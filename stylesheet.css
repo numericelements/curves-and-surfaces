@@ -68,6 +68,7 @@ canvas {
   font-weight: bold;
   margin-top: 0%;
   margin-bottom: 0%;
+  width: 25mm;
   color: rgb(100, 100, 100);
 }
 
@@ -80,7 +81,7 @@ canvas {
 .wrapper_button {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: repeat(3,auto-fit);
+  grid-template-rows: repeat(auto-fit);
 }
 
 .wrapper_chart {
@@ -104,6 +105,17 @@ canvas {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: repeat(auto-fit);
+}
+
+select {
+  font-size: small;
+  display: grid;
+  padding: 2px 10px;
+  background-color: rgb(230, 230, 230);
+}
+
+#curveDegree {
+  width: 6em;
 }
 
 /*#webglFunctionA{

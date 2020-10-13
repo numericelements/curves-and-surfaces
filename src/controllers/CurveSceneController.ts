@@ -27,6 +27,7 @@ import { Vector_2d } from "../mathematics/Vector_2d";
 /* JCL 2020/10/02 Add the visualization of knots */
 import { CurveKnotsView } from "../views/CurveKnotsView"
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders";
+import { SequenceBSpline_R1_to_R2 } from "../mathematics/SequenceBSpline_R1_to_R2";
 
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
@@ -378,6 +379,15 @@ export class CurveSceneController implements SceneControllerInterface {
             if (cp != null) {
                 this.curveModel.spline.insertKnot(grevilleAbscissae[cp])
                 this.curveControl.resetCurve(this.curveModel)
+                if(this.activeLocationControl === ActiveLocationControl.both) {
+                    if(this.clampedControlPoints[0] === 0)
+                    this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                    else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                }
+                else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                    this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                }
+
                 // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                 // JCL the curveControl must be set in accordance with the current status of controls
                 if (this.sliding == true) {
@@ -434,6 +444,39 @@ export class CurveSceneController implements SceneControllerInterface {
         if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
             this.activeLocationControl = ActiveLocationControl.both
             this.selectedControlPoint = null
+        }
+    }
+
+    /* JCL 2020/10/07 Add the curve degree elevation process */
+    inputSelectDegree(curveDegree: number) {
+        if(curveDegree > this.curveModel.spline.degree) {
+            let controlPoints = this.curveModel.spline.controlPoints
+            let knots = this.curveModel.spline.knots
+            for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                let aSpline = new SequenceBSpline_R1_to_R2(controlPoints, knots)
+                let newSpline = aSpline.degreeIncrease()
+                controlPoints = newSpline.controlPoints
+                knots = newSpline.knots
+            }
+            this.curveModel.spline.renewCurve(controlPoints, knots)
+            this.curveControl.resetCurve(this.curveModel)
+
+            if(this.activeLocationControl === ActiveLocationControl.both) {
+                if(this.clampedControlPoints[0] === 0)
+                this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            }
+            else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            }
+
+            if (this.sliding == true) {
+                this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            }
+            else {
+                this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            }
+            this.curveModel.notifyObservers()
         }
     }
 

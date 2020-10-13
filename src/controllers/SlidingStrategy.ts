@@ -141,13 +141,12 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.both) {
                 if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                     /*console.log("optimize: s0sn constant")*/
-                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
+                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
                     delta[delta.length - 1] = delta[0]
                     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
                 } else {
                     /*console.log("optimize: s0sn variable -> stop evolving")*/
                     this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
                 }
             } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.lastControlPoint) {
                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)

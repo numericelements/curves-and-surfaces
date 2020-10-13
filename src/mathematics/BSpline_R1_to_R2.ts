@@ -282,9 +282,6 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
         }
 
         return new BSpline_R1_to_R2(newControlPoints, newKnots)
-
-        
-
     }
 
     move(deltaX: number, deltaY: number) {
@@ -319,9 +316,14 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
         return new BSpline_R1_to_R2(cp, this.knots.slice())
     }
 
-
+    renewCurve(newControlPoints: Array<Vector_2d>, newKnotSequence: number[]) {
+        this._knots = newKnotSequence.slice();
+        this._controlPoints = newControlPoints.slice();
+        this._degree = this._knots.length - this._controlPoints.length - 1;
+    }
 
 }
+
 
 export function create_BSpline_R1_to_R2(controlPoints: number[][], knots: number[]){
     let newControlPoints: Vector_2d[] = []

@@ -183,7 +183,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
-        console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
