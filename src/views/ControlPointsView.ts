@@ -14,7 +14,7 @@ export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> 
     private indices: Uint8Array = new Uint8Array([])
     private controlPoints: Vector_2d[]
 
-    constructor(private spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
+    constructor(spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
         
         this.controlPoints = spline.visibleControlPoints()
 

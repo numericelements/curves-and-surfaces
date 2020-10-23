@@ -26,7 +26,9 @@ describe('BSpline_R1_to_R2', () => {
         const cp0 = new Vector_2d(-0.5, 0)
         const cp1 = new Vector_2d(0, 8)
         const cp2 = new Vector_2d(0.5, 0)
-        const s = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        //const s = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1])
+        const s = create_BSpline_R1_to_R2( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1])
         expect(s.controlPoints).to.eql([ cp0, cp1, cp2 ])
         expect(s.knots).to.eql([ 0, 0, 0, 1, 1, 1 ])
         expect(s.degree).to.equal(2)
@@ -53,7 +55,12 @@ describe('BSpline_R1_to_R2', () => {
     });
 
     it('can be safely cloned', () => {
-        let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(0, 8)
+        const cp2 = new Vector_2d(0.5, 0)
+        let s1 = create_BSpline_R1_to_R2( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1])
+        //let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1])
         let s2 = s1.clone()
         s2.optimizerStep([1, 0, 0, 0, 0, 0])
         expect(s2.controlPoints[0].x).to.equal(0.5)
@@ -61,7 +68,12 @@ describe('BSpline_R1_to_R2', () => {
     });
 
     it('can insert a new knot', () => {
-        let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(0, 8)
+        const cp2 = new Vector_2d(0.5, 0)
+        let s1 = create_BSpline_R1_to_R2( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1] )
+        //let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
         let s2 = s1.clone()
         s2.insertKnot(0.5)
         s2.insertKnot(0.25)
@@ -70,8 +82,12 @@ describe('BSpline_R1_to_R2', () => {
         expect(Math.abs(s2.evaluate(0.3).y - s1.evaluate(0.3).y)).to.be.below(10e-6)
         expect(s2.knots).to.eql([0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1])
 
-
-        const cp = [ [-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0] ]
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp3 = new Vector_2d(-0.5, 0)
+        const cp4 = new Vector_2d(-0.25, 0.25)
+        const cp5 = new Vector_2d(0.25, 0.25)
+        const cp6 = new Vector_2d(0.5, 0)
+        const cp = [ cp3, cp4, cp5, cp6 ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let spline = create_BSpline_R1_to_R2(cp, knots)
         let spline1 = spline.clone()
@@ -85,7 +101,12 @@ describe('BSpline_R1_to_R2', () => {
     });
 
     it('can return a section of a curve', () => {
-        let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(0, 8)
+        const cp2 = new Vector_2d(0.5, 0)
+        let s1 = create_BSpline_R1_to_R2( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1] )
+        //let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
         let s2 = s1.section(0.2, 0.5)
         let s3 = s1.section(0, 1)
 

@@ -324,11 +324,15 @@ export class BSpline_R1_to_R2 implements BSpline_R1_to_R2_interface {
 
 }
 
-
-export function create_BSpline_R1_to_R2(controlPoints: number[][], knots: number[]){
+/* JCL 2020/10/19 Initial version of B-Spline creation */
+/*export function create_BSpline_R1_to_R2(controlPoints: number[][], knots: number[]){
     let newControlPoints: Vector_2d[] = []
     for (let i = 0, n = controlPoints.length; i < n; i += 1) {
         newControlPoints.push(new Vector_2d(controlPoints[i][0], controlPoints[i][1]))
     }
     return new BSpline_R1_to_R2(newControlPoints, knots)
+}*/
+
+export function create_BSpline_R1_to_R2(controlPoints: Array<Vector_2d>, knots: number[]) {
+    return new BSpline_R1_to_R2(controlPoints, knots).clone();
 }

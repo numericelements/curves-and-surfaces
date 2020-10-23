@@ -9,6 +9,8 @@ import {ControlPointsShaders} from "../views/ControlPointsShaders"
 export class ClampedControlPointView {
 
     private readonly z = 0
+    /* JCL 2020/10/23 Currently this member is not used given the double click selection process used to set up clamped points. It could be used
+    under other circumstances */
     private clampedControlPoint: number | null = null
     private vertexBuffer: WebGLBuffer | null = null
     private indexBuffer: WebGLBuffer | null = null
@@ -17,7 +19,7 @@ export class ClampedControlPointView {
     /*private controlPoints: Vector_2d[]*/
 
     /*constructor(private spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {*/
-    constructor(private controlPoints: Vector_2d[], private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
+    constructor(private clampedControlPoints: Vector_2d[], private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
         
         /*this.controlPoints = spline.visibleControlPoints()*/
 
@@ -32,12 +34,12 @@ export class ClampedControlPointView {
         const size = 0.03
         //const size = 0.05
 
-        this.vertices = new Float32Array(this.controlPoints.length * 32);
-        this.indices = new Uint8Array(this.controlPoints.length * 6);
+        this.vertices = new Float32Array(this.clampedControlPoints.length * 32);
+        this.indices = new Uint8Array(this.clampedControlPoints.length * 6);
 
-        for (let i = 0; i < this.controlPoints.length; i += 1) {
-            let x = this.controlPoints[i].x;
-            let y = this.controlPoints[i].y;
+        for (let i = 0; i < this.clampedControlPoints.length; i += 1) {
+            let x = this.clampedControlPoints[i].x;
+            let y = this.clampedControlPoints[i].y;
             this.vertices[32 * i] = x - size;
             this.vertices[32 * i + 1] = y - size;
             this.vertices[32 * i + 2] = this.z;
@@ -192,7 +194,7 @@ export class ClampedControlPointView {
     /*update(spline: BSpline_R1_to_R2_interface) {*/
     update(controlPoints: Vector_2d[]) {
         /*this.controlPoints = spline.visibleControlPoints();*/
-        this.controlPoints = controlPoints;
+        this.clampedControlPoints = controlPoints;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
@@ -201,7 +203,7 @@ export class ClampedControlPointView {
     }*/
 
     updatePoints(points: Vector_2d[]) {
-        this.controlPoints = points;
+        this.clampedControlPoints = points;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }

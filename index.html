@@ -23,8 +23,20 @@
         <li> Disable the <b>controls</b> as needed to introduce oscillations. </li>
         <li>  <img src="InsertKnotButton.png" width="30"> : Add more control points around a selected one to add flexibility and degrees of freedom to the curve. </li>
         <li> Use the 'clamping' toggle button to activate the selection (double click) of either (or both) extreme vertex(ices) of the control polygon to anchor the curve.</li>
+        <li> Use the Load button to load a pre-existing json file containing a curve and Save button to store your curve into a json file that will located into your Downloads directory</li>
       </p>
-    <p style="margin-bottom:1cm;"> </p>
+    <p style="margin-bottom:5mm;"> </p>
+
+    <p> <label>Save/Upload curves:</label>
+      <button class="favorite styled" type="button" id="buttonFileLoad">Load</button>
+      <button class="favorite styled" type="button" id="buttonFileSave">Save</button>
+      <input type="file" id="inputFileLoad" accept=".json" style="display:none" >
+      <input type="file" id="inputFileSave" accept=".json" style="display:none" >
+      <input type="text" id="inputFileName" style="display:none" name="fileName" placeholder="enter a filename" required>
+      <label id="labelFileExtension" style="display:none">.json</label>
+      <input class="favorite styled" type="button" id="validateInput" style="display:none" value="Ok">
+    </p>
+    <p style="margin-bottom:5mm;"> </p>
 
     <fieldset>
       <legend>Please, select up to three functions graphs to help analyze the curve:</legend>

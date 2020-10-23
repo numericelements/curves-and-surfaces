@@ -12,15 +12,29 @@ import { Vector_2d } from '../src/mathematics/Vector_2d';
 describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
     it('has a number of independent variables equal to twice the number of control points', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0.25, 7)
+        const cp3 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         expect(o.numberOfIndependentVariables).to.equal(splineInitial.controlPoints.length * 2)
     });
 
     it('has a zero value objective function for a spline that is identical to the target', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0.25, 7)
+        const cp3 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         expect( o.f0 ).to.equal(0)
         let deltaX = zeroVector(splineInitial.controlPoints.length * 2)
@@ -29,8 +43,15 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
     });
 
     it('returns an identity matrix for its objective function hessian', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0.25, 7)
+        const cp3 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         expect(o.hessian_f0).to.eql(identityMatrix(splineInitial.controlPoints.length * 2))
     });
@@ -39,8 +60,15 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //If the b-spline is of degree d, the curvature derivative numerator is of degree (4d - 6) and is itself decomposed
         //into (n - d) Bezier segments. Each Bezier segment has (4d - 5) control points. There are then (4d - 5) * (n - d)
         // available control points
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 0.25)
+        const cp2 = new Vector_2d(0.25, 0.25)
+        const cp3 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         const n = splineInitial.controlPoints.length
         const d = splineInitial.degree
@@ -67,8 +95,15 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //If the b-spline is of degree d, the curvature derivative numerator is of degree (4d - 6) and is itself decomposed
         //into (n - d) Bezier segments. Each Bezier segment has (4d - 5) control points. There are then (4d - 5) * (n - d)
         // available control points
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 0.25)
+        const cp2 = new Vector_2d(0.25, 0.25)
+        const cp3 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         expect(o.gradient_f.shape).to.eql([10, 8])
         expect(o.f.length).to.eql(10)
@@ -85,8 +120,15 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //If the b-spline is of degree d, the curvature derivative numerator is of degree (4d - 6) and is itself decomposed
         //into (n - d) Bezier segments. Each Bezier segment has (4d - 5) control points. There are then (4d - 5) * (n - d)
         // available control points
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.000005], [0.25, 0.00002], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.000005], [0.25, 0.00002], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 0.000005)
+        const cp2 = new Vector_2d(0.25, 0.00002)
+        const cp3 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.000005], [0.25, 0.00002], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.000005], [0.25, 0.00002], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         splineInitial.insertKnot(0.1)
         splineTarget.insertKnot(0.1)
         splineInitial.insertKnot(0.2)
@@ -108,8 +150,16 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
     it('returns the same value for f/f0 and fstep/f0step when it should', () => {
         
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 0.25], [0.25, 0.25], [0.5, 0.1]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.1)
+        const cp1 = new Vector_2d(-0.25, 0.25)
+        const cp2 = new Vector_2d(0.25, 0.25)
+        const cp3 = new Vector_2d(0.5, 0.1)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 0.25], [0.25, 0.25], [0.5, 0.1]], [0, 0, 0, 0, 1, 1, 1, 1])
+        const cp4 = new Vector_2d(0.5, 0)
+        let splineInitial = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp4], [0, 0, 0, 0, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
 
         let step = zeroVector(o.numberOfIndependentVariables)
@@ -135,8 +185,13 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
     it('returns the same value for f/f0 and fstep/f0step when it should, special case', () => {
 
-
-        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.5)
+        const cp1 = new Vector_2d(-0.25, -0.4)
+        const cp2 = new Vector_2d(0.25, 0.0)
+        const cp3 = new Vector_2d(0.5, -0.5)
+        const cp = [ cp0, cp1, cp2, cp3 ]
+        //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
         splineInitial.insertKnot(0.1)
@@ -180,7 +235,14 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
     });
 
     it('can compute sign change intervals', () => {
-        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.5)
+        const cp1 = new Vector_2d(-0.25, -0.4)
+        const cp2 = new Vector_2d(0.25, 0.0)
+        const cp3 = new Vector_2d(0.5, -0.5)
+        const cp = [ cp0, cp1, cp2, cp3 ]
+        //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
         let splineTarget = splineInitial.clone()
@@ -195,7 +257,13 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
     });
 
     it('can compute ControlPoints Closest To Zero at sign changes', () => {
-        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.5)
+        const cp1 = new Vector_2d(-0.25, -0.4)
+        const cp2 = new Vector_2d(0.25, 0.0)
+        const cp3 = new Vector_2d(0.5, -0.5)
+        const cp = [ cp0, cp1, cp2, cp3 ]
+        //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
         let splineTarget = splineInitial.clone()
@@ -214,7 +282,13 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
     });
 
     it('can add Inactive Constraints For Inflections', () => {
-        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.5)
+        const cp1 = new Vector_2d(-0.25, -0.4)
+        const cp2 = new Vector_2d(0.25, 0.0)
+        const cp3 = new Vector_2d(0.5, -0.5)
+        const cp = [ cp0, cp1, cp2, cp3 ]
+        //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
         let splineTarget = splineInitial.clone()
@@ -243,7 +317,13 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
 
     it('has no repeated inactive constaints', () => {
-        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.5)
+        const cp1 = new Vector_2d(-0.25, -0.4)
+        const cp2 = new Vector_2d(0.25, 0.0)
+        const cp3 = new Vector_2d(0.5, -0.5)
+        const cp = [ cp0, cp1, cp2, cp3 ]
+        //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
         let splineTarget = splineInitial.clone()
@@ -276,7 +356,13 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
 
     it('has no repeated inactive constaints and handle inflections between Bezier segments', () => {
-        const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0.5)
+        const cp1 = new Vector_2d(-0.25, -0.4)
+        const cp2 = new Vector_2d(0.25, 0.0)
+        const cp3 = new Vector_2d(0.5, -0.5)
+        const cp = [ cp0, cp1, cp2, cp3 ]
+        //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSpline_R1_to_R2(cp, knots)
         let splineTarget = splineInitial.clone()
@@ -317,22 +403,61 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
     });
 
     it('has a number of independent variables equal to twice the number of control points special case', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0, 0)
+        const cp3 = new Vector_2d(0.25, 7)
+        const cp4 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const cp5 = new Vector_2d(-0.5, 0)
+        const cp6 = new Vector_2d(-0.25, 7)
+        const cp7 = new Vector_2d(0, 0)
+        const cp8 = new Vector_2d(0.25, 7)
+        const cp9 = new Vector_2d(0.5, 0)
+        let splineInitial = create_BSpline_R1_to_R2([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         expect(o.numberOfIndependentVariables).to.equal(splineInitial.controlPoints.length * 2)
     });
 
     it('has no nan in constraint vector', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0, 0)
+        const cp3 = new Vector_2d(0.25, 7)
+        const cp4 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const cp5 = new Vector_2d(-0.5, 0.1)
+        const cp6 = new Vector_2d(-0.25, 7)
+        const cp7 = new Vector_2d(0, 0)
+        const cp8 = new Vector_2d(0.25, 7)
+        const cp9 = new Vector_2d(0.5, 0)
+        let splineInitial = create_BSpline_R1_to_R2([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         expect(containsNaN(o.g())).to.equal(false)
     });
 
     it('has no zeros in constraint vector', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0, 0)
+        const cp3 = new Vector_2d(0.25, 7)
+        const cp4 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const cp5 = new Vector_2d(-0.5, 0.1)
+        const cp6 = new Vector_2d(-0.25, 7)
+        const cp7 = new Vector_2d(0, 0)
+        const cp8 = new Vector_2d(0.25, 7)
+        const cp9 = new Vector_2d(0.5, 0)
+        let splineInitial = create_BSpline_R1_to_R2([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
         const constraint_vector = o.g()
         for (let i = 0; i < constraint_vector.length; i += 1) {
@@ -342,8 +467,21 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
     });
 
     it('has no nan in gradient constraint matrix', () => {
-        let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector_2d(-0.5, 0)
+        const cp1 = new Vector_2d(-0.25, 7)
+        const cp2 = new Vector_2d(0, 0)
+        const cp3 = new Vector_2d(0.25, 7)
+        const cp4 = new Vector_2d(0.5, 0)
+        let splineTarget = create_BSpline_R1_to_R2([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const cp5 = new Vector_2d(-0.5, 0.1)
+        const cp6 = new Vector_2d(-0.25, 7)
+        const cp7 = new Vector_2d(0, 0)
+        const cp8 = new Vector_2d(0.25, 7)
+        const cp9 = new Vector_2d(0.5, 0)
+        let splineInitial = create_BSpline_R1_to_R2([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
 
         const m = o.gradient_g()

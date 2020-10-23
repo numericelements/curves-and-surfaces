@@ -10,6 +10,7 @@ import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
 import { BSpline_R1_to_R2_interface } from "./mathematics/BSplineInterfaces"
 
 import { Chart } from "chart.js";
+import { CurveModel } from "./models/CurveModel"
 
 
 export function main() {
@@ -32,6 +33,17 @@ export function main() {
     let currentCurveDegree = "3"
     /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
+
+    /* JCL 2020/10/13 Get input IDs for file management purposes */
+    let buttonFileLoad = <HTMLButtonElement> document.getElementById("buttonFileLoad")
+    let buttonFileSave = <HTMLButtonElement> document.getElementById("buttonFileSave")
+    let inputFileLoad = <HTMLInputElement>document.getElementById("inputFileLoad")
+    let inputFileSave = <HTMLInputElement> document.getElementById("inputFileSave")
+    let inputFileName = <HTMLInputElement> document.getElementById("inputFileName")
+    let validateInput = <HTMLButtonElement> document.getElementById("validateInput")
+    let labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension")
+    let currentFileName: string = ""
+    let fileR = new FileReader()
 
     /* JCL 2020/09/08 Set the reference parameters for the function graphs */
     const MAX_NB_GRAPHS = 3;
@@ -747,6 +759,265 @@ export function main() {
         }
     }
 
+    function clickSelectDegree() {
+        console.log("select Degree click");
+        inputDegree.value = currentCurveDegree;
+    }
+
+    function buttonFileLoadCurve(ev: MouseEvent) {
+        if(inputFileLoad !== null) inputFileLoad.click();
+        //ev.preventDefault();
+    }
+
+    function buttonFileSaveCurve(ev: MouseEvent) {
+        if(currentFileName === "") {
+            inputFileName.style.display = "inline";
+            labelFileExtension.style.display = "inline";
+            validateInput.style.display = "inline";
+        }
+        else {
+            sceneController.saveCurveToFile(currentFileName);
+        }
+        ev.preventDefault();
+    }
+
+    function inputLoadFileCurve() {
+        if(inputFileLoad !== null) {
+            let aFileList = inputFileLoad.files;
+            if(aFileList !== null && aFileList.length > 0) {
+                if(aFileList.item(0)?.name !== undefined) {
+                    let curveFile = aFileList.item(0);
+                    if(curveFile !== null) {
+                        inputFileLoad.value = ""
+                        currentFileName = curveFile.name;
+                        fileR.readAsText(curveFile);
+                    }
+                }
+            }
+        }
+    }
+
+    function inputSaveFileCurve() {
+    }
+
+    function inputCurveFileName() {
+    }
+
+    function inputButtonValidate() {
+        currentFileName = inputFileName.value;
+        console.log("inputButtonValidate:" + inputFileName.value)
+        inputFileName.style.display = "none";
+        labelFileExtension.style.display = "none";
+        validateInput.style.display = "none";
+        sceneController.saveCurveToFile(currentFileName);
+    }
+
+    function processInputFile(ev: ProgressEvent) {
+        if(ev.target !== null) console.log("Reading the file" + currentFileName);
+        if(fileR.readyState === fileR.DONE) {
+            if(fileR.result !== null) {
+                let aString = "";
+                if(typeof fileR.result === "string") {
+                    aString = fileR.result.toString();
+                } else {
+                    /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
+                    let string  = new String(fileR.result);
+                    aString = string.toString();
+                }
+                let aSpline = sceneController.loadCurveFromFile(aString);
+
+                if(typeof(aSpline) !== "undefined") {
+                    /* JCL 2020/10/18 Reconfigure the degree selector */
+                    let newCurveDegree = aSpline.degree;
+                    if(newCurveDegree >= 3) {
+                        let optionNumber = Number(currentCurveDegree) - 2;
+                        let optionName = "option";
+                        let option = <HTMLOptionElement> document.getElementById(optionName + optionNumber);
+                        option.setAttribute("selected", "");
+                        option = <HTMLOptionElement> document.getElementById(optionName + (newCurveDegree - 2).toString());
+                        option.setAttribute("selected", "selected");
+                        for(let i = 1; i < (newCurveDegree - 2); i += 1) {
+                            let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                            if(option !== null) option.setAttribute("disabled", "");
+                            else throw new Error('No id found to identify an Option in the Selector');
+                        }
+                        for(let i = (newCurveDegree - 2); i <= 4; i += 1) {
+                            let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                            //if(option !== null) option.setAttribute("disabled", "disabled");
+                            if(option !== null) option.removeAttribute("disabled");
+                            else throw new Error('No id found to identify an Option in the Selector');
+                        }
+                        currentCurveDegree = newCurveDegree.toString();
+                        inputDegree.click();
+                    } else {
+                        throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
+                    }
+                } else throw new Error("Unable to update the curve degree selector. Undefined curve model");
+
+                /* JCL 2020/10/18 Reset all the active checkboxes */
+                for(let item of stackOfAvailableCharts) {
+                    switch (item) {
+                        case "functionA": {
+                            checkBoxFunctionA.click()
+                            break;
+                        }
+                        case "functionB": {
+                            checkBoxFunctionB.click()
+                            break;
+                        }
+                        case "sqrtFunctionB": {
+                            checkBoxFunctionBsqrtScaled.click()
+                            break;
+                        }
+                        case "curvature": {
+                            checkBoxCurvature.click()
+                            break;
+                        }
+                        case "absCurvature": {
+                            checkBoxAbsCurvature.click()
+                            break;
+                        }
+                    }
+                }
+                stackOfAvailableCharts = ["available", "available", "available"];
+
+                /* JCL 2020/10/15 Reinitialize the three graphs */
+                chart1.destroy();
+                chart1 = new Chart(ctxChart1!, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'tbd',
+                            data: [{
+                                x: 0,
+                                y: 0
+                            }],
+                            fill: false,
+                            lineTension: 0,
+                            showLine: true
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Graph1 tbd'
+                        },
+                        scales: {
+                            xAxes: [{
+                                type: 'linear',
+                                position: 'bottom',
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'u parameter'
+                                }
+                            }]
+                        },
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+                canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
+                canvasElementChart1.style.height = '600px'
+                canvasElementChart1.style.width = '700px'
+
+                chart2.destroy();
+                chart2 = new Chart(ctxChart2!, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'tbd',
+                            data: [{
+                                x: 0,
+                                y: 0
+                            }],
+                            fill: false,
+                            lineTension: 0,
+                            showLine: true
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Graph2 tbd'
+                        },
+                        scales: {
+                            xAxes: [{
+                                type: 'linear',
+                                position: 'bottom',
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'u parameter'
+                                }
+                            }]
+                        },
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+
+                chart3.destroy();
+                chart3 = new Chart(ctxChart3!, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'tbd',
+                            data: [{
+                                x: 0,
+                                y: 0
+                            }],
+                            fill: false,
+                            lineTension: 0,
+                            showLine: true
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Graph3 tbd'
+                        },
+                        scales: {
+                            xAxes: [{
+                                type: 'linear',
+                                position: 'bottom',
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'u parameter'
+                                }
+                            }]
+                        },
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+
+                /* JCL 2020/10/18 Reset the appropriate control buttons */
+                if(!sceneController.sliding) {
+                    toggleButtonSliding.click()
+                }
+                if(!sceneController.controlOfCurvatureExtrema) {
+                    toggleButtonCurvatureExtrema.click()
+                }
+                if(!sceneController.controlOfInflection) {
+                    toggleButtonInflection.click()
+                }
+                if(!sceneController.controlOfCurveClamping) {
+                    toggleButtonCurveClamping.click()
+                }
+                if(typeof(aSpline) !== "undefined") {
+                    sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+                } else throw new Error("Unable to reset the curve context. Undefined curve model");
+                // to be discussed
+                //sceneController = new CurveSceneController(canvas, gl, , curveModel)
+
+            } else {
+                throw new Error('Error when reading the input file. Incorrect text format.');
+            } 
+        }
+    };
+
     canvas.addEventListener('mousedown', mouse_click, false);
     canvas.addEventListener('mousemove', mouse_drag, false);
     canvas.addEventListener('mouseup', mouse_stop_drag, false);
@@ -768,8 +1039,18 @@ export function main() {
     checkBoxCurvature.addEventListener('click',chkboxCurvature);
     checkBoxAbsCurvature.addEventListener('click',chkboxAbsCurvature);
 
+    /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
     inputDegree.addEventListener('input', inputSelectDegree);
+    inputDegree.addEventListener('click', clickSelectDegree);
 
+    /* JCL 2020/10/13 Add event handlers for file processing */
+    buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
+    buttonFileSave.addEventListener('click', buttonFileSaveCurve);
+    inputFileLoad.addEventListener('input', inputLoadFileCurve);
+    inputFileSave.addEventListener('input', inputSaveFileCurve);
+    inputFileName.addEventListener('input', inputCurveFileName);
+    validateInput.addEventListener('click', inputButtonValidate);
+    fileR.addEventListener('load', processInputFile);
 
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {

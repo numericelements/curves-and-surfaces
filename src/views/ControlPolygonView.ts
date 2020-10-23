@@ -14,7 +14,7 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
     private indices: Uint8Array = new Uint8Array([])
     private controlPoints: Vector_2d[]
 
-    constructor(private spline: BSpline_R1_to_R2_interface, private controlPolygonShaders: ControlPolygonShaders, private closed: boolean = false,
+    constructor(spline: BSpline_R1_to_R2_interface, private controlPolygonShaders: ControlPolygonShaders, private closed: boolean = false,
         private red: number, private green: number, private blue: number, private alpha: number ) {
 
         this.controlPoints = spline.visibleControlPoints()
@@ -42,6 +42,10 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
 
         for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
             const normal = this.controlPoints[i + 1].substract(this.controlPoints[i]).normalize().rotate90degrees();
+            /*let normal: Vector_2d = new Vector_2d();
+            normal.x = this.controlPoints[i + 1].x - this.controlPoints[i].x;
+            normal.y = this.controlPoints[i + 1].y - this.controlPoints[i].y;
+            normal = normal.normalize().rotate90degrees();*/
             this.vertices[12 * i] = this.controlPoints[i].x - thickness * normal.x;
             this.vertices[12 * i + 1] = this.controlPoints[i].y - thickness * normal.y;
             this.vertices[12 * i + 2] = this.z;

@@ -16247,6 +16247,23 @@ return src;
 
 /***/ }),
 
+/***/ "./node_modules/file-saver/dist/FileSaver.min.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/file-saver/dist/FileSaver.min.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(a,b){if(true)!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (b),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else {}})(this,function(){"use strict";function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Deprecated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(b,c,d){var e=new XMLHttpRequest;e.open("GET",b),e.responseType="blob",e.onload=function(){a(e.response,c,d)},e.onerror=function(){console.error("could not download file")},e.send()}function d(a){var b=new XMLHttpRequest;b.open("HEAD",a,!1);try{b.send()}catch(a){}return 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"))}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b)}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof global&&global.global===global?global:void 0,a=f.saveAs||("object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href)},4E4),setTimeout(function(){e(j)},0))}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i)})}}:function(a,b,d,e){if(e=e||open("","_blank"),e&&(e.document.title=e.document.body.innerText="downloading..."),"string"==typeof a)return c(a,b,d);var g="application/octet-stream"===a.type,h=/constructor/i.test(f.HTMLElement)||f.safari,i=/CriOS\/[\d]+/.test(navigator.userAgent);if((i||g&&h)&&"object"==typeof FileReader){var j=new FileReader;j.onloadend=function(){var a=j.result;a=i?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),e?e.location.href=a:location=a,e=null},j.readAsDataURL(a)}else{var k=f.URL||f.webkitURL,l=k.createObjectURL(a);e?e.location=l:location.href=l,e=null,setTimeout(function(){k.revokeObjectURL(l)},4E4)}});f.saveAs=a.saveAs=a, true&&(module.exports=a)});
+
+//# sourceMappingURL=FileSaver.min.js.map
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
+
+/***/ }),
+
 /***/ "./node_modules/moment/locale sync recursive ^\\.\\/.*$":
 /*!**************************************************!*\
   !*** ./node_modules/moment/locale sync ^\.\/.*$ ***!
@@ -37439,6 +37456,37 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
 /***/ }),
 
+/***/ "./node_modules/webpack/buildin/global.js":
+/*!***********************************!*\
+  !*** (webpack)/buildin/global.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || new Function("return this")();
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/module.js":
 /*!***********************************!*\
   !*** (webpack)/buildin/module.js ***!
@@ -37732,6 +37780,9 @@ var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlP
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
 var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ "./src/views/CurveKnotsShaders.ts");
 var SequenceBSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/SequenceBSpline_R1_to_R2 */ "./src/mathematics/SequenceBSpline_R1_to_R2.ts");
+//import * as fs from "fs";
+var file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
 (function (ActiveLocationControl) {
@@ -37742,12 +37793,13 @@ var ActiveLocationControl;
     ActiveLocationControl[ActiveLocationControl["stopDeforming"] = 4] = "stopDeforming";
 })(ActiveLocationControl = exports.ActiveLocationControl || (exports.ActiveLocationControl = {}));
 var CurveSceneController = /** @class */ (function () {
-    function CurveSceneController(canvas, gl, curveObservers) {
+    function CurveSceneController(canvas, gl, curveObservers, curveModel) {
         var _this = this;
         if (curveObservers === void 0) { curveObservers = []; }
         this.canvas = canvas;
         this.gl = gl;
         this.curveObservers = curveObservers;
+        this.curveModel = curveModel;
         this.selectedControlPoint = null;
         this.dragging = false;
         this.stackOfSelectedGraphs = [];
@@ -37757,7 +37809,12 @@ var CurveSceneController = /** @class */ (function () {
         this.clampedControlPoints = [];
         /* JCL 2020/09/23 Add management of the curve location */
         this.activeLocationControl = ActiveLocationControl.none;
-        this.curveModel = new CurveModel_1.CurveModel();
+        if (!curveModel) {
+            this.curveModel = new CurveModel_1.CurveModel();
+        }
+        else {
+            this.curveModel = curveModel;
+        }
         this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
         this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1);
         this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
@@ -37798,8 +37855,12 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.inflectionsView);
         this.curveModel.registerObserver(this.curveKnotsView);
         this.curveObservers.forEach(function (element) {
-            element.update(_this.curveModel.spline);
-            _this.curveModel.registerObserver(element);
+            if (_this.curveModel !== undefined) {
+                element.update(_this.curveModel.spline);
+                _this.curveModel.registerObserver(element);
+            }
+            else
+                throw new Error("Unable to initialize a CurveSceneController");
         });
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(clampedControlPoint);
@@ -37822,12 +37883,16 @@ var CurveSceneController = /** @class */ (function () {
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
         this.curveKnotsView.renderFrame();
-        if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 0.9, 1);
+        if (this.curveModel !== undefined) {
+            if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
+                this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 0.9, 1);
+            }
+            else {
+                this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
+            }
         }
-        else {
-            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
-        }
+        else
+            throw new Error("Unable to render the current frame. Undefined curve model");
         this.controlPointsView.renderFrame();
         this.insertKnotButtonView.renderFrame();
         this.curveObservers.forEach(function (element) {
@@ -37839,16 +37904,28 @@ var CurveSceneController = /** @class */ (function () {
         }
     };
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
-        curveObserver.update(this.curveModel.spline);
-        this.curveModel.registerObserver(curveObserver);
+        if (this.curveModel !== undefined) {
+            curveObserver.update(this.curveModel.spline);
+            this.curveModel.registerObserver(curveObserver);
+        }
+        else
+            throw new Error("Unable to attach a curve observer to the current curve. Undefined curve model");
     };
     CurveSceneController.prototype.removeCurveObserver = function (curveObserver) {
-        curveObserver.update(this.curveModel.spline);
-        this.curveModel.removeObserver(curveObserver);
+        if (this.curveModel !== undefined) {
+            curveObserver.update(this.curveModel.spline);
+            this.curveModel.removeObserver(curveObserver);
+        }
+        else
+            throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model");
     };
     CurveSceneController.prototype.resetCurveObserver = function (curveObserver) {
-        curveObserver.reset(this.curveModel.spline);
-        /*this.curveModel.registerObserver(curveObserver);*/
+        if (this.curveModel !== undefined) {
+            curveObserver.reset(this.curveModel.spline);
+            /*this.curveModel.registerObserver(curveObserver);*/
+        }
+        else
+            throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model");
     };
     /* JCL 20202/09/24 Monitor rigid body movements of the curve in accordance with the button status */
     CurveSceneController.prototype.toggleCurveClamping = function () {
@@ -37857,7 +37934,11 @@ var CurveSceneController = /** @class */ (function () {
         if (this.controlOfCurveClamping) {
             /* JCL 2020/09/24 Update the location of the clamped control point */
             var clampedControlPoint = [];
-            clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+            if (this.curveModel !== undefined) {
+                clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+            }
+            else
+                throw new Error("Unable to clamp a control point. Undefined curve model");
             this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
             this.clampedControlPoints = [];
             this.clampedControlPoints.push(0);
@@ -38025,44 +38106,60 @@ var CurveSceneController = /** @class */ (function () {
         //console.log("constrol of inflections: " + this.controlOfInflection)
     };
     CurveSceneController.prototype.toggleSliding = function () {
-        if (this.sliding === true) {
-            this.sliding = false;
-            //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
-            //console.log("constrol of inflections: " + this.controlOfInflection)
-            this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        if (this.curveModel !== undefined) {
+            if (this.sliding === true) {
+                this.sliding = false;
+                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+                //console.log("constrol of inflections: " + this.controlOfInflection)
+                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            }
+            else {
+                this.sliding = true;
+                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+                //console.log("constrol of inflections: " + this.controlOfInflection)
+                this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            }
         }
-        else {
-            this.sliding = true;
-            //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
-            //console.log("constrol of inflections: " + this.controlOfInflection)
-            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-        }
+        else
+            throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model");
     };
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
-        if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
-            var cp = this.selectedControlPoint;
-            if (cp === 0) {
-                cp += 1;
-            }
-            if (cp === this.curveModel.spline.controlPoints.length - 1) {
-                cp -= 1;
-            }
-            var grevilleAbscissae = this.curveModel.spline.grevilleAbscissae();
-            if (cp != null) {
-                this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
-                this.curveControl.resetCurve(this.curveModel);
-                if (this.activeLocationControl === ActiveLocationControl.both) {
-                    if (this.clampedControlPoints[0] === 0)
-                        this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
-                    else
+        if (this.curveModel !== undefined) {
+            if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
+                var cp = this.selectedControlPoint;
+                if (cp === 0) {
+                    cp += 1;
+                }
+                if (cp === this.curveModel.spline.controlPoints.length - 1) {
+                    cp -= 1;
+                }
+                var grevilleAbscissae = this.curveModel.spline.grevilleAbscissae();
+                if (cp != null) {
+                    this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
+                    this.curveControl.resetCurve(this.curveModel);
+                    if (this.activeLocationControl === ActiveLocationControl.both) {
+                        if (this.clampedControlPoints[0] === 0)
+                            this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                        else
+                            this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                    }
+                    else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
                         this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                    }
+                    // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
+                    // JCL the curveControl must be set in accordance with the current status of controls
+                    if (this.sliding == true) {
+                        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                    }
+                    else {
+                        this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                    }
+                    this.curveModel.notifyObservers();
                 }
-                else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                    this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
-                }
-                // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
-                // JCL the curveControl must be set in accordance with the current status of controls
+            }
+            if (this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
+                /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
                 if (this.sliding == true) {
                     this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
@@ -38071,39 +38168,35 @@ var CurveSceneController = /** @class */ (function () {
                 }
                 this.curveModel.notifyObservers();
             }
-        }
-        if (this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
-            /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
-            if (this.sliding == true) {
-                this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
+            this.controlPointsView.setSelected(this.selectedControlPoint);
+            if (this.selectedControlPoint !== null) {
+                this.dragging = true;
             }
-            else {
-                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-            }
-            this.curveModel.notifyObservers();
         }
-        this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
-        this.controlPointsView.setSelected(this.selectedControlPoint);
-        if (this.selectedControlPoint !== null) {
-            this.dragging = true;
-        }
+        else
+            throw new Error("Unable to process the current selection. Undefined curve model");
     };
     CurveSceneController.prototype.leftMouseDragged_event = function (ndcX, ndcY) {
         var x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
-        /* JCL 2020/09/27 Add clamping condition when dragging a control point */
-        if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
-            this.curveModel.setControlPoint(selectedControlPoint, x, y);
-            this.curveControl.optimize(selectedControlPoint, x, y);
-            this.curveModel.notifyObservers();
-            if (this.clampedControlPoints.length > 0) {
-                var clampedControlPoint = [];
-                for (var i = 0; i < this.clampedControlPoints.length; i += 1) {
-                    clampedControlPoint.push(this.curveModel.spline.controlPoints[this.clampedControlPoints[i]]);
+        if (this.curveModel !== undefined) {
+            /* JCL 2020/09/27 Add clamping condition when dragging a control point */
+            if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
+                this.curveModel.setControlPoint(selectedControlPoint, x, y);
+                this.curveControl.optimize(selectedControlPoint, x, y);
+                this.curveModel.notifyObservers();
+                if (this.clampedControlPoints.length > 0) {
+                    var clampedControlPoint = [];
+                    for (var i = 0; i < this.clampedControlPoints.length; i += 1) {
+                        clampedControlPoint.push(this.curveModel.spline.controlPoints[this.clampedControlPoints[i]]);
+                    }
+                    if (this.clampedControlPointView !== null)
+                        this.clampedControlPointView.update(clampedControlPoint);
                 }
-                if (this.clampedControlPointView !== null)
-                    this.clampedControlPointView.update(clampedControlPoint);
             }
         }
+        else
+            throw new Error("Unable to drag the selected control point. Undefined curve model");
     };
     CurveSceneController.prototype.leftMouseUp_event = function () {
         this.dragging = false;
@@ -38114,90 +38207,98 @@ var CurveSceneController = /** @class */ (function () {
     };
     /* JCL 2020/10/07 Add the curve degree elevation process */
     CurveSceneController.prototype.inputSelectDegree = function (curveDegree) {
-        if (curveDegree > this.curveModel.spline.degree) {
-            var controlPoints = this.curveModel.spline.controlPoints;
-            var knots = this.curveModel.spline.knots;
-            for (var i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                var aSpline = new SequenceBSpline_R1_to_R2_1.SequenceBSpline_R1_to_R2(controlPoints, knots);
-                var newSpline = aSpline.degreeIncrease();
-                controlPoints = newSpline.controlPoints;
-                knots = newSpline.knots;
-            }
-            this.curveModel.spline.renewCurve(controlPoints, knots);
-            this.curveControl.resetCurve(this.curveModel);
-            if (this.activeLocationControl === ActiveLocationControl.both) {
-                if (this.clampedControlPoints[0] === 0)
-                    this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
-                else
+        if (this.curveModel !== undefined) {
+            if (curveDegree > this.curveModel.spline.degree) {
+                var controlPoints = this.curveModel.spline.controlPoints;
+                var knots = this.curveModel.spline.knots;
+                for (var i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                    var aSpline = new SequenceBSpline_R1_to_R2_1.SequenceBSpline_R1_to_R2(controlPoints, knots);
+                    var newSpline = aSpline.degreeIncrease();
+                    controlPoints = newSpline.controlPoints;
+                    knots = newSpline.knots;
+                }
+                this.curveModel.spline.renewCurve(controlPoints, knots);
+                this.curveControl.resetCurve(this.curveModel);
+                if (this.activeLocationControl === ActiveLocationControl.both) {
+                    if (this.clampedControlPoints[0] === 0)
+                        this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                    else
+                        this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                }
+                else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
                     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                }
+                if (this.sliding == true) {
+                    this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                }
+                else {
+                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                }
+                this.curveModel.notifyObservers();
             }
-            else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
-            }
-            if (this.sliding == true) {
-                this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-            }
-            else {
-                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-            }
-            this.curveModel.notifyObservers();
         }
+        else
+            throw new Error("Unable to assign a new degree to the curve. Undefined curve model");
     };
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
     CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
         var result;
-        if (this.controlOfCurveClamping) {
-            if (this.clampedControlPointView !== null) {
-                var selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
-                console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
-                if (selectedClampedControlPoint !== null) {
-                    if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] === selectedClampedControlPoint) {
-                        console.log("dlble_click: no cp left");
-                        this.clampedControlPointView = null;
-                        this.clampedControlPoints.pop();
-                        this.activeLocationControl = ActiveLocationControl.none;
-                        return result = false;
-                    }
-                    else if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint
-                        && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
-                        console.log("dlble_click: two cp clamped");
-                        this.clampedControlPoints.push(selectedClampedControlPoint);
-                        var clampedControlPoint = [];
-                        clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
-                        clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
-                        this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-                        this.activeLocationControl = ActiveLocationControl.both;
-                        return result = true;
-                    }
-                    else if (this.clampedControlPoints.length === 2) {
-                        if (selectedClampedControlPoint === 0) {
-                            console.log("dlble_click: last cp left");
-                            if (this.clampedControlPoints[1] === selectedClampedControlPoint) {
-                                this.clampedControlPoints.pop();
-                            }
-                            else
-                                this.clampedControlPoints.splice(0, 1);
-                            var clampedControlPoint = [];
-                            clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
-                            this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-                            this.activeLocationControl = ActiveLocationControl.lastControlPoint;
-                            console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
+        if (this.curveModel !== undefined) {
+            if (this.controlOfCurveClamping) {
+                if (this.clampedControlPointView !== null) {
+                    var selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
+                    if (selectedClampedControlPoint !== null) {
+                        if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] === selectedClampedControlPoint) {
+                            console.log("dlble_click: no cp left");
+                            this.clampedControlPointView = null;
+                            this.clampedControlPoints.pop();
+                            this.activeLocationControl = ActiveLocationControl.none;
+                            return result = false;
                         }
-                        else if (selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
-                            console.log("dlble_click: first cp left");
-                            if (this.clampedControlPoints[1] === selectedClampedControlPoint) {
-                                this.clampedControlPoints.pop();
-                            }
-                            else
-                                this.clampedControlPoints.splice(0, 1);
+                        else if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint
+                            && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
+                            console.log("dlble_click: two cp clamped");
+                            this.clampedControlPoints.push(selectedClampedControlPoint);
                             var clampedControlPoint = [];
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+                            clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
                             this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-                            this.activeLocationControl = ActiveLocationControl.firstControlPoint;
-                            console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
+                            this.activeLocationControl = ActiveLocationControl.both;
+                            return result = true;
                         }
-                        return result = true;
+                        else if (this.clampedControlPoints.length === 2) {
+                            if (selectedClampedControlPoint === 0) {
+                                console.log("dlble_click: last cp left");
+                                if (this.clampedControlPoints[1] === selectedClampedControlPoint) {
+                                    this.clampedControlPoints.pop();
+                                }
+                                else
+                                    this.clampedControlPoints.splice(0, 1);
+                                var clampedControlPoint = [];
+                                clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
+                                this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+                                this.activeLocationControl = ActiveLocationControl.lastControlPoint;
+                                console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
+                            }
+                            else if (selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
+                                console.log("dlble_click: first cp left");
+                                if (this.clampedControlPoints[1] === selectedClampedControlPoint) {
+                                    this.clampedControlPoints.pop();
+                                }
+                                else
+                                    this.clampedControlPoints.splice(0, 1);
+                                var clampedControlPoint = [];
+                                clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+                                this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+                                this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+                                console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
+                            }
+                            return result = true;
+                        }
+                        else
+                            return result = true;
                     }
                     else
                         return result = true;
@@ -38208,8 +38309,116 @@ var CurveSceneController = /** @class */ (function () {
             else
                 return result = true;
         }
+        else {
+            throw new Error("Unable to process the selected point for clamping. Undefined curve model");
+        }
+    };
+    /* JCL 2020/10/13 Add curve serialization to file */
+    CurveSceneController.prototype.saveCurveToFile = function (currentFileName) {
+        if (this.curveModel !== undefined) {
+            var curveBlob = new Blob([JSON.stringify(this.curveModel.spline.knots) + JSON.stringify(this.curveModel.spline.controlPoints)], { type: "application/json", });
+            //let FileSaver = require('file-saver');
+            //FileSaver = new FileSaver()
+            file_saver_1.saveAs(curveBlob, currentFileName);
+            //FileSaver.saveAs(curveBlob, currentFileName);
+        }
         else
-            return result = true;
+            throw new Error("Cannot save the current curve to a file. Undefined curve model");
+        /*let curveFile = fs.openSync(currentFileName, 'w');
+        fs.writeFileSync(curveFile, JSON.stringify(this.curveModel.spline.knots));
+        fs.writeFileSync(curveFile, JSON.stringify(this.curveModel.spline.controlPoints));
+        fs.closeSync(curveFile);*/
+    };
+    CurveSceneController.prototype.loadCurveFromFile = function (aString) {
+        var locationClosingBracket = aString.indexOf("]");
+        if (locationClosingBracket <= 0) {
+            console.log("Load Curve From File: inconsistent file format. Unable to load the curve.");
+            return undefined;
+        }
+        var knotVector = aString.slice(0, locationClosingBracket + 1);
+        var knots = JSON.parse(knotVector);
+        if (typeof (knots) !== "object") {
+            console.log("Load Curve From File: inconsistent file format. Unable to load the curve.");
+            return undefined;
+        }
+        else if (typeof (knots) === "object" && typeof (knots[0]) !== "number") {
+            console.log("Load Curve From File: inconsistent file format. Unable to load the curve.");
+            return undefined;
+        }
+        var controlPointVector = aString.slice(locationClosingBracket + 1);
+        var controlPoints = JSON.parse(controlPointVector);
+        if (typeof (controlPoints) !== "object") {
+            console.log("Load Curve From File: inconsistent file format. Unable to load the curve.");
+            return undefined;
+        }
+        else if (typeof (controlPoints) === "object" && typeof (controlPoints[0].x) !== "number") {
+            console.log("Load Curve From File: inconsistent file format. Unable to load the curve.");
+            return undefined;
+        }
+        var tempSpline;
+        tempSpline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(controlPoints, knots);
+        return tempSpline;
+    };
+    CurveSceneController.prototype.resetCurveContext = function (knots, controlPoints) {
+        var _this = this;
+        if (this.curveModel !== undefined) {
+            this.curveModel = new CurveModel_1.CurveModel(knots, controlPoints);
+            this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
+            this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1);
+            this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
+            this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
+            this.insertKnotButtonShaders = new InsertKnotButtonShaders_1.InsertKnotButtonShaders(this.gl);
+            this.insertKnotButtonView = new ClickButtonView_1.ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders);
+            this.curveShaders = new CurveShaders_1.CurveShaders(this.gl);
+            this.curveView = new CurveView_1.CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+            this.differentialEventShaders = new DifferentialEventShaders_1.DifferentialEventShaders(this.gl);
+            this.transitionDifferentialEventShaders = new TransitionDifferentialEventShaders_1.TransitionDifferentialEventShaders(this.gl);
+            this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+            this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+            this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
+            this.curveKnotsShaders = new CurveKnotsShaders_1.CurveKnotsShaders(this.gl);
+            this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
+            var clampedControlPoint = [];
+            clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
+            if (this.clampedControlPoints.length !== 0) {
+                while (this.clampedControlPoints.length > 0) {
+                    this.clampedControlPoints.pop();
+                }
+            }
+            this.clampedControlPoints.push(0);
+            this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+            this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+            this.controlOfCurvatureExtrema = true;
+            this.controlOfInflection = true;
+            this.controlOfCurveClamping = true;
+            this.controlOfGraphFunctionA = false;
+            this.controlOfGraphFunctionB = false;
+            this.controlOfGraphFunctionBsqrtScaled = false;
+            this.controlOfGraphCurvature = false;
+            this.controlOfGraphAbsCurvature = false;
+            this.curveModel.registerObserver(this.controlPointsView);
+            this.curveModel.registerObserver(this.controlPolygonView);
+            this.curveModel.registerObserver(this.curveView);
+            this.curveModel.registerObserver(this.curvatureExtremaView);
+            this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
+            this.curveModel.registerObserver(this.inflectionsView);
+            this.curveModel.registerObserver(this.curveKnotsView);
+            this.curveObservers.forEach(function (element) {
+                if (_this.curveModel !== undefined) {
+                    element.update(_this.curveModel.spline);
+                    _this.curveModel.registerObserver(element);
+                }
+                else
+                    throw new Error("Unable to initialize a CurveSceneController");
+            });
+            this.clampedControlPointView.update(clampedControlPoint);
+            this.dragging = false;
+            this.selectedControlPoint = null;
+            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+            this.sliding = true;
+        }
+        else
+            throw new Error("Cannot load the current file content into a curve model. Undefined curve model");
     };
     return CurveSceneController;
 }());
@@ -38888,6 +39097,16 @@ function main() {
     var currentCurveDegree = "3";
     /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
+    /* JCL 2020/10/13 Get input IDs for file management purposes */
+    var buttonFileLoad = document.getElementById("buttonFileLoad");
+    var buttonFileSave = document.getElementById("buttonFileSave");
+    var inputFileLoad = document.getElementById("inputFileLoad");
+    var inputFileSave = document.getElementById("inputFileSave");
+    var inputFileName = document.getElementById("inputFileName");
+    var validateInput = document.getElementById("validateInput");
+    var labelFileExtension = document.getElementById("labelFileExtension");
+    var currentFileName = "";
+    var fileR = new FileReader();
     /* JCL 2020/09/08 Set the reference parameters for the function graphs */
     var MAX_NB_GRAPHS = 3;
     var functionASceneController;
@@ -39559,6 +39778,267 @@ function main() {
             throw new Error('The selected option cannot be converted into a Number');
         }
     }
+    function clickSelectDegree() {
+        console.log("select Degree click");
+        inputDegree.value = currentCurveDegree;
+    }
+    function buttonFileLoadCurve(ev) {
+        if (inputFileLoad !== null)
+            inputFileLoad.click();
+        //ev.preventDefault();
+    }
+    function buttonFileSaveCurve(ev) {
+        if (currentFileName === "") {
+            inputFileName.style.display = "inline";
+            labelFileExtension.style.display = "inline";
+            validateInput.style.display = "inline";
+        }
+        else {
+            sceneController.saveCurveToFile(currentFileName);
+        }
+        ev.preventDefault();
+    }
+    function inputLoadFileCurve() {
+        var _a;
+        if (inputFileLoad !== null) {
+            var aFileList = inputFileLoad.files;
+            if (aFileList !== null && aFileList.length > 0) {
+                if (((_a = aFileList.item(0)) === null || _a === void 0 ? void 0 : _a.name) !== undefined) {
+                    var curveFile = aFileList.item(0);
+                    if (curveFile !== null) {
+                        inputFileLoad.value = "";
+                        currentFileName = curveFile.name;
+                        fileR.readAsText(curveFile);
+                    }
+                }
+            }
+        }
+    }
+    function inputSaveFileCurve() {
+    }
+    function inputCurveFileName() {
+    }
+    function inputButtonValidate() {
+        currentFileName = inputFileName.value;
+        console.log("inputButtonValidate:" + inputFileName.value);
+        inputFileName.style.display = "none";
+        labelFileExtension.style.display = "none";
+        validateInput.style.display = "none";
+        sceneController.saveCurveToFile(currentFileName);
+    }
+    function processInputFile(ev) {
+        var _a;
+        if (ev.target !== null)
+            console.log("Reading the file" + currentFileName);
+        if (fileR.readyState === fileR.DONE) {
+            if (fileR.result !== null) {
+                var aString = "";
+                if (typeof fileR.result === "string") {
+                    aString = fileR.result.toString();
+                }
+                else {
+                    /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
+                    var string = new String(fileR.result);
+                    aString = string.toString();
+                }
+                var aSpline = sceneController.loadCurveFromFile(aString);
+                if (typeof (aSpline) !== "undefined") {
+                    /* JCL 2020/10/18 Reconfigure the degree selector */
+                    var newCurveDegree = aSpline.degree;
+                    if (newCurveDegree >= 3) {
+                        var optionNumber = Number(currentCurveDegree) - 2;
+                        var optionName = "option";
+                        var option = document.getElementById(optionName + optionNumber);
+                        option.setAttribute("selected", "");
+                        option = document.getElementById(optionName + (newCurveDegree - 2).toString());
+                        option.setAttribute("selected", "selected");
+                        for (var i = 1; i < (newCurveDegree - 2); i += 1) {
+                            var option_1 = document.getElementById(optionName + i.toString());
+                            if (option_1 !== null)
+                                option_1.setAttribute("disabled", "");
+                            else
+                                throw new Error('No id found to identify an Option in the Selector');
+                        }
+                        for (var i = (newCurveDegree - 2); i <= 4; i += 1) {
+                            var option_2 = document.getElementById(optionName + i.toString());
+                            //if(option !== null) option.setAttribute("disabled", "disabled");
+                            if (option_2 !== null)
+                                option_2.removeAttribute("disabled");
+                            else
+                                throw new Error('No id found to identify an Option in the Selector');
+                        }
+                        currentCurveDegree = newCurveDegree.toString();
+                        inputDegree.click();
+                    }
+                    else {
+                        throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
+                    }
+                }
+                else
+                    throw new Error("Unable to update the curve degree selector. Undefined curve model");
+                /* JCL 2020/10/18 Reset all the active checkboxes */
+                for (var _i = 0, stackOfAvailableCharts_1 = stackOfAvailableCharts; _i < stackOfAvailableCharts_1.length; _i++) {
+                    var item = stackOfAvailableCharts_1[_i];
+                    switch (item) {
+                        case "functionA": {
+                            checkBoxFunctionA.click();
+                            break;
+                        }
+                        case "functionB": {
+                            checkBoxFunctionB.click();
+                            break;
+                        }
+                        case "sqrtFunctionB": {
+                            checkBoxFunctionBsqrtScaled.click();
+                            break;
+                        }
+                        case "curvature": {
+                            checkBoxCurvature.click();
+                            break;
+                        }
+                        case "absCurvature": {
+                            checkBoxAbsCurvature.click();
+                            break;
+                        }
+                    }
+                }
+                stackOfAvailableCharts = ["available", "available", "available"];
+                /* JCL 2020/10/15 Reinitialize the three graphs */
+                chart1.destroy();
+                chart1 = new chart_js_1.Chart(ctxChart1, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                                label: 'tbd',
+                                data: [{
+                                        x: 0,
+                                        y: 0
+                                    }],
+                                fill: false,
+                                lineTension: 0,
+                                showLine: true
+                            }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Graph1 tbd'
+                        },
+                        scales: {
+                            xAxes: [{
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'u parameter'
+                                    }
+                                }]
+                        },
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+                canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
+                canvasElementChart1.style.height = '600px';
+                canvasElementChart1.style.width = '700px';
+                chart2.destroy();
+                chart2 = new chart_js_1.Chart(ctxChart2, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                                label: 'tbd',
+                                data: [{
+                                        x: 0,
+                                        y: 0
+                                    }],
+                                fill: false,
+                                lineTension: 0,
+                                showLine: true
+                            }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Graph2 tbd'
+                        },
+                        scales: {
+                            xAxes: [{
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'u parameter'
+                                    }
+                                }]
+                        },
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+                chart3.destroy();
+                chart3 = new chart_js_1.Chart(ctxChart3, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                                label: 'tbd',
+                                data: [{
+                                        x: 0,
+                                        y: 0
+                                    }],
+                                fill: false,
+                                lineTension: 0,
+                                showLine: true
+                            }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Graph3 tbd'
+                        },
+                        scales: {
+                            xAxes: [{
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'u parameter'
+                                    }
+                                }]
+                        },
+                        animation: {
+                            duration: 0
+                        }
+                    }
+                });
+                /* JCL 2020/10/18 Reset the appropriate control buttons */
+                if (!sceneController.sliding) {
+                    toggleButtonSliding.click();
+                }
+                if (!sceneController.controlOfCurvatureExtrema) {
+                    toggleButtonCurvatureExtrema.click();
+                }
+                if (!sceneController.controlOfInflection) {
+                    toggleButtonInflection.click();
+                }
+                if (!sceneController.controlOfCurveClamping) {
+                    toggleButtonCurveClamping.click();
+                }
+                if (typeof (aSpline) !== "undefined") {
+                    sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+                }
+                else
+                    throw new Error("Unable to reset the curve context. Undefined curve model");
+                // to be discussed
+                //sceneController = new CurveSceneController(canvas, gl, , curveModel)
+            }
+            else {
+                throw new Error('Error when reading the input file. Incorrect text format.');
+            }
+        }
+    }
+    ;
     canvas.addEventListener('mousedown', mouse_click, false);
     canvas.addEventListener('mousemove', mouse_drag, false);
     canvas.addEventListener('mouseup', mouse_stop_drag, false);
@@ -39577,7 +40057,17 @@ function main() {
     checkBoxFunctionBsqrtScaled.addEventListener('click', chkboxFunctionBsqrtScaled);
     checkBoxCurvature.addEventListener('click', chkboxCurvature);
     checkBoxAbsCurvature.addEventListener('click', chkboxAbsCurvature);
+    /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
     inputDegree.addEventListener('input', inputSelectDegree);
+    inputDegree.addEventListener('click', clickSelectDegree);
+    /* JCL 2020/10/13 Add event handlers for file processing */
+    buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
+    buttonFileSave.addEventListener('click', buttonFileSaveCurve);
+    inputFileLoad.addEventListener('input', inputLoadFileCurve);
+    inputFileSave.addEventListener('input', inputSaveFileCurve);
+    inputFileName.addEventListener('input', inputCurveFileName);
+    validateInput.addEventListener('click', inputButtonValidate);
+    fileR.addEventListener('load', processInputFile);
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {
         if (e.target === canvas) {
@@ -40217,12 +40707,16 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
     return BSpline_R1_to_R2;
 }());
 exports.BSpline_R1_to_R2 = BSpline_R1_to_R2;
-function create_BSpline_R1_to_R2(controlPoints, knots) {
-    var newControlPoints = [];
-    for (var i = 0, n = controlPoints.length; i < n; i += 1) {
-        newControlPoints.push(new Vector_2d_1.Vector_2d(controlPoints[i][0], controlPoints[i][1]));
+/* JCL 2020/10/19 Initial version of B-Spline creation */
+/*export function create_BSpline_R1_to_R2(controlPoints: number[][], knots: number[]){
+    let newControlPoints: Vector_2d[] = []
+    for (let i = 0, n = controlPoints.length; i < n; i += 1) {
+        newControlPoints.push(new Vector_2d(controlPoints[i][0], controlPoints[i][1]))
     }
-    return new BSpline_R1_to_R2(newControlPoints, knots);
+    return new BSpline_R1_to_R2(newControlPoints, knots)
+}*/
+function create_BSpline_R1_to_R2(controlPoints, knots) {
+    return new BSpline_R1_to_R2(controlPoints, knots).clone();
 }
 exports.create_BSpline_R1_to_R2 = create_BSpline_R1_to_R2;
 
@@ -43563,14 +44057,32 @@ exports.CurveModel = void 0;
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
 var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var CurveModel = /** @class */ (function () {
-    function CurveModel() {
+    //constructor() {
+    function CurveModel(existingKnots, existingControlPoints) {
         //private target: PeriodicBSpline_R1_to_R2
         this.observers = [];
         //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         var deltay = -0.3;
         var cp = [[-0.5, 0.2 + deltay], [-0.25, 0 + deltay], [0.25, 0.1 + deltay], [0.5, 0.6 + deltay]];
+        /* JCL 2020/10/19 Creation of control polygon as an Array<Vector_2d> */
+        var controlPolygon = [];
+        for (var i = 0; i < cp.length; i += 1) {
+            var controlPoint = new Vector_2d_1.Vector_2d;
+            controlPoint.x = cp[i][0];
+            controlPoint.y = cp[i][1];
+            controlPolygon.push(controlPoint);
+        }
         var knots = [0, 0, 0, 0, 1, 1, 1, 1];
-        this.spline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(cp, knots);
+        this.spline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(controlPolygon, knots);
+        if ((!existingKnots && existingControlPoints) || (existingKnots && !existingControlPoints)) {
+            console.log("Creation of B-Spline. The control polygon and/or knot vector input is inconsistent. Turned into a default curve creation.");
+        }
+        else if (!existingKnots && !existingControlPoints) {
+            console.log("Creation of B-Spline. Use a default curve.");
+        }
+        else if (existingKnots && existingControlPoints) {
+            this.spline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(existingControlPoints, existingKnots);
+        }
         //this.spline.insertKnot(0.1)
         //this.spline.insertKnot(0.2)
         //this.spline.insertKnot(1/3)
@@ -43679,14 +44191,16 @@ exports.ClampedControlPointView = void 0;
 var ClampedControlPointView = /** @class */ (function () {
     /*private controlPoints: Vector_2d[]*/
     /*constructor(private spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {*/
-    function ClampedControlPointView(controlPoints, controlPointsShaders, red, blue, green) {
+    function ClampedControlPointView(clampedControlPoints, controlPointsShaders, red, blue, green) {
         /*this.controlPoints = spline.visibleControlPoints()*/
-        this.controlPoints = controlPoints;
+        this.clampedControlPoints = clampedControlPoints;
         this.controlPointsShaders = controlPointsShaders;
         this.red = red;
         this.blue = blue;
         this.green = green;
         this.z = 0;
+        /* JCL 2020/10/23 Currently this member is not used given the double click selection process used to set up clamped points. It could be used
+        under other circumstances */
         this.clampedControlPoint = null;
         this.vertexBuffer = null;
         this.indexBuffer = null;
@@ -43701,11 +44215,11 @@ var ClampedControlPointView = /** @class */ (function () {
     ClampedControlPointView.prototype.updateVerticesAndIndices = function () {
         var size = 0.03;
         //const size = 0.05
-        this.vertices = new Float32Array(this.controlPoints.length * 32);
-        this.indices = new Uint8Array(this.controlPoints.length * 6);
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            var x = this.controlPoints[i].x;
-            var y = this.controlPoints[i].y;
+        this.vertices = new Float32Array(this.clampedControlPoints.length * 32);
+        this.indices = new Uint8Array(this.clampedControlPoints.length * 6);
+        for (var i = 0; i < this.clampedControlPoints.length; i += 1) {
+            var x = this.clampedControlPoints[i].x;
+            var y = this.clampedControlPoints[i].y;
             this.vertices[32 * i] = x - size;
             this.vertices[32 * i + 1] = y - size;
             this.vertices[32 * i + 2] = this.z;
@@ -43824,14 +44338,14 @@ var ClampedControlPointView = /** @class */ (function () {
     /*update(spline: BSpline_R1_to_R2_interface) {*/
     ClampedControlPointView.prototype.update = function (controlPoints) {
         /*this.controlPoints = spline.visibleControlPoints();*/
-        this.controlPoints = controlPoints;
+        this.clampedControlPoints = controlPoints;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
     /*reset(message: BSpline_R1_to_R2_interface): void {
     }*/
     ClampedControlPointView.prototype.updatePoints = function (points) {
-        this.controlPoints = points;
+        this.clampedControlPoints = points;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
@@ -44098,7 +44612,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ControlPointsView = void 0;
 var ControlPointsView = /** @class */ (function () {
     function ControlPointsView(spline, controlPointsShaders, red, blue, green) {
-        this.spline = spline;
         this.controlPointsShaders = controlPointsShaders;
         this.red = red;
         this.blue = blue;
@@ -44333,7 +44846,6 @@ exports.ControlPolygonView = void 0;
 var ControlPolygonView = /** @class */ (function () {
     function ControlPolygonView(spline, controlPolygonShaders, closed, red, green, blue, alpha) {
         if (closed === void 0) { closed = false; }
-        this.spline = spline;
         this.controlPolygonShaders = controlPolygonShaders;
         this.closed = closed;
         this.red = red;
@@ -44365,6 +44877,10 @@ var ControlPolygonView = /** @class */ (function () {
         this.indices = new Uint8Array(this.controlPoints.length * 6);
         for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
             var normal = this.controlPoints[i + 1].substract(this.controlPoints[i]).normalize().rotate90degrees();
+            /*let normal: Vector_2d = new Vector_2d();
+            normal.x = this.controlPoints[i + 1].x - this.controlPoints[i].x;
+            normal.y = this.controlPoints[i + 1].y - this.controlPoints[i].y;
+            normal = normal.normalize().rotate90degrees();*/
             this.vertices[12 * i] = this.controlPoints[i].x - thickness * normal.x;
             this.vertices[12 * i + 1] = this.controlPoints[i].y - thickness * normal.y;
             this.vertices[12 * i + 2] = this.z;
