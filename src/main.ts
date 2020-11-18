@@ -306,6 +306,18 @@ export function main() {
         sceneController.toggleCurveClamping()
     }
 
+    function keyDown(ev: KeyboardEvent) {
+        const keyName = ev.key
+        console.log(keyName + " domn")
+        if(keyName === "Shift") sceneController.shiftKeyDown()
+    }
+
+    function keyUp(ev: KeyboardEvent) {
+        const keyName = ev.key
+        console.log(keyName + " up")
+        if(keyName === "Shift") sceneController.shiftKeyUp()
+    }
+
     /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
         let chkboxValue: string = ""
@@ -1052,6 +1064,8 @@ export function main() {
     validateInput.addEventListener('click', inputButtonValidate);
     fileR.addEventListener('load', processInputFile);
 
+    document.body.addEventListener('keydown', keyDown);
+    document.body.addEventListener('keyup', keyUp);
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {
         if (e.target === canvas) {

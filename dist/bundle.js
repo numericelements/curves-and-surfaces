@@ -37756,7 +37756,7 @@ exports.CurvatureSceneController = CurvatureSceneController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveSceneController = exports.ActiveLocationControl = void 0;
+exports.CurveSceneController = exports.ActiveInflectionLocationControl = exports.ActiveExtremaLocationControl = exports.ActiveLocationControl = void 0;
 var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
 var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
 var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
@@ -37783,6 +37783,7 @@ var SequenceBSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/Sequence
 //import * as fs from "fs";
 var file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ../views/SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
 (function (ActiveLocationControl) {
@@ -37792,6 +37793,19 @@ var ActiveLocationControl;
     ActiveLocationControl[ActiveLocationControl["none"] = 3] = "none";
     ActiveLocationControl[ActiveLocationControl["stopDeforming"] = 4] = "stopDeforming";
 })(ActiveLocationControl = exports.ActiveLocationControl || (exports.ActiveLocationControl = {}));
+/* JCL 2020/11/06 Add controls to monitor the location of the curvature extrema and inflection points */
+var ActiveExtremaLocationControl;
+(function (ActiveExtremaLocationControl) {
+    ActiveExtremaLocationControl[ActiveExtremaLocationControl["mergeExtrema"] = 0] = "mergeExtrema";
+    ActiveExtremaLocationControl[ActiveExtremaLocationControl["none"] = 1] = "none";
+    ActiveExtremaLocationControl[ActiveExtremaLocationControl["stopDeforming"] = 2] = "stopDeforming";
+})(ActiveExtremaLocationControl = exports.ActiveExtremaLocationControl || (exports.ActiveExtremaLocationControl = {}));
+var ActiveInflectionLocationControl;
+(function (ActiveInflectionLocationControl) {
+    ActiveInflectionLocationControl[ActiveInflectionLocationControl["mergeExtremaAndInflection"] = 0] = "mergeExtremaAndInflection";
+    ActiveInflectionLocationControl[ActiveInflectionLocationControl["none"] = 1] = "none";
+    ActiveInflectionLocationControl[ActiveInflectionLocationControl["stopDeforming"] = 2] = "stopDeforming";
+})(ActiveInflectionLocationControl = exports.ActiveInflectionLocationControl || (exports.ActiveInflectionLocationControl = {}));
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl, curveObservers, curveModel) {
         var _this = this;
@@ -37801,6 +37815,9 @@ var CurveSceneController = /** @class */ (function () {
         this.curveObservers = curveObservers;
         this.curveModel = curveModel;
         this.selectedControlPoint = null;
+        this.selectedCurvatureExtrema = null;
+        this.selectedInflection = null;
+        this.allowShapeSpaceChange = false;
         this.dragging = false;
         this.stackOfSelectedGraphs = [];
         this.MAX_NB_GRAPHS = 3;
@@ -37809,6 +37826,14 @@ var CurveSceneController = /** @class */ (function () {
         this.clampedControlPoints = [];
         /* JCL 2020/09/23 Add management of the curve location */
         this.activeLocationControl = ActiveLocationControl.none;
+        /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
+        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
+        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
+        this.stackControlPolygons = [];
+        this.sizeStackControlPolygons = this.stackControlPolygons.length;
+        this.MAX_NB_CONFIGS_CP = 5;
+        this.counterLostEvent = 0;
+        this.lastLostEvent = { event: SlidingStrategy_1.NeighboringEventsType.none, index: 0 };
         if (!curveModel) {
             this.curveModel = new CurveModel_1.CurveModel();
         }
@@ -37831,6 +37856,8 @@ var CurveSceneController = /** @class */ (function () {
         this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
         this.curveKnotsShaders = new CurveKnotsShaders_1.CurveKnotsShaders(this.gl);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
+        var selectedEvent = [];
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1);
         /* JCL 2020/09/24 Add default clamped control point */
         var clampedControlPoint = [];
         clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
@@ -37838,6 +37865,9 @@ var CurveSceneController = /** @class */ (function () {
         this.clampedControlPoints.push(0);
         this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
         this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
+        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
+        this.allowShapeSpaceChange = false;
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.controlOfCurveClamping = true;
@@ -37864,6 +37894,7 @@ var CurveSceneController = /** @class */ (function () {
         });
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(clampedControlPoint);
+        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent);
         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         this.sliding = true;
     }
@@ -37902,6 +37933,21 @@ var CurveSceneController = /** @class */ (function () {
         if (this.controlOfCurveClamping && this.clampedControlPointView !== null) {
             this.clampedControlPointView.renderFrame();
         }
+        if (this.curveModel !== undefined) {
+            var curvatureEvents = [];
+            var differentialEvents = [];
+            if (this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming && this.selectedCurvatureExtrema !== null) {
+                curvatureEvents = this.selectedCurvatureExtrema.slice();
+            }
+            if (this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming && this.selectedInflection !== null) {
+                differentialEvents = curvatureEvents.concat(this.selectedInflection);
+            }
+            this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
+        }
+        else
+            throw new Error("Unable to render the current frame. Undefined curve model");
+        if (this.selectedDifferentialEventsView !== null && this.allowShapeSpaceChange === false)
+            this.selectedDifferentialEventsView.renderFrame();
     };
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
         if (this.curveModel !== undefined) {
@@ -38150,6 +38196,10 @@ var CurveSceneController = /** @class */ (function () {
                     // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                     // JCL the curveControl must be set in accordance with the current status of controls
                     if (this.sliding == true) {
+                        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
+                        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
+                        this.selectedInflection = null;
+                        this.selectedCurvatureExtrema = null;
                         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                     }
                     else {
@@ -38161,6 +38211,10 @@ var CurveSceneController = /** @class */ (function () {
             if (this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
                 /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
                 if (this.sliding == true) {
+                    this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
+                    this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
+                    this.selectedInflection = null;
+                    this.selectedCurvatureExtrema = null;
                     this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
                 else {
@@ -38181,9 +38235,18 @@ var CurveSceneController = /** @class */ (function () {
         var x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
         if (this.curveModel !== undefined) {
             /* JCL 2020/09/27 Add clamping condition when dragging a control point */
+            //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
+            //    && (this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming || this.allowShapeSpaceChange === true)) {
             if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
-                this.curveModel.setControlPoint(selectedControlPoint, x, y);
-                this.curveControl.optimize(selectedControlPoint, x, y);
+                if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
+                    /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization
+                    because it is part of the optimize method (whether sliding is active or not) */
+                    this.curveModel.setControlPoint(selectedControlPoint, x, y);
+                }
+                else if ((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming)
+                    || this.allowShapeSpaceChange === true) {
+                    this.curveControl.optimize(selectedControlPoint, x, y);
+                }
                 this.curveModel.notifyObservers();
                 if (this.clampedControlPoints.length > 0) {
                     var clampedControlPoint = [];
@@ -38193,6 +38256,11 @@ var CurveSceneController = /** @class */ (function () {
                     if (this.clampedControlPointView !== null)
                         this.clampedControlPointView.update(clampedControlPoint);
                 }
+                /*let curvatureEvents: number[] = []
+                let differentialEvents: number[] = []
+                if(this.selectedCurvatureExtrema !== null && this.allowShapeSpaceChange === false) curvatureEvents = this.selectedCurvatureExtrema.slice()
+                if(this.selectedInflection !== null && this.allowShapeSpaceChange === false) differentialEvents = curvatureEvents.concat(this.selectedInflection)
+                this.selectedDifferentialEventsView.update(this.curveModel.spline, differentialEvents)*/
             }
         }
         else
@@ -38204,6 +38272,18 @@ var CurveSceneController = /** @class */ (function () {
             this.activeLocationControl = ActiveLocationControl.both;
             this.selectedControlPoint = null;
         }
+        if (this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming) {
+            this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
+        }
+        if (this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming) {
+            this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
+        }
+    };
+    CurveSceneController.prototype.shiftKeyDown = function () {
+        this.allowShapeSpaceChange = true;
+    };
+    CurveSceneController.prototype.shiftKeyUp = function () {
+        this.allowShapeSpaceChange = false;
     };
     /* JCL 2020/10/07 Add the curve degree elevation process */
     CurveSceneController.prototype.inputSelectDegree = function (curveDegree) {
@@ -38915,10 +38995,28 @@ exports.NoSlidingStrategy = NoSlidingStrategy;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SlidingStrategy = void 0;
+exports.SlidingStrategy = exports.DiffEventType = exports.NeighboringEventsType = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var NeighboringEventsType;
+(function (NeighboringEventsType) {
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundary"] = 0] = "neighboringCurExtremumLeftBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionLeftBoundary"] = 1] = "neighboringInflectionLeftBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundary"] = 2] = "neighboringCurExtremumRightBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionRightBoundary"] = 3] = "neighboringInflectionRightBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurvatureExtrema"] = 4] = "neighboringCurvatureExtrema";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionsCurvatureExtremum"] = 5] = "neighboringInflectionsCurvatureExtremum";
+    NeighboringEventsType[NeighboringEventsType["none"] = 6] = "none";
+})(NeighboringEventsType = exports.NeighboringEventsType || (exports.NeighboringEventsType = {}));
+var DiffEventType;
+(function (DiffEventType) {
+    DiffEventType[DiffEventType["inflection"] = 0] = "inflection";
+    DiffEventType[DiffEventType["curvatExtremum"] = 1] = "curvatExtremum";
+    DiffEventType[DiffEventType["unDefined"] = 2] = "unDefined";
+})(DiffEventType = exports.DiffEventType || (exports.DiffEventType = {}));
 var SlidingStrategy = /** @class */ (function () {
     function SlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, curveSceneController) {
         this.activeOptimizer = true;
@@ -38936,6 +39034,8 @@ var SlidingStrategy = /** @class */ (function () {
         if (!controlOfInflection && !controlOfCurvatureExtrema) {
             this.activeOptimizer = false;
             //console.log("activeOptimizer in SlidingStrategy: " + this.activeOptimizer)
+            this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.none;
+            this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.none;
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
@@ -39009,10 +39109,362 @@ var SlidingStrategy = /** @class */ (function () {
     SlidingStrategy.prototype.toggleSliding = function () {
         throw new Error("Method not implemented.");
     };
+    SlidingStrategy.prototype.generateSequenceDifferentialEvents = function (curvatureExtrema, inflections) {
+        var result = [];
+        var j = 0;
+        //console.log("curvature " + curvatureExtrema.length + " inflection " + inflections.length)
+        for (var i = 0; i < curvatureExtrema.length; i += 1) {
+            if (curvatureExtrema[i] > inflections[j]) {
+                while (curvatureExtrema[i] > inflections[j]) {
+                    result.push({ event: DiffEventType.inflection, loc: inflections[j] });
+                    j += 1;
+                }
+            }
+            result.push({ event: DiffEventType.curvatExtremum, loc: curvatureExtrema[i] });
+        }
+        if (j < inflections.length) {
+            result.push({ event: DiffEventType.inflection, loc: inflections[j] });
+            j += 1;
+        }
+        if (j < inflections.length) {
+            throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections");
+        }
+        else if (result.length !== curvatureExtrema.length + inflections.length) {
+            throw new Error("Inconsistent length of sequence of differential events");
+        }
+        return result;
+    };
+    SlidingStrategy.prototype.neighboringDifferentialEvents = function (orderedDifferentialEvents, orderedDifferentialEventsOptim) {
+        var result = [];
+        var MIN_DIST_EVENTS = 10 ^ -6;
+        if (orderedDifferentialEvents.length > 0 && orderedDifferentialEventsOptim.length !== orderedDifferentialEvents.length) {
+            var inflectionIndices = [];
+            for (var i = 0; i < orderedDifferentialEvents.length; i += 1) {
+                if (orderedDifferentialEvents[i].event === DiffEventType.inflection)
+                    inflectionIndices.push(i);
+            }
+            var inflectionIndicesOptim = [];
+            for (var i = 0; i < orderedDifferentialEventsOptim.length; i += 1) {
+                if (orderedDifferentialEventsOptim[i].event === DiffEventType.inflection)
+                    inflectionIndicesOptim.push(i);
+            }
+            if (inflectionIndices.length === inflectionIndicesOptim.length) {
+                /* JCL No change of number of oscillations -> look for curvature extrema events */
+                var lostEvents = [];
+                var shift = 0;
+                for (var j = 0; j < inflectionIndices.length; j += 1) {
+                    var delta = inflectionIndices[j] - inflectionIndicesOptim[j];
+                    if (delta !== shift) {
+                        lostEvents.push({ inter: j, nbE: delta - shift });
+                        shift = shift + delta;
+                    }
+                }
+                if (inflectionIndices.length > 0 && lostEvents.length === 0)
+                    lostEvents.push({ inter: inflectionIndices.length, nbE: orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length });
+                if (inflectionIndices.length === 0)
+                    lostEvents.push({ inter: 0, nbE: orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length });
+                if (lostEvents.length === 0) {
+                    throw new Error("Inconsistent analysis of lost events in the sequence of differential events");
+                }
+                else if (lostEvents.length === 1) {
+                    /* JCL case of lost event at a knot related to a cubic curve not processed */
+                    if (lostEvents[0].nbE === 1) {
+                        if (lostEvents[0].inter === 0) {
+                            var intervalExtrema = [];
+                            var intervalExtremaOptim = [];
+                            var upperBound = 0;
+                            intervalExtrema.push(orderedDifferentialEvents[0].loc);
+                            if (inflectionIndices.length === 0) {
+                                upperBound = orderedDifferentialEvents.length - 1;
+                            }
+                            else {
+                                upperBound = inflectionIndices[0] - 1;
+                            }
+                            for (var k = 0; k < upperBound; k += 1) {
+                                intervalExtrema.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc);
+                            }
+                            if (inflectionIndices.length === 0)
+                                intervalExtrema.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc);
+                            else
+                                intervalExtrema.push(orderedDifferentialEvents[inflectionIndices[0]].loc - orderedDifferentialEvents[inflectionIndices[0] - 1].loc);
+                            if (orderedDifferentialEventsOptim.length > 0) {
+                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[0].loc);
+                                if (inflectionIndicesOptim.length === 0) {
+                                    upperBound = orderedDifferentialEventsOptim.length - 1;
+                                }
+                                else {
+                                    upperBound = inflectionIndicesOptim[0] - 1;
+                                }
+                                for (var k = 0; k < upperBound; k += 1) {
+                                    intervalExtremaOptim.push(orderedDifferentialEventsOptim[k + 1].loc - orderedDifferentialEventsOptim[k].loc);
+                                }
+                                if (inflectionIndicesOptim.length === 0)
+                                    intervalExtremaOptim.push(1.0 - orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].loc);
+                                else {
+                                    if (inflectionIndicesOptim[0] > 0)
+                                        intervalExtremaOptim.push(orderedDifferentialEventsOptim[inflectionIndicesOptim[0]].loc - orderedDifferentialEventsOptim[inflectionIndicesOptim[0] - 1].loc);
+                                    else
+                                        intervalExtremaOptim.push(orderedDifferentialEventsOptim[inflectionIndicesOptim[0]].loc);
+                                }
+                            }
+                            else
+                                intervalExtremaOptim.push(1.0);
+                            var ratio = [], ratioOptim = [], ratioVariation = [];
+                            var intervalSpan = 1.0;
+                            if (inflectionIndices.length > 0)
+                                intervalSpan = orderedDifferentialEvents[inflectionIndices[0]].loc;
+                            for (var k = 0; k < intervalExtrema.length; k += 1) {
+                                ratio.push(intervalExtrema[k] / intervalSpan);
+                            }
+                            var mappedRatio = ratio.map(function (location, i) {
+                                return { index: i, value: location };
+                            });
+                            mappedRatio.sort(function (a, b) {
+                                if (a.value > b.value) {
+                                    return 1;
+                                }
+                                if (a.value < b.value) {
+                                    return -1;
+                                }
+                                return 0;
+                            });
+                            var candidateEventIndex = mappedRatio[0].index;
+                            var maxRatio = { index: 0, value: 0 };
+                            var intervalOptimSpan = 1.0;
+                            if (inflectionIndicesOptim.length > 0)
+                                intervalOptimSpan = orderedDifferentialEventsOptim[inflectionIndicesOptim[0]].loc;
+                            for (var k = 0; k < intervalExtremaOptim.length; k += 1) {
+                                var currentRatio = intervalExtremaOptim[k] / intervalOptimSpan;
+                                if (k === 0) {
+                                    maxRatio.value = currentRatio;
+                                }
+                                else if (k < candidateEventIndex && currentRatio > maxRatio.value) {
+                                    maxRatio.value = currentRatio;
+                                    maxRatio.index = k;
+                                }
+                                ratioOptim.push(currentRatio);
+                                ratioVariation.push(ratioOptim[k] / ratio[k]);
+                            }
+                            if (maxRatio.index !== candidateEventIndex) {
+                                console.log("The identification of lost curvature extrema is not robust.");
+                            }
+                            if (inflectionIndices.length === 0) {
+                                if (maxRatio.index === 0) {
+                                    result.push({ event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0 });
+                                }
+                                else if (maxRatio.index === intervalExtremaOptim.length - 1) {
+                                    result.push({ event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEventsOptim.length - 1 });
+                                }
+                                else {
+                                    console.log("Inconsistent identification of curvature extremum");
+                                    result.push({ event: NeighboringEventsType.none, index: maxRatio.index });
+                                }
+                            }
+                            else {
+                                if (maxRatio.index === 0) {
+                                    result.push({ event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0 });
+                                }
+                                else {
+                                    console.log("Inconsistent identification of curvature extremum");
+                                    result.push({ event: NeighboringEventsType.none, index: maxRatio.index });
+                                }
+                            }
+                        }
+                        else if (lostEvents[0].inter === inflectionIndices.length) {
+                            result.push({ event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEventsOptim.length - 1 });
+                        }
+                    }
+                    else if (lostEvents[0].nbE === 2) {
+                        var interval = 1.0, intervalOptim = 1.0;
+                        var intervalExtrema = [];
+                        var intervalExtremaOptim = [];
+                        if (inflectionIndices.length === 0) {
+                            interval = 1.0;
+                            intervalOptim = 1.0;
+                            intervalExtrema.push(orderedDifferentialEvents[0].loc);
+                            for (var k = 0; k < orderedDifferentialEvents.length - 1; k += 1) {
+                                intervalExtrema.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc);
+                            }
+                            intervalExtrema.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc);
+                            if (orderedDifferentialEventsOptim.length > 0) {
+                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[0].loc);
+                                for (var k = 0; k <= orderedDifferentialEventsOptim.length - 1; k += 1) {
+                                    intervalExtremaOptim.push(orderedDifferentialEventsOptim[k + 1].loc - orderedDifferentialEventsOptim[k].loc);
+                                }
+                                intervalExtremaOptim.push(1.0 - orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].loc);
+                            }
+                            else
+                                intervalExtremaOptim.push(intervalOptim);
+                        }
+                        else if (lostEvents[0].inter === inflectionIndices.length) {
+                            interval = 1.0 - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc;
+                            intervalOptim = 1.0 - orderedDifferentialEventsOptim[inflectionIndices[lostEvents[0].inter - 1]].loc;
+                            for (var k = inflectionIndices[inflectionIndices.length - 1]; k < orderedDifferentialEvents.length - 1; k += 1) {
+                                intervalExtrema.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc);
+                            }
+                            intervalExtrema.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc);
+                            for (var k = inflectionIndicesOptim[inflectionIndicesOptim.length - 1]; k < orderedDifferentialEventsOptim.length - 1; k += 1) {
+                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[k + 1].loc - orderedDifferentialEventsOptim[k].loc);
+                            }
+                            intervalExtremaOptim.push(1.0 - orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].loc);
+                        }
+                        else if (inflectionIndices.length > 1 && lostEvents[0].inter < inflectionIndices.length) {
+                            interval = orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc;
+                            for (var k = inflectionIndices[lostEvents[0].inter - 1] + 1; k < inflectionIndices[lostEvents[0].inter]; k += 1) {
+                                intervalExtrema.push(orderedDifferentialEvents[k].loc - orderedDifferentialEvents[k - 1].loc);
+                            }
+                            intervalExtrema.push(orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter] - 1].loc);
+                            intervalOptim = orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter]].loc - orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter - 1]].loc;
+                            for (var k = inflectionIndicesOptim[lostEvents[0].inter - 1] + 1; k < inflectionIndicesOptim[lostEvents[0].inter]; k += 1) {
+                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[k].loc - orderedDifferentialEventsOptim[k - 1].loc);
+                            }
+                            intervalExtremaOptim.push(orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter]].loc - orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter] - 1].loc);
+                        }
+                        else if (inflectionIndices[lostEvents[0].inter] - inflectionIndices[lostEvents[0].inter - 1] < 4) {
+                            /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
+                            console.log("Inconsistent number of curvature extrema in the current interval of inflections. Number too small.");
+                        }
+                        var ratio = [], ratioOptim = [], ratioVariation = [];
+                        for (var k = 0; k < intervalExtrema.length; k += 1) {
+                            ratio.push(intervalExtrema[k] / interval);
+                        }
+                        var mappedRatio = ratio.map(function (location, i) {
+                            return { index: i, value: location };
+                        });
+                        mappedRatio.sort(function (a, b) {
+                            if (a.value > b.value) {
+                                return 1;
+                            }
+                            if (a.value < b.value) {
+                                return -1;
+                            }
+                            return 0;
+                        });
+                        var candidateEventIndex = mappedRatio[0].index;
+                        var maxRatio = { index: 0, value: 0 };
+                        for (var k = 0; k < intervalExtremaOptim.length; k += 1) {
+                            var currentRatio = intervalExtremaOptim[k] / intervalOptim;
+                            if (k === 0) {
+                                maxRatio.value = currentRatio;
+                            }
+                            else if (k < candidateEventIndex && currentRatio > maxRatio.value) {
+                                maxRatio.value = currentRatio;
+                                maxRatio.index = k;
+                            }
+                            ratioOptim.push(currentRatio);
+                            ratioVariation.push(ratioOptim[k] / ratio[k]);
+                        }
+                        if (maxRatio.index !== candidateEventIndex - 1) {
+                            console.log("The identification of lost curvature extrema is not robust.");
+                        }
+                        /*let mappedRatioOptim = ratioOptim.map(function(location, i) {
+                            return { index: i, value: location };
+                          })
+                        mappedRatioOptim.sort(function(a, b) {
+                            if (a.value > b.value) {
+                              return 1;
+                            }
+                            if (a.value < b.value) {
+                              return -1;
+                            }
+                            return 0;
+                        }) */
+                        if (inflectionIndices.length === 0) {
+                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: maxRatio.index });
+                        }
+                        else if (lostEvents[0].inter === inflectionIndices.length) {
+                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + maxRatio.index + 1 });
+                        }
+                        else {
+                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[lostEvents[0].inter - 1] + maxRatio.index + 1 });
+                        }
+                    }
+                    else {
+                        throw new Error("Inconsistent content of the intervals of lost curvature extrema or more than one reference event occured.");
+                    }
+                }
+                else if (lostEvents.length === 2) {
+                    console.log("Number of reference events lost greater than one in distinct inflection intervals");
+                }
+            }
+            else if (inflectionIndices.length - inflectionIndicesOptim.length === 1) {
+                /* JCL One inflection has been lost -> case of inflection gone outside the curve through one extremity */
+                if (orderedDifferentialEvents[0].event === DiffEventType.inflection && orderedDifferentialEventsOptim.length === 0) {
+                    result.push({ event: NeighboringEventsType.neighboringInflectionLeftBoundary, index: 0 });
+                }
+                else if (orderedDifferentialEvents[0].event === DiffEventType.inflection && orderedDifferentialEventsOptim[0].event !== DiffEventType.inflection) {
+                    result.push({ event: NeighboringEventsType.neighboringInflectionLeftBoundary, index: 0 });
+                }
+                else if (orderedDifferentialEvents[orderedDifferentialEvents.length - 1].event === DiffEventType.inflection && orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].event !== DiffEventType.inflection) {
+                    result.push({ event: NeighboringEventsType.neighboringInflectionRightBoundary, index: orderedDifferentialEvents.length - 1 });
+                }
+                else {
+                    throw new Error("Inconsistent content of the sequence of event to identify the loss of an inflection at a curve extremity.");
+                }
+            }
+            else if (orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length === 2 && inflectionIndices.length - inflectionIndicesOptim.length === 2) {
+                /* JCL Two inflections meet at one curvature extrema and these two are lost -> case of oscillation removal */
+                /* JCL Locate candidate reference events */
+                var refEventLocation = [];
+                for (var i = 0; i < orderedDifferentialEvents.length - 2; i += 1) {
+                    if (orderedDifferentialEvents[i].event === DiffEventType.inflection &&
+                        orderedDifferentialEvents[i + 1].event === DiffEventType.curvatExtremum &&
+                        orderedDifferentialEvents[i + 2].event === DiffEventType.inflection) {
+                        refEventLocation.push(i);
+                    }
+                }
+                var refEventLocationOptim = [];
+                for (var i = 0; i < orderedDifferentialEventsOptim.length - 2; i += 1) {
+                    if (orderedDifferentialEventsOptim[i].event === DiffEventType.inflection &&
+                        orderedDifferentialEventsOptim[i + 1].event === DiffEventType.curvatExtremum &&
+                        orderedDifferentialEventsOptim[i + 2].event === DiffEventType.inflection) {
+                        refEventLocationOptim.push(i);
+                    }
+                }
+                if (refEventLocationOptim.length !== refEventLocation.length - 1 && inflectionIndicesOptim.length !== inflectionIndices.length - 2) {
+                    throw new Error("Inconsistency of reference type event that does not coincide with oscillation removal.");
+                }
+                else {
+                    var intervalEvent = [];
+                    if (refEventLocation[0] !== 0)
+                        intervalEvent.push(refEventLocation[0] + 1);
+                    for (var j = 0; j < refEventLocation.length - 1; j += 1) {
+                        intervalEvent.push(refEventLocation[j + 1] - refEventLocation[j]);
+                    }
+                    var intervalEventOptim = [];
+                    if (refEventLocationOptim.length > 0) {
+                        if (refEventLocationOptim[0] !== 0)
+                            intervalEventOptim.push(refEventLocationOptim[0] + 1);
+                        for (var j = 0; j < refEventLocationOptim.length - 1; j += 1) {
+                            intervalEventOptim.push(refEventLocationOptim[j + 1] - refEventLocationOptim[j]);
+                        }
+                    }
+                    for (var k = 0; k < intervalEventOptim.length; k += 1) {
+                        if (intervalEvent[k] !== intervalEventOptim[k]) {
+                            result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[k] });
+                        }
+                    }
+                }
+            }
+            else {
+                throw new Error("Changes in the differential events sequence don't match single elementary transformations.");
+            }
+        }
+        return result;
+    };
     SlidingStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        /* JCL 2020/11/16 this test is no longer needed -> see leftMouseDragged_event where optimize is called */
         if (this.activeOptimizer === false)
             return;
         var p = this.curveModel.spline.controlPoints[selectedControlPoint];
+        var controlPointsInit = this.curveModel.spline.controlPoints.slice();
+        //console.log("CP before: ", JSON.parse(JSON.stringify(controlPointsInit)))
+        /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
+        var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.curveModel.spline);
+        var curvatureExtremaLocations = splineDP.curvatureDerivativeNumerator().zeros();
+        var inflectionLocations = splineDP.curvatureNumerator().zeros();
+        var sequenceDiffEventsInit = this.generateSequenceDifferentialEvents(curvatureExtremaLocations, inflectionLocations);
+        //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
@@ -39020,15 +39472,47 @@ var SlidingStrategy = /** @class */ (function () {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
             /*console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)*/
             /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
-            /*console.log("optimize : " + this.curveSceneController.activeLocationControl)*/
+            //console.log("optimize : " + this.curveSceneController.activeLocationControl)
             var delta = [];
             for (var i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
                 var inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i]);
                 delta.push(inc);
             }
+            /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
+            var splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+            var curvatureExtremaLocationsOptim = splineDPoptim.curvatureDerivativeNumerator().zeros();
+            var inflectionLocationsOptim = splineDPoptim.curvatureNumerator().zeros();
+            var sequenceDiffEventsOptim = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim);
+            //console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
+            var neighboringEvents = [];
+            if (this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
+                if (sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length) {
+                    neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim);
+                    if (neighboringEvents.length > 0) {
+                        if (this.curveSceneController.counterLostEvent === 0) {
+                            this.curveSceneController.lastLostEvent = neighboringEvents[0];
+                            this.curveSceneController.counterLostEvent += 1;
+                        }
+                        else if (this.curveSceneController.lastLostEvent.event === neighboringEvents[0].event && this.curveSceneController.lastLostEvent.index === neighboringEvents[0].index) {
+                            this.curveSceneController.counterLostEvent += 1;
+                        }
+                        else if (this.curveSceneController.lastLostEvent.event !== neighboringEvents[0].event ||
+                            (this.curveSceneController.lastLostEvent.event === neighboringEvents[0].event && this.curveSceneController.lastLostEvent.index === neighboringEvents[0].index)) {
+                            this.curveSceneController.counterLostEvent = 0;
+                            this.curveSceneController.lastLostEvent = { event: NeighboringEventsType.none, index: 0 };
+                        }
+                        console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent);
+                    }
+                }
+                else {
+                    console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController.controlOfCurvatureExtrema + " inflection " + this.curveSceneController.controlOfInflection);
+                    console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls");
+                }
+            }
             if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
                 /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                this.curveModel.setSpline(this.optimizationProblem.spline.clone());
             }
             else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
                 if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
@@ -39036,19 +39520,116 @@ var SlidingStrategy = /** @class */ (function () {
                     /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
                     delta[delta.length - 1] = delta[0];
                     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                    this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                 }
                 else {
                     /*console.log("optimize: s0sn variable -> stop evolving")*/
                     this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                    this.curveModel.setControlPoints(controlPointsInit);
                 }
             }
             else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                //}
             }
-            this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.none) {
+                this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+            }
+            //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+            if (sequenceDiffEventsOptim.length > 0 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
+                var controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints;
+                var knotVector = this.optimizationProblem.spline.clone().knots;
+                var spline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPointsReloc, knotVector);
+                var locFirstEvent = spline.evaluate(sequenceDiffEventsOptim[0].loc);
+                var locLastEvent = spline.evaluate(sequenceDiffEventsOptim[sequenceDiffEventsOptim.length - 1].loc);
+                if (Math.abs(controlPointsReloc[controlPointsReloc.length - 1].substract(locLastEvent).norm()) < 0.03 &&
+                    sequenceDiffEventsOptim[sequenceDiffEventsOptim.length - 1].loc - sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].loc > 0) {
+                    if (sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].event === DiffEventType.curvatExtremum)
+                        neighboringEvents.push({ event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: sequenceDiffEventsInit.length - 1 });
+                    if (sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].event === DiffEventType.inflection)
+                        neighboringEvents.push({ event: NeighboringEventsType.neighboringInflectionRightBoundary, index: sequenceDiffEventsInit.length - 1 });
+                    //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
+                    //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
+                    console.log("Event going out through curve extremity");
+                }
+                else if (Math.abs(controlPointsReloc[0].substract(locFirstEvent).norm()) < 0.03 &&
+                    sequenceDiffEventsOptim[0].loc - sequenceDiffEventsInit[0].loc < 0) {
+                    if (sequenceDiffEventsInit[0].event === DiffEventType.curvatExtremum)
+                        neighboringEvents.push({ event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0 });
+                    if (sequenceDiffEventsInit[0].event === DiffEventType.inflection)
+                        neighboringEvents.push({ event: NeighboringEventsType.neighboringInflectionLeftBoundary, index: 0 });
+                    //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
+                    //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
+                    console.log("Event going out through curve origin");
+                }
+            }
+            if (neighboringEvents.length === 0) {
+                if (sequenceDiffEventsOptim.length > 0) {
+                    if (this.curveSceneController.sizeStackControlPolygons < this.curveSceneController.MAX_NB_CONFIGS_CP) {
+                        this.curveSceneController.stackControlPolygons.push(this.optimizationProblem.spline.clone().controlPoints);
+                        this.curveSceneController.sizeStackControlPolygons += 1;
+                    }
+                    else if (this.curveSceneController.sizeStackControlPolygons === this.curveSceneController.MAX_NB_CONFIGS_CP) {
+                        this.curveSceneController.stackControlPolygons.push(this.optimizationProblem.spline.clone().controlPoints);
+                        this.curveSceneController.stackControlPolygons.shift();
+                    }
+                    //console.log("stack CP: ", this.curveSceneController.sizeStackControlPolygons)
+                }
+            }
+            else if (!this.curveSceneController.allowShapeSpaceChange && neighboringEvents.length > 0) {
+                //if(neighboringEvents[0].event === NeighboringEventsType.neighboringCurvatureExtrema) {
+                this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.stopDeforming;
+                this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.stopDeforming;
+                //}
+                var curvatureExtrema = [];
+                var inflections = [];
+                for (var i = 0; i < neighboringEvents.length; i += 1) {
+                    if (neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary ||
+                        neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
+                        curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc);
+                    }
+                    else if (neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
+                        neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionRightBoundary) {
+                        inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc);
+                    }
+                    else if (neighboringEvents[i].event === NeighboringEventsType.neighboringCurvatureExtrema) {
+                        curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc);
+                        curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index + 1].loc);
+                    }
+                    else if (neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionsCurvatureExtremum) {
+                        inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc);
+                        inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index + 2].loc);
+                    }
+                }
+                this.curveSceneController.selectedCurvatureExtrema = curvatureExtrema.slice();
+                this.curveSceneController.selectedInflection = inflections.slice();
+                //if(this.curveSceneController.counterLostEvent === 1) {
+                this.curveModel.setControlPoints(controlPointsInit);
+                //}
+                /*else if(this.curveSceneController.counterLostEvent > 1) {
+                    let controlPoints: Array<Vector_2d> = []
+                    if( this.curveSceneController.counterLostEvent <= this.curveSceneController.sizeStackControlPolygons) {
+                        controlPoints = this.curveSceneController.stackControlPolygons[this.curveSceneController.sizeStackControlPolygons - this.curveSceneController.counterLostEvent]
+                    } else {
+                        controlPoints = this.curveSceneController.stackControlPolygons[0]
+                    }
+                    this.curveModel.setControlPoints(controlPoints)
+                }*/
+                console.log("Neighboring event(s): " + neighboringEvents[0].event + " location: " + neighboringEvents[0].index + " CP stopDef");
+                console.log("CP stopDef: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)));
+            }
+            else if (this.curveSceneController.allowShapeSpaceChange) {
+                this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.none;
+                this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.none;
+            }
+            //console.log("CP Optim: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
         }
         catch (e) {
-            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y);
+            /* JCL 2020/11/12 Replace the setControlPoint by setControlPoints to stay consistent with all the
+            possible configurations of modifications of the curve if a failure does not come from the optimization*/
+            //this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y)
+            this.curveModel.setControlPoints(controlPointsInit);
             console.log(e);
         }
     };
@@ -39327,6 +39908,18 @@ function main() {
     }
     function toggleCurveClamping() {
         sceneController.toggleCurveClamping();
+    }
+    function keyDown(ev) {
+        var keyName = ev.key;
+        console.log(keyName + " domn");
+        if (keyName === "Shift")
+            sceneController.shiftKeyDown();
+    }
+    function keyUp(ev) {
+        var keyName = ev.key;
+        console.log(keyName + " up");
+        if (keyName === "Shift")
+            sceneController.shiftKeyUp();
     }
     /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
@@ -40068,6 +40661,8 @@ function main() {
     inputFileName.addEventListener('input', inputCurveFileName);
     validateInput.addEventListener('click', inputButtonValidate);
     fileR.addEventListener('load', processInputFile);
+    document.body.addEventListener('keydown', keyDown);
+    document.body.addEventListener('keyup', keyUp);
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {
         if (e.target === canvas) {
@@ -45830,6 +46425,180 @@ var InsertKnotButtonShaders = /** @class */ (function () {
 }());
 exports.InsertKnotButtonShaders = InsertKnotButtonShaders;
 ;
+
+
+/***/ }),
+
+/***/ "./src/views/SelectedDifferentialEventsView.ts":
+/*!*****************************************************!*\
+  !*** ./src/views/SelectedDifferentialEventsView.ts ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelectedDifferentialEventsView = void 0;
+//import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
+//import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var SelectedDifferentialEventsView = /** @class */ (function () {
+    function SelectedDifferentialEventsView(spline, pointLoc, curvatureExtremaShaders, red, green, blue, alpha) {
+        this.curvatureExtremaShaders = curvatureExtremaShaders;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+        this.z = 0;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        var points = [];
+        for (var i = 0; i < pointLoc.length; i += 1) {
+            points.push(spline.evaluate(pointLoc[i]));
+        }
+        this.curvatureExtremumLocation = points.slice();
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.update(spline, pointLoc);
+    }
+    SelectedDifferentialEventsView.prototype.updateVerticesAndIndices = function () {
+        var size = 0.03;
+        this.vertices = new Float32Array(this.curvatureExtremumLocation.length * 32);
+        this.indices = new Uint8Array(this.curvatureExtremumLocation.length * 6);
+        for (var i = 0; i < this.curvatureExtremumLocation.length; i += 1) {
+            var x = this.curvatureExtremumLocation[i].x;
+            var y = this.curvatureExtremumLocation[i].y;
+            this.vertices[32 * i] = x - size;
+            this.vertices[32 * i + 1] = y - size;
+            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.red;
+            this.vertices[32 * i + 6] = this.green;
+            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 8] = x + size;
+            this.vertices[32 * i + 9] = y - size;
+            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.red;
+            this.vertices[32 * i + 14] = this.green;
+            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 16] = x + size;
+            this.vertices[32 * i + 17] = y + size;
+            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.red;
+            this.vertices[32 * i + 22] = this.green;
+            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 24] = x - size;
+            this.vertices[32 * i + 25] = y + size;
+            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.red;
+            this.vertices[32 * i + 30] = this.green;
+            this.vertices[32 * i + 31] = this.blue;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    SelectedDifferentialEventsView.prototype.initVertexBuffers = function (gl) {
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        var a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Texture < 0) {
+            console.log('Failed to get the storage location of a_Texture');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    SelectedDifferentialEventsView.prototype.renderFrame = function () {
+        var gl = this.curvatureExtremaShaders.gl, a_Position = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.curvatureExtremaShaders.program, 'a_Texture'), 
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        FSIZE = this.vertices.BYTES_PER_ELEMENT, a_ColorLocation = gl.getUniformLocation(this.curvatureExtremaShaders.program, "a_Color");
+        gl.useProgram(this.curvatureExtremaShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
+        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Texture);
+        gl.uniform4f(a_ColorLocation, this.red, this.green, this.blue, this.alpha);
+        this.curvatureExtremaShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    };
+    SelectedDifferentialEventsView.prototype.update = function (spline, pointLoc) {
+        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
+            var points = [];
+            for (var i = 0; i < this.curvatureExtremumLocation.length; i += 1) {
+                points.push(spline.evaluate(pointLoc[i]));
+            }
+            this.curvatureExtremumLocation = points.slice();
+            this.updateVerticesAndIndices();
+            this.updateBuffers();
+        }
+    };
+    /*reset(message: BSpline_R1_to_R2_interface): void {
+    }*/
+    SelectedDifferentialEventsView.prototype.updateBuffers = function () {
+        var gl = this.curvatureExtremaShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return SelectedDifferentialEventsView;
+}());
+exports.SelectedDifferentialEventsView = SelectedDifferentialEventsView;
 
 
 /***/ }),

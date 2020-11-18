@@ -13,7 +13,7 @@ import { TransitionDifferentialEventShaders } from "../views/TransitionDifferent
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { SlidingStrategy } from "./SlidingStrategy";
+import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./SlidingStrategy";
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 import { IObserver } from "../designPatterns/Observer";
@@ -32,15 +32,25 @@ import { SequenceBSpline_R1_to_R2 } from "../mathematics/SequenceBSpline_R1_to_R
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
 import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
+import { NONAME } from "dns";
+
+import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"
 
 
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
+/* JCL 2020/11/06 Add controls to monitor the location of the curvature extrema and inflection points */
+export enum ActiveExtremaLocationControl {mergeExtrema, none, stopDeforming}
+export enum ActiveInflectionLocationControl {mergeExtremaAndInflection, none, stopDeforming}
 
 export class CurveSceneController implements SceneControllerInterface {
 
     private selectedControlPoint: number | null = null
+    public selectedCurvatureExtrema: number[] | null = null
+    public selectedInflection: number[] | null = null
+    public allowShapeSpaceChange: boolean = false
+    private selectedDifferentialEventsView: SelectedDifferentialEventsView
     /* JCL 2020/10/18 Moved CurveModel to public */
     //public curveModel: CurveModel
     private controlPointsShaders: ControlPointsShaders
@@ -80,6 +90,14 @@ export class CurveSceneController implements SceneControllerInterface {
     /* JCL 2020/10/02 Add the visualization of knots */
     private curveKnotsView: CurveKnotsView
     private curveKnotsShaders: CurveKnotsShaders
+    /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
+    public activeExtremaLocationControl: ActiveExtremaLocationControl = ActiveExtremaLocationControl.none
+    public activeInflectionLocationControl: ActiveInflectionLocationControl = ActiveInflectionLocationControl.none
+    public stackControlPolygons: Array<Array<Vector_2d>> = []
+    public sizeStackControlPolygons: number = this.stackControlPolygons.length
+    public readonly MAX_NB_CONFIGS_CP = 5
+    public counterLostEvent: number = 0
+    public lastLostEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: 0}
 
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = [],
@@ -108,6 +126,8 @@ export class CurveSceneController implements SceneControllerInterface {
 
         this.curveKnotsShaders = new CurveKnotsShaders(this.gl)
         this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1)
+        let selectedEvent: number[]= []
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
 
         /* JCL 2020/09/24 Add default clamped control point */
         let clampedControlPoint: Vector_2d[] = []
@@ -116,6 +136,10 @@ export class CurveSceneController implements SceneControllerInterface {
         this.clampedControlPoints.push(0)
         this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
         this.activeLocationControl = ActiveLocationControl.firstControlPoint
+
+        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+        this.allowShapeSpaceChange = false
 
 
         this.controlOfCurvatureExtrema = true
@@ -148,6 +172,7 @@ export class CurveSceneController implements SceneControllerInterface {
         });
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(clampedControlPoint)
+        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent)
 
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
         this.sliding = true
@@ -190,6 +215,19 @@ export class CurveSceneController implements SceneControllerInterface {
             this.clampedControlPointView.renderFrame()
         }
 
+        if(this.curveModel !== undefined) {
+            let curvatureEvents: number[] = []
+            let differentialEvents: number[] = []
+            if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming && this.selectedCurvatureExtrema !== null) {
+                curvatureEvents = this.selectedCurvatureExtrema.slice()
+            }
+            if(this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming && this.selectedInflection !== null) {
+                differentialEvents = curvatureEvents.concat(this.selectedInflection)
+            }
+            this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
+        }
+        else throw new Error("Unable to render the current frame. Undefined curve model")
+        if(this.selectedDifferentialEventsView !== null && this.allowShapeSpaceChange === false) this.selectedDifferentialEventsView.renderFrame()
 
     }
 
@@ -421,6 +459,10 @@ export class CurveSceneController implements SceneControllerInterface {
                     // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                     // JCL the curveControl must be set in accordance with the current status of controls
                     if (this.sliding == true) {
+                        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+                        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+                        this.selectedInflection = null
+                        this.selectedCurvatureExtrema = null
                         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
                     }
                     else {
@@ -433,6 +475,10 @@ export class CurveSceneController implements SceneControllerInterface {
             if (this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
                 /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
                 if (this.sliding == true) {
+                    this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+                    this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+                    this.selectedInflection = null
+                    this.selectedCurvatureExtrema = null
                     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
                 }
                 else {
@@ -455,9 +501,18 @@ export class CurveSceneController implements SceneControllerInterface {
         selectedControlPoint = this.controlPointsView.getSelectedControlPoint()
         if(this.curveModel !== undefined) {
             /* JCL 2020/09/27 Add clamping condition when dragging a control point */
+            //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
+            //    && (this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming || this.allowShapeSpaceChange === true)) {
             if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
-                this.curveModel.setControlPoint(selectedControlPoint, x, y)
-                this.curveControl.optimize(selectedControlPoint, x, y)
+                if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
+                    /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
+                    because it is part of the optimize method (whether sliding is active or not) */
+                    this.curveModel.setControlPoint(selectedControlPoint, x, y)
+                } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
+                        || this.allowShapeSpaceChange === true) {
+                    this.curveControl.optimize(selectedControlPoint, x, y)
+                }
+
                 this.curveModel.notifyObservers()
                 if(this.clampedControlPoints.length > 0) {
                     let clampedControlPoint: Vector_2d[] = []
@@ -466,6 +521,12 @@ export class CurveSceneController implements SceneControllerInterface {
                     }
                     if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
                 }
+                /*let curvatureEvents: number[] = []
+                let differentialEvents: number[] = []
+                if(this.selectedCurvatureExtrema !== null && this.allowShapeSpaceChange === false) curvatureEvents = this.selectedCurvatureExtrema.slice()
+                if(this.selectedInflection !== null && this.allowShapeSpaceChange === false) differentialEvents = curvatureEvents.concat(this.selectedInflection)
+                this.selectedDifferentialEventsView.update(this.curveModel.spline, differentialEvents)*/
+
             }
         } else throw new Error("Unable to drag the selected control point. Undefined curve model")
 
@@ -477,6 +538,20 @@ export class CurveSceneController implements SceneControllerInterface {
             this.activeLocationControl = ActiveLocationControl.both
             this.selectedControlPoint = null
         }
+        if(this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming) {
+            this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+        }
+        if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming) {
+            this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+        }
+    }
+
+    shiftKeyDown() {
+        this.allowShapeSpaceChange = true
+    }
+
+    shiftKeyUp() {
+        this.allowShapeSpaceChange = false
     }
 
     /* JCL 2020/10/07 Add the curve degree elevation process */
