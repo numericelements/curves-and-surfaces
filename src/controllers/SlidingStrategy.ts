@@ -15,6 +15,10 @@ export enum NeighboringEventsType {neighboringCurExtremumLeftBoundary, neighbori
 export interface NeighboringEvents {event: NeighboringEventsType; index: number}
 export enum DiffEventType {inflection, curvatExtremum, unDefined}
 export interface DifferentialEvent {event: DiffEventType; loc: number}
+enum Direction {Forward, Reverse}
+
+interface modifiedEvents {inter: number, nbE: number}
+interface intervalsCurvatureExt {span: number, sequence: number[]}
 
 export class SlidingStrategy implements CurveControlStrategyInterface {
     
@@ -153,18 +157,149 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         return result
     }
 
+    computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents: Array<DifferentialEvent>, inflectionIndices: number[], lostEvents: Array<modifiedEvents>): intervalsCurvatureExt {
+        let interval = 1.0
+        let intervalExtrema: intervalsCurvatureExt = {span: interval, sequence: []}
+        if(inflectionIndices.length === 0 && orderedDifferentialEvents.length > 0) {
+            intervalExtrema.span = interval
+            intervalExtrema.sequence.push(orderedDifferentialEvents[0].loc)
+            for(let k = 0; k < orderedDifferentialEvents.length - 1; k += 1) {
+                intervalExtrema.sequence.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc)
+            }
+            intervalExtrema.sequence.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc)
+
+        } else if(lostEvents[0].inter === inflectionIndices.length && inflectionIndices[length - 1] < (orderedDifferentialEvents.length - 1)) {
+            intervalExtrema.span = 1.0 - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc
+            for(let k = inflectionIndices[inflectionIndices.length - 1]; k < orderedDifferentialEvents.length - 1; k += 1) {
+                intervalExtrema.sequence.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc)
+            }
+            intervalExtrema.sequence.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc)
+
+        } else if(lostEvents[0].inter === 0 && inflectionIndices[0] > 0) {
+            intervalExtrema.span = orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc
+            intervalExtrema.sequence.push(orderedDifferentialEvents[0].loc)
+            for(let k = 1; k < inflectionIndices[lostEvents[0].inter]; k += 1) {
+                intervalExtrema.sequence.push(orderedDifferentialEvents[k].loc - orderedDifferentialEvents[k - 1].loc)
+            }
+
+        } else if(inflectionIndices.length > 1 && lostEvents[0].inter < inflectionIndices.length) {
+            intervalExtrema.span = orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc
+            for(let k = inflectionIndices[lostEvents[0].inter - 1] + 1; k < inflectionIndices[lostEvents[0].inter]; k += 1) {
+                intervalExtrema.sequence.push(orderedDifferentialEvents[k].loc - orderedDifferentialEvents[k - 1].loc)
+            }
+            intervalExtrema.sequence.push(orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter] - 1].loc)
+        } else if(inflectionIndices[lostEvents[0].inter] - inflectionIndices[lostEvents[0].inter - 1] < 4) {
+            /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
+            console.log("Inconsistent number of curvature extrema in the current interval of inflections. Number too small.")
+        }
+
+        return intervalExtrema
+    }
+
+    indexSmallestInterval(intervalExtrema: intervalsCurvatureExt, nbEvents?: number): number {
+        let candidateEventIndex = -1
+        let ratio: number[] = []
+        for(let k = 0; k < intervalExtrema.sequence.length; k += 1) {
+            ratio.push(intervalExtrema.sequence[k]/intervalExtrema.span)
+        }
+        let mappedRatio = ratio.map(function(location, i) {
+            return { index: i, value: location };
+          })
+        mappedRatio.sort(function(a, b) {
+            if (a.value > b.value) {
+              return 1;
+            }
+            if (a.value < b.value) {
+              return -1;
+            }
+            return 0;
+        })
+        if(intervalExtrema.sequence.length > 0) {
+            candidateEventIndex = mappedRatio[0].index
+            /* JCL Take into account the optional number of events  */
+            /* if the number of events removed equals 2 smallest intervals at both extremities can be removed because */
+            /* they are of different types of there no event if it is a free extremity of the curve */
+            if(nbEvents === 2) {
+                if(mappedRatio[0].index === 0 || mappedRatio[0].index === intervalExtrema.sequence.length - 1) {
+                    candidateEventIndex = mappedRatio[1].index
+                    if(mappedRatio[1].index === 0 || mappedRatio[1].index === intervalExtrema.sequence.length - 1) {
+                        candidateEventIndex = mappedRatio[2].index
+                    }
+                } 
+            } else if(nbEvents === 1) {
+                if(mappedRatio[0].index === 0 || mappedRatio[0].index === intervalExtrema.sequence.length - 1) {
+                    candidateEventIndex = mappedRatio[1].index
+                }
+            }
+        } 
+        return candidateEventIndex
+    }
+
+    indexIntervalMaximalVariation(intervalsExtrema: intervalsCurvatureExt, intervalsExtremaOptim: intervalsCurvatureExt, scan: Direction): {index: number, value: number} {
+        let intervalIndex: number = -1
+        let maxRatio = {index: intervalIndex, value: 0}
+        if(scan === Direction.Forward) {
+            let upperBound: number = 0
+            if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                upperBound = intervalsExtremaOptim.sequence.length
+            } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
+                upperBound = intervalsExtrema.sequence.length
+            }
+            for(let k = 0; k < upperBound; k += 1) {
+                let currentRatio = 1.0
+                if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                    currentRatio = (intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)/(intervalsExtrema.sequence[k]/intervalsExtrema.span)
+                } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
+                    currentRatio = (intervalsExtrema.sequence[k]/intervalsExtrema.span)/(intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)
+                }
+                if(k === 0) {
+                    maxRatio.value = currentRatio
+                    maxRatio.index = k
+                } else if(currentRatio > maxRatio.value) {
+                    maxRatio.value = currentRatio
+                    maxRatio.index = k
+                }
+            }
+
+        } else if(scan === Direction.Reverse) {
+            let lowerBound: number = 0
+            if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                lowerBound = intervalsExtremaOptim.sequence.length
+            } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length){
+                lowerBound = intervalsExtrema.sequence.length
+            }
+            for(let k = lowerBound - 1; k > -1; k -= 1) {
+                let currentRatio = 1.0
+                if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                    currentRatio = (intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)/(intervalsExtrema.sequence[k]/intervalsExtrema.span)
+                } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
+                    currentRatio = (intervalsExtrema.sequence[k]/intervalsExtrema.span)/(intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)
+                }
+                if(k === intervalsExtremaOptim.sequence.length - 1) {
+                    maxRatio.value = currentRatio
+                    maxRatio.index = k
+                } else if(currentRatio > maxRatio.value) {
+                    maxRatio.value = currentRatio
+                    maxRatio.index = k
+                }
+            }
+        }
+
+        return maxRatio
+    }
+
     neighboringDifferentialEvents(orderedDifferentialEvents: Array<DifferentialEvent>, orderedDifferentialEventsOptim: Array<DifferentialEvent>): Array<NeighboringEvents> {
         let result: Array<NeighboringEvents> =  []
-        const MIN_DIST_EVENTS = 10^-6
 
-        if(orderedDifferentialEvents.length > 0 && orderedDifferentialEventsOptim.length !== orderedDifferentialEvents.length){
+        //if(orderedDifferentialEvents.length > 0 && orderedDifferentialEventsOptim.length !== orderedDifferentialEvents.length){
+        if(orderedDifferentialEventsOptim.length !== orderedDifferentialEvents.length){
             /* JCL Analyze the sequence of inflections */
-            interface modifiedEvents {inter: number, nbE: number}
-            let inflectionIndices = []
+            //interface modifiedEvents {inter: number, nbE: number}
+            let inflectionIndices: number[] = []
             for(let i = 0; i < orderedDifferentialEvents.length; i += 1) {
                 if(orderedDifferentialEvents[i].event === DiffEventType.inflection) inflectionIndices.push(i)
             }
-            let inflectionIndicesOptim = []
+            let inflectionIndicesOptim: number[] = []
             for(let i = 0; i < orderedDifferentialEventsOptim.length; i += 1) {
                 if(orderedDifferentialEventsOptim[i].event === DiffEventType.inflection) inflectionIndicesOptim.push(i)
             }
@@ -190,195 +325,169 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                         if(lostEvents[0].inter === 0) {
                             let intervalExtrema = []
                             let intervalExtremaOptim = []
-                            let upperBound = 0
-                            intervalExtrema.push(orderedDifferentialEvents[0].loc)
-                            if(inflectionIndices.length === 0) {
-                                upperBound = orderedDifferentialEvents.length - 1
-                            } else {
-                                upperBound = inflectionIndices[0] - 1
-                            }
-                            for(let k = 0; k < upperBound; k += 1) {
-                                intervalExtrema.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc)
-                            }
-                            if(inflectionIndices.length === 0) intervalExtrema.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc)
-                            else intervalExtrema.push(orderedDifferentialEvents[inflectionIndices[0]].loc - orderedDifferentialEvents[inflectionIndices[0] - 1].loc)
 
-                            if(orderedDifferentialEventsOptim.length > 0) {
-                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[0].loc)
-                                if(inflectionIndicesOptim.length === 0) {
-                                    upperBound = orderedDifferentialEventsOptim.length - 1
-                                } else {
-                                    upperBound = inflectionIndicesOptim[0] - 1
-                                }
-                                for(let k = 0; k < upperBound; k += 1) {
-                                    intervalExtremaOptim.push(orderedDifferentialEventsOptim[k + 1].loc - orderedDifferentialEventsOptim[k].loc)
-                                }
-                                if(inflectionIndicesOptim.length === 0) intervalExtremaOptim.push(1.0 - orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].loc)
-                                else {
-                                    if(inflectionIndicesOptim[0] > 0) intervalExtremaOptim.push(orderedDifferentialEventsOptim[inflectionIndicesOptim[0]].loc - orderedDifferentialEventsOptim[inflectionIndicesOptim[0] - 1].loc)
-                                    else intervalExtremaOptim.push(orderedDifferentialEventsOptim[inflectionIndicesOptim[0]].loc)
-                                }
-                            } else intervalExtremaOptim.push(1.0)
-                            let ratio = [], ratioOptim = [], ratioVariation = []
-                            let intervalSpan = 1.0
-                            if(inflectionIndices.length > 0) intervalSpan = orderedDifferentialEvents[inflectionIndices[0]].loc
-                            for(let k = 0; k < intervalExtrema.length; k += 1) {
-                                ratio.push(intervalExtrema[k]/intervalSpan)
+                            let intervals: intervalsCurvatureExt
+                            intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
+                            let intervalsOptim: intervalsCurvatureExt
+                            intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
+                            let candidateEventIndex = this.indexSmallestInterval(intervals)
+                            let ratioLeft = 0.0, ratioRight = 0.0, indexMaxIntverVar = -1
+                            if(intervalsOptim.sequence.length > 0) {
+                                ratioLeft = (intervalsOptim.sequence[0]/intervalsOptim.span)/(intervals.sequence[0]/intervals.span)
+                                ratioRight = (intervalsOptim.sequence[intervalsOptim.sequence.length - 1]/intervalsOptim.span)/(intervals.sequence[intervals.sequence.length - 1]/intervals.span)
+                            } else {
+                                ratioLeft = 1.0/(intervals.sequence[0]/intervals.span)
+                                ratioRight = 1.0/(intervals.sequence[intervals.sequence.length - 1]/intervals.span)
                             }
-                            let mappedRatio = ratio.map(function(location, i) {
-                                return { index: i, value: location };
-                              })
-                            mappedRatio.sort(function(a, b) {
-                                if (a.value > b.value) {
-                                  return 1;
-                                }
-                                if (a.value < b.value) {
-                                  return -1;
-                                }
-                                return 0;
-                            })
-                            let candidateEventIndex = mappedRatio[0].index
-                            let maxRatio = {index: 0, value: 0}
-                            let intervalOptimSpan = 1.0
-                            if(inflectionIndicesOptim.length > 0) intervalOptimSpan = orderedDifferentialEventsOptim[inflectionIndicesOptim[0]].loc
-                            for(let k = 0; k < intervalExtremaOptim.length; k += 1) {
-                                let currentRatio = intervalExtremaOptim[k]/intervalOptimSpan
-                                if(k === 0) {
-                                    maxRatio.value = currentRatio
-                                } else if(k < candidateEventIndex && currentRatio > maxRatio.value) {
-                                    maxRatio.value = currentRatio
-                                    maxRatio.index = k
-                                }
-                                ratioOptim.push(currentRatio)
-                                ratioVariation.push(ratioOptim[k]/ratio[k])
-                            }
-                            if(maxRatio.index !== candidateEventIndex) {
-                                console.log("The identification of lost curvature extrema is not robust.")
-                            }
-                            if(inflectionIndices.length === 0) {
-                                if(maxRatio.index === 0) {
-                                    result.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
-                                } else if (maxRatio.index === intervalExtremaOptim.length - 1) {
-                                    result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEventsOptim.length - 1})
-                                } else {
-                                    console.log("Inconsistent identification of curvature extremum")
-                                    result.push({event: NeighboringEventsType.none, index: maxRatio.index})
+                            if(ratioLeft > ratioRight) {
+                                indexMaxIntverVar = 0
+                                if(intervalsOptim.sequence.length > 0) {
+                                    let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Reverse)
+                                    if(maxRatioR.value > ratioLeft) {
+                                        indexMaxIntverVar = maxRatioR.index
+                                    }
                                 }
                             } else {
-                                if(maxRatio.index === 0) {
+                                indexMaxIntverVar = intervals.sequence.length - 1
+                                if(intervalsOptim.sequence.length > 0) {
+                                    let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Forward)
+                                    if(maxRatioF.value > ratioRight) {
+                                        indexMaxIntverVar = maxRatioF.index
+                                    }
+                                }
+                            }
+                            
+                            if(candidateEventIndex !== -1) {
+                                if(indexMaxIntverVar === candidateEventIndex) {
+                                    console.log("Events are stable as well as the candidate event.")
+                                } else if(indexMaxIntverVar !== candidateEventIndex) {
+                                    console.log("Events are stable but differ from the candidate event.")
+                                    /* set up stuff to process configurations with event located near a knot */
+                                    candidateEventIndex = indexMaxIntverVar
+                                }
+                            }
+
+                            if(inflectionIndices.length === 0) {
+                                if(candidateEventIndex === 0) {
                                     result.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
+                                //} else if (maxRatio.index === intervalExtremaOptim.length - 1) {
+                                } else if (candidateEventIndex === intervals.sequence.length - 1) {
+                                    result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
                                 } else {
                                     console.log("Inconsistent identification of curvature extremum")
-                                    result.push({event: NeighboringEventsType.none, index: maxRatio.index})
+                                    result.push({event: NeighboringEventsType.none, index: candidateEventIndex})
+                                }
+                            } else {
+                                if(candidateEventIndex === 0) {
+                                    result.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
+                                } else if(candidateEventIndex === intervals.sequence.length - 1) {
+                                    result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
+                                } else {
+                                    console.log("Inconsistent identification of curvature extremum")
+                                    result.push({event: NeighboringEventsType.none, index: candidateEventIndex})
                                 }
                             }
 
                         } else if(lostEvents[0].inter === inflectionIndices.length) {
-                            result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEventsOptim.length - 1})
+                            result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
                         }
                     } else if(lostEvents[0].nbE === 2) {
-                        let interval = 1.0, intervalOptim = 1.0
-                        let intervalExtrema = []
-                        let intervalExtremaOptim = []
-
-                        if(inflectionIndices.length === 0) {
-                            interval = 1.0
-                            intervalOptim = 1.0
-                            intervalExtrema.push(orderedDifferentialEvents[0].loc)
-                            for(let k = 0; k < orderedDifferentialEvents.length - 1; k += 1) {
-                                intervalExtrema.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc)
-                            }
-                            intervalExtrema.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc)
-                            if(orderedDifferentialEventsOptim.length > 0) {
-                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[0].loc)
-                                for(let k = 0; k <= orderedDifferentialEventsOptim.length - 1; k += 1) {
-                                    intervalExtremaOptim.push(orderedDifferentialEventsOptim[k + 1].loc - orderedDifferentialEventsOptim[k].loc)
+                        let intervals: intervalsCurvatureExt
+                        intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
+                        let intervalsOptim: intervalsCurvatureExt
+                        intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
+                        let candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE)
+                        let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Forward)
+                        let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Reverse)
+                        if(candidateEventIndex !== -1) {
+                            if(intervalsOptim.sequence.length > 0) {
+                                if(maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
+                                    console.log("Events are stable as well as the candidate events.")
+                                } else if(maxRatioF.index === maxRatioR.index && (maxRatioF.index !== (candidateEventIndex - 1))) {
+                                    console.log("Events are stable but differ from the candidate events.")
+                                    candidateEventIndex = maxRatioF.index + 1
+                                } else {
+                                    console.log("Events are not stable enough.")
                                 }
-                                intervalExtremaOptim.push(1.0 - orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].loc)
-                            } else intervalExtremaOptim.push(intervalOptim)
-
-                        } else if(lostEvents[0].inter === inflectionIndices.length) {
-                            interval = 1.0 - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc
-                            intervalOptim = 1.0 - orderedDifferentialEventsOptim[inflectionIndices[lostEvents[0].inter - 1]].loc
-                            for(let k = inflectionIndices[inflectionIndices.length - 1]; k < orderedDifferentialEvents.length - 1; k += 1) {
-                                intervalExtrema.push(orderedDifferentialEvents[k + 1].loc - orderedDifferentialEvents[k].loc)
+                            } else {
+                                /* JCL orderedDifferentialEvents contains two events only that have disappeared */
+                                candidateEventIndex = 1
                             }
-                            intervalExtrema.push(1.0 - orderedDifferentialEvents[orderedDifferentialEvents.length - 1].loc)
-
-                            for(let k = inflectionIndicesOptim[inflectionIndicesOptim.length - 1]; k < orderedDifferentialEventsOptim.length - 1; k += 1) {
-                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[k + 1].loc - orderedDifferentialEventsOptim[k].loc)
-                            }
-                            intervalExtremaOptim.push(1.0 - orderedDifferentialEventsOptim[orderedDifferentialEventsOptim.length - 1].loc)
-
-                        } else if(inflectionIndices.length > 1 && lostEvents[0].inter < inflectionIndices.length) {
-                            interval = orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc
-                            for(let k = inflectionIndices[lostEvents[0].inter - 1] + 1; k < inflectionIndices[lostEvents[0].inter]; k += 1) {
-                                intervalExtrema.push(orderedDifferentialEvents[k].loc - orderedDifferentialEvents[k - 1].loc)
-                            }
-                            intervalExtrema.push(orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter] - 1].loc)
-
-                            intervalOptim = orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter]].loc - orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter - 1]].loc
-                            for(let k = inflectionIndicesOptim[lostEvents[0].inter - 1] + 1; k < inflectionIndicesOptim[lostEvents[0].inter]; k += 1) {
-                                intervalExtremaOptim.push(orderedDifferentialEventsOptim[k].loc - orderedDifferentialEventsOptim[k - 1].loc)
-                            }
-                            intervalExtremaOptim.push(orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter]].loc - orderedDifferentialEventsOptim[inflectionIndicesOptim[lostEvents[0].inter] - 1].loc)
-
-                        } else if(inflectionIndices[lostEvents[0].inter] - inflectionIndices[lostEvents[0].inter - 1] < 4) {
-                            /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
-                            console.log("Inconsistent number of curvature extrema in the current interval of inflections. Number too small.")
-                        }
-
-                        let ratio = [], ratioOptim = [], ratioVariation = []
-                        for(let k = 0; k < intervalExtrema.length; k += 1) {
-                            ratio.push(intervalExtrema[k]/interval)
-                        }
-                        let mappedRatio = ratio.map(function(location, i) {
-                            return { index: i, value: location };
-                          })
-                        mappedRatio.sort(function(a, b) {
-                            if (a.value > b.value) {
-                              return 1;
-                            }
-                            if (a.value < b.value) {
-                              return -1;
-                            }
-                            return 0;
-                        })
-                        let candidateEventIndex = mappedRatio[0].index
-                        let maxRatio = {index: 0, value: 0}
-                        for(let k = 0; k < intervalExtremaOptim.length; k += 1) {
-                            let currentRatio = intervalExtremaOptim[k]/intervalOptim
-                            if(k === 0) {
-                                maxRatio.value = currentRatio
-                            } else if(k < candidateEventIndex && currentRatio > maxRatio.value) {
-                                maxRatio.value = currentRatio
-                                maxRatio.index = k
-                            }
-                            ratioOptim.push(currentRatio)
-                            ratioVariation.push(ratioOptim[k]/ratio[k])
-                        }
-                        if(maxRatio.index !== candidateEventIndex - 1) {
-                            console.log("The identification of lost curvature extrema is not robust.")
-                        }
-                        /*let mappedRatioOptim = ratioOptim.map(function(location, i) {
-                            return { index: i, value: location };
-                          })
-                        mappedRatioOptim.sort(function(a, b) {
-                            if (a.value > b.value) {
-                              return 1;
-                            }
-                            if (a.value < b.value) {
-                              return -1;
-                            }
-                            return 0;
-                        }) */
-                        if(inflectionIndices.length === 0) {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: maxRatio.index})
-                        } else if(lostEvents[0].inter === inflectionIndices.length) {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + maxRatio.index + 1})
                         } else {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[lostEvents[0].inter - 1] + maxRatio.index + 1})
+                            console.log("Error when computing smallest interval. Assign arbitrarilly interval to 0.")
+                            if(inflectionIndices.length === 0 || lostEvents[0].inter === 0) {
+                                candidateEventIndex = 1
+                            } else if(lostEvents[0].inter === inflectionIndices.length) {
+                                candidateEventIndex = orderedDifferentialEvents.length - inflectionIndices[inflectionIndices.length - 1] - 2
+                            } else candidateEventIndex = 0
                         }
+
+                        if(inflectionIndices.length === 0 || lostEvents[0].inter === 0) {
+                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1})
+                            /* JCL To avoid use of incorrect indices */
+                            if(candidateEventIndex === orderedDifferentialEvents.length) {
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 2})
+                                console.log("Probably incorrect identification of events indices.")
+                            }
+                        } else if(lostEvents[0].inter === inflectionIndices.length) {
+                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex})
+                            /* JCL To avoid use of incorrect indices */
+                            if(inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex === orderedDifferentialEvents.length - 1) {
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex - 1})
+                                console.log("Probably incorrect identification of events indices.")
+                            }
+                        } else {
+                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[lostEvents[0].inter - 1] + candidateEventIndex})
+                        }
+                    } else if (lostEvents[0].nbE === -2) {
+                        let intervals: intervalsCurvatureExt
+                        intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
+                        let intervalsOptim: intervalsCurvatureExt
+                        intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
+                        let candidateEventIndex = this.indexSmallestInterval(intervalsOptim, -lostEvents[0].nbE)
+                        let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Forward)
+                        let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Reverse)
+                        if(candidateEventIndex !== -1) {
+                            if(intervals.sequence.length > 0) {
+                                if(maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
+                                    console.log("Events are stable as well as the candidate events.")
+                                } else if(maxRatioF.index === maxRatioR.index && (maxRatioF.index !== (candidateEventIndex - 1))) {
+                                    console.log("Events are stable but differ from the candidate events.")
+                                    candidateEventIndex = maxRatioF.index + 1
+                                } else {
+                                    console.log("Events are not stable enough.")
+                                }
+                            } else {
+                                /* JCL orderedDifferentialEventsOptim contains two events only that may appear */
+                                candidateEventIndex = 1
+                            }
+                        } else {
+                            console.log("Error when computing smallest interval. Assign arbitrarilly interval to 0.")
+                            if(inflectionIndices.length === 0) {
+                                candidateEventIndex = 1
+                            } else if(lostEvents[0].inter === inflectionIndicesOptim.length) {
+                                candidateEventIndex = orderedDifferentialEventsOptim.length - inflectionIndicesOptim[inflectionIndicesOptim.length - 1] - 2
+                            } else candidateEventIndex = 0
+                        }
+
+                        if(inflectionIndices.length === 0) {
+                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1})
+                            /* JCL To avoid use of incorrect indices */
+                            if(candidateEventIndex === orderedDifferentialEventsOptim.length) {
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 2})
+                                console.log("Probably incorrect identification of events indices.")
+                            }
+                        } else if(lostEvents[0].inter === inflectionIndicesOptim.length) {
+                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex})
+                            /* JCL To avoid use of incorrect indices */
+                            if(inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex === orderedDifferentialEventsOptim.length - 1) {
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex - 1})
+                                console.log("Probably incorrect identification of events indices.")
+                            }
+                        } else {
+                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[lostEvents[0].inter - 1] + candidateEventIndex})
+                        }
+
                     } else {
                         throw new Error("Inconsistent content of the intervals of lost curvature extrema or more than one reference event occured.")
                     }
@@ -450,11 +559,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             else result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[0]})
                         }
                         if(refEventLocation.length === 3) {
-                            if(orderedDifferentialEventsOptim[refEventLocation[0]].event === DiffEventType.inflection &&
-                                orderedDifferentialEventsOptim[refEventLocation[1]].event === DiffEventType.inflection) result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[2]})
-                            else if(orderedDifferentialEventsOptim[refEventLocation[0]].event === DiffEventType.inflection &&
-                                orderedDifferentialEventsOptim[refEventLocation[1]].event !== DiffEventType.inflection) result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[1]})
-                            else result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[0]})
+                            if(orderedDifferentialEventsOptim[refEventLocation[0]].event === DiffEventType.inflection && orderedDifferentialEventsOptim[refEventLocation[1]].event !== DiffEventType.inflection) 
+                                result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[1]})
                         }
                     }
 
@@ -463,6 +569,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[k]})
                         }
                     }
+                    if(refEventLocation.length - refEventLocationOptim.length === 2 && result.length === 0)
+                    result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[refEventLocation.length - 1]})
                 }
             } else {
                 throw new Error("Changes in the differential events sequence don't match single elementary transformations.")
@@ -511,8 +619,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
             let neighboringEvents: Array<NeighboringEvents> = []
             if(this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
+                neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim)
                 if(sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length) {
-                    neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim)
                     if(neighboringEvents.length > 0) {
                         if(this.curveSceneController.counterLostEvent === 0) {
                             this.curveSceneController.lastLostEvent = neighboringEvents[0]
@@ -603,16 +711,28 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                 for(let i = 0; i < neighboringEvents.length; i += 1) {
                     if(neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-                        curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
+                        if(sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
+                        else curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionRightBoundary) {
-                        inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
+                        if(sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
+                        else inflections.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringCurvatureExtrema) {
-                        curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
-                        curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index + 1].loc)
+                        if(sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
+                            curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
+                            curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index + 1].loc)
+                        } else {
+                            curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
+                            curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index + 1].loc)
+                        }
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionsCurvatureExtremum) {
-                        inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
-                        inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index + 2].loc)
+                        if(sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
+                            inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
+                            inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index + 2].loc)
+                        } else {
+                            inflections.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
+                            inflections.push(sequenceDiffEventsOptim[neighboringEvents[i].index + 2].loc)
+                        }
                     }
                 }
                 this.curveSceneController.selectedCurvatureExtrema = curvatureExtrema.slice()
