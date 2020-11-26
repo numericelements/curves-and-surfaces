@@ -196,7 +196,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         return intervalExtrema
     }
 
-    indexSmallestInterval(intervalExtrema: intervalsCurvatureExt, nbEvents?: number): number {
+    indexSmallestInterval(intervalExtrema: intervalsCurvatureExt, nbEvents: number): number {
         let candidateEventIndex = -1
         let ratio: number[] = []
         for(let k = 0; k < intervalExtrema.sequence.length; k += 1) {
@@ -219,31 +219,26 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             /* JCL Take into account the optional number of events  */
             /* if the number of events removed equals 2 smallest intervals at both extremities can be removed because */
             /* they are of different types of there no event if it is a free extremity of the curve */
-            if(nbEvents === 2) {
+            if(Math.abs(nbEvents) === 2) {
                 if(mappedRatio[0].index === 0 || mappedRatio[0].index === intervalExtrema.sequence.length - 1) {
                     candidateEventIndex = mappedRatio[1].index
                     if(mappedRatio[1].index === 0 || mappedRatio[1].index === intervalExtrema.sequence.length - 1) {
                         candidateEventIndex = mappedRatio[2].index
                     }
                 } 
-            } else if(nbEvents === 1) {
-                if(mappedRatio[0].index === 0 || mappedRatio[0].index === intervalExtrema.sequence.length - 1) {
-                    candidateEventIndex = mappedRatio[1].index
-                }
             }
         } 
         return candidateEventIndex
     }
 
-    indexIntervalMaximalVariation(intervalsExtrema: intervalsCurvatureExt, intervalsExtremaOptim: intervalsCurvatureExt, scan: Direction): {index: number, value: number} {
-        let intervalIndex: number = -1
+    indexIntervalMaximalVariation(intervalsExtrema: intervalsCurvatureExt, intervalsExtremaOptim: intervalsCurvatureExt, candidateEvent: number, nbEvents: number, scan: Direction): {index: number, value: number} {
+        let intervalIndex = -1
         let maxRatio = {index: intervalIndex, value: 0}
         if(scan === Direction.Forward) {
-            let upperBound: number = 0
-            if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
-                upperBound = intervalsExtremaOptim.sequence.length
-            } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
-                upperBound = intervalsExtrema.sequence.length
+            let upperBound = candidateEvent
+            if(candidateEvent === 1) {
+                maxRatio.value = 1.0/(intervalsExtrema.sequence[0]/intervalsExtrema.span)
+                maxRatio.index = 0
             }
             for(let k = 0; k < upperBound; k += 1) {
                 let currentRatio = 1.0
@@ -262,18 +257,27 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             }
 
         } else if(scan === Direction.Reverse) {
-            let lowerBound: number = 0
+            let upperBound = 0
+            let lowerBound = candidateEvent - nbEvents
             if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
-                lowerBound = intervalsExtremaOptim.sequence.length
+                upperBound = intervalsExtremaOptim.sequence.length - 1
             } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length){
-                lowerBound = intervalsExtrema.sequence.length
+                upperBound = intervalsExtrema.sequence.length - 1
             }
-            for(let k = lowerBound - 1; k > -1; k -= 1) {
+            if(candidateEvent === 1) {
+                if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                    maxRatio.value = 1.0/(intervalsExtrema.sequence[intervalsExtrema.sequence.length - 1]/intervalsExtrema.span)
+                } else {
+                    maxRatio.value = 1.0/(intervalsExtremaOptim.sequence[intervalsExtremaOptim.sequence.length - 1]/intervalsExtremaOptim.span)
+                }
+                maxRatio.index = upperBound
+            }
+            for(let k = upperBound; k > lowerBound; k -= 1) {
                 let currentRatio = 1.0
                 if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
-                    currentRatio = (intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)/(intervalsExtrema.sequence[k]/intervalsExtrema.span)
+                    currentRatio = (intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)/(intervalsExtrema.sequence[k + nbEvents]/intervalsExtrema.span)
                 } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
-                    currentRatio = (intervalsExtrema.sequence[k]/intervalsExtrema.span)/(intervalsExtremaOptim.sequence[k]/intervalsExtremaOptim.span)
+                    currentRatio = (intervalsExtrema.sequence[k]/intervalsExtrema.span)/(intervalsExtremaOptim.sequence[k - nbEvents]/intervalsExtremaOptim.span)
                 }
                 if(k === intervalsExtremaOptim.sequence.length - 1) {
                     maxRatio.value = currentRatio
@@ -323,14 +327,12 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                     /* JCL case of lost event at a knot related to a cubic curve not processed */
                     if(lostEvents[0].nbE === 1) {
                         if(lostEvents[0].inter === 0) {
-                            let intervalExtrema = []
-                            let intervalExtremaOptim = []
 
                             let intervals: intervalsCurvatureExt
                             intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
                             let intervalsOptim: intervalsCurvatureExt
                             intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
-                            let candidateEventIndex = this.indexSmallestInterval(intervals)
+                            let candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE)
                             let ratioLeft = 0.0, ratioRight = 0.0, indexMaxIntverVar = -1
                             if(intervalsOptim.sequence.length > 0) {
                                 ratioLeft = (intervalsOptim.sequence[0]/intervalsOptim.span)/(intervals.sequence[0]/intervals.span)
@@ -342,7 +344,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             if(ratioLeft > ratioRight) {
                                 indexMaxIntverVar = 0
                                 if(intervalsOptim.sequence.length > 0) {
-                                    let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Reverse)
+                                    let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Reverse)
                                     if(maxRatioR.value > ratioLeft) {
                                         indexMaxIntverVar = maxRatioR.index
                                     }
@@ -350,7 +352,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             } else {
                                 indexMaxIntverVar = intervals.sequence.length - 1
                                 if(intervalsOptim.sequence.length > 0) {
-                                    let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Forward)
+                                    let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Forward)
                                     if(maxRatioF.value > ratioRight) {
                                         indexMaxIntverVar = maxRatioF.index
                                     }
@@ -358,14 +360,25 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             }
                             
                             if(candidateEventIndex !== -1) {
-                                if(indexMaxIntverVar === candidateEventIndex) {
-                                    console.log("Events are stable as well as the candidate event.")
-                                } else if(indexMaxIntverVar !== candidateEventIndex) {
-                                    console.log("Events are stable but differ from the candidate event.")
-                                    /* set up stuff to process configurations with event located near a knot */
-                                    candidateEventIndex = indexMaxIntverVar
+                                if(inflectionIndices.length === 0) {
+                                    if(indexMaxIntverVar === candidateEventIndex) {
+                                        console.log("Events are stable as well as the candidate event.")
+                                    } else if(indexMaxIntverVar !== candidateEventIndex) {
+                                        console.log("Events are stable but differ from the candidate event.")
+                                        /* set up stuff to process configurations with event located near a knot */
+                                        candidateEventIndex = indexMaxIntverVar
+                                    }
+                                } else {
+                                    /* JCL Unless the event disappears at a knot, the only other possibility is candidateEventIndex = 0 */
+                                    if(indexMaxIntverVar !== 0 || candidateEventIndex !== 0) {
+                                        if(candidateEventIndex !== 0) {
+                                            /* JCL Another interval, smaller than intervals.sequence[0] exists, but it is more stable (possibly close to a knot?) than intervals.sequence[0]*/
+                                            candidateEventIndex = 0
+                                        }
+                                    }
                                 }
-                            }
+
+                            } else throw new Error("Unable to generate the smallest interval of differential events for this curve.")
 
                             if(inflectionIndices.length === 0) {
                                 if(candidateEventIndex === 0) {
@@ -374,14 +387,12 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 } else if (candidateEventIndex === intervals.sequence.length - 1) {
                                     result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
                                 } else {
-                                    console.log("Inconsistent identification of curvature extremum")
+                                    console.log("Inconsistent identification of curvature extremum. Possibly extremum at a knot.")
                                     result.push({event: NeighboringEventsType.none, index: candidateEventIndex})
                                 }
                             } else {
                                 if(candidateEventIndex === 0) {
                                     result.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
-                                } else if(candidateEventIndex === intervals.sequence.length - 1) {
-                                    result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
                                 } else {
                                     console.log("Inconsistent identification of curvature extremum")
                                     result.push({event: NeighboringEventsType.none, index: candidateEventIndex})
@@ -389,7 +400,18 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             }
 
                         } else if(lostEvents[0].inter === inflectionIndices.length) {
+                            let intervals: intervalsCurvatureExt
+                            intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
+                            let intervalsOptim: intervalsCurvatureExt
+                            intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
+                            let candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE)
+                            if(candidateEventIndex !== intervals.sequence.length - 1) {
+                                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent. It may disappear at a knot.")
+                            }
                             result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
+
+                        } else {
+                            console.log("Event disappearing at a knot. Needs a specific treatment.")
                         }
                     } else if(lostEvents[0].nbE === 2) {
                         let intervals: intervalsCurvatureExt
@@ -397,15 +419,18 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                         let intervalsOptim: intervalsCurvatureExt
                         intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
                         let candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE)
-                        let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Forward)
-                        let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Reverse)
+                        let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, candidateEventIndex, lostEvents[0].nbE, Direction.Forward)
+                        let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, candidateEventIndex, lostEvents[0].nbE, Direction.Reverse)
                         if(candidateEventIndex !== -1) {
                             if(intervalsOptim.sequence.length > 0) {
-                                if(maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
+                                if(maxRatioF.index ===  maxRatioR.index && maxRatioR.index === (candidateEventIndex - 1)) {
                                     console.log("Events are stable as well as the candidate events.")
-                                } else if(maxRatioF.index === maxRatioR.index && (maxRatioF.index !== (candidateEventIndex - 1))) {
-                                    console.log("Events are stable but differ from the candidate events.")
-                                    candidateEventIndex = maxRatioF.index + 1
+                                } else if(maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
+                                    console.log("The candidate events are not the ones removed.")
+                                    /* Current assumption consists in considering an adjacent interval as candidate */
+                                    if(maxRatioF.value > maxRatioR.value) {
+                                        candidateEventIndex = maxRatioF.index - 1
+                                    } else candidateEventIndex = maxRatioF.index + 1
                                 } else {
                                     console.log("Events are not stable enough.")
                                 }
@@ -445,15 +470,18 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                         let intervalsOptim: intervalsCurvatureExt
                         intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
                         let candidateEventIndex = this.indexSmallestInterval(intervalsOptim, -lostEvents[0].nbE)
-                        let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Forward)
-                        let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, Direction.Reverse)
+                        let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, candidateEventIndex, lostEvents[0].nbE, Direction.Forward)
+                        let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, candidateEventIndex, lostEvents[0].nbE, Direction.Reverse)
                         if(candidateEventIndex !== -1) {
                             if(intervals.sequence.length > 0) {
                                 if(maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
                                     console.log("Events are stable as well as the candidate events.")
-                                } else if(maxRatioF.index === maxRatioR.index && (maxRatioF.index !== (candidateEventIndex - 1))) {
-                                    console.log("Events are stable but differ from the candidate events.")
-                                    candidateEventIndex = maxRatioF.index + 1
+                                } else if(maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
+                                    console.log("The candidate events are not the ones removed.")
+                                    /* Current assumption consists in considering an adjacent interval as candidate */
+                                    if(maxRatioF.value > maxRatioR.value) {
+                                        candidateEventIndex = maxRatioF.index - 1
+                                    } else candidateEventIndex = maxRatioF.index + 1
                                 } else {
                                     console.log("Events are not stable enough.")
                                 }
