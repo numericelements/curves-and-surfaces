@@ -1006,3 +1006,133 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicate
         return result
     }
 }
+
+/* JCL 2020/11/27 derive a class to extend the shape navigation process in accordance with the feedback of the analyzer */
+interface ExtremumLocation {index: number, value: number}
+
+export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
+
+    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+        super(target, initial, activeControl)
+    }
+
+    computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
+        let localExtremum = -1
+        let localMinimum: Array<ExtremumLocation> = []
+        let localMaximum: Array<ExtremumLocation> = []
+        let globalMinimum:ExtremumLocation = {index: 0, value: 0.0}
+        let globalMaximum:ExtremumLocation = {index: 0, value: 0.0}
+        for(let i = 0; i < controlPoints.length - 2; i += 1) {
+            if(Math.sign(controlPoints[i]) === 1 && Math.sign(controlPoints[i + 1]) === 1 && Math.sign(controlPoints[i + 2]) === 1) {
+                if(controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
+                    localMinimum.push({index: (i + 1), value: controlPoints[i + 1]})
+                }
+            } else if(Math.sign(controlPoints[i]) === -1 && Math.sign(controlPoints[i + 1]) === -1 && Math.sign(controlPoints[i + 2]) === -1) {
+                if(controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
+                    localMaximum.push({index: (i + 1), value: controlPoints[i + 1]})
+                }
+            }
+        }
+        if(localMinimum.length > 0) {
+            localMinimum.sort(function(a, b) {
+                if (a.value > b.value) {
+                  return 1;
+                }
+                if (a.value < b.value) {
+                  return -1;
+                }
+                return 0;
+            })
+            globalMinimum = {index: localMinimum[0].index, value: localMinimum[0].value}
+        }
+        if(localMaximum.length > 0) {
+            localMaximum.sort(function(a, b) {
+                if (a.value > b.value) {
+                  return 1;
+                }
+                if (a.value < b.value) {
+                  return -1;
+                }
+                return 0;
+            })
+            globalMaximum = {index: localMaximum[localMaximum.length - 1].index, value: localMaximum[localMaximum.length - 1].value}
+        }
+        if(localMinimum.length > 0 && localMaximum.length > 0 && Math.abs(globalMinimum.value) > Math.abs(globalMaximum.value)) {
+            return localExtremum = globalMaximum.index
+        } else if(localMinimum.length > 0 && localMaximum.length > 0) {
+            return localExtremum = globalMinimum.index
+        } else if(localMinimum.length > 0) {
+            return localExtremum = globalMinimum.index
+        } else if(localMaximum.length > 0) {
+            return localExtremum = globalMaximum.index
+        } else return localExtremum
+    }
+
+    computeControlPointsClosestToZeroBis(signChangesIntervals: number[], controlPoints: number[]) {
+        let result: number[] = []
+        /*let extremaAroundAxis: number[] = []
+        for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                extremaAroundAxis.push(signChangesIntervals[i] + 1)
+                i += 1
+            }
+        }*/
+        for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                if(signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+            } else {
+                if((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
+            }
+        }
+        return result
+    }
+
+    computeControlPointsClosestToZeroForCubics(signChangesIntervals: number[], controlPoints: number[]) {
+        let result: number[] = []
+        for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                result.push(signChangesIntervals[i] + 1)
+                i += 1
+            }
+            else {
+                if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                    result.push(signChangesIntervals[i]);
+                } else {
+                    result.push(signChangesIntervals[i] + 1);
+                }
+            }
+        }
+        //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
+        /* JCL 2020/10/02 modification as alternative to sliding mechanism */
+        if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+            let n = Math.trunc(controlPoints.length/7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
+            for(let j = 1; j < n ; j += 1) {
+                if(controlPoints[6*j]*controlPoints[6*j + 1] < 0) {
+                    //console.log("CP: " + controlPoints)
+                    if(result.indexOf(6*j) > 0 && result.indexOf(6*j + 1) < 0) {
+                        result.push(6*j + 1);
+                    } else if(result.indexOf(6*j) < 0 && result.indexOf(6*j + 1) > 0) {
+                        result.push(6*j);
+                    }
+                }
+            }
+            result.sort();
+        }
+        
+        return result
+    }
+
+    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+        let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
+        let controlPointsClosestToZero = this.computeControlPointsClosestToZeroBis(signChangesIntervals, controlPoints)
+        let globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints)
+        if(globalExtremumOffAxis !== -1) {
+            controlPointsClosestToZero.push(globalExtremumOffAxis)
+            controlPointsClosestToZero.sort()
+        }
+        //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis + " closest zero " + controlPointsClosestToZero)
+        let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
+        return result
+    }
+}

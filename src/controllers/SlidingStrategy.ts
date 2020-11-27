@@ -1,5 +1,5 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, ActiveControl } from "../mathematics/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 import { Vector_2d } from "../mathematics/Vector_2d";
@@ -53,7 +53,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         }
 
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
@@ -72,7 +73,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
     resetCurve(curveModel: CurveModel) {
         this.curveModel = curveModel
-        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
@@ -80,7 +82,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     toggleControlOfCurvatureExtrema(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
@@ -88,12 +91,14 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             this.activeOptimizer = false
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.inflections ){
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
@@ -105,7 +110,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     toggleControlOfInflections(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)*/
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
@@ -113,12 +119,14 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             this.activeOptimizer = false
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
@@ -237,7 +245,11 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         if(scan === Direction.Forward) {
             let upperBound = candidateEvent
             if(candidateEvent === 1) {
-                maxRatio.value = 1.0/(intervalsExtrema.sequence[0]/intervalsExtrema.span)
+                if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                    maxRatio.value = 1.0/(intervalsExtrema.sequence[0]/intervalsExtrema.span)
+                } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
+                    maxRatio.value = 1.0/(intervalsExtremaOptim.sequence[0]/intervalsExtrema.span)
+                }
                 maxRatio.index = 0
             }
             for(let k = 0; k < upperBound; k += 1) {
@@ -267,7 +279,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             if(candidateEvent === 1) {
                 if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
                     maxRatio.value = 1.0/(intervalsExtrema.sequence[intervalsExtrema.sequence.length - 1]/intervalsExtrema.span)
-                } else {
+                } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
                     maxRatio.value = 1.0/(intervalsExtremaOptim.sequence[intervalsExtremaOptim.sequence.length - 1]/intervalsExtremaOptim.span)
                 }
                 maxRatio.index = upperBound
@@ -692,7 +704,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone())
             }
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            if(sequenceDiffEventsOptim.length > 0 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
+            if(sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length
+                && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 const controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints
                 const knotVector = this.optimizationProblem.spline.clone().knots
                 let spline = new BSpline_R1_to_R2(controlPointsReloc, knotVector)

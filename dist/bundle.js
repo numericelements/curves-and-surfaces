@@ -39043,7 +39043,8 @@ var SlidingStrategy = /** @class */ (function () {
             this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.none;
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
+        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     }
@@ -39059,14 +39060,16 @@ var SlidingStrategy = /** @class */ (function () {
     };
     SlidingStrategy.prototype.resetCurve = function (curveModel) {
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     };
     SlidingStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
@@ -39074,12 +39077,14 @@ var SlidingStrategy = /** @class */ (function () {
             this.activeOptimizer = false;
         }
         else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
         else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
@@ -39090,7 +39095,8 @@ var SlidingStrategy = /** @class */ (function () {
     SlidingStrategy.prototype.toggleControlOfInflections = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)*/
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
@@ -39098,12 +39104,14 @@ var SlidingStrategy = /** @class */ (function () {
             this.activeOptimizer = false;
         }
         else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
         else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
+            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
@@ -39217,7 +39225,12 @@ var SlidingStrategy = /** @class */ (function () {
         if (scan === Direction.Forward) {
             var upperBound = candidateEvent;
             if (candidateEvent === 1) {
-                maxRatio.value = 1.0 / (intervalsExtrema.sequence[0] / intervalsExtrema.span);
+                if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                    maxRatio.value = 1.0 / (intervalsExtrema.sequence[0] / intervalsExtrema.span);
+                }
+                else if (intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
+                    maxRatio.value = 1.0 / (intervalsExtremaOptim.sequence[0] / intervalsExtrema.span);
+                }
                 maxRatio.index = 0;
             }
             for (var k = 0; k < upperBound; k += 1) {
@@ -39251,7 +39264,7 @@ var SlidingStrategy = /** @class */ (function () {
                 if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
                     maxRatio.value = 1.0 / (intervalsExtrema.sequence[intervalsExtrema.sequence.length - 1] / intervalsExtrema.span);
                 }
-                else {
+                else if (intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
                     maxRatio.value = 1.0 / (intervalsExtremaOptim.sequence[intervalsExtremaOptim.sequence.length - 1] / intervalsExtremaOptim.span);
                 }
                 maxRatio.index = upperBound;
@@ -39719,7 +39732,8 @@ var SlidingStrategy = /** @class */ (function () {
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
             }
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            if (sequenceDiffEventsOptim.length > 0 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
+            if (sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length
+                && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 var controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints;
                 var knotVector = this.optimizationProblem.spline.clone().knots;
                 var spline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPointsReloc, knotVector);
@@ -42423,7 +42437,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = exports.OptimizationProblem_BSpline_R1_to_R2 = exports.ActiveControl = void 0;
+exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = exports.OptimizationProblem_BSpline_R1_to_R2 = exports.ActiveControl = void 0;
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
@@ -43282,6 +43296,143 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics 
     return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics;
 }(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors));
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics;
+var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = /** @class */ (function (_super) {
+    __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, _super);
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(target, initial, activeControl) {
+        if (activeControl === void 0) { activeControl = ActiveControl.both; }
+        var _this = _super.call(this, target, initial, activeControl) || this;
+        _this.activeControl = activeControl;
+        return _this;
+    }
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeGlobalExtremmumOffAxis = function (controlPoints) {
+        var localExtremum = -1;
+        var localMinimum = [];
+        var localMaximum = [];
+        var globalMinimum = { index: 0, value: 0.0 };
+        var globalMaximum = { index: 0, value: 0.0 };
+        for (var i = 0; i < controlPoints.length - 2; i += 1) {
+            if (Math.sign(controlPoints[i]) === 1 && Math.sign(controlPoints[i + 1]) === 1 && Math.sign(controlPoints[i + 2]) === 1) {
+                if (controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
+                    localMinimum.push({ index: (i + 1), value: controlPoints[i + 1] });
+                }
+            }
+            else if (Math.sign(controlPoints[i]) === -1 && Math.sign(controlPoints[i + 1]) === -1 && Math.sign(controlPoints[i + 2]) === -1) {
+                if (controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
+                    localMaximum.push({ index: (i + 1), value: controlPoints[i + 1] });
+                }
+            }
+        }
+        if (localMinimum.length > 0) {
+            localMinimum.sort(function (a, b) {
+                if (a.value > b.value) {
+                    return 1;
+                }
+                if (a.value < b.value) {
+                    return -1;
+                }
+                return 0;
+            });
+            globalMinimum = { index: localMinimum[0].index, value: localMinimum[0].value };
+        }
+        if (localMaximum.length > 0) {
+            localMaximum.sort(function (a, b) {
+                if (a.value > b.value) {
+                    return 1;
+                }
+                if (a.value < b.value) {
+                    return -1;
+                }
+                return 0;
+            });
+            globalMaximum = { index: localMaximum[localMaximum.length - 1].index, value: localMaximum[localMaximum.length - 1].value };
+        }
+        if (localMinimum.length > 0 && localMaximum.length > 0 && Math.abs(globalMinimum.value) > Math.abs(globalMaximum.value)) {
+            return localExtremum = globalMaximum.index;
+        }
+        else if (localMinimum.length > 0 && localMaximum.length > 0) {
+            return localExtremum = globalMinimum.index;
+        }
+        else if (localMinimum.length > 0) {
+            return localExtremum = globalMinimum.index;
+        }
+        else if (localMaximum.length > 0) {
+            return localExtremum = globalMaximum.index;
+        }
+        else
+            return localExtremum;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeControlPointsClosestToZeroBis = function (signChangesIntervals, controlPoints) {
+        var result = [];
+        /*let extremaAroundAxis: number[] = []
+        for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                extremaAroundAxis.push(signChangesIntervals[i] + 1)
+                i += 1
+            }
+        }*/
+        for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                if (signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1)
+                    result.push(signChangesIntervals[i]);
+            }
+            else {
+                if ((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)
+                    result.push(signChangesIntervals[i] + 1);
+            }
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeControlPointsClosestToZeroForCubics = function (signChangesIntervals, controlPoints) {
+        var result = [];
+        for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1 && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                result.push(signChangesIntervals[i] + 1);
+                i += 1;
+            }
+            else {
+                if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                    result.push(signChangesIntervals[i]);
+                }
+                else {
+                    result.push(signChangesIntervals[i] + 1);
+                }
+            }
+        }
+        //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
+        /* JCL 2020/10/02 modification as alternative to sliding mechanism */
+        if (this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1) * 7) {
+            var n = Math.trunc(controlPoints.length / 7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length);
+            for (var j = 1; j < n; j += 1) {
+                if (controlPoints[6 * j] * controlPoints[6 * j + 1] < 0) {
+                    //console.log("CP: " + controlPoints)
+                    if (result.indexOf(6 * j) > 0 && result.indexOf(6 * j + 1) < 0) {
+                        result.push(6 * j + 1);
+                    }
+                    else if (result.indexOf(6 * j) < 0 && result.indexOf(6 * j + 1) > 0) {
+                        result.push(6 * j);
+                    }
+                }
+            }
+            result.sort();
+        }
+        return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeInactiveConstraints = function (constraintsSign, controlPoints) {
+        var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
+        var controlPointsClosestToZero = this.computeControlPointsClosestToZeroBis(signChangesIntervals, controlPoints);
+        var globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints);
+        if (globalExtremumOffAxis !== -1) {
+            controlPointsClosestToZero.push(globalExtremumOffAxis);
+            controlPointsClosestToZero.sort();
+        }
+        //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis + " closest zero " + controlPointsClosestToZero)
+        var result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
+        return result;
+    };
+    return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
+}(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors));
+exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
 
 
 /***/ }),
