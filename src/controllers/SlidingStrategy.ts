@@ -270,10 +270,13 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
         } else if(scan === Direction.Reverse) {
             let upperBound = 0
-            let lowerBound = candidateEvent - nbEvents
+            //let lowerBound = candidateEvent - nbEvents
+            let lowerBound = 0
             if(intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                lowerBound = candidateEvent - nbEvents
                 upperBound = intervalsExtremaOptim.sequence.length - 1
             } else if(intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length){
+                lowerBound = candidateEvent + nbEvents
                 upperBound = intervalsExtrema.sequence.length - 1
             }
             if(candidateEvent === 1) {
@@ -349,26 +352,21 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             if(intervalsOptim.sequence.length > 0) {
                                 ratioLeft = (intervalsOptim.sequence[0]/intervalsOptim.span)/(intervals.sequence[0]/intervals.span)
                                 ratioRight = (intervalsOptim.sequence[intervalsOptim.sequence.length - 1]/intervalsOptim.span)/(intervals.sequence[intervals.sequence.length - 1]/intervals.span)
-                            } else {
-                                ratioLeft = 1.0/(intervals.sequence[0]/intervals.span)
-                                ratioRight = 1.0/(intervals.sequence[intervals.sequence.length - 1]/intervals.span)
-                            }
-                            if(ratioLeft > ratioRight) {
-                                indexMaxIntverVar = 0
-                                if(intervalsOptim.sequence.length > 0) {
+                                if(ratioLeft > ratioRight) {
+                                    indexMaxIntverVar = 0
                                     let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Reverse)
                                     if(maxRatioR.value > ratioLeft) {
                                         indexMaxIntverVar = maxRatioR.index
                                     }
-                                }
-                            } else {
-                                indexMaxIntverVar = intervals.sequence.length - 1
-                                if(intervalsOptim.sequence.length > 0) {
+                                } else {
+                                    indexMaxIntverVar = intervals.sequence.length - 1
                                     let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Forward)
                                     if(maxRatioF.value > ratioRight) {
                                         indexMaxIntverVar = maxRatioF.index
                                     }
                                 }
+                            } else {
+                                indexMaxIntverVar = 0
                             }
                             
                             if(candidateEventIndex !== -1) {
@@ -377,17 +375,11 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                         console.log("Events are stable as well as the candidate event.")
                                     } else if(indexMaxIntverVar !== candidateEventIndex) {
                                         console.log("Events are stable but differ from the candidate event.")
-                                        /* set up stuff to process configurations with event located near a knot */
                                         candidateEventIndex = indexMaxIntverVar
                                     }
                                 } else {
-                                    /* JCL Unless the event disappears at a knot, the only other possibility is candidateEventIndex = 0 */
-                                    if(indexMaxIntverVar !== 0 || candidateEventIndex !== 0) {
-                                        if(candidateEventIndex !== 0) {
-                                            /* JCL Another interval, smaller than intervals.sequence[0] exists, but it is more stable (possibly close to a knot?) than intervals.sequence[0]*/
-                                            candidateEventIndex = 0
-                                        }
-                                    }
+                                    /* JCL The only other possibility is candidateEventIndex = 0 */
+                                    candidateEventIndex = 0
                                 }
 
                             } else throw new Error("Unable to generate the smallest interval of differential events for this curve.")
@@ -418,13 +410,12 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
                             let candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE)
                             if(candidateEventIndex !== intervals.sequence.length - 1) {
-                                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent. It may disappear at a knot.")
+                                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.")
                             }
                             result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
 
-                        } else {
-                            console.log("Event disappearing at a knot. Needs a specific treatment.")
-                        }
+                        } else throw new Error("Inconsistent content of events in this interval.")
+
                     } else if(lostEvents[0].nbE === 2) {
                         let intervals: intervalsCurvatureExt
                         intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
@@ -460,18 +451,25 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                         }
 
                         if(inflectionIndices.length === 0 || lostEvents[0].inter === 0) {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1})
                             /* JCL To avoid use of incorrect indices */
                             if(candidateEventIndex === orderedDifferentialEvents.length) {
                                 result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 2})
                                 console.log("Probably incorrect identification of events indices.")
+                            } else if(candidateEventIndex === -1) {
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: 0})
+                                console.log("Probably incorrect identification of events indices close to curve origin.")
+                            } else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1})
                             }
                         } else if(lostEvents[0].inter === inflectionIndices.length) {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex})
                             /* JCL To avoid use of incorrect indices */
                             if(inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex === orderedDifferentialEvents.length - 1) {
                                 result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex - 1})
                                 console.log("Probably incorrect identification of events indices.")
+                            } else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex})
                             }
                         } else {
                             result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[lostEvents[0].inter - 1] + candidateEventIndex})
@@ -489,7 +487,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 if(maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
                                     console.log("Events are stable as well as the candidate events.")
                                 } else if(maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
-                                    console.log("The candidate events are not the ones removed.")
+                                    console.log("The candidate events are not the ones added.")
                                     /* Current assumption consists in considering an adjacent interval as candidate */
                                     if(maxRatioF.value > maxRatioR.value) {
                                         candidateEventIndex = maxRatioF.index - 1
@@ -510,30 +508,38 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             } else candidateEventIndex = 0
                         }
 
-                        if(inflectionIndices.length === 0) {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1})
+                        if(inflectionIndices.length === 0 || lostEvents[0].inter === 0) {
                             /* JCL To avoid use of incorrect indices */
                             if(candidateEventIndex === orderedDifferentialEventsOptim.length) {
                                 result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 2})
-                                console.log("Probably incorrect identification of events indices.")
+                                console.log("Probably incorrect identification of events indices close to curve extremity.")
+                            } else if(candidateEventIndex === -1) {
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: 0})
+                                console.log("Probably incorrect identification of events indices close to curve origin.")
+                            } else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1})
                             }
                         } else if(lostEvents[0].inter === inflectionIndicesOptim.length) {
-                            result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex})
                             /* JCL To avoid use of incorrect indices */
                             if(inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex === orderedDifferentialEventsOptim.length - 1) {
                                 result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex - 1})
                                 console.log("Probably incorrect identification of events indices.")
+                            } else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex})
                             }
                         } else {
                             result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[lostEvents[0].inter - 1] + candidateEventIndex})
                         }
-
+                    } else if (lostEvents[0].nbE === -1) {
+                        console.log("About to add an event in the interval " + lostEvents[0].inter)
                     } else {
-                        throw new Error("Inconsistent content of the intervals of lost curvature extrema or more than one reference event occured.")
+                        throw new Error("Inconsistent content of the intervals of lost events or more than one elementary event into a single interval between inflections.")
                     }
                 }
                 else if(lostEvents.length === 2) {
-                    console.log("Number of reference events lost greater than one in distinct inflection intervals")
+                    console.log("Number of reference events lost greater than one in distinct inflection intervals.")
                 }
             } else if(inflectionIndices.length - inflectionIndicesOptim.length === 1) {
                 /* JCL One inflection has been lost -> case of inflection gone outside the curve through one extremity */
@@ -557,7 +563,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                     throw new Error("Inconsistent content of the sequence of events to identify the loss of an inflection at a curve extremity.")
                 }
             } else if(orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length === 2 && inflectionIndices.length - inflectionIndicesOptim.length === 2) {
-                /* JCL Two inflections meet at one curvature extrema and these two are lost -> case of oscillation removal */
+                /* JCL Two inflections meet at one curvature extremum and these two are lost -> case of oscillation removal */
                 /* JCL Locate candidate reference events */
                 let refEventLocation: Array<number> = []
                 for(let i = 0; i < orderedDifferentialEvents.length - 2; i += 1) {
@@ -612,6 +618,63 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                     if(refEventLocation.length - refEventLocationOptim.length === 2 && result.length === 0)
                     result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[refEventLocation.length - 1]})
                 }
+            } else if(orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length === -2 && inflectionIndices.length - inflectionIndicesOptim.length === -2) {
+                /* JCL Two inflections are about to appear at one curvature extremum -> case of oscillation creation */
+                /* JCL Locate candidate reference events */
+                let refEventLocation: Array<number> = []
+                for(let i = 0; i < orderedDifferentialEvents.length - 2; i += 1) {
+                    if(orderedDifferentialEvents[i].event === DiffEventType.inflection &&
+                        orderedDifferentialEvents[i + 1].event === DiffEventType.curvatExtremum &&
+                        orderedDifferentialEvents[i + 2].event === DiffEventType.inflection) {
+                            refEventLocation.push(i)
+                    }
+                }
+                let refEventLocationOptim: Array<number> = []
+                for(let i = 0; i < orderedDifferentialEventsOptim.length - 2; i += 1) {
+                    if(orderedDifferentialEventsOptim[i].event === DiffEventType.inflection &&
+                        orderedDifferentialEventsOptim[i + 1].event === DiffEventType.curvatExtremum &&
+                        orderedDifferentialEventsOptim[i + 2].event === DiffEventType.inflection) {
+                            refEventLocationOptim.push(i)
+                    }
+                }
+                if(inflectionIndicesOptim.length - 2 !== inflectionIndices.length &&
+                    ((refEventLocationOptim.length - 1 !== refEventLocation.length && refEventLocationOptim.length === 1) ||
+                    (refEventLocationOptim.length - 2 !== refEventLocation.length && refEventLocationOptim.length > 1) ||
+                    (refEventLocationOptim.length - 3 !== refEventLocation.length && refEventLocationOptim.length > 2) )) {
+                    throw new Error("Inconsistency of reference type event that does not coincide with oscillation removal.")
+                } else {
+                    let intervalEvent: Array<number> = []
+                    let intervalEventOptim: Array<number> = []
+                    if(refEventLocationOptim[0] !== 0) intervalEventOptim.push(refEventLocationOptim[0] + 1)
+                    for(let j = 0; j < refEventLocationOptim.length - 1; j += 1) {
+                        intervalEventOptim.push(refEventLocationOptim[j + 1] - refEventLocationOptim[j])
+                    }
+
+                    if(refEventLocation.length > 0) {
+                        if(refEventLocation[0] !== 0) intervalEvent.push(refEventLocation[0] + 1)
+                        for(let j = 0; j < refEventLocation.length - 1; j += 1) {
+                            intervalEvent.push(refEventLocation[j + 1] - refEventLocation[j])
+                        }
+                    } else {
+                        if(refEventLocationOptim.length === 1) result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[0]})
+                        if(refEventLocationOptim.length === 2) {
+                            if(orderedDifferentialEvents[refEventLocationOptim[0]].event === DiffEventType.inflection) result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[1]})
+                            else result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[0]})
+                        }
+                        if(refEventLocationOptim.length === 3) {
+                            if(orderedDifferentialEvents[refEventLocationOptim[0]].event === DiffEventType.inflection && orderedDifferentialEvents[refEventLocationOptim[1]].event !== DiffEventType.inflection) 
+                                result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[1]})
+                        }
+                    }
+
+                    for(let k = 0; k < intervalEvent.length; k += 1) {
+                        if(intervalEvent[k] !== intervalEventOptim[k]) {
+                            result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[k]})
+                        }
+                    }
+                    if(refEventLocation.length - refEventLocationOptim.length === -2 && result.length === 0)
+                    result.push({event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[refEventLocationOptim.length - 1]})
+                }
             } else {
                 throw new Error("Changes in the differential events sequence don't match single elementary transformations.")
             }
@@ -634,7 +697,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         const curvatureExtremaLocations = splineDP.curvatureDerivativeNumerator().zeros()
         const inflectionLocations = splineDP.curvatureNumerator().zeros()
         let sequenceDiffEventsInit: Array<DifferentialEvent> = this.generateSequenceDifferentialEvents(curvatureExtremaLocations, inflectionLocations)
-        console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
+        //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
 
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
@@ -656,7 +719,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             let curvatureExtremaLocationsOptim = splineDPoptim.curvatureDerivativeNumerator().zeros()
             let inflectionLocationsOptim = splineDPoptim.curvatureNumerator().zeros()
             let sequenceDiffEventsOptim: Array<DifferentialEvent> = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim)
-            console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
+            //console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
             let neighboringEvents: Array<NeighboringEvents> = []
             if(this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim)
@@ -676,7 +739,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                     }
                 } else {
                     console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController.controlOfCurvatureExtrema + " inflection " + this.curveSceneController.controlOfInflection)
-                    console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls")
+                    //console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls")
                 }
             }
 
@@ -704,7 +767,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone())
             }
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            if(sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length
+            if(sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length
                 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 const controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints
                 const knotVector = this.optimizationProblem.spline.clone().knots

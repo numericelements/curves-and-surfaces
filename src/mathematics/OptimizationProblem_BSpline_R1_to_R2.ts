@@ -255,7 +255,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
                     }
                 }
             }
-            result.sort();
+            result.sort(function(a, b) { return (a - b) });
         }*/
         
         return result
@@ -993,7 +993,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicate
                     }
                 }
             }
-            result.sort();
+            result.sort(function(a, b) { return (a - b) });
         }
         
         return result
@@ -1023,11 +1023,11 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         let globalMinimum:ExtremumLocation = {index: 0, value: 0.0}
         let globalMaximum:ExtremumLocation = {index: 0, value: 0.0}
         for(let i = 0; i < controlPoints.length - 2; i += 1) {
-            if(Math.sign(controlPoints[i]) === 1 && Math.sign(controlPoints[i + 1]) === 1 && Math.sign(controlPoints[i + 2]) === 1) {
+            if(sign(controlPoints[i]) === 1 && sign(controlPoints[i + 1]) === 1 && sign(controlPoints[i + 2]) === 1) {
                 if(controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
                     localMinimum.push({index: (i + 1), value: controlPoints[i + 1]})
                 }
-            } else if(Math.sign(controlPoints[i]) === -1 && Math.sign(controlPoints[i + 1]) === -1 && Math.sign(controlPoints[i + 2]) === -1) {
+            } else if(sign(controlPoints[i]) === -1 && sign(controlPoints[i + 1]) === -1 && sign(controlPoints[i + 2]) === -1) {
                 if(controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
                     localMaximum.push({index: (i + 1), value: controlPoints[i + 1]})
                 }
@@ -1079,9 +1079,15 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }*/
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
-                if(signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+                //if(signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                /* JCL general setting where events can slip out of the curve */
+                if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
             } else {
-                if((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
+                /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                //if((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
+                /* JCL general setting where events can slip out of the curve */
+                if(result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
             }
         }
         return result
@@ -1117,7 +1123,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                     }
                 }
             }
-            result.sort();
+            result.sort(function(a, b) { return (a - b) });
         }
         
         return result
@@ -1129,9 +1135,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         let globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints)
         if(globalExtremumOffAxis !== -1) {
             controlPointsClosestToZero.push(globalExtremumOffAxis)
-            controlPointsClosestToZero.sort()
+            controlPointsClosestToZero.sort(function(a, b) { return (a - b) })
         }
-        //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis + " closest zero " + controlPointsClosestToZero)
+        //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis)
         let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
         return result
     }

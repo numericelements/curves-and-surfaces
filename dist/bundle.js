@@ -39253,11 +39253,14 @@ var SlidingStrategy = /** @class */ (function () {
         }
         else if (scan === Direction.Reverse) {
             var upperBound = 0;
-            var lowerBound = candidateEvent - nbEvents;
+            //let lowerBound = candidateEvent - nbEvents
+            var lowerBound = 0;
             if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
+                lowerBound = candidateEvent - nbEvents;
                 upperBound = intervalsExtremaOptim.sequence.length - 1;
             }
             else if (intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
+                lowerBound = candidateEvent + nbEvents;
                 upperBound = intervalsExtrema.sequence.length - 1;
             }
             if (candidateEvent === 1) {
@@ -39336,28 +39339,23 @@ var SlidingStrategy = /** @class */ (function () {
                             if (intervalsOptim.sequence.length > 0) {
                                 ratioLeft = (intervalsOptim.sequence[0] / intervalsOptim.span) / (intervals.sequence[0] / intervals.span);
                                 ratioRight = (intervalsOptim.sequence[intervalsOptim.sequence.length - 1] / intervalsOptim.span) / (intervals.sequence[intervals.sequence.length - 1] / intervals.span);
-                            }
-                            else {
-                                ratioLeft = 1.0 / (intervals.sequence[0] / intervals.span);
-                                ratioRight = 1.0 / (intervals.sequence[intervals.sequence.length - 1] / intervals.span);
-                            }
-                            if (ratioLeft > ratioRight) {
-                                indexMaxIntverVar = 0;
-                                if (intervalsOptim.sequence.length > 0) {
+                                if (ratioLeft > ratioRight) {
+                                    indexMaxIntverVar = 0;
                                     var maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Reverse);
                                     if (maxRatioR.value > ratioLeft) {
                                         indexMaxIntverVar = maxRatioR.index;
                                     }
                                 }
-                            }
-                            else {
-                                indexMaxIntverVar = intervals.sequence.length - 1;
-                                if (intervalsOptim.sequence.length > 0) {
+                                else {
+                                    indexMaxIntverVar = intervals.sequence.length - 1;
                                     var maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Forward);
                                     if (maxRatioF.value > ratioRight) {
                                         indexMaxIntverVar = maxRatioF.index;
                                     }
                                 }
+                            }
+                            else {
+                                indexMaxIntverVar = 0;
                             }
                             if (candidateEventIndex !== -1) {
                                 if (inflectionIndices.length === 0) {
@@ -39366,18 +39364,12 @@ var SlidingStrategy = /** @class */ (function () {
                                     }
                                     else if (indexMaxIntverVar !== candidateEventIndex) {
                                         console.log("Events are stable but differ from the candidate event.");
-                                        /* set up stuff to process configurations with event located near a knot */
                                         candidateEventIndex = indexMaxIntverVar;
                                     }
                                 }
                                 else {
-                                    /* JCL Unless the event disappears at a knot, the only other possibility is candidateEventIndex = 0 */
-                                    if (indexMaxIntverVar !== 0 || candidateEventIndex !== 0) {
-                                        if (candidateEventIndex !== 0) {
-                                            /* JCL Another interval, smaller than intervals.sequence[0] exists, but it is more stable (possibly close to a knot?) than intervals.sequence[0]*/
-                                            candidateEventIndex = 0;
-                                        }
-                                    }
+                                    /* JCL The only other possibility is candidateEventIndex = 0 */
+                                    candidateEventIndex = 0;
                                 }
                             }
                             else
@@ -39412,13 +39404,12 @@ var SlidingStrategy = /** @class */ (function () {
                             intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents);
                             var candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE);
                             if (candidateEventIndex !== intervals.sequence.length - 1) {
-                                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent. It may disappear at a knot.");
+                                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.");
                             }
                             result.push({ event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1 });
                         }
-                        else {
-                            console.log("Event disappearing at a knot. Needs a specific treatment.");
-                        }
+                        else
+                            throw new Error("Inconsistent content of events in this interval.");
                     }
                     else if (lostEvents[0].nbE === 2) {
                         var intervals = void 0;
@@ -39463,19 +39454,29 @@ var SlidingStrategy = /** @class */ (function () {
                                 candidateEventIndex = 0;
                         }
                         if (inflectionIndices.length === 0 || lostEvents[0].inter === 0) {
-                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1 });
                             /* JCL To avoid use of incorrect indices */
                             if (candidateEventIndex === orderedDifferentialEvents.length) {
                                 result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 2 });
                                 console.log("Probably incorrect identification of events indices.");
                             }
+                            else if (candidateEventIndex === -1) {
+                                result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: 0 });
+                                console.log("Probably incorrect identification of events indices close to curve origin.");
+                            }
+                            else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1 });
+                            }
                         }
                         else if (lostEvents[0].inter === inflectionIndices.length) {
-                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex });
                             /* JCL To avoid use of incorrect indices */
                             if (inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex === orderedDifferentialEvents.length - 1) {
                                 result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex - 1 });
                                 console.log("Probably incorrect identification of events indices.");
+                            }
+                            else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndices[inflectionIndices.length - 1] + candidateEventIndex });
                             }
                         }
                         else {
@@ -39496,7 +39497,7 @@ var SlidingStrategy = /** @class */ (function () {
                                     console.log("Events are stable as well as the candidate events.");
                                 }
                                 else if (maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
-                                    console.log("The candidate events are not the ones removed.");
+                                    console.log("The candidate events are not the ones added.");
                                     /* Current assumption consists in considering an adjacent interval as candidate */
                                     if (maxRatioF.value > maxRatioR.value) {
                                         candidateEventIndex = maxRatioF.index - 1;
@@ -39524,32 +39525,45 @@ var SlidingStrategy = /** @class */ (function () {
                             else
                                 candidateEventIndex = 0;
                         }
-                        if (inflectionIndices.length === 0) {
-                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1 });
+                        if (inflectionIndices.length === 0 || lostEvents[0].inter === 0) {
                             /* JCL To avoid use of incorrect indices */
                             if (candidateEventIndex === orderedDifferentialEventsOptim.length) {
                                 result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 2 });
-                                console.log("Probably incorrect identification of events indices.");
+                                console.log("Probably incorrect identification of events indices close to curve extremity.");
+                            }
+                            else if (candidateEventIndex === -1) {
+                                result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: 0 });
+                                console.log("Probably incorrect identification of events indices close to curve origin.");
+                            }
+                            else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: candidateEventIndex - 1 });
                             }
                         }
                         else if (lostEvents[0].inter === inflectionIndicesOptim.length) {
-                            result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex });
                             /* JCL To avoid use of incorrect indices */
                             if (inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex === orderedDifferentialEventsOptim.length - 1) {
                                 result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex - 1 });
                                 console.log("Probably incorrect identification of events indices.");
+                            }
+                            else {
+                                /* JCL Set the effectively computed event index*/
+                                result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[inflectionIndicesOptim.length - 1] + candidateEventIndex });
                             }
                         }
                         else {
                             result.push({ event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[lostEvents[0].inter - 1] + candidateEventIndex });
                         }
                     }
+                    else if (lostEvents[0].nbE === -1) {
+                        console.log("About to add an event in the interval " + lostEvents[0].inter);
+                    }
                     else {
-                        throw new Error("Inconsistent content of the intervals of lost curvature extrema or more than one reference event occured.");
+                        throw new Error("Inconsistent content of the intervals of lost events or more than one elementary event into a single interval between inflections.");
                     }
                 }
                 else if (lostEvents.length === 2) {
-                    console.log("Number of reference events lost greater than one in distinct inflection intervals");
+                    console.log("Number of reference events lost greater than one in distinct inflection intervals.");
                 }
             }
             else if (inflectionIndices.length - inflectionIndicesOptim.length === 1) {
@@ -39579,7 +39593,7 @@ var SlidingStrategy = /** @class */ (function () {
                 }
             }
             else if (orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length === 2 && inflectionIndices.length - inflectionIndicesOptim.length === 2) {
-                /* JCL Two inflections meet at one curvature extrema and these two are lost -> case of oscillation removal */
+                /* JCL Two inflections meet at one curvature extremum and these two are lost -> case of oscillation removal */
                 /* JCL Locate candidate reference events */
                 var refEventLocation = [];
                 for (var i = 0; i < orderedDifferentialEvents.length - 2; i += 1) {
@@ -39641,6 +39655,69 @@ var SlidingStrategy = /** @class */ (function () {
                         result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[refEventLocation.length - 1] });
                 }
             }
+            else if (orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length === -2 && inflectionIndices.length - inflectionIndicesOptim.length === -2) {
+                /* JCL Two inflections are about to appear at one curvature extremum -> case of oscillation creation */
+                /* JCL Locate candidate reference events */
+                var refEventLocation = [];
+                for (var i = 0; i < orderedDifferentialEvents.length - 2; i += 1) {
+                    if (orderedDifferentialEvents[i].event === DiffEventType.inflection &&
+                        orderedDifferentialEvents[i + 1].event === DiffEventType.curvatExtremum &&
+                        orderedDifferentialEvents[i + 2].event === DiffEventType.inflection) {
+                        refEventLocation.push(i);
+                    }
+                }
+                var refEventLocationOptim = [];
+                for (var i = 0; i < orderedDifferentialEventsOptim.length - 2; i += 1) {
+                    if (orderedDifferentialEventsOptim[i].event === DiffEventType.inflection &&
+                        orderedDifferentialEventsOptim[i + 1].event === DiffEventType.curvatExtremum &&
+                        orderedDifferentialEventsOptim[i + 2].event === DiffEventType.inflection) {
+                        refEventLocationOptim.push(i);
+                    }
+                }
+                if (inflectionIndicesOptim.length - 2 !== inflectionIndices.length &&
+                    ((refEventLocationOptim.length - 1 !== refEventLocation.length && refEventLocationOptim.length === 1) ||
+                        (refEventLocationOptim.length - 2 !== refEventLocation.length && refEventLocationOptim.length > 1) ||
+                        (refEventLocationOptim.length - 3 !== refEventLocation.length && refEventLocationOptim.length > 2))) {
+                    throw new Error("Inconsistency of reference type event that does not coincide with oscillation removal.");
+                }
+                else {
+                    var intervalEvent = [];
+                    var intervalEventOptim = [];
+                    if (refEventLocationOptim[0] !== 0)
+                        intervalEventOptim.push(refEventLocationOptim[0] + 1);
+                    for (var j = 0; j < refEventLocationOptim.length - 1; j += 1) {
+                        intervalEventOptim.push(refEventLocationOptim[j + 1] - refEventLocationOptim[j]);
+                    }
+                    if (refEventLocation.length > 0) {
+                        if (refEventLocation[0] !== 0)
+                            intervalEvent.push(refEventLocation[0] + 1);
+                        for (var j = 0; j < refEventLocation.length - 1; j += 1) {
+                            intervalEvent.push(refEventLocation[j + 1] - refEventLocation[j]);
+                        }
+                    }
+                    else {
+                        if (refEventLocationOptim.length === 1)
+                            result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[0] });
+                        if (refEventLocationOptim.length === 2) {
+                            if (orderedDifferentialEvents[refEventLocationOptim[0]].event === DiffEventType.inflection)
+                                result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[1] });
+                            else
+                                result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[0] });
+                        }
+                        if (refEventLocationOptim.length === 3) {
+                            if (orderedDifferentialEvents[refEventLocationOptim[0]].event === DiffEventType.inflection && orderedDifferentialEvents[refEventLocationOptim[1]].event !== DiffEventType.inflection)
+                                result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[1] });
+                        }
+                    }
+                    for (var k = 0; k < intervalEvent.length; k += 1) {
+                        if (intervalEvent[k] !== intervalEventOptim[k]) {
+                            result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[k] });
+                        }
+                    }
+                    if (refEventLocation.length - refEventLocationOptim.length === -2 && result.length === 0)
+                        result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[refEventLocationOptim.length - 1] });
+                }
+            }
             else {
                 throw new Error("Changes in the differential events sequence don't match single elementary transformations.");
             }
@@ -39659,7 +39736,7 @@ var SlidingStrategy = /** @class */ (function () {
         var curvatureExtremaLocations = splineDP.curvatureDerivativeNumerator().zeros();
         var inflectionLocations = splineDP.curvatureNumerator().zeros();
         var sequenceDiffEventsInit = this.generateSequenceDifferentialEvents(curvatureExtremaLocations, inflectionLocations);
-        console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)));
+        //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
@@ -39678,7 +39755,7 @@ var SlidingStrategy = /** @class */ (function () {
             var curvatureExtremaLocationsOptim = splineDPoptim.curvatureDerivativeNumerator().zeros();
             var inflectionLocationsOptim = splineDPoptim.curvatureNumerator().zeros();
             var sequenceDiffEventsOptim = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim);
-            console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)));
+            //console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
             var neighboringEvents = [];
             if (this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim);
@@ -39701,7 +39778,7 @@ var SlidingStrategy = /** @class */ (function () {
                 }
                 else {
                     console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController.controlOfCurvatureExtrema + " inflection " + this.curveSceneController.controlOfInflection);
-                    console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls");
+                    //console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls")
                 }
             }
             if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
@@ -39732,7 +39809,7 @@ var SlidingStrategy = /** @class */ (function () {
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
             }
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            if (sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length
+            if (sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length
                 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 var controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints;
                 var knotVector = this.optimizationProblem.spline.clone().knots;
@@ -42679,7 +42756,7 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
                     }
                 }
             }
-            result.sort();
+            result.sort(function(a, b) { return (a - b) });
         }*/
         return result;
     };
@@ -43283,7 +43360,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics 
                     }
                 }
             }
-            result.sort();
+            result.sort(function (a, b) { return (a - b); });
         }
         return result;
     };
@@ -43311,12 +43388,12 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         var globalMinimum = { index: 0, value: 0.0 };
         var globalMaximum = { index: 0, value: 0.0 };
         for (var i = 0; i < controlPoints.length - 2; i += 1) {
-            if (Math.sign(controlPoints[i]) === 1 && Math.sign(controlPoints[i + 1]) === 1 && Math.sign(controlPoints[i + 2]) === 1) {
+            if (MathVectorBasicOperations_1.sign(controlPoints[i]) === 1 && MathVectorBasicOperations_1.sign(controlPoints[i + 1]) === 1 && MathVectorBasicOperations_1.sign(controlPoints[i + 2]) === 1) {
                 if (controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
                     localMinimum.push({ index: (i + 1), value: controlPoints[i + 1] });
                 }
             }
-            else if (Math.sign(controlPoints[i]) === -1 && Math.sign(controlPoints[i + 1]) === -1 && Math.sign(controlPoints[i + 2]) === -1) {
+            else if (MathVectorBasicOperations_1.sign(controlPoints[i]) === -1 && MathVectorBasicOperations_1.sign(controlPoints[i + 1]) === -1 && MathVectorBasicOperations_1.sign(controlPoints[i + 2]) === -1) {
                 if (controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
                     localMaximum.push({ index: (i + 1), value: controlPoints[i + 1] });
                 }
@@ -43372,11 +43449,17 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }*/
         for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
-                if (signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1)
+                /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+                //if(signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                /* JCL general setting where events can slip out of the curve */
+                if (result.indexOf(signChangesIntervals[i]) === -1)
                     result.push(signChangesIntervals[i]);
             }
             else {
-                if ((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)
+                /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                //if((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
+                /* JCL general setting where events can slip out of the curve */
+                if (result.indexOf(signChangesIntervals[i] + 1) === -1)
                     result.push(signChangesIntervals[i] + 1);
             }
         }
@@ -43414,7 +43497,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                     }
                 }
             }
-            result.sort();
+            result.sort(function (a, b) { return (a - b); });
         }
         return result;
     };
@@ -43424,9 +43507,9 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         var globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints);
         if (globalExtremumOffAxis !== -1) {
             controlPointsClosestToZero.push(globalExtremumOffAxis);
-            controlPointsClosestToZero.sort();
+            controlPointsClosestToZero.sort(function (a, b) { return (a - b); });
         }
-        //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis + " closest zero " + controlPointsClosestToZero)
+        //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis)
         var result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
         return result;
     };
