@@ -10,8 +10,8 @@ import { CurveView } from "../views/CurveView";
 import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
-import { Chart } from "chart.js";
 import { Vector_2d } from "../mathematics/Vector_2d";
+import { ChartController } from "./ChartController";
 
 
 export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
@@ -20,7 +20,7 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
     private spline: BSpline_R1_to_R2
     private readonly POINT_SEQUENCE_SIZE = 100
 
-    constructor(private chart: Chart) {
+    constructor(private chartController: ChartController) {
         
         this.spline = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
     }
@@ -29,108 +29,29 @@ export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1
 
     update(message: BSpline_R1_to_R2): void {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve()
-
-        let newDataCP: Chart.ChartPoint[] = [] 
-        this.spline.controlPoints.forEach(element => {
-            newDataCP.push({x: element.x, y: element.y})
-        });
-
-        let newDataSpline: Chart.ChartPoint[] = [] 
         let points = this.pointSequenceOnSpline()
-        points.forEach(element => {
-            newDataSpline.push({x: element.x, y: element.y})
-        });
 
-        this.chart.data.datasets! = [{
-            label: 'Control Polygon',
-            data: newDataCP,
-            fill: false,
-            lineTension: 0,
-            showLine: true
-        },
-        {
-            label: 'Function A',
-            data: newDataSpline,
-            fill: false,
-            showLine: true,
-            pointRadius: 0, 
-            borderColor: 'rgba(200, 0, 0, 0.5)'
-        }]
-
-        this.chart.options! = {
-            title: {
-                display: true,
-                text: 'Function A(u)'
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'u parameter'
-                    }
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    
-
-        this.chart.update()
+        this.chartController.dataCleanUp();
+        this.chartController.addPolylineDataset('Control Polygon', this.spline.controlPoints);
+        this.chartController.addCurvePointDataset('Function A', points, {red: 200, green: 0, blue: 0, alpha: 0.5});
+        this.chartController.setChartLabel('Function A(u)');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     }
 
     reset(message: BSpline_R1_to_R2): void{
         console.log("reset chart FunctionA")
-        /*this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve() */
-        let newDataCP: Chart.ChartPoint[] = [] 
-        /*this.spline.controlPoints.forEach(element => {
-            newDataCP.push({x: 0.0, y: 0.0})
-        });*/
 
-        let newDataSpline: Chart.ChartPoint[] = [] 
-        /*let points = this.pointSequenceOnSpline()
-        points.forEach(element => {
-            newDataSpline.push({x: 0.0, y: 0.0})
-        });*/
-        this.chart.data.datasets! = [{
-            label: 'tbd',
-            data: newDataCP,
-            fill: false,
-            lineTension: 0,
-            showLine: true
-        },
-        {
-            label: 'tbd',
-            data: newDataSpline,
-            fill: false,
-            showLine: true
-        }]
-        this.chart.options! = {
-            title: {
-                display: true,
-                text: 'Graph tbd'
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'u parameter'
-                    }
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-        this.chart.update()
+        let points: Vector_2d[] = []
+        let curvePoints: Vector_2d[] = []
+        this.chartController.addPolylineDataset('tbd', points);
+        this.chartController.addCurvePointDataset('tbd', curvePoints, {red: 100, green: 0, blue: 0, alpha: 0.5});
+        this.chartController.setChartLabel('Graph tbd');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     }
 
     renderFrame() {
-
     }
 
     pointSequenceOnSpline() {

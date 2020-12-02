@@ -1,6 +1,7 @@
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
+import { ChartController } from "./controllers/ChartController"
 import { FunctionASceneController } from "./controllers/FunctionASceneController"
 import { FunctionBSceneController } from "./controllers/FunctionBSceneController"
 import { FunctionBSceneControllerSqrtScaled } from "./controllers/FunctionBSceneControllerSqrtScaled"
@@ -9,7 +10,6 @@ import { AbsCurvatureSceneController } from "./controllers/AbsCurvatureSceneCont
 import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
 import { BSpline_R1_to_R2_interface } from "./mathematics/BSplineInterfaces"
 
-import { Chart } from "chart.js";
 import { CurveModel } from "./models/CurveModel"
 
 
@@ -73,127 +73,9 @@ export function main() {
     let canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3')
     let ctxChart3 = canvasChart3.getContext('2d');
    
-
-    let chart1 = new Chart(ctxChart1!, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'tbd',
-                data: [{
-                    x: 0,
-                    y: 0
-                }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Graph1 tbd'
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'u parameter'
-                    }
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-
-    let chart2 = new Chart(ctxChart2!, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'tbd',
-                data: [{
-                    x: 0,
-                    y: 0
-                }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Graph2 tbd'
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'u parameter'
-                    }
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-
-    let chart3 = new Chart(ctxChart3!, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'tbd',
-                data: [{
-                    x: 0,
-                    y: 0
-                }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Graph3 tbd'
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'u parameter'
-                    }
-                }],
-                yAxes: [{
-                    type: 'linear'
-                }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-
-
-    let canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementChart1.style.height = '600px'
-    canvasElementChart1.style.width = '700px'
-
-    let canvasElementChart2 = chart2.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementChart2.style.height = '600px'
-    canvasElementChart2.style.width = '700px'
-
-    let canvasElementChart3 = chart3.canvas?.parentNode as HTMLCanvasElement;
-    canvasElementChart3.style.height = '600px'
-    canvasElementChart3.style.width = '700px'
+    let chart1 = new ChartController('Graph1 tbd', ctxChart1!, '600px', '700px');
+    let chart2 = new ChartController('Graph2 tbd', ctxChart2!, '600px', '700px');
+    let chart3 = new ChartController('Graph3 tbd', ctxChart3!, '600px', '700px');
 
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     let sceneController = new CurveSceneController(canvas, gl)
@@ -382,121 +264,20 @@ export function main() {
                 switch(indexChart) {
                     case 0: {
                         chart1.destroy();
-                        chart1 = new Chart(ctxChart1!, {
-                            type: 'scatter',
-                            data: {
-                                datasets: [{
-                                    label: 'tbd',
-                                    data: [{
-                                        x: 0,
-                                        y: 0
-                                    }],
-                                    fill: false,
-                                    lineTension: 0,
-                                    showLine: true
-                                }]
-                            },
-                            options: {
-                                title: {
-                                    display: true,
-                                    text: 'Graph1 tbd'
-                                },
-                                scales: {
-                                    xAxes: [{
-                                        type: 'linear',
-                                        position: 'bottom',
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'u parameter'
-                                        }
-                                    }]
-                                },
-                                animation: {
-                                    duration: 0
-                                }
-                            }
-                        });
-                        canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
-                        canvasElementChart1.style.height = '600px'
-                        canvasElementChart1.style.width = '700px'
+                        chart1 = new ChartController('Graph1 tbd', ctxChart1!, '600px', '700px');
                         break;
                     }
                     case 1: {
                         chart2.destroy();
-                        chart2 = new Chart(ctxChart2!, {
-                            type: 'scatter',
-                            data: {
-                                datasets: [{
-                                    label: 'tbd',
-                                    data: [{
-                                        x: 0,
-                                        y: 0
-                                    }],
-                                    fill: false,
-                                    lineTension: 0,
-                                    showLine: true
-                                }]
-                            },
-                            options: {
-                                title: {
-                                    display: true,
-                                    text: 'Graph2 tbd'
-                                },
-                                scales: {
-                                    xAxes: [{
-                                        type: 'linear',
-                                        position: 'bottom',
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'u parameter'
-                                        }
-                                    }]
-                                },
-                                animation: {
-                                    duration: 0
-                                }
-                            }
-                        });
+                        chart2 = new ChartController('Graph2 tbd', ctxChart2!, '600px', '700px');
+                        break;
                     }
                     case 2: {
                         chart3.destroy();
-                        chart3 = new Chart(ctxChart3!, {
-                            type: 'scatter',
-                            data: {
-                                datasets: [{
-                                    label: 'tbd',
-                                    data: [{
-                                        x: 0,
-                                        y: 0
-                                    }],
-                                    fill: false,
-                                    lineTension: 0,
-                                    showLine: true
-                                }]
-                            },
-                            options: {
-                                title: {
-                                    display: true,
-                                    text: 'Graph3 tbd'
-                                },
-                                scales: {
-                                    xAxes: [{
-                                        type: 'linear',
-                                        position: 'bottom',
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'u parameter'
-                                        }
-                                    }]
-                                },
-                                animation: {
-                                    duration: 0
-                                }
-                            }
-                        });
+                        chart3 = new ChartController('Graph3 tbd', ctxChart3!, '600px', '700px');
+                        break;
                     }
                 }
-
             }
         }
     }
@@ -895,115 +676,11 @@ export function main() {
 
                 /* JCL 2020/10/15 Reinitialize the three graphs */
                 chart1.destroy();
-                chart1 = new Chart(ctxChart1!, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                            label: 'tbd',
-                            data: [{
-                                x: 0,
-                                y: 0
-                            }],
-                            fill: false,
-                            lineTension: 0,
-                            showLine: true
-                        }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Graph1 tbd'
-                        },
-                        scales: {
-                            xAxes: [{
-                                type: 'linear',
-                                position: 'bottom',
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'u parameter'
-                                }
-                            }]
-                        },
-                        animation: {
-                            duration: 0
-                        }
-                    }
-                });
-                canvasElementChart1 = chart1.canvas?.parentNode as HTMLCanvasElement;
-                canvasElementChart1.style.height = '600px'
-                canvasElementChart1.style.width = '700px'
-
+                chart1 = new ChartController('Graph1 tbd', ctxChart1!, '600px', '700px');
                 chart2.destroy();
-                chart2 = new Chart(ctxChart2!, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                            label: 'tbd',
-                            data: [{
-                                x: 0,
-                                y: 0
-                            }],
-                            fill: false,
-                            lineTension: 0,
-                            showLine: true
-                        }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Graph2 tbd'
-                        },
-                        scales: {
-                            xAxes: [{
-                                type: 'linear',
-                                position: 'bottom',
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'u parameter'
-                                }
-                            }]
-                        },
-                        animation: {
-                            duration: 0
-                        }
-                    }
-                });
-
+                chart2 = new ChartController('Graph2 tbd', ctxChart2!, '600px', '700px');
                 chart3.destroy();
-                chart3 = new Chart(ctxChart3!, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                            label: 'tbd',
-                            data: [{
-                                x: 0,
-                                y: 0
-                            }],
-                            fill: false,
-                            lineTension: 0,
-                            showLine: true
-                        }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Graph3 tbd'
-                        },
-                        scales: {
-                            xAxes: [{
-                                type: 'linear',
-                                position: 'bottom',
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'u parameter'
-                                }
-                            }]
-                        },
-                        animation: {
-                            duration: 0
-                        }
-                    }
-                });
+                chart3 = new ChartController('Graph3 tbd', ctxChart3!, '600px', '700px');
 
                 /* JCL 2020/10/18 Reset the appropriate control buttons */
                 if(!sceneController.sliding) {

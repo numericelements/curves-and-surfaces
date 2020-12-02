@@ -10,8 +10,8 @@ import { CurveView } from "../views/CurveView";
 import { BSpline_R1_to_R1 } from "../mathematics/BSpline_R1_to_R1";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
-import { Chart } from "chart.js";
 import { Vector_2d } from "../mathematics/Vector_2d";
+import { ChartController } from "./ChartController";
 
 
 export class FunctionBSceneControllerSqrtScaled implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
@@ -21,62 +21,32 @@ export class FunctionBSceneControllerSqrtScaled implements IRenderFrameObserver<
     private readonly POINT_SEQUENCE_SIZE = 100
 
 
-
-    constructor(private chart: Chart) {
+    constructor(private chartController: ChartController) {
         this.spline = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
     }
 
     update(message: BSpline_R1_to_R2): void {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve()
-
-       let newDataSpline: Chart.ChartPoint[] = [] 
-       let points = this.pointSequenceOnSpline()
-       points.forEach(element => {
-           /* apply a non linear transformation to graphically emphasize the behavior of function B around 0 */
-           if(element.y < 0.0)
-           {
-               element.y = - Math.sqrt(Math.abs(element.y));
-           }
-           else
-           {
-                element.y = Math.sqrt(element.y);
-           }
-           newDataSpline.push({x: element.x, y: element.y})
-       });
-
-
-       this.chart.data.datasets! = [
-       {
-           label: 'sqrt Function B',
-           data: newDataSpline,
-           fill: false,
-           showLine: true,
-           pointRadius: 0, 
-           borderColor: 'rgba(000, 0, 200, 0.5)'
-       }]
-
-        this.chart.options! = {
-            title: {
-                display: true,
-                text: 'Function (+/-)sqrt[abs(B(u))]'
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',
-                    position: 'bottom',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'u parameter'
-                    }
-                }]
-            },
-            animation: {
-                duration: 0
+        let points = this.pointSequenceOnSpline();
+        let scaledPoints: Vector_2d[] = [];
+        points.forEach(element => {
+            /* apply a non linear transformation to graphically emphasize the behavior of function B around 0 */
+            if(element.y < 0.0)
+            {
+                element.y = - Math.sqrt(Math.abs(element.y));
             }
-        }
+            else
+            {
+                 element.y = Math.sqrt(element.y);
+            }
+            scaledPoints.push(new Vector_2d(element.x, element.y))
+        });
 
-        this.chart.update()
-
+        this.chartController.dataCleanUp();
+        this.chartController.addCurvePointDataset('sqrt Function B', points, {red: 0, green: 0, blue: 200, alpha: 0.5});
+        this.chartController.setChartLabel('Function (+/-)sqrt[abs(B(u))]');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     }
 
     reset(message: BSpline_R1_to_R2): void {

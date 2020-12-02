@@ -37534,8 +37534,8 @@ exports.AbsCurvatureSceneController = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
 var AbsCurvatureSceneController = /** @class */ (function () {
-    function AbsCurvatureSceneController(chart) {
-        this.chart = chart;
+    function AbsCurvatureSceneController(chartController) {
+        this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = 100;
         this.splineNumerator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
         this.splineDenominator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
@@ -37543,74 +37543,21 @@ var AbsCurvatureSceneController = /** @class */ (function () {
     AbsCurvatureSceneController.prototype.update = function (message) {
         this.splineNumerator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
         this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve();
-        var newDataSpline = [];
         var points = this.pointSequenceOnSpline();
-        points.forEach(function (element) {
-            newDataSpline.push({ x: element.x, y: element.y });
-        });
-        this.chart.data.datasets = [{
-                label: 'Abs Curvature',
-                data: newDataSpline,
-                fill: false,
-                showLine: true,
-                pointRadius: 0,
-                borderColor: 'rgba(0, 200, 0, 0.5)'
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Absolute curvature'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }],
-                yAxes: [{
-                        type: 'logarithmic'
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        this.chartController.dataCleanUp();
+        this.chartController.addCurvePointDataset('Curvature', points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Curvature of curve');
+        this.chartController.setYaxisScale('logarithmic');
+        this.chartController.drawChart();
     };
     AbsCurvatureSceneController.prototype.reset = function (message) {
-        this.chart.data.datasets = [{
-                label: 'tbd',
-                data: [{
-                        x: 0,
-                        y: 0
-                    }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Graph tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset('tbd', points);
+        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Graph tbd');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     AbsCurvatureSceneController.prototype.renderFrame = function () {
     };
@@ -37635,6 +37582,165 @@ exports.AbsCurvatureSceneController = AbsCurvatureSceneController;
 
 /***/ }),
 
+/***/ "./src/controllers/ChartController.ts":
+/*!********************************************!*\
+  !*** ./src/controllers/ChartController.ts ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChartController = void 0;
+var chart_js_1 = __webpack_require__(/*! chart.js */ "./node_modules/chart.js/dist/Chart.js");
+var ChartController = /** @class */ (function () {
+    function ChartController(chartTitle, canvasContext, chartHeight, chartWidth, chartXaxisLabel) {
+        var _a;
+        this.chartTitle = chartTitle;
+        this.canvasContext = canvasContext;
+        this.chartHeight = chartHeight;
+        this.chartWidth = chartWidth;
+        this.chartXaxisLabel = chartXaxisLabel;
+        this.dataCP = [];
+        this.dataSpline = [];
+        this.datasetPolylineLabel = '';
+        this.datasetCurveLabel = '';
+        this.colorSpline = '';
+        this.yAxisScale = 'linear';
+        if (chartXaxisLabel)
+            this.chartXaxisLabel = chartXaxisLabel;
+        else
+            this.chartXaxisLabel = 'u parameter';
+        this.chart = new chart_js_1.Chart(canvasContext, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                        label: 'tbd',
+                        data: [{
+                                x: 0,
+                                y: 0
+                            }],
+                        fill: false,
+                        lineTension: 0,
+                        showLine: true
+                    }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: chartTitle
+                },
+                scales: {
+                    xAxes: [{
+                            type: 'linear',
+                            position: 'bottom',
+                            scaleLabel: {
+                                display: true,
+                                labelString: this.chartXaxisLabel
+                            }
+                        }]
+                },
+                animation: {
+                    duration: 0
+                }
+            }
+        });
+        this.canvasElementChart = (_a = this.chart.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
+        this.canvasElementChart.style.height = chartHeight;
+        this.canvasElementChart.style.width = chartWidth;
+    }
+    ChartController.prototype.addPolylineDataset = function (datasetLabel, dataPoints) {
+        var _this = this;
+        this.datasetPolylineLabel = datasetLabel;
+        this.dataCP = [];
+        dataPoints.forEach(function (element) {
+            _this.dataCP.push({ x: element.x, y: element.y });
+        });
+    };
+    ChartController.prototype.addCurvePointDataset = function (datasetLabel, curvePoints, color) {
+        var _this = this;
+        this.datasetCurveLabel = datasetLabel;
+        var curveColor = 'rgba(';
+        var colorCode = color.red.toString() + ', ' + color.green.toString() + ', ' + color.blue.toString() + ', ' + color.alpha.toString();
+        this.colorSpline = curveColor.concat(colorCode, ')');
+        this.dataSpline = [];
+        curvePoints.forEach(function (element) {
+            _this.dataSpline.push({ x: element.x, y: element.y });
+        });
+    };
+    ChartController.prototype.setChartLabel = function (chartLabel) {
+        this.chartTitle = chartLabel;
+    };
+    ChartController.prototype.setYaxisScale = function (scaleType) {
+        this.yAxisScale = scaleType;
+    };
+    ChartController.prototype.dataCleanUp = function () {
+        this.dataCP = [];
+        this.dataSpline = [];
+    };
+    ChartController.prototype.drawChart = function () {
+        if (this.dataCP.length === 0) {
+            this.chart.data.datasets = [{
+                    label: this.datasetCurveLabel,
+                    data: this.dataSpline,
+                    fill: false,
+                    showLine: true,
+                    pointRadius: 0,
+                    borderColor: this.colorSpline
+                }];
+        }
+        else {
+            this.chart.data.datasets = [{
+                    label: this.datasetPolylineLabel,
+                    data: this.dataCP,
+                    fill: false,
+                    lineTension: 0,
+                    showLine: true
+                },
+                {
+                    label: this.datasetCurveLabel,
+                    data: this.dataSpline,
+                    fill: false,
+                    showLine: true,
+                    pointRadius: 0,
+                    borderColor: this.colorSpline
+                }];
+        }
+        this.chart.options = {
+            title: {
+                display: true,
+                text: this.chartTitle
+            },
+            scales: {
+                xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        scaleLabel: {
+                            display: true,
+                            labelString: this.chartXaxisLabel
+                        }
+                    }],
+                yAxes: [{
+                        type: this.yAxisScale
+                    }]
+            },
+            animation: {
+                duration: 0
+            }
+        };
+        this.chart.update();
+    };
+    ChartController.prototype.destroy = function () {
+        this.chart.destroy();
+    };
+    return ChartController;
+}());
+exports.ChartController = ChartController;
+
+
+/***/ }),
+
 /***/ "./src/controllers/CurvatureSceneController.ts":
 /*!*****************************************************!*\
   !*** ./src/controllers/CurvatureSceneController.ts ***!
@@ -37649,8 +37755,8 @@ exports.CurvatureSceneController = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
 var CurvatureSceneController = /** @class */ (function () {
-    function CurvatureSceneController(chart) {
-        this.chart = chart;
+    function CurvatureSceneController(chartController) {
+        this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = 100;
         this.splineNumerator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
         this.splineDenominator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
@@ -37658,71 +37764,21 @@ var CurvatureSceneController = /** @class */ (function () {
     CurvatureSceneController.prototype.update = function (message) {
         this.splineNumerator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
         this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve();
-        var newDataSpline = [];
         var points = this.pointSequenceOnSpline();
-        points.forEach(function (element) {
-            newDataSpline.push({ x: element.x, y: element.y });
-        });
-        this.chart.data.datasets = [{
-                label: 'Curvature',
-                data: newDataSpline,
-                fill: false,
-                showLine: true,
-                pointRadius: 0,
-                borderColor: 'rgba(0, 200, 0, 0.5)'
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Curvature of curve'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        this.chartController.dataCleanUp();
+        this.chartController.addCurvePointDataset('Curvature', points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Curvature of curve');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     CurvatureSceneController.prototype.reset = function (message) {
-        this.chart.data.datasets = [{
-                label: 'tbd',
-                data: [{
-                        x: 0,
-                        y: 0
-                    }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Graph tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset('tbd', points);
+        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Graph tbd');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     CurvatureSceneController.prototype.renderFrame = function () {
     };
@@ -38521,103 +38577,30 @@ exports.FunctionASceneController = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
 var FunctionASceneController = /** @class */ (function () {
-    function FunctionASceneController(chart) {
-        this.chart = chart;
+    function FunctionASceneController(chartController) {
+        this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = 100;
         this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     FunctionASceneController.prototype.update = function (message) {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
-        var newDataCP = [];
-        this.spline.controlPoints.forEach(function (element) {
-            newDataCP.push({ x: element.x, y: element.y });
-        });
-        var newDataSpline = [];
         var points = this.pointSequenceOnSpline();
-        points.forEach(function (element) {
-            newDataSpline.push({ x: element.x, y: element.y });
-        });
-        this.chart.data.datasets = [{
-                label: 'Control Polygon',
-                data: newDataCP,
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            },
-            {
-                label: 'Function A',
-                data: newDataSpline,
-                fill: false,
-                showLine: true,
-                pointRadius: 0,
-                borderColor: 'rgba(200, 0, 0, 0.5)'
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Function A(u)'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        this.chartController.dataCleanUp();
+        this.chartController.addPolylineDataset('Control Polygon', this.spline.controlPoints);
+        this.chartController.addCurvePointDataset('Function A', points, { red: 200, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Function A(u)');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     FunctionASceneController.prototype.reset = function (message) {
         console.log("reset chart FunctionA");
-        /*this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve() */
-        var newDataCP = [];
-        /*this.spline.controlPoints.forEach(element => {
-            newDataCP.push({x: 0.0, y: 0.0})
-        });*/
-        var newDataSpline = [];
-        /*let points = this.pointSequenceOnSpline()
-        points.forEach(element => {
-            newDataSpline.push({x: 0.0, y: 0.0})
-        });*/
-        this.chart.data.datasets = [{
-                label: 'tbd',
-                data: newDataCP,
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            },
-            {
-                label: 'tbd',
-                data: newDataSpline,
-                fill: false,
-                showLine: true
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Graph tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset('tbd', points);
+        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Graph tbd');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     FunctionASceneController.prototype.renderFrame = function () {
     };
@@ -38652,91 +38635,29 @@ exports.FunctionBSceneController = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
 var FunctionBSceneController = /** @class */ (function () {
-    function FunctionBSceneController(chart) {
-        this.chart = chart;
+    function FunctionBSceneController(chartController) {
+        this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = 100;
         this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     FunctionBSceneController.prototype.update = function (message) {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
-        var newDataCP = [];
-        this.spline.controlPoints.forEach(function (element) {
-            newDataCP.push({ x: element.x, y: element.y });
-        });
-        var newDataSpline = [];
         var points = this.pointSequenceOnSpline();
-        points.forEach(function (element) {
-            newDataSpline.push({ x: element.x, y: element.y });
-        });
-        this.chart.data.datasets = [
-            {
-                label: 'Control Polygon',
-                data: newDataCP,
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            },
-            {
-                label: 'Function B',
-                data: newDataSpline,
-                fill: false,
-                showLine: true,
-                pointRadius: 0,
-                borderColor: 'rgba(000, 0, 200, 0.5)'
-            }
-        ];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Function B(u)'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        this.chartController.dataCleanUp();
+        this.chartController.addPolylineDataset('Control Polygon', this.spline.controlPoints);
+        this.chartController.addCurvePointDataset('Function B', points, { red: 0, green: 0, blue: 200, alpha: 0.5 });
+        this.chartController.setChartLabel('Function B(u)');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     FunctionBSceneController.prototype.reset = function (message) {
-        this.chart.data.datasets = [{
-                label: 'tbd',
-                data: [{
-                        x: 0,
-                        y: 0
-                    }],
-                fill: false,
-                lineTension: 0,
-                showLine: true
-            }];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Graph tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset('tbd', points);
+        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel('Graph tbd');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     FunctionBSceneController.prototype.renderFrame = function () {
     };
@@ -38770,16 +38691,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionBSceneControllerSqrtScaled = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
-    function FunctionBSceneControllerSqrtScaled(chart) {
-        this.chart = chart;
+    function FunctionBSceneControllerSqrtScaled(chartController) {
+        this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = 100;
         this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     FunctionBSceneControllerSqrtScaled.prototype.update = function (message) {
         this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
-        var newDataSpline = [];
         var points = this.pointSequenceOnSpline();
+        var scaledPoints = [];
         points.forEach(function (element) {
             /* apply a non linear transformation to graphically emphasize the behavior of function B around 0 */
             if (element.y < 0.0) {
@@ -38788,38 +38710,13 @@ var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
             else {
                 element.y = Math.sqrt(element.y);
             }
-            newDataSpline.push({ x: element.x, y: element.y });
+            scaledPoints.push(new Vector_2d_1.Vector_2d(element.x, element.y));
         });
-        this.chart.data.datasets = [
-            {
-                label: 'sqrt Function B',
-                data: newDataSpline,
-                fill: false,
-                showLine: true,
-                pointRadius: 0,
-                borderColor: 'rgba(000, 0, 200, 0.5)'
-            }
-        ];
-        this.chart.options = {
-            title: {
-                display: true,
-                text: 'Function (+/-)sqrt[abs(B(u))]'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        };
-        this.chart.update();
+        this.chartController.dataCleanUp();
+        this.chartController.addCurvePointDataset('sqrt Function B', points, { red: 0, green: 0, blue: 200, alpha: 0.5 });
+        this.chartController.setChartLabel('Function (+/-)sqrt[abs(B(u))]');
+        this.chartController.setYaxisScale('linear');
+        this.chartController.drawChart();
     };
     FunctionBSceneControllerSqrtScaled.prototype.reset = function (message) {
     };
@@ -39188,35 +39085,44 @@ var SlidingStrategy = /** @class */ (function () {
     SlidingStrategy.prototype.indexSmallestInterval = function (intervalExtrema, nbEvents) {
         var candidateEventIndex = -1;
         var ratio = [];
-        for (var k = 0; k < intervalExtrema.sequence.length; k += 1) {
-            ratio.push(intervalExtrema.sequence[k] / intervalExtrema.span);
+        if (nbEvents === 1 && intervalExtrema.sequence.length > 1) {
+            /* JCL Look at first and last intervals only. Other intervals add noise to get a consistent candidate interval */
+            ratio.push(intervalExtrema.sequence[0] / intervalExtrema.span);
+            ratio.push(intervalExtrema.sequence[intervalExtrema.sequence.length - 1] / intervalExtrema.span);
+            if (ratio[0] < ratio[1])
+                candidateEventIndex = 0;
+            else
+                candidateEventIndex = intervalExtrema.sequence.length - 1;
         }
-        var mappedRatio = ratio.map(function (location, i) {
-            return { index: i, value: location };
-        });
-        mappedRatio.sort(function (a, b) {
-            if (a.value > b.value) {
-                return 1;
+        else if (nbEvents === 2 && intervalExtrema.sequence.length > 2) {
+            for (var k = 0; k < intervalExtrema.sequence.length; k += 1) {
+                ratio.push(intervalExtrema.sequence[k] / intervalExtrema.span);
             }
-            if (a.value < b.value) {
-                return -1;
-            }
-            return 0;
-        });
-        if (intervalExtrema.sequence.length > 0) {
+            var mappedRatio = ratio.map(function (location, i) {
+                return { index: i, value: location };
+            });
+            mappedRatio.sort(function (a, b) {
+                if (a.value > b.value) {
+                    return 1;
+                }
+                if (a.value < b.value) {
+                    return -1;
+                }
+                return 0;
+            });
             candidateEventIndex = mappedRatio[0].index;
             /* JCL Take into account the optional number of events  */
             /* if the number of events removed equals 2 smallest intervals at both extremities can be removed because */
             /* they are of different types of there no event if it is a free extremity of the curve */
-            if (Math.abs(nbEvents) === 2) {
-                if (mappedRatio[0].index === 0 || mappedRatio[0].index === intervalExtrema.sequence.length - 1) {
-                    candidateEventIndex = mappedRatio[1].index;
-                    if (mappedRatio[1].index === 0 || mappedRatio[1].index === intervalExtrema.sequence.length - 1) {
-                        candidateEventIndex = mappedRatio[2].index;
-                    }
+            if (mappedRatio[0].index === 0 || mappedRatio[0].index === intervalExtrema.sequence.length - 1) {
+                candidateEventIndex = mappedRatio[1].index;
+                if (mappedRatio[1].index === 0 || mappedRatio[1].index === intervalExtrema.sequence.length - 1) {
+                    candidateEventIndex = mappedRatio[2].index;
                 }
             }
         }
+        else
+            console.log("Inconsistent number of events (Must be a positive number not larger than two) or inconsistent number of intervals between curvature extrema.");
         return candidateEventIndex;
     };
     SlidingStrategy.prototype.indexIntervalMaximalVariation = function (intervalsExtrema, intervalsExtremaOptim, candidateEvent, nbEvents, scan) {
@@ -39224,6 +39130,10 @@ var SlidingStrategy = /** @class */ (function () {
         var maxRatio = { index: intervalIndex, value: 0 };
         if (scan === Direction.Forward) {
             var upperBound = candidateEvent;
+            var lowerBound = 0;
+            /* JCL To process intervals that are uniquely bounded by events */
+            if (Math.abs(nbEvents) === 2 && candidateEvent > 1)
+                lowerBound = 1;
             if (candidateEvent === 1) {
                 if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
                     maxRatio.value = 1.0 / (intervalsExtrema.sequence[0] / intervalsExtrema.span);
@@ -39233,7 +39143,7 @@ var SlidingStrategy = /** @class */ (function () {
                 }
                 maxRatio.index = 0;
             }
-            for (var k = 0; k < upperBound; k += 1) {
+            for (var k = lowerBound; k < upperBound; k += 1) {
                 var currentRatio = 1.0;
                 if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
                     currentRatio = (intervalsExtremaOptim.sequence[k] / intervalsExtremaOptim.span) / (intervalsExtrema.sequence[k] / intervalsExtrema.span);
@@ -39253,15 +39163,18 @@ var SlidingStrategy = /** @class */ (function () {
         }
         else if (scan === Direction.Reverse) {
             var upperBound = 0;
-            //let lowerBound = candidateEvent - nbEvents
             var lowerBound = 0;
             if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
                 lowerBound = candidateEvent - nbEvents;
                 upperBound = intervalsExtremaOptim.sequence.length - 1;
+                if (nbEvents === 2 && candidateEvent < intervalsExtremaOptim.sequence.length - 1)
+                    upperBound -= 1;
             }
             else if (intervalsExtrema.sequence.length < intervalsExtremaOptim.sequence.length) {
                 lowerBound = candidateEvent + nbEvents;
                 upperBound = intervalsExtrema.sequence.length - 1;
+                if (nbEvents === -2 && candidateEvent < intervalsExtrema.sequence.length - 1)
+                    upperBound -= 1;
             }
             if (candidateEvent === 1) {
                 if (intervalsExtrema.sequence.length > intervalsExtremaOptim.sequence.length) {
@@ -39363,8 +39276,12 @@ var SlidingStrategy = /** @class */ (function () {
                                         console.log("Events are stable as well as the candidate event.");
                                     }
                                     else if (indexMaxIntverVar !== candidateEventIndex) {
-                                        console.log("Events are stable but differ from the candidate event.");
-                                        candidateEventIndex = indexMaxIntverVar;
+                                        console.log("Other events variations may influence the decision about the candidate event.");
+                                        if (!(ratioLeft > ratioRight && candidateEventIndex === 0)) {
+                                            candidateEventIndex = 0;
+                                        }
+                                        else if (!(ratioLeft < ratioRight && candidateEventIndex === intervals.sequence.length - 1))
+                                            candidateEventIndex = intervals.sequence.length - 1;
                                     }
                                 }
                                 else {
@@ -39403,7 +39320,19 @@ var SlidingStrategy = /** @class */ (function () {
                             var intervalsOptim = void 0;
                             intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents);
                             var candidateEventIndex = this.indexSmallestInterval(intervals, lostEvents[0].nbE);
-                            if (candidateEventIndex !== intervals.sequence.length - 1) {
+                            var ratioRight = 0.0, indexMaxIntverVar = -1;
+                            if (intervalsOptim.sequence.length > 0) {
+                                ratioRight = (intervalsOptim.sequence[intervalsOptim.sequence.length - 1] / intervalsOptim.span) / (intervals.sequence[intervals.sequence.length - 1] / intervals.span);
+                                indexMaxIntverVar = intervals.sequence.length - 1;
+                                var maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Forward);
+                                if (maxRatioF.value > ratioRight) {
+                                    indexMaxIntverVar = maxRatioF.index;
+                                }
+                            }
+                            else {
+                                indexMaxIntverVar = intervals.sequence.length - 1;
+                            }
+                            if (candidateEventIndex !== -1 && (candidateEventIndex !== intervals.sequence.length - 1 || indexMaxIntverVar !== intervals.sequence.length - 1)) {
                                 console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.");
                             }
                             result.push({ event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1 });
@@ -39945,14 +39874,14 @@ exports.main = void 0;
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
+var ChartController_1 = __webpack_require__(/*! ./controllers/ChartController */ "./src/controllers/ChartController.ts");
 var FunctionASceneController_1 = __webpack_require__(/*! ./controllers/FunctionASceneController */ "./src/controllers/FunctionASceneController.ts");
 var FunctionBSceneController_1 = __webpack_require__(/*! ./controllers/FunctionBSceneController */ "./src/controllers/FunctionBSceneController.ts");
 var FunctionBSceneControllerSqrtScaled_1 = __webpack_require__(/*! ./controllers/FunctionBSceneControllerSqrtScaled */ "./src/controllers/FunctionBSceneControllerSqrtScaled.ts");
 var CurvatureSceneController_1 = __webpack_require__(/*! ./controllers/CurvatureSceneController */ "./src/controllers/CurvatureSceneController.ts");
 var AbsCurvatureSceneController_1 = __webpack_require__(/*! ./controllers/AbsCurvatureSceneController */ "./src/controllers/AbsCurvatureSceneController.ts");
-var chart_js_1 = __webpack_require__(/*! chart.js */ "./node_modules/chart.js/dist/Chart.js");
 function main() {
-    var _a, _b, _c, _d;
+    var _a;
     var canvas = document.getElementById("webgl");
     /* JCL Get control button IDs for curve control*/
     var toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
@@ -40000,126 +39929,15 @@ function main() {
     var ctxChart2 = canvasChart2.getContext('2d');
     var canvasChart3 = document.getElementById('chart3');
     var ctxChart3 = canvasChart3.getContext('2d');
-    var chart1 = new chart_js_1.Chart(ctxChart1, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                    label: 'tbd',
-                    data: [{
-                            x: 0,
-                            y: 0
-                        }],
-                    fill: false,
-                    lineTension: 0,
-                    showLine: true
-                }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Graph1 tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-    var chart2 = new chart_js_1.Chart(ctxChart2, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                    label: 'tbd',
-                    data: [{
-                            x: 0,
-                            y: 0
-                        }],
-                    fill: false,
-                    lineTension: 0,
-                    showLine: true
-                }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Graph2 tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-    var chart3 = new chart_js_1.Chart(ctxChart3, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                    label: 'tbd',
-                    data: [{
-                            x: 0,
-                            y: 0
-                        }],
-                    fill: false,
-                    lineTension: 0,
-                    showLine: true
-                }]
-        },
-        options: {
-            title: {
-                display: true,
-                text: 'Graph3 tbd'
-            },
-            scales: {
-                xAxes: [{
-                        type: 'linear',
-                        position: 'bottom',
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'u parameter'
-                        }
-                    }],
-                yAxes: [{
-                        type: 'linear'
-                    }]
-            },
-            animation: {
-                duration: 0
-            }
-        }
-    });
-    var canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
-    canvasElementChart1.style.height = '600px';
-    canvasElementChart1.style.width = '700px';
-    var canvasElementChart2 = (_b = chart2.canvas) === null || _b === void 0 ? void 0 : _b.parentNode;
-    canvasElementChart2.style.height = '600px';
-    canvasElementChart2.style.width = '700px';
-    var canvasElementChart3 = (_c = chart3.canvas) === null || _c === void 0 ? void 0 : _c.parentNode;
-    canvasElementChart3.style.height = '600px';
-    canvasElementChart3.style.width = '700px';
+    var chart1 = new ChartController_1.ChartController('Graph1 tbd', ctxChart1, '600px', '700px');
+    var chart2 = new ChartController_1.ChartController('Graph2 tbd', ctxChart2, '600px', '700px');
+    var chart3 = new ChartController_1.ChartController('Graph3 tbd', ctxChart3, '600px', '700px');
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
     /*let att = functionB.hasAttribute('display');
     let disp = functionB.getAttribute('display'); */
     var id = document.getElementById('chartjsFunctionB');
-    var functionB = (_d = document.getElementById('chartjsFunctionB')) === null || _d === void 0 ? void 0 : _d.style.display;
+    var functionB = (_a = document.getElementById('chartjsFunctionB')) === null || _a === void 0 ? void 0 : _a.style.display;
     console.log("state chart function B: " + functionB);
     /*if(id !== null) {
         let style = window.getComputedStyle(id, null);
@@ -40214,7 +40032,6 @@ function main() {
     }
     /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
-        var _a;
         var chkboxValue = "";
         var functionSceneControllerToRemove = "";
         var eventToBeProcessed = sceneController.chkboxFunctionA();
@@ -40277,118 +40094,18 @@ function main() {
                 switch (indexChart) {
                     case 0: {
                         chart1.destroy();
-                        chart1 = new chart_js_1.Chart(ctxChart1, {
-                            type: 'scatter',
-                            data: {
-                                datasets: [{
-                                        label: 'tbd',
-                                        data: [{
-                                                x: 0,
-                                                y: 0
-                                            }],
-                                        fill: false,
-                                        lineTension: 0,
-                                        showLine: true
-                                    }]
-                            },
-                            options: {
-                                title: {
-                                    display: true,
-                                    text: 'Graph1 tbd'
-                                },
-                                scales: {
-                                    xAxes: [{
-                                            type: 'linear',
-                                            position: 'bottom',
-                                            scaleLabel: {
-                                                display: true,
-                                                labelString: 'u parameter'
-                                            }
-                                        }]
-                                },
-                                animation: {
-                                    duration: 0
-                                }
-                            }
-                        });
-                        canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
-                        canvasElementChart1.style.height = '600px';
-                        canvasElementChart1.style.width = '700px';
+                        chart1 = new ChartController_1.ChartController('Graph1 tbd', ctxChart1, '600px', '700px');
                         break;
                     }
                     case 1: {
                         chart2.destroy();
-                        chart2 = new chart_js_1.Chart(ctxChart2, {
-                            type: 'scatter',
-                            data: {
-                                datasets: [{
-                                        label: 'tbd',
-                                        data: [{
-                                                x: 0,
-                                                y: 0
-                                            }],
-                                        fill: false,
-                                        lineTension: 0,
-                                        showLine: true
-                                    }]
-                            },
-                            options: {
-                                title: {
-                                    display: true,
-                                    text: 'Graph2 tbd'
-                                },
-                                scales: {
-                                    xAxes: [{
-                                            type: 'linear',
-                                            position: 'bottom',
-                                            scaleLabel: {
-                                                display: true,
-                                                labelString: 'u parameter'
-                                            }
-                                        }]
-                                },
-                                animation: {
-                                    duration: 0
-                                }
-                            }
-                        });
+                        chart2 = new ChartController_1.ChartController('Graph2 tbd', ctxChart2, '600px', '700px');
+                        break;
                     }
                     case 2: {
                         chart3.destroy();
-                        chart3 = new chart_js_1.Chart(ctxChart3, {
-                            type: 'scatter',
-                            data: {
-                                datasets: [{
-                                        label: 'tbd',
-                                        data: [{
-                                                x: 0,
-                                                y: 0
-                                            }],
-                                        fill: false,
-                                        lineTension: 0,
-                                        showLine: true
-                                    }]
-                            },
-                            options: {
-                                title: {
-                                    display: true,
-                                    text: 'Graph3 tbd'
-                                },
-                                scales: {
-                                    xAxes: [{
-                                            type: 'linear',
-                                            position: 'bottom',
-                                            scaleLabel: {
-                                                display: true,
-                                                labelString: 'u parameter'
-                                            }
-                                        }]
-                                },
-                                animation: {
-                                    duration: 0
-                                }
-                            }
-                        });
+                        chart3 = new ChartController_1.ChartController('Graph3 tbd', ctxChart3, '600px', '700px');
+                        break;
                     }
                 }
             }
@@ -40711,7 +40428,6 @@ function main() {
         sceneController.saveCurveToFile(currentFileName);
     }
     function processInputFile(ev) {
-        var _a;
         if (ev.target !== null)
             console.log("Reading the file" + currentFileName);
         if (fileR.readyState === fileR.DONE) {
@@ -40789,113 +40505,11 @@ function main() {
                 stackOfAvailableCharts = ["available", "available", "available"];
                 /* JCL 2020/10/15 Reinitialize the three graphs */
                 chart1.destroy();
-                chart1 = new chart_js_1.Chart(ctxChart1, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                                label: 'tbd',
-                                data: [{
-                                        x: 0,
-                                        y: 0
-                                    }],
-                                fill: false,
-                                lineTension: 0,
-                                showLine: true
-                            }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Graph1 tbd'
-                        },
-                        scales: {
-                            xAxes: [{
-                                    type: 'linear',
-                                    position: 'bottom',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'u parameter'
-                                    }
-                                }]
-                        },
-                        animation: {
-                            duration: 0
-                        }
-                    }
-                });
-                canvasElementChart1 = (_a = chart1.canvas) === null || _a === void 0 ? void 0 : _a.parentNode;
-                canvasElementChart1.style.height = '600px';
-                canvasElementChart1.style.width = '700px';
+                chart1 = new ChartController_1.ChartController('Graph1 tbd', ctxChart1, '600px', '700px');
                 chart2.destroy();
-                chart2 = new chart_js_1.Chart(ctxChart2, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                                label: 'tbd',
-                                data: [{
-                                        x: 0,
-                                        y: 0
-                                    }],
-                                fill: false,
-                                lineTension: 0,
-                                showLine: true
-                            }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Graph2 tbd'
-                        },
-                        scales: {
-                            xAxes: [{
-                                    type: 'linear',
-                                    position: 'bottom',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'u parameter'
-                                    }
-                                }]
-                        },
-                        animation: {
-                            duration: 0
-                        }
-                    }
-                });
+                chart2 = new ChartController_1.ChartController('Graph2 tbd', ctxChart2, '600px', '700px');
                 chart3.destroy();
-                chart3 = new chart_js_1.Chart(ctxChart3, {
-                    type: 'scatter',
-                    data: {
-                        datasets: [{
-                                label: 'tbd',
-                                data: [{
-                                        x: 0,
-                                        y: 0
-                                    }],
-                                fill: false,
-                                lineTension: 0,
-                                showLine: true
-                            }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Graph3 tbd'
-                        },
-                        scales: {
-                            xAxes: [{
-                                    type: 'linear',
-                                    position: 'bottom',
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'u parameter'
-                                    }
-                                }]
-                        },
-                        animation: {
-                            duration: 0
-                        }
-                    }
-                });
+                chart3 = new ChartController_1.ChartController('Graph3 tbd', ctxChart3, '600px', '700px');
                 /* JCL 2020/10/18 Reset the appropriate control buttons */
                 if (!sceneController.sliding) {
                     toggleButtonSliding.click();
