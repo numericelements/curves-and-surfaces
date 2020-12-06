@@ -190,13 +190,11 @@ export function main() {
 
     function keyDown(ev: KeyboardEvent) {
         const keyName = ev.key
-        //console.log(keyName + " down")
         if(keyName === "Shift") sceneController.shiftKeyDown()
     }
 
     function keyUp(ev: KeyboardEvent) {
         const keyName = ev.key
-        //console.log(keyName + " up")
         if(keyName === "Shift") sceneController.shiftKeyUp()
     }
 

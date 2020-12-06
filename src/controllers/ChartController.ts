@@ -48,6 +48,9 @@ export class ChartController {
                             display: true,
                             labelString: this.chartXaxisLabel
                         }
+                    }],
+                    yAxes: [{
+                        type: this.yAxisScale
                     }]
                 },
                 animation: {

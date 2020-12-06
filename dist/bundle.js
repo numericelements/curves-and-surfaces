@@ -37639,6 +37639,9 @@ var ChartController = /** @class */ (function () {
                                 display: true,
                                 labelString: this.chartXaxisLabel
                             }
+                        }],
+                    yAxes: [{
+                            type: this.yAxisScale
                         }]
                 },
                 animation: {
@@ -38897,7 +38900,6 @@ var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathemat
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
 var NeighboringEventsType;
 (function (NeighboringEventsType) {
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundary"] = 0] = "neighboringCurExtremumLeftBoundary";
@@ -38922,6 +38924,7 @@ var Direction;
 var SlidingStrategy = /** @class */ (function () {
     function SlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, curveSceneController) {
         this.activeOptimizer = true;
+        this.shapeSpaceBoundaryConstraints = [];
         this.curveModel = curveModel;
         //enum ActiveControl {curvatureExtrema, inflections, both}
         var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
@@ -38957,7 +38960,7 @@ var SlidingStrategy = /** @class */ (function () {
     };
     SlidingStrategy.prototype.resetCurve = function (curveModel) {
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
         //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this.optimizer = this.newOptimizer(this.optimizationProblem);
@@ -39738,34 +39741,31 @@ var SlidingStrategy = /** @class */ (function () {
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
             }
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            if (sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length
+            /*if(sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length
                 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
-                var controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints;
-                var knotVector = this.optimizationProblem.spline.clone().knots;
-                var spline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPointsReloc, knotVector);
-                var locFirstEvent = spline.evaluate(sequenceDiffEventsOptim[0].loc);
-                var locLastEvent = spline.evaluate(sequenceDiffEventsOptim[sequenceDiffEventsOptim.length - 1].loc);
-                if (Math.abs(controlPointsReloc[controlPointsReloc.length - 1].substract(locLastEvent).norm()) < 0.03 &&
-                    sequenceDiffEventsOptim[sequenceDiffEventsOptim.length - 1].loc - sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].loc > 0) {
-                    if (sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].event === DiffEventType.curvatExtremum)
-                        neighboringEvents.push({ event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: sequenceDiffEventsInit.length - 1 });
-                    if (sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].event === DiffEventType.inflection)
-                        neighboringEvents.push({ event: NeighboringEventsType.neighboringInflectionRightBoundary, index: sequenceDiffEventsInit.length - 1 });
+                const controlPointsReloc = this.optimizationProblem.spline.clone().controlPoints
+                const knotVector = this.optimizationProblem.spline.clone().knots
+                let spline = new BSpline_R1_to_R2(controlPointsReloc, knotVector)
+                let locFirstEvent = spline.evaluate(sequenceDiffEventsOptim[0].loc)
+                let locLastEvent = spline.evaluate(sequenceDiffEventsOptim[sequenceDiffEventsOptim.length - 1].loc)
+                if(Math.abs(controlPointsReloc[controlPointsReloc.length - 1].substract(locLastEvent).norm()) < 0.03 &&
+                sequenceDiffEventsOptim[sequenceDiffEventsOptim.length - 1].loc - sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].loc > 0) {
+                    if(sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].event === DiffEventType.curvatExtremum)
+                        neighboringEvents.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: sequenceDiffEventsInit.length - 1})
+                    if(sequenceDiffEventsInit[sequenceDiffEventsInit.length - 1].event === DiffEventType.inflection)
+                        neighboringEvents.push({event: NeighboringEventsType.neighboringInflectionRightBoundary, index: sequenceDiffEventsInit.length - 1})
                     //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
                     //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
-                    console.log("Event going out through curve extremity");
-                }
-                else if (Math.abs(controlPointsReloc[0].substract(locFirstEvent).norm()) < 0.03 &&
-                    sequenceDiffEventsOptim[0].loc - sequenceDiffEventsInit[0].loc < 0) {
-                    if (sequenceDiffEventsInit[0].event === DiffEventType.curvatExtremum)
-                        neighboringEvents.push({ event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0 });
-                    if (sequenceDiffEventsInit[0].event === DiffEventType.inflection)
-                        neighboringEvents.push({ event: NeighboringEventsType.neighboringInflectionLeftBoundary, index: 0 });
+                    console.log("Event going out through curve extremity")
+                } else if(Math.abs(controlPointsReloc[0].substract(locFirstEvent).norm()) < 0.03 &&
+                sequenceDiffEventsOptim[0].loc - sequenceDiffEventsInit[0].loc < 0) {
+                    if(sequenceDiffEventsInit[0].event === DiffEventType.curvatExtremum) neighboringEvents.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
+                    if(sequenceDiffEventsInit[0].event === DiffEventType.inflection) neighboringEvents.push({event: NeighboringEventsType.neighboringInflectionLeftBoundary, index: 0})
                     //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
                     //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
-                    console.log("Event going out through curve origin");
+                    console.log("Event going out through curve origin")
                 }
-            }
+            }*/
             if (neighboringEvents.length === 0) {
                 if (sequenceDiffEventsOptim.length > 0) {
                     if (this.curveSceneController.sizeStackControlPolygons < this.curveSceneController.MAX_NB_CONFIGS_CP) {
@@ -39786,18 +39786,37 @@ var SlidingStrategy = /** @class */ (function () {
                 //}
                 var curvatureExtrema = [];
                 var inflections = [];
+                var activeControl = this.optimizationProblem.activeControl;
                 for (var i = 0; i < neighboringEvents.length; i += 1) {
                     if (neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-                        if (sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length)
+                        if (sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
                             curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc);
+                            var constraintID = this.optimizationProblem.curvatureExtremaTotalNumberOfConstraints - 1;
+                            if (neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary)
+                                constraintID = 0;
+                            if (this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1)
+                                this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID);
+                            this.curveModel.setControlPoints(controlPointsInit);
+                            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
+                            this.optimizer = this.newOptimizer(this.optimizationProblem);
+                        }
                         else
                             curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc);
                     }
                     else if (neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionRightBoundary) {
-                        if (sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length)
+                        if (sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
                             inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc);
+                            var constraintID = this.optimizationProblem.inflectionTotalNumberOfConstraints - 1;
+                            if (neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary)
+                                constraintID = 0;
+                            if (this.optimizationProblem.shapeSpaceBoundaryConstraintsInflection.indexOf(constraintID) === -1)
+                                this.optimizationProblem.shapeSpaceBoundaryConstraintsInflection.push(constraintID);
+                            this.curveModel.setControlPoints(controlPointsInit);
+                            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
+                            this.optimizer = this.newOptimizer(this.optimizationProblem);
+                        }
                         else
                             inflections.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc);
                     }
@@ -40020,13 +40039,11 @@ function main() {
     }
     function keyDown(ev) {
         var keyName = ev.key;
-        //console.log(keyName + " down")
         if (keyName === "Shift")
             sceneController.shiftKeyDown();
     }
     function keyUp(ev) {
         var keyName = ev.key;
-        //console.log(keyName + " up")
         if (keyName === "Shift")
             sceneController.shiftKeyUp();
     }
@@ -42993,6 +43010,8 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         if (activeControl === void 0) { activeControl = ActiveControl.both; }
         var _this = _super.call(this, target, initial, activeControl) || this;
         _this.activeControl = activeControl;
+        _this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
+        _this.shapeSpaceBoundaryConstraintsInflection = [];
         return _this;
     }
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeGlobalExtremmumOffAxis = function (controlPoints) {
@@ -43063,18 +43082,98 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }*/
         for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
-                /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
-                //if(signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-                /* JCL general setting where events can slip out of the curve */
-                if (result.indexOf(signChangesIntervals[i]) === -1)
-                    result.push(signChangesIntervals[i]);
+                if (controlPoints.length === this.curvatureExtremaTotalNumberOfConstraints) {
+                    if (this.shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+                        if (this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                            if (this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                            }
+                            else if (this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                                this.shapeSpaceBoundaryConstraintsCurvExtrema.splice(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(controlPoints.length - 1), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i]) === -1)
+                                result.push(signChangesIntervals[i]);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                    else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                }
+                else if (controlPoints.length === this.inflectionTotalNumberOfConstraints) {
+                    if (this.shapeSpaceBoundaryConstraintsInflection !== undefined) {
+                        if (this.shapeSpaceBoundaryConstraintsInflection.length > 0) {
+                            if (this.shapeSpaceBoundaryConstraintsInflection.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                            }
+                            else if (this.shapeSpaceBoundaryConstraintsInflection.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                                this.shapeSpaceBoundaryConstraintsInflection.splice(this.shapeSpaceBoundaryConstraintsInflection.indexOf(controlPoints.length - 1), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i]) === -1)
+                                result.push(signChangesIntervals[i]);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                    else {
+                        if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                }
             }
             else {
-                /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
-                //if((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
-                /* JCL general setting where events can slip out of the curve */
-                if (result.indexOf(signChangesIntervals[i] + 1) === -1)
-                    result.push(signChangesIntervals[i] + 1);
+                if (controlPoints.length === this.curvatureExtremaTotalNumberOfConstraints) {
+                    if (this.shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                        if (this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                            if (this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                            }
+                            else if (this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                                this.shapeSpaceBoundaryConstraintsCurvExtrema.splice(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(0), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                                result.push(signChangesIntervals[i] + 1);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                    else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                }
+                else if (controlPoints.length === this.inflectionTotalNumberOfConstraints) {
+                    if (this.shapeSpaceBoundaryConstraintsInflection !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                        if (this.shapeSpaceBoundaryConstraintsInflection.length > 0) {
+                            if (this.shapeSpaceBoundaryConstraintsInflection.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                            }
+                            else if (this.shapeSpaceBoundaryConstraintsInflection.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                                this.shapeSpaceBoundaryConstraintsInflection.splice(this.shapeSpaceBoundaryConstraintsInflection.indexOf(0), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                                result.push(signChangesIntervals[i] + 1);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                    else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                }
             }
         }
         return result;

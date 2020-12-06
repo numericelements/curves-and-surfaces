@@ -53,8 +53,10 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
 
     private _curvatureExtremaNumberOfActiveConstraints: number
     private _inflectionNumberOfActiveConstraints: number
-    private curvatureExtremaTotalNumberOfConstraints: number
-    private inflectionTotalNumberOfConstraints: number
+    //private curvatureExtremaTotalNumberOfConstraints: number
+    //private inflectionTotalNumberOfConstraints: number
+    public curvatureExtremaTotalNumberOfConstraints: number
+    public inflectionTotalNumberOfConstraints: number
 
     private _f: number[]
     private _gradient_f: DenseMatrix
@@ -1012,8 +1014,14 @@ interface ExtremumLocation {index: number, value: number}
 
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
+    public shapeSpaceBoundaryConstraintsCurvExtrema: number[]
+    public shapeSpaceBoundaryConstraintsInflection: number[]
+
     constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
         super(target, initial, activeControl)
+
+        this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
+        this.shapeSpaceBoundaryConstraintsInflection = [];
     }
 
     computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
@@ -1079,15 +1087,71 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }*/
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
-                /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
-                //if(signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-                /* JCL general setting where events can slip out of the curve */
-                if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                if(controlPoints.length === this.curvatureExtremaTotalNumberOfConstraints) {
+                    if(this.shapeSpaceBoundaryConstraintsCurvExtrema !== undefined){
+                        /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+                        if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                            if(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                            } else if(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                                this.shapeSpaceBoundaryConstraintsCurvExtrema.splice(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(controlPoints.length - 1), 1);
+                            } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                        } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+    
+                    } else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                    }
+                } else if(controlPoints.length === this.inflectionTotalNumberOfConstraints) {
+                    if(this.shapeSpaceBoundaryConstraintsInflection !== undefined){
+                        if(this.shapeSpaceBoundaryConstraintsInflection.length > 0) {
+                            if(this.shapeSpaceBoundaryConstraintsInflection.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i])
+                            } else if(this.shapeSpaceBoundaryConstraintsInflection.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                                this.shapeSpaceBoundaryConstraintsInflection.splice(this.shapeSpaceBoundaryConstraintsInflection.indexOf(controlPoints.length - 1), 1);
+                            } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                        } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+
+                    } else {
+                        if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
+                    }
+                }
             } else {
-                /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
-                //if((signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
-                /* JCL general setting where events can slip out of the curve */
-                if(result.indexOf(signChangesIntervals[i] + 1) === -1)result.push(signChangesIntervals[i] + 1);
+                if(controlPoints.length === this.curvatureExtremaTotalNumberOfConstraints) {
+                    if(this.shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                        if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                            if(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1){
+                                result.push(signChangesIntervals[i] + 1);
+                            } else if(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                                this.shapeSpaceBoundaryConstraintsCurvExtrema.splice(this.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(0), 1)
+                            } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
+                        } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
+
+                    } else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
+                    }
+                } else if(controlPoints.length === this.inflectionTotalNumberOfConstraints) {
+                    if(this.shapeSpaceBoundaryConstraintsInflection !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                        if(this.shapeSpaceBoundaryConstraintsInflection.length > 0) {
+                            if(this.shapeSpaceBoundaryConstraintsInflection.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1){
+                                result.push(signChangesIntervals[i] + 1);
+                            } else if(this.shapeSpaceBoundaryConstraintsInflection.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                                this.shapeSpaceBoundaryConstraintsInflection.splice(this.shapeSpaceBoundaryConstraintsInflection.indexOf(0), 1)
+                            } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
+                        } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
+
+                    } else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
+                    }
+                }
             }
         }
         return result
