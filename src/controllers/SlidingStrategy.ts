@@ -24,13 +24,14 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     
     //private optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors
     private optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation
-    private optimizer: Optimizer
+    //private optimizer: Optimizer
+    public optimizer: Optimizer
     private activeOptimizer: boolean = true
 
     private curveModel: CurveModel
     /* JCL 2020/09/23 Add management of the curve location */
     private curveSceneController: CurveSceneController
-    private shapeSpaceBoundaryConstraints: number[] = []
+    public lastDiffEvent: NeighboringEventsType
 
     constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, curveSceneController: CurveSceneController ) {
         this.curveModel = curveModel
@@ -59,6 +60,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this.optimizer = this.newOptimizer(this.optimizationProblem)
+        this.lastDiffEvent = NeighboringEventsType.none
     }
 
     setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
@@ -560,7 +562,95 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             result.push({event: NeighboringEventsType.neighboringCurvatureExtrema, index: inflectionIndicesOptim[lostEvents[0].inter - 1] + candidateEventIndex})
                         }
                     } else if (lostEvents[0].nbE === -1) {
-                        console.log("About to add an event in the interval " + lostEvents[0].inter)
+                        if(lostEvents[0].inter === 0) {
+
+                            let intervals: intervalsCurvatureExt
+                            intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
+                            let intervalsOptim: intervalsCurvatureExt
+                            intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
+                            let candidateEventIndex = this.indexSmallestInterval(intervalsOptim, -lostEvents[0].nbE)
+                            let ratioLeft = 0.0, ratioRight = 0.0, indexMaxIntverVar = -1
+                            if(intervals.sequence.length > 0) {
+                                ratioLeft = (intervals.sequence[0]/intervals.span)/(intervalsOptim.sequence[0]/intervalsOptim.span)
+                                ratioRight = (intervals.sequence[intervals.sequence.length - 1]/intervals.span)/(intervalsOptim.sequence[intervalsOptim.sequence.length - 1]/intervalsOptim.span)
+                                if(ratioLeft > ratioRight) {
+                                    indexMaxIntverVar = 0
+                                    let maxRatioR = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Reverse)
+                                    if(maxRatioR.value > ratioLeft) {
+                                        indexMaxIntverVar = maxRatioR.index
+                                    }
+                                } else {
+                                    indexMaxIntverVar = intervalsOptim.sequence.length - 1
+                                    let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Forward)
+                                    if(maxRatioF.value > ratioRight) {
+                                        indexMaxIntverVar = maxRatioF.index
+                                    }
+                                }
+                            } else {
+                                indexMaxIntverVar = 0
+                            }
+                            
+                            if(candidateEventIndex !== -1) {
+                                if(inflectionIndices.length === 0) {
+                                    if(indexMaxIntverVar === candidateEventIndex) {
+                                        console.log("Events are stable as well as the candidate event.")
+                                    } else if(indexMaxIntverVar !== candidateEventIndex) {
+                                        console.log("Other events variations may influence the decision about the candidate event.")
+                                        if(!(ratioLeft > ratioRight && candidateEventIndex === 0)) {
+                                            candidateEventIndex = 0
+                                        } else if(!(ratioLeft < ratioRight && candidateEventIndex === intervalsOptim.sequence.length - 1))
+                                            candidateEventIndex = intervalsOptim.sequence.length - 1
+                                    }
+                                } else {
+                                    /* JCL The only other possibility is candidateEventIndex = 0 */
+                                    candidateEventIndex = 0
+                                }
+
+                            } else throw new Error("Unable to generate the smallest interval of differential events for this curve.")
+
+                            if(inflectionIndices.length === 0) {
+                                if(candidateEventIndex === 0) {
+                                    result.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
+                                //} else if (maxRatio.index === intervalExtremaOptim.length - 1) {
+                                } else if (candidateEventIndex === intervalsOptim.sequence.length - 1) {
+                                    result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEventsOptim.length - 1})
+                                } else {
+                                    console.log("Inconsistent identification of curvature extremum. Possibly extremum at a knot.")
+                                    result.push({event: NeighboringEventsType.none, index: candidateEventIndex})
+                                }
+                            } else {
+                                if(candidateEventIndex === 0) {
+                                    result.push({event: NeighboringEventsType.neighboringCurExtremumLeftBoundary, index: 0})
+                                } else {
+                                    console.log("Inconsistent identification of curvature extremum")
+                                    result.push({event: NeighboringEventsType.none, index: candidateEventIndex})
+                                }
+                            }
+
+                        } else if(lostEvents[0].inter === inflectionIndices.length) {
+                            let intervals: intervalsCurvatureExt
+                            intervals = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents, inflectionIndices, lostEvents)
+                            let intervalsOptim: intervalsCurvatureExt
+                            intervalsOptim = this.computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEventsOptim, inflectionIndicesOptim, lostEvents)
+                            let candidateEventIndex = this.indexSmallestInterval(intervalsOptim, -lostEvents[0].nbE)
+                            let ratioRight = 0.0, indexMaxIntverVar = -1
+                            if(intervals.sequence.length > 0) {
+                                ratioRight = (intervals.sequence[intervals.sequence.length - 1]/intervals.span)/(intervalsOptim.sequence[intervalsOptim.sequence.length - 1]/intervalsOptim.span)
+                                indexMaxIntverVar = intervalsOptim.sequence.length - 1
+                                let maxRatioF = this.indexIntervalMaximalVariation(intervals, intervalsOptim, indexMaxIntverVar, lostEvents[0].nbE, Direction.Forward)
+                                if(maxRatioF.value > ratioRight) {
+                                    indexMaxIntverVar = maxRatioF.index
+                                }
+                            } else {
+                                indexMaxIntverVar = intervalsOptim.sequence.length - 1
+                            }
+                            if(candidateEventIndex !== -1 && (candidateEventIndex !== intervalsOptim.sequence.length - 1 || indexMaxIntverVar !== intervalsOptim.sequence.length - 1)) {
+                                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.")
+                            }
+                            result.push({event: NeighboringEventsType.neighboringCurExtremumRightBoundary, index: orderedDifferentialEvents.length - 1})
+
+                        } else throw new Error("Inconsistent content of events in this interval.")
+
                     } else {
                         throw new Error("Inconsistent content of the intervals of lost events or more than one elementary event into a single interval between inflections.")
                     }
@@ -845,14 +935,21 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                         neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
                         if(sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
                             curvatureExtrema.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
-                            let constraintID = this.optimizationProblem.curvatureExtremaTotalNumberOfConstraints - 1
-                            if(neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary) constraintID = 0
-                            if(this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1) this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID)
-                            this.curveModel.setControlPoints(controlPointsInit)
-                            this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
-                            this.optimizer = this.newOptimizer(this.optimizationProblem)
-
-                        } else curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
+                        } else {
+                            curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
+                        }
+                        let constraintID = this.optimizationProblem.curvatureExtremaTotalNumberOfConstraints - 1
+                        if(neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary) constraintID = 0
+                        if(this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1) {
+                            this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID)
+                            /* JCL To be used for interaction when the user removes one event to monitor the removal (or the addition) of this event 
+                            To be distinguished between the insertion of an extremum when removing the curvature extrema from the case where only one
+                            extremum appears on the curve because the other one should appear outside (case where a couple of extrema appear simultaneously) */
+                            this.lastDiffEvent = neighboringEvents[i].event
+                        }
+                        this.curveModel.setControlPoints(controlPointsInit)
+                        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                        this.optimizer = this.newOptimizer(this.optimizationProblem)
 
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionRightBoundary) {
@@ -865,7 +962,10 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                             this.optimizer = this.newOptimizer(this.optimizationProblem)
 
-                        } else inflections.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
+                        } else {
+                            inflections.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
+                            console.log("Processing of a possible insertion of an inflection at an extremity must be added. Probably similar to the insertion of a curvature extremum.")
+                        }
 
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringCurvatureExtrema) {
                         if(sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {

@@ -510,6 +510,11 @@ export class CurveSceneController implements SceneControllerInterface {
                     this.curveModel.setControlPoint(selectedControlPoint, x, y)
                 } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
                         || this.allowShapeSpaceChange === true) {
+                    /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
+                        if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
+
+                        }
+                    }*/
                     this.curveControl.optimize(selectedControlPoint, x, y)
                 }
 
