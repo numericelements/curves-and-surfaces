@@ -7,6 +7,8 @@ import { SymmetricMatrixInterface } from "./MatrixInterfaces";
 import { identityMatrix, DiagonalMatrix } from "./DiagonalMatrix";
 import { DenseMatrix } from "./DenseMatrix";
 import { SymmetricMatrix } from "./SymmetricMatrix";
+import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
+import { findSpan } from "./Piegl_Tiller_NURBS_Book";
 
 
 class ExpensiveComputationResults {
@@ -40,28 +42,38 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
     readonly Dsuuu: BernsteinDecomposition_R1_to_R1[]
 
 
-    private curvatureExtremaConstraintsSign: number[] = []
-    private curvatureExtremaInactiveConstraints: number[] = []
+    //private curvatureExtremaConstraintsSign: number[] = []
+    //private curvatureExtremaInactiveConstraints: number[] = []
 
-    private inflectionConstraintsSign: number[] = []
-    private inflectionInactiveConstraints: number[] = []
+    //private inflectionConstraintsSign: number[] = []
+    //private inflectionInactiveConstraints: number[] = []
+    protected curvatureExtremaConstraintsSign: number[] = []
+    protected curvatureExtremaInactiveConstraints: number[] = []
+
+    protected inflectionConstraintsSign: number[] = []
+    protected inflectionInactiveConstraints: number[] = []
 
     private _numberOfIndependentVariables: number
     protected _f0: number
     protected _gradient_f0: number[]
     protected _hessian_f0: SymmetricMatrixInterface
 
-    private _curvatureExtremaNumberOfActiveConstraints: number
-    private _inflectionNumberOfActiveConstraints: number
+    //private _curvatureExtremaNumberOfActiveConstraints: number
+    //private _inflectionNumberOfActiveConstraints: number
     //private curvatureExtremaTotalNumberOfConstraints: number
     //private inflectionTotalNumberOfConstraints: number
+    protected _curvatureExtremaNumberOfActiveConstraints: number
+    protected _inflectionNumberOfActiveConstraints: number
     public curvatureExtremaTotalNumberOfConstraints: number
     public inflectionTotalNumberOfConstraints: number
 
-    private _f: number[]
-    private _gradient_f: DenseMatrix
+    //private _f: number[]
+    protected _f: number[]
+    //private _gradient_f: DenseMatrix
+    protected _gradient_f: DenseMatrix
     //private _hessian_f: SymmetricMatrixInterface[] | undefined = undefined
-    private _hessian_f: SymmetricMatrix[] | undefined = undefined
+    //private _hessian_f: SymmetricMatrix[] | undefined = undefined
+    protected _hessian_f: SymmetricMatrix[] | undefined = undefined
     readonly isComputingHessian: boolean = false
     private Dh5xx: BernsteinDecomposition_R1_to_R1[][] = []
     private Dh6_7xy: BernsteinDecomposition_R1_to_R1[][] = []
@@ -109,7 +121,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
-        console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+        //console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
 
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
@@ -1016,12 +1028,55 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
 
     public shapeSpaceBoundaryConstraintsCurvExtrema: number[]
     public shapeSpaceBoundaryConstraintsInflection: number[]
+    public neighboringEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: -1}
+    private revertConstraints: number[]
+    private constraintBound: number[]
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both, neighneighboringEvent?: NeighboringEvents) {
         super(target, initial, activeControl)
 
         this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
         this.shapeSpaceBoundaryConstraintsInflection = [];
+        this.revertConstraints = [];
+        if(neighneighboringEvent !== undefined) {
+            this.neighboringEvent = neighneighboringEvent
+        } else {
+            //this.neighboringEvent.event = NeighboringEventsType.none;
+            //this.neighboringEvent.index = -1
+            this.neighboringEvent.value = 0.0
+            this.neighboringEvent.valueOptim = 0.0
+            this.neighboringEvent.locExt = 0.0
+            this.neighboringEvent.locExtOptim = 0.0
+            this.neighboringEvent.variation = []
+            this.neighboringEvent.span = -1
+            this.neighboringEvent.range = 0
+        }
+
+        const e = this.expensiveComputation(this.spline)  
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.constraintBound = zeroVector(g.length);
+        for(let i = 0; i < g.length; i += 1) {
+            this.revertConstraints.push(1);
+        }
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
+        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+
+        const curvatureNumerator = this.curvatureNumerator(e.h4)
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+        this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+        this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
+            this.revertConstraints, this.constraintBound)
+
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        
+        if (this.isComputingHessian) {
+            this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
+            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        }
+
     }
 
     computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
@@ -1076,7 +1131,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         } else return localExtremum
     }
 
-    computeControlPointsClosestToZeroBis(signChangesIntervals: number[], controlPoints: number[]) {
+    computeControlPointsClosestToZeroGeneralNavigation(signChangesIntervals: number[], controlPoints: number[]) {
         let result: number[] = []
         /*let extremaAroundAxis: number[] = []
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
@@ -1193,9 +1248,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         return result
     }
 
-    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+    computeInactiveConstraintsGN(constraintsSign: number[], controlPoints: number[]) {
         let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
-        let controlPointsClosestToZero = this.computeControlPointsClosestToZeroBis(signChangesIntervals, controlPoints)
+        let controlPointsClosestToZero = this.computeControlPointsClosestToZeroGeneralNavigation(signChangesIntervals, controlPoints)
         let globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints)
         if(globalExtremumOffAxis !== -1) {
             controlPointsClosestToZero.push(globalExtremumOffAxis)
@@ -1203,6 +1258,162 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
         //console.log("inactiveConstraints before inflection: " + controlPointsClosestToZero + " globalExt " + globalExtremumOffAxis)
         let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
+        if(controlPointsClosestToZero.length !== result.length) console.log("computeInactiveConstraints: probable inconsistency in the matrix setting due to the order of inactive constraints")
+        /* JCL Probably no change takes place though addInactiveConstraintsForInflections because new indices would be appended to controlPointsClosestToZero in result
+            result would not be ordered, which would cause problem when loading the matrix of the inequalities */
+
+        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+            if(this.neighboringEvent.value && this.neighboringEvent.valueOptim &&  this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span && this.neighboringEvent.range && this.neighboringEvent.variation) {
+                const upperBound = this.neighboringEvent.span
+                const lowerBound = this.neighboringEvent.span - this.neighboringEvent.range
+                /* JCL removes the inactive constraints tha may exit in the current interval span */
+                for(let j = lowerBound; j < upperBound + 1; j += 1) {
+                    if(result.indexOf(j) !== -1) result.splice(result.indexOf(j), 1)
+                }
+    
+                //let revertConstraints: Array<number> =[]
+                //let constraintBound: Array<number> =[]
+                let j = 0
+                for(let i = 0; i < controlPoints.length; i+= 1){
+                    this.revertConstraints[i] = 1
+                    this.constraintBound[i] = 0
+                    if(i >=  lowerBound && i <= upperBound) {
+                        /* JCL a simplifier */
+                        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                            if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
+                            if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                        } else if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                            if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
+                            if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                        }
+                            this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                        j += 1
+                    }
+                }
+                /*if(this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) {
+                    let activeSignChanges: number[] = []
+                    for(let i = 0; i < signChangesIntervals.length; i += 1) {
+                        if(signChangesIntervals[i] >= lowerBound && signChangesIntervals[i] < upperBound) activeSignChanges.push(signChangesIntervals[i])
+                    }
+                    if(activeSignChanges.length < 2) {
+                        console.log("Number of control polygon sign changes inconsistent.")
+                    } else if(activeSignChanges.length === 2) {
+                        let deltaLowerBound = controlPoints[activeSignChanges[0] + 1] - controlPoints[activeSignChanges[0]]
+                        let deltaUpperBound = controlPoints[activeSignChanges[1] + 1] - controlPoints[activeSignChanges[1]]
+                        if(!(deltaLowerBound > 0 && deltaUpperBound < 0)) console.log("Inconsistent sign changes")
+                        if(controlPoints[lowerBound] < 0.0 && controlPoints[upperBound] < 0.0) console.log("Inconsistent location of the extreme control vertices.")
+                        let zeroControlPolygonLowerBound = (Math.abs(controlPoints[activeSignChanges[0] + 1] / controlPoints[activeSignChanges[0]]) + 1.0) / (controlPoints.length - 1)
+                        let zeroControlPolygonUpperBound = (Math.abs(controlPoints[activeSignChanges[1] + 1] / controlPoints[activeSignChanges[1]]) + 1.0) / (controlPoints.length - 1)
+                        if(!((activeSignChanges[0]/(controlPoints.length - 1)) + zeroControlPolygonLowerBound < this.neighboringEvent.locExt && 
+                            (activeSignChanges[1]/(controlPoints.length - 1)) + zeroControlPolygonUpperBound > this.neighboringEvent.locExt)) {
+                            console.log("Inconsistent location of the curvature derivative extremum wrt its control polygon.")
+                        }
+                        console.log("Consistent number of zeros in the control polygon")
+                        if(activeSignChanges[0] + 1 === activeSignChanges[1]) {
+                            /* JCL The positive half plane caontains only one control point. Its constraint must not be deactivated */
+                            /*let indexControlPoint = result.indexOf(activeSignChanges[1])
+                            if(indexControlPoint !== -1) {
+                                result.splice(indexControlPoint, 1)
+                            }
+                        } else if(activeSignChanges[1] - activeSignChanges[0] + 1 === 1) {*/
+                            /* JCL The positive half plane contains only two control points. Their constraint must not be deactivated */
+                            /*let indexControlPoint = result.indexOf(activeSignChanges[0] + 1)
+                            if(indexControlPoint !== -1) {
+                                result.splice(indexControlPoint, 1)
+                            }
+                            indexControlPoint = result.indexOf(activeSignChanges[1])
+                            if(indexControlPoint !== -1) {
+                                result.splice(indexControlPoint, 1)
+                            }
+                        }
+                    } else if(activeSignChanges.length > 2) {
+    
+                    }
+    
+                }*/
+            } else {
+                console.log("Inconsistent content for processing neighboring events.")
+            }
+        }
+
         return result
     }
+
+    compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[], 
+        revertConstraints: number[], constraintBound: number []) {
+        let result: number[] = []
+        for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1
+            } else {
+                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i] * revertConstraints[i] - constraintBound[i])
+            }
+        }
+        return result
+    }
+
+    compute_fGN(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[],
+        revertConstraints: number[], constraintBound: number []) {
+        //let result: number[] = []
+
+        if (this.activeControl === ActiveControl.both) {
+            const r1 = this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound)
+            const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
+            return r1.concat(r2)
+        }
+
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound)
+        }
+        else {
+            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
+        }
+       
+    }
+
+    step(deltaX: number[]) {
+        this.spline.optimizerStep(deltaX)
+        this._gradient_f0 = this.compute_gradient_f0(this.spline)
+        this._f0 = this.compute_f0(this._gradient_f0)
+        const e = this.expensiveComputation(this.spline)  
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
+        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+
+        const curvatureNumerator = this.curvatureNumerator(e.h4)
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+        this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+
+
+        this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
+            this.revertConstraints, this.constraintBound)
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+
+        if (this.isComputingHessian) {
+            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        }
+    }
+
+    cancelEvent() {
+        this.neighboringEvent.event = NeighboringEventsType.none;
+        this.neighboringEvent.index = -1
+        this.neighboringEvent.value = 0.0
+        this.neighboringEvent.valueOptim = 0.0
+        this.neighboringEvent.locExt = 0.0
+        this.neighboringEvent.locExtOptim = 0.0
+        this.neighboringEvent.variation = []
+        this.neighboringEvent.span = -1
+        this.neighboringEvent.range = 0
+
+        const e = this.expensiveComputation(this.spline)  
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.constraintBound = zeroVector(g.length);
+        for(let i = 0; i < g.length; i += 1) {
+            this.revertConstraints.push(1);
+        }
+    }
+
 }

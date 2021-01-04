@@ -1,4 +1,4 @@
-import {binomialCoefficient, memoizedBinomialCoefficient} from "./BinomialCoefficient"
+import {binomialCoefficient, memorizedBinomialCoefficient} from "./BinomialCoefficient"
 
 /**
 * A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
@@ -7,7 +7,7 @@ import {binomialCoefficient, memoizedBinomialCoefficient} from "./BinomialCoeffi
 export class BernsteinDecomposition_R1_to_R1 {
 
 
-    static binomial = memoizedBinomialCoefficient()
+    static binomial = memorizedBinomialCoefficient()
     static flopsCounter = 0
     
     /**

@@ -11,11 +11,32 @@ import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
 import { BSpline_R1_to_R2_interface } from "./mathematics/BSplineInterfaces"
 
 import { CurveModel } from "./models/CurveModel"
+import { createProgram } from "./webgl/cuon-utils";
 
 
 export function main() {
+
+    let VSHADER_SOURCE = 
+        'attribute vec4 a_position;\n' +
+        'attribute vec2 a_texcoord;\n' +
+        'uniform mat4 u_matrix;\n' +
+        'varying vec2 v_texcoord;\n' +
+        'void main() {\n' +
+        '   gl_Position = u_matrix * a_position;\n' +
+        '   v_texcoord = a_texcoord;\n' +
+        '}\n';
+    
+    let  FSHADER_SOURCE = 
+    'precision mediump float;\n' +
+    'varying vec2 v_texcoord;\n' +
+    'uniform sampler2D u_texture;\n' +
+    'void main() {\n' +
+    '   gl_FragColor = texture2D(u_texture, v_texcoord);\n' +
+    '}\n';
     
     let canvas = <HTMLCanvasElement> document.getElementById("webgl")
+    /* JCL Get icons of insert knot and insert control point functions */
+    let iconKnotInsertion: HTMLImageElement;
 
     /* JCL Get control button IDs for curve control*/
     let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
@@ -44,6 +65,7 @@ export function main() {
     let labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension")
     let currentFileName: string = ""
     let fileR = new FileReader()
+    //let imageFile: File
 
     /* JCL 2020/09/08 Set the reference parameters for the function graphs */
     const MAX_NB_GRAPHS = 3;
@@ -60,6 +82,65 @@ export function main() {
         console.log('Failed to get the rendering context for WebGL')
         return
     }
+
+    /* JCL Test */
+    let program = createProgram(gl, VSHADER_SOURCE, FSHADER_SOURCE);
+    if (!program) {
+        console.log('Failed to create program');
+    }
+    //gl.useProgram(program);
+    let positionLocation = gl.getAttribLocation(program, "a_position");
+    let texcoordLocation = gl.getAttribLocation(program, "a_texcoord");
+    // lookup uniforms
+    let matrixLocation = gl.getUniformLocation(program, "u_matrix");
+    let textureLocation = gl.getUniformLocation(program, "u_texture");
+    // Create a buffer.
+    let positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+    // Put a unit quad in the buffer
+    let positions = [
+    0, 0,
+    0, 1,
+    1, 0,
+    1, 0,
+    0, 1,
+    1, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    // Create a buffer for texture coords
+    let texcoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+
+    // Put texcoords in the buffer
+    let texcoords = [
+    0, 0,
+    0, 1,
+    1, 0,
+    1, 0,
+    0, 1,
+    1, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
+
+    let tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    // Fill the texture with a 1x1 blue pixel.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                    new Uint8Array([0, 0, 255, 255]));
+
+    // let's assume all images are not a power of 2
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+    let textureInfo = {
+        width: 1,   // we don't know the size until it loads
+        height: 1,
+        texture: tex,
+    };
+    iconKnotInsertion = new Image();
 
     /*let canvasFunctionA = <HTMLCanvasElement> document.getElementById('chartjsFunctionA')
     let ctxFunctionA = canvasFunctionA.getContext('2d');*/
@@ -92,7 +173,6 @@ export function main() {
         style = window.getComputedStyle(id, null);
         console.log("style chart function B bis: " + style.getPropertyValue("display"));
     }*/
-
 
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
@@ -581,7 +661,14 @@ export function main() {
                     if(curveFile !== null) {
                         inputFileLoad.value = ""
                         currentFileName = curveFile.name;
-                        fileR.readAsText(curveFile);
+                        if(currentFileName.indexOf(".json") !== -1) {
+                            fileR.readAsText(curveFile);
+                        } else if(currentFileName.indexOf(".png") !== -1) {
+                            console.log("read an image");
+                            fileR.readAsArrayBuffer(curveFile);
+                            iconKnotInsertion.src = currentFileName
+                            //imageFile = curveFile
+                        }
                     }
                 }
             }
@@ -602,6 +689,12 @@ export function main() {
         validateInput.style.display = "none";
         sceneController.saveCurveToFile(currentFileName);
     }
+    function processInputTexture() {
+        textureInfo.width = iconKnotInsertion.width;
+        textureInfo.height = iconKnotInsertion.height;
+        gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iconKnotInsertion);
+    }
 
     function processInputFile(ev: ProgressEvent) {
         if(ev.target !== null) console.log("Reading the file" + currentFileName);
@@ -612,8 +705,16 @@ export function main() {
                     aString = fileR.result.toString();
                 } else {
                     /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
-                    let string  = new String(fileR.result);
-                    aString = string.toString();
+                    //Promise.all([createImageBitmap(imageFile)]).then(function(image){ iconKnotInsertion = image[0]})
+                    //const requiredData = await Promise.all([createImageBitmap(imageFile)])
+                    //iconKnotInsertion = requiredData[0]
+                    //Promise.all([createImageBitmap(imageFile)])
+                    if(currentFileName.indexOf(".png") !== -1) {
+                        console.log("Input file is an image. No need to reinitialize curve controls.")
+                        return
+                    }
+                    /*let string  = new String(fileR.result);
+                    aString = string.toString();*/
                 }
                 let aSpline = sceneController.loadCurveFromFile(aString);
 
@@ -705,6 +806,70 @@ export function main() {
         }
     };
 
+    function drawImage(tex: any, texWidth: number, texHeight: number, dstX: number, dstY: number) {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+
+        // Tell WebGL to use our shader program pair
+        gl.useProgram(program);
+
+        // Setup the attributes to pull data from our buffers
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+        gl.enableVertexAttribArray(texcoordLocation);
+        gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        // this matrix will convert from pixels to clip space
+        /*var matrix = m4.orthographic(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
+
+        // this matrix will translate our quad to dstX, dstY
+        matrix = m4.translate(matrix, dstX, dstY, 0);
+
+        // this matrix will scale our 1 unit quad
+        // from 1 unit to texWidth, texHeight units
+        matrix = m4.scale(matrix, texWidth, texHeight, 1);
+
+        // Set the matrix.
+        gl.uniformMatrix4fv(matrixLocation, false, matrix);*/
+
+        // Tell the shader to get the texture from texture unit 0
+        gl.uniform1i(textureLocation, 0);
+
+        // draw the quad (2 triangles, 6 vertices)
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+    
+    function loadImageAndCreateTextureInfo(url: string) {
+        let tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        // Fill the texture with a 1x1 blue pixel.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                      new Uint8Array([0, 0, 255, 255]));
+    
+        // let's assume all images are not a power of 2
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    
+        let textureInfo = {
+          width: 1,   // we don't know the size until it loads
+          height: 1,
+          texture: tex,
+        };
+        let img = new Image();
+        img.addEventListener('load', function() {
+          textureInfo.width = img.width;
+          textureInfo.height = img.height;
+    
+          gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        });
+        img.src = url;
+    
+        return textureInfo;
+    }
+
     canvas.addEventListener('mousedown', mouse_click, false);
     canvas.addEventListener('mousemove', mouse_drag, false);
     canvas.addEventListener('mouseup', mouse_stop_drag, false);
@@ -738,6 +903,7 @@ export function main() {
     inputFileName.addEventListener('input', inputCurveFileName);
     validateInput.addEventListener('click', inputButtonValidate);
     fileR.addEventListener('load', processInputFile);
+    iconKnotInsertion.addEventListener('load', processInputTexture);
 
     document.body.addEventListener('keydown', keyDown);
     document.body.addEventListener('keyup', keyUp);

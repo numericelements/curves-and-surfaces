@@ -16,7 +16,7 @@ export function binomialCoefficient(n: number, k: number) {
     return result;
 };
 
-export function memoizedBinomialCoefficient() {
+export function memorizedBinomialCoefficient() {
     let cache: number[][] = []
     return (n: number, k: number) => {
         if (cache[n] !== undefined && cache[n][k] !== undefined ) {
