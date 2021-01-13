@@ -9,6 +9,8 @@ import { DenseMatrix } from "./DenseMatrix";
 import { SymmetricMatrix } from "./SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
 import { findSpan } from "./Piegl_Tiller_NURBS_Book";
+import { BSpline_R1_to_R2_DifferentialProperties } from "./BSpline_R1_to_R2_DifferentialProperties";
+import { Vector_2d } from "./Vector_2d";
 
 
 class ExpensiveComputationResults {
@@ -31,7 +33,12 @@ export enum ActiveControl {curvatureExtrema, inflections, both}
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 /*export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none} */
 
+interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
+interface extremaNearKnot {kIndex: number, extrema: Array<number>}
+export enum eventMove {still, moveToKnotLR, moveAwayFromKnotRL, moveToKnotRL, moveAwayFromKnotLR}
+enum transitionCP {negativeToPositive, positiveToNegative, none}
 
+const DEVIATION_FROM_KNOT = 0.25
 
 export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
@@ -1031,18 +1038,29 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     public neighboringEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: -1}
     private revertConstraints: number[]
     private constraintBound: number[]
+    private eventMoveAtIterationStart: eventMove
+    public previousSequenceCurvatureExtrema: number[]
+    public currentSequenceCurvatureExtrema: number[]
+    public previousCurvatureExtremaControlPoints: number[]
+    public currentCurvatureExtremaControPoints: number[]
+    public updateConstraintBound: boolean
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both, neighneighboringEvent?: NeighboringEvents) {
+    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both, neighboringEvent?: NeighboringEvents) {
         super(target, initial, activeControl)
 
         this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
         this.shapeSpaceBoundaryConstraintsInflection = [];
+        this.previousSequenceCurvatureExtrema = [];
+        this.currentSequenceCurvatureExtrema = [];
+        this.previousCurvatureExtremaControlPoints = [];
+        this.updateConstraintBound = true
+        this.eventMoveAtIterationStart = eventMove.still
         this.revertConstraints = [];
-        if(neighneighboringEvent !== undefined) {
-            this.neighboringEvent = neighneighboringEvent
+        if(neighboringEvent !== undefined) {
+            this.neighboringEvent = neighboringEvent
         } else {
-            //this.neighboringEvent.event = NeighboringEventsType.none;
-            //this.neighboringEvent.index = -1
+            this.neighboringEvent.event = NeighboringEventsType.none;
+            this.neighboringEvent.index = -1
             this.neighboringEvent.value = 0.0
             this.neighboringEvent.valueOptim = 0.0
             this.neighboringEvent.locExt = 0.0
@@ -1054,6 +1072,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
 
         const e = this.expensiveComputation(this.spline)  
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.currentCurvatureExtremaControPoints = g
         this.constraintBound = zeroVector(g.length);
         for(let i = 0; i < g.length; i += 1) {
             this.revertConstraints.push(1);
@@ -1070,7 +1089,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
             this.revertConstraints, this.constraintBound)
 
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_fGN(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints, this.revertConstraints)
         
         if (this.isComputingHessian) {
             this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
@@ -1262,11 +1281,153 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         /* JCL Probably no change takes place though addInactiveConstraintsForInflections because new indices would be appended to controlPointsClosestToZero in result
             result would not be ordered, which would cause problem when loading the matrix of the inequalities */
 
-        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+        if(this.spline.degree === 3) {
+            /* JCL Specific treatment for event sliding with cubics */
+            let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
+            let extremaNearKnot: Array<extremaNearKnot> = []
+            let eventMoveNearKnot: eventMove = eventMove.still
+            if(this.spline.degree === 3 && this.spline.knots.length > 8) {
+                /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
+                let knots = this.spline.knots
+                //let knotIndex = 0
+                for(let i = 4; i < (knots.length - 4); i += 1) {
+                    //if(knots[i] !== knots[i - 1]) knotIndex += 1
+                    if(this.spline.knotMultiplicity(knots[i]) === 1) intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
+                }
+                const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+                const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+                const curvatureExtremaLocationsOptim = functionBOptim.zeros()
+                for(let i = 0; i < intermediateKnots.length; i += 1) {
+                    for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
+                        if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
+                        curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
+                            if(extremaNearKnot.length > 0 && extremaNearKnot[extremaNearKnot.length - 1].kIndex === i) extremaNearKnot[extremaNearKnot.length - 1].extrema.push(j)
+                                //else extremaNearKnot.push({kIndex: intermediateKnots[i].index, extrema: [j]})
+                                else extremaNearKnot.push({kIndex: i, extrema: [j]})
+                            let move = 0.0
+                            eventMoveNearKnot = eventMove.still
+                            if(this.previousSequenceCurvatureExtrema.length > 0) move = curvatureExtremaLocationsOptim[j] - this.previousSequenceCurvatureExtrema[j]
+                            if(curvatureExtremaLocationsOptim[j] < intermediateKnots[i].knot && move > 0) eventMoveNearKnot = eventMove.moveToKnotLR
+                            if(curvatureExtremaLocationsOptim[j] < intermediateKnots[i].knot && move < 0) eventMoveNearKnot = eventMove.moveAwayFromKnotRL
+                            if(curvatureExtremaLocationsOptim[j] > intermediateKnots[i].knot && move > 0) eventMoveNearKnot = eventMove.moveAwayFromKnotLR
+                            if(curvatureExtremaLocationsOptim[j] > intermediateKnots[i].knot && move < 0) eventMoveNearKnot = eventMove.moveToKnotRL
+                            if(this.updateConstraintBound) this.eventMoveAtIterationStart = eventMoveNearKnot
+                            //console.log("add an event near an intermediate knot")
+                        }
+                    }
+                }
+                if(this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length && this.updateConstraintBound) {
+                    for(let i = 0; i < controlPoints.length; i+= 1){
+                        this.revertConstraints[i] = 1
+                        this.constraintBound[i] = 0
+                    }
+                }
+
+                //if(extremaNearKnot.length > 0 && functionBOptim.controlPoints.length === controlPoints.length) {
+                if(extremaNearKnot.length > 0 && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+                    /* JCL Removes the inactive constraints at intermediate knots that contain events in their neighborhood */
+                    for(let i = 0; i < extremaNearKnot.length; i += 1) {
+                        let controlPointIndex = (extremaNearKnot[i].kIndex + 1) * 6
+                        /*let variationEvent = 0.0
+                        if(this.previousSequenceCurvatureExtrema.length > 0) {
+                            variationEvent = curvatureExtremaLocationsOptim[extremaNearKnot[i].extrema[0]] - this.previousSequenceCurvatureExtrema[extremaNearKnot[i].extrema[0]]
+                        }
+                        let distKnot = curvatureExtremaLocationsOptim[extremaNearKnot[i].extrema[0]] - intermediateKnots[extremaNearKnot[i].kIndex].knot
+                        //let deltaCP1 = this.currentCurvatureExtremaControPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                        let deltaCP1 = functionBOptim.controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                        let stepCP1 = Math.abs(controlPoints[controlPointIndex]/deltaCP1)
+                        //let deltaCP2 = this.currentCurvatureExtremaControPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                        let deltaCP2 = functionBOptim.controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                        let stepCP2 = Math.abs(controlPoints[controlPointIndex + 1]/deltaCP2)
+                        let stepEvent = Math.abs(distKnot/variationEvent)*/
+
+                        /* JCL The event tracked has not crossed the knot */
+                        console.log("CPi " + controlPoints[controlPointIndex] + " CPi+1 " + controlPoints[controlPointIndex + 1] + " CPpi " + this.previousCurvatureExtremaControlPoints[controlPointIndex] + " CPpi+1 " + this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                        if(controlPoints[controlPointIndex] > 0 && controlPoints[controlPointIndex + 1] > 0) {
+                            if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                                //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
+                                if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
+                                if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
+                                this.revertConstraints[controlPointIndex] = -1
+                                this.revertConstraints[controlPointIndex + 1] = -1
+                                if(this.updateConstraintBound) {
+                                    if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                    else {
+                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    }
+                                    if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                }
+                            }
+                        } else if(controlPoints[controlPointIndex] < 0 && controlPoints[controlPointIndex + 1] < 0) {
+                            if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                                //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
+                                if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
+                                if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
+                                this.revertConstraints[controlPointIndex + 1] = -1
+                                this.revertConstraints[controlPointIndex] = -1
+                                if(this.updateConstraintBound) {
+                                    if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                    else {
+                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                    }
+                                    if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    else {
+                                        this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                    }
+                                }
+                            }
+                        } else if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) { 
+                            //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
+                            if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
+                            if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
+
+                            /* JCL Whatever the configuration: 
+                                - this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0 && controlPoints[controlPointIndex] > 0: the control point is changing of half space
+                                but the constraint must be kept reversed to avoid adverse effects with the convergence of the trust region optimizer
+                                - this.previousCurvatureExtremaControlPoints[controlPointIndex] > 0 && controlPoints[controlPointIndex] > 0: the control point was already in the positive
+                                half space et must be kept as close to zero as much as possible to contribute to event sliding
+                                - this.eventMoveAtIterationStart !== eventMoveNearKnot: the constraint settings must be constant during an optimizer iteration
+                                */
+                            this.revertConstraints[controlPointIndex] = -1
+                            this.revertConstraints[controlPointIndex + 1] = -1
+
+                            /*if(controlPoints[controlPointIndex + 1] > 0 ) {
+                                if(this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) this.revertConstraints[controlPointIndex + 1] = -1
+                                else this.revertConstraints[controlPointIndex + 1] = 1
+                            }*/
+                            if(this.updateConstraintBound) {
+                                if(controlPoints[controlPointIndex] > 0 ) {
+                                    if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                    else {
+                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    }
+                                } else {
+                                    if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                    else this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                }
+                                if(controlPoints[controlPointIndex + 1] > 0) {
+                                    if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                } else {
+                                    if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                }
+                            }
+                        }
+                        console.log("process CP index " + controlPointIndex + " result " + result + " rvCst " + this.revertConstraints[controlPointIndex] + ", " + this.revertConstraints[controlPointIndex + 1]  + " bound " + this.constraintBound[controlPointIndex] + ", " 
+                            + this.constraintBound[controlPointIndex + 1] + " CP " + controlPoints[controlPointIndex] + ", " + controlPoints[controlPointIndex+1] + " updateBound " + this.updateConstraintBound + " move " + eventMoveNearKnot)
+                    }
+                }
+            }
+        }
+
+        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear
+            && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
             if(this.neighboringEvent.value && this.neighboringEvent.valueOptim &&  this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span && this.neighboringEvent.range && this.neighboringEvent.variation) {
                 const upperBound = this.neighboringEvent.span
                 const lowerBound = this.neighboringEvent.span - this.neighboringEvent.range
-                /* JCL removes the inactive constraints tha may exit in the current interval span */
+                /* JCL removes the inactive constraints tha may exist in the current interval span */
                 for(let j = lowerBound; j < upperBound + 1; j += 1) {
                     if(result.indexOf(j) !== -1) result.splice(result.indexOf(j), 1)
                 }
@@ -1346,10 +1507,100 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             if (i === inactiveConstraints[j]) {
                 j += 1
             } else {
-                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i] * revertConstraints[i] - constraintBound[i])
+                result.push((curvatureDerivativeNumerator[i] - constraintBound[i]) * constraintsSign[i] * revertConstraints[i])
             }
         }
         return result
+    }
+
+    compute_curvatureExtremaConstraints_gradientGN( e: ExpensiveComputationResults,
+        constraintsSign: number[], 
+        inactiveConstraints: number[],
+        revertConstraints: number[]) {
+
+        const sxu = e.bdsxu
+        const sxuu = e.bdsxuu
+        const sxuuu = e.bdsxuuu
+        const syu = e.bdsyu
+        const syuu = e.bdsyuu
+        const syuuu = e.bdsyuuu
+        const h1 = e.h1
+        const h2 = e.h2
+        const h3 = e.h3
+        const h4 = e.h4
+
+
+        let dgx = []
+        let dgy = []
+        const controlPointsLength = this.spline.controlPoints.length
+        const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints
+        const degree = this.spline.degree
+
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1)
+            let h1_subset = h1.subset(start, lessThan)
+            let h2_subset = h2.subset(start, lessThan)
+            let h3_subset = h3.subset(start, lessThan)
+            let h4_subset = h4.subset(start, lessThan)
+            let h5 = this.Dsu[i].multiplyRange(sxu, start, lessThan);
+            let h6 = this.Dsu[i].multiplyRange(syuuu, start, lessThan);
+            let h7 = syu.multiplyRange(this.Dsuuu[i], start, lessThan).multiplyByScalar(-1);
+            let h8 = this.Dsu[i].multiplyRange(sxuu, start, lessThan);
+            let h9 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            let h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1)
+            let h1_subset = h1.subset(start, lessThan)
+            let h2_subset = h2.subset(start, lessThan)
+            let h3_subset = h3.subset(start, lessThan)
+            let h4_subset = h4.subset(start, lessThan)
+            let h5 = this.Dsu[i].multiplyRange(syu, start, lessThan);
+            let h6 = this.Dsu[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            let h7 = sxu.multiplyRange(this.Dsuuu[i], start, lessThan);
+            let h8 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
+            let h9 = syu.multiplyRange(this.Dsuu[i], start, lessThan);
+            let h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+
+
+        let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
+
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+
+            let start = Math.max(0, i - degree) * (4 * degree - 5)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5)
+
+            let deltaj = 0
+            for (let i = 0; i < inactiveConstraints.length; i += 1) {
+                if (inactiveConstraints[i] >= start) {
+                    break
+                }
+                deltaj += 1
+            }
+
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1
+                } else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j] * revertConstraints[j])
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j] * revertConstraints[j])
+                }
+            }
+        }
+
+        return result;
     }
 
     compute_fGN(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[],
@@ -1358,6 +1609,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
 
         if (this.activeControl === ActiveControl.both) {
             const r1 = this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound)
+            //console.log(" compute_fGN: " + constraintBound + " modifSignConstraints: " + revertConstraints + " r1: " + r1)
             const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
             return r1.concat(r2)
         }
@@ -1370,6 +1622,44 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
        
     }
+
+    compute_gradient_fGN( e: ExpensiveComputationResults,
+        inflectionConstraintsSign: number[],
+        inflectionInactiveConstraints: number[],
+        curvatureExtremaConstraintsSign: number[], 
+        curvatureExtremaInactiveConstraints: number[],
+        revertConstraints: number[]) {
+    
+            if (this.activeControl === ActiveControl.both) {
+                const m1 = this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints)
+                //console.log(" grad_fGN: " + curvatureExtremaConstraintsSign + " modifSignConstraints: " + revertConstraints + " m1: " + m1)
+                const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+                const [row_m1, n] = m1.shape
+                const [row_m2, ] = m2.shape
+    
+                const m = row_m1 + row_m2
+    
+                let result = new DenseMatrix(m, n)
+    
+                for (let i = 0; i < row_m1; i += 1) {
+                    for (let j = 0; j < n; j += 1 ) {
+                        result.set(i, j, m1.get(i, j))
+                    }
+                }
+                for (let i = 0; i < row_m2; i += 1) {
+                    for (let j = 0; j < n; j += 1 ) {
+                        result.set(row_m1 + i, j, m2.get(i, j))
+                    }
+                }
+                return result
+            }
+            else if (this.activeControl === ActiveControl.curvatureExtrema) {
+                return this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints)
+            }
+            else {
+                return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            }
+        }
 
     step(deltaX: number[]) {
         this.spline.optimizerStep(deltaX)
@@ -1387,14 +1677,26 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
+        this.updateConstraintBound = false
 
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
             this.revertConstraints, this.constraintBound)
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_fGN(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
+            this.revertConstraints)
 
         if (this.isComputingHessian) {
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
+    }
+
+    fStep(step: number[]) {
+        let splineTemp = this.spline.clone()
+        splineTemp.optimizerStep(step)
+        let e = this.expensiveComputation(splineTemp)
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        const curvatureNumerator = this.curvatureNumerator(e.h4)
+        return this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
+            this.revertConstraints, this.constraintBound)
     }
 
     cancelEvent() {

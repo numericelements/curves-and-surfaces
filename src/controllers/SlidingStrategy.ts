@@ -23,6 +23,10 @@ enum Direction {Forward, Reverse}
 
 interface modifiedEvents {inter: number, nbE: number}
 interface intervalsCurvatureExt {span: number, sequence: number[]}
+interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
+interface extremaNearKnot {kIndex: number, extrema: Array<number>}
+
+const DEVIATION_FROM_KNOT = 0.25
 
 export class SlidingStrategy implements CurveControlStrategyInterface {
     
@@ -824,6 +828,9 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+        this.optimizationProblem.updateConstraintBound = true
+        //this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
+        //this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
         
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
@@ -842,6 +849,30 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             const curvatureExtremaLocationsOptim = functionBOptim.zeros()
             const inflectionLocationsOptim = splineDPoptim.curvatureNumerator().zeros()
             let sequenceDiffEventsOptim: Array<DifferentialEvent> = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim)
+            this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
+            this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
+            this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim
+            this.optimizationProblem.currentCurvatureExtremaControPoints = functionBOptim.controlPoints
+
+            /*let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
+            let extremaNearKnot: Array<extremaNearKnot> = []
+            if(this.optimizationProblem.spline.degree === 3 && this.optimizationProblem.spline.knots.length > 8) { */
+                /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
+                /*let knots = this.optimizationProblem.spline.knots
+                for(let i = 4; i < (knots.length - 4); i += 1) {
+                    if(this.optimizationProblem.spline.knotMultiplicity(knots[i]) === 1) intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1]})
+                }
+                for(let i = 0; i < intermediateKnots.length; i += 1) {
+                    for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
+                        if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
+                        curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
+                            if(extremaNearKnot.length > 0 && extremaNearKnot[extremaNearKnot.length - 1].kIndex === i) extremaNearKnot[extremaNearKnot.length - 1].extrema.push(j)
+                            else extremaNearKnot.push({kIndex: i, extrema: [j]})
+                            console.log("add an event near an intermediate knot")
+                        }
+                    }
+                }
+            }*/
             //console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
             let neighboringEvents: Array<NeighboringEvents> = []
             if(this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
@@ -1032,6 +1063,10 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 this.curveModel.setControlPoints(controlPointsInit)
                                 this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                 this.optimizer = this.newOptimizer(this.optimizationProblem)
+                                let ratio = Math.abs(functionBExtremum/(functionBOptimExtremum - functionBExtremum))
+                                let modifiedndcX = controlPointsInit[selectedControlPoint].x + (ndcX - controlPointsInit[selectedControlPoint].x) * ratio
+                                let modifiedndcY = controlPointsInit[selectedControlPoint].y + (ndcY - controlPointsInit[selectedControlPoint].y) * ratio
+                                //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
@@ -1040,10 +1075,14 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                         let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
                                         delta.push(inc)
                                     }
-                                    const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
-                                    const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
-                                    const curvatureExtremaLocationsOptim = functionBOptim.zeros()
-                                    if(curvatureExtremaLocationsOptim.length === curvatureExtremaLocations.length) {
+                                    const splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                    const functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator()
+                                    const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
+                                    if(curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
+                                        console.log("set a control point displacement")
+                                        //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
+                                        //this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                                        //this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
                                         neighboringEvents[i].event = NeighboringEventsType.none
                                         this.optimizationProblem.cancelEvent()
                                         console.log("corrected curve at boundary is inside the shape space.")
