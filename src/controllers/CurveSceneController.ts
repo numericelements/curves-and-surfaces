@@ -41,7 +41,7 @@ import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEve
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
 /* JCL 2020/11/06 Add controls to monitor the location of the curvature extrema and inflection points */
-export enum ActiveExtremaLocationControl {mergeExtrema, none, stopDeforming}
+export enum ActiveExtremaLocationControl {mergeExtrema, none, stopDeforming, extremumLeaving, extremumEntering}
 export enum ActiveInflectionLocationControl {mergeExtremaAndInflection, none, stopDeforming}
 
 export class CurveSceneController implements SceneControllerInterface {
@@ -218,13 +218,21 @@ export class CurveSceneController implements SceneControllerInterface {
         if(this.curveModel !== undefined) {
             let curvatureEvents: number[] = []
             let differentialEvents: number[] = []
-            if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming && this.selectedCurvatureExtrema !== null) {
+            if((this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving ||
+                this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) && this.selectedCurvatureExtrema !== null) {
                 curvatureEvents = this.selectedCurvatureExtrema.slice()
             }
             if(this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming && this.selectedInflection !== null) {
                 differentialEvents = curvatureEvents.concat(this.selectedInflection)
+            } else differentialEvents = curvatureEvents
+
+            if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
+            } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+            } else if(differentialEvents.length === 0) {
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
             }
-            this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
         if(this.selectedDifferentialEventsView !== null && this.allowShapeSpaceChange === false) this.selectedDifferentialEventsView.renderFrame()

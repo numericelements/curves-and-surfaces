@@ -15,7 +15,9 @@ export enum NeighboringEventsType {neighboringCurExtremumLeftBoundary, neighbori
                                 neighboringCurExtremumRightBoundary, neighboringInflectionRightBoundary,
                                 neighboringCurvatureExtrema, neighboringInflectionsCurvatureExtremum, none,
                                 neighboringCurvatureExtremaAppear, neighboringCurvatureExtremaDisappear,
-                                neighboringInflectionsCurvatureExtremumAppear, neighboringInflectionsCurvatureExtremumDisappear}
+                                neighboringInflectionsCurvatureExtremumAppear, neighboringInflectionsCurvatureExtremumDisappear,
+                                neighboringCurExtremumLeftBoundaryAppear, neighboringCurExtremumLeftBoundaryDisappear,
+                                neighboringCurExtremumRightBoundaryAppear, neighboringCurExtremumRightBoundaryDisappear}
 export interface NeighboringEvents {event: NeighboringEventsType; index: number; value?: number; valueOptim?: number; locExt?: number; locExtOptim?: number; variation?: number[]; span?: number; range?: number}
 export enum DiffEventType {inflection, curvatExtremum, unDefined}
 export interface DifferentialEvent {event: DiffEventType; loc: number}
@@ -71,14 +73,16 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
+    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    //setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         optimizationProblem.weigthingFactors[0] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length-1] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length*2-1] = 10
     }
 
-    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
+    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    //newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
     }
@@ -389,7 +393,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                     }
                                 }
                             } else {
-                                indexMaxIntverVar = 0
+                                //indexMaxIntverVar = 0
+                                indexMaxIntverVar = candidateEventIndex
                             }
                             
                             if(candidateEventIndex !== -1) {
@@ -823,11 +828,14 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         const curvatureExtremaLocations = functionB.zeros()
         const inflectionLocations = splineDP.curvatureNumerator().zeros()
         let sequenceDiffEventsInit: Array<DifferentialEvent> = this.generateSequenceDifferentialEvents(curvatureExtremaLocations, inflectionLocations)
+        //console.log(" init CP " + JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
         //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
 
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+        console.log("zeros " + curvatureExtremaLocations + " CP delta X " + (p.x - this.curveModel.spline.controlPoints[selectedControlPoint].x) + " delta Y " + (p.y - this.curveModel.spline.controlPoints[selectedControlPoint].y) + " signs " 
+            + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
         this.optimizationProblem.updateConstraintBound = true
         //this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
         //this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
@@ -846,7 +854,9 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
             const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
             const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+            //console.log("cDeriv ", functionBOptim.controlPoints[0] + " CP loc X " + ndcX + " Y " + ndcY)
             const curvatureExtremaLocationsOptim = functionBOptim.zeros()
+            console.log("cDeriv [Ø] " + functionBOptim.controlPoints[0] + " [last] " + functionBOptim.controlPoints[functionBOptim.controlPoints.length - 1] + " zeros " + curvatureExtremaLocationsOptim)
             const inflectionLocationsOptim = splineDPoptim.curvatureNumerator().zeros()
             let sequenceDiffEventsOptim: Array<DifferentialEvent> = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim)
             this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
@@ -877,6 +887,9 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             let neighboringEvents: Array<NeighboringEvents> = []
             if(this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim)
+                if(sequenceDiffEventsInit.length === sequenceDiffEventsOptim.length) {
+                    this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+                }
                 if(sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length) {
                     if(neighboringEvents.length > 0) {
                         if(this.curveSceneController.counterLostEvent === 0) {
@@ -889,11 +902,11 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             this.curveSceneController.counterLostEvent = 0
                             this.curveSceneController.lastLostEvent = {event: NeighboringEventsType.none, index: 0}
                         }
-                        console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent)
+                        //console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent)
                     }
                 } else {
                     console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController.controlOfCurvatureExtrema + " inflection " + this.curveSceneController.controlOfInflection)
-                    //console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls")
+                    //console.log("Possibly an inconsistency between sequences of differential events at the transision between statuses of inflection and curvature controls")
                 }
             }
 
@@ -960,10 +973,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                 }
 
             } else if(!this.curveSceneController.allowShapeSpaceChange && neighboringEvents.length > 0) {
-                //if(neighboringEvents[0].event === NeighboringEventsType.neighboringCurvatureExtrema) {
-                this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
-                this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
-                //}
+                //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
+                //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
                 let curvatureExtrema: number[] = []
                 let inflections: number[] = []
                 let activeControl = this.optimizationProblem.activeControl
@@ -975,18 +986,104 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                         } else {
                             curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc)
                         }
-                        let constraintID = this.optimizationProblem.curvatureExtremaTotalNumberOfConstraints - 1
+                        let constraintID = this.optimizationProblem.spline.controlPoints.length - 1
                         if(neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary) constraintID = 0
+
+                        if(constraintID === 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+                        else if(constraintID === 0 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length) neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+                        else if(constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) 
+                            neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+                        else if(constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length)
+                            neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear
+                        /* JCL Taking into account the extrema values and other value is not required */
+                        neighboringEvents[i].value = 0.0
+                        neighboringEvents[i].valueOptim = 0.0
+                        neighboringEvents[i].locExt = 0.0
+                        neighboringEvents[i].locExtOptim = 0.0
+                        neighboringEvents[i].variation = []
+                        neighboringEvents[i].variation?.push(0.0)
+                        neighboringEvents[i].span = 0
+                        neighboringEvents[i].range = 0
+                        let shapeSpaceBoundaryConstraintsCurvExtrema = this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema
                         if(this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1) {
-                            this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID)
+                            shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID)
                             /* JCL To be used for interaction when the user removes one event to monitor the removal (or the addition) of this event 
                             To be distinguished between the insertion of an extremum when removing the curvature extrema from the case where only one
                             extremum appears on the curve because the other one should appear outside (case where a couple of extrema appear simultaneously) */
                             this.lastDiffEvent = neighboringEvents[i].event
                         }
+
                         this.curveModel.setControlPoints(controlPointsInit)
-                        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                        this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
+                            activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema)
                         this.optimizer = this.newOptimizer(this.optimizationProblem)
+                        if(constraintID === 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+                            this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumLeaving
+                        } else if(constraintID === 0 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+                            this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumEntering
+                        } else if(constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+                            this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumLeaving
+                        } else if(constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear
+                            this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumEntering
+                        }
+
+                        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+                        this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                        console.log("start optimize" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
+                        try {
+                            this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
+                            let delta: Vector_2d[] = []
+                            for(let i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
+                                let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
+                                delta.push(inc)
+                            }
+                            const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                            const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+                            const curvatureExtremaLocationsOptim1 = functionBOptim.zeros()
+                            console.log("cDeriv1 ", functionBOptim.controlPoints + " zeros " + curvatureExtremaLocationsOptim1)
+
+                            if(curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
+                                //neighboringEvents[i].event = NeighboringEventsType.none
+                                this.optimizationProblem.cancelEvent()
+                                console.log("corrected curve at boundary is inside the shape space.")
+                            } else {
+                                console.log("corrected curve has crossed the boundary of shape space.")
+                            }
+                            /* JCL Add the curve relocation process */
+                            if(this.curveSceneController.activeLocationControl === ActiveLocationControl.firstControlPoint) {
+                                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.both) {
+                                if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                                    /*console.log("optimize: s0sn constant")*/
+                                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
+                                    delta[delta.length - 1] = delta[0]
+                                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                                    this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                                } else {
+                                    /*console.log("optimize: s0sn variable -> stop evolving")*/
+                                    this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
+                                    this.curveModel.setControlPoints(controlPointsInit)
+                                }
+                            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            //}
+                            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.none) {
+                                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            }
+                        }
+                        catch(e) {
+                            this.curveModel.setControlPoints(controlPointsInit)
+                            console.log(e)
+                        }
+                        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                        //this.optimizer = this.newOptimizer(this.optimizationProblem)
 
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionRightBoundary) {
@@ -1066,8 +1163,10 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 let ratio = Math.abs(functionBExtremum/(functionBOptimExtremum - functionBExtremum))
                                 let modifiedndcX = controlPointsInit[selectedControlPoint].x + (ndcX - controlPointsInit[selectedControlPoint].x) * ratio
                                 let modifiedndcY = controlPointsInit[selectedControlPoint].y + (ndcY - controlPointsInit[selectedControlPoint].y) * ratio
-                                //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
+                                this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                                this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
+                                this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
                                     delta = []
@@ -1078,6 +1177,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                     const splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
                                     const functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator()
                                     const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
+                                    this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1
+                                    this.optimizationProblem.currentCurvatureExtremaControPoints = functionBOptim1.controlPoints
                                     if(curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
                                         console.log("set a control point displacement")
                                         //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
@@ -1327,18 +1428,8 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                 this.curveSceneController.selectedCurvatureExtrema = curvatureExtrema.slice()
                 this.curveSceneController.selectedInflection = inflections.slice()
 
-                //if(this.curveSceneController.counterLostEvent === 1) {
-                if(neighboringEvents[0].event !== NeighboringEventsType.none) this.curveModel.setControlPoints(controlPointsInit)
-                //}
-                /*else if(this.curveSceneController.counterLostEvent > 1) {
-                    let controlPoints: Array<Vector_2d> = []
-                    if( this.curveSceneController.counterLostEvent <= this.curveSceneController.sizeStackControlPolygons) {
-                        controlPoints = this.curveSceneController.stackControlPolygons[this.curveSceneController.sizeStackControlPolygons - this.curveSceneController.counterLostEvent]
-                    } else {
-                        controlPoints = this.curveSceneController.stackControlPolygons[0]
-                    }
-                    this.curveModel.setControlPoints(controlPoints)
-                }*/
+                //if(neighboringEvents[0].event !== NeighboringEventsType.none) this.curveModel.setControlPoints(controlPointsInit)
+
                 if(neighboringEvents[0].event !== NeighboringEventsType.none) console.log("Neighboring event(s): " + neighboringEvents[0].event + " location: " + neighboringEvents[0].index + " CP stopDef")
                 if(neighboringEvents[0].event !== NeighboringEventsType.none) console.log("CP stopDef: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
             } else if(this.curveSceneController.allowShapeSpaceChange) {

@@ -37858,6 +37858,8 @@ var ActiveExtremaLocationControl;
     ActiveExtremaLocationControl[ActiveExtremaLocationControl["mergeExtrema"] = 0] = "mergeExtrema";
     ActiveExtremaLocationControl[ActiveExtremaLocationControl["none"] = 1] = "none";
     ActiveExtremaLocationControl[ActiveExtremaLocationControl["stopDeforming"] = 2] = "stopDeforming";
+    ActiveExtremaLocationControl[ActiveExtremaLocationControl["extremumLeaving"] = 3] = "extremumLeaving";
+    ActiveExtremaLocationControl[ActiveExtremaLocationControl["extremumEntering"] = 4] = "extremumEntering";
 })(ActiveExtremaLocationControl = exports.ActiveExtremaLocationControl || (exports.ActiveExtremaLocationControl = {}));
 var ActiveInflectionLocationControl;
 (function (ActiveInflectionLocationControl) {
@@ -37995,13 +37997,24 @@ var CurveSceneController = /** @class */ (function () {
         if (this.curveModel !== undefined) {
             var curvatureEvents = [];
             var differentialEvents = [];
-            if (this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming && this.selectedCurvatureExtrema !== null) {
+            if ((this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving ||
+                this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) && this.selectedCurvatureExtrema !== null) {
                 curvatureEvents = this.selectedCurvatureExtrema.slice();
             }
             if (this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming && this.selectedInflection !== null) {
                 differentialEvents = curvatureEvents.concat(this.selectedInflection);
             }
-            this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
+            else
+                differentialEvents = curvatureEvents;
+            if (this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
+            }
+            else if (this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
+            }
+            else if (differentialEvents.length === 0) {
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
+            }
         }
         else
             throw new Error("Unable to render the current frame. Undefined curve model");
@@ -38919,6 +38932,10 @@ var NeighboringEventsType;
     NeighboringEventsType[NeighboringEventsType["neighboringCurvatureExtremaDisappear"] = 8] = "neighboringCurvatureExtremaDisappear";
     NeighboringEventsType[NeighboringEventsType["neighboringInflectionsCurvatureExtremumAppear"] = 9] = "neighboringInflectionsCurvatureExtremumAppear";
     NeighboringEventsType[NeighboringEventsType["neighboringInflectionsCurvatureExtremumDisappear"] = 10] = "neighboringInflectionsCurvatureExtremumDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundaryAppear"] = 11] = "neighboringCurExtremumLeftBoundaryAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundaryDisappear"] = 12] = "neighboringCurExtremumLeftBoundaryDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundaryAppear"] = 13] = "neighboringCurExtremumRightBoundaryAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundaryDisappear"] = 14] = "neighboringCurExtremumRightBoundaryDisappear";
 })(NeighboringEventsType = exports.NeighboringEventsType || (exports.NeighboringEventsType = {}));
 var DiffEventType;
 (function (DiffEventType) {
@@ -38960,12 +38977,14 @@ var SlidingStrategy = /** @class */ (function () {
         this.lastDiffEvent = NeighboringEventsType.none;
     }
     SlidingStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
+        //setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         optimizationProblem.weigthingFactors[0] = 10;
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10;
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length - 1] = 10;
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length * 2 - 1] = 10;
     };
     SlidingStrategy.prototype.newOptimizer = function (optimizationProblem) {
+        //newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         this.setWeightingFactor(optimizationProblem);
         return new Optimizer_1.Optimizer(optimizationProblem);
     };
@@ -39282,7 +39301,8 @@ var SlidingStrategy = /** @class */ (function () {
                                 }
                             }
                             else {
-                                indexMaxIntverVar = 0;
+                                //indexMaxIntverVar = 0
+                                indexMaxIntverVar = candidateEventIndex;
                             }
                             if (candidateEventIndex !== -1) {
                                 if (inflectionIndices.length === 0) {
@@ -39764,6 +39784,7 @@ var SlidingStrategy = /** @class */ (function () {
         return result;
     };
     SlidingStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        var _a;
         /* JCL 2020/11/16 this test is no longer needed -> see leftMouseDragged_event where optimize is called */
         if (this.activeOptimizer === false)
             return;
@@ -39776,10 +39797,13 @@ var SlidingStrategy = /** @class */ (function () {
         var curvatureExtremaLocations = functionB.zeros();
         var inflectionLocations = splineDP.curvatureNumerator().zeros();
         var sequenceDiffEventsInit = this.generateSequenceDifferentialEvents(curvatureExtremaLocations, inflectionLocations);
+        //console.log(" init CP " + JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
         //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+        console.log("zeros " + curvatureExtremaLocations + " CP delta X " + (p.x - this.curveModel.spline.controlPoints[selectedControlPoint].x) + " delta Y " + (p.y - this.curveModel.spline.controlPoints[selectedControlPoint].y) + " signs "
+            + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
         this.optimizationProblem.updateConstraintBound = true;
         //this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
         //this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
@@ -39796,7 +39820,9 @@ var SlidingStrategy = /** @class */ (function () {
             /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
             var splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
             var functionBOptim = splineDPoptim.curvatureDerivativeNumerator();
+            //console.log("cDeriv ", functionBOptim.controlPoints[0] + " CP loc X " + ndcX + " Y " + ndcY)
             var curvatureExtremaLocationsOptim = functionBOptim.zeros();
+            console.log("cDeriv [Ø] " + functionBOptim.controlPoints[0] + " [last] " + functionBOptim.controlPoints[functionBOptim.controlPoints.length - 1] + " zeros " + curvatureExtremaLocationsOptim);
             var inflectionLocationsOptim = splineDPoptim.curvatureNumerator().zeros();
             var sequenceDiffEventsOptim = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim);
             this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations;
@@ -39826,6 +39852,9 @@ var SlidingStrategy = /** @class */ (function () {
             var neighboringEvents = [];
             if (this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
                 neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim);
+                if (sequenceDiffEventsInit.length === sequenceDiffEventsOptim.length) {
+                    this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.none;
+                }
                 if (sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length) {
                     if (neighboringEvents.length > 0) {
                         if (this.curveSceneController.counterLostEvent === 0) {
@@ -39840,12 +39869,12 @@ var SlidingStrategy = /** @class */ (function () {
                             this.curveSceneController.counterLostEvent = 0;
                             this.curveSceneController.lastLostEvent = { event: NeighboringEventsType.none, index: 0 };
                         }
-                        console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent);
+                        //console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent)
                     }
                 }
                 else {
                     console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController.controlOfCurvatureExtrema + " inflection " + this.curveSceneController.controlOfInflection);
-                    //console.log("Possibly an inconsistency between seqsuences of differential events at the transision between statuses of inflection and curvature controls")
+                    //console.log("Possibly an inconsistency between sequences of differential events at the transision between statuses of inflection and curvature controls")
                 }
             }
             if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
@@ -39915,10 +39944,8 @@ var SlidingStrategy = /** @class */ (function () {
                 }
             }
             else if (!this.curveSceneController.allowShapeSpaceChange && neighboringEvents.length > 0) {
-                //if(neighboringEvents[0].event === NeighboringEventsType.neighboringCurvatureExtrema) {
-                this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.stopDeforming;
-                this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.stopDeforming;
-                //}
+                //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
+                //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
                 var curvatureExtrema = [];
                 var inflections = [];
                 var activeControl = this.optimizationProblem.activeControl;
@@ -39931,19 +39958,110 @@ var SlidingStrategy = /** @class */ (function () {
                         else {
                             curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc);
                         }
-                        var constraintID = this.optimizationProblem.curvatureExtremaTotalNumberOfConstraints - 1;
+                        var constraintID = this.optimizationProblem.spline.controlPoints.length - 1;
                         if (neighboringEvents[i].event === NeighboringEventsType.neighboringCurExtremumLeftBoundary)
                             constraintID = 0;
+                        if (constraintID === 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length)
+                            neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear;
+                        else if (constraintID === 0 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length)
+                            neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear;
+                        else if (constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length)
+                            neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear;
+                        else if (constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length)
+                            neighboringEvents[i].event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear;
+                        /* JCL Taking into account the extrema values and other value is not required */
+                        neighboringEvents[i].value = 0.0;
+                        neighboringEvents[i].valueOptim = 0.0;
+                        neighboringEvents[i].locExt = 0.0;
+                        neighboringEvents[i].locExtOptim = 0.0;
+                        neighboringEvents[i].variation = [];
+                        (_a = neighboringEvents[i].variation) === null || _a === void 0 ? void 0 : _a.push(0.0);
+                        neighboringEvents[i].span = 0;
+                        neighboringEvents[i].range = 0;
+                        var shapeSpaceBoundaryConstraintsCurvExtrema = this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema;
                         if (this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1) {
-                            this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID);
+                            shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID);
                             /* JCL To be used for interaction when the user removes one event to monitor the removal (or the addition) of this event
                             To be distinguished between the insertion of an extremum when removing the curvature extrema from the case where only one
                             extremum appears on the curve because the other one should appear outside (case where a couple of extrema appear simultaneously) */
                             this.lastDiffEvent = neighboringEvents[i].event;
                         }
                         this.curveModel.setControlPoints(controlPointsInit);
-                        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
+                        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema);
                         this.optimizer = this.newOptimizer(this.optimizationProblem);
+                        if (constraintID === 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear;
+                            this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.extremumLeaving;
+                        }
+                        else if (constraintID === 0 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear;
+                            this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.extremumEntering;
+                        }
+                        else if (constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear;
+                            this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.extremumLeaving;
+                        }
+                        else if (constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length) {
+                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear;
+                            this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.extremumEntering;
+                        }
+                        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+                        this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+                        console.log("start optimize" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
+                        try {
+                            this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
+                            var delta_1 = [];
+                            for (var i_1 = 0; i_1 < this.curveModel.spline.controlPoints.length; i_1 += 1) {
+                                var inc = this.optimizationProblem.spline.controlPoints[i_1].substract(this.curveModel.spline.controlPoints[i_1]);
+                                delta_1.push(inc);
+                            }
+                            var splineDPoptim_1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                            var functionBOptim_1 = splineDPoptim_1.curvatureDerivativeNumerator();
+                            var curvatureExtremaLocationsOptim1 = functionBOptim_1.zeros();
+                            console.log("cDeriv1 ", functionBOptim_1.controlPoints + " zeros " + curvatureExtremaLocationsOptim1);
+                            if (curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
+                                //neighboringEvents[i].event = NeighboringEventsType.none
+                                this.optimizationProblem.cancelEvent();
+                                console.log("corrected curve at boundary is inside the shape space.");
+                            }
+                            else {
+                                console.log("corrected curve has crossed the boundary of shape space.");
+                            }
+                            /* JCL Add the curve relocation process */
+                            if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+                                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                                this.optimizationProblem.spline.relocateAfterOptimization(delta_1, this.curveSceneController.activeLocationControl);
+                                this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                            }
+                            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                                if (Math.abs(delta_1[delta_1.length - 1].substract(delta_1[0]).norm()) < 1.0E-6) {
+                                    /*console.log("optimize: s0sn constant")*/
+                                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
+                                    delta_1[delta_1.length - 1] = delta_1[0];
+                                    this.optimizationProblem.spline.relocateAfterOptimization(delta_1, this.curveSceneController.activeLocationControl);
+                                    this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                                }
+                                else {
+                                    /*console.log("optimize: s0sn variable -> stop evolving")*/
+                                    this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                                    this.curveModel.setControlPoints(controlPointsInit);
+                                }
+                            }
+                            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                                this.optimizationProblem.spline.relocateAfterOptimization(delta_1, this.curveSceneController.activeLocationControl);
+                                this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                                //}
+                            }
+                            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.none) {
+                                this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                            }
+                        }
+                        catch (e) {
+                            this.curveModel.setControlPoints(controlPointsInit);
+                            console.log(e);
+                        }
+                        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                        //this.optimizer = this.newOptimizer(this.optimizationProblem)
                     }
                     else if (neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
                         neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionRightBoundary) {
@@ -40028,18 +40146,22 @@ var SlidingStrategy = /** @class */ (function () {
                                 var ratio = Math.abs(functionBExtremum / (functionBOptimExtremum - functionBExtremum));
                                 var modifiedndcX = controlPointsInit[selectedControlPoint].x + (ndcX - controlPointsInit[selectedControlPoint].x) * ratio;
                                 var modifiedndcY = controlPointsInit[selectedControlPoint].y + (ndcY - controlPointsInit[selectedControlPoint].y) * ratio;
-                                //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
+                                this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY);
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+                                this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations;
+                                this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints;
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                     delta = [];
-                                    for (var i_1 = 0; i_1 < this.curveModel.spline.controlPoints.length; i_1 += 1) {
-                                        var inc = this.optimizationProblem.spline.controlPoints[i_1].substract(this.curveModel.spline.controlPoints[i_1]);
+                                    for (var i_2 = 0; i_2 < this.curveModel.spline.controlPoints.length; i_2 += 1) {
+                                        var inc = this.optimizationProblem.spline.controlPoints[i_2].substract(this.curveModel.spline.controlPoints[i_2]);
                                         delta.push(inc);
                                     }
                                     var splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
                                     var functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator();
                                     var curvatureExtremaLocationsOptim1 = functionBOptim1.zeros();
+                                    this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1;
+                                    this.optimizationProblem.currentCurvatureExtremaControPoints = functionBOptim1.controlPoints;
                                     if (curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
                                         console.log("set a control point displacement");
                                         //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
@@ -40107,13 +40229,13 @@ var SlidingStrategy = /** @class */ (function () {
                                     try {
                                         this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                         delta = [];
-                                        for (var i_2 = 0; i_2 < this.curveModel.spline.controlPoints.length; i_2 += 1) {
-                                            var inc = this.optimizationProblem.spline.controlPoints[i_2].substract(this.curveModel.spline.controlPoints[i_2]);
+                                        for (var i_3 = 0; i_3 < this.curveModel.spline.controlPoints.length; i_3 += 1) {
+                                            var inc = this.optimizationProblem.spline.controlPoints[i_3].substract(this.curveModel.spline.controlPoints[i_3]);
                                             delta.push(inc);
                                         }
-                                        var splineDPoptim_1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                                        var functionBOptim_1 = splineDPoptim_1.curvatureDerivativeNumerator();
-                                        var curvatureExtremaLocationsOptim_1 = functionBOptim_1.zeros();
+                                        var splineDPoptim_2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                        var functionBOptim_2 = splineDPoptim_2.curvatureDerivativeNumerator();
+                                        var curvatureExtremaLocationsOptim_1 = functionBOptim_2.zeros();
                                         if (curvatureExtremaLocationsOptim_1.length === curvatureExtremaLocations.length) {
                                             neighboringEvents[i].event = NeighboringEventsType.none;
                                             this.optimizationProblem.cancelEvent();
@@ -40197,13 +40319,13 @@ var SlidingStrategy = /** @class */ (function () {
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                     delta = [];
-                                    for (var i_3 = 0; i_3 < this.curveModel.spline.controlPoints.length; i_3 += 1) {
-                                        var inc = this.optimizationProblem.spline.controlPoints[i_3].substract(this.curveModel.spline.controlPoints[i_3]);
+                                    for (var i_4 = 0; i_4 < this.curveModel.spline.controlPoints.length; i_4 += 1) {
+                                        var inc = this.optimizationProblem.spline.controlPoints[i_4].substract(this.curveModel.spline.controlPoints[i_4]);
                                         delta.push(inc);
                                     }
-                                    var splineDPoptim_2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                                    var functionBOptim_2 = splineDPoptim_2.curvatureDerivativeNumerator();
-                                    var curvatureExtremaLocationsOptim_2 = functionBOptim_2.zeros();
+                                    var splineDPoptim_3 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                    var functionBOptim_3 = splineDPoptim_3.curvatureDerivativeNumerator();
+                                    var curvatureExtremaLocationsOptim_2 = functionBOptim_3.zeros();
                                     if (curvatureExtremaLocationsOptim_2.length === curvatureExtremaLocations.length) {
                                         neighboringEvents[i].event = NeighboringEventsType.none;
                                         this.optimizationProblem.cancelEvent();
@@ -40266,13 +40388,13 @@ var SlidingStrategy = /** @class */ (function () {
                                     try {
                                         this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                         delta = [];
-                                        for (var i_4 = 0; i_4 < this.curveModel.spline.controlPoints.length; i_4 += 1) {
-                                            var inc = this.optimizationProblem.spline.controlPoints[i_4].substract(this.curveModel.spline.controlPoints[i_4]);
+                                        for (var i_5 = 0; i_5 < this.curveModel.spline.controlPoints.length; i_5 += 1) {
+                                            var inc = this.optimizationProblem.spline.controlPoints[i_5].substract(this.curveModel.spline.controlPoints[i_5]);
                                             delta.push(inc);
                                         }
-                                        var splineDPoptim_3 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                                        var functionBOptim_3 = splineDPoptim_3.curvatureDerivativeNumerator();
-                                        var curvatureExtremaLocationsOptim_3 = functionBOptim_3.zeros();
+                                        var splineDPoptim_4 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                        var functionBOptim_4 = splineDPoptim_4.curvatureDerivativeNumerator();
+                                        var curvatureExtremaLocationsOptim_3 = functionBOptim_4.zeros();
                                         if (curvatureExtremaLocationsOptim_3.length === curvatureExtremaLocations.length) {
                                             neighboringEvents[i].event = NeighboringEventsType.none;
                                             this.optimizationProblem.cancelEvent();
@@ -40307,19 +40429,7 @@ var SlidingStrategy = /** @class */ (function () {
                 }
                 this.curveSceneController.selectedCurvatureExtrema = curvatureExtrema.slice();
                 this.curveSceneController.selectedInflection = inflections.slice();
-                //if(this.curveSceneController.counterLostEvent === 1) {
-                if (neighboringEvents[0].event !== NeighboringEventsType.none)
-                    this.curveModel.setControlPoints(controlPointsInit);
-                //}
-                /*else if(this.curveSceneController.counterLostEvent > 1) {
-                    let controlPoints: Array<Vector_2d> = []
-                    if( this.curveSceneController.counterLostEvent <= this.curveSceneController.sizeStackControlPolygons) {
-                        controlPoints = this.curveSceneController.stackControlPolygons[this.curveSceneController.sizeStackControlPolygons - this.curveSceneController.counterLostEvent]
-                    } else {
-                        controlPoints = this.curveSceneController.stackControlPolygons[0]
-                    }
-                    this.curveModel.setControlPoints(controlPoints)
-                }*/
+                //if(neighboringEvents[0].event !== NeighboringEventsType.none) this.curveModel.setControlPoints(controlPointsInit)
                 if (neighboringEvents[0].event !== NeighboringEventsType.none)
                     console.log("Neighboring event(s): " + neighboringEvents[0].event + " location: " + neighboringEvents[0].index + " CP stopDef");
                 if (neighboringEvents[0].event !== NeighboringEventsType.none)
@@ -42793,6 +42903,7 @@ var eventMove;
     eventMove[eventMove["moveAwayFromKnotRL"] = 2] = "moveAwayFromKnotRL";
     eventMove[eventMove["moveToKnotRL"] = 3] = "moveToKnotRL";
     eventMove[eventMove["moveAwayFromKnotLR"] = 4] = "moveAwayFromKnotLR";
+    eventMove[eventMove["atKnot"] = 5] = "atKnot";
 })(eventMove = exports.eventMove || (exports.eventMove = {}));
 var transitionCP;
 (function (transitionCP) {
@@ -42810,6 +42921,7 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         //private curvatureExtremaInactiveConstraints: number[] = []
         //private inflectionConstraintsSign: number[] = []
         //private inflectionInactiveConstraints: number[] = []
+        /* JCL for testing purposes */
         this.curvatureExtremaConstraintsSign = [];
         this.curvatureExtremaInactiveConstraints = [];
         this.inflectionConstraintsSign = [];
@@ -43637,19 +43749,25 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics 
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics;
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(target, initial, activeControl, neighboringEvent) {
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(target, initial, activeControl, neighboringEvent, shapeSpaceBoundaryConstraintsCurvExtrema) {
         if (activeControl === void 0) { activeControl = ActiveControl.both; }
         var _this = _super.call(this, target, initial, activeControl) || this;
         _this.activeControl = activeControl;
         _this.neighboringEvent = { event: SlidingStrategy_1.NeighboringEventsType.none, index: -1 };
-        _this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
+        if (shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
+            _this.shapeSpaceBoundaryConstraintsCurvExtrema = shapeSpaceBoundaryConstraintsCurvExtrema;
+        }
+        else
+            _this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
         _this.shapeSpaceBoundaryConstraintsInflection = [];
         _this.previousSequenceCurvatureExtrema = [];
         _this.currentSequenceCurvatureExtrema = [];
         _this.previousCurvatureExtremaControlPoints = [];
         _this.updateConstraintBound = true;
-        _this.eventMoveAtIterationStart = eventMove.still;
+        _this.eventInsideKnotNeighborhood = [];
+        _this.eventMoveAtIterationStart = [];
         _this.revertConstraints = [];
+        _this.eventEnterKnotNeighborhood = [];
         if (neighboringEvent !== undefined) {
             _this.neighboringEvent = neighboringEvent;
         }
@@ -43663,6 +43781,34 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             _this.neighboringEvent.variation = [];
             _this.neighboringEvent.span = -1;
             _this.neighboringEvent.range = 0;
+        }
+        if (_this.spline.degree === 3) {
+            /* JCL Specific treatment for event sliding with cubics */
+            var intermediateKnots = [];
+            if (_this.spline.degree === 3 && _this.spline.knots.length > 8) {
+                /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
+                /*let knots = this.spline.knots
+                this.updateConstraintBound = true
+                for(let i = 4; i < (knots.length - 4); i += 1) {
+                    if(this.spline.knotMultiplicity(knots[i]) === 1) {
+                        intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
+                        this.eventInsideKnotNeighborhood.push(false)
+                        this.eventMoveAtIterationStart.push(eventMove.still)
+                        this.eventEnterKnotNeighborhood.push(false)
+                    }
+                }
+                const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+                const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+                const curvatureExtremaLocationsOptim = functionBOptim.zeros()
+                for(let i = 0; i < intermediateKnots.length; i += 1) {
+                    for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
+                        if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
+                        curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
+                            if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
+                        }
+                    }
+                }*/
+            }
         }
         var e = _this.expensiveComputation(_this.spline);
         var g = _this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
@@ -43901,24 +44047,44 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             console.log("computeInactiveConstraints: probable inconsistency in the matrix setting due to the order of inactive constraints");
         /* JCL Probably no change takes place though addInactiveConstraintsForInflections because new indices would be appended to controlPointsClosestToZero in result
             result would not be ordered, which would cause problem when loading the matrix of the inequalities */
+        /* JCL Inactivate the extremum curvature constraints at the curve extremity to let the analyzer detect the entry or exit of
+            an extremum and the navigator take the decision to let it in or out */
+        if (this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+            if (result.length > 0 && result.indexOf(0) === -1)
+                result.splice(0, 0, 0);
+            if (result.length > 0 && result.indexOf(controlPoints.length - 1) === -1)
+                result.push(controlPoints.length - 1);
+        }
         if (this.spline.degree === 3) {
             /* JCL Specific treatment for event sliding with cubics */
             var intermediateKnots = [];
             var extremaNearKnot = [];
             var eventMoveNearKnot = eventMove.still;
-            if (this.spline.degree === 3 && this.spline.knots.length > 8) {
+            if (this.spline.degree === 3 && this.spline.knots.length > 8 && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
                 /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
                 var knots = this.spline.knots;
-                //let knotIndex = 0
                 for (var i = 4; i < (knots.length - 4); i += 1) {
-                    //if(knots[i] !== knots[i - 1]) knotIndex += 1
                     if (this.spline.knotMultiplicity(knots[i]) === 1)
                         intermediateKnots.push({ knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i });
+                }
+                /* JCL Initialization of variables monitoring constraint analysis at each intermediate knot */
+                if (this.eventInsideKnotNeighborhood.length < intermediateKnots.length) {
+                    this.updateConstraintBound = true;
+                    for (var i = 0; i < intermediateKnots.length; i += 1) {
+                        this.eventInsideKnotNeighborhood.push(false);
+                        this.eventMoveAtIterationStart.push(eventMove.still);
+                        this.eventEnterKnotNeighborhood.push(false);
+                    }
+                    for (var i = 0; i < controlPoints.length; i += 1) {
+                        this.revertConstraints[i] = 1;
+                        this.constraintBound[i] = 0;
+                    }
                 }
                 var splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.spline);
                 var functionBOptim = splineDPoptim.curvatureDerivativeNumerator();
                 var curvatureExtremaLocationsOptim = functionBOptim.zeros();
                 for (var i = 0; i < intermediateKnots.length; i += 1) {
+                    var eventCounter = 0;
                     for (var j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
                         if (curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT * (intermediateKnots[i].knot - intermediateKnots[i].left)) &&
                             curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT * (intermediateKnots[i].right - intermediateKnots[i].knot))) {
@@ -43927,6 +44093,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                             //else extremaNearKnot.push({kIndex: intermediateKnots[i].index, extrema: [j]})
                             else
                                 extremaNearKnot.push({ kIndex: i, extrema: [j] });
+                            eventCounter += 1;
                             var move = 0.0;
                             eventMoveNearKnot = eventMove.still;
                             if (this.previousSequenceCurvatureExtrema.length > 0)
@@ -43939,23 +44106,38 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                                 eventMoveNearKnot = eventMove.moveAwayFromKnotLR;
                             if (curvatureExtremaLocationsOptim[j] > intermediateKnots[i].knot && move < 0)
                                 eventMoveNearKnot = eventMove.moveToKnotRL;
-                            if (this.updateConstraintBound)
-                                this.eventMoveAtIterationStart = eventMoveNearKnot;
+                            if (curvatureExtremaLocationsOptim[j] === intermediateKnots[i].knot)
+                                eventMoveNearKnot = eventMove.atKnot;
+                            if (this.updateConstraintBound) {
+                                if (!this.eventInsideKnotNeighborhood[i])
+                                    this.eventEnterKnotNeighborhood[i] = true;
+                                this.eventInsideKnotNeighborhood[i] = true;
+                                this.eventMoveAtIterationStart[i] = eventMoveNearKnot;
+                            }
                             //console.log("add an event near an intermediate knot")
                         }
                     }
+                    if (eventCounter === 0)
+                        this.eventInsideKnotNeighborhood[i] = false;
+                    console.log("i: " + i + " updateConstraintBound " + this.updateConstraintBound + " eventMoveAtIterationStart " + this.eventMoveAtIterationStart[i] +
+                        " eventEnterKnotNeighborhood " + this.eventEnterKnotNeighborhood[i] + " eventInsideKnotNeighborhood " + this.eventInsideKnotNeighborhood[i]);
                 }
-                if (this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length && this.updateConstraintBound) {
-                    for (var i = 0; i < controlPoints.length; i += 1) {
-                        this.revertConstraints[i] = 1;
-                        this.constraintBound[i] = 0;
+                for (var i = 0; i < intermediateKnots.length; i += 1) {
+                    //if((this.updateConstraintBound && (this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotRL || this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotLR)) ||
+                    //this.eventEnterKnotNeighborhood[i]) {
+                    if (this.updateConstraintBound && (this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotRL || this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotLR ||
+                        this.eventInsideKnotNeighborhood[i])) {
+                        var controlPointIndex = ((intermediateKnots[i].index - 4) + 1) * 7 - 1;
+                        this.revertConstraints[controlPointIndex] = 1;
+                        this.constraintBound[controlPointIndex] = 0;
+                        this.revertConstraints[controlPointIndex + 1] = 1;
+                        this.constraintBound[controlPointIndex + 1] = 0;
                     }
                 }
-                //if(extremaNearKnot.length > 0 && functionBOptim.controlPoints.length === controlPoints.length) {
-                if (extremaNearKnot.length > 0 && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+                if (extremaNearKnot.length > 0) {
                     /* JCL Removes the inactive constraints at intermediate knots that contain events in their neighborhood */
                     for (var i = 0; i < extremaNearKnot.length; i += 1) {
-                        var controlPointIndex = (extremaNearKnot[i].kIndex + 1) * 6;
+                        var controlPointIndex = (extremaNearKnot[i].kIndex + 1) * 7 - 1;
                         /*let variationEvent = 0.0
                         if(this.previousSequenceCurvatureExtrema.length > 0) {
                             variationEvent = curvatureExtremaLocationsOptim[extremaNearKnot[i].extrema[0]] - this.previousSequenceCurvatureExtrema[extremaNearKnot[i].extrema[0]]
@@ -43971,7 +44153,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                         /* JCL The event tracked has not crossed the knot */
                         console.log("CPi " + controlPoints[controlPointIndex] + " CPi+1 " + controlPoints[controlPointIndex + 1] + " CPpi " + this.previousCurvatureExtremaControlPoints[controlPointIndex] + " CPpi+1 " + this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]);
                         if (controlPoints[controlPointIndex] > 0 && controlPoints[controlPointIndex + 1] > 0) {
-                            if (this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                            if (this.eventMoveAtIterationStart[i] === eventMove.moveToKnotLR || this.eventMoveAtIterationStart[i] === eventMove.moveToKnotRL) {
                                 //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                                 if (result.indexOf(controlPointIndex) !== -1)
                                     result.splice(result.indexOf(controlPointIndex), 1);
@@ -43980,20 +44162,32 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                                 this.revertConstraints[controlPointIndex] = -1;
                                 this.revertConstraints[controlPointIndex + 1] = -1;
                                 if (this.updateConstraintBound) {
-                                    if (controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex])
-                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
-                                    else {
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex]);
+                                    if (this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if (controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                            this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
+                                        else {
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex]);
+                                        }
                                     }
-                                    if (controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    else if (controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
+                                    }
+                                    if (this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if (controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                            this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
+                                        else
+                                            this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]);
+                                    }
+                                    else if (controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
                                         this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
-                                    else
-                                        this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]);
+                                    }
+                                    if (this.eventEnterKnotNeighborhood[i])
+                                        this.eventEnterKnotNeighborhood[i] = false;
                                 }
                             }
                         }
                         else if (controlPoints[controlPointIndex] < 0 && controlPoints[controlPointIndex + 1] < 0) {
-                            if (this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                            if (this.eventMoveAtIterationStart[i] === eventMove.moveToKnotLR || this.eventMoveAtIterationStart[i] === eventMove.moveToKnotRL) {
                                 //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                                 if (result.indexOf(controlPointIndex + 1) !== -1)
                                     result.splice(result.indexOf(controlPointIndex + 1), 1);
@@ -44002,20 +44196,33 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                                 this.revertConstraints[controlPointIndex + 1] = -1;
                                 this.revertConstraints[controlPointIndex] = -1;
                                 if (this.updateConstraintBound) {
-                                    if (controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    if (this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if (controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                            this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
+                                        else {
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex]);
+                                        }
+                                    }
+                                    else if (controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
                                         this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
-                                    else {
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex]);
                                     }
-                                    if (controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    if (this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if (controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                            this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
+                                        else {
+                                            this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1]);
+                                        }
+                                    }
+                                    else if (controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
                                         this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
-                                    else {
-                                        this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1]);
                                     }
+                                    if (this.eventEnterKnotNeighborhood[i])
+                                        this.eventEnterKnotNeighborhood[i] = false;
                                 }
                             }
                         }
-                        else if (this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                        else if (this.eventMoveAtIterationStart[i] === eventMove.atKnot) {
+                            //} else if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
                             //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                             if (result.indexOf(controlPointIndex) !== -1)
                                 result.splice(result.indexOf(controlPointIndex), 1);
@@ -44036,39 +44243,64 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                             }*/
                             if (this.updateConstraintBound) {
                                 if (controlPoints[controlPointIndex] > 0) {
-                                    if (controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    /* JCL the previous event move cannot be 'away from knot', it must be 'to knot', therefore this.constraintBound[controlPointIndex] !== 0
+                                    but the initialization (when loading a curve) can start with this.constraintBound[controlPointIndex] === 0, so this condition is required also */
+                                    if (this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if (controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                            this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
+                                        else {
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex]);
+                                        }
+                                    }
+                                    else if (controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
                                         this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
-                                    else {
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex]);
                                     }
                                 }
                                 else {
-                                    if (controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    if (this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if (controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                            this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
+                                        else
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex]);
+                                    }
+                                    else if (controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
                                         this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex];
-                                    else
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex]);
+                                    }
                                 }
                                 if (controlPoints[controlPointIndex + 1] > 0) {
-                                    if (controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    if (this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if (controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                            this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
+                                        else
+                                            this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]);
+                                    }
+                                    else if (controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
                                         this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
-                                    else
-                                        this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]);
+                                    }
                                 }
                                 else {
-                                    if (controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    if (this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if (controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                            this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
+                                        else
+                                            this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1]);
+                                    }
+                                    else if (controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
                                         this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1];
-                                    else
-                                        this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1]);
+                                    }
                                 }
+                                if (this.eventEnterKnotNeighborhood[i])
+                                    this.eventEnterKnotNeighborhood[i] = false;
                             }
                         }
                         console.log("process CP index " + controlPointIndex + " result " + result + " rvCst " + this.revertConstraints[controlPointIndex] + ", " + this.revertConstraints[controlPointIndex + 1] + " bound " + this.constraintBound[controlPointIndex] + ", "
-                            + this.constraintBound[controlPointIndex + 1] + " CP " + controlPoints[controlPointIndex] + ", " + controlPoints[controlPointIndex + 1] + " updateBound " + this.updateConstraintBound + " move " + eventMoveNearKnot);
+                            + this.constraintBound[controlPointIndex + 1] + " CP " + controlPoints[controlPointIndex] + ", " + controlPoints[controlPointIndex + 1] + " updateBound " + this.updateConstraintBound +
+                            " move " + this.eventMoveAtIterationStart[i] + " eventInsideKnotNeighborhood " + this.eventInsideKnotNeighborhood[i] + " enter " + this.eventEnterKnotNeighborhood[i]);
                     }
                 }
             }
         }
-        if (this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaAppear
+        if ((this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
             if (this.neighboringEvent.value && this.neighboringEvent.valueOptim && this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span && this.neighboringEvent.range && this.neighboringEvent.variation) {
                 var upperBound = this.neighboringEvent.span;
@@ -44148,6 +44380,33 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                 console.log("Inconsistent content for processing neighboring events.");
             }
         }
+        else if ((this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear || this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear ||
+            this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear || this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear)
+            && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+            if (this.neighboringEvent.value !== undefined && this.neighboringEvent.valueOptim !== undefined && this.neighboringEvent.locExt !== undefined && this.neighboringEvent.locExtOptim !== undefined
+                && this.neighboringEvent.span !== undefined && this.neighboringEvent.range !== undefined) {
+                if (this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                    if (this.shapeSpaceBoundaryConstraintsCurvExtrema[0] === 0) {
+                        if (result.length > 0 && result.indexOf(0) !== -1)
+                            result.splice(result.indexOf(0), 1);
+                        this.revertConstraints[0] = 1;
+                        this.constraintBound[0] = 0;
+                    }
+                    else if (this.shapeSpaceBoundaryConstraintsCurvExtrema[this.shapeSpaceBoundaryConstraintsCurvExtrema.length - 1] === this.spline.controlPoints.length - 1) {
+                        if (result.length > 0 && result.indexOf(controlPoints.length - 1) !== -1)
+                            result.splice(result.indexOf(controlPoints.length - 1), 1);
+                        this.revertConstraints[controlPoints.length - 1] = 1;
+                        this.constraintBound[controlPoints.length - 1] = 0;
+                    }
+                }
+                else
+                    console.log("Null content of shapeSpaceBoundaryConstraintsCurvExtrema.");
+            }
+            else {
+                console.log("Inconsistent content for processing neighboring events.");
+            }
+        }
+        //if(this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) console.log("inactive curvat cnst " + result + " CP[0] = " + controlPoints[0])
         return result;
     };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.compute_curvatureExtremaConstraintsGN = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints, revertConstraints, constraintBound) {
@@ -44279,6 +44538,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }
     };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.step = function (deltaX) {
+        var inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints;
         this.spline.optimizerStep(deltaX);
         this._gradient_f0 = this.compute_gradient_f0(this.spline);
         this._f0 = this.compute_f0(this._gradient_f0);
@@ -44287,11 +44547,11 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g);
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
-        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
         var curvatureNumerator = this.curvatureNumerator(e.h4);
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
         this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator);
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
         this.updateConstraintBound = false;
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints, this.revertConstraints, this.constraintBound);
         this._gradient_f = this.compute_gradient_fGN(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints, this.revertConstraints);

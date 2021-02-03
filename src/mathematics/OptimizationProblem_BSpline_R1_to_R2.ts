@@ -35,7 +35,7 @@ export enum ActiveControl {curvatureExtrema, inflections, both}
 
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
 interface extremaNearKnot {kIndex: number, extrema: Array<number>}
-export enum eventMove {still, moveToKnotLR, moveAwayFromKnotRL, moveToKnotRL, moveAwayFromKnotLR}
+export enum eventMove {still, moveToKnotLR, moveAwayFromKnotRL, moveToKnotRL, moveAwayFromKnotLR, atKnot}
 enum transitionCP {negativeToPositive, positiveToNegative, none}
 
 const DEVIATION_FROM_KNOT = 0.25
@@ -54,11 +54,18 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
 
     //private inflectionConstraintsSign: number[] = []
     //private inflectionInactiveConstraints: number[] = []
-    protected curvatureExtremaConstraintsSign: number[] = []
-    protected curvatureExtremaInactiveConstraints: number[] = []
+    /* JCL for testing purposes */
+    public curvatureExtremaConstraintsSign: number[] = []
+    public curvatureExtremaInactiveConstraints: number[] = []
 
-    protected inflectionConstraintsSign: number[] = []
-    protected inflectionInactiveConstraints: number[] = []
+    public inflectionConstraintsSign: number[] = []
+    public inflectionInactiveConstraints: number[] = []
+
+    //protected curvatureExtremaConstraintsSign: number[] = []
+    //protected curvatureExtremaInactiveConstraints: number[] = []
+
+    //protected inflectionConstraintsSign: number[] = []
+    //protected inflectionInactiveConstraints: number[] = []
 
     private _numberOfIndependentVariables: number
     protected _f0: number
@@ -1038,24 +1045,32 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     public neighboringEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: -1}
     private revertConstraints: number[]
     private constraintBound: number[]
-    private eventMoveAtIterationStart: eventMove
+    private eventMoveAtIterationStart: eventMove[]
+    private eventEnterKnotNeighborhood: boolean[]
+    private eventInsideKnotNeighborhood: boolean[]
     public previousSequenceCurvatureExtrema: number[]
     public currentSequenceCurvatureExtrema: number[]
     public previousCurvatureExtremaControlPoints: number[]
     public currentCurvatureExtremaControPoints: number[]
     public updateConstraintBound: boolean
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both, neighboringEvent?: NeighboringEvents) {
+    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both, neighboringEvent?: NeighboringEvents,
+        shapeSpaceBoundaryConstraintsCurvExtrema?: number[]) {
         super(target, initial, activeControl)
 
-        this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
+        if(shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
+            this.shapeSpaceBoundaryConstraintsCurvExtrema = shapeSpaceBoundaryConstraintsCurvExtrema
+        } else this.shapeSpaceBoundaryConstraintsCurvExtrema = [];
         this.shapeSpaceBoundaryConstraintsInflection = [];
         this.previousSequenceCurvatureExtrema = [];
         this.currentSequenceCurvatureExtrema = [];
         this.previousCurvatureExtremaControlPoints = [];
-        this.updateConstraintBound = true
-        this.eventMoveAtIterationStart = eventMove.still
+        this.updateConstraintBound = true;
+        this.eventInsideKnotNeighborhood = [];
+        this.eventMoveAtIterationStart = [];
         this.revertConstraints = [];
+        this.eventEnterKnotNeighborhood = [];
+
         if(neighboringEvent !== undefined) {
             this.neighboringEvent = neighboringEvent
         } else {
@@ -1068,6 +1083,35 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             this.neighboringEvent.variation = []
             this.neighboringEvent.span = -1
             this.neighboringEvent.range = 0
+        }
+        
+        if(this.spline.degree === 3) {
+            /* JCL Specific treatment for event sliding with cubics */
+            let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
+            if(this.spline.degree === 3 && this.spline.knots.length > 8) {
+                /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
+                /*let knots = this.spline.knots
+                this.updateConstraintBound = true
+                for(let i = 4; i < (knots.length - 4); i += 1) {
+                    if(this.spline.knotMultiplicity(knots[i]) === 1) {
+                        intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
+                        this.eventInsideKnotNeighborhood.push(false)
+                        this.eventMoveAtIterationStart.push(eventMove.still)
+                        this.eventEnterKnotNeighborhood.push(false)
+                    }
+                }
+                const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+                const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+                const curvatureExtremaLocationsOptim = functionBOptim.zeros()
+                for(let i = 0; i < intermediateKnots.length; i += 1) {
+                    for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
+                        if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
+                        curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
+                            if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
+                        }
+                    }
+                }*/
+            }
         }
 
         const e = this.expensiveComputation(this.spline)  
@@ -1280,30 +1324,51 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         if(controlPointsClosestToZero.length !== result.length) console.log("computeInactiveConstraints: probable inconsistency in the matrix setting due to the order of inactive constraints")
         /* JCL Probably no change takes place though addInactiveConstraintsForInflections because new indices would be appended to controlPointsClosestToZero in result
             result would not be ordered, which would cause problem when loading the matrix of the inequalities */
+        
+        /* JCL Inactivate the extremum curvature constraints at the curve extremity to let the analyzer detect the entry or exit of 
+            an extremum and the navigator take the decision to let it in or out */
+        if( this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+            if(result.length > 0 && result.indexOf(0) === -1) result.splice(0, 0, 0)
+            if(result.length > 0 && result.indexOf(controlPoints.length - 1) === -1) result.push(controlPoints.length - 1)
+        }
 
         if(this.spline.degree === 3) {
             /* JCL Specific treatment for event sliding with cubics */
             let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
             let extremaNearKnot: Array<extremaNearKnot> = []
             let eventMoveNearKnot: eventMove = eventMove.still
-            if(this.spline.degree === 3 && this.spline.knots.length > 8) {
+            if(this.spline.degree === 3 && this.spline.knots.length > 8 && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
                 /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
                 let knots = this.spline.knots
-                //let knotIndex = 0
                 for(let i = 4; i < (knots.length - 4); i += 1) {
-                    //if(knots[i] !== knots[i - 1]) knotIndex += 1
                     if(this.spline.knotMultiplicity(knots[i]) === 1) intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
                 }
+                /* JCL Initialization of variables monitoring constraint analysis at each intermediate knot */
+                if(this.eventInsideKnotNeighborhood.length <  intermediateKnots.length) {
+                    this.updateConstraintBound = true
+                    for(let i = 0; i < intermediateKnots.length; i += 1) {
+                        this.eventInsideKnotNeighborhood.push(false)
+                        this.eventMoveAtIterationStart.push(eventMove.still)
+                        this.eventEnterKnotNeighborhood.push(false)
+                    }
+                    for(let i = 0; i < controlPoints.length; i+= 1){
+                        this.revertConstraints[i] = 1
+                        this.constraintBound[i] = 0
+                    }
+                }
+
                 const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
                 const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
                 const curvatureExtremaLocationsOptim = functionBOptim.zeros()
                 for(let i = 0; i < intermediateKnots.length; i += 1) {
+                    let eventCounter = 0
                     for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
                         if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
                         curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
                             if(extremaNearKnot.length > 0 && extremaNearKnot[extremaNearKnot.length - 1].kIndex === i) extremaNearKnot[extremaNearKnot.length - 1].extrema.push(j)
                                 //else extremaNearKnot.push({kIndex: intermediateKnots[i].index, extrema: [j]})
                                 else extremaNearKnot.push({kIndex: i, extrema: [j]})
+                            eventCounter +=1
                             let move = 0.0
                             eventMoveNearKnot = eventMove.still
                             if(this.previousSequenceCurvatureExtrema.length > 0) move = curvatureExtremaLocationsOptim[j] - this.previousSequenceCurvatureExtrema[j]
@@ -1311,23 +1376,37 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                             if(curvatureExtremaLocationsOptim[j] < intermediateKnots[i].knot && move < 0) eventMoveNearKnot = eventMove.moveAwayFromKnotRL
                             if(curvatureExtremaLocationsOptim[j] > intermediateKnots[i].knot && move > 0) eventMoveNearKnot = eventMove.moveAwayFromKnotLR
                             if(curvatureExtremaLocationsOptim[j] > intermediateKnots[i].knot && move < 0) eventMoveNearKnot = eventMove.moveToKnotRL
-                            if(this.updateConstraintBound) this.eventMoveAtIterationStart = eventMoveNearKnot
+                            if(curvatureExtremaLocationsOptim[j] === intermediateKnots[i].knot) eventMoveNearKnot = eventMove.atKnot
+                            if(this.updateConstraintBound) {
+                                if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
+                                this.eventInsideKnotNeighborhood[i] = true
+                                this.eventMoveAtIterationStart[i] = eventMoveNearKnot
+                            }
                             //console.log("add an event near an intermediate knot")
                         }
                     }
+                    if(eventCounter === 0) this.eventInsideKnotNeighborhood[i] = false
+                    console.log("i: " + i + " updateConstraintBound " + this.updateConstraintBound + " eventMoveAtIterationStart " + this.eventMoveAtIterationStart[i] + 
+                    " eventEnterKnotNeighborhood " + this.eventEnterKnotNeighborhood[i] + " eventInsideKnotNeighborhood " + this.eventInsideKnotNeighborhood[i])
                 }
-                if(this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length && this.updateConstraintBound) {
-                    for(let i = 0; i < controlPoints.length; i+= 1){
-                        this.revertConstraints[i] = 1
-                        this.constraintBound[i] = 0
+
+                for(let i = 0; i < intermediateKnots.length; i += 1) {
+                    //if((this.updateConstraintBound && (this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotRL || this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotLR)) ||
+                    //this.eventEnterKnotNeighborhood[i]) {
+                    if(this.updateConstraintBound && (this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotRL || this.eventMoveAtIterationStart[i] === eventMove.moveAwayFromKnotLR ||
+                    this.eventInsideKnotNeighborhood[i])) {
+                        let controlPointIndex = ((intermediateKnots[i].index - 4) + 1) * 7 - 1
+                        this.revertConstraints[controlPointIndex] = 1
+                        this.constraintBound[controlPointIndex] = 0
+                        this.revertConstraints[controlPointIndex + 1] = 1
+                        this.constraintBound[controlPointIndex + 1] = 0
                     }
                 }
 
-                //if(extremaNearKnot.length > 0 && functionBOptim.controlPoints.length === controlPoints.length) {
-                if(extremaNearKnot.length > 0 && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+                if(extremaNearKnot.length > 0) {
                     /* JCL Removes the inactive constraints at intermediate knots that contain events in their neighborhood */
                     for(let i = 0; i < extremaNearKnot.length; i += 1) {
-                        let controlPointIndex = (extremaNearKnot[i].kIndex + 1) * 6
+                        let controlPointIndex = (extremaNearKnot[i].kIndex + 1) * 7 - 1
                         /*let variationEvent = 0.0
                         if(this.previousSequenceCurvatureExtrema.length > 0) {
                             variationEvent = curvatureExtremaLocationsOptim[extremaNearKnot[i].extrema[0]] - this.previousSequenceCurvatureExtrema[extremaNearKnot[i].extrema[0]]
@@ -1344,40 +1423,61 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                         /* JCL The event tracked has not crossed the knot */
                         console.log("CPi " + controlPoints[controlPointIndex] + " CPi+1 " + controlPoints[controlPointIndex + 1] + " CPpi " + this.previousCurvatureExtremaControlPoints[controlPointIndex] + " CPpi+1 " + this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
                         if(controlPoints[controlPointIndex] > 0 && controlPoints[controlPointIndex + 1] > 0) {
-                            if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                            if(this.eventMoveAtIterationStart[i] === eventMove.moveToKnotLR || this.eventMoveAtIterationStart[i] === eventMove.moveToKnotRL) {
                                 //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                                 if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
                                 if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
                                 this.revertConstraints[controlPointIndex] = -1
                                 this.revertConstraints[controlPointIndex + 1] = -1
                                 if(this.updateConstraintBound) {
-                                    if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                    else {
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                        else {
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                        }
+                                    } else if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
                                     }
-                                    if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                    else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                        else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    } else if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
+                                        this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    }
+
+                                    if (this.eventEnterKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = false
                                 }
                             }
                         } else if(controlPoints[controlPointIndex] < 0 && controlPoints[controlPointIndex + 1] < 0) {
-                            if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
+                            if(this.eventMoveAtIterationStart[i] === eventMove.moveToKnotLR || this.eventMoveAtIterationStart[i] === eventMove.moveToKnotRL) {
                                 //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                                 if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
                                 if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
                                 this.revertConstraints[controlPointIndex + 1] = -1
                                 this.revertConstraints[controlPointIndex] = -1
                                 if(this.updateConstraintBound) {
-                                    if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                    else {
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                    if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                        else {
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                        }
+                                    } else if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
                                     }
-                                    if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                    else {
-                                        this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                    if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                        else {
+                                            this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                        }
+                                    } else if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
+                                        this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
                                     }
+
+                                    if (this.eventEnterKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = false
                                 }
                             }
-                        } else if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) { 
+                        } else if(this.eventMoveAtIterationStart[i] === eventMove.atKnot) { 
+                        //} else if(this.eventMoveAtIterationStart === eventMove.moveToKnotLR || this.eventMoveAtIterationStart === eventMove.moveToKnotRL) {
                             //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                             if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
                             if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
@@ -1398,31 +1498,52 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                             }*/
                             if(this.updateConstraintBound) {
                                 if(controlPoints[controlPointIndex] > 0 ) {
-                                    if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                    else {
-                                        this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    /* JCL the previous event move cannot be 'away from knot', it must be 'to knot', therefore this.constraintBound[controlPointIndex] !== 0 
+                                    but the initialization (when loading a curve) can start with this.constraintBound[controlPointIndex] === 0, so this condition is required also */
+                                    if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                        else {
+                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                        }
+                                    } else if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
                                     }
                                 } else {
-                                    if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                    else this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                    if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                        if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                        else this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                    } else if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                    }
                                 }
                                 if(controlPoints[controlPointIndex + 1] > 0) {
-                                    if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                    else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                        else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                    } else if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
+                                        this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    }
                                 } else {
-                                    if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                    else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                    if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                        if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                        else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                    } else if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
+                                        this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                    }
                                 }
+
+                                if (this.eventEnterKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = false
                             }
                         }
                         console.log("process CP index " + controlPointIndex + " result " + result + " rvCst " + this.revertConstraints[controlPointIndex] + ", " + this.revertConstraints[controlPointIndex + 1]  + " bound " + this.constraintBound[controlPointIndex] + ", " 
-                            + this.constraintBound[controlPointIndex + 1] + " CP " + controlPoints[controlPointIndex] + ", " + controlPoints[controlPointIndex+1] + " updateBound " + this.updateConstraintBound + " move " + eventMoveNearKnot)
+                            + this.constraintBound[controlPointIndex + 1] + " CP " + controlPoints[controlPointIndex] + ", " + controlPoints[controlPointIndex+1] + " updateBound " + this.updateConstraintBound + 
+                            " move " + this.eventMoveAtIterationStart[i] + " eventInsideKnotNeighborhood " + this.eventInsideKnotNeighborhood[i] + " enter " + this.eventEnterKnotNeighborhood[i])
                     }
                 }
             }
         }
 
-        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear
+        if((this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
             if(this.neighboringEvent.value && this.neighboringEvent.valueOptim &&  this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span && this.neighboringEvent.range && this.neighboringEvent.variation) {
                 const upperBound = this.neighboringEvent.span
@@ -1495,8 +1616,27 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             } else {
                 console.log("Inconsistent content for processing neighboring events.")
             }
+        } else if((this.neighboringEvent.event === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear ||
+        this.neighboringEvent.event === NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) 
+        && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+            if(this.neighboringEvent.value !== undefined && this.neighboringEvent.valueOptim !== undefined && this.neighboringEvent.locExt !== undefined && this.neighboringEvent.locExtOptim !== undefined 
+                && this.neighboringEvent.span !== undefined && this.neighboringEvent.range !== undefined) {
+                if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                    if(this.shapeSpaceBoundaryConstraintsCurvExtrema[0] === 0 ) {
+                        if(result.length > 0 && result.indexOf(0) !== -1) result.splice(result.indexOf(0), 1)
+                        this.revertConstraints[0] = 1
+                        this.constraintBound[0] = 0
+                    } else if(this.shapeSpaceBoundaryConstraintsCurvExtrema[this.shapeSpaceBoundaryConstraintsCurvExtrema.length - 1] === this.spline.controlPoints.length - 1) {
+                        if(result.length > 0 && result.indexOf(controlPoints.length - 1) !== -1) result.splice(result.indexOf(controlPoints.length - 1), 1)
+                        this.revertConstraints[controlPoints.length - 1] = 1
+                        this.constraintBound[controlPoints.length - 1] = 0
+                    }
+                } else console.log("Null content of shapeSpaceBoundaryConstraintsCurvExtrema.")
+            } else {
+                console.log("Inconsistent content for processing neighboring events.")
+            }
         }
-
+        //if(this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) console.log("inactive curvat cnst " + result + " CP[0] = " + controlPoints[0])
         return result
     }
 
@@ -1662,6 +1802,8 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
 
     step(deltaX: number[]) {
+        let inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints
+
         this.spline.optimizerStep(deltaX)
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this._gradient_f0)
@@ -1670,12 +1812,13 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
-        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
         this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+
+        //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
 
         this.updateConstraintBound = false
 
