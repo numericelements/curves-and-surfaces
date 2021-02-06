@@ -1083,6 +1083,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             this.neighboringEvent.variation = []
             this.neighboringEvent.span = -1
             this.neighboringEvent.range = 0
+            this.neighboringEvent.knotIndex = 0
         }
         
         if(this.spline.degree === 3) {
@@ -1342,6 +1343,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                 let knots = this.spline.knots
                 for(let i = 4; i < (knots.length - 4); i += 1) {
                     if(this.spline.knotMultiplicity(knots[i]) === 1) intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
+                    else console.log("Knot multiplicity greater than one at intermediate knots is not processed yet.")
                 }
                 /* JCL Initialization of variables monitoring constraint analysis at each intermediate knot */
                 if(this.eventInsideKnotNeighborhood.length <  intermediateKnots.length) {
@@ -1545,31 +1547,46 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
 
         if((this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
-            if(this.neighboringEvent.value && this.neighboringEvent.valueOptim &&  this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span && this.neighboringEvent.range && this.neighboringEvent.variation) {
+            if(this.neighboringEvent.value && this.neighboringEvent.valueOptim &&  this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span &&
+                this.neighboringEvent.range && this.neighboringEvent.variation && this.neighboringEvent.knotIndex !== undefined) {
                 const upperBound = this.neighboringEvent.span
                 const lowerBound = this.neighboringEvent.span - this.neighboringEvent.range
-                /* JCL removes the inactive constraints tha may exist in the current interval span */
-                for(let j = lowerBound; j < upperBound + 1; j += 1) {
-                    if(result.indexOf(j) !== -1) result.splice(result.indexOf(j), 1)
-                }
-    
+
                 //let revertConstraints: Array<number> =[]
                 //let constraintBound: Array<number> =[]
-                let j = 0
-                for(let i = 0; i < controlPoints.length; i+= 1){
-                    this.revertConstraints[i] = 1
-                    this.constraintBound[i] = 0
-                    if(i >=  lowerBound && i <= upperBound) {
-                        /* JCL a simplifier */
-                        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
-                            if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
-                            if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
-                        } else if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
-                            if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
-                            if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                if(this.spline.degree === 3 && this.neighboringEvent.knotIndex !== 0) {
+                    //if(((controlPoints[upperBound] === this.neighboringEvent.value || controlPoints[upperBound + 1] === this.neighboringEvent.value) && this.neighboringEvent.value > 0) ||
+                    //((controlPoints[upperBound] === this.neighboringEvent.value || controlPoints[upperBound + 1] === this.neighboringEvent.value) && this.neighboringEvent.value < 0)) {
+                        if(result.indexOf(upperBound) !== -1) result.splice(result.indexOf(upperBound), 1)
+                        if(result.indexOf(upperBound + 1) !== -1) result.splice(result.indexOf(upperBound + 1), 1)
+                        this.revertConstraints[upperBound] = 1
+                        this.constraintBound[upperBound] = 0
+                        this.revertConstraints[upperBound + 1] = 1
+                        this.constraintBound[upperBound + 1] = 0
+                        console.log("avoid generation of extrema. result " + result +  " rvCst " + this.revertConstraints[upperBound] + ", " + this.revertConstraints[upperBound + 1]  + " bound " + this.constraintBound[upperBound] + ", " 
+                        + this.constraintBound[upperBound + 1])
+                    //}
+                } else {
+                    /* JCL removes the inactive constraints that may exist in the current interval span */
+                    for(let j = lowerBound; j < upperBound + 1; j += 1) {
+                        if(result.indexOf(j) !== -1) result.splice(result.indexOf(j), 1)
+                    }
+                    let j = 0
+                    for(let i = 0; i < controlPoints.length; i+= 1){
+                        this.revertConstraints[i] = 1
+                        this.constraintBound[i] = 0
+                        if(i >=  lowerBound && i <= upperBound) {
+                            /* JCL a simplifier */
+                            if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                                if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
+                                if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                            } else if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                                if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
+                                if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                            }
+                                this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                            j += 1
                         }
-                            this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
-                        j += 1
                     }
                 }
                 /*if(this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) {

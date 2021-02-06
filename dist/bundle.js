@@ -39301,7 +39301,6 @@ var SlidingStrategy = /** @class */ (function () {
                                 }
                             }
                             else {
-                                //indexMaxIntverVar = 0
                                 indexMaxIntverVar = candidateEventIndex;
                             }
                             if (candidateEventIndex !== -1) {
@@ -40262,14 +40261,31 @@ var SlidingStrategy = /** @class */ (function () {
                         else {
                             curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index].loc);
                             curvatureExtrema.push(sequenceDiffEventsOptim[neighboringEvents[i].index + 1].loc);
+                            var knotIndex = 0;
+                            if (this.curveModel.spline.degree === 3) {
+                                for (var k = 4; k < this.curveModel.spline.knots.length - 4; k += 1) {
+                                    if (curvatureExtrema[curvatureExtrema.length - 1] === this.curveModel.spline.knots[k] || curvatureExtrema[curvatureExtrema.length - 2] === this.curveModel.spline.knots[k]) {
+                                        console.log("extremum at intermediate knot " + curvatureExtrema[curvatureExtrema.length - 1]);
+                                        knotIndex = k;
+                                    }
+                                }
+                            }
                             var indexExtremumOptim = -1;
                             for (var j = 0; j < extremaCurvatureDerivativeNumeratorOptim.length; j += 1) {
-                                if (extremaCurvatureDerivativeNumeratorOptim[j] > sequenceDiffEventsOptim[neighboringEvents[i].index].loc && extremaCurvatureDerivativeNumeratorOptim[j] < sequenceDiffEventsOptim[neighboringEvents[i].index + 1].loc)
+                                if (extremaCurvatureDerivativeNumeratorOptim[j] >= sequenceDiffEventsOptim[neighboringEvents[i].index].loc && extremaCurvatureDerivativeNumeratorOptim[j] <= sequenceDiffEventsOptim[neighboringEvents[i].index + 1].loc)
                                     indexExtremumOptim = j;
                             }
                             if (indexExtremumOptim !== -1 && extremaCurvatureDerivativeNumerator.length > 0) {
                                 //console.log("Process configuration with pre-existing extrema.")
-                                functionBOptimExtremum = functionBOptim.evaluate(extremaCurvatureDerivativeNumeratorOptim[indexExtremumOptim]);
+                                var functionBOptimExtremum1 = 0.0;
+                                var functionBOptimExtremum2 = 0.0;
+                                if (knotIndex === 0) {
+                                    functionBOptimExtremum = functionBOptim.evaluate(extremaCurvatureDerivativeNumeratorOptim[indexExtremumOptim]);
+                                }
+                                else {
+                                    functionBOptimExtremum1 = functionBOptim.controlPoints[(knotIndex - 3) * 6];
+                                    functionBOptimExtremum2 = functionBOptim.controlPoints[(knotIndex - 3) * 6 + 1];
+                                }
                                 var indexExtremum = 0;
                                 var minDist = Math.abs(extremaCurvatureDerivativeNumeratorOptim[indexExtremumOptim] - extremaCurvatureDerivativeNumerator[0]);
                                 for (var j = 1; j < extremaCurvatureDerivativeNumerator.length; j += 1) {
@@ -40282,7 +40298,27 @@ var SlidingStrategy = /** @class */ (function () {
                                 /*if(extremaCurvatureDerivativeNumerator[indexExtremum] > sequenceDiffEventsOptim[neighboringEvents[i].index].loc && extremaCurvatureDerivativeNumerator[indexExtremum] < sequenceDiffEventsOptim[neighboringEvents[i].index + 1].loc) {
                                     console.log("Stable location of function B(u) extremum")
                                 }*/
-                                functionBExtremum = functionB.evaluate(extremaCurvatureDerivativeNumerator[indexExtremum]);
+                                var functionBExtremum1 = 0.0;
+                                var functionBExtremum2 = 0.0;
+                                if (knotIndex === 0) {
+                                    functionBExtremum = functionB.evaluate(extremaCurvatureDerivativeNumerator[indexExtremum]);
+                                }
+                                else {
+                                    functionBExtremum1 = functionB.controlPoints[(knotIndex - 3) * 6];
+                                    functionBExtremum2 = functionB.controlPoints[(knotIndex - 3) * 6 + 1];
+                                    if ((functionBExtremum1 < functionBExtremum2 && functionBExtremum1 > 0) || (functionBExtremum1 > functionBExtremum2 && functionBExtremum1 < 0)) {
+                                        functionBExtremum = functionBExtremum1;
+                                        functionBOptimExtremum = functionBOptimExtremum1;
+                                    }
+                                    else if ((functionBExtremum2 < functionBExtremum1 && functionBExtremum2 > 0) || (functionBExtremum2 > functionBExtremum1 && functionBExtremum2 < 0)) {
+                                        functionBExtremum = functionBExtremum2;
+                                        functionBOptimExtremum = functionBOptimExtremum2;
+                                    }
+                                    else
+                                        console.log("Inconsistent setting to define functionB extremum with degree 3 curve at an intermediate knot.");
+                                    neighboringEvents[i].span = (knotIndex - 3) * 6;
+                                    neighboringEvents[i].range = functionB.degree;
+                                }
                                 if ((functionBExtremum * functionBOptimExtremum) > 0) {
                                     console.log("Inconsistency of function B(u) extrema values functionBExtremum: " + functionBExtremum + " functionBOptimExtremum" + functionBOptimExtremum);
                                 }
@@ -40296,26 +40332,31 @@ var SlidingStrategy = /** @class */ (function () {
                                     variations.push(functionBOptim.controlPoints[j] - functionB.controlPoints[j]);
                                 }
                                 neighboringEvents[i].variation = variations;
-                                var span = Piegl_Tiller_NURBS_Book_1.findSpan(extremaCurvatureDerivativeNumerator[indexExtremum], functionB.knots, functionB.degree);
-                                var spanOptim = Piegl_Tiller_NURBS_Book_1.findSpan(extremaCurvatureDerivativeNumeratorOptim[indexExtremumOptim], functionBOptim.knots, functionBOptim.degree);
-                                if (span === spanOptim) {
-                                    neighboringEvents[i].span = span;
-                                    neighboringEvents[i].range = functionB.degree;
-                                }
-                                else {
-                                    if (span < spanOptim) {
+                                if (knotIndex === 0) {
+                                    var span = Piegl_Tiller_NURBS_Book_1.findSpan(extremaCurvatureDerivativeNumerator[indexExtremum], functionB.knots, functionB.degree);
+                                    var spanOptim = Piegl_Tiller_NURBS_Book_1.findSpan(extremaCurvatureDerivativeNumeratorOptim[indexExtremumOptim], functionBOptim.knots, functionBOptim.degree);
+                                    if (span === spanOptim) {
                                         neighboringEvents[i].span = span;
-                                        neighboringEvents[i].range = functionB.degree + spanOptim - span;
+                                        neighboringEvents[i].range = functionB.degree;
                                     }
                                     else {
-                                        neighboringEvents[i].span = spanOptim;
-                                        neighboringEvents[i].range = functionB.degree + span - spanOptim;
+                                        if (span < spanOptim) {
+                                            neighboringEvents[i].span = span;
+                                            neighboringEvents[i].range = functionB.degree + spanOptim - span;
+                                        }
+                                        else {
+                                            neighboringEvents[i].span = spanOptim;
+                                            neighboringEvents[i].range = functionB.degree + span - spanOptim;
+                                        }
                                     }
                                 }
+                                neighboringEvents[i].knotIndex = knotIndex;
                                 this.curveModel.setControlPoints(controlPointsInit);
                                 this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i]);
                                 this.optimizer = this.newOptimizer(this.optimizationProblem);
+                                this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline);
+                                console.log("start optimize 2 extrema appear" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                     delta = [];
@@ -40336,8 +40377,34 @@ var SlidingStrategy = /** @class */ (function () {
                                     }
                                     this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.mergeExtremaAndInflection;
                                     this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.mergeExtrema;
-                                    this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
-                                    this.optimizer = this.newOptimizer(this.optimizationProblem);
+                                    /* JCL Add the curve relocation process */
+                                    if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+                                        /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                                        this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                                        this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                                    }
+                                    else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                                        if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                                            /*console.log("optimize: s0sn constant")*/
+                                            /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
+                                            delta[delta.length - 1] = delta[0];
+                                            this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                                            this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                                        }
+                                        else {
+                                            /*console.log("optimize: s0sn variable -> stop evolving")*/
+                                            this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                                            this.curveModel.setControlPoints(controlPointsInit);
+                                        }
+                                    }
+                                    else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                                        this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                                        this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                                        //}
+                                    }
+                                    else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.none) {
+                                        this.curveModel.setSpline(this.optimizationProblem.spline.clone());
+                                    }
                                 }
                                 catch (e) {
                                     this.curveModel.setControlPoints(controlPointsInit);
@@ -43781,6 +43848,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             _this.neighboringEvent.variation = [];
             _this.neighboringEvent.span = -1;
             _this.neighboringEvent.range = 0;
+            _this.neighboringEvent.knotIndex = 0;
         }
         if (_this.spline.degree === 3) {
             /* JCL Specific treatment for event sliding with cubics */
@@ -44066,6 +44134,8 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                 for (var i = 4; i < (knots.length - 4); i += 1) {
                     if (this.spline.knotMultiplicity(knots[i]) === 1)
                         intermediateKnots.push({ knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i });
+                    else
+                        console.log("Knot multiplicity greater than one at intermediate knots is not processed yet.");
                 }
                 /* JCL Initialization of variables monitoring constraint analysis at each intermediate knot */
                 if (this.eventInsideKnotNeighborhood.length < intermediateKnots.length) {
@@ -44302,36 +44372,54 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }
         if ((this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
-            if (this.neighboringEvent.value && this.neighboringEvent.valueOptim && this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span && this.neighboringEvent.range && this.neighboringEvent.variation) {
+            if (this.neighboringEvent.value && this.neighboringEvent.valueOptim && this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span &&
+                this.neighboringEvent.range && this.neighboringEvent.variation && this.neighboringEvent.knotIndex !== undefined) {
                 var upperBound = this.neighboringEvent.span;
                 var lowerBound = this.neighboringEvent.span - this.neighboringEvent.range;
-                /* JCL removes the inactive constraints tha may exist in the current interval span */
-                for (var j_1 = lowerBound; j_1 < upperBound + 1; j_1 += 1) {
-                    if (result.indexOf(j_1) !== -1)
-                        result.splice(result.indexOf(j_1), 1);
-                }
                 //let revertConstraints: Array<number> =[]
                 //let constraintBound: Array<number> =[]
-                var j = 0;
-                for (var i = 0; i < controlPoints.length; i += 1) {
-                    this.revertConstraints[i] = 1;
-                    this.constraintBound[i] = 0;
-                    if (i >= lowerBound && i <= upperBound) {
-                        /* JCL a simplifier */
-                        if (this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
-                            if (controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0)
-                                this.revertConstraints[i] = -1;
-                            if (controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0)
-                                this.revertConstraints[i] = -1;
+                if (this.spline.degree === 3 && this.neighboringEvent.knotIndex !== 0) {
+                    //if(((controlPoints[upperBound] === this.neighboringEvent.value || controlPoints[upperBound + 1] === this.neighboringEvent.value) && this.neighboringEvent.value > 0) ||
+                    //((controlPoints[upperBound] === this.neighboringEvent.value || controlPoints[upperBound + 1] === this.neighboringEvent.value) && this.neighboringEvent.value < 0)) {
+                    if (result.indexOf(upperBound) !== -1)
+                        result.splice(result.indexOf(upperBound), 1);
+                    if (result.indexOf(upperBound + 1) !== -1)
+                        result.splice(result.indexOf(upperBound + 1), 1);
+                    this.revertConstraints[upperBound] = 1;
+                    this.constraintBound[upperBound] = 0;
+                    this.revertConstraints[upperBound + 1] = 1;
+                    this.constraintBound[upperBound + 1] = 0;
+                    console.log("avoid generation of extrema. result " + result + " rvCst " + this.revertConstraints[upperBound] + ", " + this.revertConstraints[upperBound + 1] + " bound " + this.constraintBound[upperBound] + ", "
+                        + this.constraintBound[upperBound + 1]);
+                    //}
+                }
+                else {
+                    /* JCL removes the inactive constraints that may exist in the current interval span */
+                    for (var j_1 = lowerBound; j_1 < upperBound + 1; j_1 += 1) {
+                        if (result.indexOf(j_1) !== -1)
+                            result.splice(result.indexOf(j_1), 1);
+                    }
+                    var j = 0;
+                    for (var i = 0; i < controlPoints.length; i += 1) {
+                        this.revertConstraints[i] = 1;
+                        this.constraintBound[i] = 0;
+                        if (i >= lowerBound && i <= upperBound) {
+                            /* JCL a simplifier */
+                            if (this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                                if (controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0)
+                                    this.revertConstraints[i] = -1;
+                                if (controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0)
+                                    this.revertConstraints[i] = -1;
+                            }
+                            else if (this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                                if (controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0)
+                                    this.revertConstraints[i] = -1;
+                                if (controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0)
+                                    this.revertConstraints[i] = -1;
+                            }
+                            this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value);
+                            j += 1;
                         }
-                        else if (this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
-                            if (controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0)
-                                this.revertConstraints[i] = -1;
-                            if (controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0)
-                                this.revertConstraints[i] = -1;
-                        }
-                        this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value);
-                        j += 1;
                     }
                 }
                 /*if(this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) {
