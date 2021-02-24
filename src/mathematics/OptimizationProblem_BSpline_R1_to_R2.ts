@@ -1043,8 +1043,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     public shapeSpaceBoundaryConstraintsCurvExtrema: number[]
     public shapeSpaceBoundaryConstraintsInflection: number[]
     public neighboringEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: -1}
-    private revertConstraints: number[]
+    public revertConstraints: number[]
     private constraintBound: number[]
+    private controlPointsFunctionBInit: number[]
     private eventMoveAtIterationStart: eventMove[]
     private eventEnterKnotNeighborhood: boolean[]
     private eventInsideKnotNeighborhood: boolean[]
@@ -1118,6 +1119,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         const e = this.expensiveComputation(this.spline)  
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         this.currentCurvatureExtremaControPoints = g
+        this.controlPointsFunctionBInit =  this.currentCurvatureExtremaControPoints
         this.constraintBound = zeroVector(g.length);
         for(let i = 0; i < g.length; i += 1) {
             this.revertConstraints.push(1);
@@ -1429,24 +1431,31 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                                 //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                                 if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
                                 if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
-                                this.revertConstraints[controlPointIndex] = -1
-                                this.revertConstraints[controlPointIndex + 1] = -1
+                                if(controlPoints[controlPointIndex] > controlPoints[controlPointIndex + 1]) {
+                                    this.revertConstraints[controlPointIndex] = -1
+                                } else {
+                                    this.revertConstraints[controlPointIndex + 1] = -1
+                                }
                                 if(this.updateConstraintBound) {
-                                    if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
-                                        if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                        else {
-                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                    if(controlPoints[controlPointIndex] > controlPoints[controlPointIndex + 1]) {
+                                        if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                            if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                            else {
+                                                this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] + (controlPoints[controlPointIndex] - this.previousCurvatureExtremaControlPoints[controlPointIndex])
+                                            }
+                                        } else if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                            this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
                                         }
-                                    } else if(controlPoints[controlPointIndex] < this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
-                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                        this.constraintBound[controlPointIndex + 1] = 0.0
+                                    } else {
+                                        if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                            if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                            else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
+                                        } else if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
+                                            this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                        }
+                                        this.constraintBound[controlPointIndex] = 0.0
                                     }
-                                    if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
-                                        if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                        else this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] + (controlPoints[controlPointIndex + 1] - this.previousCurvatureExtremaControlPoints[controlPointIndex + 1])
-                                    } else if(controlPoints[controlPointIndex + 1] < this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
-                                        this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                    }
-
                                     if (this.eventEnterKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = false
                                 }
                             }
@@ -1455,24 +1464,32 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                                 //|| ((eventMoveNearKnot === eventMove.moveAwayFromKnotRL || eventMoveNearKnot === eventMove.moveAwayFromKnotLR) && !this.updateConstraintBound)) {
                                 if(result.indexOf(controlPointIndex + 1) !== -1) result.splice(result.indexOf(controlPointIndex + 1), 1)
                                 if(result.indexOf(controlPointIndex) !== -1) result.splice(result.indexOf(controlPointIndex), 1)
-                                this.revertConstraints[controlPointIndex + 1] = -1
-                                this.revertConstraints[controlPointIndex] = -1
+                                if(controlPoints[controlPointIndex] > controlPoints[controlPointIndex + 1]) {
+                                    this.revertConstraints[controlPointIndex + 1] = -1
+                                } else {
+                                    this.revertConstraints[controlPointIndex] = -1
+                                }
                                 if(this.updateConstraintBound) {
-                                    if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
-                                        if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                        else {
-                                            this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                    if(controlPoints[controlPointIndex] < controlPoints[controlPointIndex + 1]) {
+                                        if(this.constraintBound[controlPointIndex] === 0 || controlPoints[controlPointIndex] * this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0) {
+                                            if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
+                                            else {
+                                                this.constraintBound[controlPointIndex] = controlPoints[controlPointIndex] - (this.previousCurvatureExtremaControlPoints[controlPointIndex] - controlPoints[controlPointIndex])
+                                            }
+                                        } else if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
+                                            this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
                                         }
-                                    } else if(controlPoints[controlPointIndex] > this.previousCurvatureExtremaControlPoints[controlPointIndex]) {
-                                        this.constraintBound[controlPointIndex] = this.previousCurvatureExtremaControlPoints[controlPointIndex]
-                                    }
-                                    if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
-                                        if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
-                                        else {
-                                            this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                        this.constraintBound[controlPointIndex + 1] = 0.0
+                                    } else {
+                                        if(this.constraintBound[controlPointIndex + 1] === 0 || controlPoints[controlPointIndex + 1] * this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] < 0) {
+                                            if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                            else {
+                                                this.constraintBound[controlPointIndex + 1] = controlPoints[controlPointIndex + 1] - (this.previousCurvatureExtremaControlPoints[controlPointIndex + 1] - controlPoints[controlPointIndex + 1])
+                                            }
+                                        } else if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
+                                            this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
                                         }
-                                    } else if(controlPoints[controlPointIndex + 1] > this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]) {
-                                        this.constraintBound[controlPointIndex + 1] = this.previousCurvatureExtremaControlPoints[controlPointIndex + 1]
+                                        this.constraintBound[controlPointIndex] = 0.0
                                     }
 
                                     if (this.eventEnterKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = false
@@ -1488,7 +1505,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                                 - this.previousCurvatureExtremaControlPoints[controlPointIndex] < 0 && controlPoints[controlPointIndex] > 0: the control point is changing of half space
                                 but the constraint must be kept reversed to avoid adverse effects with the convergence of the trust region optimizer
                                 - this.previousCurvatureExtremaControlPoints[controlPointIndex] > 0 && controlPoints[controlPointIndex] > 0: the control point was already in the positive
-                                half space et must be kept as close to zero as much as possible to contribute to event sliding
+                                half space et must be kept as close to zero  as possible to contribute to event sliding
                                 - this.eventMoveAtIterationStart !== eventMoveNearKnot: the constraint settings must be constant during an optimizer iteration
                                 */
                             this.revertConstraints[controlPointIndex] = -1
@@ -1545,8 +1562,22 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             }
         }
 
+        /* JCL Test */
+        /*if(this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+            let maxValue = 1
+            for(let i = 1; i < controlPoints.length - 1; i+=1) {
+                this.revertConstraints[i] = 1
+                this.constraintBound[i] = 0
+                if(controlPoints[i] > maxValue){
+                    if(result.indexOf(i) !== -1) result.splice(result.indexOf(i), 1)
+                    this.revertConstraints[i] = -1
+                    this.constraintBound[i] = maxValue
+                }
+            }
+        }*/
+
         if((this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear)
-            && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length) {
+            && this.curvatureExtremaTotalNumberOfConstraints === controlPoints.length && this.updateConstraintBound) {
             if(this.neighboringEvent.value && this.neighboringEvent.valueOptim &&  this.neighboringEvent.locExt && this.neighboringEvent.locExtOptim && this.neighboringEvent.span &&
                 this.neighboringEvent.range && this.neighboringEvent.variation && this.neighboringEvent.knotIndex !== undefined) {
                 const upperBound = this.neighboringEvent.span
@@ -1575,19 +1606,34 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                     for(let i = 0; i < controlPoints.length; i+= 1){
                         this.revertConstraints[i] = 1
                         this.constraintBound[i] = 0
-                        if(i >=  lowerBound && i <= upperBound) {
+                        //if(i >=  lowerBound && i <= upperBound) {
+                        if(i >  lowerBound && i < upperBound) {
                             /* JCL a simplifier */
-                            if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                            /*if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
                                 if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
                                 if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
                             } else if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
                                 if(controlPoints[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
-                                if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                                if(controlPoints[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) {
+                                    this.revertConstraints[i] = -1
+                                    this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                }
+                            }*/
+                            if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                                if(this.controlPointsFunctionBInit[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
+                                if(this.controlPointsFunctionBInit[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) this.revertConstraints[i] = -1
+                            } else if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                                if(this.controlPointsFunctionBInit[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
+                                if(this.controlPointsFunctionBInit[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) {
+                                    this.revertConstraints[i] = -1
+                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                }
                             }
-                                this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                //this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
                             j += 1
                         }
                     }
+                    console.log("control of B(u): result " + result +  " rvCst " + this.revertConstraints + ", "  + " bound " + this.constraintBound)
                 }
                 /*if(this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) {
                     let activeSignChanges: number[] = []
@@ -1826,16 +1872,21 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this._f0 = this.compute_f0(this._gradient_f0)
         const e = this.expensiveComputation(this.spline)  
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
+        if(this.updateConstraintBound) {
+            this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
+            this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
+        }
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
+        if(this.updateConstraintBound) {
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+            this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
+        }
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
         //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
+        console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " revert " + this.revertConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign + " bound " + this.constraintBound)
 
         this.updateConstraintBound = false
 
@@ -1874,7 +1925,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         this.constraintBound = zeroVector(g.length);
         for(let i = 0; i < g.length; i += 1) {
-            this.revertConstraints.push(1);
+            this.revertConstraints[i] = 1
         }
     }
 

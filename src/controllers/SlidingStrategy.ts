@@ -835,7 +835,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
         console.log("zeros " + curvatureExtremaLocations + " CP delta X " + (p.x - this.curveModel.spline.controlPoints[selectedControlPoint].x) + " delta Y " + (p.y - this.curveModel.spline.controlPoints[selectedControlPoint].y) + " signs " 
-            + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
+            + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints + " revert " + this.optimizationProblem.revertConstraints)
         this.optimizationProblem.updateConstraintBound = true
         //this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
         //this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
@@ -1033,6 +1033,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
                         this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
                         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                        this.optimizationProblem.updateConstraintBound = true
                         console.log("start optimize" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
                         try {
                             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
@@ -1167,6 +1168,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                 this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
                                 this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
+                                this.optimizationProblem.updateConstraintBound = true
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
                                     delta = []
@@ -1238,6 +1240,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                     this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                                    this.optimizationProblem.updateConstraintBound = true
                                     try {
                                         this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
                                         delta = []
@@ -1359,6 +1362,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 this.optimizer = this.newOptimizer(this.optimizationProblem)
                                 this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                                this.optimizationProblem.updateConstraintBound = true
                                 console.log("start optimize 2 extrema appear" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
@@ -1448,6 +1452,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                     this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                                    this.optimizationProblem.updateConstraintBound = true
                                     try {
                                         this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
                                         delta = []
