@@ -43887,6 +43887,8 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         var g = _this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
         _this.currentCurvatureExtremaControPoints = g;
         _this.controlPointsFunctionBInit = _this.currentCurvatureExtremaControPoints;
+        if (_this.neighboringEvent.event !== SlidingStrategy_1.NeighboringEventsType.none)
+            console.log("B(u) control points at init:" + _this.currentCurvatureExtremaControPoints);
         _this.constraintBound = MathVectorBasicOperations_1.zeroVector(g.length);
         for (var i = 0; i < g.length; i += 1) {
             _this.revertConstraints.push(1);
@@ -43900,6 +43902,12 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         _this.inflectionInactiveConstraints = _this.computeInactiveConstraintsGN(_this.inflectionConstraintsSign, curvatureNumerator);
         _this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - _this.inflectionInactiveConstraints.length;
         _this._f = _this.compute_fGN(curvatureNumerator, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, g, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints, _this.revertConstraints, _this.constraintBound);
+        if (_this.neighboringEvent.event !== SlidingStrategy_1.NeighboringEventsType.none)
+            console.log("constraints at init:" + _this._f);
+        if (_this.neighboringEvent.event !== SlidingStrategy_1.NeighboringEventsType.none)
+            console.log("curvature constraints at init:" + _this.curvatureExtremaInactiveConstraints);
+        if (_this.neighboringEvent.event !== SlidingStrategy_1.NeighboringEventsType.none)
+            console.log("inflexion constraints at init:" + _this.inflectionInactiveConstraints);
         _this._gradient_f = _this.compute_gradient_fGN(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints, _this.revertConstraints);
         if (_this.isComputingHessian) {
             _this.prepareForHessianComputation(_this.Dsu, _this.Dsuu, _this.Dsuuu);
@@ -44465,8 +44473,9 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                                 if (this.controlPointsFunctionBInit[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0)
                                     this.revertConstraints[i] = -1;
                                 if (this.controlPointsFunctionBInit[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) {
-                                    this.revertConstraints[i] = -1;
-                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value);
+                                    this.revertConstraints[i] = 1;
+                                    //this.constraintBound[i] = this.controlPointsFunctionBInit[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                    this.constraintBound[i] = -(this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value);
                                 }
                             }
                             //this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)

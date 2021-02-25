@@ -1120,6 +1120,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         this.currentCurvatureExtremaControPoints = g
         this.controlPointsFunctionBInit =  this.currentCurvatureExtremaControPoints
+        if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("B(u) control points at init:" + this.currentCurvatureExtremaControPoints)
         this.constraintBound = zeroVector(g.length);
         for(let i = 0; i < g.length; i += 1) {
             this.revertConstraints.push(1);
@@ -1135,6 +1136,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
             this.revertConstraints, this.constraintBound)
+        if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("constraints at init:" + this._f)
+        if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("curvature constraints at init:" + this.curvatureExtremaInactiveConstraints)
+        if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("inflexion constraints at init:" + this.inflectionInactiveConstraints)
 
         this._gradient_f = this.compute_gradient_fGN(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints, this.revertConstraints)
         
@@ -1625,8 +1629,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                             } else if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
                                 if(this.controlPointsFunctionBInit[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
                                 if(this.controlPointsFunctionBInit[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) {
-                                    this.revertConstraints[i] = -1
-                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                    this.revertConstraints[i] = 1
+                                    //this.constraintBound[i] = this.controlPointsFunctionBInit[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                    this.constraintBound[i] = -(this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
                                 }
                             }
                                 //this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
