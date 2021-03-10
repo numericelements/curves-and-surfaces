@@ -1,13 +1,13 @@
 
 import { TrustRegionSubproblem } from "./TrustRegionSubproblem"
-import { dotProduct, multiplyVectorByScalar, addTwoVectors} from "./MathVectorBasicOperations"
-import { saxpy2 } from "./MathVectorBasicOperations"
-import { zeroVector } from "./MathVectorBasicOperations"
-import { OptimizationProblemInterface } from "./OptimizationProblemInterface" 
-import { SymmetricMatrixInterface } from "./MatrixInterfaces" 
-import { MatrixInterface } from "./MatrixInterfaces" 
-import { SymmetricMatrix } from "./SymmetricMatrix" 
-import { CholeskyDecomposition } from "./CholeskyDecomposition";
+import { dotProduct, multiplyVectorByScalar, addTwoVectors} from "../linearAlgebra/MathVectorBasicOperations"
+import { saxpy2 } from "../linearAlgebra/MathVectorBasicOperations"
+import { zeroVector } from "../linearAlgebra/MathVectorBasicOperations"
+import { OptimizationProblemInterface } from "../optimizationProblemFacade/OptimizationProblemInterface" 
+import { SymmetricMatrixInterface } from "../linearAlgebra/MatrixInterfaces" 
+import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces" 
+import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix" 
+import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
 
 
 export class Optimizer {

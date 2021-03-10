@@ -17,7 +17,7 @@ import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./Sli
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 import { IObserver } from "../designPatterns/Observer";
-import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 
 /* JCL 2020/09/24 Add the visualization of clamped control points */
@@ -27,11 +27,11 @@ import { Vector_2d } from "../mathematics/Vector_2d";
 /* JCL 2020/10/02 Add the visualization of knots */
 import { CurveKnotsView } from "../views/CurveKnotsView"
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders";
-import { SequenceBSpline_R1_to_R2 } from "../mathematics/SequenceBSpline_R1_to_R2";
+import { SequenceBSpline_R1_to_R2 } from "../bsplines/SequenceBSpline_R1_to_R2";
 
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
-import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
+import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { NONAME } from "dns";
 
 import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"

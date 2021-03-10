@@ -1,6 +1,6 @@
 
-import { SymmetricMatrixInterface } from "./MatrixInterfaces";
-import { MatrixInterface } from "./MatrixInterfaces"
+import { SymmetricMatrixInterface } from "../linearAlgebra/MatrixInterfaces";
+import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces"
 
 
 /**

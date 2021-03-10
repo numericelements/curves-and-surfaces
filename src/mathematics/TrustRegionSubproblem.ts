@@ -1,17 +1,17 @@
-import { SymmetricMatrix } from "./SymmetricMatrix"
-import { SquareMatrix } from "./SquareMatrix"
-import { norm, containsNaN, isZeroVector } from "./MathVectorBasicOperations"
-import { norm1 } from "./MathVectorBasicOperations"
-import { squaredNorm } from "./MathVectorBasicOperations"
-import { multiplyVectorByScalar } from "./MathVectorBasicOperations"
-import { divideVectorByScalar } from "./MathVectorBasicOperations"
-import { dotProduct } from "./MathVectorBasicOperations"
-import { saxpy } from "./MathVectorBasicOperations"
-import { zeroVector } from "./MathVectorBasicOperations"
-import { sign } from "./MathVectorBasicOperations"
-import { MatrixInterface } from "./MatrixInterfaces";
-import { SquareMatrixInterface } from "./MatrixInterfaces";
-import { CholeskyDecomposition } from "./CholeskyDecomposition";
+import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix"
+import { SquareMatrix } from "../linearAlgebra/SquareMatrix"
+import { norm, containsNaN, isZeroVector } from "../linearAlgebra/MathVectorBasicOperations"
+import { norm1 } from "../linearAlgebra/MathVectorBasicOperations"
+import { squaredNorm } from "../linearAlgebra/MathVectorBasicOperations"
+import { multiplyVectorByScalar } from "../linearAlgebra/MathVectorBasicOperations"
+import { divideVectorByScalar } from "../linearAlgebra/MathVectorBasicOperations"
+import { dotProduct } from "../linearAlgebra/MathVectorBasicOperations"
+import { saxpy } from "../linearAlgebra/MathVectorBasicOperations"
+import { zeroVector } from "../linearAlgebra/MathVectorBasicOperations"
+import { sign } from "../linearAlgebra/MathVectorBasicOperations"
+import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces";
+import { SquareMatrixInterface } from "../linearAlgebra/MatrixInterfaces";
+import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
 
 
 

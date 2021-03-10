@@ -37520,6 +37520,1223 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./src/bsplines/BSpline_R1_to_R1.ts":
+/*!******************************************!*\
+  !*** ./src/bsplines/BSpline_R1_to_R1.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSpline_R1_to_R1 = void 0;
+var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a one dimensional real space
+ */
+var BSpline_R1_to_R1 = /** @class */ (function () {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    function BSpline_R1_to_R1(controlPoints, knots) {
+        if (controlPoints === void 0) { controlPoints = [0]; }
+        if (knots === void 0) { knots = [0, 1]; }
+        this._controlPoints = [];
+        this._knots = [];
+        this._degree = 0;
+        this._controlPoints = controlPoints;
+        this._knots = knots;
+        this._degree = this._knots.length - this._controlPoints.length - 1;
+        if (this._degree < 0) {
+            throw new Error("Negative degree BSpline_R1_to_R1 are not supported");
+        }
+    }
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "controlPoints", {
+        get: function () {
+            return this._controlPoints;
+        },
+        set: function (controlPoints) {
+            this._controlPoints = controlPoints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "knots", {
+        get: function () {
+            return this._knots;
+        },
+        set: function (knots) {
+            this._knots = knots;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "degree", {
+        get: function () {
+            return this._degree;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BSpline_R1_to_R1.prototype.setControlPoint = function (index, value) {
+        this._controlPoints[index] = value;
+    };
+    /**
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    BSpline_R1_to_R1.prototype.evaluate = function (u) {
+        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
+        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
+        var result = 0;
+        for (var i = 0; i < this.degree + 1; i += 1) {
+            result += basis[i] * this._controlPoints[span - this._degree + i];
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.derivative = function () {
+        var newControlPoints = [];
+        var newKnots = [];
+        for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
+            newControlPoints[i] = (this.controlPoints[i + 1] - (this.controlPoints[i])) * (this.degree / (this.knots[i + this.degree + 1] - this.knots[i + 1]));
+        }
+        newKnots = this.knots.slice(1, this.knots.length - 1);
+        return new BSpline_R1_to_R1(newControlPoints, newKnots);
+    };
+    BSpline_R1_to_R1.prototype.bernsteinDecomposition = function () {
+        // Piegl_Tiller_NURBS_BOOK.ts
+        return Piegl_Tiller_NURBS_Book_3.decomposeFunction(this);
+    };
+    BSpline_R1_to_R1.prototype.distinctKnots = function () {
+        var result = [this.knots[0]];
+        var temp = result[0];
+        for (var i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.zeros = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        while (maxError > tolerance) {
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var i = 0; i < vertexIndex.length; i += 1) {
+                var uLeft = greville[vertexIndex[i] - 1];
+                var uRight = greville[vertexIndex[i]];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    spline.insertKnot((uLeft + uRight) / 2);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        var result = [];
+        for (var i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]]);
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.grevilleAbscissae = function () {
+        var result = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var sum = 0;
+            for (var j = i + 1; j < i + this.degree + 1; j += 1) {
+                sum += this.knots[j];
+            }
+            result.push(sum / this.degree);
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.insertKnot = function (u, times) {
+        if (times === void 0) { times = 1; }
+        if (times <= 0) {
+            return;
+        }
+        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree);
+        var multiplicity = 0;
+        var newControlPoints = [];
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+        }
+    };
+    BSpline_R1_to_R1.prototype.knotMultiplicity = function (indexFromFindSpan) {
+        var result = 0;
+        var i = 0;
+        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    };
+    /**
+     * Return a deep copy of this b-spline
+     */
+    BSpline_R1_to_R1.prototype.clone = function () {
+        return new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+    };
+    BSpline_R1_to_R1.prototype.clamp = function (u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
+        var newControlPoints = [];
+        var multiplicity = 0;
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        var times = this.degree - multiplicity + 1;
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    };
+    BSpline_R1_to_R1.prototype.controlPolygonNumberOfSignChanges = function () {
+        var result = 0;
+        var greville = this.grevilleAbscissae();
+        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result += 1;
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.controlPolygonZeros = function () {
+        var result = [];
+        var greville = this.grevilleAbscissae();
+        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result.push(this.findLineZero(greville[i], this.controlPoints[i], greville[i + 1], this.controlPoints[i + 1]));
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.findLineZero = function (x1, y1, x2, y2) {
+        // find the zero of the line y = ax + b
+        var a = (y2 - y1) / (x2 - x1);
+        var b = y1 - a * x1;
+        return -b / a;
+    };
+    BSpline_R1_to_R1.prototype.zerosPolygonVsFunctionDiffViewer = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        var cpZeros = spline.controlPolygonNumberOfSignChanges();
+        var result = [];
+        var lastInsertedKnot = 0;
+        while (maxError > tolerance) {
+            var temp = spline.controlPolygonNumberOfSignChanges();
+            if (cpZeros !== temp) {
+                result.push(lastInsertedKnot);
+            }
+            cpZeros = temp;
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var i = 0; i < vertexIndex.length; i += 1) {
+                var uLeft = greville[vertexIndex[i] - 1];
+                var uRight = greville[vertexIndex[i]];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    lastInsertedKnot = (uLeft + uRight) / 2;
+                    spline.insertKnot(lastInsertedKnot);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        /*
+        let result = []
+        for (let i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]])
+        }
+        */
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.curve = function () {
+        var x = this.grevilleAbscissae();
+        var cp = [];
+        for (var i = 0; i < x.length; i += 1) {
+            cp.push(new Vector_2d_1.Vector_2d(x[i], this._controlPoints[i]));
+        }
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    return BSpline_R1_to_R1;
+}());
+exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/BSpline_R1_to_R2.ts":
+/*!******************************************!*\
+  !*** ./src/bsplines/BSpline_R1_to_R2.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.create_BSpline_R1_to_R2 = exports.BSpline_R1_to_R2 = void 0;
+var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var CurveSceneController_1 = __webpack_require__(/*! ../controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+var BSpline_R1_to_R2 = /** @class */ (function () {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    function BSpline_R1_to_R2(controlPoints, knots) {
+        if (controlPoints === void 0) { controlPoints = [new Vector_2d_1.Vector_2d(0, 0)]; }
+        if (knots === void 0) { knots = [0, 1]; }
+        this._controlPoints = [];
+        this._knots = [];
+        this._degree = 0;
+        this._controlPoints = controlPoints;
+        this._knots = knots;
+        this._degree = this._knots.length - this._controlPoints.length - 1;
+        if (this._degree < 0) {
+            throw new Error("Negative degree BSpline_R1_to_R2 are not supported");
+        }
+    }
+    Object.defineProperty(BSpline_R1_to_R2.prototype, "controlPoints", {
+        get: function () {
+            return this._controlPoints;
+        },
+        set: function (controlPoints) {
+            this._controlPoints = controlPoints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BSpline_R1_to_R2.prototype.visibleControlPoints = function () {
+        return this.controlPoints;
+    };
+    Object.defineProperty(BSpline_R1_to_R2.prototype, "knots", {
+        get: function () {
+            return this._knots;
+        },
+        set: function (knots) {
+            this._knots = knots;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R2.prototype, "degree", {
+        get: function () {
+            return this._degree;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BSpline_R1_to_R2.prototype.setControlPoint = function (index, value) {
+        this._controlPoints[index] = value;
+    };
+    BSpline_R1_to_R2.prototype.setControlPoints = function (controlPoints) {
+        this.controlPoints = controlPoints;
+    };
+    /**
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    BSpline_R1_to_R2.prototype.evaluate = function (u) {
+        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
+        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
+        var result = new Vector_2d_1.Vector_2d(0, 0);
+        for (var i = 0; i < this.degree + 1; i += 1) {
+            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
+            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
+        }
+        return result;
+    };
+    /**
+     * Return a deep copy of this b-spline
+     */
+    BSpline_R1_to_R2.prototype.clone = function () {
+        var cloneControlPoints = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            cloneControlPoints.push(new Vector_2d_1.Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y));
+        }
+        return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
+    };
+    /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
+    BSpline_R1_to_R2.prototype.relocateAfterOptimization = function (step, activeLocationControl) {
+        if (activeLocationControl !== CurveSceneController_1.ActiveLocationControl.stopDeforming) {
+            var index = 0;
+            if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint || activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                index = 0;
+            }
+            else if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                index = this.controlPoints.length - 1;
+            }
+            for (var i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[index].x;
+                this.controlPoints[i].y -= step[index].y;
+            }
+            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
+        }
+        else {
+            for (var i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[i].x;
+                this.controlPoints[i].y -= step[i].y;
+            }
+            /*console.log("relocAfterOptim: relocate all ") */
+        }
+    };
+    BSpline_R1_to_R2.prototype.optimizerStep = function (step) {
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            this.controlPoints[i].x += step[i];
+            this.controlPoints[i].y += step[i + this.controlPoints.length];
+        }
+    };
+    BSpline_R1_to_R2.prototype.getControlPointsX = function () {
+        var result = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            result.push(this.controlPoints[i].x);
+        }
+        return result;
+    };
+    BSpline_R1_to_R2.prototype.getControlPointsY = function () {
+        var result = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            result.push(this.controlPoints[i].y);
+        }
+        return result;
+    };
+    BSpline_R1_to_R2.prototype.distinctKnots = function () {
+        var result = [this.knots[0]];
+        var temp = result[0];
+        for (var i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R2.prototype.moveControlPoint = function (i, deltaX, deltaY) {
+        if (i < 0 || i >= this.controlPoints.length - this.degree) {
+            throw new Error("Control point indentifier is out of range");
+        }
+        this.controlPoints[i].x += deltaX;
+        this.controlPoints[i].y += deltaY;
+    };
+    BSpline_R1_to_R2.prototype.insertKnot = function (u, times) {
+        if (times === void 0) { times = 1; }
+        // Piegl and Tiller, The NURBS book, p: 151
+        if (times <= 0) {
+            return;
+        }
+        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree), multiplicity = 0, i = 0, t = 0, newControlPoints, alpha = 0;
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (t = 0; t < times; t += 1) {
+            newControlPoints = [];
+            for (i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = (this.controlPoints[i - 1].multiply(1 - alpha)).add(this.controlPoints[i].multiply(alpha));
+            }
+            for (i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this._knots.splice(index + 1, 0, u);
+            this._controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    };
+    BSpline_R1_to_R2.prototype.knotMultiplicity = function (indexFromFindSpan) {
+        var result = 0, i = 0;
+        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R2.prototype.grevilleAbscissae = function () {
+        var result = [], i, j, sum;
+        for (i = 0; i < this.controlPoints.length; i += 1) {
+            sum = 0;
+            for (j = i + 1; j < i + this.degree + 1; j += 1) {
+                sum += this.knots[j];
+            }
+            result.push(sum / this.degree);
+        }
+        return result;
+    };
+    BSpline_R1_to_R2.prototype.clamp = function (u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
+        var newControlPoints = [];
+        var multiplicity = 0;
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        var times = this.degree - multiplicity + 1;
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = (this.controlPoints[i - 1].multiply(1 - alpha)).add(this.controlPoints[i].multiply(alpha));
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    };
+    /**
+     *
+     * @param from Parametric position where the section start
+     * @param to Parametric position where the section end
+     * @retrun the BSpline_R1_to_R2 section
+     */
+    BSpline_R1_to_R2.prototype.section = function (from, to) {
+        var spline = this.clone();
+        spline.clamp(from);
+        spline.clamp(to);
+        //const newFromSpan = findSpan(from, spline._knots, spline._degree)
+        //const newToSpan = findSpan(to, spline._knots, spline._degree)
+        var newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(from, spline._knots, spline._degree);
+        var newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(to, spline._knots, spline._degree);
+        var newKnots = [];
+        var newControlPoints = [];
+        for (var i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
+            newKnots.push(spline._knots[i]);
+        }
+        for (var i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
+            newControlPoints.push(new Vector_2d_1.Vector_2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+        }
+        return new BSpline_R1_to_R2(newControlPoints, newKnots);
+    };
+    BSpline_R1_to_R2.prototype.move = function (deltaX, deltaY) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(element.add(new Vector_2d_1.Vector_2d(deltaX, deltaY)));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.scale = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(element.multiply(factor));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.scaleY = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector_2d_1.Vector_2d(element.x, element.y * factor));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.scaleX = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector_2d_1.Vector_2d(element.x * factor, element.y));
+        });
+        return new BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    BSpline_R1_to_R2.prototype.renewCurve = function (newControlPoints, newKnotSequence) {
+        this._knots = newKnotSequence.slice();
+        this._controlPoints = newControlPoints.slice();
+        this._degree = this._knots.length - this._controlPoints.length - 1;
+    };
+    return BSpline_R1_to_R2;
+}());
+exports.BSpline_R1_to_R2 = BSpline_R1_to_R2;
+/* JCL 2020/10/19 Initial version of B-Spline creation */
+/*export function create_BSpline_R1_to_R2(controlPoints: number[][], knots: number[]){
+    let newControlPoints: Vector_2d[] = []
+    for (let i = 0, n = controlPoints.length; i < n; i += 1) {
+        newControlPoints.push(new Vector_2d(controlPoints[i][0], controlPoints[i][1]))
+    }
+    return new BSpline_R1_to_R2(newControlPoints, knots)
+}*/
+function create_BSpline_R1_to_R2(controlPoints, knots) {
+    return new BSpline_R1_to_R2(controlPoints, knots).clone();
+}
+exports.create_BSpline_R1_to_R2 = create_BSpline_R1_to_R2;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts":
+/*!*****************************************************************!*\
+  !*** ./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSpline_R1_to_R2_DifferentialProperties = void 0;
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+var BSpline_R1_to_R2_DifferentialProperties = /** @class */ (function () {
+    function BSpline_R1_to_R2_DifferentialProperties(spline) {
+        this.spline = spline;
+    }
+    BSpline_R1_to_R2_DifferentialProperties.prototype.expensiveComputation = function (spline) {
+        var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots);
+        var sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots);
+        var sxu = sx.derivative();
+        var syu = sy.derivative();
+        var sxuu = sxu.derivative();
+        var syuu = syu.derivative();
+        var sxuuu = sxuu.derivative();
+        var syuuu = syuu.derivative();
+        var bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition());
+        var bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition());
+        var bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition());
+        var bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition());
+        var bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition());
+        var bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition());
+        var h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
+        var h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
+        var h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
+        var h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
+        return {
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureNumerator = function () {
+        var e = this.expensiveComputation(this.spline);
+        var distinctKnots = this.spline.distinctKnots();
+        var controlPoints = e.h4.flattenControlPointsArray();
+        var curvatureNumeratorDegree = 2 * this.spline.degree - 3;
+        var knots = [];
+        for (var i = 0; i < distinctKnots.length; i += 1) {
+            for (var j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDenominator = function () {
+        var curve = this.h1();
+        var controlPoints1 = curve.controlPoints;
+        var knots = curve.knots;
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints1, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.h1 = function () {
+        var e = this.expensiveComputation(this.spline);
+        var distinctKnots = this.spline.distinctKnots();
+        var controlPoints = e.h1.flattenControlPointsArray();
+        var h1Degree = 2 * this.spline.degree - 2;
+        var knots = [];
+        for (var i = 0; i < distinctKnots.length; i += 1) {
+            for (var j = 0; j < h1Degree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.inflections = function (curvatureNumerator) {
+        if (!curvatureNumerator) {
+            curvatureNumerator = this.curvatureNumerator();
+        }
+        var zeros = curvatureNumerator.zeros();
+        var result = [];
+        for (var i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]));
+        }
+        return result;
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDerivativeNumerator = function () {
+        var e = this.expensiveComputation(this.spline);
+        var bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
+        var distinctKnots = this.spline.distinctKnots();
+        var controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
+        var curvatureDerivativeNumeratorDegree = 4 * this.spline.degree - 6;
+        var knots = [];
+        for (var i = 0; i < distinctKnots.length; i += 1) {
+            for (var j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = curvatureDerivativeNumerator.zeros();
+        var result = [];
+        for (var i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]));
+        }
+        return result;
+    };
+    BSpline_R1_to_R2_DifferentialProperties.prototype.transitionCurvatureExtrema = function (curvatureDerivativeNumerator) {
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer();
+        var result = [];
+        for (var i = 0; i < zeros.length; i += 1) {
+            result.push(this.spline.evaluate(zeros[i]));
+        }
+        return result;
+    };
+    return BSpline_R1_to_R2_DifferentialProperties;
+}());
+exports.BSpline_R1_to_R2_DifferentialProperties = BSpline_R1_to_R2_DifferentialProperties;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts":
+/*!*********************************************************!*\
+  !*** ./src/bsplines/BernsteinDecomposition_R1_to_R1.ts ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BernsteinDecomposition_R1_to_R1 = void 0;
+var BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/bsplines/BinomialCoefficient.ts");
+/**
+* A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
+*/
+var BernsteinDecomposition_R1_to_R1 = /** @class */ (function () {
+    /**
+     *
+     * @param controlPointsArray An array of array of control points
+     */
+    function BernsteinDecomposition_R1_to_R1(controlPointsArray) {
+        this.controlPointsArray = controlPointsArray;
+    }
+    BernsteinDecomposition_R1_to_R1.prototype.add = function (bd) {
+        var result = [];
+        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] + bd.controlPointsArray[i][j];
+            }
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.subtract = function (bd) {
+        var result = [];
+        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] - bd.controlPointsArray[i][j];
+            }
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.multiply = function (bd) {
+        return new BernsteinDecomposition_R1_to_R1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray));
+    };
+    /**
+     *
+     * @param bd: BernsteinDecomposition_R1_to_R1
+     * @param index: Index of the basis function
+     */
+    BernsteinDecomposition_R1_to_R1.prototype.multiplyRange = function (bd, start, lessThan) {
+        var result = [];
+        for (var i = start; i < lessThan; i += 1) {
+            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i]);
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplicationArray = function (f, g) {
+        var result = [];
+        for (var i = 0; i < f.length; i += 1) {
+            result[i] = this.bernsteinMultiplication(f[i], g[i]);
+        }
+        return result;
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplication = function (f, g) {
+        var f_degree = f.length - 1;
+        var g_degree = g.length - 1;
+        var result = [];
+        /*
+        for (let k = 0; k < f_degree + g_degree + 1; k += 1) {
+            let cp = 0;
+            for (let i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
+                let bfu = binomialCoefficient(f_degree, i);
+                let bgu = binomialCoefficient(g_degree, k - i);
+                let bfugu = binomialCoefficient(f_degree + g_degree, k);
+                cp += bfu * bgu / bfugu * f[i] * g[k - i];
+            }
+            result[k] = cp;
+        }
+        */
+        /*
+        BernsteinDecomposition_R1_to_R1.flopsCounter += 1
+        if (BernsteinDecomposition_R1_to_R1.flopsCounter % 1000 === 0) {
+          //console.log("Bernstein Multiplication")
+          //console.log(BernsteinDecomposition_R1_to_R1.flopsCounter)
+        }
+        */
+        for (var k = 0; k < f_degree + g_degree + 1; k += 1) {
+            var cp = 0;
+            for (var i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
+                var bfu = BernsteinDecomposition_R1_to_R1.binomial(f_degree, i);
+                var bgu = BernsteinDecomposition_R1_to_R1.binomial(g_degree, k - i);
+                var bfugu = BernsteinDecomposition_R1_to_R1.binomial(f_degree + g_degree, k);
+                cp += bfu * bgu / bfugu * f[i] * g[k - i];
+            }
+            result[k] = cp;
+        }
+        return result;
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.multiplyByScalar = function (value) {
+        var result = [];
+        for (var i = 0; i < this.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (var j = 0; j < this.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] * value;
+            }
+        }
+        return new BernsteinDecomposition_R1_to_R1(result);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.flattenControlPointsArray = function () {
+        //return this.controlPointsArray.flat();
+        return this.controlPointsArray.reduce(function (acc, val) {
+            return acc.concat(val);
+        }, []);
+    };
+    BernsteinDecomposition_R1_to_R1.prototype.subset = function (start, lessThan) {
+        return new BernsteinDecomposition_R1_to_R1(this.controlPointsArray.slice(start, lessThan));
+    };
+    BernsteinDecomposition_R1_to_R1.binomial = BinomialCoefficient_1.memorizedBinomialCoefficient();
+    BernsteinDecomposition_R1_to_R1.flopsCounter = 0;
+    return BernsteinDecomposition_R1_to_R1;
+}());
+exports.BernsteinDecomposition_R1_to_R1 = BernsteinDecomposition_R1_to_R1;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/BinomialCoefficient.ts":
+/*!*********************************************!*\
+  !*** ./src/bsplines/BinomialCoefficient.ts ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.memorizedBinomialCoefficient = exports.binomialCoefficient = void 0;
+function binomialCoefficient(n, k) {
+    var result = 1;
+    if (n < k || k < 0) {
+        return 0;
+    }
+    // take advantage of symmetry
+    if (k > n - k) {
+        k = n - k;
+    }
+    for (var x = n - k + 1; x <= n; x += 1) {
+        result *= x;
+    }
+    for (var x = 1; x <= k; x += 1) {
+        result /= x;
+    }
+    return result;
+}
+exports.binomialCoefficient = binomialCoefficient;
+;
+function memorizedBinomialCoefficient() {
+    var cache = [];
+    return function (n, k) {
+        if (cache[n] !== undefined && cache[n][k] !== undefined) {
+            return cache[n][k];
+        }
+        else {
+            if (cache[n] === undefined) {
+                cache[n] = [];
+            }
+            var result = binomialCoefficient(n, k);
+            cache[n][k] = result;
+            return result;
+        }
+    };
+}
+exports.memorizedBinomialCoefficient = memorizedBinomialCoefficient;
+;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts":
+/*!*************************************************!*\
+  !*** ./src/bsplines/Piegl_Tiller_NURBS_Book.ts ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.decomposeFunction = exports.basisFunctions = exports.clampingFindSpan = exports.findSpan = void 0;
+/**
+ * Returns the span index
+ * @param u parameter
+ * @param knots knot vector
+ * @param degree degree
+ * @returns span index i for which knots[i] ≤ u < knots[i+1]
+ */
+function findSpan(u, knots, degree) {
+    // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
+    if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
+        console.log(u);
+        console.log(knots);
+        throw new Error("Error: parameter u is outside valid span");
+    }
+    // Special case
+    if (u === knots[knots.length - degree - 1]) {
+        return knots.length - degree - 2;
+    }
+    // Do binary search
+    var low = degree;
+    var high = knots.length - 1 - degree;
+    var i = Math.floor((low + high) / 2);
+    while (!(knots[i] <= u && u < knots[i + 1])) {
+        if (u < knots[i]) {
+            high = i;
+        }
+        else {
+            low = i;
+        }
+        i = Math.floor((low + high) / 2);
+    }
+    return i;
+}
+exports.findSpan = findSpan;
+/**
+ * Returns the span index used for clamping a periodic B-Spline
+ * Note: The only difference with findSpan is the for the special case u = knots[-degree - 1]
+ * @param u parameter
+ * @param knots knot vector
+ * @param degree degree
+ * @returns span index i for which knots[i] ≤ u < knots[i+1]
+ */
+function clampingFindSpan(u, knots, degree) {
+    // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
+    if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
+        throw new Error("Error: parameter u is outside valid span");
+    }
+    // Special case
+    if (u === knots[knots.length - degree - 1]) {
+        return knots.length - degree - 1;
+    }
+    // Do binary search
+    var low = degree;
+    var high = knots.length - 1 - degree;
+    var i = Math.floor((low + high) / 2);
+    while (!(knots[i] <= u && u < knots[i + 1])) {
+        if (u < knots[i]) {
+            high = i;
+        }
+        else {
+            low = i;
+        }
+        i = Math.floor((low + high) / 2);
+    }
+    return i;
+}
+exports.clampingFindSpan = clampingFindSpan;
+/**
+ * Returns the basis functions values
+ * @param span span index
+ * @param u parameter
+ * @param knots knot vector
+ * @param degree degree
+ * @returns the array of values evaluated at u
+ */
+function basisFunctions(span, u, knots, degree) {
+    // Bibliographic reference : The NURBS BOOK, p.70
+    var result = [1];
+    var left = [];
+    var right = [];
+    for (var j = 1; j <= degree; j += 1) {
+        left[j] = u - knots[span + 1 - j];
+        right[j] = knots[span + j] - u;
+        var saved = 0.0;
+        for (var r = 0; r < j; r += 1) {
+            var temp = result[r] / (right[r + 1] + left[j - r]);
+            result[r] = saved + right[r + 1] * temp;
+            saved = left[j - r] * temp;
+        }
+        result[j] = saved;
+    }
+    return result;
+}
+exports.basisFunctions = basisFunctions;
+function decomposeFunction(spline) {
+    //Piegl and Tiller, The NURBS book, p.173
+    var result = [];
+    var number_of_bezier_segments = spline.distinctKnots().length - 1;
+    for (var i = 0; i < number_of_bezier_segments; i += 1) {
+        result.push([]);
+    }
+    for (var i = 0; i <= spline.degree; i += 1) {
+        result[0][i] = spline.controlPoints[i];
+    }
+    var a = spline.degree;
+    var b = spline.degree + 1;
+    var bezier_segment = 0;
+    var alphas = [];
+    while (b < spline.knots.length - 1) {
+        var i = b;
+        while (b < spline.knots.length - 1 && spline.knots[b + 1] === spline.knots[b]) {
+            b += 1;
+        }
+        var mult = b - i + 1;
+        if (mult < spline.degree) {
+            var numer = spline.knots[b] - spline.knots[a]; // Numerator of alpha
+            // Compute and store alphas
+            for (var j = spline.degree; j > mult; j -= 1) {
+                alphas[j - mult - 1] = numer / (spline.knots[a + j] - spline.knots[a]);
+            }
+            var r = spline.degree - mult; // insert knot r times
+            for (var j = 1; j <= r; j += 1) {
+                var save = r - j;
+                var s = mult + j; // this many new controlPoints
+                for (var k = spline.degree; k >= s; k -= 1) {
+                    var alpha = alphas[k - s];
+                    result[bezier_segment][k] = (result[bezier_segment][k] * alpha) + (result[bezier_segment][k - 1] * (1 - alpha));
+                }
+                if (b < spline.knots.length) {
+                    result[bezier_segment + 1][save] = result[bezier_segment][spline.degree]; // next segment
+                }
+            }
+        }
+        bezier_segment += 1; // Bezier segment completed
+        if (b < spline.knots.length - 1) {
+            //initialize next bezier bezier_segment
+            for (i = Math.max(0, spline.degree - mult); i <= spline.degree; i += 1) {
+                result[bezier_segment][i] = spline.controlPoints[b - spline.degree + i];
+            }
+            a = b;
+            b += 1;
+        }
+    }
+    return result;
+}
+exports.decomposeFunction = decomposeFunction;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/SequenceBSpline_R1_to_R2.ts":
+/*!**************************************************!*\
+  !*** ./src/bsplines/SequenceBSpline_R1_to_R2.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SequenceBSpline_R1_to_R2 = void 0;
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+/**
+ * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
+ * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
+ */
+var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
+    __extends(SequenceBSpline_R1_to_R2, _super);
+    function SequenceBSpline_R1_to_R2() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.controlPolygons = [];
+        _this.knotVectors = [];
+        return _this;
+    }
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    SequenceBSpline_R1_to_R2.prototype.setControlPoints = function (controlPoints) {
+        this.controlPoints = controlPoints;
+    };
+    /**
+     * Return a deep copy of this b-spline
+     */
+    SequenceBSpline_R1_to_R2.prototype.clone = function () {
+        var cloneControlPoints = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            cloneControlPoints.push(new Vector_2d_1.Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y));
+        }
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
+    };
+    /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
+    SequenceBSpline_R1_to_R2.prototype.degreeIncrease = function () {
+        var degree = this.degree;
+        this.generateIntermediateSplinesForDegreeElevation();
+        var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
+        if (this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
+            for (var i = 1; i <= this.degree; i += 1) {
+                var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
+                var j = 0, k = 0;
+                while (j < splineHigherDegree.knots.length) {
+                    if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
+                        splineTemp.insertKnot(splineHigherDegree.knots[j]);
+                    }
+                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
+                        splineHigherDegree.insertKnot(splineTemp.knots[k]);
+                    }
+                    j += 1;
+                    k += 1;
+                }
+                for (var j_1 = 0; j_1 < splineHigherDegree.controlPoints.length; j_1 += 1) {
+                    splineHigherDegree.controlPoints[j_1] = splineHigherDegree.controlPoints[j_1].add(splineTemp.controlPoints[j_1]);
+                }
+            }
+            for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
+                splineHigherDegree.controlPoints[j] = splineHigherDegree.controlPoints[j].multiply(1 / (degree + 1));
+            }
+            console.log("degreeIncrease: " + splineHigherDegree.knots);
+        }
+        else
+            throw new Error('incompatible knot vector of the input spline');
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
+    };
+    SequenceBSpline_R1_to_R2.prototype.generateIntermediateSplinesForDegreeElevation = function () {
+        for (var i = 0; i <= this.degree; i += 1) {
+            var knotVector = this.knots.slice();
+            var controlPolygon = this.controlPoints.slice();
+            var nullVector = [];
+            var k = 0;
+            for (var j = i; j < this.knots.length; j += this.degree + 1) {
+                nullVector = knotVector.splice((j + k), 0, this.knots[j]);
+                if (j < this.controlPoints.length) {
+                    var controlPoint = this.controlPoints[j];
+                    nullVector = controlPolygon.splice((j + k), 0, controlPoint);
+                }
+                k += 1;
+            }
+            this.knotVectors.push(knotVector);
+            this.controlPolygons.push(controlPolygon);
+        }
+    };
+    return SequenceBSpline_R1_to_R2;
+}(BSpline_R1_to_R2_1.BSpline_R1_to_R2));
+exports.SequenceBSpline_R1_to_R2 = SequenceBSpline_R1_to_R2;
+
+
+/***/ }),
+
 /***/ "./src/controllers/AbsCurvatureSceneController.ts":
 /*!********************************************************!*\
   !*** ./src/controllers/AbsCurvatureSceneController.ts ***!
@@ -37531,8 +38748,8 @@ module.exports = function(module) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbsCurvatureSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var AbsCurvatureSceneController = /** @class */ (function () {
     function AbsCurvatureSceneController(chartController) {
         this.chartController = chartController;
@@ -37755,8 +38972,8 @@ exports.ChartController = ChartController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurvatureSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var CurvatureSceneController = /** @class */ (function () {
     function CurvatureSceneController(chartController) {
         this.chartController = chartController;
@@ -37838,10 +39055,10 @@ var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlP
 /* JCL 2020/10/02 Add the visualization of knots */
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
 var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ "./src/views/CurveKnotsShaders.ts");
-var SequenceBSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/SequenceBSpline_R1_to_R2 */ "./src/mathematics/SequenceBSpline_R1_to_R2.ts");
+var SequenceBSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/SequenceBSpline_R1_to_R2 */ "./src/bsplines/SequenceBSpline_R1_to_R2.ts");
 //import * as fs from "fs";
 var file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ../views/SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
@@ -38595,8 +39812,8 @@ exports.CurveSceneController = CurveSceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionASceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var FunctionASceneController = /** @class */ (function () {
     function FunctionASceneController(chartController) {
         this.chartController = chartController;
@@ -38653,8 +39870,8 @@ exports.FunctionASceneController = FunctionASceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionBSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var FunctionBSceneController = /** @class */ (function () {
     function FunctionBSceneController(chartController) {
         this.chartController = chartController;
@@ -38710,8 +39927,8 @@ exports.FunctionBSceneController = FunctionBSceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionBSceneControllerSqrtScaled = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
     function FunctionBSceneControllerSqrtScaled(chartController) {
@@ -38917,8 +40134,8 @@ exports.SlidingStrategy = exports.DiffEventType = exports.NeighboringEventsType 
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/OptimizationProblem_BSpline_R1_to_R2 */ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
-var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../mathematics/Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../bsplines/Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 var NeighboringEventsType;
 (function (NeighboringEventsType) {
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundary"] = 0] = "neighboringCurExtremumLeftBoundary";
@@ -40523,6 +41740,947 @@ exports.SlidingStrategy = SlidingStrategy;
 
 /***/ }),
 
+/***/ "./src/linearAlgebra/CholeskyDecomposition.ts":
+/*!****************************************************!*\
+  !*** ./src/linearAlgebra/CholeskyDecomposition.ts ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CholeskyDecomposition = void 0;
+/**
+ * A decomposition of a positive-definite matirx into a product of a lower triangular matrix and its conjugate transpose
+ */
+var CholeskyDecomposition = /** @class */ (function () {
+    /**
+     * The values of the decomposition are stored in the lower triangular portion of the matrix g
+     * @param matrix Matrix
+     */
+    function CholeskyDecomposition(matrix) {
+        this.success = false;
+        this.CLOSE_TO_ZERO = 10e-8;
+        this.firstNonPositiveDefiniteLeadingSubmatrixSize = -1;
+        this.g = matrix.squareMatrix();
+        var n = this.g.shape[0];
+        if (this.g.get(0, 0) < this.CLOSE_TO_ZERO) {
+            return;
+        }
+        var sqrtGjj = Math.sqrt(this.g.get(0, 0));
+        for (var i = 0; i < n; i += 1) {
+            this.g.divideAt(i, 0, sqrtGjj);
+        }
+        for (var j = 1; j < n; j += 1) {
+            for (var i = j; i < n; i += 1) {
+                var sum = 0;
+                for (var k = 0; k < j; k += 1) {
+                    sum += this.g.get(i, k) * this.g.get(j, k);
+                }
+                this.g.substractAt(i, j, sum);
+            }
+            if (this.g.get(j, j) < this.CLOSE_TO_ZERO) {
+                this.firstNonPositiveDefiniteLeadingSubmatrixSize = j + 1;
+                return;
+            }
+            sqrtGjj = Math.sqrt(this.g.get(j, j));
+            for (var i = j; i < n; i += 1) {
+                this.g.divideAt(i, j, sqrtGjj);
+            }
+        }
+        for (var j = 0; j < n; j += 1) {
+            for (var i = 0; i < j; i += 1) {
+                this.g.set(i, j, 0);
+            }
+        }
+        this.success = true;
+    }
+    /**
+     * Solve the linear system
+     * @param b Vector
+     * @return The vector x
+     * @throws If the Cholesky decomposition failed
+     */
+    CholeskyDecomposition.prototype.solve = function (b) {
+        'use strict';
+        // See Numerical Recipes Third Edition p. 101
+        if (!this.success) {
+            throw new Error("CholeskyDecomposistion.success === false");
+        }
+        if (b.length !== this.g.shape[0]) {
+            throw new Error("The size of the cholesky decomposed matrix g and the vector b do not match");
+        }
+        var n = this.g.shape[0];
+        var x = b.slice();
+        // Ly = b
+        for (var i = 0; i < n; i += 1) {
+            var sum = b[i];
+            for (var k = i - 1; k >= 0; k -= 1) {
+                sum -= this.g.get(i, k) * x[k];
+            }
+            x[i] = sum / this.g.get(i, i);
+        }
+        // LT x = Y
+        for (var i = n - 1; i >= 0; i -= 1) {
+            var sum = x[i];
+            for (var k = i + 1; k < n; k += 1) {
+                sum -= this.g.get(k, i) * x[k];
+            }
+            x[i] = sum / this.g.get(i, i);
+        }
+        return x;
+    };
+    /**
+     * Solve the linear equation Lower triangular matrix LT * x = b
+     * @param b Vector
+     */
+    CholeskyDecomposition.prototype.solve_LT_result_equal_b = function (b) {
+        var n = this.g.shape[0];
+        var x = b.slice();
+        for (var i = 0; i < n; i += 1) {
+            var sum = b[i];
+            for (var k = i - 1; k >= 0; k -= 1) {
+                sum -= this.g.get(i, k) * x[k];
+            }
+            x[i] = sum / this.g.get(i, i);
+        }
+        return x;
+    };
+    return CholeskyDecomposition;
+}());
+exports.CholeskyDecomposition = CholeskyDecomposition;
+
+
+/***/ }),
+
+/***/ "./src/linearAlgebra/DenseMatrix.ts":
+/*!******************************************!*\
+  !*** ./src/linearAlgebra/DenseMatrix.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DenseMatrix = void 0;
+/**
+ * A dense matrix
+ */
+var DenseMatrix = /** @class */ (function () {
+    /**
+     * Create a square matrix
+     * @param nrows Number of rows
+     * @param ncols Number of columns
+     * @param data A row after row flat array
+     * @throws If data length is not equal to nrows*ncols
+     */
+    function DenseMatrix(nrows, ncols, data) {
+        this._shape = [nrows, ncols];
+        if (data) {
+            if (data.length !== this.shape[0] * this.shape[1]) {
+                throw new Error("Dense matrix constructor expect the data to have nrows*ncols length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            for (var i = 0; i < this.shape[0] * this.shape[1]; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(DenseMatrix.prototype, "shape", {
+        /**
+         * Returns the shape of the matrix : [number of rows, number of columns]
+         */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+     * Return the corresponding index in the flat row by row data vector
+     * @param row The row index
+     * @param column The column index
+     */
+    DenseMatrix.prototype.dataIndex = function (row, column) {
+        var n = row * this.shape[1] + column;
+        return n;
+    };
+    /**
+     * Return the value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @return Scalar
+     * @throws If an index is out of range
+     */
+    DenseMatrix.prototype.get = function (row, column) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        return this.data[this.dataIndex(row, column)];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    DenseMatrix.prototype.set = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] = value;
+    };
+    /**
+     * Check that the column index is inside appropriate range
+     * @param index The column index
+     * @throws If index is out of range
+     */
+    DenseMatrix.prototype.checkColumnRange = function (index) {
+        if (index < 0 || index >= this.shape[1]) {
+            throw new Error("DenseMatrix column index out of range");
+        }
+    };
+    /**
+     * Check that the row index is inside appropriate range
+     * @param index The row index
+     * @throws If index is out of range
+     */
+    DenseMatrix.prototype.checkRowRange = function (index) {
+        if (index < 0 || index >= this.shape[0]) {
+            throw new Error("DenseMatrix row index out of range");
+        }
+    };
+    return DenseMatrix;
+}());
+exports.DenseMatrix = DenseMatrix;
+
+
+/***/ }),
+
+/***/ "./src/linearAlgebra/DiagonalMatrix.ts":
+/*!*********************************************!*\
+  !*** ./src/linearAlgebra/DiagonalMatrix.ts ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.identityMatrix = exports.DiagonalMatrix = void 0;
+/**
+ * An identity matrix
+ */
+var DiagonalMatrix = /** @class */ (function () {
+    /**
+     * Create a Symmetric Matrix
+     * @param size The number of rows or the number columns
+     * @param data The matrix data in a flat vector
+     */
+    function DiagonalMatrix(size, data) {
+        this._shape = [size, size];
+        if (data) {
+            if (data.length !== size) {
+                throw new Error("Diagonal matrix constructor expect the data to have size length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            var n = size;
+            for (var i = 0; i < n; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(DiagonalMatrix.prototype, "shape", {
+        /**
+         * Returns the shape of the matrix : [number of rows, number of columns]
+         */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+ * Returns the value at a given row and column position
+ * @param row The row index
+ * @param column The column index
+ * @return Scalar
+ * @throws If an index is out of range
+ */
+    DiagonalMatrix.prototype.get = function (row, column) {
+        this.checkRange(row, column);
+        return this.data[row];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    DiagonalMatrix.prototype.set = function (row, column, value) {
+        this.checkRange(row, column);
+        this.data[row] = value;
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    DiagonalMatrix.prototype.checkRange = function (row, column) {
+        if (row < 0 || row >= this.shape[0] || row != column) {
+            throw new Error("DiagonalMatrix index is out of range");
+        }
+    };
+    return DiagonalMatrix;
+}());
+exports.DiagonalMatrix = DiagonalMatrix;
+function identityMatrix(n) {
+    var result = new DiagonalMatrix(n);
+    for (var i = 0; i < n; i += 1) {
+        result.set(i, i, 1);
+    }
+    return result;
+}
+exports.identityMatrix = identityMatrix;
+
+
+/***/ }),
+
+/***/ "./src/linearAlgebra/MathVectorBasicOperations.ts":
+/*!********************************************************!*\
+  !*** ./src/linearAlgebra/MathVectorBasicOperations.ts ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sign = exports.containsNaN = exports.randomVector = exports.isZeroVector = exports.product_v1_v2t = exports.product_v_vt = exports.zeroVector = exports.norm1 = exports.norm = exports.squaredNorm = exports.addSecondVectorToFirst = exports.addTwoVectors = exports.dotProduct = exports.saxpy2 = exports.saxpy = exports.divideVectorByScalar = exports.multiplyVectorByScalar = void 0;
+var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
+var DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+/**
+ * Multiply a vector by a scalar
+ * @param vector vector
+ * @param value scalar
+ */
+function multiplyVectorByScalar(vector, value) {
+    var result = [];
+    for (var i = 0; i < vector.length; i += 1) {
+        result.push(vector[i] * value);
+    }
+    return result;
+}
+exports.multiplyVectorByScalar = multiplyVectorByScalar;
+/**
+ * Divide a vector by a scalar
+ * @param vector Vector
+ * @param value Scalar
+ * @throws If the scalar value is zero
+ */
+function divideVectorByScalar(vector, value) {
+    if (value === 0) {
+        throw new Error("Division by zero");
+    }
+    var result = [];
+    for (var i = 0; i < vector.length; i += 1) {
+        result.push(vector[i] / value);
+    }
+    return result;
+}
+exports.divideVectorByScalar = divideVectorByScalar;
+/**
+ * A standard function in basic linear algebra : y = ax + y
+ * @param a Scalar
+ * @param x Vector
+ * @param y Vector
+ * @throws If x and y have different length
+ */
+function saxpy(a, x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    for (var i = 0; i < x.length; i += 1) {
+        y[i] += a * x[i];
+    }
+}
+exports.saxpy = saxpy;
+/**
+ * A standard function in basic linear algebra : z = ax + y
+ * @param a Scalar
+ * @param x Vector
+ * @param y Vector
+ * @returns ax + y
+ * @throws If x and y have different length
+ */
+function saxpy2(a, x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    var result = [];
+    for (var i = 0; i < x.length; i += 1) {
+        result.push(a * x[i] + y[i]);
+    }
+    return result;
+}
+exports.saxpy2 = saxpy2;
+/**
+ * Compute the dot product of two vectors
+ * @param x Vector
+ * @param y Vector
+ * @return The scalar result
+ * @throws If x and y have different length
+ */
+function dotProduct(x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Making the dot product of two vectors of different length");
+    }
+    var result = 0;
+    for (var i = 0; i < x.length; i += 1) {
+        result += x[i] * y[i];
+    }
+    return result;
+}
+exports.dotProduct = dotProduct;
+/**
+ * Add two vectors
+ * @param x Vector
+ * @param y Vector
+ * @return Vector
+ * @throws If x and y have different length
+ */
+function addTwoVectors(x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    var result = [];
+    for (var i = 0; i < x.length; i += 1) {
+        result.push(x[i] + y[i]);
+    }
+    return result;
+}
+exports.addTwoVectors = addTwoVectors;
+/**
+ * Add the second vector to the first vector
+ * @param x Vector
+ * @param y Vector
+ * @throws If x and y have different length
+ */
+function addSecondVectorToFirst(x, y) {
+    if (x.length !== y.length) {
+        throw new Error("Adding two vectors of different length");
+    }
+    for (var i = 0; i < x.length; i += 1) {
+        x[i] += y[i];
+    }
+}
+exports.addSecondVectorToFirst = addSecondVectorToFirst;
+/**
+ * Compute the square of the norm
+ * @param v Vector
+ * @return Non negative scalar
+ */
+function squaredNorm(v) {
+    var result = 0;
+    for (var i = 0; i < v.length; i += 1) {
+        result += v[i] * v[i];
+    }
+    return result;
+}
+exports.squaredNorm = squaredNorm;
+/**
+ * Compute the norm
+ * @param v Vector
+ * @return Non negative scalar
+ */
+function norm(v) {
+    return Math.sqrt(squaredNorm(v));
+}
+exports.norm = norm;
+/**
+ * Compute the norm p = 1
+ * @param v Vector
+ * @return Non negative scalar
+ */
+function norm1(v) {
+    var result = 0;
+    for (var i = 0; i < v.length; i += 1) {
+        result += Math.abs(v[i]);
+    }
+    return result;
+}
+exports.norm1 = norm1;
+/**
+ * Create a zero vector of size n
+ * @param n Size
+ */
+function zeroVector(n) {
+    var result = [];
+    for (var i = 0; i < n; i += 1) {
+        result.push(0);
+    }
+    return result;
+}
+exports.zeroVector = zeroVector;
+;
+/**
+ * Compute the product of a vector and its transpose
+ * @param v Vector
+ */
+function product_v_vt(v) {
+    var n = v.length;
+    var result = new SquareMatrix_1.SquareMatrix(n);
+    for (var i = 0; i < n; i += 1) {
+        for (var j = 0; j < n; j += 1) {
+            result.set(i, j, v[i] * v[j]);
+        }
+    }
+    return result;
+}
+exports.product_v_vt = product_v_vt;
+/**
+ * Compute the product of a first vector with the transpose of a second vector
+ * @param v1 The first vector taken as a column vector
+ * @param v2 The second vector taken after transposition as a row vector
+ */
+function product_v1_v2t(v1, v2) {
+    var m = v1.length;
+    var n = v2.length;
+    var result = new DenseMatrix_1.DenseMatrix(m, n);
+    for (var i = 0; i < m; i += 1) {
+        for (var j = 0; j < n; j += 1) {
+            result.set(i, j, v1[i] * v2[j]);
+        }
+    }
+    return result;
+}
+exports.product_v1_v2t = product_v1_v2t;
+function isZeroVector(v) {
+    var n = v.length;
+    for (var i = 0; i < v.length; i += 1) {
+        if (v[i] !== 0) {
+            return false;
+        }
+    }
+    return true;
+}
+exports.isZeroVector = isZeroVector;
+/**
+ * Returns a vector filled with random values between 0 and 1
+ * @param n The size of the random vector
+ */
+function randomVector(n) {
+    var result = [];
+    for (var i = 0; i < n; i += 1) {
+        result.push((Math.random() - 0.5) * 10e8);
+        //result.push((Math.random())*10e8)
+    }
+    return result;
+}
+exports.randomVector = randomVector;
+function containsNaN(v) {
+    var n = v.length;
+    for (var i = 0; i < v.length; i += 1) {
+        if (isNaN(v[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+exports.containsNaN = containsNaN;
+/**
+ * Return the sign of a number.
+ * It returns 1 if the number is positive, -1 if the number is negative and 0 if it is zero or minus zero
+ * The standard Math.sign() function doesn't work with Windows Internet Explorer
+ * @param x Number
+ */
+function sign(x) {
+    return x ? x < 0 ? -1 : 1 : 0;
+}
+exports.sign = sign;
+
+
+/***/ }),
+
+/***/ "./src/linearAlgebra/SquareMatrix.ts":
+/*!*******************************************!*\
+  !*** ./src/linearAlgebra/SquareMatrix.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SquareMatrix = void 0;
+/**
+ * A square matrix
+ */
+var SquareMatrix = /** @class */ (function () {
+    /**
+     * Create a square matrix
+     * @param size Number of row and column
+     * @param data A row after row flat array
+     * @throws If data length is not equal to size*size
+     */
+    function SquareMatrix(size, data) {
+        this._shape = [size, size];
+        if (data) {
+            if (data.length !== size * size) {
+                throw new Error("Square matrix constructor expect the data to have size*size length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            for (var i = 0; i < this.shape[0] * this.shape[1]; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(SquareMatrix.prototype, "shape", {
+        /**
+         * Returns the shape of the matrix : [number of rows, number of columns]
+         */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+     * Return the corresponding index in the flat row by row data vector
+     * @param row The row index
+     * @param column The column index
+     */
+    SquareMatrix.prototype.dataIndex = function (row, column) {
+        var n = row * this._shape[1] + column;
+        return n;
+    };
+    /**
+     * Return the value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @return Scalar
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.get = function (row, column) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        return this.data[this.dataIndex(row, column)];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.set = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] = value;
+    };
+    /**
+     * Change the value of the matrix at a given row and column position by this value divided by the divisor value
+     * @param row The row index
+     * @param column The column index
+     * @param divisor The divisor value
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.divideAt = function (row, column, divisor) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] /= divisor;
+    };
+    /**
+     * Change the value of the matrix at a given row and column position by this value substracted by the subtrahend value
+     * @param row The row index
+     * @param column The column index
+     * @param divisor The divisor value
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.substractAt = function (row, column, subtrahend) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] -= subtrahend;
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.checkRowRange = function (index) {
+        if (index < 0 || index >= this.shape[0]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    SquareMatrix.prototype.checkColumnRange = function (index) {
+        if (index < 0 || index >= this.shape[1]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+     * Multiply two matrices
+     * @param that A square or a symmetric matrix
+     * @return a square matrix
+     */
+    SquareMatrix.prototype.multiplyByMatrix = function (that) {
+        if (this.shape[1] !== that.shape[0]) {
+            throw new Error("Size mismatch in matrix multiplication");
+        }
+        var result = new SquareMatrix(this.shape[1]);
+        for (var i = 0; i < this.shape[0]; i += 1) {
+            for (var j = 0; j < this.shape[0]; j += 1) {
+                var temp = 0;
+                for (var k = 0; k < this.shape[0]; k += 1) {
+                    temp += this.get(i, k) * that.get(k, j);
+                }
+                result.set(i, j, temp);
+            }
+        }
+        return result;
+    };
+    return SquareMatrix;
+}());
+exports.SquareMatrix = SquareMatrix;
+
+
+/***/ }),
+
+/***/ "./src/linearAlgebra/SymmetricMatrix.ts":
+/*!**********************************************!*\
+  !*** ./src/linearAlgebra/SymmetricMatrix.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SymmetricMatrix = void 0;
+var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
+var DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+/**
+ * A symmetric matrix
+ */
+var SymmetricMatrix = /** @class */ (function () {
+    /**
+     * Create a Symmetric Matrix
+     * @param size The number of rows or the number columns
+     * @param data The matrix data in a flat vector
+     */
+    function SymmetricMatrix(size, data) {
+        this._shape = [size, size];
+        if (data) {
+            if (data.length !== size * (size + 1) / 2) {
+                throw new Error("Square matrix constructor expect the data to have (size * (size + 1) / 2) length");
+            }
+            this.data = data.slice();
+        }
+        else {
+            this.data = [];
+            var n = (size * (size + 1)) / 2;
+            for (var i = 0; i < n; i += 1) {
+                this.data.push(0);
+            }
+        }
+    }
+    Object.defineProperty(SymmetricMatrix.prototype, "shape", {
+        /**
+        * Returns the shape of the matrix : [number of rows, number of columns]
+        */
+        get: function () {
+            return this._shape;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+     * Returns the corresponding index in the flat data vector.
+     * In this flat data vector the upper triangular matrix is store row-wise.
+     * @param row The row index
+     * @param column The column index
+     */
+    SymmetricMatrix.prototype.dataIndex = function (row, column) {
+        if (row <= column) {
+            return row * this.shape[1] - (row - 1) * row / 2 + column - row;
+        }
+        return column * this.shape[0] - (column - 1) * column / 2 + row - column;
+    };
+    /**
+     * Returns the value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @return Scalar
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.get = function (row, column) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        return this.data[this.dataIndex(row, column)];
+    };
+    /**
+     * Set a given value at a given row and column position
+     * @param row The row index
+     * @param column The column index
+     * @param value The new value
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.set = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(column);
+        this.data[this.dataIndex(row, column)] = value;
+    };
+    /**
+     * Check that the index is inside appropriate range
+     * @param index The column or the row index
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.checkRowRange = function (index) {
+        if (index < 0 || index >= this.shape[0]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+ * Check that the index is inside appropriate range
+ * @param index The column or the row index
+ * @throws If an index is out of range
+ */
+    SymmetricMatrix.prototype.checkColumnRange = function (index) {
+        if (index < 0 || index >= this.shape[1]) {
+            throw new Error("SymmetricMatrix index is out of range");
+        }
+    };
+    /**
+     * Compute the product v^t M v
+     * @param v Vector
+     * @return Scalar
+     */
+    SymmetricMatrix.prototype.quadraticForm = function (v) {
+        var result = 0;
+        for (var i = 1; i < this.shape[1]; i += 1) {
+            for (var j = 0; j < i; j += 1) {
+                result += this.get(i, j) * v[i] * v[j];
+            }
+        }
+        result *= 2;
+        for (var i = 0; i < this.shape[1]; i += 1) {
+            result += this.get(i, i) * Math.pow(v[i], 2);
+        }
+        return result;
+    };
+    /**
+     * Return a safe copy of this matrix
+     * */
+    SymmetricMatrix.prototype.clone = function () {
+        return new SymmetricMatrix(this.shape[0], this.data);
+    };
+    /**
+     * Increases the given element of the matrix by the value
+     * @param row The row index
+     * @param column The column index
+     * @param value The number to be added
+     * @throws If an index is out of range
+     */
+    SymmetricMatrix.prototype.addAt = function (row, column, value) {
+        this.checkRowRange(row);
+        this.checkColumnRange(row);
+        this.data[this.dataIndex(row, column)] += value;
+    };
+    /**
+     * Increases every diagonal element of the matrix by the value
+     * @param value The number to be added
+     */
+    SymmetricMatrix.prototype.addValueOnDiagonalInPlace = function (value) {
+        var m = this.shape[0];
+        for (var i = 0; i < m; i += 1) {
+            this.data[this.dataIndex(i, i)] += value;
+        }
+    };
+    /**
+     * Returns the new matrix: this.matrix + value * I
+     * @param value
+     * @returns SymmetricMatrix
+     */
+    SymmetricMatrix.prototype.addValueOnDiagonal = function (value) {
+        var result = this.clone();
+        result.addValueOnDiagonalInPlace(value);
+        return result;
+    };
+    /**
+     * Returns a SquareMatrix with the values of this matrix
+     */
+    SymmetricMatrix.prototype.squareMatrix = function () {
+        var n = this.shape[0];
+        var result = new SquareMatrix_1.SquareMatrix(n);
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < n; j += 1) {
+                result.set(i, j, this.get(i, j));
+            }
+        }
+        return result;
+    };
+    SymmetricMatrix.prototype.plusSymmetricMatrixMultipliedByValue = function (matrix, value) {
+        if (this.shape[0] !== matrix.shape[0]) {
+            throw new Error("Adding two symmetric matrix with different shapes");
+        }
+        var result = this.clone();
+        var n = result.shape[0];
+        if (matrix instanceof DiagonalMatrix_1.DiagonalMatrix) {
+            for (var i = 0; i < n; i += 1) {
+                result.addAt(i, i, matrix.get(i, i) * value);
+            }
+            return result;
+        }
+        else {
+            for (var i = 0; i < n; i += 1) {
+                for (var j = 0; j <= i; j += 1) {
+                    result.addAt(i, j, matrix.get(i, j) * value);
+                }
+            }
+            return result;
+        }
+    };
+    SymmetricMatrix.prototype.multiplyByVector = function (v) {
+        if (this.shape[1] !== v.length) {
+            throw new Error("SymmetricMatrix multiply a vector of incorrect length");
+        }
+        var result = [];
+        var n = this.shape[1];
+        for (var i = 0; i < n; i += 1) {
+            var temp = 0;
+            for (var j = 0; j < n; j += 1) {
+                temp += this.get(i, j) * v[j];
+            }
+            result.push(temp);
+        }
+        return result;
+    };
+    SymmetricMatrix.prototype.containsNaN = function () {
+        return MathVectorBasicOperations_1.containsNaN(this.data);
+    };
+    return SymmetricMatrix;
+}());
+exports.SymmetricMatrix = SymmetricMatrix;
+
+
+/***/ }),
+
 /***/ "./src/main.ts":
 /*!*********************!*\
   !*** ./src/main.ts ***!
@@ -41397,1519 +43555,6 @@ main();
 
 /***/ }),
 
-/***/ "./src/mathematics/BSpline_R1_to_R1.ts":
-/*!*********************************************!*\
-  !*** ./src/mathematics/BSpline_R1_to_R1.ts ***!
-  \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BSpline_R1_to_R1 = void 0;
-var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
-var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
-var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
-var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
-/**
- * A B-Spline function from a one dimensional real space to a one dimensional real space
- */
-var BSpline_R1_to_R1 = /** @class */ (function () {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    function BSpline_R1_to_R1(controlPoints, knots) {
-        if (controlPoints === void 0) { controlPoints = [0]; }
-        if (knots === void 0) { knots = [0, 1]; }
-        this._controlPoints = [];
-        this._knots = [];
-        this._degree = 0;
-        this._controlPoints = controlPoints;
-        this._knots = knots;
-        this._degree = this._knots.length - this._controlPoints.length - 1;
-        if (this._degree < 0) {
-            throw new Error("Negative degree BSpline_R1_to_R1 are not supported");
-        }
-    }
-    Object.defineProperty(BSpline_R1_to_R1.prototype, "controlPoints", {
-        get: function () {
-            return this._controlPoints;
-        },
-        set: function (controlPoints) {
-            this._controlPoints = controlPoints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(BSpline_R1_to_R1.prototype, "knots", {
-        get: function () {
-            return this._knots;
-        },
-        set: function (knots) {
-            this._knots = knots;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(BSpline_R1_to_R1.prototype, "degree", {
-        get: function () {
-            return this._degree;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    BSpline_R1_to_R1.prototype.setControlPoint = function (index, value) {
-        this._controlPoints[index] = value;
-    };
-    /**
-     * B-Spline evaluation
-     * @param u The parameter
-     * @returns the value of the B-Spline at u
-     */
-    BSpline_R1_to_R1.prototype.evaluate = function (u) {
-        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
-        var result = 0;
-        for (var i = 0; i < this.degree + 1; i += 1) {
-            result += basis[i] * this._controlPoints[span - this._degree + i];
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.derivative = function () {
-        var newControlPoints = [];
-        var newKnots = [];
-        for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
-            newControlPoints[i] = (this.controlPoints[i + 1] - (this.controlPoints[i])) * (this.degree / (this.knots[i + this.degree + 1] - this.knots[i + 1]));
-        }
-        newKnots = this.knots.slice(1, this.knots.length - 1);
-        return new BSpline_R1_to_R1(newControlPoints, newKnots);
-    };
-    BSpline_R1_to_R1.prototype.bernsteinDecomposition = function () {
-        // Piegl_Tiller_NURBS_BOOK.ts
-        return Piegl_Tiller_NURBS_Book_3.decomposeFunction(this);
-    };
-    BSpline_R1_to_R1.prototype.distinctKnots = function () {
-        var result = [this.knots[0]];
-        var temp = result[0];
-        for (var i = 1; i < this.knots.length; i += 1) {
-            if (this.knots[i] !== temp) {
-                result.push(this.knots[i]);
-                temp = this.knots[i];
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.zeros = function (tolerance) {
-        if (tolerance === void 0) { tolerance = 10e-8; }
-        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
-        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
-        var greville = spline.grevilleAbscissae();
-        var maxError = tolerance * 2;
-        var vertexIndex = [];
-        while (maxError > tolerance) {
-            var cpLeft = spline.controlPoints[0];
-            vertexIndex = [];
-            var maximum = 0;
-            for (var index = 1; index < spline.controlPoints.length; index += 1) {
-                var cpRight = spline.controlPoints[index];
-                if (cpLeft <= 0 && cpRight > 0) {
-                    vertexIndex.push(index);
-                }
-                if (cpLeft >= 0 && cpRight < 0) {
-                    vertexIndex.push(index);
-                }
-                cpLeft = cpRight;
-            }
-            for (var i = 0; i < vertexIndex.length; i += 1) {
-                var uLeft = greville[vertexIndex[i] - 1];
-                var uRight = greville[vertexIndex[i]];
-                if (uRight - uLeft > maximum) {
-                    maximum = uRight - uLeft;
-                }
-                if (uRight - uLeft > tolerance) {
-                    spline.insertKnot((uLeft + uRight) / 2);
-                    greville = spline.grevilleAbscissae();
-                }
-            }
-            maxError = maximum;
-        }
-        var result = [];
-        for (var i = 0; i < vertexIndex.length; i += 1) {
-            result.push(greville[vertexIndex[i]]);
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.grevilleAbscissae = function () {
-        var result = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            var sum = 0;
-            for (var j = i + 1; j < i + this.degree + 1; j += 1) {
-                sum += this.knots[j];
-            }
-            result.push(sum / this.degree);
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.insertKnot = function (u, times) {
-        if (times === void 0) { times = 1; }
-        if (times <= 0) {
-            return;
-        }
-        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree);
-        var multiplicity = 0;
-        var newControlPoints = [];
-        if (u === this.knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        for (var t = 0; t < times; t += 1) {
-            for (var i = 0; i < index - this.degree + 1; i += 1) {
-                newControlPoints[i] = this.controlPoints[i];
-            }
-            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
-                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
-                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
-            }
-            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this.controlPoints[i];
-            }
-            this.knots.splice(index + 1, 0, u);
-            this.controlPoints = newControlPoints.slice();
-        }
-    };
-    BSpline_R1_to_R1.prototype.knotMultiplicity = function (indexFromFindSpan) {
-        var result = 0;
-        var i = 0;
-        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
-        return result;
-    };
-    /**
-     * Return a deep copy of this b-spline
-     */
-    BSpline_R1_to_R1.prototype.clone = function () {
-        return new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
-    };
-    BSpline_R1_to_R1.prototype.clamp = function (u) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
-        var newControlPoints = [];
-        var multiplicity = 0;
-        if (u === this.knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        var times = this.degree - multiplicity + 1;
-        for (var t = 0; t < times; t += 1) {
-            for (var i = 0; i < index - this.degree + 1; i += 1) {
-                newControlPoints[i] = this.controlPoints[i];
-            }
-            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
-                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
-                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
-            }
-            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this.controlPoints[i];
-            }
-            this.knots.splice(index + 1, 0, u);
-            this.controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    };
-    BSpline_R1_to_R1.prototype.controlPolygonNumberOfSignChanges = function () {
-        var result = 0;
-        var greville = this.grevilleAbscissae();
-        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
-            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
-                result += 1;
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.controlPolygonZeros = function () {
-        var result = [];
-        var greville = this.grevilleAbscissae();
-        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
-            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
-                result.push(this.findLineZero(greville[i], this.controlPoints[i], greville[i + 1], this.controlPoints[i + 1]));
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.findLineZero = function (x1, y1, x2, y2) {
-        // find the zero of the line y = ax + b
-        var a = (y2 - y1) / (x2 - x1);
-        var b = y1 - a * x1;
-        return -b / a;
-    };
-    BSpline_R1_to_R1.prototype.zerosPolygonVsFunctionDiffViewer = function (tolerance) {
-        if (tolerance === void 0) { tolerance = 10e-8; }
-        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
-        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
-        var greville = spline.grevilleAbscissae();
-        var maxError = tolerance * 2;
-        var vertexIndex = [];
-        var cpZeros = spline.controlPolygonNumberOfSignChanges();
-        var result = [];
-        var lastInsertedKnot = 0;
-        while (maxError > tolerance) {
-            var temp = spline.controlPolygonNumberOfSignChanges();
-            if (cpZeros !== temp) {
-                result.push(lastInsertedKnot);
-            }
-            cpZeros = temp;
-            var cpLeft = spline.controlPoints[0];
-            vertexIndex = [];
-            var maximum = 0;
-            for (var index = 1; index < spline.controlPoints.length; index += 1) {
-                var cpRight = spline.controlPoints[index];
-                if (cpLeft <= 0 && cpRight > 0) {
-                    vertexIndex.push(index);
-                }
-                if (cpLeft >= 0 && cpRight < 0) {
-                    vertexIndex.push(index);
-                }
-                cpLeft = cpRight;
-            }
-            for (var i = 0; i < vertexIndex.length; i += 1) {
-                var uLeft = greville[vertexIndex[i] - 1];
-                var uRight = greville[vertexIndex[i]];
-                if (uRight - uLeft > maximum) {
-                    maximum = uRight - uLeft;
-                }
-                if (uRight - uLeft > tolerance) {
-                    lastInsertedKnot = (uLeft + uRight) / 2;
-                    spline.insertKnot(lastInsertedKnot);
-                    greville = spline.grevilleAbscissae();
-                }
-            }
-            maxError = maximum;
-        }
-        /*
-        let result = []
-        for (let i = 0; i < vertexIndex.length; i += 1) {
-            result.push(greville[vertexIndex[i]])
-        }
-        */
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.curve = function () {
-        var x = this.grevilleAbscissae();
-        var cp = [];
-        for (var i = 0; i < x.length; i += 1) {
-            cp.push(new Vector_2d_1.Vector_2d(x[i], this._controlPoints[i]));
-        }
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cp, this.knots.slice());
-    };
-    return BSpline_R1_to_R1;
-}());
-exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/BSpline_R1_to_R2.ts":
-/*!*********************************************!*\
-  !*** ./src/mathematics/BSpline_R1_to_R2.ts ***!
-  \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.create_BSpline_R1_to_R2 = exports.BSpline_R1_to_R2 = void 0;
-var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
-var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts");
-var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var CurveSceneController_1 = __webpack_require__(/*! ../controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-var BSpline_R1_to_R2 = /** @class */ (function () {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    function BSpline_R1_to_R2(controlPoints, knots) {
-        if (controlPoints === void 0) { controlPoints = [new Vector_2d_1.Vector_2d(0, 0)]; }
-        if (knots === void 0) { knots = [0, 1]; }
-        this._controlPoints = [];
-        this._knots = [];
-        this._degree = 0;
-        this._controlPoints = controlPoints;
-        this._knots = knots;
-        this._degree = this._knots.length - this._controlPoints.length - 1;
-        if (this._degree < 0) {
-            throw new Error("Negative degree BSpline_R1_to_R2 are not supported");
-        }
-    }
-    Object.defineProperty(BSpline_R1_to_R2.prototype, "controlPoints", {
-        get: function () {
-            return this._controlPoints;
-        },
-        set: function (controlPoints) {
-            this._controlPoints = controlPoints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    BSpline_R1_to_R2.prototype.visibleControlPoints = function () {
-        return this.controlPoints;
-    };
-    Object.defineProperty(BSpline_R1_to_R2.prototype, "knots", {
-        get: function () {
-            return this._knots;
-        },
-        set: function (knots) {
-            this._knots = knots;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(BSpline_R1_to_R2.prototype, "degree", {
-        get: function () {
-            return this._degree;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    BSpline_R1_to_R2.prototype.setControlPoint = function (index, value) {
-        this._controlPoints[index] = value;
-    };
-    BSpline_R1_to_R2.prototype.setControlPoints = function (controlPoints) {
-        this.controlPoints = controlPoints;
-    };
-    /**
-     * B-Spline evaluation
-     * @param u The parameter
-     * @returns the value of the B-Spline at u
-     */
-    BSpline_R1_to_R2.prototype.evaluate = function (u) {
-        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
-        var result = new Vector_2d_1.Vector_2d(0, 0);
-        for (var i = 0; i < this.degree + 1; i += 1) {
-            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
-            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
-        }
-        return result;
-    };
-    /**
-     * Return a deep copy of this b-spline
-     */
-    BSpline_R1_to_R2.prototype.clone = function () {
-        var cloneControlPoints = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            cloneControlPoints.push(new Vector_2d_1.Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y));
-        }
-        return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
-    };
-    /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
-    BSpline_R1_to_R2.prototype.relocateAfterOptimization = function (step, activeLocationControl) {
-        if (activeLocationControl !== CurveSceneController_1.ActiveLocationControl.stopDeforming) {
-            var index = 0;
-            if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint || activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
-                index = 0;
-            }
-            else if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
-                index = this.controlPoints.length - 1;
-            }
-            for (var i = 0; i < this.controlPoints.length; i += 1) {
-                this.controlPoints[i].x -= step[index].x;
-                this.controlPoints[i].y -= step[index].y;
-            }
-            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
-        }
-        else {
-            for (var i = 0; i < this.controlPoints.length; i += 1) {
-                this.controlPoints[i].x -= step[i].x;
-                this.controlPoints[i].y -= step[i].y;
-            }
-            /*console.log("relocAfterOptim: relocate all ") */
-        }
-    };
-    BSpline_R1_to_R2.prototype.optimizerStep = function (step) {
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            this.controlPoints[i].x += step[i];
-            this.controlPoints[i].y += step[i + this.controlPoints.length];
-        }
-    };
-    BSpline_R1_to_R2.prototype.getControlPointsX = function () {
-        var result = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            result.push(this.controlPoints[i].x);
-        }
-        return result;
-    };
-    BSpline_R1_to_R2.prototype.getControlPointsY = function () {
-        var result = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            result.push(this.controlPoints[i].y);
-        }
-        return result;
-    };
-    BSpline_R1_to_R2.prototype.distinctKnots = function () {
-        var result = [this.knots[0]];
-        var temp = result[0];
-        for (var i = 1; i < this.knots.length; i += 1) {
-            if (this.knots[i] !== temp) {
-                result.push(this.knots[i]);
-                temp = this.knots[i];
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R2.prototype.moveControlPoint = function (i, deltaX, deltaY) {
-        if (i < 0 || i >= this.controlPoints.length - this.degree) {
-            throw new Error("Control point indentifier is out of range");
-        }
-        this.controlPoints[i].x += deltaX;
-        this.controlPoints[i].y += deltaY;
-    };
-    BSpline_R1_to_R2.prototype.insertKnot = function (u, times) {
-        if (times === void 0) { times = 1; }
-        // Piegl and Tiller, The NURBS book, p: 151
-        if (times <= 0) {
-            return;
-        }
-        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree), multiplicity = 0, i = 0, t = 0, newControlPoints, alpha = 0;
-        if (u === this.knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        for (t = 0; t < times; t += 1) {
-            newControlPoints = [];
-            for (i = 0; i < index - this.degree + 1; i += 1) {
-                newControlPoints[i] = this.controlPoints[i];
-            }
-            for (i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
-                alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
-                newControlPoints[i] = (this.controlPoints[i - 1].multiply(1 - alpha)).add(this.controlPoints[i].multiply(alpha));
-            }
-            for (i = index - multiplicity; i < this.controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this.controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    };
-    BSpline_R1_to_R2.prototype.knotMultiplicity = function (indexFromFindSpan) {
-        var result = 0, i = 0;
-        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R2.prototype.grevilleAbscissae = function () {
-        var result = [], i, j, sum;
-        for (i = 0; i < this.controlPoints.length; i += 1) {
-            sum = 0;
-            for (j = i + 1; j < i + this.degree + 1; j += 1) {
-                sum += this.knots[j];
-            }
-            result.push(sum / this.degree);
-        }
-        return result;
-    };
-    BSpline_R1_to_R2.prototype.clamp = function (u) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
-        var newControlPoints = [];
-        var multiplicity = 0;
-        if (u === this.knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        var times = this.degree - multiplicity + 1;
-        for (var t = 0; t < times; t += 1) {
-            for (var i = 0; i < index - this.degree + 1; i += 1) {
-                newControlPoints[i] = this.controlPoints[i];
-            }
-            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
-                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
-                newControlPoints[i] = (this.controlPoints[i - 1].multiply(1 - alpha)).add(this.controlPoints[i].multiply(alpha));
-            }
-            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this.controlPoints[i];
-            }
-            this.knots.splice(index + 1, 0, u);
-            this.controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    };
-    /**
-     *
-     * @param from Parametric position where the section start
-     * @param to Parametric position where the section end
-     * @retrun the BSpline_R1_to_R2 section
-     */
-    BSpline_R1_to_R2.prototype.section = function (from, to) {
-        var spline = this.clone();
-        spline.clamp(from);
-        spline.clamp(to);
-        //const newFromSpan = findSpan(from, spline._knots, spline._degree)
-        //const newToSpan = findSpan(to, spline._knots, spline._degree)
-        var newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(from, spline._knots, spline._degree);
-        var newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(to, spline._knots, spline._degree);
-        var newKnots = [];
-        var newControlPoints = [];
-        for (var i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline._knots[i]);
-        }
-        for (var i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
-            newControlPoints.push(new Vector_2d_1.Vector_2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
-        }
-        return new BSpline_R1_to_R2(newControlPoints, newKnots);
-    };
-    BSpline_R1_to_R2.prototype.move = function (deltaX, deltaY) {
-        var cp = [];
-        this._controlPoints.forEach(function (element) {
-            cp.push(element.add(new Vector_2d_1.Vector_2d(deltaX, deltaY)));
-        });
-        return new BSpline_R1_to_R2(cp, this.knots.slice());
-    };
-    BSpline_R1_to_R2.prototype.scale = function (factor) {
-        var cp = [];
-        this._controlPoints.forEach(function (element) {
-            cp.push(element.multiply(factor));
-        });
-        return new BSpline_R1_to_R2(cp, this.knots.slice());
-    };
-    BSpline_R1_to_R2.prototype.scaleY = function (factor) {
-        var cp = [];
-        this._controlPoints.forEach(function (element) {
-            cp.push(new Vector_2d_1.Vector_2d(element.x, element.y * factor));
-        });
-        return new BSpline_R1_to_R2(cp, this.knots.slice());
-    };
-    BSpline_R1_to_R2.prototype.scaleX = function (factor) {
-        var cp = [];
-        this._controlPoints.forEach(function (element) {
-            cp.push(new Vector_2d_1.Vector_2d(element.x * factor, element.y));
-        });
-        return new BSpline_R1_to_R2(cp, this.knots.slice());
-    };
-    BSpline_R1_to_R2.prototype.renewCurve = function (newControlPoints, newKnotSequence) {
-        this._knots = newKnotSequence.slice();
-        this._controlPoints = newControlPoints.slice();
-        this._degree = this._knots.length - this._controlPoints.length - 1;
-    };
-    return BSpline_R1_to_R2;
-}());
-exports.BSpline_R1_to_R2 = BSpline_R1_to_R2;
-/* JCL 2020/10/19 Initial version of B-Spline creation */
-/*export function create_BSpline_R1_to_R2(controlPoints: number[][], knots: number[]){
-    let newControlPoints: Vector_2d[] = []
-    for (let i = 0, n = controlPoints.length; i < n; i += 1) {
-        newControlPoints.push(new Vector_2d(controlPoints[i][0], controlPoints[i][1]))
-    }
-    return new BSpline_R1_to_R2(newControlPoints, knots)
-}*/
-function create_BSpline_R1_to_R2(controlPoints, knots) {
-    return new BSpline_R1_to_R2(controlPoints, knots).clone();
-}
-exports.create_BSpline_R1_to_R2 = create_BSpline_R1_to_R2;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts":
-/*!********************************************************************!*\
-  !*** ./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts ***!
-  \********************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BSpline_R1_to_R2_DifferentialProperties = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-var BSpline_R1_to_R2_DifferentialProperties = /** @class */ (function () {
-    function BSpline_R1_to_R2_DifferentialProperties(spline) {
-        this.spline = spline;
-    }
-    BSpline_R1_to_R2_DifferentialProperties.prototype.expensiveComputation = function (spline) {
-        var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots);
-        var sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots);
-        var sxu = sx.derivative();
-        var syu = sy.derivative();
-        var sxuu = sxu.derivative();
-        var syuu = syu.derivative();
-        var sxuuu = sxuu.derivative();
-        var syuuu = syuu.derivative();
-        var bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition());
-        var bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition());
-        var bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition());
-        var bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition());
-        var bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition());
-        var bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition());
-        var h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
-        var h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
-        var h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
-        var h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
-        return {
-            h1: h1,
-            h2: h2,
-            h3: h3,
-            h4: h4
-        };
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureNumerator = function () {
-        var e = this.expensiveComputation(this.spline);
-        var distinctKnots = this.spline.distinctKnots();
-        var controlPoints = e.h4.flattenControlPointsArray();
-        var curvatureNumeratorDegree = 2 * this.spline.degree - 3;
-        var knots = [];
-        for (var i = 0; i < distinctKnots.length; i += 1) {
-            for (var j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDenominator = function () {
-        var curve = this.h1();
-        var controlPoints1 = curve.controlPoints;
-        var knots = curve.knots;
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints1, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.h1 = function () {
-        var e = this.expensiveComputation(this.spline);
-        var distinctKnots = this.spline.distinctKnots();
-        var controlPoints = e.h1.flattenControlPointsArray();
-        var h1Degree = 2 * this.spline.degree - 2;
-        var knots = [];
-        for (var i = 0; i < distinctKnots.length; i += 1) {
-            for (var j = 0; j < h1Degree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.inflections = function (curvatureNumerator) {
-        if (!curvatureNumerator) {
-            curvatureNumerator = this.curvatureNumerator();
-        }
-        var zeros = curvatureNumerator.zeros();
-        var result = [];
-        for (var i = 0; i < zeros.length; i += 1) {
-            result.push(this.spline.evaluate(zeros[i]));
-        }
-        return result;
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDerivativeNumerator = function () {
-        var e = this.expensiveComputation(this.spline);
-        var bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
-        var distinctKnots = this.spline.distinctKnots();
-        var controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
-        var curvatureDerivativeNumeratorDegree = 4 * this.spline.degree - 6;
-        var knots = [];
-        for (var i = 0; i < distinctKnots.length; i += 1) {
-            for (var j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
-        if (!curvatureDerivativeNumerator) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        var zeros = curvatureDerivativeNumerator.zeros();
-        var result = [];
-        for (var i = 0; i < zeros.length; i += 1) {
-            result.push(this.spline.evaluate(zeros[i]));
-        }
-        return result;
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.transitionCurvatureExtrema = function (curvatureDerivativeNumerator) {
-        if (!curvatureDerivativeNumerator) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        var zeros = curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer();
-        var result = [];
-        for (var i = 0; i < zeros.length; i += 1) {
-            result.push(this.spline.evaluate(zeros[i]));
-        }
-        return result;
-    };
-    return BSpline_R1_to_R2_DifferentialProperties;
-}());
-exports.BSpline_R1_to_R2_DifferentialProperties = BSpline_R1_to_R2_DifferentialProperties;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts":
-/*!************************************************************!*\
-  !*** ./src/mathematics/BernsteinDecomposition_R1_to_R1.ts ***!
-  \************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BernsteinDecomposition_R1_to_R1 = void 0;
-var BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/mathematics/BinomialCoefficient.ts");
-/**
-* A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
-*/
-var BernsteinDecomposition_R1_to_R1 = /** @class */ (function () {
-    /**
-     *
-     * @param controlPointsArray An array of array of control points
-     */
-    function BernsteinDecomposition_R1_to_R1(controlPointsArray) {
-        this.controlPointsArray = controlPointsArray;
-    }
-    BernsteinDecomposition_R1_to_R1.prototype.add = function (bd) {
-        var result = [];
-        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] + bd.controlPointsArray[i][j];
-            }
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.subtract = function (bd) {
-        var result = [];
-        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] - bd.controlPointsArray[i][j];
-            }
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.multiply = function (bd) {
-        return new BernsteinDecomposition_R1_to_R1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray));
-    };
-    /**
-     *
-     * @param bd: BernsteinDecomposition_R1_to_R1
-     * @param index: Index of the basis function
-     */
-    BernsteinDecomposition_R1_to_R1.prototype.multiplyRange = function (bd, start, lessThan) {
-        var result = [];
-        for (var i = start; i < lessThan; i += 1) {
-            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i]);
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplicationArray = function (f, g) {
-        var result = [];
-        for (var i = 0; i < f.length; i += 1) {
-            result[i] = this.bernsteinMultiplication(f[i], g[i]);
-        }
-        return result;
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplication = function (f, g) {
-        var f_degree = f.length - 1;
-        var g_degree = g.length - 1;
-        var result = [];
-        /*
-        for (let k = 0; k < f_degree + g_degree + 1; k += 1) {
-            let cp = 0;
-            for (let i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
-                let bfu = binomialCoefficient(f_degree, i);
-                let bgu = binomialCoefficient(g_degree, k - i);
-                let bfugu = binomialCoefficient(f_degree + g_degree, k);
-                cp += bfu * bgu / bfugu * f[i] * g[k - i];
-            }
-            result[k] = cp;
-        }
-        */
-        /*
-        BernsteinDecomposition_R1_to_R1.flopsCounter += 1
-        if (BernsteinDecomposition_R1_to_R1.flopsCounter % 1000 === 0) {
-          //console.log("Bernstein Multiplication")
-          //console.log(BernsteinDecomposition_R1_to_R1.flopsCounter)
-        }
-        */
-        for (var k = 0; k < f_degree + g_degree + 1; k += 1) {
-            var cp = 0;
-            for (var i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
-                var bfu = BernsteinDecomposition_R1_to_R1.binomial(f_degree, i);
-                var bgu = BernsteinDecomposition_R1_to_R1.binomial(g_degree, k - i);
-                var bfugu = BernsteinDecomposition_R1_to_R1.binomial(f_degree + g_degree, k);
-                cp += bfu * bgu / bfugu * f[i] * g[k - i];
-            }
-            result[k] = cp;
-        }
-        return result;
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.multiplyByScalar = function (value) {
-        var result = [];
-        for (var i = 0; i < this.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (var j = 0; j < this.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] * value;
-            }
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.flattenControlPointsArray = function () {
-        //return this.controlPointsArray.flat();
-        return this.controlPointsArray.reduce(function (acc, val) {
-            return acc.concat(val);
-        }, []);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.subset = function (start, lessThan) {
-        return new BernsteinDecomposition_R1_to_R1(this.controlPointsArray.slice(start, lessThan));
-    };
-    BernsteinDecomposition_R1_to_R1.binomial = BinomialCoefficient_1.memorizedBinomialCoefficient();
-    BernsteinDecomposition_R1_to_R1.flopsCounter = 0;
-    return BernsteinDecomposition_R1_to_R1;
-}());
-exports.BernsteinDecomposition_R1_to_R1 = BernsteinDecomposition_R1_to_R1;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/BinomialCoefficient.ts":
-/*!************************************************!*\
-  !*** ./src/mathematics/BinomialCoefficient.ts ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.memorizedBinomialCoefficient = exports.binomialCoefficient = void 0;
-function binomialCoefficient(n, k) {
-    var result = 1;
-    if (n < k || k < 0) {
-        return 0;
-    }
-    // take advantage of symmetry
-    if (k > n - k) {
-        k = n - k;
-    }
-    for (var x = n - k + 1; x <= n; x += 1) {
-        result *= x;
-    }
-    for (var x = 1; x <= k; x += 1) {
-        result /= x;
-    }
-    return result;
-}
-exports.binomialCoefficient = binomialCoefficient;
-;
-function memorizedBinomialCoefficient() {
-    var cache = [];
-    return function (n, k) {
-        if (cache[n] !== undefined && cache[n][k] !== undefined) {
-            return cache[n][k];
-        }
-        else {
-            if (cache[n] === undefined) {
-                cache[n] = [];
-            }
-            var result = binomialCoefficient(n, k);
-            cache[n][k] = result;
-            return result;
-        }
-    };
-}
-exports.memorizedBinomialCoefficient = memorizedBinomialCoefficient;
-;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/CholeskyDecomposition.ts":
-/*!**************************************************!*\
-  !*** ./src/mathematics/CholeskyDecomposition.ts ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CholeskyDecomposition = void 0;
-/**
- * A decomposition of a positive-definite matirx into a product of a lower triangular matrix and its conjugate transpose
- */
-var CholeskyDecomposition = /** @class */ (function () {
-    /**
-     * The values of the decomposition are stored in the lower triangular portion of the matrix g
-     * @param matrix Matrix
-     */
-    function CholeskyDecomposition(matrix) {
-        this.success = false;
-        this.CLOSE_TO_ZERO = 10e-8;
-        this.firstNonPositiveDefiniteLeadingSubmatrixSize = -1;
-        this.g = matrix.squareMatrix();
-        var n = this.g.shape[0];
-        if (this.g.get(0, 0) < this.CLOSE_TO_ZERO) {
-            return;
-        }
-        var sqrtGjj = Math.sqrt(this.g.get(0, 0));
-        for (var i = 0; i < n; i += 1) {
-            this.g.divideAt(i, 0, sqrtGjj);
-        }
-        for (var j = 1; j < n; j += 1) {
-            for (var i = j; i < n; i += 1) {
-                var sum = 0;
-                for (var k = 0; k < j; k += 1) {
-                    sum += this.g.get(i, k) * this.g.get(j, k);
-                }
-                this.g.substractAt(i, j, sum);
-            }
-            if (this.g.get(j, j) < this.CLOSE_TO_ZERO) {
-                this.firstNonPositiveDefiniteLeadingSubmatrixSize = j + 1;
-                return;
-            }
-            sqrtGjj = Math.sqrt(this.g.get(j, j));
-            for (var i = j; i < n; i += 1) {
-                this.g.divideAt(i, j, sqrtGjj);
-            }
-        }
-        for (var j = 0; j < n; j += 1) {
-            for (var i = 0; i < j; i += 1) {
-                this.g.set(i, j, 0);
-            }
-        }
-        this.success = true;
-    }
-    /**
-     * Solve the linear system
-     * @param b Vector
-     * @return The vector x
-     * @throws If the Cholesky decomposition failed
-     */
-    CholeskyDecomposition.prototype.solve = function (b) {
-        'use strict';
-        // See Numerical Recipes Third Edition p. 101
-        if (!this.success) {
-            throw new Error("CholeskyDecomposistion.success === false");
-        }
-        if (b.length !== this.g.shape[0]) {
-            throw new Error("The size of the cholesky decomposed matrix g and the vector b do not match");
-        }
-        var n = this.g.shape[0];
-        var x = b.slice();
-        // Ly = b
-        for (var i = 0; i < n; i += 1) {
-            var sum = b[i];
-            for (var k = i - 1; k >= 0; k -= 1) {
-                sum -= this.g.get(i, k) * x[k];
-            }
-            x[i] = sum / this.g.get(i, i);
-        }
-        // LT x = Y
-        for (var i = n - 1; i >= 0; i -= 1) {
-            var sum = x[i];
-            for (var k = i + 1; k < n; k += 1) {
-                sum -= this.g.get(k, i) * x[k];
-            }
-            x[i] = sum / this.g.get(i, i);
-        }
-        return x;
-    };
-    /**
-     * Solve the linear equation Lower triangular matrix LT * x = b
-     * @param b Vector
-     */
-    CholeskyDecomposition.prototype.solve_LT_result_equal_b = function (b) {
-        var n = this.g.shape[0];
-        var x = b.slice();
-        for (var i = 0; i < n; i += 1) {
-            var sum = b[i];
-            for (var k = i - 1; k >= 0; k -= 1) {
-                sum -= this.g.get(i, k) * x[k];
-            }
-            x[i] = sum / this.g.get(i, i);
-        }
-        return x;
-    };
-    return CholeskyDecomposition;
-}());
-exports.CholeskyDecomposition = CholeskyDecomposition;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/DenseMatrix.ts":
-/*!****************************************!*\
-  !*** ./src/mathematics/DenseMatrix.ts ***!
-  \****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DenseMatrix = void 0;
-/**
- * A dense matrix
- */
-var DenseMatrix = /** @class */ (function () {
-    /**
-     * Create a square matrix
-     * @param nrows Number of rows
-     * @param ncols Number of columns
-     * @param data A row after row flat array
-     * @throws If data length is not equal to nrows*ncols
-     */
-    function DenseMatrix(nrows, ncols, data) {
-        this._shape = [nrows, ncols];
-        if (data) {
-            if (data.length !== this.shape[0] * this.shape[1]) {
-                throw new Error("Dense matrix constructor expect the data to have nrows*ncols length");
-            }
-            this.data = data.slice();
-        }
-        else {
-            this.data = [];
-            for (var i = 0; i < this.shape[0] * this.shape[1]; i += 1) {
-                this.data.push(0);
-            }
-        }
-    }
-    Object.defineProperty(DenseMatrix.prototype, "shape", {
-        /**
-         * Returns the shape of the matrix : [number of rows, number of columns]
-         */
-        get: function () {
-            return this._shape;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /**
-     * Return the corresponding index in the flat row by row data vector
-     * @param row The row index
-     * @param column The column index
-     */
-    DenseMatrix.prototype.dataIndex = function (row, column) {
-        var n = row * this.shape[1] + column;
-        return n;
-    };
-    /**
-     * Return the value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @return Scalar
-     * @throws If an index is out of range
-     */
-    DenseMatrix.prototype.get = function (row, column) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        return this.data[this.dataIndex(row, column)];
-    };
-    /**
-     * Set a given value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @param value The new value
-     * @throws If an index is out of range
-     */
-    DenseMatrix.prototype.set = function (row, column, value) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        this.data[this.dataIndex(row, column)] = value;
-    };
-    /**
-     * Check that the column index is inside appropriate range
-     * @param index The column index
-     * @throws If index is out of range
-     */
-    DenseMatrix.prototype.checkColumnRange = function (index) {
-        if (index < 0 || index >= this.shape[1]) {
-            throw new Error("DenseMatrix column index out of range");
-        }
-    };
-    /**
-     * Check that the row index is inside appropriate range
-     * @param index The row index
-     * @throws If index is out of range
-     */
-    DenseMatrix.prototype.checkRowRange = function (index) {
-        if (index < 0 || index >= this.shape[0]) {
-            throw new Error("DenseMatrix row index out of range");
-        }
-    };
-    return DenseMatrix;
-}());
-exports.DenseMatrix = DenseMatrix;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/DiagonalMatrix.ts":
-/*!*******************************************!*\
-  !*** ./src/mathematics/DiagonalMatrix.ts ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.identityMatrix = exports.DiagonalMatrix = void 0;
-/**
- * An identity matrix
- */
-var DiagonalMatrix = /** @class */ (function () {
-    /**
-     * Create a Symmetric Matrix
-     * @param size The number of rows or the number columns
-     * @param data The matrix data in a flat vector
-     */
-    function DiagonalMatrix(size, data) {
-        this._shape = [size, size];
-        if (data) {
-            if (data.length !== size) {
-                throw new Error("Diagonal matrix constructor expect the data to have size length");
-            }
-            this.data = data.slice();
-        }
-        else {
-            this.data = [];
-            var n = size;
-            for (var i = 0; i < n; i += 1) {
-                this.data.push(0);
-            }
-        }
-    }
-    Object.defineProperty(DiagonalMatrix.prototype, "shape", {
-        /**
-         * Returns the shape of the matrix : [number of rows, number of columns]
-         */
-        get: function () {
-            return this._shape;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /**
- * Returns the value at a given row and column position
- * @param row The row index
- * @param column The column index
- * @return Scalar
- * @throws If an index is out of range
- */
-    DiagonalMatrix.prototype.get = function (row, column) {
-        this.checkRange(row, column);
-        return this.data[row];
-    };
-    /**
-     * Set a given value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @param value The new value
-     * @throws If an index is out of range
-     */
-    DiagonalMatrix.prototype.set = function (row, column, value) {
-        this.checkRange(row, column);
-        this.data[row] = value;
-    };
-    /**
-     * Check that the index is inside appropriate range
-     * @param index The column or the row index
-     * @throws If an index is out of range
-     */
-    DiagonalMatrix.prototype.checkRange = function (row, column) {
-        if (row < 0 || row >= this.shape[0] || row != column) {
-            throw new Error("DiagonalMatrix index is out of range");
-        }
-    };
-    return DiagonalMatrix;
-}());
-exports.DiagonalMatrix = DiagonalMatrix;
-function identityMatrix(n) {
-    var result = new DiagonalMatrix(n);
-    for (var i = 0; i < n; i += 1) {
-        result.set(i, i, 1);
-    }
-    return result;
-}
-exports.identityMatrix = identityMatrix;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/MathVectorBasicOperations.ts":
-/*!******************************************************!*\
-  !*** ./src/mathematics/MathVectorBasicOperations.ts ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sign = exports.containsNaN = exports.randomVector = exports.isZeroVector = exports.product_v1_v2t = exports.product_v_vt = exports.zeroVector = exports.norm1 = exports.norm = exports.squaredNorm = exports.addSecondVectorToFirst = exports.addTwoVectors = exports.dotProduct = exports.saxpy2 = exports.saxpy = exports.divideVectorByScalar = exports.multiplyVectorByScalar = void 0;
-var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
-var DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/mathematics/DenseMatrix.ts");
-/**
- * Multiply a vector by a scalar
- * @param vector vector
- * @param value scalar
- */
-function multiplyVectorByScalar(vector, value) {
-    var result = [];
-    for (var i = 0; i < vector.length; i += 1) {
-        result.push(vector[i] * value);
-    }
-    return result;
-}
-exports.multiplyVectorByScalar = multiplyVectorByScalar;
-/**
- * Divide a vector by a scalar
- * @param vector Vector
- * @param value Scalar
- * @throws If the scalar value is zero
- */
-function divideVectorByScalar(vector, value) {
-    if (value === 0) {
-        throw new Error("Division by zero");
-    }
-    var result = [];
-    for (var i = 0; i < vector.length; i += 1) {
-        result.push(vector[i] / value);
-    }
-    return result;
-}
-exports.divideVectorByScalar = divideVectorByScalar;
-/**
- * A standard function in basic linear algebra : y = ax + y
- * @param a Scalar
- * @param x Vector
- * @param y Vector
- * @throws If x and y have different length
- */
-function saxpy(a, x, y) {
-    if (x.length !== y.length) {
-        throw new Error("Adding two vectors of different length");
-    }
-    for (var i = 0; i < x.length; i += 1) {
-        y[i] += a * x[i];
-    }
-}
-exports.saxpy = saxpy;
-/**
- * A standard function in basic linear algebra : z = ax + y
- * @param a Scalar
- * @param x Vector
- * @param y Vector
- * @returns ax + y
- * @throws If x and y have different length
- */
-function saxpy2(a, x, y) {
-    if (x.length !== y.length) {
-        throw new Error("Adding two vectors of different length");
-    }
-    var result = [];
-    for (var i = 0; i < x.length; i += 1) {
-        result.push(a * x[i] + y[i]);
-    }
-    return result;
-}
-exports.saxpy2 = saxpy2;
-/**
- * Compute the dot product of two vectors
- * @param x Vector
- * @param y Vector
- * @return The scalar result
- * @throws If x and y have different length
- */
-function dotProduct(x, y) {
-    if (x.length !== y.length) {
-        throw new Error("Making the dot product of two vectors of different length");
-    }
-    var result = 0;
-    for (var i = 0; i < x.length; i += 1) {
-        result += x[i] * y[i];
-    }
-    return result;
-}
-exports.dotProduct = dotProduct;
-/**
- * Add two vectors
- * @param x Vector
- * @param y Vector
- * @return Vector
- * @throws If x and y have different length
- */
-function addTwoVectors(x, y) {
-    if (x.length !== y.length) {
-        throw new Error("Adding two vectors of different length");
-    }
-    var result = [];
-    for (var i = 0; i < x.length; i += 1) {
-        result.push(x[i] + y[i]);
-    }
-    return result;
-}
-exports.addTwoVectors = addTwoVectors;
-/**
- * Add the second vector to the first vector
- * @param x Vector
- * @param y Vector
- * @throws If x and y have different length
- */
-function addSecondVectorToFirst(x, y) {
-    if (x.length !== y.length) {
-        throw new Error("Adding two vectors of different length");
-    }
-    for (var i = 0; i < x.length; i += 1) {
-        x[i] += y[i];
-    }
-}
-exports.addSecondVectorToFirst = addSecondVectorToFirst;
-/**
- * Compute the square of the norm
- * @param v Vector
- * @return Non negative scalar
- */
-function squaredNorm(v) {
-    var result = 0;
-    for (var i = 0; i < v.length; i += 1) {
-        result += v[i] * v[i];
-    }
-    return result;
-}
-exports.squaredNorm = squaredNorm;
-/**
- * Compute the norm
- * @param v Vector
- * @return Non negative scalar
- */
-function norm(v) {
-    return Math.sqrt(squaredNorm(v));
-}
-exports.norm = norm;
-/**
- * Compute the norm p = 1
- * @param v Vector
- * @return Non negative scalar
- */
-function norm1(v) {
-    var result = 0;
-    for (var i = 0; i < v.length; i += 1) {
-        result += Math.abs(v[i]);
-    }
-    return result;
-}
-exports.norm1 = norm1;
-/**
- * Create a zero vector of size n
- * @param n Size
- */
-function zeroVector(n) {
-    var result = [];
-    for (var i = 0; i < n; i += 1) {
-        result.push(0);
-    }
-    return result;
-}
-exports.zeroVector = zeroVector;
-;
-/**
- * Compute the product of a vector and its transpose
- * @param v Vector
- */
-function product_v_vt(v) {
-    var n = v.length;
-    var result = new SquareMatrix_1.SquareMatrix(n);
-    for (var i = 0; i < n; i += 1) {
-        for (var j = 0; j < n; j += 1) {
-            result.set(i, j, v[i] * v[j]);
-        }
-    }
-    return result;
-}
-exports.product_v_vt = product_v_vt;
-/**
- * Compute the product of a first vector with the transpose of a second vector
- * @param v1 The first vector taken as a column vector
- * @param v2 The second vector taken after transposition as a row vector
- */
-function product_v1_v2t(v1, v2) {
-    var m = v1.length;
-    var n = v2.length;
-    var result = new DenseMatrix_1.DenseMatrix(m, n);
-    for (var i = 0; i < m; i += 1) {
-        for (var j = 0; j < n; j += 1) {
-            result.set(i, j, v1[i] * v2[j]);
-        }
-    }
-    return result;
-}
-exports.product_v1_v2t = product_v1_v2t;
-function isZeroVector(v) {
-    var n = v.length;
-    for (var i = 0; i < v.length; i += 1) {
-        if (v[i] !== 0) {
-            return false;
-        }
-    }
-    return true;
-}
-exports.isZeroVector = isZeroVector;
-/**
- * Returns a vector filled with random values between 0 and 1
- * @param n The size of the random vector
- */
-function randomVector(n) {
-    var result = [];
-    for (var i = 0; i < n; i += 1) {
-        result.push((Math.random() - 0.5) * 10e8);
-        //result.push((Math.random())*10e8)
-    }
-    return result;
-}
-exports.randomVector = randomVector;
-function containsNaN(v) {
-    var n = v.length;
-    for (var i = 0; i < v.length; i += 1) {
-        if (isNaN(v[i])) {
-            return true;
-        }
-    }
-    return false;
-}
-exports.containsNaN = containsNaN;
-/**
- * Return the sign of a number.
- * It returns 1 if the number is positive, -1 if the number is negative and 0 if it is zero or minus zero
- * The standard Math.sign() function doesn't work with Windows Internet Explorer
- * @param x Number
- */
-function sign(x) {
-    return x ? x < 0 ? -1 : 1 : 0;
-}
-exports.sign = sign;
-
-
-/***/ }),
-
 /***/ "./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts":
 /*!*****************************************************************!*\
   !*** ./src/mathematics/OptimizationProblem_BSpline_R1_to_R2.ts ***!
@@ -42934,14 +43579,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = exports.OptimizationProblem_BSpline_R1_to_R2 = exports.eventMove = exports.ActiveControl = void 0;
-var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/mathematics/BSpline_R1_to_R1.ts");
-var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/mathematics/BernsteinDecomposition_R1_to_R1.ts");
-var DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/mathematics/DiagonalMatrix.ts");
-var DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/mathematics/DenseMatrix.ts");
-var SymmetricMatrix_1 = __webpack_require__(/*! ./SymmetricMatrix */ "./src/mathematics/SymmetricMatrix.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BernsteinDecomposition_R1_to_R1 */ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts");
+var DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
+var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+var SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
 var SlidingStrategy_1 = __webpack_require__(/*! ../controllers/SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ./BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var ExpensiveComputationResults = /** @class */ (function () {
     function ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4) {
         this.bdsxu = bdsxu;
@@ -44691,11 +45336,11 @@ exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navig
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Optimizer = void 0;
 var TrustRegionSubproblem_1 = __webpack_require__(/*! ./TrustRegionSubproblem */ "./src/mathematics/TrustRegionSubproblem.ts");
-var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_2 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_3 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var SymmetricMatrix_1 = __webpack_require__(/*! ./SymmetricMatrix */ "./src/mathematics/SymmetricMatrix.ts");
-var CholeskyDecomposition_1 = __webpack_require__(/*! ./CholeskyDecomposition */ "./src/mathematics/CholeskyDecomposition.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_2 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_3 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
+var CholeskyDecomposition_1 = __webpack_require__(/*! ../linearAlgebra/CholeskyDecomposition */ "./src/linearAlgebra/CholeskyDecomposition.ts");
 var Optimizer = /** @class */ (function () {
     function Optimizer(o) {
         this.o = o;
@@ -44953,651 +45598,6 @@ exports.Optimizer = Optimizer;
 
 /***/ }),
 
-/***/ "./src/mathematics/Piegl_Tiller_NURBS_Book.ts":
-/*!****************************************************!*\
-  !*** ./src/mathematics/Piegl_Tiller_NURBS_Book.ts ***!
-  \****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.decomposeFunction = exports.basisFunctions = exports.clampingFindSpan = exports.findSpan = void 0;
-/**
- * Returns the span index
- * @param u parameter
- * @param knots knot vector
- * @param degree degree
- * @returns span index i for which knots[i] ≤ u < knots[i+1]
- */
-function findSpan(u, knots, degree) {
-    // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
-    if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
-        console.log(u);
-        console.log(knots);
-        throw new Error("Error: parameter u is outside valid span");
-    }
-    // Special case
-    if (u === knots[knots.length - degree - 1]) {
-        return knots.length - degree - 2;
-    }
-    // Do binary search
-    var low = degree;
-    var high = knots.length - 1 - degree;
-    var i = Math.floor((low + high) / 2);
-    while (!(knots[i] <= u && u < knots[i + 1])) {
-        if (u < knots[i]) {
-            high = i;
-        }
-        else {
-            low = i;
-        }
-        i = Math.floor((low + high) / 2);
-    }
-    return i;
-}
-exports.findSpan = findSpan;
-/**
- * Returns the span index used for clamping a periodic B-Spline
- * Note: The only difference with findSpan is the for the special case u = knots[-degree - 1]
- * @param u parameter
- * @param knots knot vector
- * @param degree degree
- * @returns span index i for which knots[i] ≤ u < knots[i+1]
- */
-function clampingFindSpan(u, knots, degree) {
-    // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
-    if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
-        throw new Error("Error: parameter u is outside valid span");
-    }
-    // Special case
-    if (u === knots[knots.length - degree - 1]) {
-        return knots.length - degree - 1;
-    }
-    // Do binary search
-    var low = degree;
-    var high = knots.length - 1 - degree;
-    var i = Math.floor((low + high) / 2);
-    while (!(knots[i] <= u && u < knots[i + 1])) {
-        if (u < knots[i]) {
-            high = i;
-        }
-        else {
-            low = i;
-        }
-        i = Math.floor((low + high) / 2);
-    }
-    return i;
-}
-exports.clampingFindSpan = clampingFindSpan;
-/**
- * Returns the basis functions values
- * @param span span index
- * @param u parameter
- * @param knots knot vector
- * @param degree degree
- * @returns the array of values evaluated at u
- */
-function basisFunctions(span, u, knots, degree) {
-    // Bibliographic reference : The NURBS BOOK, p.70
-    var result = [1];
-    var left = [];
-    var right = [];
-    for (var j = 1; j <= degree; j += 1) {
-        left[j] = u - knots[span + 1 - j];
-        right[j] = knots[span + j] - u;
-        var saved = 0.0;
-        for (var r = 0; r < j; r += 1) {
-            var temp = result[r] / (right[r + 1] + left[j - r]);
-            result[r] = saved + right[r + 1] * temp;
-            saved = left[j - r] * temp;
-        }
-        result[j] = saved;
-    }
-    return result;
-}
-exports.basisFunctions = basisFunctions;
-function decomposeFunction(spline) {
-    //Piegl and Tiller, The NURBS book, p.173
-    var result = [];
-    var number_of_bezier_segments = spline.distinctKnots().length - 1;
-    for (var i = 0; i < number_of_bezier_segments; i += 1) {
-        result.push([]);
-    }
-    for (var i = 0; i <= spline.degree; i += 1) {
-        result[0][i] = spline.controlPoints[i];
-    }
-    var a = spline.degree;
-    var b = spline.degree + 1;
-    var bezier_segment = 0;
-    var alphas = [];
-    while (b < spline.knots.length - 1) {
-        var i = b;
-        while (b < spline.knots.length - 1 && spline.knots[b + 1] === spline.knots[b]) {
-            b += 1;
-        }
-        var mult = b - i + 1;
-        if (mult < spline.degree) {
-            var numer = spline.knots[b] - spline.knots[a]; // Numerator of alpha
-            // Compute and store alphas
-            for (var j = spline.degree; j > mult; j -= 1) {
-                alphas[j - mult - 1] = numer / (spline.knots[a + j] - spline.knots[a]);
-            }
-            var r = spline.degree - mult; // insert knot r times
-            for (var j = 1; j <= r; j += 1) {
-                var save = r - j;
-                var s = mult + j; // this many new controlPoints
-                for (var k = spline.degree; k >= s; k -= 1) {
-                    var alpha = alphas[k - s];
-                    result[bezier_segment][k] = (result[bezier_segment][k] * alpha) + (result[bezier_segment][k - 1] * (1 - alpha));
-                }
-                if (b < spline.knots.length) {
-                    result[bezier_segment + 1][save] = result[bezier_segment][spline.degree]; // next segment
-                }
-            }
-        }
-        bezier_segment += 1; // Bezier segment completed
-        if (b < spline.knots.length - 1) {
-            //initialize next bezier bezier_segment
-            for (i = Math.max(0, spline.degree - mult); i <= spline.degree; i += 1) {
-                result[bezier_segment][i] = spline.controlPoints[b - spline.degree + i];
-            }
-            a = b;
-            b += 1;
-        }
-    }
-    return result;
-}
-exports.decomposeFunction = decomposeFunction;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/SequenceBSpline_R1_to_R2.ts":
-/*!*****************************************************!*\
-  !*** ./src/mathematics/SequenceBSpline_R1_to_R2.ts ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SequenceBSpline_R1_to_R2 = void 0;
-var Vector_2d_1 = __webpack_require__(/*! ./Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
-/**
- * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
- * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
- */
-var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
-    __extends(SequenceBSpline_R1_to_R2, _super);
-    function SequenceBSpline_R1_to_R2() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.controlPolygons = [];
-        _this.knotVectors = [];
-        return _this;
-    }
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    SequenceBSpline_R1_to_R2.prototype.setControlPoints = function (controlPoints) {
-        this.controlPoints = controlPoints;
-    };
-    /**
-     * Return a deep copy of this b-spline
-     */
-    SequenceBSpline_R1_to_R2.prototype.clone = function () {
-        var cloneControlPoints = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            cloneControlPoints.push(new Vector_2d_1.Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y));
-        }
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
-    };
-    /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
-    SequenceBSpline_R1_to_R2.prototype.degreeIncrease = function () {
-        var degree = this.degree;
-        this.generateIntermediateSplinesForDegreeElevation();
-        var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
-        if (this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
-            for (var i = 1; i <= this.degree; i += 1) {
-                var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
-                var j = 0, k = 0;
-                while (j < splineHigherDegree.knots.length) {
-                    if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
-                        splineTemp.insertKnot(splineHigherDegree.knots[j]);
-                    }
-                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
-                        splineHigherDegree.insertKnot(splineTemp.knots[k]);
-                    }
-                    j += 1;
-                    k += 1;
-                }
-                for (var j_1 = 0; j_1 < splineHigherDegree.controlPoints.length; j_1 += 1) {
-                    splineHigherDegree.controlPoints[j_1] = splineHigherDegree.controlPoints[j_1].add(splineTemp.controlPoints[j_1]);
-                }
-            }
-            for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
-                splineHigherDegree.controlPoints[j] = splineHigherDegree.controlPoints[j].multiply(1 / (degree + 1));
-            }
-            console.log("degreeIncrease: " + splineHigherDegree.knots);
-        }
-        else
-            throw new Error('incompatible knot vector of the input spline');
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
-    };
-    SequenceBSpline_R1_to_R2.prototype.generateIntermediateSplinesForDegreeElevation = function () {
-        for (var i = 0; i <= this.degree; i += 1) {
-            var knotVector = this.knots.slice();
-            var controlPolygon = this.controlPoints.slice();
-            var nullVector = [];
-            var k = 0;
-            for (var j = i; j < this.knots.length; j += this.degree + 1) {
-                nullVector = knotVector.splice((j + k), 0, this.knots[j]);
-                if (j < this.controlPoints.length) {
-                    var controlPoint = this.controlPoints[j];
-                    nullVector = controlPolygon.splice((j + k), 0, controlPoint);
-                }
-                k += 1;
-            }
-            this.knotVectors.push(knotVector);
-            this.controlPolygons.push(controlPolygon);
-        }
-    };
-    return SequenceBSpline_R1_to_R2;
-}(BSpline_R1_to_R2_1.BSpline_R1_to_R2));
-exports.SequenceBSpline_R1_to_R2 = SequenceBSpline_R1_to_R2;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/SquareMatrix.ts":
-/*!*****************************************!*\
-  !*** ./src/mathematics/SquareMatrix.ts ***!
-  \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SquareMatrix = void 0;
-/**
- * A square matrix
- */
-var SquareMatrix = /** @class */ (function () {
-    /**
-     * Create a square matrix
-     * @param size Number of row and column
-     * @param data A row after row flat array
-     * @throws If data length is not equal to size*size
-     */
-    function SquareMatrix(size, data) {
-        this._shape = [size, size];
-        if (data) {
-            if (data.length !== size * size) {
-                throw new Error("Square matrix constructor expect the data to have size*size length");
-            }
-            this.data = data.slice();
-        }
-        else {
-            this.data = [];
-            for (var i = 0; i < this.shape[0] * this.shape[1]; i += 1) {
-                this.data.push(0);
-            }
-        }
-    }
-    Object.defineProperty(SquareMatrix.prototype, "shape", {
-        /**
-         * Returns the shape of the matrix : [number of rows, number of columns]
-         */
-        get: function () {
-            return this._shape;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /**
-     * Return the corresponding index in the flat row by row data vector
-     * @param row The row index
-     * @param column The column index
-     */
-    SquareMatrix.prototype.dataIndex = function (row, column) {
-        var n = row * this._shape[1] + column;
-        return n;
-    };
-    /**
-     * Return the value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @return Scalar
-     * @throws If an index is out of range
-     */
-    SquareMatrix.prototype.get = function (row, column) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        return this.data[this.dataIndex(row, column)];
-    };
-    /**
-     * Set a given value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @param value The new value
-     * @throws If an index is out of range
-     */
-    SquareMatrix.prototype.set = function (row, column, value) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        this.data[this.dataIndex(row, column)] = value;
-    };
-    /**
-     * Change the value of the matrix at a given row and column position by this value divided by the divisor value
-     * @param row The row index
-     * @param column The column index
-     * @param divisor The divisor value
-     * @throws If an index is out of range
-     */
-    SquareMatrix.prototype.divideAt = function (row, column, divisor) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        this.data[this.dataIndex(row, column)] /= divisor;
-    };
-    /**
-     * Change the value of the matrix at a given row and column position by this value substracted by the subtrahend value
-     * @param row The row index
-     * @param column The column index
-     * @param divisor The divisor value
-     * @throws If an index is out of range
-     */
-    SquareMatrix.prototype.substractAt = function (row, column, subtrahend) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        this.data[this.dataIndex(row, column)] -= subtrahend;
-    };
-    /**
-     * Check that the index is inside appropriate range
-     * @param index The column or the row index
-     * @throws If an index is out of range
-     */
-    SquareMatrix.prototype.checkRowRange = function (index) {
-        if (index < 0 || index >= this.shape[0]) {
-            throw new Error("SymmetricMatrix index is out of range");
-        }
-    };
-    /**
-     * Check that the index is inside appropriate range
-     * @param index The column or the row index
-     * @throws If an index is out of range
-     */
-    SquareMatrix.prototype.checkColumnRange = function (index) {
-        if (index < 0 || index >= this.shape[1]) {
-            throw new Error("SymmetricMatrix index is out of range");
-        }
-    };
-    /**
-     * Multiply two matrices
-     * @param that A square or a symmetric matrix
-     * @return a square matrix
-     */
-    SquareMatrix.prototype.multiplyByMatrix = function (that) {
-        if (this.shape[1] !== that.shape[0]) {
-            throw new Error("Size mismatch in matrix multiplication");
-        }
-        var result = new SquareMatrix(this.shape[1]);
-        for (var i = 0; i < this.shape[0]; i += 1) {
-            for (var j = 0; j < this.shape[0]; j += 1) {
-                var temp = 0;
-                for (var k = 0; k < this.shape[0]; k += 1) {
-                    temp += this.get(i, k) * that.get(k, j);
-                }
-                result.set(i, j, temp);
-            }
-        }
-        return result;
-    };
-    return SquareMatrix;
-}());
-exports.SquareMatrix = SquareMatrix;
-
-
-/***/ }),
-
-/***/ "./src/mathematics/SymmetricMatrix.ts":
-/*!********************************************!*\
-  !*** ./src/mathematics/SymmetricMatrix.ts ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SymmetricMatrix = void 0;
-var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
-var DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/mathematics/DiagonalMatrix.ts");
-var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-/**
- * A symmetric matrix
- */
-var SymmetricMatrix = /** @class */ (function () {
-    /**
-     * Create a Symmetric Matrix
-     * @param size The number of rows or the number columns
-     * @param data The matrix data in a flat vector
-     */
-    function SymmetricMatrix(size, data) {
-        this._shape = [size, size];
-        if (data) {
-            if (data.length !== size * (size + 1) / 2) {
-                throw new Error("Square matrix constructor expect the data to have (size * (size + 1) / 2) length");
-            }
-            this.data = data.slice();
-        }
-        else {
-            this.data = [];
-            var n = (size * (size + 1)) / 2;
-            for (var i = 0; i < n; i += 1) {
-                this.data.push(0);
-            }
-        }
-    }
-    Object.defineProperty(SymmetricMatrix.prototype, "shape", {
-        /**
-        * Returns the shape of the matrix : [number of rows, number of columns]
-        */
-        get: function () {
-            return this._shape;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /**
-     * Returns the corresponding index in the flat data vector.
-     * In this flat data vector the upper triangular matrix is store row-wise.
-     * @param row The row index
-     * @param column The column index
-     */
-    SymmetricMatrix.prototype.dataIndex = function (row, column) {
-        if (row <= column) {
-            return row * this.shape[1] - (row - 1) * row / 2 + column - row;
-        }
-        return column * this.shape[0] - (column - 1) * column / 2 + row - column;
-    };
-    /**
-     * Returns the value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @return Scalar
-     * @throws If an index is out of range
-     */
-    SymmetricMatrix.prototype.get = function (row, column) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        return this.data[this.dataIndex(row, column)];
-    };
-    /**
-     * Set a given value at a given row and column position
-     * @param row The row index
-     * @param column The column index
-     * @param value The new value
-     * @throws If an index is out of range
-     */
-    SymmetricMatrix.prototype.set = function (row, column, value) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        this.data[this.dataIndex(row, column)] = value;
-    };
-    /**
-     * Check that the index is inside appropriate range
-     * @param index The column or the row index
-     * @throws If an index is out of range
-     */
-    SymmetricMatrix.prototype.checkRowRange = function (index) {
-        if (index < 0 || index >= this.shape[0]) {
-            throw new Error("SymmetricMatrix index is out of range");
-        }
-    };
-    /**
- * Check that the index is inside appropriate range
- * @param index The column or the row index
- * @throws If an index is out of range
- */
-    SymmetricMatrix.prototype.checkColumnRange = function (index) {
-        if (index < 0 || index >= this.shape[1]) {
-            throw new Error("SymmetricMatrix index is out of range");
-        }
-    };
-    /**
-     * Compute the product v^t M v
-     * @param v Vector
-     * @return Scalar
-     */
-    SymmetricMatrix.prototype.quadraticForm = function (v) {
-        var result = 0;
-        for (var i = 1; i < this.shape[1]; i += 1) {
-            for (var j = 0; j < i; j += 1) {
-                result += this.get(i, j) * v[i] * v[j];
-            }
-        }
-        result *= 2;
-        for (var i = 0; i < this.shape[1]; i += 1) {
-            result += this.get(i, i) * Math.pow(v[i], 2);
-        }
-        return result;
-    };
-    /**
-     * Return a safe copy of this matrix
-     * */
-    SymmetricMatrix.prototype.clone = function () {
-        return new SymmetricMatrix(this.shape[0], this.data);
-    };
-    /**
-     * Increases the given element of the matrix by the value
-     * @param row The row index
-     * @param column The column index
-     * @param value The number to be added
-     * @throws If an index is out of range
-     */
-    SymmetricMatrix.prototype.addAt = function (row, column, value) {
-        this.checkRowRange(row);
-        this.checkColumnRange(row);
-        this.data[this.dataIndex(row, column)] += value;
-    };
-    /**
-     * Increases every diagonal element of the matrix by the value
-     * @param value The number to be added
-     */
-    SymmetricMatrix.prototype.addValueOnDiagonalInPlace = function (value) {
-        var m = this.shape[0];
-        for (var i = 0; i < m; i += 1) {
-            this.data[this.dataIndex(i, i)] += value;
-        }
-    };
-    /**
-     * Returns the new matrix: this.matrix + value * I
-     * @param value
-     * @returns SymmetricMatrix
-     */
-    SymmetricMatrix.prototype.addValueOnDiagonal = function (value) {
-        var result = this.clone();
-        result.addValueOnDiagonalInPlace(value);
-        return result;
-    };
-    /**
-     * Returns a SquareMatrix with the values of this matrix
-     */
-    SymmetricMatrix.prototype.squareMatrix = function () {
-        var n = this.shape[0];
-        var result = new SquareMatrix_1.SquareMatrix(n);
-        for (var i = 0; i < n; i += 1) {
-            for (var j = 0; j < n; j += 1) {
-                result.set(i, j, this.get(i, j));
-            }
-        }
-        return result;
-    };
-    SymmetricMatrix.prototype.plusSymmetricMatrixMultipliedByValue = function (matrix, value) {
-        if (this.shape[0] !== matrix.shape[0]) {
-            throw new Error("Adding two symmetric matrix with different shapes");
-        }
-        var result = this.clone();
-        var n = result.shape[0];
-        if (matrix instanceof DiagonalMatrix_1.DiagonalMatrix) {
-            for (var i = 0; i < n; i += 1) {
-                result.addAt(i, i, matrix.get(i, i) * value);
-            }
-            return result;
-        }
-        else {
-            for (var i = 0; i < n; i += 1) {
-                for (var j = 0; j <= i; j += 1) {
-                    result.addAt(i, j, matrix.get(i, j) * value);
-                }
-            }
-            return result;
-        }
-    };
-    SymmetricMatrix.prototype.multiplyByVector = function (v) {
-        if (this.shape[1] !== v.length) {
-            throw new Error("SymmetricMatrix multiply a vector of incorrect length");
-        }
-        var result = [];
-        var n = this.shape[1];
-        for (var i = 0; i < n; i += 1) {
-            var temp = 0;
-            for (var j = 0; j < n; j += 1) {
-                temp += this.get(i, j) * v[j];
-            }
-            result.push(temp);
-        }
-        return result;
-    };
-    SymmetricMatrix.prototype.containsNaN = function () {
-        return MathVectorBasicOperations_1.containsNaN(this.data);
-    };
-    return SymmetricMatrix;
-}());
-exports.SymmetricMatrix = SymmetricMatrix;
-
-
-/***/ }),
-
 /***/ "./src/mathematics/TrustRegionSubproblem.ts":
 /*!**************************************************!*\
   !*** ./src/mathematics/TrustRegionSubproblem.ts ***!
@@ -45609,17 +45609,17 @@ exports.SymmetricMatrix = SymmetricMatrix;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBoundariesIntersections = exports.gershgorin_bounds = exports.frobeniusNorm = exports.TrustRegionSubproblem = void 0;
-var SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/mathematics/SquareMatrix.ts");
-var MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_2 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_3 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_4 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_5 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_6 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_7 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_8 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var MathVectorBasicOperations_9 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/mathematics/MathVectorBasicOperations.ts");
-var CholeskyDecomposition_1 = __webpack_require__(/*! ./CholeskyDecomposition */ "./src/mathematics/CholeskyDecomposition.ts");
+var SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_2 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_3 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_4 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_5 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_6 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_7 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_8 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var MathVectorBasicOperations_9 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var CholeskyDecomposition_1 = __webpack_require__(/*! ../linearAlgebra/CholeskyDecomposition */ "./src/linearAlgebra/CholeskyDecomposition.ts");
 // Bibliographic Reference: Trust-Region Methods, Conn, Gould and Toint p. 187
 // note: lambda is never negative
 var lambdaRange;
@@ -46242,7 +46242,7 @@ exports.Vector_2d = Vector_2d;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveModel = void 0;
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var CurveModel = /** @class */ (function () {
     //constructor() {
@@ -47177,8 +47177,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurvatureExtremaView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var CurvatureExtremaView = /** @class */ (function () {
     function CurvatureExtremaView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -47389,7 +47389,7 @@ exports.CurveKnotsShaders = CurveKnotsShaders;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveKnotsView = void 0;
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 var CurveKnotsView = /** @class */ (function () {
     function CurveKnotsView(spline, curveKnotsShaders, red, green, blue, alpha) {
         this.spline = spline;
@@ -47783,8 +47783,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InflectionsView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var InflectionsView = /** @class */ (function () {
     function InflectionsView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -48035,7 +48035,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelectedDifferentialEventsView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 var SelectedDifferentialEventsView = /** @class */ (function () {
     function SelectedDifferentialEventsView(spline, pointLoc, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -48209,8 +48209,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransitionCurvatureExtremaView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2 */ "./src/mathematics/BSpline_R1_to_R2.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../mathematics/BSpline_R1_to_R2_DifferentialProperties */ "./src/mathematics/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var TransitionCurvatureExtremaView = /** @class */ (function () {
     function TransitionCurvatureExtremaView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;

@@ -1,16 +1,16 @@
-import { OptimizationProblemInterface } from "./OptimizationProblemInterface"
-import { BSpline_R1_to_R2 } from "./BSpline_R1_to_R2";
-import { zeroVector, containsNaN, sign } from "./MathVectorBasicOperations";
-import { BSpline_R1_to_R1 } from "./BSpline_R1_to_R1";
-import { BernsteinDecomposition_R1_to_R1 } from "./BernsteinDecomposition_R1_to_R1";
-import { SymmetricMatrixInterface } from "./MatrixInterfaces";
-import { identityMatrix, DiagonalMatrix } from "./DiagonalMatrix";
-import { DenseMatrix } from "./DenseMatrix";
-import { SymmetricMatrix } from "./SymmetricMatrix";
+import { OptimizationProblemInterface } from "../optimizationProblemFacade/OptimizationProblemInterface"
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { zeroVector, containsNaN, sign } from "../linearAlgebra/MathVectorBasicOperations";
+import { BSpline_R1_to_R1 } from "../bsplines/BSpline_R1_to_R1";
+import { BernsteinDecomposition_R1_to_R1 } from "../bsplines/BernsteinDecomposition_R1_to_R1";
+import { SymmetricMatrixInterface } from "../linearAlgebra/MatrixInterfaces";
+import { identityMatrix, DiagonalMatrix } from "../linearAlgebra/DiagonalMatrix";
+import { DenseMatrix } from "../linearAlgebra/DenseMatrix";
+import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
-import { findSpan } from "./Piegl_Tiller_NURBS_Book";
-import { BSpline_R1_to_R2_DifferentialProperties } from "./BSpline_R1_to_R2_DifferentialProperties";
-import { Vector_2d } from "./Vector_2d";
+import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book";
+import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
+import { Vector_2d } from "../mathematics/Vector_2d";
 
 
 class ExpensiveComputationResults {
