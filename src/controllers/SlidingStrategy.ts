@@ -820,6 +820,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
         const p = this.curveModel.spline.controlPoints[selectedControlPoint]
         const controlPointsInit = this.curveModel.spline.controlPoints.slice()
+        const splineInit = this.curveModel.spline.clone()
         //console.log("CP before: ", JSON.parse(JSON.stringify(controlPointsInit)))
 
         /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
@@ -1043,9 +1044,9 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 delta.push(inc)
                             }
                             const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
-                            const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
-                            const curvatureExtremaLocationsOptim1 = functionBOptim.zeros()
-                            console.log("cDeriv1 ", functionBOptim.controlPoints + " zeros " + curvatureExtremaLocationsOptim1)
+                            const functionBOptim1 = splineDPoptim.curvatureDerivativeNumerator()
+                            const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
+                            console.log("cDeriv1 ", functionBOptim1.controlPoints + " zeros " + curvatureExtremaLocationsOptim1)
 
                             if(curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
                                 //neighboringEvents[i].event = NeighboringEventsType.none
@@ -1053,6 +1054,79 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 console.log("corrected curve at boundary is inside the shape space.")
                             } else {
                                 console.log("corrected curve has crossed the boundary of shape space.")
+                                const curvatureDerivativeOptim1 = functionBOptim1.derivative().zeros()
+                                const curvatureDerivative = functionB.derivative().zeros()
+                                if((curvatureExtremaLocationsOptim1.length - curvatureExtremaLocations.length) % 2 === 0) {
+                                    /* JCL 06/03/2021 Connfiguration where one or more couples of extrema appeared */
+                                    let curvatureExtremumInterval: number[] = []
+                                    let variations1: number[] = []
+                                    let variationsOptim1_2: number[] = []
+                                    for(let iOptim = 0; iOptim < curvatureDerivativeOptim1.length; iOptim +=1) {
+                                        let functionBExtremum =  functionBOptim1.evaluate(curvatureDerivativeOptim1[iOptim])
+                                        let currentNbExtremumLocations = curvatureExtremumInterval.length
+                                        for(let j = 0; j < curvatureExtremaLocationsOptim1.length - 1; j+=1) {
+                                            if(curvatureDerivativeOptim1[iOptim] > curvatureExtremaLocationsOptim1[j] && curvatureDerivativeOptim1[iOptim] < curvatureExtremaLocationsOptim1[j + 1]) {
+                                                curvatureExtremumInterval.push(j)
+                                                if(curvatureDerivative.length === curvatureDerivativeOptim1.length) {
+                                                    neighboringEvents[i].value = functionB.evaluate(curvatureDerivative[iOptim])
+                                                    neighboringEvents[i].locExt = curvatureDerivative[iOptim]
+                                                } else {
+                                                    let minDist = Math.abs(curvatureDerivative[0] - curvatureDerivativeOptim1[iOptim])
+                                                    let indexMin = 0
+                                                    for(let k = 1; k < curvatureDerivative.length; k +=1) {
+                                                        if(Math.abs(curvatureDerivative[k] - curvatureDerivativeOptim1[iOptim]) < minDist) {
+                                                            minDist = Math.abs(curvatureDerivative[k] - curvatureDerivativeOptim1[iOptim])
+                                                            indexMin = k
+                                                        }
+                                                    }
+                                                    neighboringEvents[i].value = functionB.evaluate(curvatureDerivative[indexMin])
+                                                    neighboringEvents[i].locExt = curvatureDerivative[indexMin]
+                                                }
+                                                neighboringEvents[i].valueOptim = functionBExtremum
+                                                neighboringEvents[i].locExtOptim = curvatureDerivativeOptim1[iOptim]
+                                                /* JCL 1/03/2021 Add the location of the curvature extrema about to enter the shape space for display purposes */
+                                                curvatureExtrema.push(curvatureExtremaLocationsOptim1[j])
+                                                curvatureExtrema.push(curvatureExtremaLocationsOptim1[j + 1])
+                                            }
+                                        }
+                                        if(currentNbExtremumLocations === curvatureExtremumInterval.length) console.log("Problem to locate a curvature derivative extremum. ")
+                                        if(functionBExtremum > 0.0) {
+                                            for(let j = 0; j < functionBOptim1.controlPoints.length; j +=1) {
+                                                //if(functionBOptim1.controlPoints[j] > 0.0) variations1.push(functionBOptim1.controlPoints[j] - functionBOptim.controlPoints[j])
+                                                variationsOptim1_2.push(functionBOptim1.controlPoints[j] - functionBOptim.controlPoints[j])
+                                                variations1.push(functionBOptim.controlPoints[j] - functionB.controlPoints[j])
+                                            }
+                                            console.log("variations1_2: " + variationsOptim1_2)
+                                        }
+                                    }
+                                    /* set constraints on some vertices of B(u) using the initial location of these vertices et re run the optimization */
+                                    neighboringEvents[i].variation = variations1
+                                    neighboringEvents[i].span = 0
+                                    neighboringEvents[i].range = 0
+                                    this.curveModel.setSpline(splineInit)
+                                    //const splineDP2 = new BSpline_R1_to_R2_DifferentialProperties(splineInit)
+                                    //const testfunctionB = splineDP2.curvatureDerivativeNumerator()
+                                    this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
+                                        activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema)
+                                    this.optimizer = this.newOptimizer(this.optimizationProblem)
+                                    this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+                                    this.optimizationProblem.setTargetSpline(this.curveModel.spline)
+                                    this.optimizationProblem.updateConstraintBound = true
+                                    console.log("start optimize with removal curvature extrema" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
+                                    this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
+                                    let delta: Vector_2d[] = []
+                                    for(let i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
+                                        let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
+                                        delta.push(inc)
+                                    }
+                                    this.optimizationProblem.cancelEvent()
+                                    const splineDPoptim2 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                    const functionBOptim2 = splineDPoptim2.curvatureDerivativeNumerator()
+                                    const curvatureExtremaLocationsOptim2 = functionBOptim2.zeros()
+                                    console.log("cDeriv2 ", functionBOptim2.controlPoints + " zeros " + curvatureExtremaLocationsOptim2)
+                                } else {
+                                    console.log("inconsistent configuration where an odd number of curvature extrema appear")
+                                }
                             }
                             /* JCL Add the curve relocation process */
                             if(this.curveSceneController.activeLocationControl === ActiveLocationControl.firstControlPoint) {
@@ -1379,6 +1453,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                         this.optimizationProblem.cancelEvent()
                                         console.log("corrected curve at boundary is inside the shape space.")
                                     } else {
+                                        this.optimizationProblem.cancelEvent()
                                         console.log("corrected curve has crossed the boundary of shape space.")
                                     }
                                     this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection

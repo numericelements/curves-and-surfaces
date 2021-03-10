@@ -54,8 +54,9 @@ export interface OptimizationProblemInterface {
     /**
      * Update all instance properties 
      * @param deltaX Vector
+     * JCL returns true if the curve is not analyzed or if the curve is analyzed but has no new differential event. If the number of differential has been modified by the update, returns false
      */
-    step(deltaX: number[]): void
+    step(deltaX: number[]): boolean
 
 
     /**

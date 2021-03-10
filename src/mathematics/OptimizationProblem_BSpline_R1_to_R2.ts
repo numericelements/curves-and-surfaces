@@ -203,6 +203,9 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
     }
 
     step(deltaX: number[]) {
+        // JCL 05/03/2021 add the checked status to enable stopping the iteration process if the curve is analyzed
+        let checked: boolean = true
+
         this.spline.optimizerStep(deltaX)
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this._gradient_f0)
@@ -225,6 +228,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         if (this.isComputingHessian) {
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
+
+        return checked
     }
 
     computeConstraintsSign(controlPoints: number[]) {
@@ -1136,6 +1141,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
             this.revertConstraints, this.constraintBound)
+        this.checkConstraintConsistency()
         if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("constraints at init:" + this._f)
         if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("curvature constraints at init:" + this.curvatureExtremaInactiveConstraints)
         if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("inflexion constraints at init:" + this.inflectionInactiveConstraints)
@@ -1147,6 +1153,51 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
 
+    }
+
+    checkConstraintConsistency() {
+        /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
+            As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
+            Consequently, each active constraint value must be negative. */
+        enum constraintType {curvatureExtremum, inflexion}
+        let invalidConstraints: {value: number, type: constraintType, index: number}[] = []
+        for(let i = 0; i < this._f.length; i += 1) {
+            if(this._f[i] > 0.0) {
+                let typeC: constraintType
+                let indexC: number
+                if (this.activeControl === ActiveControl.both) {
+                    typeC = constraintType.curvatureExtremum
+                    indexC = i
+                    if(i < this._curvatureExtremaNumberOfActiveConstraints) {
+                        for(let j = 0; j < this.curvatureExtremaInactiveConstraints.length; j +=1) {
+                            if(i > this.curvatureExtremaInactiveConstraints[j]) indexC = indexC + 1
+                        }
+                    } else {
+                        indexC = i - this._curvatureExtremaNumberOfActiveConstraints
+                        typeC = constraintType.inflexion
+                        for(let j = 0; j < this.inflectionInactiveConstraints.length; j +=1) {
+                            if(i > this.inflectionInactiveConstraints[j]) indexC = indexC + 1
+                        }
+                    }
+                } else if(this.activeControl === ActiveControl.curvatureExtrema) {
+                    typeC = constraintType.curvatureExtremum
+                    indexC = i
+                    for(let j = 0; j < this.curvatureExtremaInactiveConstraints.length; j +=1) {
+                        if(i > this.curvatureExtremaInactiveConstraints[j]) indexC = indexC + 1
+                    }
+                } else {
+                    typeC = constraintType.inflexion
+                    indexC = i
+                    for(let j = 0; j < this.inflectionInactiveConstraints.length; j +=1) {
+                        if(i > this.inflectionInactiveConstraints[j]) indexC = indexC + 1
+                    }
+                }
+                invalidConstraints.push({value: this._f[i], type: typeC, index: indexC})
+            }
+        }
+        if(invalidConstraints.length > 0) {
+            throw new Error("Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints))
+        }
     }
 
     computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
@@ -1630,8 +1681,13 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                                 if(this.controlPointsFunctionBInit[i] < 0 && this.neighboringEvent.value > 0 && this.neighboringEvent.valueOptim < 0) this.revertConstraints[i] = -1
                                 if(this.controlPointsFunctionBInit[i] > 0 && this.neighboringEvent.value < 0 && this.neighboringEvent.valueOptim > 0) {
                                     this.revertConstraints[i] = 1
-                                    //this.constraintBound[i] = this.controlPointsFunctionBInit[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
-                                    this.constraintBound[i] = -(this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                    if(this.neighboringEvent.variation[j] > 0) {
+                                        //this.constraintBound[i] = -(this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                        this.constraintBound[i] = this.controlPointsFunctionBInit[i] + (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
+                                    } else {
+                                        this.constraintBound[i] = this.controlPointsFunctionBInit[i] - 1.0e-7
+                                    }
+                                
                                 }
                             }
                                 //this.constraintBound[i] = controlPoints[i] - (this.neighboringEvent.variation[j] * this.neighboringEvent.value) / (this.neighboringEvent.valueOptim - this.neighboringEvent.value)
@@ -1694,10 +1750,35 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                         if(result.length > 0 && result.indexOf(0) !== -1) result.splice(result.indexOf(0), 1)
                         this.revertConstraints[0] = 1
                         this.constraintBound[0] = 0
+
                     } else if(this.shapeSpaceBoundaryConstraintsCurvExtrema[this.shapeSpaceBoundaryConstraintsCurvExtrema.length - 1] === this.spline.controlPoints.length - 1) {
                         if(result.length > 0 && result.indexOf(controlPoints.length - 1) !== -1) result.splice(result.indexOf(controlPoints.length - 1), 1)
                         this.revertConstraints[controlPoints.length - 1] = 1
                         this.constraintBound[controlPoints.length - 1] = 0
+                    }
+                    /* JCL 08/03/2021 Add constraint modifications to curvature extrema appearing based on a non null optimum value of B(u) */
+                    if(this.neighboringEvent.valueOptim !== 0.0 && this.neighboringEvent.variation !== undefined) {
+                        /* to be added: the interval span to be processed */
+                        for(let i = 1; i < controlPoints.length - 1; i+= 1){
+                            if(result.length > 0 && result.indexOf(i) !== -1) result.splice(result.indexOf(i), 1)
+                            this.revertConstraints[i] = 1
+                            this.constraintBound[i] = 0
+                            if(this.neighboringEvent.valueOptim > 0.0 && this.controlPointsFunctionBInit[i] > 0.0) {
+                                if(this.neighboringEvent.variation[i] > 0.0) {
+                                    this.revertConstraints[i] = -1
+                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] + this.neighboringEvent.variation[i]
+                                } else {
+                                    this.revertConstraints[i] = -1
+                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] + 1.0e-7
+                                }
+                            } else if(this.neighboringEvent.valueOptim < 0.0 && this.controlPointsFunctionBInit[i] < 0.0) {
+                                if(this.neighboringEvent.variation[i] < 0.0) {
+                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] + this.neighboringEvent.variation[i]
+                                } else {
+                                    this.constraintBound[i] = this.controlPointsFunctionBInit[i] + 1.0e-7
+                                }
+                            }
+                        }
                     }
                 } else console.log("Null content of shapeSpaceBoundaryConstraintsCurvExtrema.")
             } else {
@@ -1870,9 +1951,28 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
 
     step(deltaX: number[]) {
+        let checked: boolean = true
         let inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints
 
-        this.spline.optimizerStep(deltaX)
+        if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+            const splineDP = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+            const functionB = splineDP.curvatureDerivativeNumerator()
+            const curvatureExtremaLocations = functionB.zeros()
+            const splineCurrent = this.spline.clone()
+
+            this.spline.optimizerStep(deltaX)
+            const splineDPupdated = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+            const functionBupdated = splineDPupdated.curvatureDerivativeNumerator()
+            const curvatureExtremaLocationsUpdated = functionBupdated.zeros()
+            if(curvatureExtremaLocationsUpdated.length !== curvatureExtremaLocations.length) {
+                checked = false
+                this.spline = splineCurrent
+                console.log("extrema current: " + curvatureExtremaLocations + " extrema updated: " + curvatureExtremaLocationsUpdated)
+            }
+        } else {
+            this.spline.optimizerStep(deltaX)
+        }
+
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this._gradient_f0)
         const e = this.expensiveComputation(this.spline)  
@@ -1903,6 +2003,8 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         if (this.isComputingHessian) {
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
+
+        return checked
     }
 
     fStep(step: number[]) {
@@ -1926,12 +2028,16 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this.neighboringEvent.span = -1
         this.neighboringEvent.range = 0
 
-        const e = this.expensiveComputation(this.spline)  
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        this.constraintBound = zeroVector(g.length);
-        for(let i = 0; i < g.length; i += 1) {
+        //const e = this.expensiveComputation(this.spline)  
+        //const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.constraintBound = zeroVector(this.constraintBound.length);
+        for(let i = 0; i < this.revertConstraints.length; i += 1) {
             this.revertConstraints[i] = 1
         }
+        let delta = zeroVector(this.spline.controlPoints.length * 2);
+        this.updateConstraintBound = true;
+        this.step(delta);
+        this.checkConstraintConsistency();
     }
 
 }

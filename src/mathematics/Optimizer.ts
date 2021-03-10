@@ -38,6 +38,8 @@ export class Optimizer {
 
         /* JCL 2020/09/18 Collect the elementary steps prior to shift the control polygon */
         let globalStep: number[] = zeroVector(this.o.f.length)
+        // JCL 05/03/2021 add the use of checked to take into account the curve analysis
+        let checked:boolean = true
 
         while (this.o.numberOfConstraints / t > epsilon) {
             while (true) {
@@ -49,8 +51,6 @@ export class Optimizer {
                 if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
                     console.log("Problem about f length and gradient_f shape 0 is in the function optimize_using_trust_region")
                 }
-                
-
 
                 let b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f)
                 let gradient = saxpy2(t, this.o.gradient_f0, b.gradient)
@@ -92,7 +92,14 @@ export class Optimizer {
                     //console.log("number of gradient computation")
                     //console.log(numGradientComputation) 
                     //numGradientComputation = 0
-                    this.o.step(tr.step)
+                    // JCL 05/03/2021 modify the use of step to take into account the curve analysis
+                    //this.o.step(tr.step)
+                    checked = this.o.step(tr.step)
+                    if(!checked) {
+                        this.success = true
+                        console.log("terminate optimization without convergence. ")
+                        return;
+                    }
                 }
                 if (numSteps > maxNumSteps) {
                     //throw new Error("numSteps > maxNumSteps")
