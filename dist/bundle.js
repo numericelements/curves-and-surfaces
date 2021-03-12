@@ -38257,8 +38257,9 @@ var CurveSceneController = /** @class */ (function () {
                     this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
                     this.curveControl.resetCurve(this.curveModel);
                     if (this.activeLocationControl === ActiveLocationControl.both) {
-                        if (this.clampedControlPoints[0] === 0)
+                        if (this.clampedControlPoints[0] === 0) {
                             this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                        }
                         else
                             this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                     }
@@ -38377,8 +38378,9 @@ var CurveSceneController = /** @class */ (function () {
                 this.curveModel.spline.renewCurve(controlPoints, knots);
                 this.curveControl.resetCurve(this.curveModel);
                 if (this.activeLocationControl === ActiveLocationControl.both) {
-                    if (this.clampedControlPoints[0] === 0)
+                    if (this.clampedControlPoints[0] === 0) {
                         this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                    }
                     else
                         this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                 }
@@ -39709,8 +39711,9 @@ var SlidingStrategy = /** @class */ (function () {
                             result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[k] });
                         }
                     }
-                    if (refEventLocation.length - refEventLocationOptim.length === 2 && result.length === 0)
+                    if (refEventLocation.length - refEventLocationOptim.length === 2 && result.length === 0) {
                         result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocation[refEventLocation.length - 1] });
+                    }
                 }
             }
             else if (orderedDifferentialEvents.length - orderedDifferentialEventsOptim.length === -2 && inflectionIndices.length - inflectionIndicesOptim.length === -2) {
@@ -39772,8 +39775,9 @@ var SlidingStrategy = /** @class */ (function () {
                             result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[k] });
                         }
                     }
-                    if (refEventLocation.length - refEventLocationOptim.length === -2 && result.length === 0)
+                    if (refEventLocation.length - refEventLocationOptim.length === -2 && result.length === 0) {
                         result.push({ event: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, index: refEventLocationOptim[refEventLocationOptim.length - 1] });
+                    }
                 }
             }
             else {
@@ -40011,13 +40015,13 @@ var SlidingStrategy = /** @class */ (function () {
                         console.log("start optimize" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
                         try {
                             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
-                            var delta_1 = [];
-                            for (var i_1 = 0; i_1 < this.curveModel.spline.controlPoints.length; i_1 += 1) {
-                                var inc = this.optimizationProblem.spline.controlPoints[i_1].substract(this.curveModel.spline.controlPoints[i_1]);
-                                delta_1.push(inc);
+                            delta = [];
+                            for (var i2 = 0; i2 < this.curveModel.spline.controlPoints.length; i2 += 1) {
+                                var inc = this.optimizationProblem.spline.controlPoints[i2].substract(this.curveModel.spline.controlPoints[i2]);
+                                delta.push(inc);
                             }
-                            var splineDPoptim_1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                            var functionBOptim1 = splineDPoptim_1.curvatureDerivativeNumerator();
+                            var splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                            var functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator();
                             var curvatureExtremaLocationsOptim1 = functionBOptim1.zeros();
                             console.log("cDeriv1 ", functionBOptim1.controlPoints + " zeros " + curvatureExtremaLocationsOptim1);
                             if (curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
@@ -40047,10 +40051,10 @@ var SlidingStrategy = /** @class */ (function () {
                                                 else {
                                                     var minDist = Math.abs(curvatureDerivative[0] - curvatureDerivativeOptim1[iOptim]);
                                                     var indexMin = 0;
-                                                    for (var k = 1; k < curvatureDerivative.length; k += 1) {
-                                                        if (Math.abs(curvatureDerivative[k] - curvatureDerivativeOptim1[iOptim]) < minDist) {
-                                                            minDist = Math.abs(curvatureDerivative[k] - curvatureDerivativeOptim1[iOptim]);
-                                                            indexMin = k;
+                                                    for (var k1 = 1; k1 < curvatureDerivative.length; k1 += 1) {
+                                                        if (Math.abs(curvatureDerivative[k1] - curvatureDerivativeOptim1[iOptim]) < minDist) {
+                                                            minDist = Math.abs(curvatureDerivative[k1] - curvatureDerivativeOptim1[iOptim]);
+                                                            indexMin = k1;
                                                         }
                                                     }
                                                     neighboringEvents[i].value = functionB.evaluate(curvatureDerivative[indexMin]);
@@ -40088,10 +40092,10 @@ var SlidingStrategy = /** @class */ (function () {
                                     this.optimizationProblem.updateConstraintBound = true;
                                     console.log("start optimize with removal curvature extrema" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
-                                    var delta_2 = [];
-                                    for (var i_2 = 0; i_2 < this.curveModel.spline.controlPoints.length; i_2 += 1) {
-                                        var inc = this.optimizationProblem.spline.controlPoints[i_2].substract(this.curveModel.spline.controlPoints[i_2]);
-                                        delta_2.push(inc);
+                                    delta = [];
+                                    for (var i6 = 0; i6 < this.curveModel.spline.controlPoints.length; i6 += 1) {
+                                        var inc = this.optimizationProblem.spline.controlPoints[i6].substract(this.curveModel.spline.controlPoints[i6]);
+                                        delta.push(inc);
                                     }
                                     this.optimizationProblem.cancelEvent();
                                     var splineDPoptim2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
@@ -40106,15 +40110,15 @@ var SlidingStrategy = /** @class */ (function () {
                             /* JCL Add the curve relocation process */
                             if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
                                 /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
-                                this.optimizationProblem.spline.relocateAfterOptimization(delta_1, this.curveSceneController.activeLocationControl);
+                                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                             }
                             else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
-                                if (Math.abs(delta_1[delta_1.length - 1].substract(delta_1[0]).norm()) < 1.0E-6) {
+                                if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                                     /*console.log("optimize: s0sn constant")*/
                                     /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
-                                    delta_1[delta_1.length - 1] = delta_1[0];
-                                    this.optimizationProblem.spline.relocateAfterOptimization(delta_1, this.curveSceneController.activeLocationControl);
+                                    delta[delta.length - 1] = delta[0];
+                                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                     this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                                 }
                                 else {
@@ -40124,7 +40128,7 @@ var SlidingStrategy = /** @class */ (function () {
                                 }
                             }
                             else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
-                                this.optimizationProblem.spline.relocateAfterOptimization(delta_1, this.curveSceneController.activeLocationControl);
+                                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                                 //}
                             }
@@ -40159,9 +40163,9 @@ var SlidingStrategy = /** @class */ (function () {
                     }
                     else if (neighboringEvents[i].event === NeighboringEventsType.neighboringCurvatureExtrema) {
                         var extremaCurvatureDerivativeNumerator = functionB.derivative().zeros();
-                        var zeros = functionB.zeros();
+                        //let zeros = functionB.zeros()
                         var extremaCurvatureDerivativeNumeratorOptim = functionBOptim.derivative().zeros();
-                        var zerosOptim = functionBOptim.zeros();
+                        //let zerosOptim = functionBOptim.zeros()
                         var functionBExtremum = 0.0;
                         var functionBOptimExtremum = 0.0;
                         if (sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length) {
@@ -40230,8 +40234,8 @@ var SlidingStrategy = /** @class */ (function () {
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                     delta = [];
-                                    for (var i_3 = 0; i_3 < this.curveModel.spline.controlPoints.length; i_3 += 1) {
-                                        var inc = this.optimizationProblem.spline.controlPoints[i_3].substract(this.curveModel.spline.controlPoints[i_3]);
+                                    for (var i6 = 0; i6 < this.curveModel.spline.controlPoints.length; i6 += 1) {
+                                        var inc = this.optimizationProblem.spline.controlPoints[i6].substract(this.curveModel.spline.controlPoints[i6]);
                                         delta.push(inc);
                                     }
                                     var splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
@@ -40307,14 +40311,14 @@ var SlidingStrategy = /** @class */ (function () {
                                     try {
                                         this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                         delta = [];
-                                        for (var i_4 = 0; i_4 < this.curveModel.spline.controlPoints.length; i_4 += 1) {
-                                            var inc = this.optimizationProblem.spline.controlPoints[i_4].substract(this.curveModel.spline.controlPoints[i_4]);
+                                        for (var i3 = 0; i3 < this.curveModel.spline.controlPoints.length; i3 += 1) {
+                                            var inc = this.optimizationProblem.spline.controlPoints[i3].substract(this.curveModel.spline.controlPoints[i3]);
                                             delta.push(inc);
                                         }
-                                        var splineDPoptim_2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                                        var functionBOptim_1 = splineDPoptim_2.curvatureDerivativeNumerator();
-                                        var curvatureExtremaLocationsOptim_1 = functionBOptim_1.zeros();
-                                        if (curvatureExtremaLocationsOptim_1.length === curvatureExtremaLocations.length) {
+                                        var splineDPoptimCE = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                        var functionBOptimCE = splineDPoptimCE.curvatureDerivativeNumerator();
+                                        var curvatureExtremaLocationsOptimCE = functionBOptimCE.zeros();
+                                        if (curvatureExtremaLocationsOptimCE.length === curvatureExtremaLocations.length) {
                                             neighboringEvents[i].event = NeighboringEventsType.none;
                                             this.optimizationProblem.cancelEvent();
                                             console.log("One extremum: corrected curve at boundary is inside the shape space.");
@@ -40322,6 +40326,7 @@ var SlidingStrategy = /** @class */ (function () {
                                         else {
                                             console.log("One extremum: corrected curve has crossed the boundary of shape space.");
                                         }
+                                        /* JCL Missing the curve relocation process -> to add */
                                         this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.mergeExtremaAndInflection;
                                         this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.mergeExtrema;
                                         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
@@ -40440,14 +40445,14 @@ var SlidingStrategy = /** @class */ (function () {
                                 try {
                                     this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                     delta = [];
-                                    for (var i_5 = 0; i_5 < this.curveModel.spline.controlPoints.length; i_5 += 1) {
-                                        var inc = this.optimizationProblem.spline.controlPoints[i_5].substract(this.curveModel.spline.controlPoints[i_5]);
+                                    for (var i5 = 0; i5 < this.curveModel.spline.controlPoints.length; i5 += 1) {
+                                        var inc = this.optimizationProblem.spline.controlPoints[i5].substract(this.curveModel.spline.controlPoints[i5]);
                                         delta.push(inc);
                                     }
-                                    var splineDPoptim_3 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                                    var functionBOptim_2 = splineDPoptim_3.curvatureDerivativeNumerator();
-                                    var curvatureExtremaLocationsOptim_2 = functionBOptim_2.zeros();
-                                    if (curvatureExtremaLocationsOptim_2.length === curvatureExtremaLocations.length) {
+                                    var splineDPoptimCEA = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                    var functionBOptimCEA = splineDPoptimCEA.curvatureDerivativeNumerator();
+                                    var curvatureExtremaLocationsOptimCEA = functionBOptimCEA.zeros();
+                                    if (curvatureExtremaLocationsOptimCEA.length === curvatureExtremaLocations.length) {
                                         neighboringEvents[i].event = NeighboringEventsType.none;
                                         this.optimizationProblem.cancelEvent();
                                         console.log("corrected curve at boundary is inside the shape space.");
@@ -40457,7 +40462,7 @@ var SlidingStrategy = /** @class */ (function () {
                                         console.log("corrected curve has crossed the boundary of shape space.");
                                     }
                                     this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.mergeExtremaAndInflection;
-                                    this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.mergeExtrema;
+                                    this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.extremumEntering;
                                     /* JCL Add the curve relocation process */
                                     if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
                                         /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
@@ -40537,14 +40542,14 @@ var SlidingStrategy = /** @class */ (function () {
                                     try {
                                         this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
                                         delta = [];
-                                        for (var i_6 = 0; i_6 < this.curveModel.spline.controlPoints.length; i_6 += 1) {
-                                            var inc = this.optimizationProblem.spline.controlPoints[i_6].substract(this.curveModel.spline.controlPoints[i_6]);
+                                        for (var i4 = 0; i4 < this.curveModel.spline.controlPoints.length; i4 += 1) {
+                                            var inc = this.optimizationProblem.spline.controlPoints[i4].substract(this.curveModel.spline.controlPoints[i4]);
                                             delta.push(inc);
                                         }
-                                        var splineDPoptim_4 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
-                                        var functionBOptim_3 = splineDPoptim_4.curvatureDerivativeNumerator();
-                                        var curvatureExtremaLocationsOptim_3 = functionBOptim_3.zeros();
-                                        if (curvatureExtremaLocationsOptim_3.length === curvatureExtremaLocations.length) {
+                                        var splineDPoptimCE2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                        var functionBOptimCE2 = splineDPoptimCE2.curvatureDerivativeNumerator();
+                                        var curvatureExtremaLocationsOptimCE2 = functionBOptimCE2.zeros();
+                                        if (curvatureExtremaLocationsOptimCE2.length === curvatureExtremaLocations.length) {
                                             neighboringEvents[i].event = NeighboringEventsType.none;
                                             this.optimizationProblem.cancelEvent();
                                             console.log("One extremum appear: corrected curve at boundary is inside the shape space.");
