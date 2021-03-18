@@ -456,9 +456,9 @@ export class CurveSceneController implements SceneControllerInterface {
                     this.curveModel.spline.insertKnot(grevilleAbscissae[cp])
                     this.curveControl.resetCurve(this.curveModel)
                     if(this.activeLocationControl === ActiveLocationControl.both) {
-                        if(this.clampedControlPoints[0] === 0)
-                        this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                        else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                        if(this.clampedControlPoints[0] === 0) {
+                            this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                        } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                     }
                     else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
                         this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
@@ -583,9 +583,9 @@ export class CurveSceneController implements SceneControllerInterface {
                 this.curveControl.resetCurve(this.curveModel)
 
                 if(this.activeLocationControl === ActiveLocationControl.both) {
-                    if(this.clampedControlPoints[0] === 0)
-                    this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                    else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                    if(this.clampedControlPoints[0] === 0){
+                        this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                    } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                 }
                 else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
                     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1

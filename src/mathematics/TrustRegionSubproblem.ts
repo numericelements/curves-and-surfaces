@@ -67,7 +67,10 @@ export class TrustRegionSubproblem {
         this.cauchyPoint = this.computeCauchyPoint(trustRegionRadius)
         this.lambda = this.initialLambdas(trustRegionRadius)
         this.numberOfIterations = 0
+        /* JCL 2021/02/09 Try modify maxNumberOfIterations to reach a solution (original= 300)*/
         const maxNumberOfIterations = 300
+        //const maxNumberOfIterations = 400
+
         while (true) {
             this.numberOfIterations += 1
             // step 1.
