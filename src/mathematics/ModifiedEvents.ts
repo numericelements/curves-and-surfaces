@@ -1,4 +1,3 @@
-import { SequenceDifferentialEvents } from "../mathematics/SequenceDifferentialEvents";
 
 /*
 * Characterization of modified differential events of type curvature extrema within a sequence of differential events.
@@ -40,4 +39,5 @@ export class ModifiedCurvatureEvents {
     get nbEvents() {
         return this._nbEvents;
     }
+
 }

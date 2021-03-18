@@ -1,5 +1,4 @@
 import { DifferentialEventInSequence, DiffEventType } from "../mathematics/DifferentialEventInSequence";
-import { ModifiedCurvatureEvents } from "../mathematics/ModifiedEvents";
 
 /*
 * Set up a sequence of differential events as part of the characterization of a curve shape space
@@ -144,37 +143,6 @@ export class SequenceDifferentialEvents {
             }
         });
         return inflectionIndices;
-    }
-
-    locateModifiedCurvatureEvents(sequenceDiffEvents: SequenceDifferentialEvents): Array<ModifiedCurvatureEvents> {
-        let indicesInflectionInit: number[] = this.indicesInflection();
-        let indicesInflectionOptim: number[] = sequenceDiffEvents.indicesInflection();
-        let modifiedEvents: Array<ModifiedCurvatureEvents> = [];
-        if(this._sequence.length !== sequenceDiffEvents.length()) {
-            if(indicesInflectionInit.length === indicesInflectionOptim.length) {
-                let shift = 0;
-                for(let j = 0; j < indicesInflectionInit.length; j += 1) {
-                    let delta = indicesInflectionInit[j] - indicesInflectionOptim[j];
-                    if(delta !== shift) {
-                        let modEventInInterval = new ModifiedCurvatureEvents(indicesInflectionInit[j], (delta-shift));
-                        modifiedEvents.push(modEventInInterval);
-                        shift = shift + delta;
-                    }
-                }
-                if(indicesInflectionInit.length > 0 && modifiedEvents.length === 0) {
-                    // There are inflections and no changes in the first indicesInflectionInit.length intervals -> changes take place in the last interval
-                    let modEventInInterval = new ModifiedCurvatureEvents(indicesInflectionInit[indicesInflectionInit.length - 1], (this._sequence.length - sequenceDiffEvents.length()));
-                    modifiedEvents.push(modEventInInterval);
-                }
-                if(indicesInflectionInit.length === 0) {
-                    // There is no inflexion in the sequence of events -> all events take place in the 'first' interval
-                    let modEventInInterval = new ModifiedCurvatureEvents(0, (this._sequence.length - sequenceDiffEvents.length()));
-                    modifiedEvents.push(modEventInInterval);
-                }
-            }
-        }
-
-        return modifiedEvents;
     }
 
     checkTypeConsistency(): void {
