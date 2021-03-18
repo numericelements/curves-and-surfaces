@@ -1,11 +1,11 @@
 import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import {DifferentialEventShaders} from "./DifferentialEventShaders"
 import { IObserver } from "../designPatterns/Observer";
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-import { BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
-import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
 
 
 export class CurvatureExtremaView implements IObserver<BSpline_R1_to_R2_interface> {

@@ -1,7 +1,7 @@
 import { findSpan, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book"
 import { basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { decomposeFunction } from "./Piegl_Tiller_NURBS_Book"
-import { Vector_2d } from "./Vector_2d"
+import { Vector_2d } from "../mathematics/Vector_2d"
 import { BSpline_R1_to_R2 } from "./BSpline_R1_to_R2"
 
 

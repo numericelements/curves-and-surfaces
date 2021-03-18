@@ -1,6 +1,6 @@
-import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
+import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { IObserver, IObservable } from "../designPatterns/Observer";
-import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { Vector_2d } from "../mathematics/Vector_2d";
 
 export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {

@@ -8,7 +8,7 @@ import { FunctionBSceneControllerSqrtScaled } from "./controllers/FunctionBScene
 import { CurvatureSceneController } from "./controllers/CurvatureSceneController"
 import { AbsCurvatureSceneController } from "./controllers/AbsCurvatureSceneController"
 import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
-import { BSpline_R1_to_R2_interface } from "./mathematics/BSplineInterfaces"
+import { BSpline_R1_to_R2_interface } from "./bsplines/BSplineInterfaces"
 
 import { CurveModel } from "./models/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
