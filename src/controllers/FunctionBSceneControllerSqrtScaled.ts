@@ -1,15 +1,15 @@
 import { IObserver } from "../designPatterns/Observer";
-import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
-import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { ControlPointsShaders } from "../views/ControlPointsShaders";
 import { ControlPointsView } from "../views/ControlPointsView";
 import { ControlPolygonShaders } from "../views/ControlPolygonShaders";
 import { ControlPolygonView } from "../views/ControlPolygonView";
 import { CurveShaders } from "../views/CurveShaders";
 import { CurveView } from "../views/CurveView";
-import { BSpline_R1_to_R1 } from "../mathematics/BSpline_R1_to_R1";
+import { BSpline_R1_to_R1 } from "../bsplines/BSpline_R1_to_R1";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
-import { BSpline_R1_to_R2_DifferentialProperties } from "../mathematics/BSpline_R1_to_R2_DifferentialProperties";
+import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
 import { Vector_2d } from "../mathematics/Vector_2d";
 import { ChartController } from "./ChartController";
 

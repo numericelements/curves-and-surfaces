@@ -1,5 +1,5 @@
 import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import {CurveShaders} from "../views/CurveShaders"
 import { IObserver } from "../designPatterns/Observer";
 

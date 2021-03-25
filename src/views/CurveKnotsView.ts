@@ -1,9 +1,9 @@
 import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders"
 import { IObserver } from "../designPatterns/Observer";
 
-import { BSpline_R1_to_R2 } from "../mathematics/BSpline_R1_to_R2";
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 
 
 export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {

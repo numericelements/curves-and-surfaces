@@ -1,9 +1,9 @@
 // import { expect } from 'chai';
-// import { OptimizationProblem_BSpline_R1_to_R2} from '../src/mathematics/OptimizationProblem_BSpline_R1_to_R2';
-// import { create_BSpline_R1_to_R2, BSpline_R1_to_R2 } from '../src/mathematics/BSpline_R1_to_R2';
-// import { zeroVector, containsNaN } from '../src/mathematics/MathVectorBasicOperations';
-// import { identityMatrix } from '../src/mathematics/DiagonalMatrix';
-// import { BSpline_R1_to_R2_DifferentialProperties } from '../src/mathematics/BSpline_R1_to_R2_DifferentialProperties';
+// import { OptimizationProblem_BSpline_R1_to_R2} from '../src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2';
+// import { create_BSpline_R1_to_R2, BSpline_R1_to_R2 } from '../src/bsplines/BSpline_R1_to_R2';
+// import { zeroVector, containsNaN } from '../src/linearAlgebra/MathVectorBasicOperations';
+// import { identityMatrix } from '../src/linearAlgebra/DiagonalMatrix';
+// import { BSpline_R1_to_R2_DifferentialProperties } from '../src/bsplines/BSpline_R1_to_R2_DifferentialProperties';
 // import { Vector_2d } from '../src/mathematics/Vector_2d';
 
 

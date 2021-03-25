@@ -1,4 +1,4 @@
-import { Vector_2d } from "./Vector_2d"
+import { Vector_2d } from "../mathematics/Vector_2d"
 import { BSpline_R1_to_R2 } from "./BSpline_R1_to_R2";
 
 
