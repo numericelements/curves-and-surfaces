@@ -1,6 +1,10 @@
 
 /* named constants */
-import{ RETURN_ERR0R_CODE } from "./ComparatorOfSequencesDiffEvents";
+import { ONE_CURVEXT_EVENT_APPEAR_IN_FIRST_OR_LAST_INTERVAL } from "./ComparatorOfSequencesDiffEvents";
+import { TWO_CURVEXT_EVENTS_APPEAR } from "./ComparatorOfSequencesDiffEvents";
+
+/* named constants */
+import{ INITIAL_INTERV_INDEX } from "./NeighboringEvents";
 
 export class SequenceOfIntervals {
 
@@ -42,16 +46,16 @@ export class SequenceOfIntervals {
     }
 
     indexSmallestInterval(nbEvents: number): number {
-        let candidateEventIndex = RETURN_ERR0R_CODE;
+        let candidateEventIndex = INITIAL_INTERV_INDEX;
         let ratio: number[] = [];
-        if(nbEvents === 1 && this._sequence.length > 1) {
+        if(nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_FIRST_OR_LAST_INTERVAL && this._sequence.length > 1) {
             /* JCL Look at first and last intervals only. Other intervals add noise to get a consistent candidate interval */
             ratio.push(this._sequence[0]/this._span);
             ratio.push(this._sequence[this._sequence.length - 1]/this._span);
             if(ratio[0] < ratio[1]) candidateEventIndex = 0;
             else candidateEventIndex = this._sequence.length - 1;
 
-        } else if(nbEvents === 2 && this._sequence.length > 2) {
+        } else if(nbEvents === TWO_CURVEXT_EVENTS_APPEAR && this._sequence.length > 2) {
             for(let k = 0; k < this._sequence.length; k += 1) {
                 ratio.push(this._sequence[k]/this._span);
             }

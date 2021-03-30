@@ -1,10 +1,11 @@
 import { DifferentialEvent, InflectionEvent, CurvatureExtremumEvent } from "./DifferentialEvent";
-import { SequenceOfIntervals } from "./Sequence0fIntervals";
+import { SequenceOfIntervals } from "./SequenceOfIntervals";
+import { ModifiedCurvatureEvents } from "./ModifiedCurvatureEvents";
 
 /* named constants */
 import { ORDER_INFLECTION, ORDER_CURVATURE_EXTREMUM } from "./DifferentialEvent";
 import { CURVE_INTERVAL_SPAN, LOWER_BOUND_CURVE_INTERVAL, UPPER_BOUND_CURVE_INTERVAL} from "./ComparatorOfSequencesDiffEvents";
-import { ModifiedCurvatureEvents } from "./ModifiedEvents";
+import { TWO_CURVEXT_EVENTS_APPEAR, TWO_CURVEXT_EVENTS_DISAPPEAR } from "./ComparatorOfSequencesDiffEvents";
 
 /*
 * Set up a sequence of differential events as part of the characterization of a curve shape space
@@ -33,14 +34,14 @@ export class SequenceOfDifferentialEvents {
         this._sequence = [];
         if(curvatureExtrema !== undefined && inflections === undefined) {
             for(let i=0; i < curvatureExtrema.length; i += 1) {
-                let event = new CurvatureExtremumEvent(curvatureExtrema[i]);
+                const event = new CurvatureExtremumEvent(curvatureExtrema[i]);
                 this._sequence.push(event);
             }
         } else if(curvatureExtrema === undefined && inflections !== undefined) {
             if(inflections.length > 1) {
                 throw new Error("Unable to generate a sequence of differential events: too many consecutive inflections.");
             } else {
-                let event = new InflectionEvent(inflections[0]);
+                const event = new InflectionEvent(inflections[0]);
                 this._sequence.push(event);
             }
         } else if(curvatureExtrema !== undefined && inflections !== undefined) {
@@ -57,16 +58,16 @@ export class SequenceOfDifferentialEvents {
                 }
                 if(curvatureExtrema[i] > inflections[j]) {
                     while(curvatureExtrema[i] > inflections[j]) {
-                        let inflectionEvent = new InflectionEvent(inflections[j]);
+                        const inflectionEvent = new InflectionEvent(inflections[j]);
                         this._sequence.push(inflectionEvent);
                         j += 1;
                     }
                 }
-                let curvatureEvent = new CurvatureExtremumEvent(curvatureExtrema[i]);
+                const curvatureEvent = new CurvatureExtremumEvent(curvatureExtrema[i]);
                 this._sequence.push(curvatureEvent);
             }
             if(j < inflections.length) {
-                let inflectionEvent = new InflectionEvent(inflections[j]);
+                const inflectionEvent = new InflectionEvent(inflections[j]);
                 this._sequence.push(inflectionEvent);
                 j += 1;
             }
@@ -237,22 +238,22 @@ export class SequenceOfDifferentialEvents {
 
 
     checkConsistencyIntervalBtwInflections(modifiedEvent: ModifiedCurvatureEvents): void {
-        let inflectionIndex = modifiedEvent.indexInflection;
-        let nbModifiedEvents = modifiedEvent.nbEvents;
+        const inflectionIndex = modifiedEvent.indexInflection;
+        const nbModifiedEvents = modifiedEvent.nbEvents;
         if(this._indicesOfInflections.length > 2) {
             if(inflectionIndex > 0) {
-                if(nbModifiedEvents === 2 && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED) {
+                if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED) {
                     /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
                     throw new Error("Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
-                } else if(nbModifiedEvents === -2 && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED) {
+                } else if(nbModifiedEvents === TWO_CURVEXT_EVENTS_DISAPPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED) {
                     throw new Error("Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
                 }
             }
         }
         else if((inflectionIndex === 0 || inflectionIndex === this._indicesOfInflections.length) && this._indicesOfInflections.length > 0) {
-            if(nbModifiedEvents === 2 && inflectionIndex === 0 && this._indicesOfInflections[inflectionIndex] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
+            if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === 0 && this._indicesOfInflections[inflectionIndex] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
                 throw new Error("Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
-            } else if(nbModifiedEvents === 2 && inflectionIndex === this._indicesOfInflections.length && this._indicesOfInflections.length - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
+            } else if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === this._indicesOfInflections.length && this._indicesOfInflections.length - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
                 throw new Error("Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
             }
         }

@@ -1,7 +1,7 @@
 
-/*
+/**
 * Characterization of modified differential events of type curvature extrema within a sequence of differential events.
-* This object applies to configurations where inflections are invariant (constant number) when a curve gets modified.
+* It applies to configurations where inflections are invariant (constant number) when a curve gets modified.
 * The events are located within a sequence of differential events using the index of an inflection to identify the interval between two successive inflections
 */
 export class ModifiedCurvatureEvents {
