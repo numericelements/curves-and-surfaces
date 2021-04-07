@@ -40579,59 +40579,49 @@ exports.decomposeFunction = decomposeFunction;
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SequenceBSpline_R1_to_R2 = void 0;
-var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 /**
  * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
  * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
  */
-var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
-    __extends(SequenceBSpline_R1_to_R2, _super);
-    function SequenceBSpline_R1_to_R2() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.controlPolygons = [];
-        _this.knotVectors = [];
-        return _this;
+//xport class SequenceBSpline_R1_to_R2 extends BSpline_R1_to_R2 {
+var SequenceBSpline_R1_to_R2 = /** @class */ (function () {
+    function SequenceBSpline_R1_to_R2(controlPoints, knots) {
+        this.controlPolygons = [];
+        this.knotVectors = [];
+        //super(controlPoints, knots)
+        this.bSpline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPoints, knots);
+        this.controlPoints = this.bSpline.controlPoints;
+        this.knots = this.bSpline.knots;
+        this.degree = this.bSpline.degree;
     }
     /**
      * Create a B-Spline
      * @param controlPoints The control points array
      * @param knots The knot vector
      */
-    SequenceBSpline_R1_to_R2.prototype.setControlPoints = function (controlPoints) {
-        this.controlPoints = controlPoints;
-    };
+    // setControlPoints(controlPoints: Vector_2d[]) {
+    //     this.controlPoints = controlPoints
+    // }
     /**
      * Return a deep copy of this b-spline
      */
-    SequenceBSpline_R1_to_R2.prototype.clone = function () {
-        var cloneControlPoints = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            cloneControlPoints.push(new Vector_2d_1.Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y));
-        }
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
-    };
+    // clone() {
+    //     let cloneControlPoints: Vector_2d[] = []
+    //     for (let i = 0; i < this.controlPoints.length; i += 1) {
+    //         cloneControlPoints.push(new Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y))
+    //     }
+    //     return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
+    // }
     /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
     SequenceBSpline_R1_to_R2.prototype.degreeIncrease = function () {
         var degree = this.degree;
         this.generateIntermediateSplinesForDegreeElevation();
         var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
-        if (this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
+        //if(this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
+        if (this.bSpline.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.bSpline.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
             for (var i = 1; i <= this.degree; i += 1) {
                 var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
                 var j = 0, k = 0;
@@ -40645,8 +40635,8 @@ var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
                     j += 1;
                     k += 1;
                 }
-                for (var j_1 = 0; j_1 < splineHigherDegree.controlPoints.length; j_1 += 1) {
-                    splineHigherDegree.controlPoints[j_1] = splineHigherDegree.controlPoints[j_1].add(splineTemp.controlPoints[j_1]);
+                for (var ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
+                    splineHigherDegree.controlPoints[ind] = splineHigherDegree.controlPoints[ind].add(splineTemp.controlPoints[ind]);
                 }
             }
             for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
@@ -40662,13 +40652,12 @@ var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
         for (var i = 0; i <= this.degree; i += 1) {
             var knotVector = this.knots.slice();
             var controlPolygon = this.controlPoints.slice();
-            var nullVector = [];
             var k = 0;
             for (var j = i; j < this.knots.length; j += this.degree + 1) {
-                nullVector = knotVector.splice((j + k), 0, this.knots[j]);
+                knotVector.splice((j + k), 0, this.knots[j]);
                 if (j < this.controlPoints.length) {
                     var controlPoint = this.controlPoints[j];
-                    nullVector = controlPolygon.splice((j + k), 0, controlPoint);
+                    controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
@@ -40677,7 +40666,7 @@ var SequenceBSpline_R1_to_R2 = /** @class */ (function (_super) {
         }
     };
     return SequenceBSpline_R1_to_R2;
-}(BSpline_R1_to_R2_1.BSpline_R1_to_R2));
+}());
 exports.SequenceBSpline_R1_to_R2 = SequenceBSpline_R1_to_R2;
 
 
