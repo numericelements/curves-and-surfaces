@@ -27,7 +27,7 @@ import { Vector_2d } from "../mathematics/Vector_2d";
 /* JCL 2020/10/02 Add the visualization of knots */
 import { CurveKnotsView } from "../views/CurveKnotsView"
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders";
-import { SequenceBSpline_R1_to_R2 } from "../bsplines/SequenceBSpline_R1_to_R2";
+import { BSpline_R1_to_R2_degree_Raising } from "../bsplines/BSpline_R1_to_R2_degree_Raising";
 
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
@@ -574,7 +574,7 @@ export class CurveSceneController implements SceneControllerInterface {
                 let controlPoints = this.curveModel.spline.controlPoints
                 let knots = this.curveModel.spline.knots
                 for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                    let aSpline = new SequenceBSpline_R1_to_R2(controlPoints, knots)
+                    let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
                     let newSpline = aSpline.degreeIncrease()
                     controlPoints = newSpline.controlPoints
                     knots = newSpline.knots

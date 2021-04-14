@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Vector_2d } from '../src/mathematics/Vector_2d';
+import { Vector_2d } from '../../src/mathematics/Vector_2d';
 
 describe('Vector_2d', () => {
     

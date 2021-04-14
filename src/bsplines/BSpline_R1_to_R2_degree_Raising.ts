@@ -6,23 +6,16 @@ import { BSpline_R1_to_R2 } from "./BSpline_R1_to_R2";
  * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
  * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
  */
-//xport class SequenceBSpline_R1_to_R2 extends BSpline_R1_to_R2 {
-export class SequenceBSpline_R1_to_R2 {
+
+export class BSpline_R1_to_R2_degree_Raising {
 
 
     private controlPolygons: Array< Vector_2d [] > = []
     private knotVectors: Array< number[] > = []
-    private controlPoints: Vector_2d[]
-    private knots: Array<number>
-    private degree: number
     private bSpline: BSpline_R1_to_R2
 
     constructor(controlPoints: Vector_2d[], knots: Array<number>) {
-        //super(controlPoints, knots)
         this.bSpline = new BSpline_R1_to_R2(controlPoints, knots)
-        this.controlPoints = this.bSpline.controlPoints
-        this.knots = this.bSpline.knots
-        this.degree = this.bSpline.degree
     }
 
     /**
@@ -31,31 +24,14 @@ export class SequenceBSpline_R1_to_R2 {
      * @param knots The knot vector
      */
 
-    // setControlPoints(controlPoints: Vector_2d[]) {
-    //     this.controlPoints = controlPoints
-    // }
-
-    /**
-     * Return a deep copy of this b-spline
-     */
-    // clone() {
-    //     let cloneControlPoints: Vector_2d[] = []
-    //     for (let i = 0; i < this.controlPoints.length; i += 1) {
-    //         cloneControlPoints.push(new Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y))
-    //     }
-    //     return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
-    // }
-
-
 
     /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
     degreeIncrease(): BSpline_R1_to_R2 {
-        let degree = this.degree
+        let degree = this.bSpline.degree
         this.generateIntermediateSplinesForDegreeElevation ()
         let splineHigherDegree = new BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0])
-        //if(this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
-        if(this.bSpline.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.bSpline.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
-            for( let i = 1; i <= this.degree; i += 1) {
+        if(this.bSpline.knotMultiplicity(this.bSpline.knots[0]) !== this.bSpline.degree + 1 || this.bSpline.knotMultiplicity(this.bSpline.knots[this.bSpline.knots.length - 1]) !== this.bSpline.degree + 1) {
+            for( let i = 1; i <= this.bSpline.degree; i += 1) {
                 let splineTemp = new BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i])
                 let j = 0, k = 0
                 while(j < splineHigherDegree.knots.length) {
@@ -81,14 +57,14 @@ export class SequenceBSpline_R1_to_R2 {
     }
 
     generateIntermediateSplinesForDegreeElevation() {
-        for(let i = 0; i <= this.degree; i+= 1) {
-            let knotVector = this.knots.slice()
-            let controlPolygon = this.controlPoints.slice()
+        for(let i = 0; i <= this.bSpline.degree; i+= 1) {
+            let knotVector = this.bSpline.knots.slice()
+            let controlPolygon = this.bSpline.controlPoints.slice()
             let k = 0
-            for(let j = i; j < this.knots.length; j += this.degree + 1) {
-                knotVector.splice((j + k), 0, this.knots[j])
-                if(j < this.controlPoints.length) {
-                    let controlPoint = this.controlPoints[j]
+            for(let j = i; j < this.bSpline.knots.length; j += this.bSpline.degree + 1) {
+                knotVector.splice((j + k), 0, this.bSpline.knots[j])
+                if(j < this.bSpline.controlPoints.length) {
+                    let controlPoint = this.bSpline.controlPoints[j]
                     controlPolygon.splice((j + k), 0, controlPoint)
                 }
                 k += 1

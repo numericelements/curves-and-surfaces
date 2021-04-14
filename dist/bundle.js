@@ -40229,6 +40229,89 @@ exports.BSpline_R1_to_R2_DifferentialProperties = BSpline_R1_to_R2_DifferentialP
 
 /***/ }),
 
+/***/ "./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts":
+/*!*********************************************************!*\
+  !*** ./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSpline_R1_to_R2_degree_Raising = void 0;
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+/**
+ * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
+ * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
+ */
+var BSpline_R1_to_R2_degree_Raising = /** @class */ (function () {
+    function BSpline_R1_to_R2_degree_Raising(controlPoints, knots) {
+        this.controlPolygons = [];
+        this.knotVectors = [];
+        this.bSpline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPoints, knots);
+    }
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
+    BSpline_R1_to_R2_degree_Raising.prototype.degreeIncrease = function () {
+        var degree = this.bSpline.degree;
+        this.generateIntermediateSplinesForDegreeElevation();
+        var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
+        if (this.bSpline.knotMultiplicity(this.bSpline.knots[0]) !== this.bSpline.degree + 1 || this.bSpline.knotMultiplicity(this.bSpline.knots[this.bSpline.knots.length - 1]) !== this.bSpline.degree + 1) {
+            for (var i = 1; i <= this.bSpline.degree; i += 1) {
+                var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
+                var j = 0, k = 0;
+                while (j < splineHigherDegree.knots.length) {
+                    if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
+                        splineTemp.insertKnot(splineHigherDegree.knots[j]);
+                    }
+                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
+                        splineHigherDegree.insertKnot(splineTemp.knots[k]);
+                    }
+                    j += 1;
+                    k += 1;
+                }
+                for (var ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
+                    splineHigherDegree.controlPoints[ind] = splineHigherDegree.controlPoints[ind].add(splineTemp.controlPoints[ind]);
+                }
+            }
+            for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
+                splineHigherDegree.controlPoints[j] = splineHigherDegree.controlPoints[j].multiply(1 / (degree + 1));
+            }
+            console.log("degreeIncrease: " + splineHigherDegree.knots);
+        }
+        else
+            throw new Error('incompatible knot vector of the input spline');
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
+    };
+    BSpline_R1_to_R2_degree_Raising.prototype.generateIntermediateSplinesForDegreeElevation = function () {
+        for (var i = 0; i <= this.bSpline.degree; i += 1) {
+            var knotVector = this.bSpline.knots.slice();
+            var controlPolygon = this.bSpline.controlPoints.slice();
+            var k = 0;
+            for (var j = i; j < this.bSpline.knots.length; j += this.bSpline.degree + 1) {
+                knotVector.splice((j + k), 0, this.bSpline.knots[j]);
+                if (j < this.bSpline.controlPoints.length) {
+                    var controlPoint = this.bSpline.controlPoints[j];
+                    controlPolygon.splice((j + k), 0, controlPoint);
+                }
+                k += 1;
+            }
+            this.knotVectors.push(knotVector);
+            this.controlPolygons.push(controlPolygon);
+        }
+    };
+    return BSpline_R1_to_R2_degree_Raising;
+}());
+exports.BSpline_R1_to_R2_degree_Raising = BSpline_R1_to_R2_degree_Raising;
+
+
+/***/ }),
+
 /***/ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts":
 /*!*********************************************************!*\
   !*** ./src/bsplines/BernsteinDecomposition_R1_to_R1.ts ***!
@@ -40570,108 +40653,6 @@ exports.decomposeFunction = decomposeFunction;
 
 /***/ }),
 
-/***/ "./src/bsplines/SequenceBSpline_R1_to_R2.ts":
-/*!**************************************************!*\
-  !*** ./src/bsplines/SequenceBSpline_R1_to_R2.ts ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SequenceBSpline_R1_to_R2 = void 0;
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
-/**
- * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
- * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
- */
-//xport class SequenceBSpline_R1_to_R2 extends BSpline_R1_to_R2 {
-var SequenceBSpline_R1_to_R2 = /** @class */ (function () {
-    function SequenceBSpline_R1_to_R2(controlPoints, knots) {
-        this.controlPolygons = [];
-        this.knotVectors = [];
-        //super(controlPoints, knots)
-        this.bSpline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPoints, knots);
-        this.controlPoints = this.bSpline.controlPoints;
-        this.knots = this.bSpline.knots;
-        this.degree = this.bSpline.degree;
-    }
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    // setControlPoints(controlPoints: Vector_2d[]) {
-    //     this.controlPoints = controlPoints
-    // }
-    /**
-     * Return a deep copy of this b-spline
-     */
-    // clone() {
-    //     let cloneControlPoints: Vector_2d[] = []
-    //     for (let i = 0; i < this.controlPoints.length; i += 1) {
-    //         cloneControlPoints.push(new Vector_2d(this.controlPoints[i].x, this.controlPoints[i].y))
-    //     }
-    //     return new BSpline_R1_to_R2(cloneControlPoints, this.knots.slice());
-    // }
-    /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
-    SequenceBSpline_R1_to_R2.prototype.degreeIncrease = function () {
-        var degree = this.degree;
-        this.generateIntermediateSplinesForDegreeElevation();
-        var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
-        //if(this.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
-        if (this.bSpline.knotMultiplicity(this.knots[0]) !== this.degree + 1 || this.bSpline.knotMultiplicity(this.knots[this.knots.length - 1]) !== this.degree + 1) {
-            for (var i = 1; i <= this.degree; i += 1) {
-                var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
-                var j = 0, k = 0;
-                while (j < splineHigherDegree.knots.length) {
-                    if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
-                        splineTemp.insertKnot(splineHigherDegree.knots[j]);
-                    }
-                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
-                        splineHigherDegree.insertKnot(splineTemp.knots[k]);
-                    }
-                    j += 1;
-                    k += 1;
-                }
-                for (var ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
-                    splineHigherDegree.controlPoints[ind] = splineHigherDegree.controlPoints[ind].add(splineTemp.controlPoints[ind]);
-                }
-            }
-            for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
-                splineHigherDegree.controlPoints[j] = splineHigherDegree.controlPoints[j].multiply(1 / (degree + 1));
-            }
-            console.log("degreeIncrease: " + splineHigherDegree.knots);
-        }
-        else
-            throw new Error('incompatible knot vector of the input spline');
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
-    };
-    SequenceBSpline_R1_to_R2.prototype.generateIntermediateSplinesForDegreeElevation = function () {
-        for (var i = 0; i <= this.degree; i += 1) {
-            var knotVector = this.knots.slice();
-            var controlPolygon = this.controlPoints.slice();
-            var k = 0;
-            for (var j = i; j < this.knots.length; j += this.degree + 1) {
-                knotVector.splice((j + k), 0, this.knots[j]);
-                if (j < this.controlPoints.length) {
-                    var controlPoint = this.controlPoints[j];
-                    controlPolygon.splice((j + k), 0, controlPoint);
-                }
-                k += 1;
-            }
-            this.knotVectors.push(knotVector);
-            this.controlPolygons.push(controlPolygon);
-        }
-    };
-    return SequenceBSpline_R1_to_R2;
-}());
-exports.SequenceBSpline_R1_to_R2 = SequenceBSpline_R1_to_R2;
-
-
-/***/ }),
-
 /***/ "./src/controllers/AbsCurvatureSceneController.ts":
 /*!********************************************************!*\
   !*** ./src/controllers/AbsCurvatureSceneController.ts ***!
@@ -40990,7 +40971,7 @@ var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlP
 /* JCL 2020/10/02 Add the visualization of knots */
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
 var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ "./src/views/CurveKnotsShaders.ts");
-var SequenceBSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/SequenceBSpline_R1_to_R2 */ "./src/bsplines/SequenceBSpline_R1_to_R2.ts");
+var BSpline_R1_to_R2_degree_Raising_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_degree_Raising */ "./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts");
 //import * as fs from "fs";
 var file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
@@ -41522,7 +41503,7 @@ var CurveSceneController = /** @class */ (function () {
                 var controlPoints = this.curveModel.spline.controlPoints;
                 var knots = this.curveModel.spline.knots;
                 for (var i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                    var aSpline = new SequenceBSpline_R1_to_R2_1.SequenceBSpline_R1_to_R2(controlPoints, knots);
+                    var aSpline = new BSpline_R1_to_R2_degree_Raising_1.BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
                     var newSpline = aSpline.degreeIncrease();
                     controlPoints = newSpline.controlPoints;
                     knots = newSpline.knots;

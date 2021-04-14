@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { SequenceOfIntervals } from "../src/sequenceOfDifferentialEvents/SequenceOfIntervals";
-import { MaxIntervalVariation } from "../src/sequenceOfDifferentialEvents/MaxIntervalVariation";
-import { ComparatorOfSequencesOfIntervals } from "../src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals";
+import { SequenceOfIntervals } from "../../src/sequenceOfDifferentialEvents/SequenceOfIntervals";
+import { MaxIntervalVariation } from "../../src/sequenceOfDifferentialEvents/MaxIntervalVariation";
+import { ComparatorOfSequencesOfIntervals } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals";
 
 describe('ComparatorOfSequencesOfIntervals', () => {
 

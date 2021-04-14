@@ -1,7 +1,7 @@
  import { expect } from 'chai';
- import { BSpline_R1_to_R2 } from '../src/bsplines/BSpline_R1_to_R2';
- import { create_BSpline_R1_to_R2 } from '../src/bsplines/BSpline_R1_to_R2';
- import { Vector_2d } from '../src/mathematics/Vector_2d';
+ import { BSpline_R1_to_R2 } from '../../src/bsplines/BSpline_R1_to_R2';
+ import { create_BSpline_R1_to_R2 } from '../../src/bsplines/BSpline_R1_to_R2';
+ import { Vector_2d } from '../../src/mathematics/Vector_2d';
 
  describe('BSpline_R1_to_R2', () => {
     

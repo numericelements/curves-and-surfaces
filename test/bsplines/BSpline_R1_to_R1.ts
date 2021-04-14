@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { BSpline_R1_to_R1 } from '../src/bsplines/BSpline_R1_to_R1';
+import { BSpline_R1_to_R1 } from '../../src/bsplines/BSpline_R1_to_R1';
 
 describe('BSpline_R1_to_R1', () => {
     

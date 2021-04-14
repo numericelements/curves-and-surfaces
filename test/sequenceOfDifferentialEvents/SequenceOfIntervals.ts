@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { SequenceOfIntervals } from "../src/sequenceOfDifferentialEvents/SequenceOfIntervals";
+import { SequenceOfIntervals } from "../../src/sequenceOfDifferentialEvents/SequenceOfIntervals";
 
 describe('SequenceOfIntervals', () => {
 
