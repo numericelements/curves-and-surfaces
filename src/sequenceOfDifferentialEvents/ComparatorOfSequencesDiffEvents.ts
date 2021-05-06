@@ -3,7 +3,7 @@ import { ModifiedCurvatureEvents } from "./ModifiedCurvatureEvents";
 import { NeighboringEvents, NeighboringEventsType } from "./NeighboringEvents";
 import { SequenceOfIntervals } from "./SequenceOfIntervals";
 import { ComparatorOfSequencesOfIntervals } from "./ComparatorOfSequencesOfIntervals";
-import { LocalizerOfCurvatureExtremumInsideFirstOrLastInterval } from "./LocalizerOfDifferentialEvents";
+import { LocalizerOfCurvatureExtremumInsideFirstOrLastInterval, LocalizerOfCurvatureExtremaAppearing, LocalizerOfCurvatureExtremaDisappearing } from "./LocalizerOfDifferentialEvents";
 
 
 export const UPPER_BOUND_CURVE_INTERVAL = 1.0;
@@ -31,11 +31,11 @@ export class ComparatorOfSequencesOfDiffEvents {
 
     /**
      * Compare the sequences of differential events _sequenceDiffEvents1 and _sequenceDiffEvents2 to look for curvature extrema changes (appearing/disappearing)
-     * when the number of inflections is identical in each sequence
-     * @returns an array of ModifiedCurvatureEvents where each interval is defined by two successive inflections. This interval is characterized by the 
-     * right inflection identified by its INDEX in the array of indices of inflections found in _sequenceDiffEvents1. When event changes occur in the last interval
-     * of _sequenceDiffEvents1, i.e., after the last inflection of this sequence, the right bound of this interval is set to: indicesInflection1.length
-     * (the number inflections + 1).
+     * when the number of inflections is identical in each sequence:
+     * @returns : array of ModifiedCurvatureEvents where each interval is defined by two successive inflections. 
+     * This interval is characterized by the right inflection identified by its INDEX in the array of indices of inflections found in _sequenceDiffEvents1. 
+     * When event changes occur in the last interval of _sequenceDiffEvents1, i.e., after the last inflection of this sequence, the right bound of this interval 
+     * is set to: indicesInflection1.length (the number inflections + 1).
      */
     locateIntervalAndNumberOfEventChanges(): Array<ModifiedCurvatureEvents> {
         if(this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
@@ -74,12 +74,13 @@ export class ComparatorOfSequencesOfDiffEvents {
                 // No change in curvature extrema has been identified as well as no change in inflections
                 throw new Error("Inconsistent analysis of lost events in the sequence of differential events.");
             } else {
-                
+                // Changes in curvature extrema and/or inflections have taken place but have not been identified
+                throw new Error("Error when comparing the sequences of events. Some changes occured but where not correctly identified.");
             }
 
         } else if(this.modifiedEvents.length === 1) {
             this._sequenceDiffEvents1.checkConsistencyIntervalBtwInflections(this.modifiedEvents[0]);
-            if(this.modifiedEvents[0].nbEvents === 1 && this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+            if(this.modifiedEvents[0].nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_FIRST_OR_LAST_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
                 // Because there is only one event disappearing and this event is of type curvature extremum, it can take place eitehr in the first or in the last interval
                 if(this.modifiedEvents[0].indexInflection === 0) {
                     let locatorCurvatureEvent = new LocalizerOfCurvatureExtremumInsideFirstOrLastInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, this.modifiedEvents[0].indexInflection);
@@ -93,6 +94,23 @@ export class ComparatorOfSequencesOfDiffEvents {
                     throw new Error("Inconsistent content of events in this interval.");
                 }
             }
+            else if(this.modifiedEvents[0].nbEvents === TWO_CURVEXT_EVENTS_APPEAR && this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+                // There are only two events appearing and these events are of type curvature extremum. They take place in the first or in the last intervals 
+                // or between two consecutive inflections
+                let locatorCurvEventAppearing = new LocalizerOfCurvatureExtremaAppearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, this.modifiedEvents[0].indexInflection);
+                let neighboringEvent: NeighboringEvents = locatorCurvEventAppearing.locateCurvatureExtremaBetweenInflections();
+                this.neighboringEvents.push(neighboringEvent);
+            }
+            else if(this.modifiedEvents[0].nbEvents === TWO_CURVEXT_EVENTS_DISAPPEAR && this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+                // There are only two events disappearing and these events are of type curvature extremum. They take place in the first or in the last intervals 
+                // or between two consecutive inflections
+                let locatorCurvEventDisappearing = new LocalizerOfCurvatureExtremaDisappearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, this.modifiedEvents[0].indexInflection);
+                let neighboringEvent: NeighboringEvents = locatorCurvEventDisappearing.locateCurvatureExtremaBetweenInflections();
+                this.neighboringEvents.push(neighboringEvent);
+            }
+        }
+        else if(this.modifiedEvents.length === 2) {
+            // to do: multiple events occrring at the same time
         }
         return;
     }
