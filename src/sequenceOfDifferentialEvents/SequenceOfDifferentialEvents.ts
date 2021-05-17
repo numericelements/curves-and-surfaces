@@ -4,8 +4,11 @@ import { ModifiedCurvatureEvents } from "./ModifiedCurvatureEvents";
 
 /* named constants */
 import { ORDER_INFLECTION, ORDER_CURVATURE_EXTREMUM } from "./DifferentialEvent";
-import { CURVE_INTERVAL_SPAN, LOWER_BOUND_CURVE_INTERVAL, UPPER_BOUND_CURVE_INTERVAL} from "./ComparatorOfSequencesDiffEvents";
-import { TWO_CURVEXT_EVENTS_APPEAR, TWO_CURVEXT_EVENTS_DISAPPEAR } from "./ComparatorOfSequencesDiffEvents";
+import { CURVE_INTERVAL_SPAN,
+        LOWER_BOUND_CURVE_INTERVAL, 
+        UPPER_BOUND_CURVE_INTERVAL,
+        TWO_CURVEXT_EVENTS_APPEAR,
+        TWO_CURVEXT_EVENTS_DISAPPEAR} from "./ComparatorOfSequencesDiffEvents";
 
 /*
 * Set up a sequence of differential events as part of the characterization of a curve shape space
@@ -33,8 +36,8 @@ export class SequenceOfDifferentialEvents {
     constructor(curvatureExtrema?: number[], inflections?: number[]) {
         this._sequence = [];
         if(curvatureExtrema !== undefined && inflections === undefined) {
-            for(let i=0; i < curvatureExtrema.length; i += 1) {
-                const event = new CurvatureExtremumEvent(curvatureExtrema[i]);
+            for(let curvatExtremum of curvatureExtrema) {
+                const event = new CurvatureExtremumEvent(curvatExtremum);
                 this._sequence.push(event);
             }
         } else if(curvatureExtrema === undefined && inflections !== undefined) {
@@ -157,6 +160,17 @@ export class SequenceOfDifferentialEvents {
             }
         });
         return inflectionIndices;
+    }
+
+    generateIndicesOscillations(): number[] {
+        let oscillationIndices: number[] = [];
+        for(let index of this._indicesOfInflections) {
+            if(this._sequence.length > index + 2 &&
+                this._sequence[index + 1].order === ORDER_CURVATURE_EXTREMUM && this._sequence[index + 2].order === ORDER_INFLECTION) {
+                    oscillationIndices.push(index);
+                }
+        }
+        return oscillationIndices;
     }
 
     computeIntervalsBtwCurvatureExtrema(indexInflection: number): SequenceOfIntervals {
