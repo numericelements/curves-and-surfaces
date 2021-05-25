@@ -2,12 +2,16 @@ import { SequenceOfDifferentialEvents } from "./SequenceOfDifferentialEvents";
 import { SequenceOfIntervals } from "./SequenceOfIntervals";
 import { ComparatorOfSequencesOfIntervals } from "./ComparatorOfSequencesOfIntervals";
 import { NeighboringEvents } from "./NeighboringEvents";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 /* named constants */
 import { ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL, 
         ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL,
+        ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL,
         TWO_CURVEXT_EVENTS_APPEAR,
         TWO_CURVEXT_EVENTS_DISAPPEAR,
+        TWO_INFLECTIONS_EVENTS_APPEAR,
+        TWO_INFLECTIONS_EVENTS_DISAPPEAR,
         UPPER_BOUND_CURVE_INTERVAL
         } from "./ComparatorOfSequencesDiffEvents";
 import { INITIAL_INTERV_INDEX,
@@ -31,6 +35,8 @@ export abstract class LocalizerOfDifferentialEvents {
         this.location = indexInflection;
     }
 
+    abstract locateDifferentialEvents(): NeighboringEvents;
+
 }
 
 export abstract class LocalizerOfCurvatureExtremumInsideExtremeInterval extends LocalizerOfDifferentialEvents {
@@ -46,99 +52,7 @@ export abstract class LocalizerOfCurvatureExtremumInsideExtremeInterval extends 
         this.comparatorSequenceOfIntervals = new ComparatorOfSequencesOfIntervals(this.intervalsBtwExtrema1, this.intervalsBtwExtrema2);
     }
 
-
-    // locateCurvatureExtremumInsideFirstInterval(): NeighboringEvents {
-    //     let ratioLeft = 0.0, ratioRight = 0.0;
-    //     let indexMaxInterVar = INITIAL_INTERV_INDEX;
-    //     if(this.intervalsBtwExtrema2.sequence.length > 0) {
-    //         ratioLeft = (this.intervalsBtwExtrema2.sequence[0]/this.intervalsBtwExtrema2.span)/(this.intervalsBtwExtrema1.sequence[0]/this.intervalsBtwExtrema1.span);
-    //         ratioRight = (this.intervalsBtwExtrema2.sequence[this.intervalsBtwExtrema2.sequence.length - 1]/this.intervalsBtwExtrema2.span)/(this.intervalsBtwExtrema1.sequence[this.intervalsBtwExtrema1.sequence.length - 1]/this.intervalsBtwExtrema1.span);
-    //         if(ratioLeft > ratioRight) {
-    //             indexMaxInterVar = 0;
-    //             this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderReverseScan(indexMaxInterVar, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
-    //             if(this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratioLeft) {
-    //                 indexMaxInterVar = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
-    //             }
-    //         } else {
-    //             indexMaxInterVar = this.intervalsBtwExtrema1.sequence.length - 1;
-    //             this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderForwardScan(indexMaxInterVar, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
-    //             if(this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratioRight) {
-    //                 indexMaxInterVar = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
-    //             }
-    //         }
-    //     } else {
-    //         indexMaxInterVar = this.candidateEventIndex;
-    //     }
-
-    //     if(this.candidateEventIndex !== INITIAL_INTERV_INDEX) {
-    //         if(this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
-    //             if(indexMaxInterVar === this.candidateEventIndex) {
-    //                 console.log("Events are stable as well as the candidate event.");
-    //             } else if(indexMaxInterVar !== this.candidateEventIndex) {
-    //                 console.log("Other events variations may influence the decision about the candidate event.");
-    //                 if(!(ratioLeft > ratioRight && this.candidateEventIndex === 0)) {
-    //                     this.candidateEventIndex = 0;
-    //                 } else if(!(ratioLeft < ratioRight && this.candidateEventIndex === this.intervalsBtwExtrema1.sequence.length - 1)) {
-    //                     this.candidateEventIndex = this.intervalsBtwExtrema1.sequence.length - 1;
-    //                 }
-    //             }
-    //         } else {
-    //             /* JCL The only other possibility is candidateEventIndex = 0 */
-    //             this.candidateEventIndex = 0;
-    //         }
-
-    //     } else throw new Error("Unable to generate the smallest interval of differential events for this curve.");
-
-    //     let newEvent= new NeighboringEvents();
-    //     if(this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
-    //         if(this.candidateEventIndex === 0) {
-    //             newEvent.type = NeighboringEventsType.neighboringCurExtremumLeftBoundary;
-    //             newEvent.index = 0;
-    //         } else if (this.candidateEventIndex === this.intervalsBtwExtrema1.sequence.length - 1) {
-    //             newEvent.type = NeighboringEventsType.neighboringCurExtremumRightBoundary;
-    //             newEvent.index = this.sequenceDiffEvents1.sequence.length - 1;
-    //         } else {
-    //             newEvent.type = NeighboringEventsType.none;
-    //             newEvent.index = this.candidateEventIndex;
-    //             console.log("Inconsistent identification of curvature extremum. Possibly extremum at a knot.");
-    //         }
-    //     } else {
-    //         if(this.candidateEventIndex === 0) {
-    //             newEvent.type = NeighboringEventsType.neighboringCurExtremumLeftBoundary;
-    //             newEvent.index = 0;
-    //         } else {
-    //             newEvent.type = NeighboringEventsType.none;
-    //             newEvent.index = this.candidateEventIndex;
-    //             console.log("Inconsistent identification of curvature extremum");
-    //         }
-    //     }
-
-    //     return newEvent;
-    // }
-
-    // locateCurvatureExtremumInsideLastInterval(): NeighboringEvents {
-    //     let ratioRight = 0.0;
-    //     let indexMaxInterVar = INITIAL_INTERV_INDEX;
-    //     if(this.intervalsBtwExtrema2.sequence.length > 0) {
-    //         ratioRight = (this.intervalsBtwExtrema2.sequence[this.intervalsBtwExtrema2.sequence.length - 1]/this.intervalsBtwExtrema2.span)/(this.intervalsBtwExtrema1.sequence[this.intervalsBtwExtrema1.sequence.length - 1]/this.intervalsBtwExtrema1.span);
-    //         indexMaxInterVar = this.intervalsBtwExtrema1.sequence.length - 1;
-    //         this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderForwardScan(indexMaxInterVar, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
-    //         if(this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratioRight) {
-    //             indexMaxInterVar = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
-    //         }
-    //     } else {
-    //         indexMaxInterVar = this.intervalsBtwExtrema1.sequence.length - 1;
-    //     }
-    //     if(this.candidateEventIndex !== INITIAL_INTERV_INDEX && (this.candidateEventIndex !== this.intervalsBtwExtrema1.sequence.length - 1 || indexMaxInterVar !== this.intervalsBtwExtrema1.sequence.length - 1)) {
-    //         console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.")
-    //     }
-    //     let newEvent= new NeighboringEvents();
-    //     newEvent.type = NeighboringEventsType.neighboringCurExtremumRightBoundary;
-    //     newEvent.index = this.sequenceDiffEvents1.sequence.length - 1;
-    //     return newEvent;
-    // }
-
-    abstract locateCurvatureExtremumInsideExtremeInterval(): NeighboringEvents;
+    abstract locateDifferentialEvents(): NeighboringEvents;
 
     assignNewEventInExtremeInterval(sequenceDiffEvents: SequenceOfDifferentialEvents, candidateEventIndex: number, indexMaxInterVar: number, nbEventsModified: number): NeighboringEvents {
         let newEvent= new NeighboringEvents();
@@ -248,7 +162,7 @@ export class LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval extends 
         this.candidateEventIndex = this.intervalsBtwExtrema1.indexSmallestInterval(ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
     }
 
-    locateCurvatureExtremumInsideExtremeInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         let indexMaxInterVar = this.analyzeExtremeIntervalVariations(ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
         return this.assignNewEventInExtremeInterval(this.sequenceDiffEvents1, this.candidateEventIndex, indexMaxInterVar, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
     }
@@ -263,7 +177,7 @@ export class LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval exten
         this.candidateEventIndex = this.intervalsBtwExtrema2.indexSmallestInterval(ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
     }
 
-    locateCurvatureExtremumInsideExtremeInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         let indexMaxInterVar = this.analyzeExtremeIntervalVariations(ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
         return this.assignNewEventInExtremeInterval(this.sequenceDiffEvents2, this.candidateEventIndex, indexMaxInterVar, ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
     }
@@ -283,7 +197,7 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
         this.comparatorSequenceOfIntervals = new ComparatorOfSequencesOfIntervals(this.intervalsBtwExtrema1, this.intervalsBtwExtrema2);
     }
 
-    abstract locateCurvatureExtremumInsideUniqueInterval(): NeighboringEvents;
+    abstract locateDifferentialEvents(): NeighboringEvents;
 
     assignNewEventInUniqueInterval(sequenceDiffEvents: SequenceOfDifferentialEvents, candidateEventIndex: number, nbEventsModified: number): NeighboringEvents {
         let newEvent= new NeighboringEvents();
@@ -302,7 +216,6 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
                 console.log("Inconsistent identification of curvature extremum. Possibly extremum at a knot.");
             }
         }
-
         return newEvent;
     }
 
@@ -388,7 +301,7 @@ export class LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval extends L
         this.candidateEventIndex = this.intervalsBtwExtrema1.indexSmallestInterval(ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
     }
 
-    locateCurvatureExtremumInsideUniqueInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         this.candidateEventIndex = this.analyzeUniqueIntervalVariations(this.candidateEventIndex, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
         return this.assignNewEventInUniqueInterval(this.sequenceDiffEvents1, this.candidateEventIndex, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
     }
@@ -403,7 +316,7 @@ export class LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval extend
         this.candidateEventIndex = this.intervalsBtwExtrema2.indexSmallestInterval(ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
     }
 
-    locateCurvatureExtremumInsideUniqueInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         this.candidateEventIndex = this.analyzeUniqueIntervalVariations(this.candidateEventIndex, ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
         return this.assignNewEventInUniqueInterval(this.sequenceDiffEvents2, this.candidateEventIndex, ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
     }
@@ -422,7 +335,7 @@ export abstract class LocalizerOfCurvatureExtrema extends LocalizerOfDifferentia
     }
 
 
-    abstract locateCurvatureExtremaBetweenInflections(): NeighboringEvents;
+    abstract locateDifferentialEvents(): NeighboringEvents;
 
     assignNewEvent(sequenceDiffEvents: SequenceOfDifferentialEvents, candidateEventIndex: number): NeighboringEvents {
         let newEvent= new NeighboringEvents();
@@ -508,7 +421,7 @@ export class LocalizerOfCurvatureExtremaAppearing extends LocalizerOfCurvatureEx
         this.candidateEventIndex = this.intervalsBtwExtrema1.indexSmallestInterval(TWO_CURVEXT_EVENTS_APPEAR);
     }
 
-    locateCurvatureExtremaBetweenInflections(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         this.candidateEventIndex = this.analyzeIntervalVariations(this.candidateEventIndex, TWO_CURVEXT_EVENTS_APPEAR);
         return this.assignNewEvent(this.sequenceDiffEvents1, this.candidateEventIndex);;
     }
@@ -523,7 +436,7 @@ export class LocalizerOfCurvatureExtremaDisappearing extends LocalizerOfCurvatur
         this.candidateEventIndex = this.intervalsBtwExtrema2.indexSmallestInterval(TWO_CURVEXT_EVENTS_DISAPPEAR);
     }
 
-    locateCurvatureExtremaBetweenInflections(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         this.candidateEventIndex = this.analyzeIntervalVariations(this.candidateEventIndex, TWO_CURVEXT_EVENTS_DISAPPEAR);
         return this.assignNewEvent(this.sequenceDiffEvents2, this.candidateEventIndex);
     }
@@ -538,7 +451,7 @@ export abstract class LocalizerOfInflectionInUniqueInterval extends LocalizerOfD
         this.inflectionVariation = this.sequenceDiffEvents1.indicesOfInflections.length - this.sequenceDiffEvents2.indicesOfInflections.length;
     }
 
-    abstract locateInflectionInsideUniqueInterval(): NeighboringEvents;
+    abstract locateDifferentialEvents(): NeighboringEvents;
 
     analyzeIntervalVariations(sequenceDiffEvents: SequenceOfDifferentialEvents): number {
         let index = INITIAL_INTERV_INDEX;
@@ -566,7 +479,7 @@ export class LocalizerOfInflectionDisappearingInUniqueInterval extends Localizer
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
     }
 
-    locateInflectionInsideUniqueInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         let newEvent= new NeighboringEvents();
         if(this.analyzeIntervalVariations(this.sequenceDiffEvents1) === 0 && this.inflectionVariation === 1) {
             newEvent.index = 0;
@@ -586,7 +499,7 @@ export class LocalizerOfInflectionAppearingInUniqueInterval extends LocalizerOfI
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
     }
 
-    locateInflectionInsideUniqueInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         let newEvent= new NeighboringEvents();
         if(this.analyzeIntervalVariations(this.sequenceDiffEvents2) === 0  && this.inflectionVariation === -1) {
             newEvent.index = 0;
@@ -609,7 +522,7 @@ export abstract class LocalizerOfInflectionInExtremeInterval extends LocalizerOf
         this.inflectionVariation = this.sequenceDiffEvents1.indicesOfInflections.length - this.sequenceDiffEvents2.indicesOfInflections.length;
     }
 
-    abstract locateInflectionInsideExtremeInterval(): NeighboringEvents;
+    abstract locateDifferentialEvents(): NeighboringEvents;
 
     analyzeIntervalVariations(): number {
         let index = INITIAL_INTERV_INDEX;
@@ -632,7 +545,7 @@ export class LocalizerOfInflectionAppearingInExtremeInterval extends LocalizerOf
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
     }
 
-    locateInflectionInsideExtremeInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         let newEvent= new NeighboringEvents();
         if(this.analyzeIntervalVariations() === 0  && this.inflectionVariation === -1) {
             newEvent.index = 0;
@@ -652,7 +565,7 @@ export class LocalizerOfInflectionDisappearingInExtremeInterval extends Localize
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
     }
 
-    locateInflectionInsideExtremeInterval(): NeighboringEvents {
+    locateDifferentialEvents(): NeighboringEvents {
         let newEvent= new NeighboringEvents();
         if(this.analyzeIntervalVariations() === 0  && this.inflectionVariation === -1) {
             newEvent.index = 0;
@@ -660,7 +573,7 @@ export class LocalizerOfInflectionDisappearingInExtremeInterval extends Localize
         } else if(this.analyzeIntervalVariations() === this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1]) {
             newEvent.index = this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1];
             newEvent.type = NeighboringEventsType.neighboringInflectionRightBoundary;
-        } else throw new Error("Inconsistent index to locate an inflection into an extreme interval.");
+        } else throw new Error(this.locateDifferentialEvents.name + " Inconsistent index to locate an inflection into an extreme interval.");
 
         return newEvent;
     }
@@ -680,7 +593,11 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
         this.inflectionVariation = this.sequenceDiffEvents1.indicesOfInflections.length - this.sequenceDiffEvents2.indicesOfInflections.length;
     }
 
-    abstract locateInflectionsInsideAdjacentCurvatureExtremum(): NeighboringEvents;
+    abstract locateDifferentialEvents(): NeighboringEvents;
+
+    getClassName(): string {
+        return this.constructor.name;
+    }
 
     analyzeIntervalVariations(indicesOscillations: number[]): number[] {
         let intervalEvent: Array<number> = []
@@ -690,10 +607,81 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
                 intervalEvent.push(indicesOscillations[j + 1] - indicesOscillations[j]);
             }
         }
+        this.checkIndexLocation();
         return intervalEvent;
     }
 
-    //add test of validation of the configuration of adjacent inflections
+    checkIndexLocation(): void {
+        const nbModifedEvents = this.sequenceDiffEvents2.indicesOfInflections.length - this.sequenceDiffEvents1.indicesOfInflections.length;
+        if(nbModifedEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
+            if((this.indicesOscillations2.length - this.indicesOscillations1.length !== 1 && this.indicesOscillations2.length === 1) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length !== 2 && this.indicesOscillations2.length > 1) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length !== 3 && this.indicesOscillations2.length > 2)) {
+                let e = new ErrorLog(this.getClassName(), this.checkIndexLocation.name, "Inconsistency of reference type event that does not coincide with oscillation removal.");
+                throw new Error("Inconsistency of reference type event that does not coincide with oscillation removal.");
+            }
+        } else if (nbModifedEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+            if((this.indicesOscillations2.length - this.indicesOscillations1.length !== -1 && this.indicesOscillations2.length === 1) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length !== -2 && this.indicesOscillations2.length > 1) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length !== -3 && this.indicesOscillations2.length > 2)) {
+                throw new Error("Inconsistency of reference type event that does not coincide with oscillation removal.");
+            }
+        } else {
+            throw new Error("Inconsistent variation of number of differential events.");
+        }
+    }
+
+    assignNewEvent(sequenceDiffEvents: SequenceOfDifferentialEvents, nbModifedEvents: number): NeighboringEvents {
+        let newEvent= new NeighboringEvents();
+        let intervalEvent1: number[];
+        let intervalEvent2: number[];
+        let indicesOscillations1: number[];
+        let indicesOscillations2: number[];
+        if(nbModifedEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+            intervalEvent1 = this.analyzeIntervalVariations(this.indicesOscillations1);
+            intervalEvent2 = this.analyzeIntervalVariations(this.indicesOscillations2);
+            indicesOscillations1 = this.indicesOscillations1;
+            indicesOscillations2 = this.indicesOscillations2;
+        } else if(nbModifedEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
+            intervalEvent1 = this.analyzeIntervalVariations(this.indicesOscillations2);
+            intervalEvent2 = this.analyzeIntervalVariations(this.indicesOscillations1);
+            indicesOscillations1 = this.indicesOscillations2;
+            indicesOscillations2 = this.indicesOscillations1;
+        } else {
+            throw new Error("Incorrect number of modified differential events.");
+        }
+
+        if(indicesOscillations1.length > 0) {
+            newEvent.type = NeighboringEventsType.neighboringInflectionsCurvatureExtremum;
+            if(indicesOscillations2.length === 0) {
+                if(indicesOscillations1.length === 1) {
+                    newEvent.index = indicesOscillations1[0];
+                } else if(indicesOscillations1.length === 2) {
+                    if(sequenceDiffEvents.eventAt(indicesOscillations1[0]).order === ORDER_INFLECTION) {
+                        newEvent.index = indicesOscillations1[1];
+                    } else {
+                        newEvent.index = indicesOscillations1[0];
+                    }
+                } else if(indicesOscillations1.length === 3) {
+                    if(sequenceDiffEvents.eventAt(indicesOscillations1[0]).order === ORDER_INFLECTION &&
+                    sequenceDiffEvents.eventAt(indicesOscillations1[1]).order !== ORDER_INFLECTION) {
+                        newEvent.index = indicesOscillations1[1];
+                    }
+                }
+            } else {
+                newEvent.index = INITIAL_INTERV_INDEX;
+                for(let k = 0; k < intervalEvent2.length; k += 1) {
+                    if(intervalEvent1[k] !== intervalEvent2[k]) {
+                        newEvent.index = indicesOscillations1[k];
+                    }
+                }
+                if(indicesOscillations1.length - indicesOscillations2.length === 2 && newEvent.index === INITIAL_INTERV_INDEX) {
+                    newEvent.index = indicesOscillations1[indicesOscillations1.length - 1];
+                }
+            }
+        }
+        return newEvent;
+    }
 
 }
 
@@ -704,40 +692,8 @@ export class LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum exten
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
     }
 
-    locateInflectionsInsideAdjacentCurvatureExtremum(): NeighboringEvents {
-        let newEvent= new NeighboringEvents();
-        let intervalEvent1 = this.analyzeIntervalVariations(this.indicesOscillations1);
-        let intervalEvent2 = this.analyzeIntervalVariations(this.indicesOscillations2);
-        if(this.indicesOscillations1.length > 0) {
-            newEvent.type = NeighboringEventsType.neighboringInflectionsCurvatureExtremum;
-            if(this.indicesOscillations2.length === 0) {
-                if(this.indicesOscillations1.length === 1) {
-                    newEvent.index = this.indicesOscillations1[0];
-                } else if(this.indicesOscillations1.length === 2) {
-                    if(this.sequenceDiffEvents2.eventAt(this.indicesOscillations1[0]).order === ORDER_INFLECTION) {
-                        newEvent.index = this.indicesOscillations1[1];
-                    } else {
-                        newEvent.index = this.indicesOscillations1[0];
-                    }
-                } else if(this.indicesOscillations1.length === 3) {
-                    if(this.sequenceDiffEvents2.eventAt(this.indicesOscillations1[0]).order === ORDER_INFLECTION &&
-                    this.sequenceDiffEvents2.eventAt(this.indicesOscillations1[1]).order !== ORDER_INFLECTION) {
-                        newEvent.index = this.indicesOscillations1[1];
-                    }
-                }
-            } else {
-                newEvent.index = INITIAL_INTERV_INDEX;
-                for(let k = 0; k < intervalEvent2.length; k += 1) {
-                    if(intervalEvent1[k] !== intervalEvent2[k]) {
-                        newEvent.index = this.indicesOscillations1[k];
-                    }
-                }
-                if(this.indicesOscillations1.length - this.indicesOscillations2.length === 2 && newEvent.index === INITIAL_INTERV_INDEX) {
-                    newEvent.index = this.indicesOscillations1[this.indicesOscillations1.length - 1];
-                }
-            }
-        }
-        return newEvent;
+    locateDifferentialEvents(): NeighboringEvents {
+        return this.assignNewEvent(this.sequenceDiffEvents2, TWO_INFLECTIONS_EVENTS_DISAPPEAR);
     }
 }
 
@@ -748,39 +704,7 @@ export class LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum extends 
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
     }
 
-    locateInflectionsInsideAdjacentCurvatureExtremum(): NeighboringEvents {
-        let newEvent= new NeighboringEvents();
-        let intervalEvent1 = this.analyzeIntervalVariations(this.indicesOscillations1);
-        let intervalEvent2 = this.analyzeIntervalVariations(this.indicesOscillations2);
-        if(this.indicesOscillations2.length > 0) {
-            newEvent.type = NeighboringEventsType.neighboringInflectionsCurvatureExtremum;
-            if(this.indicesOscillations1.length === 0) {
-                if(this.indicesOscillations2.length === 1) {
-                    newEvent.index = this.indicesOscillations2[0];
-                } else if(this.indicesOscillations2.length === 2) {
-                    if(this.sequenceDiffEvents1.eventAt(this.indicesOscillations2[0]).order === ORDER_INFLECTION) {
-                        newEvent.index = this.indicesOscillations2[1];
-                    } else {
-                        newEvent.index = this.indicesOscillations2[0];
-                    }
-                } else if(this.indicesOscillations2.length === 3) {
-                    if(this.sequenceDiffEvents1.eventAt(this.indicesOscillations2[0]).order === ORDER_INFLECTION &&
-                    this.sequenceDiffEvents1.eventAt(this.indicesOscillations2[1]).order !== ORDER_INFLECTION) {
-                        newEvent.index = this.indicesOscillations2[1];
-                    }
-                }
-            } else {
-                newEvent.index = INITIAL_INTERV_INDEX;
-                for(let k = 0; k < intervalEvent1.length; k += 1) {
-                    if(intervalEvent1[k] !== intervalEvent2[k]) {
-                        newEvent.index = this.indicesOscillations2[k];
-                    }
-                }
-                if(this.indicesOscillations1.length - this.indicesOscillations2.length === -2 && newEvent.index === INITIAL_INTERV_INDEX) {
-                    newEvent.index = this.indicesOscillations2[this.indicesOscillations2.length - 1];
-                }
-            }
-        }
-        return newEvent;
+    locateDifferentialEvents(): NeighboringEvents {
+        return this.assignNewEvent(this.sequenceDiffEvents1, TWO_INFLECTIONS_EVENTS_APPEAR);
     }
 }

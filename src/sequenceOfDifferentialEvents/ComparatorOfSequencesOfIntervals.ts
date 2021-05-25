@@ -51,7 +51,6 @@ export class ComparatorOfSequencesOfIntervals {
                 this.maxVariationInSeq1.index = k;
             }
         }
-        return;
     }
         
     indexIntervalMaximalVariationUnderReverseScan(candidateEvent: number, nbEvents: number): void {
@@ -89,7 +88,6 @@ export class ComparatorOfSequencesOfIntervals {
                 this.maxVariationInSeq1.index = k;
             }
         }
-        return;
     }
 
 }
