@@ -1,3 +1,4 @@
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 /* named constants */
 import { ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL,
@@ -58,8 +59,8 @@ export class SequenceOfIntervals {
             else candidateEventIndex = this._sequence.length - 1;
 
         } else if((nbEvents === TWO_CURVEXT_EVENTS_APPEAR || nbEvents === TWO_CURVEXT_EVENTS_DISAPPEAR) && this._sequence.length > 2) {
-            for(let k = 0; k < this._sequence.length; k += 1) {
-                ratio.push(this._sequence[k]/this._span);
+            for(let interval of this._sequence) {
+                ratio.push(interval/this._span);
             }
             let mappedRatio = ratio.map(function(location, i) {
                 return { index: i, value: location };
@@ -83,8 +84,10 @@ export class SequenceOfIntervals {
                     candidateEventIndex = mappedRatio[2].index;
                 }
             } 
-        } else console.log("Inconsistent number of events (Must be a positive number not larger than two) or inconsistent number of intervals between curvature extrema.");
-
+        } else {
+            const warning = new WarningLog(this.constructor.name, "indexSmallestInterval", "Inconsistent number of events (Must be a positive number not larger than two) or inconsistent number of intervals between curvature extrema.");
+            warning.logMessageToConsole();
+        }
         return candidateEventIndex;
     }
 }

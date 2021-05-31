@@ -1,6 +1,7 @@
 import { DifferentialEvent, InflectionEvent, CurvatureExtremumEvent } from "./DifferentialEvent";
 import { SequenceOfIntervals } from "./SequenceOfIntervals";
 import { ModifiedCurvatureEvents } from "./ModifiedCurvatureEvents";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 /* named constants */
 import { ORDER_INFLECTION, ORDER_CURVATURE_EXTREMUM } from "./DifferentialEvent";
@@ -94,15 +95,17 @@ export class SequenceOfDifferentialEvents {
         this.checkSequenceConsistency();
     }
 
-    get lastEvent(): DifferentialEvent {
+    get lastEvent(): DifferentialEvent | undefined {
         let event: DifferentialEvent;
         if(this._sequence[this._sequence.length - 1] !== undefined) {
             event = this._sequence[this._sequence.length - 1];
             this._sequence.pop();
+            return event;
         } else {
-            throw new Error("Cannot get event because the sequence is empty.");
+            let error = new ErrorLog(this.constructor.name, "lastEvent", "Cannot get event because the sequence is empty.");
+            error.logMessageToConsole();
         }
-        return event;
+
     }
 
     get sequence(): Array<DifferentialEvent> {
@@ -183,7 +186,7 @@ export class SequenceOfDifferentialEvents {
             }
             intervalExtrema.sequence.push(UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._sequence.length - 1].location);
 
-        } else if(indexInflection === this._indicesOfInflections.length && this._indicesOfInflections[length - 1] < (this._sequence.length - 1)) {
+        } else if(indexInflection === this._indicesOfInflections.length && this._indicesOfInflections[this._indicesOfInflections.length - 1] < (this._sequence.length - 1)) {
             intervalExtrema.span = UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._indicesOfInflections[indexInflection - 1]].location;
             for(let k = this._indicesOfInflections[this._indicesOfInflections.length - 1]; k < this._sequence.length - 1; k += 1) {
                 intervalExtrema.sequence.push(this._sequence[k + 1].location - this._sequence[k].location);
@@ -196,6 +199,7 @@ export class SequenceOfDifferentialEvents {
             for(let k = 1; k < this._indicesOfInflections[indexInflection]; k += 1) {
                 intervalExtrema.sequence.push(this._sequence[k].location - this._sequence[k - 1].location);
             }
+            intervalExtrema.sequence.push(intervalExtrema.span - this._sequence[this._indicesOfInflections[indexInflection] - 1].location);
 
         } else if(this._indicesOfInflections.length > 1 && indexInflection < this._indicesOfInflections.length) {
             intervalExtrema.span = this._sequence[this._indicesOfInflections[indexInflection]].location - this._sequence[this._indicesOfInflections[indexInflection - 1]].location;
@@ -240,8 +244,10 @@ export class SequenceOfDifferentialEvents {
             }
         }
         if(index > 0) {
-            throw new Error("Inconsistent sequence of differential events: two successive events have non strictly increasing abscissa at indices " + 
-            (index - 1) + " and " + index + " with values " + this._sequence[index - 1].location + " and " + this._sequence[index].location);
+            let message = "Inconsistent sequence of differential events: two successive events have non strictly increasing abscissa at indices " + 
+                (index - 1) + " and " + index + " with values " + this._sequence[index - 1].location + " and " + this._sequence[index].location;
+            let error = new ErrorLog(this.constructor.name, "checkLocationConsistency", message);
+            error.logMessageToConsole();
         }
     }
 

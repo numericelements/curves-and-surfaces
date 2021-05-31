@@ -147,7 +147,9 @@ export abstract class LocalizerOfCurvatureExtremumInsideExtremeInterval extends 
     checkIndexConsistency(indexInflection: number): void {
         if(indexInflection !== this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1] ||
             indexInflection === this.sequenceDiffEvents1.indicesOfInflections[0]) {
-                throw new Error("Index of inflection in the sequence of differerntial events is invalid.");
+                const error = new ErrorLog(this.constructor.name, "checkIndexConsistency", "Index of inflection in the sequence of differerntial events is invalid.");
+                error.logMessageToConsole();
+                //throw new Error("Index of inflection in the sequence of differerntial events is invalid.");
             }
     }
 
@@ -159,7 +161,7 @@ export class LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval extends 
 
     constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents, indexInflection: number) {
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
-        this.candidateEventIndex = this.intervalsBtwExtrema1.indexSmallestInterval(ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+        this.candidateEventIndex = this.intervalsBtwExtrema2.indexSmallestInterval(ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
     }
 
     locateDifferentialEvents(): NeighboringEvents {

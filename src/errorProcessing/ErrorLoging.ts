@@ -10,7 +10,6 @@ export abstract class ErrorProcessing {
         if(message !== undefined) {
             this.message = message;
         }
-        this.logMessageToConsole();
     }
 
     abstract logMessageToConsole(): void;

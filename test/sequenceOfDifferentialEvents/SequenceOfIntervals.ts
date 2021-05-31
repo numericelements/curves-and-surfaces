@@ -57,7 +57,7 @@ describe('SequenceOfIntervals', () => {
         expect(s.indexSmallestInterval(2)).to.eql(2);
     })
 
-    it('can return the Initial_Interv_index if the number of events differs from 1 or 2', () => {
+    it('cannot return the Initial_Interv_index if the number of events differs from 1 or 2', () => {
         const s = new SequenceOfIntervals(1.0, [0.05, 0.65, 0.2, 0.1]);
         expect(s.span).to.equal(1.0);
         expect(s.indexSmallestInterval(0)).to.eql(-1);
