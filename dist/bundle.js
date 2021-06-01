@@ -42215,7 +42215,11 @@ var SlidingStrategy = /** @class */ (function () {
     SlidingStrategy.prototype.computeIntervalsBetweenCurvatureExtrema = function (orderedDifferentialEvents, inflectionIndices, lostEvents) {
         var interval = 1.0;
         var intervalExtrema = { span: interval, sequence: [] };
-        if (inflectionIndices.length === 0 && orderedDifferentialEvents.length > 0) {
+        if (inflectionIndices.length === 0 && orderedDifferentialEvents.length === 0) {
+            intervalExtrema.span = interval;
+            intervalExtrema.sequence.push(interval);
+        }
+        else if (inflectionIndices.length === 0 && orderedDifferentialEvents.length > 0) {
             intervalExtrema.span = interval;
             intervalExtrema.sequence.push(orderedDifferentialEvents[0].loc);
             for (var k = 0; k < orderedDifferentialEvents.length - 1; k += 1) {

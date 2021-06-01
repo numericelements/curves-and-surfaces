@@ -178,7 +178,10 @@ export class SequenceOfDifferentialEvents {
 
     computeIntervalsBtwCurvatureExtrema(indexInflection: number): SequenceOfIntervals {
         let intervalExtrema = new SequenceOfIntervals();
-        if(this._indicesOfInflections.length === 0 && this._sequence.length > 0) {
+        if(this._indicesOfInflections.length === 0 && this._sequence.length === 0) {
+            intervalExtrema.span = CURVE_INTERVAL_SPAN;
+            intervalExtrema.sequence.push(intervalExtrema.span);
+        } else if(this._indicesOfInflections.length === 0 && this._sequence.length > 0) {
             intervalExtrema.span = CURVE_INTERVAL_SPAN;
             intervalExtrema.sequence.push(this._sequence[0].location - LOWER_BOUND_CURVE_INTERVAL);
             for(let k = 0; k < this._sequence.length - 1; k += 1) {
@@ -201,6 +204,10 @@ export class SequenceOfDifferentialEvents {
             }
             intervalExtrema.sequence.push(intervalExtrema.span - this._sequence[this._indicesOfInflections[indexInflection] - 1].location);
 
+        } else if(indexInflection === 0 && this._indicesOfInflections[0] === 0) {
+            intervalExtrema.span = this._sequence[this._indicesOfInflections[indexInflection]].location - LOWER_BOUND_CURVE_INTERVAL;
+            intervalExtrema.sequence.push(intervalExtrema.span);
+
         } else if(this._indicesOfInflections.length > 1 && indexInflection < this._indicesOfInflections.length) {
             intervalExtrema.span = this._sequence[this._indicesOfInflections[indexInflection]].location - this._sequence[this._indicesOfInflections[indexInflection - 1]].location;
             for(let k = this._indicesOfInflections[indexInflection - 1] + 1; k < this._indicesOfInflections[indexInflection]; k += 1) {
@@ -214,6 +221,7 @@ export class SequenceOfDifferentialEvents {
     }
 
     checkTypeConsistency(): void {
+        if(this._sequence.length === 0) return
         let currentOrder = this._sequence[0].order;
         let index = 0;
 
@@ -228,11 +236,14 @@ export class SequenceOfDifferentialEvents {
             }
         }
         if(index > 0) {
-            throw new Error("Inconsistent sequence of differential events: two successive inflections at indices " + (index - 1) + " and " + index);
+            let message = "Inconsistent sequence of differential events: two successive inflections at indices " + (index - 1) + " and " + index;
+            let error = new ErrorLog(this.constructor.name, "checkTypeConsistency", message);
+            error.logMessageToConsole();
         }
     }
 
     checkLocationConsistency(): void {
+        if(this._sequence.length === 0) return
         let index = 0;
         // Look for location consistency. The sequence of abscissae must be strictly increasing
         for(let i = 1; i < this._sequence.length; i += 1) {

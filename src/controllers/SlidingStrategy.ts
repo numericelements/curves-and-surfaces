@@ -186,7 +186,10 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     computeIntervalsBetweenCurvatureExtrema(orderedDifferentialEvents: Array<DifferentialEvent>, inflectionIndices: number[], lostEvents: Array<modifiedEvents>): intervalsCurvatureExt {
         let interval = 1.0
         let intervalExtrema: intervalsCurvatureExt = {span: interval, sequence: []}
-        if(inflectionIndices.length === 0 && orderedDifferentialEvents.length > 0) {
+        if(inflectionIndices.length === 0 && orderedDifferentialEvents.length === 0) {
+            intervalExtrema.span = interval
+            intervalExtrema.sequence.push(interval)
+        } else if(inflectionIndices.length === 0 && orderedDifferentialEvents.length > 0) {
             intervalExtrema.span = interval
             intervalExtrema.sequence.push(orderedDifferentialEvents[0].loc)
             for(let k = 0; k < orderedDifferentialEvents.length - 1; k += 1) {

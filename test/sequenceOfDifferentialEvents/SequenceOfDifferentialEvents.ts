@@ -53,8 +53,25 @@ describe('SequenceOfDifferentialEvents', () => {
         expect(seqDif1.eventAt(seqDif1.length()), 'event: ').to.eql(undefined);
     });
 
+    it('can return the intervals when there is no event', () => {
+        const seqDif1 = new SequenceOfDifferentialEvents([], []);
+        const inflection = 0;
+        expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(1.0);
+        expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence, 'sequence of intervals: ').to.eql([1.0]);
+    });
+
+    it('can return the intervals when there is no inflection', () => {
+        const seqDif1 = new SequenceOfDifferentialEvents([0.4, 0.8], []);
+        const inflection = 0;
+        expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(1.0);
+        expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.4, 1.0e-10);
+        expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[1], 'sequence of intervals: ').to.be.closeTo(0.4, 1.0e-10);
+        expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[2], 'sequence of intervals: ').to.be.closeTo(0.2, 1.0e-10);
+    });
+
     it('can return the intervals between curvature extrema before the first inflection', () => {
         const seqDif1 = new SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        // The inflection here is the index of the inflection event in the sequence of inflections
         const inflection = 0;
         expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(0.5);
         expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence, 'sequence of intervals: ').to.eql([0.05, 0.45]);

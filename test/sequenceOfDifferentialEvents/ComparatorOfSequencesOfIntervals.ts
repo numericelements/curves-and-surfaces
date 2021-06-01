@@ -3,6 +3,9 @@ import { SequenceOfIntervals } from "../../src/sequenceOfDifferentialEvents/Sequ
 import { MaxIntervalVariation } from "../../src/sequenceOfDifferentialEvents/MaxIntervalVariation";
 import { ComparatorOfSequencesOfIntervals } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals";
 
+import { ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+
+
 describe('ComparatorOfSequencesOfIntervals', () => {
 
     it('can be initialized with an initializer', () => {
@@ -12,20 +15,27 @@ describe('ComparatorOfSequencesOfIntervals', () => {
         expect(comp.maxVariationInSeq1, 'maximalVariation: ').to.eql({_index:-1, _value: 0.0});
     });
 
-
     it('return max interval variation when one event is inserted at the left hand side of the interval sequence and the sequence is scanned forward', () => {
         const s1:SequenceOfIntervals = new SequenceOfIntervals(1.0, [0.1, 0.15, 0.2, 0.25, 0.3]);
         const s2:SequenceOfIntervals = new SequenceOfIntervals(1.0, [0.05, 0.11, 0.12, 0.15, 0.27, 0.3]);
         const comp = new ComparatorOfSequencesOfIntervals(s1, s2);
-        comp.indexIntervalMaximalVariationUnderForwardScan(3, 1);
+        comp.indexIntervalMaximalVariationUnderForwardScan(3, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
         expect(comp.maxVariationInSeq1, 'maximalVariation: ').to.eql({_index: 0, _value: 2.0});
     });
+
+    // it('return max interval variation when one event is inserted at the left hand side of the interval sequence and the sequence is scanned forward and has one interval initially', () => {
+    //     const s1:SequenceOfIntervals = new SequenceOfIntervals(1.0, [1.0]);
+    //     const s2:SequenceOfIntervals = new SequenceOfIntervals(1.0, [0.1, 0.9]);
+    //     const comp = new ComparatorOfSequencesOfIntervals(s1, s2);
+    //     comp.indexIntervalMaximalVariationUnderForwardScan(0, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+    //     expect(comp.maxVariationInSeq1, 'maximalVariation: ').to.eql({_index: -1, _value: 0.0});
+    // });
 
     it('return max interval variation when one event is inserted at the right hand side of the interval sequence and the sequence is scanned forward', () => {
         const s1:SequenceOfIntervals = new SequenceOfIntervals(1.0, [0.1, 0.15, 0.21, 0.25, 0.29]);
         const s2:SequenceOfIntervals = new SequenceOfIntervals(1.0, [0.1, 0.15, 0.2, 0.2, 0.27, 0.08]);
         const comp = new ComparatorOfSequencesOfIntervals(s1, s2);
-        comp.indexIntervalMaximalVariationUnderForwardScan(4, 1);
+        comp.indexIntervalMaximalVariationUnderForwardScan(4, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
         expect(comp.maxVariationInSeq1, 'maximalVariation: ').to.eql({_index: 3, _value: 1.25});
     });
     
