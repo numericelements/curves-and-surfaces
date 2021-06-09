@@ -40,7 +40,9 @@ export const TWO_INFLECTIONS_EVENTS_DISAPPEAR = -2;
  * @returns : array of ModifiedCurvatureEvents where each interval is defined by two successive inflections. 
  * This interval is characterized by the right inflection identified by its INDEX in the array of indices of inflections found in _sequenceDiffEvents1. 
  * When event changes occur in the last interval of _sequenceDiffEvents1, i.e., after the last inflection of this sequence, the right bound of this interval 
- * is set to: indicesInflection1.length (the number inflections + 1).
+ * is set to: indicesInflection1.length (the number inflections + 1). This process is used to designate an interval, only, and is
+ * not altering the content of the array of indices of inflections. In case a sequence has no inflection, i.e., this array has length zero,
+ * though the interval is designated with zero.
  * It can  be an array of modifiedInflectionEvents where each interval is defined by the INDEX of a curvature
  * extremum in _sequenceDiffEvents1 (if two inflections appear or disappear, they are adjacent to a curvature extremum).
  * When event changes occur in the last interval of _sequenceDiffEvents1, i.e., after the last curvature extremum of this sequence, the right bound of this interval 
@@ -191,19 +193,19 @@ export class ComparatorOfSequencesOfDiffEvents {
             this.locateIntervalAndNumberOfInflectionEventChanges();
             for(let modifiedInflectionEvent of this.modifiedInflectionEvents) {
                 if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.length() > 0) {
-                    let locatorInflectionEvent = new LocalizerOfInflectionAppearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedInflectionEvent.indexCurvatureEx);
+                    let locatorInflectionEvent = new LocalizerOfInflectionAppearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.length() > 0) {
-                    let locatorInflectionEvent = new LocalizerOfInflectionDisappearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedInflectionEvent.indexCurvatureEx);
+                    let locatorInflectionEvent = new LocalizerOfInflectionDisappearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.length() === 0) {
-                    let locatorInflectionEvent = new LocalizerOfInflectionAppearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedInflectionEvent.indexCurvatureEx);
+                    let locatorInflectionEvent = new LocalizerOfInflectionAppearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.length() === 0) {
-                    let locatorInflectionEvent = new LocalizerOfInflectionDisappearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedInflectionEvent.indexCurvatureEx);
+                    let locatorInflectionEvent = new LocalizerOfInflectionDisappearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
@@ -222,7 +224,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             this._sequenceDiffEvents1.checkConsistencyIntervalBtwInflections(this.modifiedCurvExEvents[0]);
             if(this.modifiedCurvExEvents[0].nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
                 if(this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
-                    let locatorCurvatureEvent = new LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, this.modifiedCurvExEvents[0].indexInflection);
+                    let locatorCurvatureEvent = new LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else {
@@ -234,7 +236,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             }
             else if(this.modifiedCurvExEvents[0].nbEvents === ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
                 if(this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
-                    let locatorCurvatureEvent = new LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, this.modifiedCurvExEvents[0].indexInflection);
+                    let locatorCurvatureEvent = new LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else {

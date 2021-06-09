@@ -170,7 +170,7 @@ export class SequenceOfDifferentialEvents {
         for(let index of this._indicesOfInflections) {
             if(this._sequence.length > index + 2 &&
                 this._sequence[index + 1].order === ORDER_CURVATURE_EXTREMUM && this._sequence[index + 2].order === ORDER_INFLECTION) {
-                    oscillationIndices.push(index);
+                    oscillationIndices.push(index + 1);
                 }
         }
         return oscillationIndices;
@@ -189,7 +189,7 @@ export class SequenceOfDifferentialEvents {
             }
             intervalExtrema.sequence.push(UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._sequence.length - 1].location);
 
-        } else if(indexInflection === this._indicesOfInflections.length && this._indicesOfInflections[this._indicesOfInflections.length - 1] < (this._sequence.length - 1)) {
+        } else if(indexInflection === this._indicesOfInflections.length) {
             intervalExtrema.span = UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._indicesOfInflections[indexInflection - 1]].location;
             for(let k = this._indicesOfInflections[this._indicesOfInflections.length - 1]; k < this._sequence.length - 1; k += 1) {
                 intervalExtrema.sequence.push(this._sequence[k + 1].location - this._sequence[k].location);
@@ -275,17 +275,21 @@ export class SequenceOfDifferentialEvents {
             if(inflectionIndex > 0) {
                 if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED) {
                     /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
-                    throw new Error("Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
+                    let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
+                    error.logMessageToConsole();
                 } else if(nbModifiedEvents === TWO_CURVEXT_EVENTS_DISAPPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED) {
-                    throw new Error("Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
+                    let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
+                    error.logMessageToConsole();
                 }
             }
         }
         else if((inflectionIndex === 0 || inflectionIndex === this._indicesOfInflections.length) && this._indicesOfInflections.length > 0) {
             if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === 0 && this._indicesOfInflections[inflectionIndex] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
-                throw new Error("Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
+                let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
+                error.logMessageToConsole();
             } else if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === this._indicesOfInflections.length && this._indicesOfInflections.length - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
-                throw new Error("Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
+                let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
+                error.logMessageToConsole();
             }
         }
     }

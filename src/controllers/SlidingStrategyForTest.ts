@@ -26,7 +26,7 @@ export interface DifferentialEvent {event: DiffEventType; loc: number}
 enum Direction {Forward, Reverse}
 
 interface modifiedEvents {inter: number, nbE: number}
-interface intervalsCurvatureExt {span: number, sequence: number[]}
+export interface intervalsCurvatureExt {span: number, sequence: number[]}
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
 interface extremaNearKnot {kIndex: number, extrema: Array<number>}
 
@@ -203,6 +203,11 @@ export class SlidingStrategyForTest implements CurveControlStrategyInterface {
             for(let k = 1; k < inflectionIndices[lostEvents[0].inter]; k += 1) {
                 intervalExtrema.sequence.push(orderedDifferentialEvents[k].loc - orderedDifferentialEvents[k - 1].loc)
             }
+            intervalExtrema.sequence.push(intervalExtrema.span - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter] - 1].loc);
+
+        } else if(lostEvents[0].inter === 0 && inflectionIndices[0] === 0) {
+            intervalExtrema.span = orderedDifferentialEvents[0].loc;
+            intervalExtrema.sequence.push(intervalExtrema.span);
 
         } else if(inflectionIndices.length > 1 && lostEvents[0].inter < inflectionIndices.length) {
             intervalExtrema.span = orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter]].loc - orderedDifferentialEvents[inflectionIndices[lostEvents[0].inter - 1]].loc
