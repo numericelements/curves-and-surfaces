@@ -9,7 +9,8 @@ import { LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval,
         LocalizerOfInflectionAppearingInUniqueInterval,
         LocalizerOfInflectionAppearingInExtremeInterval,
         LocalizerOfInflectionDisappearingInExtremeInterval,
-        LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum } from "../../src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents";
+        LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum,
+        LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum } from "../../src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents";
 import { SequenceOfDifferentialEvents } from '../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents';
 
 import { NeighboringEventsType } from '../../src/sequenceOfDifferentialEvents/NeighboringEvents';
@@ -17,9 +18,7 @@ import { NeighboringEventsType } from '../../src/sequenceOfDifferentialEvents/Ne
 import { ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL, 
     ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL,
     TWO_CURVEXT_EVENTS_APPEAR,
-    TWO_CURVEXT_EVENTS_DISAPPEAR,
-    TWO_INFLECTIONS_EVENTS_APPEAR,
-    TWO_INFLECTIONS_EVENTS_DISAPPEAR,
+    TWO_CURVEXT_EVENTS_DISAPPEAR
     } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { SequenceOfIntervals } from '../../src/sequenceOfDifferentialEvents/SequenceOfIntervals';
 
@@ -763,16 +762,16 @@ describe('LocalizerOfInflectionDisappearingInExtremeInterval', () => {
 
 describe('LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum', () => {
 
-    it('throw an error if there is the constant parameter differs from TWO_INFLECTIONS_EVENTS_DISAPPEAR', () => {
+    it('throw an error if the constant parameter differs from TWO_INFLECTIONS_EVENTS_DISAPPEAR', () => {
         const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.15, 0.3], [0.1, 0.25, 0.35]);
         const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.15, 0.25], []);
         const indexInflection = seqDif1.indicesOfInflections;
         expect(indexInflection.length, 'nb inflections: ').to.eql(3);
-        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2, TWO_INFLECTIONS_EVENTS_DISAPPEAR);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
         expect( () => localizer.checkIndexLocation()).to.throw();
     });
 
-    it('can return the index of the inflection events when they disappear and are adjacent to a unique curvature extremum of the interval', () => {
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are adjacent to a unique curvature extremum of the interval', () => {
         const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.3], [0.25, 0.35]);
         const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25], []);
         const indexInflection = seqDif1.indicesOfInflections;
@@ -781,7 +780,7 @@ describe('LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum', () => 
         expect(indicesOsc1.length, 'nb oscillations: ').to.eql(1);
         const indicesOsc2 = seqDif2.generateIndicesOscillations();
         expect(indicesOsc2.length, 'nb oscillations: ').to.eql(0);
-        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2, TWO_INFLECTIONS_EVENTS_DISAPPEAR);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
         const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
         expect(intEvent1[0], 'int index: ').to.eql(1);
         const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
@@ -790,7 +789,7 @@ describe('LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum', () => 
         expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
     });
 
-    it('can return the index of the inflection events when they disappear and are adjacent to a curvature extremum located at the left hand side of the interval', () => {
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are adjacent to a curvature extremum located at the left hand side of the interval', () => {
         const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.3, 0.5], [0.25, 0.35, 0.6]);
         const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.45], [0.55]);
         const indexInflection = seqDif1.indicesOfInflections;
@@ -799,12 +798,262 @@ describe('LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum', () => 
         expect(indicesOsc1.length, 'nb oscillations: ').to.eql(2);
         const indicesOsc2 = seqDif2.generateIndicesOscillations();
         expect(indicesOsc2.length, 'nb oscillations: ').to.eql(0);
-        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2, TWO_INFLECTIONS_EVENTS_DISAPPEAR);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
         const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
         expect(intEvent1[0], 'int index: ').to.eql(1);
         const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
         expect(intEvent2.length, 'int index: ').to.eql(0);
         const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 3});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are adjacent to a curvature extremum located at the right hand side of the interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.3, 0.5], [0.25, 0.45, 0.55]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.55], [0.15]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(3);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(2);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(0);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
+        expect(intEvent1[1], 'int index: ').to.eql(2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(0);
+        const neighboringEvent = localizer.locateDifferentialEvents();
         expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
     });
+
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are adjacent to a curvature extremum located in the middle of the interval with three oscillations', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.5], [0.15, 0.25, 0.45, 0.55]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.3, 0.55], [0.15, 0.65]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(4);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(3);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(0);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
+        expect(intEvent1[2], 'int index: ').to.eql(2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(0);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 3});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are located in the left hand side of the interval with three oscillations', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.5], [0.15, 0.25, 0.45, 0.55]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.3, 0.55], [0.45, 0.65]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(4);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(3);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(1);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(1);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are located in the right hand side of the interval with three oscillations', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.5], [0.15, 0.25, 0.45, 0.55]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.55], [0.15, 0.25]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(4);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(3);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(1);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(1);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 5});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are located into an arbitrary intermediate interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.5, 0.65], [0.15, 0.25, 0.45, 0.55, 0.75]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.55, 0.65], [0.15, 0.25, 0.7]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(5);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(3);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(0);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(0);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 6});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they disappear and are located into the last interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.5, 0.65], [0.15, 0.25, 0.45, 0.55, 0.75]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.55, 0.65], [0.15, 0.25, 0.45]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(5);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(3);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(1);
+        const localizer = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(1);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 8});
+    });
+
+});
+
+describe('LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum', () => {
+
+    it('throw an error if the constant parameter differs from TWO_INFLECTIONS_EVENTS_APPEAR', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.15, 0.25], []);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.15, 0.3], [0.1, 0.25, 0.35]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(0);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        expect( () => localizer.checkIndexLocation()).to.throw();
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are adjacent to a unique curvature extremum of the interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25], []);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.3], [0.25, 0.35]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(0);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(0);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(1);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
+        expect(intEvent1.length, 'int index: ').to.eql(0);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2[0], 'int index: ').to.eql(1);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are adjacent to a curvature extremum located at the left hand side of the interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.45], [0.55]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.3, 0.5], [0.25, 0.35, 0.6]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(1);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(0);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(2);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
+        expect(intEvent1.length, 'int index: ').to.eql(0);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2[0], 'int index: ').to.eql(1);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 3});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are adjacent to a curvature extremum located at the right hand side of the interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.55], [0.15]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.3, 0.5], [0.25, 0.45, 0.55]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(1);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(0);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(2);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
+        expect(intEvent1.length, 'int index: ').to.eql(0);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2[1], 'int index: ').to.eql(2);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are adjacent to a curvature extremum located in the middle of the interval with three oscillations', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.3, 0.55], [0.15, 0.65]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.5], [0.15, 0.25, 0.45, 0.55]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(2);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(0);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(3);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent1 = localizer.analyzeIntervalVariations(indicesOsc1);
+        expect(intEvent1.length, 'int index: ').to.eql(0);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2[2], 'int index: ').to.eql(2);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 3});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are located in the left hand side of the interval with three oscillations', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.3, 0.55], [0.45, 0.65]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.5], [0.15, 0.25, 0.45, 0.55]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(2);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(1);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(3);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(3);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are located in the right hand side of the interval with three oscillations', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.55], [0.15, 0.25]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.3, 0.5], [0.15, 0.25, 0.45, 0.55]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(2);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(1);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(3);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(3);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 5});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are located into an arbitrary intermediate interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.55, 0.65], [0.15, 0.25, 0.7]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.5, 0.65], [0.15, 0.25, 0.45, 0.55, 0.75]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(3);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(0);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(3);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(3);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 6});
+    });
+
+    it('can return the index of the curvature event adjacent to inflections when they appear and are located into the last interval', () => {
+        const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.55, 0.65], [0.15, 0.25, 0.45]);
+        const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.18, 0.2, 0.3, 0.5, 0.65], [0.15, 0.25, 0.45, 0.55, 0.75]);
+        const indexInflection = seqDif1.indicesOfInflections;
+        expect(indexInflection.length, 'nb inflections: ').to.eql(3);
+        const indicesOsc1 = seqDif1.generateIndicesOscillations();
+        expect(indicesOsc1.length, 'nb oscillations: ').to.eql(1);
+        const indicesOsc2 = seqDif2.generateIndicesOscillations();
+        expect(indicesOsc2.length, 'nb oscillations: ').to.eql(3);
+        const localizer = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(seqDif1, seqDif2);
+        const intEvent2 = localizer.analyzeIntervalVariations(indicesOsc2);
+        expect(intEvent2.length, 'int index: ').to.eql(3);
+        const neighboringEvent = localizer.locateDifferentialEvents();
+        expect(neighboringEvent, 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 8});
+    });
+
 });

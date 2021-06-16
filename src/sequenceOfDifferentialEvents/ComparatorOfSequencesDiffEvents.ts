@@ -209,11 +209,11 @@ export class ComparatorOfSequencesOfDiffEvents {
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
-                    let locatorInflectionEvent = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedInflectionEvent.indexCurvatureEx);
+                    let locatorInflectionEvent = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
-                    let locatorInflectionEvent = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedInflectionEvent.indexCurvatureEx);
+                    let locatorInflectionEvent = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else {

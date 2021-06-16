@@ -19,7 +19,7 @@ import { INITIAL_INTERV_INDEX,
          } from "./NeighboringEvents";
 
 import { MaxIntervalVariation } from "./MaxIntervalVariation";
-import { ORDER_INFLECTION } from "./DifferentialEvent";
+import { ORDER_CURVATURE_EXTREMUM, ORDER_INFLECTION } from "./DifferentialEvent";
 
 export enum intervalLocation {first, last}
 
@@ -464,7 +464,7 @@ export class LocalizerOfCurvatureExtremaAppearing extends LocalizerOfCurvatureEx
 
     locateDifferentialEvents(): NeighboringEvents {
         this.candidateEventIndex = this.analyzeIntervalVariations(this.candidateEventIndex, TWO_CURVEXT_EVENTS_APPEAR);
-        return this.assignNewEvent(this.sequenceDiffEvents2, this.candidateEventIndex);;
+        return this.assignNewEvent(this.sequenceDiffEvents2, this.candidateEventIndex);
     }
 }
 
@@ -660,8 +660,9 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
     protected inflectionVariation: number;
 
 
-    constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents, indexCurveEx: number) {
-        super(sequenceDiffEvents1, sequenceDiffEvents2, indexCurveEx);
+    constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents) {
+        const index = INITIAL_INTERV_INDEX;
+        super(sequenceDiffEvents1, sequenceDiffEvents2, index);
         this.indicesOscillations1 = this.sequenceDiffEvents1.generateIndicesOscillations();
         this.indicesOscillations2 = this.sequenceDiffEvents2.generateIndicesOscillations();
         this.inflectionVariation = this.sequenceDiffEvents1.indicesOfInflections.length - this.sequenceDiffEvents2.indicesOfInflections.length;
@@ -684,16 +685,16 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
     checkIndexLocation(): void {
         const nbModifedEvents = this.sequenceDiffEvents2.indicesOfInflections.length - this.sequenceDiffEvents1.indicesOfInflections.length;
         if(nbModifedEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
-            if((this.indicesOscillations2.length - this.indicesOscillations1.length !== 1 && this.indicesOscillations2.length === 1) ||
-            (this.indicesOscillations2.length - this.indicesOscillations1.length !== 2 && this.indicesOscillations2.length > 1) ||
-            (this.indicesOscillations2.length - this.indicesOscillations1.length !== 3 && this.indicesOscillations2.length > 2)) {
+            if((this.indicesOscillations2.length - this.indicesOscillations1.length === 1 && this.indicesOscillations1.length !== 0) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length === 2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== 2) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length === 3 && this.indicesOscillations1.length > 0)) {
                 let error = new ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
                 error.logMessageToConsole();
             }
         } else if (nbModifedEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
-            if((this.indicesOscillations2.length - this.indicesOscillations1.length !== -1 && this.indicesOscillations2.length === 1) ||
-            (this.indicesOscillations2.length - this.indicesOscillations1.length !== -2 && this.indicesOscillations2.length > 1) ||
-            (this.indicesOscillations2.length - this.indicesOscillations1.length !== -3 && this.indicesOscillations2.length > 2)) {
+            if((this.indicesOscillations2.length - this.indicesOscillations1.length === -1 && this.indicesOscillations2.length !== 0) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length === -2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== -2) ||
+            (this.indicesOscillations2.length - this.indicesOscillations1.length === -3 && this.indicesOscillations2.length > 0)) {
                 let error = new ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
                 error.logMessageToConsole();
             }
@@ -730,16 +731,13 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
                 if(indicesOscillations1.length === 1) {
                     newEvent.index = indicesOscillations1[0];
                 } else if(indicesOscillations1.length === 2) {
-                    if(sequenceDiffEvents.eventAt(indicesOscillations1[0]).order === ORDER_INFLECTION) {
+                    if(sequenceDiffEvents.eventAt(0).order === ORDER_CURVATURE_EXTREMUM) {
                         newEvent.index = indicesOscillations1[1];
                     } else {
                         newEvent.index = indicesOscillations1[0];
                     }
                 } else if(indicesOscillations1.length === 3) {
-                    if(sequenceDiffEvents.eventAt(indicesOscillations1[0]).order === ORDER_INFLECTION &&
-                    sequenceDiffEvents.eventAt(indicesOscillations1[1]).order !== ORDER_INFLECTION) {
-                        newEvent.index = indicesOscillations1[1];
-                    }
+                    newEvent.index = indicesOscillations1[1];
                 }
             } else {
                 newEvent.index = INITIAL_INTERV_INDEX;
@@ -761,8 +759,8 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
 export class LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum extends LocalizerOfInflectionsAdjacentCurvatureExtremum {
 
 
-    constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents, indexCurveEx: number) {
-        super(sequenceDiffEvents1, sequenceDiffEvents2, indexCurveEx);
+    constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents) {
+        super(sequenceDiffEvents1, sequenceDiffEvents2);
     }
 
     locateDifferentialEvents(): NeighboringEvents {
@@ -773,8 +771,8 @@ export class LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum exten
 export class LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum extends LocalizerOfInflectionsAdjacentCurvatureExtremum {
 
 
-    constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents, indexCurveEx: number) {
-        super(sequenceDiffEvents1, sequenceDiffEvents2, indexCurveEx);
+    constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents) {
+        super(sequenceDiffEvents1, sequenceDiffEvents2);
     }
 
     locateDifferentialEvents(): NeighboringEvents {
