@@ -1,6 +1,6 @@
 import { DifferentialEvent, InflectionEvent, CurvatureExtremumEvent } from "./DifferentialEvent";
 import { SequenceOfIntervals } from "./SequenceOfIntervals";
-import { ModifiedCurvatureEvents } from "./ModifiedCurvatureEvents";
+import { ModifiedCurvatureEvents } from "./ModifiedDifferentialEvents";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 /* named constants */

@@ -1,30 +1,24 @@
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { ORDER_INFLECTION,
         ORDER_CURVATURE_EXTREMUM } from "./DifferentialEvent";
 
 export abstract class ModifiedDifferentialEvents {
 
-    private className: string;
     protected order: number;
     protected abstract _nbEvents: number;
 
     constructor(order: number) {
         this.order = order;
-        this.className = this.getClassName();
         this.checkOrder();
     }
 
     abstract set nbEvents(nbEventsModified: number);
     abstract get nbEvents(): number;
 
-    getClassName(): string {
-        this.className = this.constructor.name;
-        return this.className;
-    }
-
     checkOrder() {
         if(this.order !== ORDER_INFLECTION && this.order !== ORDER_CURVATURE_EXTREMUM) {
-            let e = new ErrorLog(this.className, "Inconsistent value of differential event order.")
+            const error = new ErrorLog(this.constructor.name, "checkOrder", "Inconsistent value of differential event order.");
+            error.logMessageToConsole();
         }
     }
 }
@@ -51,7 +45,8 @@ export class ModifiedCurvatureEvents extends ModifiedDifferentialEvents {
         this._indexInflection = indexInflection;
         this._nbEvents = nbEventsModified;
         if(this._nbEvents === 0) {
-            throw new Error("Warning: ModifiedEvents; the number of modified differential events is set to 0, which is incorrect.");
+            const warning = new WarningLog(this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.")
+            warning.logMessageToConsole();
         }
     }
 
@@ -96,7 +91,8 @@ export class ModifiedInflectionEvents extends ModifiedDifferentialEvents {
         this._indexCurvatureEx = indexCurvatureEx;
         this._nbEvents = nbEventsModified;
         if(this._nbEvents === 0) {
-            throw new Error("Warning: ModifiedEvents; the number of modified differential events is set to 0, which is incorrect.");
+            const warning = new WarningLog(this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.")
+            warning.logMessageToConsole();
         }
     }
 
