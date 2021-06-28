@@ -3,7 +3,7 @@ import { DifferentialEvent } from '../../src/sequenceOfDifferentialEvents/Differ
 import { SequenceOfDifferentialEvents } from '../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents';
 
 describe('SequenceOfDifferentialEvents', () => {
-
+    
     it('can return the lengthes of indices of inflections and the sequence length when there is no event in the sequence', () => {
         const seqDif1 = new SequenceOfDifferentialEvents();
         const seqLength = seqDif1.length();
@@ -58,6 +58,20 @@ describe('SequenceOfDifferentialEvents', () => {
         const inflection = 0;
         expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(1.0);
         expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence, 'sequence of intervals: ').to.eql([1.0]);
+    });
+
+    it('can add curvature extrema and inflections into an empty sequence', () => {
+        const seqDif1 = new SequenceOfDifferentialEvents();
+        seqDif1.insertEvents([0.05, 0.5], [0.2]);
+        expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(1);
+        expect(seqDif1.sequence.length, 'sequence length: ').to.eql(3);
+    });
+
+    it('can add curvature extrema only into an empty sequence', () => {
+        const seqDif1 = new SequenceOfDifferentialEvents();
+        seqDif1.insertEvents([0.05, 0.5], []);
+        expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(0);
+        expect(seqDif1.sequence.length, 'sequence length: ').to.eql(2);
     });
 
         // The inflection unsed here is the index of the inflection event in the sequence of inflections

@@ -49,45 +49,9 @@ export class SequenceOfDifferentialEvents {
                 this._sequence.push(event);
             }
         } else if(curvatureExtrema !== undefined && inflections !== undefined) {
-            let j = 0;
-            let currentLocExtrema = 0.0;
-            let indexExtrema = 0;
-            for(let i=0; i < curvatureExtrema.length; i += 1) {
-                if(i === 0) {
-                    currentLocExtrema = curvatureExtrema[i];
-                } else if(i > 0 && curvatureExtrema[i] > currentLocExtrema) {
-                    currentLocExtrema = curvatureExtrema[i - 1];
-                } else {
-                    indexExtrema = i;
-                }
-                if(curvatureExtrema[i] > inflections[j]) {
-                    while(curvatureExtrema[i] > inflections[j]) {
-                        const inflectionEvent = new InflectionEvent(inflections[j]);
-                        this._sequence.push(inflectionEvent);
-                        j += 1;
-                    }
-                }
-                const curvatureEvent = new CurvatureExtremumEvent(curvatureExtrema[i]);
-                this._sequence.push(curvatureEvent);
-            }
-            if(j < inflections.length) {
-                const inflectionEvent = new InflectionEvent(inflections[j]);
-                this._sequence.push(inflectionEvent);
-                j += 1;
-            }
-            if(indexExtrema > 0) {
-                throw new Error("Inconsistent sequence of differential events because the location of curvature extrema is not stricly increasing at index."
-                + indexExtrema);
-            }
-            if(j < inflections.length) {
-                throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections.");
-            } else if(this._sequence.length !== curvatureExtrema.length + inflections.length) {
-                throw new Error("Inconsistent length of sequence of differential events.");
-            }
-            this.checkSequenceConsistency();
+            this.insertEvents(curvatureExtrema, inflections);
         }
         this._indicesOfInflections = this.generateIndicesInflection();
-
     }
 
     set event(event: DifferentialEvent) {
@@ -174,6 +138,46 @@ export class SequenceOfDifferentialEvents {
                 }
         }
         return oscillationIndices;
+    }
+
+    insertEvents(curvatureExtrema: number[], inflections: number[]):void {
+        let j = 0;
+        let currentLocExtrema = 0.0;
+        let indexExtrema = 0;
+        for(let i=0; i < curvatureExtrema.length; i += 1) {
+            if(i === 0) {
+                currentLocExtrema = curvatureExtrema[i];
+            } else if(i > 0 && curvatureExtrema[i] > currentLocExtrema) {
+                currentLocExtrema = curvatureExtrema[i - 1];
+            } else {
+                indexExtrema = i;
+            }
+            if(curvatureExtrema[i] > inflections[j]) {
+                while(curvatureExtrema[i] > inflections[j]) {
+                    const inflectionEvent = new InflectionEvent(inflections[j]);
+                    this._sequence.push(inflectionEvent);
+                    j += 1;
+                }
+            }
+            const curvatureEvent = new CurvatureExtremumEvent(curvatureExtrema[i]);
+            this._sequence.push(curvatureEvent);
+        }
+        if(j < inflections.length) {
+            const inflectionEvent = new InflectionEvent(inflections[j]);
+            this._sequence.push(inflectionEvent);
+            j += 1;
+        }
+        if(indexExtrema > 0) {
+            throw new Error("Inconsistent sequence of differential events because the location of curvature extrema is not stricly increasing at index."
+            + indexExtrema);
+        }
+        if(j < inflections.length) {
+            throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections.");
+        } else if(this._sequence.length !== curvatureExtrema.length + inflections.length) {
+            throw new Error("Inconsistent length of sequence of differential events.");
+        }
+        this.checkSequenceConsistency();
+        this._indicesOfInflections = this.generateIndicesInflection();
     }
 
     computeIntervalsBtwCurvatureExtrema(indexInflection: number): SequenceOfIntervals {
