@@ -7,8 +7,8 @@ export class CurveDifferentialEventsExtractor {
 
     public sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     private curve: BSpline_R1_to_R2;
-    private curvatureNumerator: BSpline_R1_to_R1;
-    private curvatureDerivativeNumerator: BSpline_R1_to_R1;
+    private _curvatureNumerator: BSpline_R1_to_R1;
+    private _curvatureDerivativeNumerator: BSpline_R1_to_R1;
     private curveDiffProperties: BSpline_R1_to_R2_DifferentialProperties;
     private inflectionLocations: number[] = [];
     private curvatureExtremaLocations: number[] = [];
@@ -16,9 +16,17 @@ export class CurveDifferentialEventsExtractor {
     constructor(curveToAnalyze: BSpline_R1_to_R2) {
         this.curve = curveToAnalyze;
         this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties(this.curve);
-        this.curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
-        this.curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
+        this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
+        this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents();
+    }
+
+    get curvatureNumerator(): BSpline_R1_to_R1 {
+        return this._curvatureNumerator;
+    }
+
+    get curvatureDerivativeNumerator(): BSpline_R1_to_R1 {
+        return this._curvatureDerivativeNumerator;
     }
 
     generateSeqOfDiffEvents(): SequenceOfDifferentialEvents {
@@ -31,8 +39,8 @@ export class CurveDifferentialEventsExtractor {
     update(curveToAnalyze: BSpline_R1_to_R2): void {
         this.curve = curveToAnalyze;
         this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties(this.curve);
-        this.curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
-        this.curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
+        this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
+        this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.generateSeqOfDiffEvents();
     }
 }
