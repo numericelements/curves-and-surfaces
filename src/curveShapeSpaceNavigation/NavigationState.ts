@@ -38,7 +38,7 @@ export abstract class NavigationState {
 
     protected curveConstraintsMonitoring(): void {};
 
-    
+
     abstract setControlOfCurvatureExtrema(): void;
 
     abstract setControlOfInflections(): void;
@@ -85,12 +85,6 @@ export class NavigationWithoutMonitoring extends NavigationState {
 
 export class NavigationWithoutMonitoringAndSliding extends NavigationState {
 
-    navigate(): void {
-        if(this.curveShapeSpaceNavigator.navigationParams.curvatureExtremaControl) {
-            this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoring(this.curveShapeSpaceNavigator));
-        }
-    }
-
     setControlOfCurvatureExtrema(): void {
         this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoringAndSliding(this.curveShapeSpaceNavigator));
     }
@@ -120,10 +114,6 @@ export class NavigationWithoutMonitoringAndSliding extends NavigationState {
 }
 
 export class NavigationWithCurvatureExtMonitoring extends NavigationState {
-
-    navigate(): void {
-
-    }
 
     setControlOfCurvatureExtrema(): void {
         let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
@@ -155,10 +145,6 @@ export class NavigationWithCurvatureExtMonitoring extends NavigationState {
 
 export class NavigationWithCurvatureExtMonitoringAndSliding extends NavigationState {
 
-    navigate(): void {
-
-    }
-
     setControlOfCurvatureExtrema(): void {
         let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
         warning.logMessageToConsole();
@@ -188,10 +174,6 @@ export class NavigationWithCurvatureExtMonitoringAndSliding extends NavigationSt
 }
 
 export class NavigationWithInflectionMonitoring extends NavigationState {
-
-    navigate(): void {
-
-    }
 
     setControlOfCurvatureExtrema(): void {
         this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoring(this.curveShapeSpaceNavigator));
@@ -223,10 +205,6 @@ export class NavigationWithInflectionMonitoring extends NavigationState {
 
 export class NavigationWithInflectionMonitoringAndSliding extends NavigationState {
 
-    navigate(): void {
-
-    }
-
     setControlOfCurvatureExtrema(): void {
         this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
     }
@@ -257,10 +235,6 @@ export class NavigationWithInflectionMonitoringAndSliding extends NavigationStat
 
 export class NavigationWithCurvatureExtAndInflectionMonitoring extends NavigationState {
 
-    navigate(): void {
-
-    }
-
     setControlOfCurvatureExtrema(): void {
         let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
         warning.logMessageToConsole();
@@ -290,10 +264,6 @@ export class NavigationWithCurvatureExtAndInflectionMonitoring extends Navigatio
 }
 
 export class NavigationWithCurvatureExtAndInflectionMonitoringAndSliding extends NavigationState {
-
-    navigate(): void {
-
-    }
 
     setControlOfCurvatureExtrema(): void {
         let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
