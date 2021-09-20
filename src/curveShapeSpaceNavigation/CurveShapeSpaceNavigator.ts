@@ -41,7 +41,7 @@ export class CurveShapeSpaceNavigator {
     public optimizer: Optimizer;
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
 
-    private navigationState: NavigationState;
+    public navigationState: NavigationState;
     private curveConstraintState: CurveConstraintState;
 
     constructor(curveModel: CurveModel) {
@@ -53,10 +53,10 @@ export class CurveShapeSpaceNavigator {
         this.targetCurve = this.curveModel.spline.clone();
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector_2d(0.0, 0.0)))
         this.shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this.currentCurve);
-        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.shapeSpaceDescriptor);
+        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this);
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.optimizedCurve = this.currentCurve;
-        this.curveAnalyserOptimizedtCurve = new CurveAnalyzer(this.optimizedCurve, this.shapeSpaceDescriptor);
+        this.curveAnalyserOptimizedtCurve = new CurveAnalyzer(this.optimizedCurve, this);
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
         this._navigationParameters = new ShapeNavigationParameters();

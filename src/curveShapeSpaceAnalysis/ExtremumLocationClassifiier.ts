@@ -2,7 +2,7 @@ import { sign } from "../linearAlgebra/MathVectorBasicOperations";
 
 export const INITIAL_INDEX = -1;
 
-interface ExtremumLocation {index: number, value: number};
+export interface ExtremumLocation {index: number, value: number};
 
 export class ExtremumLocationClassifier {
 

@@ -29,7 +29,7 @@ export class CurveDifferentialEventsExtractor {
         return this._curvatureDerivativeNumerator;
     }
 
-    generateSeqOfDiffEvents(): SequenceOfDifferentialEvents {
+    extractSeqOfDiffEvents(): SequenceOfDifferentialEvents {
         this.inflectionLocations = this.curvatureNumerator.zeros();
         this.curvatureExtremaLocations = this.curvatureDerivativeNumerator.zeros();
         this.sequenceOfDifferentialEvents.insertEvents(this.curvatureExtremaLocations, this.inflectionLocations);
@@ -41,6 +41,6 @@ export class CurveDifferentialEventsExtractor {
         this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties(this.curve);
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
-        this.generateSeqOfDiffEvents();
+        this.extractSeqOfDiffEvents();
     }
 }
