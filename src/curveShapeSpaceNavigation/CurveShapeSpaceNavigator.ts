@@ -11,9 +11,12 @@ import { NeighboringEvents } from "../sequenceOfDifferentialEvents/NeighboringEv
 import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents";
 import { CurveConstraints } from "./CurveConstraints";
 import { CurveShapeSpaceDescriptor } from "./CurveShapeSpaceDesccriptor";
-import { ShapeNavigationParameters } from "./ShapeNavigationParameters";
-import { NavigationState, NavigationWithoutMonitoring } from "./NavigationState";
+import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
+import { CurveModeler } from "../curveModeler/CurveModeler";
+import { CurveCategory } from "../curveModeler/CurveCategory";
+import { NavigationState, NavigationThroughSimplerShapeSpaces, NavigationStrictlyInsideShapeSpace } from "./NavigationState";
 import { CurveConstraintState, CurveConstraintNoConstraint} from "./CurveConstraintState";
+import { ShapeSpaceDiffEventsConfigurator } from "./ShapeSpaceDiffEventsConfigurator";
 
 export const MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 export const MAX_TRUST_REGION_RADIUS = 100;
@@ -21,6 +24,8 @@ export const CONVERGENCE_THRESHOLD = 10e-8;
 
 export class CurveShapeSpaceNavigator {
 
+    public curveModeler: CurveModeler;
+    public curveCategory: CurveCategory;
     public curveModel: CurveModel;
     private _selectedControlPoint?: number;
     private currentCurve: BSpline_R1_to_R2;
@@ -35,23 +40,28 @@ export class CurveShapeSpaceNavigator {
     public curveAnalyserOptimizedtCurve: CurveAnalyzer;
     private shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private diffEvents: NeighboringEvents;
-    private _navigationParameters: ShapeNavigationParameters;
+    //private _navigationParameters: ShapeSpaceDiffEventsStructure;
     private _curveConstraints: CurveConstraints;
     public optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
     public optimizer: Optimizer;
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
 
     public navigationState: NavigationState;
+    public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     private curveConstraintState: CurveConstraintState;
 
-    constructor(curveModel: CurveModel) {
-        this.curveModel = curveModel;
+    constructor(curveModeler: CurveModeler) {
+        this.curveModeler = curveModeler;
+        this.curveCategory = this.curveModeler.curveCategory;
+        this.curveModel = new CurveModel();
         this.currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
         this.displacementSelctdCP = new Vector_2d(0, 0);
         this.targetCurve = this.curveModel.spline.clone();
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector_2d(0.0, 0.0)))
+        this.navigationState = new NavigationStrictlyInsideShapeSpace(this);
+        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this.curveModeler.curveSceneController);
         this.shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this.currentCurve);
         this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this);
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
@@ -59,19 +69,19 @@ export class CurveShapeSpaceNavigator {
         this.curveAnalyserOptimizedtCurve = new CurveAnalyzer(this.optimizedCurve, this);
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
-        this._navigationParameters = new ShapeNavigationParameters();
+        //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
         this._curveConstraints = new CurveConstraints();
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
 
-        this.navigationState = new NavigationWithoutMonitoring(this);
+        this.navigationState = new NavigationThroughSimplerShapeSpaces(this);
         this.curveConstraintState = new CurveConstraintNoConstraint(this);
     }
 
-    set navigationParams(navigationParameters: ShapeNavigationParameters) {
-        this._navigationParameters = navigationParameters;
-    }
+    // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
+    //     this._navigationParameters = navigationParameters;
+    // }
 
     set curveConstraints(curveConstraints: CurveConstraints) {
         this._curveConstraints = curveConstraints;
@@ -90,9 +100,9 @@ export class CurveShapeSpaceNavigator {
         }
     }
 
-    get navigationParams(): ShapeNavigationParameters {
-        return this._navigationParameters;
-    }
+    // get navigationParams(): ShapeSpaceDiffEventsStructure {
+    //     return this._navigationParameters;
+    // }
 
     get curveConstraints(): CurveConstraints {
         return this._curveConstraints;
@@ -111,7 +121,7 @@ export class CurveShapeSpaceNavigator {
         }
     }
 
-    changeState(state: NavigationState): void {
+    changeNavigationState(state: NavigationState): void {
         this.navigationState = state;
     }
 
@@ -144,10 +154,10 @@ export class CurveShapeSpaceNavigator {
         this.optimizationProblem.setTargetSpline(this.targetCurve);
     }
 
-    updateOptimizerStatus(): void {
-        if(this._navigationParameters.inflectionControl === false && this._navigationParameters.curvatureExtremaControl === false) this._optimizationProblemParam.optimizerStatus = false;
-        if(this._navigationParameters.inflectionControl === true || this._navigationParameters.curvatureExtremaControl === true) this._optimizationProblemParam.optimizerStatus = true;
-    }
+    // updateOptimizerStatus(): void {
+    //     if(this._navigationParameters.inflectionControl === false && this._navigationParameters.curvatureExtremaControl === false) this._optimizationProblemParam.optimizerStatus = false;
+    //     if(this._navigationParameters.inflectionControl === true || this._navigationParameters.curvatureExtremaControl === true) this._optimizationProblemParam.optimizerStatus = true;
+    // }
 
     curveDisplacement(): void {
         for(let i = 0; i < this.displacementCurrentCurveControlPolygon.length; i+=1) {

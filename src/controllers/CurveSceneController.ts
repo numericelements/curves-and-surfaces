@@ -36,6 +36,8 @@ import { NONAME } from "dns";
 
 import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"
 
+import { CurveModeler } from "../curveModeler/CurveModeler";
+
 
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
@@ -99,6 +101,8 @@ export class CurveSceneController implements SceneControllerInterface {
     public counterLostEvent: number = 0
     public lastLostEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: 0}
 
+    /* JCL 2021/09/29 Add modeller for new code architecture */
+    public curveModeler: CurveModeler;
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = [],
         public curveModel?: CurveModel) {
@@ -176,6 +180,10 @@ export class CurveSceneController implements SceneControllerInterface {
 
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
         this.sliding = true
+
+
+        /* JCL 2021/09/29 Add modeller for new code architecture */
+        this.curveModeler = new CurveModeler(this);
     }
 
     renderFrame() {
@@ -418,13 +426,13 @@ export class CurveSceneController implements SceneControllerInterface {
     toggleControlOfCurvatureExtrema() {
         this.curveControl.toggleControlOfCurvatureExtrema()
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
-        //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+        //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
     }
 
     toggleControlOfInflections() {
         this.curveControl.toggleControlOfInflections()
         this.controlOfInflection = ! this.controlOfInflection
-        //console.log("constrol of inflections: " + this.controlOfInflection)
+        //console.log("control of inflections: " + this.controlOfInflection)
     }
 
 

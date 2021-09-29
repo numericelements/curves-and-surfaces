@@ -4,6 +4,8 @@ import { CurveShapeSpaceNavigator,
         MAX_TRUST_REGION_RADIUS,
         MAX_NB_STEPS_TRUST_REGION_OPTIMIZER } from "./CurveShapeSpaceNavigator";
 import { ComparatorOfSequencesOfDiffEvents } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+import { OpenMode } from "fs";
+
 
 export abstract class NavigationState {
 
@@ -12,6 +14,14 @@ export abstract class NavigationState {
     constructor(curveNavigator: CurveShapeSpaceNavigator) {
         this.curveShapeSpaceNavigator = curveNavigator;
     }
+
+    setCurveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): void {
+        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    }
+
+    abstract setNavigationStrictlyInsideShapeSpace(): void;
+
+    abstract setNavigationThroughSimplerShapeSpaces(): void;
 
     public navigate(): void {
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
@@ -39,256 +49,73 @@ export abstract class NavigationState {
     protected curveConstraintsMonitoring(): void {};
 
 
-    abstract setControlOfCurvatureExtrema(): void;
+    // abstract setControlOfCurvatureExtrema(): void;
 
-    abstract setControlOfInflections(): void;
+    // abstract setControlOfInflections(): void;
 
-    abstract setSliding(): void;
+    // abstract setSliding(): void;
 
-    abstract removeControlOfCurvatureExtrema(): void;
+    // abstract removeControlOfCurvatureExtrema(): void;
 
-    abstract removeControlOfInflections(): void;
+    // abstract removeControlOfInflections(): void;
 
-    abstract removeSliding(): void;
+    // abstract removeSliding(): void;
 }
 
-export class NavigationWithoutMonitoring extends NavigationState {
+export class NavigationThroughSimplerShapeSpaces extends NavigationState {
 
-    setControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoring(this.curveShapeSpaceNavigator));
+
+    constructor(curveNavigator: CurveShapeSpaceNavigator) {
+        super(curveNavigator);
     }
 
-    setControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoring(this.curveShapeSpaceNavigator));
+    setNavigationStrictlyInsideShapeSpace(): void {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
     }
 
-    setSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "removeSliding", "no state change there.");
-        warning.logMessageToConsole();
+    setNavigationThroughSimplerShapeSpaces(): void {
+        console.log("No navigation process to change there.");
     }
 
 }
 
-export class NavigationWithoutMonitoringAndSliding extends NavigationState {
+export class NavigationStrictlyInsideShapeSpace extends NavigationState {
 
-    setControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoringAndSliding(this.curveShapeSpaceNavigator));
+    setNavigationThroughSimplerShapeSpaces(): void {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
     }
 
-    setControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    setSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "setSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoring(this.curveShapeSpaceNavigator));
+    setNavigationStrictlyInsideShapeSpace(): void {
+        console.log("No navigation process to change there.");
     }
 }
+// export class NavigationWithoutMonitoring extends NavigationState {
 
-export class NavigationWithCurvatureExtMonitoring extends NavigationState {
+//     setControlOfCurvatureExtrema(): void {
+//         this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoring(this.curveShapeSpaceNavigator));
+//     }
 
-    setControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
+//     setControlOfInflections(): void {
+//         this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoring(this.curveShapeSpaceNavigator));
+//     }
 
-    setControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoring(this.curveShapeSpaceNavigator));
-    }
+//     setSliding(): void {
+//         this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoringAndSliding(this.curveShapeSpaceNavigator));
+//     }
 
-    setSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
+//     removeControlOfCurvatureExtrema(): void {
+//         let warning = new WarningLog(this.constructor.name, "removeControlOfCurvatureExtrema", "no state change there.");
+//         warning.logMessageToConsole();
+//     }
 
-    removeControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoring(this.curveShapeSpaceNavigator));
-    }
+//     removeControlOfInflections(): void {
+//         let warning = new WarningLog(this.constructor.name, "removeControlOfInflections", "no state change there.");
+//         warning.logMessageToConsole();
+//     }
 
-    removeControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
+//     removeSliding(): void {
+//         let warning = new WarningLog(this.constructor.name, "removeSliding", "no state change there.");
+//         warning.logMessageToConsole();
+//     }
 
-    removeSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "removeSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-}
-
-export class NavigationWithCurvatureExtMonitoringAndSliding extends NavigationState {
-
-    setControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    setSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "setSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoring(this.curveShapeSpaceNavigator));
-    }
-}
-
-export class NavigationWithInflectionMonitoring extends NavigationState {
-
-    setControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoring(this.curveShapeSpaceNavigator));
-    }
-
-    setControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoring(this.curveShapeSpaceNavigator));
-    }
-
-    removeSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "removeSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-}
-
-export class NavigationWithInflectionMonitoringAndSliding extends NavigationState {
-
-    setControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    setControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "setSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "removeControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoring(this.curveShapeSpaceNavigator));
-    }
-}
-
-export class NavigationWithCurvatureExtAndInflectionMonitoring extends NavigationState {
-
-    setControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoring(this.curveShapeSpaceNavigator));
-    }
-
-    removeControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoring(this.curveShapeSpaceNavigator));
-    }
-
-    removeSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "removeSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-}
-
-export class NavigationWithCurvatureExtAndInflectionMonitoringAndSliding extends NavigationState {
-
-    setControlOfCurvatureExtrema(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfCurvatureExtrema", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setControlOfInflections(): void {
-        let warning = new WarningLog(this.constructor.name, "setControlOfInflections", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    setSliding(): void {
-        let warning = new WarningLog(this.constructor.name, "setSliding", "no state change there.");
-        warning.logMessageToConsole();
-    }
-
-    removeControlOfCurvatureExtrema(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeControlOfInflections(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoringAndSliding(this.curveShapeSpaceNavigator));
-    }
-
-    removeSliding(): void {
-        this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtAndInflectionMonitoring(this.curveShapeSpaceNavigator));
-    }
-}
+// }

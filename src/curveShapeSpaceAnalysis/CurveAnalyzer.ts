@@ -5,7 +5,9 @@ import { CurveShapeSpaceDescriptor } from "../../src/curveShapeSpaceNavigation/C
 import { ExtremumLocationClassifier,
     ExtremumLocation,
     INITIAL_INDEX } from "./ExtremumLocationClassifiier";
-import { NavigationState, NavigationWithoutMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
+import { NavigationState, 
+        NavigationThroughSimplerShapeSpaces,
+        NavigationStrictlyInsideShapeSpace } from "../curveShapeSpaceNavigation/NavigationState";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
