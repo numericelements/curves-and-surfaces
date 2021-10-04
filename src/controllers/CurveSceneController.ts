@@ -424,6 +424,9 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     toggleControlOfCurvatureExtrema() {
+        /* JCL 2021/09/29 Add modeller for new code architecture */
+        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.addCurvatureExtremaToShapeSpaceStructure();
+
         this.curveControl.toggleControlOfCurvatureExtrema()
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
         //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)

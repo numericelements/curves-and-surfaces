@@ -1,97 +1,89 @@
 import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure"; 
+import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { CurveModels2D } from "../models/CurveModels2D";
 
-export abstract class ShapeSpaceDiffEventsConfigurator {
+// export abstract class ShapeSpaceDiffEventsConfigurator {
 
-    protected shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
+//     protected shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
 
-    constructor(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
-        this.shapSpaceDiffEventsStructure = shapSpaceDiffEventsStructure;
-    }
+//     constructor(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+//         this.shapSpaceDiffEventsStructure = shapSpaceDiffEventsStructure;
+//     }
 
-    setShapeSpaceDiffEventsStructure(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        this.shapSpaceDiffEventsStructure = shapSpaceDiffEventsStructure;
-    }
+//     setShapeSpaceDiffEventsStructure(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+//         this.shapSpaceDiffEventsStructure = shapSpaceDiffEventsStructure;
+//     }
 
-    abstract setShapeSpaceMonitoringToInflections(): void;
+//     abstract setShapeSpaceMonitoringToInflections(): void;
 
-    abstract setShapeSpaceMonitoringToCurvatureExtrema(): void;
-}
+//     abstract setShapeSpaceMonitoringToCurvatureExtrema(): void;
 
-export class ShapeSpaceConfiguratorWithInflections extends ShapeSpaceDiffEventsConfigurator {
+//     abstract setShapeSpaceMonitoringToInflectionsAndCurvatureExtrema(): void;
+// }
+
+export class ShapeSpaceConfiguratorWithInflections implements ShapeSpaceDiffEvventsConfigurator {
 
     //public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
     constructor(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
-        super(shapSpaceDiffEventsStructure);
+
 
         //this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
     }
-    setShapeSpaceMonitoringToCurvatureExtrema(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+
+    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
+
     }
 
-    setShapeSpaceMonitoringToInflectionsAndCurvatureExtrema(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
-
-    setShapeSpaceMonitoringToNoMonitoring(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
-
-    setShapeSpaceMonitoringToInflections(): void {
-        console.log("no state change there.");
-    }
+    // setShapeSpaceMonitoringToCurvatureExtrema(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+    // }
 
 }
 
-export class ShapeSpaceConfiguratorWithCurvatureExtrema extends ShapeSpaceDiffEventsConfigurator {
+export class ShapeSpaceConfiguratorWithCurvatureExtrema implements ShapeSpaceDiffEvventsConfigurator {
 
-    setShapeSpaceMonitoringToInflections(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflections(this.shapSpaceDiffEventsStructure));
+    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
+
     }
 
-    setShapeSpaceMonitoringToInflectionsAndCurvatureExtrema(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
 
-    setShapeSpaceMonitoringToNoMonitoring(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
+    // setShapeSpaceMonitoringToInflections(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflections(this.shapSpaceDiffEventsStructure));
+    // }
 
-    setShapeSpaceMonitoringToCurvatureExtrema(): void {
-        console.log("no state change there.");
-    }
+    // removeCurvatureExtremaFromShapeSpaceMonitoring(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+    // }
 }
 
-export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema extends ShapeSpaceDiffEventsConfigurator {
+export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema implements ShapeSpaceDiffEvventsConfigurator {
 
-    setShapeSpaceMonitoringToInflections(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflections(this.shapSpaceDiffEventsStructure));
+    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
+
     }
 
-    setShapeSpaceMonitoringToCurvatureExtrema(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
 
-    // JCL transition dependant de l'IHM
-    setShapeSpaceMonitoringToNoMonitoring(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
+    // setShapeSpaceMonitoringToNoMonitoring(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+    // }
 
+    // setShapeSpaceMonitoringToInflectionsAndCurvatureExtrema(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+    // }
 }
 
-export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema extends ShapeSpaceDiffEventsConfigurator {
+export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema implements ShapeSpaceDiffEvventsConfigurator {
 
-    setShapeSpaceMonitoringToInflections(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflections(this.shapSpaceDiffEventsStructure));
+    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
+
     }
 
-    setShapeSpaceMonitoringToCurvatureExtrema(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
+    // setShapeSpaceMonitoringToInflections(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflections(this.shapSpaceDiffEventsStructure));
+    // }
 
-    // JCL transition dependant de l'IHM
-    setShapeSpaceMonitoringToInflectionsAndCurvatureExtrema(): void {
-        this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema(this.shapSpaceDiffEventsStructure));
-    }
+    // setShapeSpaceMonitoringToCurvatureExtrema(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+    // }
 }

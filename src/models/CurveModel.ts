@@ -132,7 +132,6 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
         }
     }
 
-    
     setControlPoint(controlPointIndex: number, x: number, y: number) {
         this.spline.setControlPoint(controlPointIndex, new Vector_2d(x, y))
         //this.notifyObservers()
@@ -147,9 +146,4 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
         this.spline = spline
         this.notifyObservers()
     }
-    
-
-
-
-
 }

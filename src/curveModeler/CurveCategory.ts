@@ -1,6 +1,7 @@
 import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { CurveModel } from "../models/CurveModel";
+import { OpenCurveModel2D } from "../models/CurveModels2D";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 export abstract class CurveCategory {
 
@@ -24,12 +25,12 @@ export class OpenPlanarCurve extends CurveCategory {
     public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
     // JCL temporaire: pour assurer la compatibilité avec les classes existantes
-    public curveModel: CurveModel;
+    public curveModel: OpenCurveModel2D;
 
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
         // JCL temporaire: pour assurer la compatibilité avec les classes existantes
-        this.curveModel = new CurveModel();
+        this.curveModel = new OpenCurveModel2D();
 
         this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
     }
@@ -38,7 +39,8 @@ export class OpenPlanarCurve extends CurveCategory {
     }
 
     setCurveCategoryToOpenPlanar(): void {
-        console.log("No curve categoiry change there.");
+        let warning = new WarningLog(this.constructor.name, "setCurveCategoryToOpenPlanar", "No curve category change there.");
+        warning.logMessageToConsole();
     }
 }
 
@@ -49,6 +51,7 @@ export class ClosedPlanarCurve extends CurveCategory {
     }
 
     setCurveCategoryToClosedPlanar(): void {
-        console.log("No curve categoiry change there.");
+        let warning = new WarningLog(this.constructor.name, "setCurveCategoryToOpenPlanar", "No curve category change there.");
+        warning.logMessageToConsole();
     }
 }
