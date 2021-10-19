@@ -15,8 +15,11 @@ import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
 import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveModels2D } from "../models/CurveModels2D";
 import { NavigationState, NavigationThroughSimplerShapeSpaces, NavigationStrictlyInsideShapeSpace } from "./NavigationState";
-import { CurveConstraintState, CurveConstraintNoConstraint} from "./CurveConstraintState";
+import { CurveConstraintNoConstraint} from "./CurveConstraintStrategy";
 import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { CurveCategory } from "../curveModeler/CurveCategory";
+import { ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding, ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding } from "./ShapeSpaceDiffEventsConfigurator";
+import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 
 export const MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 export const MAX_TRUST_REGION_RADIUS = 100;
@@ -25,7 +28,7 @@ export const CONVERGENCE_THRESHOLD = 10e-8;
 export class CurveShapeSpaceNavigator {
 
     public curveModeler: CurveModeler;
-    public curveCategory: CurveModels2D;
+    public curveCategory: CurveCategory;
     public curveModel: CurveModel;
     private _selectedControlPoint?: number;
     private currentCurve: BSpline_R1_to_R2;
@@ -49,7 +52,7 @@ export class CurveShapeSpaceNavigator {
     public navigationState: NavigationState;
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
-    private curveConstraintState: CurveConstraintState;
+    private curveConstraintProcessor: CurveConstraintProcessor;
 
     constructor(curveModeler: CurveModeler) {
         this.curveModeler = curveModeler;
@@ -62,6 +65,7 @@ export class CurveShapeSpaceNavigator {
         this.targetCurve = this.curveModel.spline.clone();
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector_2d(0.0, 0.0)))
         this.navigationState = new NavigationStrictlyInsideShapeSpace(this);
+        this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
         this.shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this.currentCurve);
         this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this);
@@ -71,13 +75,13 @@ export class CurveShapeSpaceNavigator {
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
         //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
-        this._curveConstraints = new CurveConstraints();
+        this.curveConstraintProcessor = new CurveConstraintNoConstraint();
+        this._curveConstraints = new CurveConstraints(this.curveConstraintProcessor);
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
 
         this.navigationState = new NavigationThroughSimplerShapeSpaces(this);
-        this.curveConstraintState = new CurveConstraintNoConstraint(this);
     }
 
     // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
@@ -126,8 +130,8 @@ export class CurveShapeSpaceNavigator {
         this.navigationState = state;
     }
 
-    changeCurveState(state: CurveConstraintState): void {
-        this.curveConstraintState = state;
+    changeCurveState(state: CurveConstraintProcessor): void {
+        this.curveConstraintProcessor = state;
     }
 
     // initializeNavigationStep(): void {

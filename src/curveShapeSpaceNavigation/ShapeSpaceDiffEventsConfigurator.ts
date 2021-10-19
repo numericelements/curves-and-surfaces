@@ -1,38 +1,22 @@
 import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure"; 
-import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceDiffEvventsConfigurator as ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveModels2D } from "../models/CurveModels2D";
+import { CurveCategory } from "../curveModeler/CurveCategory";
 
-// export abstract class ShapeSpaceDiffEventsConfigurator {
 
-//     protected shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
+export class ShapeSpaceConfiguratorWithInflectionsNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-//     constructor(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
-//         this.shapSpaceDiffEventsStructure = shapSpaceDiffEventsStructure;
-//     }
-
-//     setShapeSpaceDiffEventsStructure(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-//         this.shapSpaceDiffEventsStructure = shapSpaceDiffEventsStructure;
-//     }
-
-//     abstract setShapeSpaceMonitoringToInflections(): void;
-
-//     abstract setShapeSpaceMonitoringToCurvatureExtrema(): void;
-
-//     abstract setShapeSpaceMonitoringToInflectionsAndCurvatureExtrema(): void;
-// }
-
-export class ShapeSpaceConfiguratorWithInflections implements ShapeSpaceDiffEvventsConfigurator {
-
+    private curveModel: CurveCategory;
     //public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
-    constructor(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
-
+    constructor(curveModel: CurveCategory) {
+        this.curveModel = curveModel;
 
         //this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
     }
 
-    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
-
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = true;
     }
 
     // setShapeSpaceMonitoringToCurvatureExtrema(): void {
@@ -41,10 +25,10 @@ export class ShapeSpaceConfiguratorWithInflections implements ShapeSpaceDiffEvve
 
 }
 
-export class ShapeSpaceConfiguratorWithCurvatureExtrema implements ShapeSpaceDiffEvventsConfigurator {
+export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
-
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = true;
     }
 
 
@@ -57,10 +41,10 @@ export class ShapeSpaceConfiguratorWithCurvatureExtrema implements ShapeSpaceDif
     // }
 }
 
-export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema implements ShapeSpaceDiffEvventsConfigurator {
+export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
-
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = true;
     }
 
 
@@ -73,10 +57,57 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtrema implements
     // }
 }
 
-export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtrema implements ShapeSpaceDiffEvventsConfigurator {
+export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void {
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = false;
+    }
 
+    // setShapeSpaceMonitoringToInflections(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflections(this.shapSpaceDiffEventsStructure));
+    // }
+
+    // setShapeSpaceMonitoringToCurvatureExtrema(): void {
+    //     this.shapSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtrema(this.shapSpaceDiffEventsStructure));
+    // }
+}
+
+export class ShapeSpaceConfiguratorWithInflectionsSliding implements ShapeSpaceDiffEventsConfigurator {
+
+    private curveModel: CurveCategory;
+    //public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+
+    constructor(curveModel: CurveCategory) {
+        this.curveModel = curveModel;
+
+    }
+
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = true;
+    }
+
+}
+
+export class ShapeSpaceConfiguratorWithCurvatureExtremaSliding implements ShapeSpaceDiffEventsConfigurator {
+
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = true;
+    }
+
+}
+
+export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding implements ShapeSpaceDiffEventsConfigurator {
+
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = true;
+    }
+
+}
+
+export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding implements ShapeSpaceDiffEventsConfigurator {
+
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapSpaceDiffEventsStructure.navigation = false;
     }
 
     // setShapeSpaceMonitoringToInflections(): void {

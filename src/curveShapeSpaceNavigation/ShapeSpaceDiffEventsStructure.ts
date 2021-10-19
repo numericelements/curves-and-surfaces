@@ -15,21 +15,25 @@
 import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveModels2D } from "../models/CurveModels2D";
 import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { CurveCategory } from "../curveModeler/CurveCategory";
 
 export class ShapeSpaceDiffEventsStructure {
 
-    // private _activeControlInflections: boolean;
-    // private _activeControlCurvatureExtrema: boolean;
+    private _activeControlInflections: boolean;
+    private _activeControlCurvatureExtrema: boolean;
     private _activeNavigationWithOptimizer: boolean;
-    // private _slidingDifferentialEvents: boolean;
+    private _slidingDifferentialEvents: boolean;
     public shapeSpaceConfigurator: ShapeSpaceDiffEvventsConfigurator;
-    private curveModel: CurveModels2D;
+    public curveModel: CurveCategory;
 
 
     constructor(curveModeler: CurveModeler, shapeSpaceConfigurator: ShapeSpaceDiffEvventsConfigurator) {
         this.curveModel = curveModeler.curveCategory;
         this.shapeSpaceConfigurator = shapeSpaceConfigurator;
         this._activeNavigationWithOptimizer = false;
+        this._activeControlInflections = false;
+        this._activeControlCurvatureExtrema = false;
+        this._slidingDifferentialEvents =  false;
         // if(controlOfInflections !== undefined) {
         //     this._activeControlInflections = controlOfInflections;
         //     this._activeNavigationWithOptimizer = true;
@@ -46,35 +50,35 @@ export class ShapeSpaceDiffEventsStructure {
         //}
     }
 
-    // set inflectionControl(controlOfInflections: boolean) {
-    //     this._activeControlInflections = controlOfInflections;
-    //     if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) this._activeNavigationWithOptimizer = false;
-    // }
+    set inflectionControl(controlOfInflections: boolean) {
+        this._activeControlInflections = controlOfInflections;
+        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) this._activeNavigationWithOptimizer = false;
+    }
 
-    // set curvatureExtremaControl(controlOfCurvatureExtrema: boolean) {
-    //     this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-    //     if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) this._activeNavigationWithOptimizer = false;
-    // }
+    set curvatureExtremaControl(controlOfCurvatureExtrema: boolean) {
+        this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
+        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) this._activeNavigationWithOptimizer = false;
+    }
 
-    // set differentialEventSliding(slidingDiffEvents: boolean) {
-    //     this._slidingDifferentialEvents = slidingDiffEvents;
-    // }
+    set slidingStatus(slidingDiffEvents: boolean) {
+        this._slidingDifferentialEvents = slidingDiffEvents;
+    }
 
     set navigation(activeNavigation: boolean) {
         this._activeNavigationWithOptimizer = activeNavigation;
     }
 
-    // get inflectionControl(): boolean {
-    //     return this._activeControlInflections;
-    // }
+    get inflectionControl(): boolean {
+        return this._activeControlInflections;
+    }
 
-    // get curvatureExtremaControl(): boolean {
-    //     return this._activeControlCurvatureExtrema;
-    // }
+    get curvatureExtremaControl(): boolean {
+        return this._activeControlCurvatureExtrema;
+    }
 
-    // get slidingStatus(): boolean {
-    //     return this._slidingDifferentialEvents;
-    // }
+    get slidingStatus(): boolean {
+        return this._slidingDifferentialEvents;
+    }
 
     get navigationStatus(): boolean {
         return this._activeNavigationWithOptimizer;
@@ -101,14 +105,11 @@ export class ShapeSpaceDiffEventsStructure {
     }
 
     monitorCurveShape(): void {
-        this.shapeSpaceConfigurator.monitorCurveUsingDiffrentialEvents(this.curveModel);
+        this.shapeSpaceConfigurator.monitorCurveUsingDifferentialEvents(this);
     }
 
     // addInflectionsToShapeSpaceStructure(): void {
     //     this.shapeSpaceConfigurator.setShapeSpaceMonitoringToInflections();
     // }  
     
-    // addCurvatureExtremaToShapeSpaceStructure(): void {
-    //     this.shapeSpaceConfigurator.setShapeSpaceMonitoringToCurvatureExtrema();
-    // }
 }

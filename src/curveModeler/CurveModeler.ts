@@ -1,4 +1,5 @@
-import{ CurveModels2D, OpenPlanarCurve } from "../curveModeler/CurveModels2D";
+import { CurveCategory, OpenPlanarCurve } from "../curveModeler/CurveCategory";
+import { CurveModels2D } from "../models/CurveModels2D";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 
@@ -6,7 +7,7 @@ enum CurveType { PLANAR_OPEN, PLANAR_CLOSED }
 
 export class CurveModeler{
     public curveType: CurveType;
-    public curveCategory: CurveModels2D;
+    public curveCategory: CurveCategory;
     public curveSceneController: CurveSceneController;
     public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
@@ -18,7 +19,7 @@ export class CurveModeler{
 
     }
 
-    changeCurveCategory(category: CurveModels2D): void {
+    changeCurveCategory(category: CurveCategory): void {
         this.curveCategory = category;
         this.curveCategory.setCurveModeler(this);
     }

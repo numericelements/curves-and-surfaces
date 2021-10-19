@@ -1,3 +1,4 @@
+import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 
 export enum ConstraintType {none, location, tangent, locationAndTangent}
 
@@ -7,16 +8,13 @@ export class CurveConstraints {
 
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
+    private curveConstraintProcessor: CurveConstraintProcessor;
 
-    constructor(constraintAtFirstPoint?: ConstraintType, constraintAtLastPoint?: ConstraintType) {
+    constructor(curveConstraintProcessor: CurveConstraintProcessor) {
+        this.curveConstraintProcessor = curveConstraintProcessor;
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
-        if(constraintAtFirstPoint !== undefined) {
-            this._firstControlPoint = constraintAtFirstPoint;
-        }
-        if(constraintAtLastPoint !== undefined) {
-            this._lastControlPoint = constraintAtLastPoint;
-        }
+
     }
 
     set constraintAtFirstPoint(constraintAtFirstPoint: ConstraintType) {
@@ -35,18 +33,26 @@ export class CurveConstraints {
         return this._lastControlPoint;
     }
 
-    clearConstraint(extremity: CurveExtremity): void {
-        if(extremity === CurveExtremity.first) {
-            this._firstControlPoint = ConstraintType.none;
-        }
-        if(extremity === CurveExtremity.last) {
-            this._lastControlPoint = ConstraintType.none;
-        }
+    setConstraint(curveConstraintProcessor: CurveConstraintProcessor): void {
+        this.curveConstraintProcessor = curveConstraintProcessor;
     }
 
-    clearAll(): void {
-        this._firstControlPoint = ConstraintType.none;
-        this._lastControlPoint = ConstraintType.none;
+    processConstraint(): void {
+        this.curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
     }
+
+    // clearConstraint(extremity: CurveExtremity): void {
+    //     if(extremity === CurveExtremity.first) {
+    //         this._firstControlPoint = ConstraintType.none;
+    //     }
+    //     if(extremity === CurveExtremity.last) {
+    //         this._lastControlPoint = ConstraintType.none;
+    //     }
+    // }
+
+    // clearAll(): void {
+    //     this._firstControlPoint = ConstraintType.none;
+    //     this._lastControlPoint = ConstraintType.none;
+    // }
 
 }

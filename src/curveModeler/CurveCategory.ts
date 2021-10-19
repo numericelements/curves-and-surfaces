@@ -2,6 +2,8 @@ import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { OpenCurveModel2D } from "../models/CurveModels2D";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
+import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
 
 export abstract class CurveCategory {
 
@@ -15,9 +17,8 @@ export abstract class CurveCategory {
         this.curveModeler = curveModeler;
     }
 
-    abstract setCurveCategoryToClosedPlanar(): void;
+    abstract setCurveCategory(): void;
 
-    abstract setCurveCategoryToOpenPlanar(): void;
 }
 
 export class OpenPlanarCurve extends CurveCategory {
@@ -26,32 +27,44 @@ export class OpenPlanarCurve extends CurveCategory {
 
     // JCL temporaire: pour assurer la compatibilité avec les classes existantes
     public curveModel: OpenCurveModel2D;
+    public eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+    public eventState: EventStateAtCurveExtremity;
+    public curveEventAtExtremityMayVanish: boolean;
 
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
         // JCL temporaire: pour assurer la compatibilité avec les classes existantes
         this.curveModel = new OpenCurveModel2D();
+        this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities();
+        this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
+        this.eventState = new EventSlideOutsideCurve(this.eventMgmtAtExtremities);
 
         this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
     }
-    setCurveCategoryToClosedPlanar(): void {
+
+    setCurveCategory(): void {
         this.curveModeler.changeCurveCategory(new ClosedPlanarCurve(this.curveModeler));
     }
 
-    setCurveCategoryToOpenPlanar(): void {
-        let warning = new WarningLog(this.constructor.name, "setCurveCategoryToOpenPlanar", "No curve category change there.");
-        warning.logMessageToConsole();
-    }
 }
 
 export class ClosedPlanarCurve extends CurveCategory {
 
-    setCurveCategoryToOpenPlanar(): void {
+    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+
+    // JCL temporaire: pour assurer la compatibilité avec les classes existantes
+    public curveModel: ClosedPlanarCurve;
+
+    constructor(curveModeler: CurveModeler) {
+        super(curveModeler);
+        // JCL temporaire: pour assurer la compatibilité avec les classes existantes
+        this.curveModel = new ClosedPlanarCurve(this.curveModeler);
+
+        this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
+    }
+
+    setCurveCategory(): void {
         this.curveModeler.changeCurveCategory(new OpenPlanarCurve(this.curveModeler));
     }
 
-    setCurveCategoryToClosedPlanar(): void {
-        let warning = new WarningLog(this.constructor.name, "setCurveCategoryToOpenPlanar", "No curve category change there.");
-        warning.logMessageToConsole();
-    }
 }

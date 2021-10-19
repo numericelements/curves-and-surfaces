@@ -23,6 +23,8 @@ export abstract class NavigationState {
 
     abstract setNavigationThroughSimplerShapeSpaces(): void;
 
+    abstract setNavigationWithoutShapeSpaceMonitoring(): void;
+
     public navigate(): void {
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
@@ -49,17 +51,28 @@ export abstract class NavigationState {
     protected curveConstraintsMonitoring(): void {};
 
 
-    // abstract setControlOfCurvatureExtrema(): void;
+}
 
-    // abstract setControlOfInflections(): void;
+export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
 
-    // abstract setSliding(): void;
 
-    // abstract removeControlOfCurvatureExtrema(): void;
+    constructor(curveNavigator: CurveShapeSpaceNavigator) {
+        super(curveNavigator);
+    }
 
-    // abstract removeControlOfInflections(): void;
+    setNavigationStrictlyInsideShapeSpace(): void {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
+    }
 
-    // abstract removeSliding(): void;
+    setNavigationThroughSimplerShapeSpaces(): void {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
+    }
+
+    setNavigationWithoutShapeSpaceMonitoring(): void {
+        let warning = new WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
+        warning.logMessageToConsole();
+    }
+
 }
 
 export class NavigationThroughSimplerShapeSpaces extends NavigationState {
@@ -74,7 +87,12 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
     }
 
     setNavigationThroughSimplerShapeSpaces(): void {
-        console.log("No navigation process to change there.");
+        let warning = new WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
+        warning.logMessageToConsole();
+    }
+
+    setNavigationWithoutShapeSpaceMonitoring(): void {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     }
 
 }
@@ -86,36 +104,11 @@ export class NavigationStrictlyInsideShapeSpace extends NavigationState {
     }
 
     setNavigationStrictlyInsideShapeSpace(): void {
-        console.log("No navigation process to change there.");
+        let warning = new WarningLog(this.constructor.name, "setNavigationStrictlyInsideShapeSpace", "No navigation process to change there.");
+        warning.logMessageToConsole();
+    }
+
+    setNavigationWithoutShapeSpaceMonitoring(): void {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     }
 }
-// export class NavigationWithoutMonitoring extends NavigationState {
-
-//     setControlOfCurvatureExtrema(): void {
-//         this.curveShapeSpaceNavigator.changeState(new NavigationWithCurvatureExtMonitoring(this.curveShapeSpaceNavigator));
-//     }
-
-//     setControlOfInflections(): void {
-//         this.curveShapeSpaceNavigator.changeState(new NavigationWithInflectionMonitoring(this.curveShapeSpaceNavigator));
-//     }
-
-//     setSliding(): void {
-//         this.curveShapeSpaceNavigator.changeState(new NavigationWithoutMonitoringAndSliding(this.curveShapeSpaceNavigator));
-//     }
-
-//     removeControlOfCurvatureExtrema(): void {
-//         let warning = new WarningLog(this.constructor.name, "removeControlOfCurvatureExtrema", "no state change there.");
-//         warning.logMessageToConsole();
-//     }
-
-//     removeControlOfInflections(): void {
-//         let warning = new WarningLog(this.constructor.name, "removeControlOfInflections", "no state change there.");
-//         warning.logMessageToConsole();
-//     }
-
-//     removeSliding(): void {
-//         let warning = new WarningLog(this.constructor.name, "removeSliding", "no state change there.");
-//         warning.logMessageToConsole();
-//     }
-
-// }

@@ -1,6 +1,6 @@
-import { CurveModels2D } from "../models/CurveModels2D";
+import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 
 export interface ShapeSpaceDiffEvventsConfigurator {
     
-    monitorCurveUsingDiffrentialEvents(curveModel: CurveModels2D): void;
+    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void;
 }
