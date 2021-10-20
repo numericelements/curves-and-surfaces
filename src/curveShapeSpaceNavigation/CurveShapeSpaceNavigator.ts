@@ -41,7 +41,7 @@ export class CurveShapeSpaceNavigator {
     public optimizedCurve: BSpline_R1_to_R2;
     public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     public curveAnalyserOptimizedtCurve: CurveAnalyzer;
-    private shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
+    private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private diffEvents: NeighboringEvents;
     //private _navigationParameters: ShapeSpaceDiffEventsStructure;
     private _curveConstraints: CurveConstraints;
@@ -67,7 +67,7 @@ export class CurveShapeSpaceNavigator {
         this.navigationState = new NavigationStrictlyInsideShapeSpace(this);
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
-        this.shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this.currentCurve);
+        this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this.currentCurve);
         this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this);
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.optimizedCurve = this.currentCurve;
@@ -108,6 +108,10 @@ export class CurveShapeSpaceNavigator {
     // get navigationParams(): ShapeSpaceDiffEventsStructure {
     //     return this._navigationParameters;
     // }
+
+    get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {
+        return this._shapeSpaceDescriptor;
+    }
 
     get curveConstraints(): CurveConstraints {
         return this._curveConstraints;

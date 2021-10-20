@@ -11,6 +11,7 @@ import { NavigationState,
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 
 export class CurveAnalyzer {
 
@@ -26,20 +27,22 @@ export class CurveAnalyzer {
     private curvatureDerivCrtlPtsClosestToZero: number[];
     private shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private navigationState: NavigationState;
-    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator
+    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
 
     constructor(curveToAnalyze: BSpline_R1_to_R2, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         this.curve = curveToAnalyze;
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this.navigationState = curveShapeSpaceNavigator.navigationState;
         this.shapeSpaceDescriptor = curveShapeSpaceNavigator.shapeSpaceDescriptor;
+        this.shapeSpaceDiffEventsConfigurator = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
         const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.curvatureCrtlPtsClosestToZero = [];
         this.curveCurvatureCntrlPolygon = [];
         this.curvatureSignChanges = [];
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this.shapeNavigationParameters.inflectionControl) {
+        if(this.shapeSpaceDiffEventsConfigurator) {
             this.curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
             this.curvatureSignChanges = this.getSignChangesControlPolygon(this.curveCurvatureCntrlPolygon);
@@ -49,7 +52,7 @@ export class CurveAnalyzer {
         this.curveCurvatureDerivativeCntrlPolygon = [];
         this.curvatureDerivativeSignChanges = [];
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this.shapeNavigationParameters.curvatureExtremaControl) {
+        if(this.shapeSpaceDiffEventsConfigurator) {
             this.curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
             this.curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this.curveCurvatureDerivativeCntrlPolygon);
@@ -64,14 +67,14 @@ export class CurveAnalyzer {
     update(): void {
         const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
-        if(this.shapeNavigationParameters.inflectionControl) {
+        if(this.shapeSpaceDiffEventsConfigurator) {
             this.curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
         } else {
             this.curveCurvatureCntrlPolygon = [];
             this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
         }
-        if(this.shapeNavigationParameters.curvatureExtremaControl) {
+        if(this.shapeSpaceDiffEventsConfigurator) {
             this.curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
         }

@@ -37520,6 +37520,65 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts":
+/*!******************************************************************************!*\
+  !*** ./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * Set of optimizer parameters used to monitor the behavior and type of optimizer used during the shape navigation process
+ * @_activeOptimizer : true if an optimizer is effectivzly active during the navigation process
+ * @_updateConstraintsBounds : true if the bounds set on inequalities constraints of the optimizer can be modified
+ * to force an optimized to stick to the boundary of a shape space
+ * @_reverseConstraints : reverse the inequalities of some constraints when crossing shape space boundaries
+ * @_useWeights : true if the optimizer use weights to reduce the rigid body displacements of the curve
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OptimizationProblemCtrlParameters = void 0;
+var OptimizationProblemCtrlParameters = /** @class */ (function () {
+    function OptimizationProblemCtrlParameters(activeOptimizer, updateConstraintBounds) {
+        this._activeOptimizer = false;
+        this._updateConstraintsBounds = false;
+        this._reverseConstraints = false;
+        this._useWeights = false;
+        if (activeOptimizer !== undefined) {
+            this._activeOptimizer = activeOptimizer;
+        }
+        if (updateConstraintBounds !== undefined) {
+            this._updateConstraintsBounds = updateConstraintBounds;
+        }
+    }
+    Object.defineProperty(OptimizationProblemCtrlParameters.prototype, "optimizerStatus", {
+        get: function () {
+            return this._activeOptimizer;
+        },
+        set: function (activeOptimizer) {
+            this._activeOptimizer = activeOptimizer;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OptimizationProblemCtrlParameters.prototype, "updateConstraintBounds", {
+        get: function () {
+            return this._updateConstraintsBounds;
+        },
+        set: function (activateUpdate) {
+            this._updateConstraintsBounds = activateUpdate;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return OptimizationProblemCtrlParameters;
+}());
+exports.OptimizationProblemCtrlParameters = OptimizationProblemCtrlParameters;
+
+
+/***/ }),
+
 /***/ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts":
 /*!*********************************************************************************!*\
   !*** ./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts ***!
@@ -40938,6 +40997,301 @@ exports.CurvatureSceneController = CurvatureSceneController;
 
 /***/ }),
 
+/***/ "./src/controllers/CurveConstraintSelectionState.ts":
+/*!**********************************************************!*\
+  !*** ./src/controllers/CurveConstraintSelectionState.ts ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HandleConstraintAtPoint1Point2ConstraintState = exports.HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = exports.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = exports.HandleConstraintAtPoint1Point2NoConstraintState = exports.CurveConstraintSelectionState = void 0;
+var CurveConstraintStrategy_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
+var CurveConstraintSelectionState = /** @class */ (function () {
+    function CurveConstraintSelectionState(context) {
+        this.curveSceneController = context;
+        this.curveModeler = this.curveSceneController.curveModeler;
+    }
+    CurveConstraintSelectionState.prototype.setContext = function (context) {
+        this.curveSceneController = context;
+    };
+    return CurveConstraintSelectionState;
+}());
+exports.CurveConstraintSelectionState = CurveConstraintSelectionState;
+var HandleConstraintAtPoint1Point2NoConstraintState = /** @class */ (function (_super) {
+    __extends(HandleConstraintAtPoint1Point2NoConstraintState, _super);
+    function HandleConstraintAtPoint1Point2NoConstraintState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintNoConstraint);
+        return _this;
+    }
+    HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this.curveSceneController));
+    };
+    HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1NoConstraintPoint2ConstraintState(this.curveSceneController));
+    };
+    return HandleConstraintAtPoint1Point2NoConstraintState;
+}(CurveConstraintSelectionState));
+exports.HandleConstraintAtPoint1Point2NoConstraintState = HandleConstraintAtPoint1Point2NoConstraintState;
+var HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = /** @class */ (function (_super) {
+    __extends(HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, _super);
+    function HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint);
+        return _this;
+    }
+    HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.curveSceneController));
+    };
+    HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2ConstraintState(this.curveSceneController));
+    };
+    return HandleConstraintAtPoint1ConstraintPoint2NoConstraintState;
+}(CurveConstraintSelectionState));
+exports.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = HandleConstraintAtPoint1ConstraintPoint2NoConstraintState;
+var HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = /** @class */ (function (_super) {
+    __extends(HandleConstraintAtPoint1NoConstraintPoint2ConstraintState, _super);
+    function HandleConstraintAtPoint1NoConstraintPoint2ConstraintState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedLastControlPoint);
+        return _this;
+    }
+    HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2ConstraintState(this.curveSceneController));
+    };
+    HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.curveSceneController));
+    };
+    return HandleConstraintAtPoint1NoConstraintPoint2ConstraintState;
+}(CurveConstraintSelectionState));
+exports.HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = HandleConstraintAtPoint1NoConstraintPoint2ConstraintState;
+var HandleConstraintAtPoint1Point2ConstraintState = /** @class */ (function (_super) {
+    __extends(HandleConstraintAtPoint1Point2ConstraintState, _super);
+    function HandleConstraintAtPoint1Point2ConstraintState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedFirstAndLastControlPoint);
+        return _this;
+    }
+    HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1NoConstraintPoint2ConstraintState(this.curveSceneController));
+    };
+    HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+        this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this.curveSceneController));
+    };
+    return HandleConstraintAtPoint1Point2ConstraintState;
+}(CurveConstraintSelectionState));
+exports.HandleConstraintAtPoint1Point2ConstraintState = HandleConstraintAtPoint1Point2ConstraintState;
+
+
+/***/ }),
+
+/***/ "./src/controllers/CurveControlState.ts":
+/*!**********************************************!*\
+  !*** ./src/controllers/CurveControlState.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HandleNoDiffEventSlidingState = exports.HandleInflectionsAndCurvatureExtremaSlidingState = exports.HandleCurvatureExtremaSlidingState = exports.HandleInflectionsSlidingState = exports.HandleNoDiffEventNoSlidingState = exports.HandleInflectionsAndCurvatureExtremaNoSlidingState = exports.HandleCurvatureExtremaNoSlidingState = exports.HandleInflectionsNoSlidingState = exports.CurveControlState = void 0;
+var ShapeSpaceDiffEventsConfigurator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts");
+var CurveControlState = /** @class */ (function () {
+    function CurveControlState(context) {
+        this.curveSceneController = context;
+    }
+    CurveControlState.prototype.setContext = function (context) {
+        this.curveSceneController = context;
+    };
+    return CurveControlState;
+}());
+exports.CurveControlState = CurveControlState;
+var HandleInflectionsNoSlidingState = /** @class */ (function (_super) {
+    __extends(HandleInflectionsNoSlidingState, _super);
+    function HandleInflectionsNoSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsNoSliding(_this.curveSceneController.curveModeler.curveCategory));
+        return _this;
+    }
+    HandleInflectionsNoSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsNoSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsNoSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
+    };
+    return HandleInflectionsNoSlidingState;
+}(CurveControlState));
+exports.HandleInflectionsNoSlidingState = HandleInflectionsNoSlidingState;
+var HandleCurvatureExtremaNoSlidingState = /** @class */ (function (_super) {
+    __extends(HandleCurvatureExtremaNoSlidingState, _super);
+    function HandleCurvatureExtremaNoSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding());
+        return _this;
+    }
+    HandleCurvatureExtremaNoSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
+    };
+    HandleCurvatureExtremaNoSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
+    };
+    HandleCurvatureExtremaNoSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
+    };
+    return HandleCurvatureExtremaNoSlidingState;
+}(CurveControlState));
+exports.HandleCurvatureExtremaNoSlidingState = HandleCurvatureExtremaNoSlidingState;
+var HandleInflectionsAndCurvatureExtremaNoSlidingState = /** @class */ (function (_super) {
+    __extends(HandleInflectionsAndCurvatureExtremaNoSlidingState, _super);
+    function HandleInflectionsAndCurvatureExtremaNoSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding());
+        return _this;
+    }
+    HandleInflectionsAndCurvatureExtremaNoSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsAndCurvatureExtremaNoSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsAndCurvatureExtremaNoSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
+    };
+    return HandleInflectionsAndCurvatureExtremaNoSlidingState;
+}(CurveControlState));
+exports.HandleInflectionsAndCurvatureExtremaNoSlidingState = HandleInflectionsAndCurvatureExtremaNoSlidingState;
+var HandleNoDiffEventNoSlidingState = /** @class */ (function (_super) {
+    __extends(HandleNoDiffEventNoSlidingState, _super);
+    function HandleNoDiffEventNoSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding());
+        return _this;
+    }
+    HandleNoDiffEventNoSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
+    };
+    HandleNoDiffEventNoSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController));
+    };
+    HandleNoDiffEventNoSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
+    };
+    return HandleNoDiffEventNoSlidingState;
+}(CurveControlState));
+exports.HandleNoDiffEventNoSlidingState = HandleNoDiffEventNoSlidingState;
+var HandleInflectionsSlidingState = /** @class */ (function (_super) {
+    __extends(HandleInflectionsSlidingState, _super);
+    function HandleInflectionsSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsSliding(_this.curveSceneController.curveModeler.curveCategory));
+        return _this;
+    }
+    HandleInflectionsSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
+    };
+    return HandleInflectionsSlidingState;
+}(CurveControlState));
+exports.HandleInflectionsSlidingState = HandleInflectionsSlidingState;
+var HandleCurvatureExtremaSlidingState = /** @class */ (function (_super) {
+    __extends(HandleCurvatureExtremaSlidingState, _super);
+    function HandleCurvatureExtremaSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithCurvatureExtremaSliding());
+        return _this;
+    }
+    HandleCurvatureExtremaSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
+    };
+    HandleCurvatureExtremaSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
+    };
+    HandleCurvatureExtremaSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
+    };
+    return HandleCurvatureExtremaSlidingState;
+}(CurveControlState));
+exports.HandleCurvatureExtremaSlidingState = HandleCurvatureExtremaSlidingState;
+var HandleInflectionsAndCurvatureExtremaSlidingState = /** @class */ (function (_super) {
+    __extends(HandleInflectionsAndCurvatureExtremaSlidingState, _super);
+    function HandleInflectionsAndCurvatureExtremaSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding());
+        return _this;
+    }
+    HandleInflectionsAndCurvatureExtremaSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsAndCurvatureExtremaSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
+    };
+    HandleInflectionsAndCurvatureExtremaSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
+    };
+    return HandleInflectionsAndCurvatureExtremaSlidingState;
+}(CurveControlState));
+exports.HandleInflectionsAndCurvatureExtremaSlidingState = HandleInflectionsAndCurvatureExtremaSlidingState;
+var HandleNoDiffEventSlidingState = /** @class */ (function (_super) {
+    __extends(HandleNoDiffEventSlidingState, _super);
+    function HandleNoDiffEventSlidingState(context) {
+        var _this = _super.call(this, context) || this;
+        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding());
+        return _this;
+    }
+    HandleNoDiffEventSlidingState.prototype.handleInflections = function () {
+        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
+    };
+    HandleNoDiffEventSlidingState.prototype.handleCurvatureExtrema = function () {
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
+    };
+    HandleNoDiffEventSlidingState.prototype.handleSliding = function () {
+        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
+    };
+    return HandleNoDiffEventSlidingState;
+}(CurveControlState));
+exports.HandleNoDiffEventSlidingState = HandleNoDiffEventSlidingState;
+
+
+/***/ }),
+
 /***/ "./src/controllers/CurveSceneController.ts":
 /*!*************************************************!*\
   !*** ./src/controllers/CurveSceneController.ts ***!
@@ -40976,6 +41330,19 @@ var BSpline_R1_to_R2_degree_Raising_1 = __webpack_require__(/*! ../bsplines/BSpl
 var file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
 var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ../views/SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
+var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./src/curveModeler/CurveModeler.ts");
+var ShapeSpaceDiffEventsConfigurator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts");
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
+var CurveControlState_1 = __webpack_require__(/*! ./CurveControlState */ "./src/controllers/CurveControlState.ts");
+var CurveCategory_1 = __webpack_require__(/*! ../curveModeler/CurveCategory */ "./src/curveModeler/CurveCategory.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var NavigationState_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
+var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ../curveModeler/EventStateAtCurveExtremity */ "./src/curveModeler/EventStateAtCurveExtremity.ts");
+var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ../curveModeler/EventMgmtAtCurveExtremities */ "./src/curveModeler/EventMgmtAtCurveExtremities.ts");
+var CurveConstraints_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
+var CurveConstraintStrategy_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
+var CurveConstraintSelectionState_1 = __webpack_require__(/*! ./CurveConstraintSelectionState */ "./src/controllers/CurveConstraintSelectionState.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
 (function (ActiveLocationControl) {
@@ -41091,6 +41458,22 @@ var CurveSceneController = /** @class */ (function () {
         this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent);
         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         this.sliding = true;
+        /* JCL 2021/09/29 Add modeller for new code architecture */
+        this.curveModeler = new CurveModeler_1.CurveModeler(this);
+        this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
+        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
+        this.curveControlState = new CurveControlState_1.HandleInflectionsAndCurvatureExtremaNoSlidingState(this);
+        this.curveCategory = new CurveCategory_1.OpenPlanarCurve(this.curveModeler);
+        this.closedCurve = false;
+        this.curveEventAtExtremityMayVanish = true;
+        this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(this.curveModeler);
+        this.navigationState = new NavigationState_1.NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator);
+        this.eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
+        this.eventStateAtCurveExtremity = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities);
+        this.constraintAtPoint1 = true;
+        this.constraintAtPoint2 = false;
+        this.curveConstraints = new CurveConstraints_1.CurveConstraints(new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint);
+        this.curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1Point2NoConstraintState(this);
     }
     CurveSceneController.prototype.renderFrame = function () {
         var px = 150;
@@ -41349,13 +41732,58 @@ var CurveSceneController = /** @class */ (function () {
     CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
         this.curveControl.toggleControlOfCurvatureExtrema();
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
-        //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+        //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
+        /* JCL 2021/09/29 Add modeller for new code architecture */
+        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.curvatureExtremaControl = this.controlOfCurvatureExtrema;
+        this.curveControlState.handleCurvatureExtrema();
     };
     CurveSceneController.prototype.toggleControlOfInflections = function () {
         this.curveControl.toggleControlOfInflections();
         this.controlOfInflection = !this.controlOfInflection;
-        //console.log("constrol of inflections: " + this.controlOfInflection)
+        //console.log("control of inflections: " + this.controlOfInflection)
+        /* JCL 2021/10/12 Add modeller for new code architecture */
+        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.inflectionControl = this.controlOfInflection;
+        this.curveControlState.handleInflections();
     };
+    /* JCL test code debut */
+    CurveSceneController.prototype.transitionTo = function (curveControlState) {
+        this.curveControlState = curveControlState;
+        this.curveControlState.setContext(this);
+    };
+    CurveSceneController.prototype.curveConstraintTransitionTo = function (curveConstraintSelectionState) {
+        this.curveConstraintSelectionState = curveConstraintSelectionState;
+        this.curveConstraintSelectionState.setContext(this);
+    };
+    CurveSceneController.prototype.toggleOpenClosedCurve = function () {
+        this.closedCurve = !this.closedCurve;
+        this.curveCategory.setCurveCategory();
+    };
+    CurveSceneController.prototype.inputSelectNavigationProcess = function (navigationID) {
+        switch (navigationID) {
+            case 0: {
+                this.navigationState.setNavigationThroughSimplerShapeSpaces();
+                break;
+            }
+            case 1: {
+                this.navigationState.setNavigationStrictlyInsideShapeSpace();
+                break;
+            }
+            case 2: {
+                this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
+                break;
+            }
+            default: {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
+                error.logMessageToConsole();
+                break;
+            }
+        }
+    };
+    CurveSceneController.prototype.toggleControlCurveEventsAtExtremities = function () {
+        this.curveEventAtExtremityMayVanish = !this.curveEventAtExtremityMayVanish;
+        this.eventStateAtCurveExtremity.handleEventAtCurveExtremity();
+    };
+    /* JCL fin test code */
     CurveSceneController.prototype.toggleSliding = function () {
         if (this.curveModel !== undefined) {
             if (this.sliding === true) {
@@ -41373,6 +41801,9 @@ var CurveSceneController = /** @class */ (function () {
         }
         else
             throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model");
+        /* JCL 2021/10/12 Add modeller for new code architecture */
+        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.slidingStatus = this.sliding;
+        this.curveControlState.handleSliding();
     };
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
@@ -41540,6 +41971,14 @@ var CurveSceneController = /** @class */ (function () {
             if (this.controlOfCurveClamping) {
                 if (this.clampedControlPointView !== null) {
                     var selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    // JCL 2021/10/19 code pour nvelle architecture
+                    var selectedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    if (selectedControlPoint === 0)
+                        this.constraintAtPoint1 = !this.constraintAtPoint1;
+                    if (selectedControlPoint === (this.curveModel.spline.controlPoints.length - 1))
+                        this.constraintAtPoint2 = !this.constraintAtPoint2;
+                    this.curveConstraintSelectionState.handleCurveConstraintAtPoint1();
+                    this.curveConstraintSelectionState.handleCurveConstraintAtPoint2();
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if (selectedClampedControlPoint !== null) {
                         if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] === selectedClampedControlPoint) {
@@ -43743,6 +44182,1400 @@ var SlidingStrategy = /** @class */ (function () {
     return SlidingStrategy;
 }());
 exports.SlidingStrategy = SlidingStrategy;
+
+
+/***/ }),
+
+/***/ "./src/curveModeler/CurveCategory.ts":
+/*!*******************************************!*\
+  !*** ./src/curveModeler/CurveCategory.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClosedPlanarCurve = exports.OpenPlanarCurve = exports.CurveCategory = void 0;
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
+var CurveModels2D_1 = __webpack_require__(/*! ../models/CurveModels2D */ "./src/models/CurveModels2D.ts");
+var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ./EventMgmtAtCurveExtremities */ "./src/curveModeler/EventMgmtAtCurveExtremities.ts");
+var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ./EventStateAtCurveExtremity */ "./src/curveModeler/EventStateAtCurveExtremity.ts");
+var CurveCategory = /** @class */ (function () {
+    function CurveCategory(curveModeler) {
+        this.curveModeler = curveModeler;
+    }
+    CurveCategory.prototype.setCurveModeler = function (curveModeler) {
+        this.curveModeler = curveModeler;
+    };
+    return CurveCategory;
+}());
+exports.CurveCategory = CurveCategory;
+var OpenPlanarCurve = /** @class */ (function (_super) {
+    __extends(OpenPlanarCurve, _super);
+    function OpenPlanarCurve(curveModeler) {
+        var _this = _super.call(this, curveModeler) || this;
+        // JCL temporaire: pour assurer la compatibilité avec les classes existantes
+        _this.curveModel = new CurveModels2D_1.OpenCurveModel2D();
+        _this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
+        _this.curveEventAtExtremityMayVanish = _this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
+        _this.eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(_this.eventMgmtAtExtremities);
+        _this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(_this.curveModeler);
+        return _this;
+    }
+    OpenPlanarCurve.prototype.setCurveCategory = function () {
+        this.curveModeler.changeCurveCategory(new ClosedPlanarCurve(this.curveModeler));
+    };
+    return OpenPlanarCurve;
+}(CurveCategory));
+exports.OpenPlanarCurve = OpenPlanarCurve;
+var ClosedPlanarCurve = /** @class */ (function (_super) {
+    __extends(ClosedPlanarCurve, _super);
+    function ClosedPlanarCurve(curveModeler) {
+        var _this = _super.call(this, curveModeler) || this;
+        // JCL temporaire: pour assurer la compatibilité avec les classes existantes
+        _this.curveModel = new ClosedPlanarCurve(_this.curveModeler);
+        _this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(_this.curveModeler);
+        return _this;
+    }
+    ClosedPlanarCurve.prototype.setCurveCategory = function () {
+        this.curveModeler.changeCurveCategory(new OpenPlanarCurve(this.curveModeler));
+    };
+    return ClosedPlanarCurve;
+}(CurveCategory));
+exports.ClosedPlanarCurve = ClosedPlanarCurve;
+
+
+/***/ }),
+
+/***/ "./src/curveModeler/CurveModeler.ts":
+/*!******************************************!*\
+  !*** ./src/curveModeler/CurveModeler.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveModeler = void 0;
+var CurveCategory_1 = __webpack_require__(/*! ../curveModeler/CurveCategory */ "./src/curveModeler/CurveCategory.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
+var CurveType;
+(function (CurveType) {
+    CurveType[CurveType["PLANAR_OPEN"] = 0] = "PLANAR_OPEN";
+    CurveType[CurveType["PLANAR_CLOSED"] = 1] = "PLANAR_CLOSED";
+})(CurveType || (CurveType = {}));
+var CurveModeler = /** @class */ (function () {
+    function CurveModeler(curveSceneController) {
+        this.curveSceneController = curveSceneController;
+        this.curveCategory = new CurveCategory_1.OpenPlanarCurve(this);
+        this.curveType = CurveType.PLANAR_OPEN;
+        this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(this);
+    }
+    CurveModeler.prototype.changeCurveCategory = function (category) {
+        this.curveCategory = category;
+        this.curveCategory.setCurveModeler(this);
+    };
+    return CurveModeler;
+}());
+exports.CurveModeler = CurveModeler;
+
+
+/***/ }),
+
+/***/ "./src/curveModeler/EventMgmtAtCurveExtremities.ts":
+/*!*********************************************************!*\
+  !*** ./src/curveModeler/EventMgmtAtCurveExtremities.ts ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EventMgmtAtCurveExtremities = void 0;
+var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ./EventStateAtCurveExtremity */ "./src/curveModeler/EventStateAtCurveExtremity.ts");
+var EventMgmtAtCurveExtremities = /** @class */ (function () {
+    function EventMgmtAtCurveExtremities() {
+        this.eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this);
+    }
+    EventMgmtAtCurveExtremities.prototype.transitionToState = function (eventState) {
+        this.eventState = eventState;
+    };
+    EventMgmtAtCurveExtremities.prototype.processEventAtCurveExtremity = function () {
+        this.eventState.handleEventAtCurveExtremity();
+    };
+    return EventMgmtAtCurveExtremities;
+}());
+exports.EventMgmtAtCurveExtremities = EventMgmtAtCurveExtremities;
+
+
+/***/ }),
+
+/***/ "./src/curveModeler/EventStateAtCurveExtremity.ts":
+/*!********************************************************!*\
+  !*** ./src/curveModeler/EventStateAtCurveExtremity.ts ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EventSlideOutsideCurve = exports.EventStayInsideCurve = exports.EventStateAtCurveExtremity = void 0;
+var EventStateAtCurveExtremity = /** @class */ (function () {
+    function EventStateAtCurveExtremity(eventMgmtAtCurveExtremities) {
+        this.eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
+    }
+    EventStateAtCurveExtremity.prototype.setContext = function (eventMgmtAtCurveExtremities) {
+        this.eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
+    };
+    return EventStateAtCurveExtremity;
+}());
+exports.EventStateAtCurveExtremity = EventStateAtCurveExtremity;
+var EventStayInsideCurve = /** @class */ (function (_super) {
+    __extends(EventStayInsideCurve, _super);
+    function EventStayInsideCurve() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    EventStayInsideCurve.prototype.handleEventAtCurveExtremity = function () {
+        this.eventMgmtAtCurveExtremities.transitionToState(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
+    };
+    return EventStayInsideCurve;
+}(EventStateAtCurveExtremity));
+exports.EventStayInsideCurve = EventStayInsideCurve;
+var EventSlideOutsideCurve = /** @class */ (function (_super) {
+    __extends(EventSlideOutsideCurve, _super);
+    function EventSlideOutsideCurve() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    EventSlideOutsideCurve.prototype.handleEventAtCurveExtremity = function () {
+        this.eventMgmtAtCurveExtremities.transitionToState(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
+    };
+    return EventSlideOutsideCurve;
+}(EventStateAtCurveExtremity));
+exports.EventSlideOutsideCurve = EventSlideOutsideCurve;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts":
+/*!******************************************************!*\
+  !*** ./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveAnalyzer = void 0;
+var curveDifferentialEventsExtractor_1 = __webpack_require__(/*! ../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor */ "./src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor.ts");
+var ExtremumLocationClassifiier_1 = __webpack_require__(/*! ./ExtremumLocationClassifiier */ "./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts");
+var CurveAnalyzer = /** @class */ (function () {
+    function CurveAnalyzer(curveToAnalyze, curveShapeSpaceNavigator) {
+        this.curve = curveToAnalyze;
+        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+        this.navigationState = curveShapeSpaceNavigator.navigationState;
+        this.shapeSpaceDescriptor = curveShapeSpaceNavigator.shapeSpaceDescriptor;
+        this.shapeSpaceDiffEventsConfigurator = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+        var diffEventsExtractor = new curveDifferentialEventsExtractor_1.CurveDifferentialEventsExtractor(this.curve);
+        this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
+        this.curvatureCrtlPtsClosestToZero = [];
+        this.curveCurvatureCntrlPolygon = [];
+        this.curvatureSignChanges = [];
+        this.globalExtremumOffAxisCurvaturePoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
+        if (this.shapeSpaceDiffEventsConfigurator) {
+            this.curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+            this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
+            this.curvatureSignChanges = this.getSignChangesControlPolygon(this.curveCurvatureCntrlPolygon);
+            this.getCurvatureCrtlPtsClosestToZero();
+        }
+        this.curvatureDerivCrtlPtsClosestToZero = [];
+        this.curveCurvatureDerivativeCntrlPolygon = [];
+        this.curvatureDerivativeSignChanges = [];
+        this.globalExtremumOffAxisCurvatureDerivPoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
+        if (this.shapeSpaceDiffEventsConfigurator) {
+            this.curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+            this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+            this.curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this.curveCurvatureDerivativeCntrlPolygon);
+            this.getCurvatureDerivCrtlPtsClosestToZero();
+        }
+    }
+    Object.defineProperty(CurveAnalyzer.prototype, "sequenceOfDifferentialEvents", {
+        get: function () {
+            return this._sequenceOfDifferentialEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CurveAnalyzer.prototype.update = function () {
+        var diffEventsExtractor = new curveDifferentialEventsExtractor_1.CurveDifferentialEventsExtractor(this.curve);
+        this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
+        if (this.shapeSpaceDiffEventsConfigurator) {
+            this.curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+            this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
+        }
+        else {
+            this.curveCurvatureCntrlPolygon = [];
+            this.globalExtremumOffAxisCurvaturePoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
+        }
+        if (this.shapeSpaceDiffEventsConfigurator) {
+            this.curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+            this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+        }
+        else {
+            this.curveCurvatureDerivativeCntrlPolygon = [];
+            this.globalExtremumOffAxisCurvatureDerivPoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
+        }
+    };
+    CurveAnalyzer.prototype.getGlobalExtremmumOffAxis = function (controlPoints) {
+        var localMinima = new ExtremumLocationClassifiier_1.ExtremumLocationClassifier(controlPoints);
+        var validGlobalMinimum = localMinima.getGlobalMinimum();
+        var localMaxima = new ExtremumLocationClassifiier_1.ExtremumLocationClassifier(controlPoints);
+        var validGlobalMaximum = localMaxima.getGlobalMaximum();
+        if (validGlobalMinimum && validGlobalMaximum && Math.abs(localMinima.globalExtremum.value) > Math.abs(localMaxima.globalExtremum.value)) {
+            return localMaxima.globalExtremum;
+        }
+        else if (validGlobalMinimum && validGlobalMaximum) {
+            return localMinima.globalExtremum;
+        }
+        else if (validGlobalMinimum) {
+            return localMinima.globalExtremum;
+        }
+        else if (validGlobalMaximum) {
+            return localMaxima.globalExtremum;
+        }
+        else
+            return { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
+    };
+    CurveAnalyzer.prototype.getControlPointsSign = function (controlPoints) {
+        var result = [];
+        for (var i = 0, n = controlPoints.length; i < n; i += 1) {
+            if (controlPoints[i] > 0) {
+                result.push(-1);
+            }
+            else {
+                result.push(1);
+            }
+        }
+        return result;
+    };
+    CurveAnalyzer.prototype.getSignChangesControlPolygon = function (controlPointsSigns) {
+        var signChangesControlPolygon = [];
+        var previousSign = controlPointsSigns[0];
+        for (var i = 1, n = controlPointsSigns.length; i < n; i += 1) {
+            if (previousSign !== controlPointsSigns[i]) {
+                signChangesControlPolygon.push(i - 1);
+            }
+            previousSign = controlPointsSigns[i];
+        }
+        return signChangesControlPolygon;
+    };
+    // analyzeControlPointsUnderShapeSpaceConstraintsAtCurveExtremities(signChangesIntervals: number, controlPoints: number[], 
+    //     nbCurveConstraints: number, constraintsAtCurveExtremties: number[]): number {
+    //     let result = RETURN_ERROR_CODE;
+    //     if(controlPoints.length === nbCurveConstraints) {
+    //         result = signChangesIntervals;
+    //         if(constraintsAtCurveExtremties !== undefined){
+    //             /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+    //             if(constraintsAtCurveExtremties.length > 0) {
+    //                 if(constraintsAtCurveExtremties.indexOf(0) === RETURN_ERROR_CODE || signChangesIntervals === 0) {
+    //                     result = RETURN_ERROR_CODE;
+    //                 } else if(constraintsAtCurveExtremties.indexOf(controlPoints.length - 1) !== RETURN_ERROR_CODE && signChangesIntervals === (controlPoints.length - 2)) {
+    //                     result = signChangesIntervals;
+    //                     this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(constraintsAtCurveExtremties.indexOf(controlPoints.length - 1), 1);
+    //                 } else {
+    //                     result = signChangesIntervals;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return result;
+    // }
+    CurveAnalyzer.prototype.getCurvatureCrtlPtsClosestToZero = function () {
+        for (var i = 0, n = this.curvatureSignChanges.length; i < n; i += 1) {
+            if (Math.pow(this.curveCurvatureCntrlPolygon[this.curvatureSignChanges[i]], 2) < Math.pow(this.curveCurvatureCntrlPolygon[this.curvatureSignChanges[i] + 1], 2)) {
+                if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined) {
+                    if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
+                        if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureSignChanges[i] > 0 && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) {
+                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
+                        }
+                        else if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(this.curveCurvatureCntrlPolygon.length - 1) !== -1 && this.curvatureSignChanges[i] === (this.curveCurvatureCntrlPolygon.length - 2) && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) {
+                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
+                            this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(this.curveCurvatureCntrlPolygon.length - 1), 1);
+                        }
+                        else if (this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1)
+                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
+                    }
+                    else if (this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1)
+                        this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
+                }
+                else {
+                    if (this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1)
+                        this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
+                }
+            }
+            else {
+                if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined) {
+                    /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                    if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
+                        if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(this.curveCurvatureCntrlPolygon.length - 1) !== -1 && (this.curvatureSignChanges[i] + 1) < (this.curveCurvatureCntrlPolygon.length - 1) && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1) {
+                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
+                        }
+                        else if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureSignChanges[i] === 0 && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1) {
+                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
+                            this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0), 1);
+                        }
+                        else if (this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1)
+                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
+                    }
+                    else if (this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1)
+                        this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
+                }
+                else {
+                    /* JCL general setting where events can slip out of the curve */
+                    if (this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1)
+                        this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
+                }
+            }
+        }
+    };
+    CurveAnalyzer.prototype.getCurvatureDerivCrtlPtsClosestToZero = function () {
+        for (var i = 0, n = this.curvatureDerivativeSignChanges.length; i < n; i += 1) {
+            if (Math.pow(this.curveCurvatureDerivativeCntrlPolygon[this.curvatureDerivativeSignChanges[i]], 2) < Math.pow(this.curveCurvatureDerivativeCntrlPolygon[this.curvatureDerivativeSignChanges[i] + 1], 2)) {
+                if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined) {
+                    /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+                    if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
+                        if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureDerivativeSignChanges[i] > 0 && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) {
+                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
+                        }
+                        else if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(this.curveCurvatureDerivativeCntrlPolygon.length - 1) !== -1 && this.curvatureDerivativeSignChanges[i] === (this.curveCurvatureDerivativeCntrlPolygon.length - 2) && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) {
+                            // Verifier le fonctionnement de curvatureExtremumMonitoringAtCurveExtremities
+                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
+                            this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(this.curveCurvatureDerivativeCntrlPolygon.length - 1), 1);
+                        }
+                        else if (this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1)
+                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
+                    }
+                    else if (this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1)
+                        this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
+                }
+                else {
+                    /* JCL general setting where events can slip out of the curve */
+                    if (this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1)
+                        this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
+                }
+            }
+            else {
+                if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined) {
+                    /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                    if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
+                        if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(this.curveCurvatureDerivativeCntrlPolygon.length - 1) !== -1 && (this.curvatureDerivativeSignChanges[i] + 1) < (this.curveCurvatureDerivativeCntrlPolygon.length - 1) && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1) {
+                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
+                        }
+                        else if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureDerivativeSignChanges[i] === 0 && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1) {
+                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
+                            this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0), 1);
+                        }
+                        else if (this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1)
+                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
+                    }
+                    else if (this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1)
+                        this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
+                }
+                else {
+                    /* JCL general setting where events can slip out of the curve */
+                    if (this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1)
+                        this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
+                }
+            }
+        }
+    };
+    CurveAnalyzer.prototype.getControlPointsClosestToZero = function (signChangesIntervals, controlPoints) {
+        var result = [];
+        for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                if (controlPoints.length === this.shapeSpaceDescriptor.curvatureExtremaTotalNumberOfConstraints) {
+                    if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
+                        if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
+                            if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                            }
+                            else if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
+                                // Verifier le fonctionnement de curvatureExtremumMonitoringAtCurveExtremities
+                                result.push(signChangesIntervals[i]);
+                                this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i]) === -1)
+                                result.push(signChangesIntervals[i]);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                    else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                }
+                else if (controlPoints.length === this.shapeSpaceDescriptor.inflectionsTotalNumberOfConstraints) {
+                    if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined) {
+                        if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
+                            if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                            }
+                            else if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
+                                result.push(signChangesIntervals[i]);
+                                this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i]) === -1)
+                                result.push(signChangesIntervals[i]);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                    else {
+                        if (result.indexOf(signChangesIntervals[i]) === -1)
+                            result.push(signChangesIntervals[i]);
+                    }
+                }
+            }
+            else {
+                if (controlPoints.length === this.shapeSpaceDescriptor.curvatureExtremaTotalNumberOfConstraints) {
+                    if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                        if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
+                            if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                            }
+                            else if (this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                                this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                                result.push(signChangesIntervals[i] + 1);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                    else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                }
+                else if (controlPoints.length === this.shapeSpaceDescriptor.inflectionsTotalNumberOfConstraints) {
+                    if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined) {
+                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
+                        if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
+                            if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                            }
+                            else if (this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
+                                result.push(signChangesIntervals[i] + 1);
+                                this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0), 1);
+                            }
+                            else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                                result.push(signChangesIntervals[i] + 1);
+                        }
+                        else if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                    else {
+                        /* JCL general setting where events can slip out of the curve */
+                        if (result.indexOf(signChangesIntervals[i] + 1) === -1)
+                            result.push(signChangesIntervals[i] + 1);
+                    }
+                }
+            }
+        }
+        return result;
+    };
+    return CurveAnalyzer;
+}());
+exports.CurveAnalyzer = CurveAnalyzer;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts":
+/*!********************************************************************!*\
+  !*** ./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExtremumLocationClassifier = exports.INITIAL_INDEX = void 0;
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+exports.INITIAL_INDEX = -1;
+;
+var ExtremumLocationClassifier = /** @class */ (function () {
+    function ExtremumLocationClassifier(controlPoints) {
+        this._localExtremum = [];
+        this.controlPoints = [];
+        this.controlPoints = controlPoints;
+        this.globalExtremum = { index: exports.INITIAL_INDEX, value: 0.0 };
+    }
+    ExtremumLocationClassifier.prototype.getLocalMinima = function () {
+        for (var i = 0; i < this.controlPoints.length - 2; i += 1) {
+            if (MathVectorBasicOperations_1.sign(this.controlPoints[i]) === 1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 1]) === 1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 2]) === 1) {
+                if (this.controlPoints[i] > this.controlPoints[i + 1] && this.controlPoints[i + 1] < this.controlPoints[i + 2]) {
+                    this._localExtremum.push({ index: (i + 1), value: this.controlPoints[i + 1] });
+                }
+            }
+        }
+    };
+    ExtremumLocationClassifier.prototype.getLocalMaxima = function () {
+        for (var i = 0; i < this.controlPoints.length - 2; i += 1) {
+            if (MathVectorBasicOperations_1.sign(this.controlPoints[i]) === -1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 1]) === -1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 2]) === -1) {
+                if (this.controlPoints[i] < this.controlPoints[i + 1] && this.controlPoints[i + 1] > this.controlPoints[i + 2]) {
+                    this._localExtremum.push({ index: (i + 1), value: this.controlPoints[i + 1] });
+                }
+            }
+        }
+    };
+    ExtremumLocationClassifier.prototype.getGlobalMinimum = function () {
+        this.getLocalMinima();
+        this.sortLocalExtrema();
+        if (this.globalExtremum.index !== exports.INITIAL_INDEX) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    ExtremumLocationClassifier.prototype.getGlobalMaximum = function () {
+        this.getLocalMaxima();
+        this.sortLocalExtrema();
+        if (this.globalExtremum.index !== exports.INITIAL_INDEX) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    ExtremumLocationClassifier.prototype.sortLocalExtrema = function () {
+        if (this._localExtremum.length > 0) {
+            this._localExtremum.sort(function (a, b) {
+                if (a.value > b.value) {
+                    return 1;
+                }
+                if (a.value < b.value) {
+                    return -1;
+                }
+                return 0;
+            });
+            this.globalExtremum = { index: this._localExtremum[0].index, value: this._localExtremum[0].value };
+        }
+    };
+    return ExtremumLocationClassifier;
+}());
+exports.ExtremumLocationClassifier = ExtremumLocationClassifier;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor.ts":
+/*!*************************************************************************!*\
+  !*** ./src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor.ts ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveDifferentialEventsExtractor = void 0;
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var SequenceOfDifferentialEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts");
+var CurveDifferentialEventsExtractor = /** @class */ (function () {
+    function CurveDifferentialEventsExtractor(curveToAnalyze) {
+        this.inflectionLocations = [];
+        this.curvatureExtremaLocations = [];
+        this.curve = curveToAnalyze;
+        this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.curve);
+        this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
+        this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
+        this.sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+    }
+    Object.defineProperty(CurveDifferentialEventsExtractor.prototype, "curvatureNumerator", {
+        get: function () {
+            return this._curvatureNumerator;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveDifferentialEventsExtractor.prototype, "curvatureDerivativeNumerator", {
+        get: function () {
+            return this._curvatureDerivativeNumerator;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CurveDifferentialEventsExtractor.prototype.extractSeqOfDiffEvents = function () {
+        this.inflectionLocations = this.curvatureNumerator.zeros();
+        this.curvatureExtremaLocations = this.curvatureDerivativeNumerator.zeros();
+        this.sequenceOfDifferentialEvents.insertEvents(this.curvatureExtremaLocations, this.inflectionLocations);
+        return this.sequenceOfDifferentialEvents;
+    };
+    CurveDifferentialEventsExtractor.prototype.update = function (curveToAnalyze) {
+        this.curve = curveToAnalyze;
+        this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.curve);
+        this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
+        this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
+        this.extractSeqOfDiffEvents();
+    };
+    return CurveDifferentialEventsExtractor;
+}());
+exports.CurveDifferentialEventsExtractor = CurveDifferentialEventsExtractor;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts":
+/*!******************************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveConstraintClampedFirstAndLastControlPoint = exports.CurveConstraintClampedLastControlPoint = exports.CurveConstraintClampedFirstControlPoint = exports.CurveConstraintNoConstraint = void 0;
+var CurveConstraintNoConstraint = /** @class */ (function () {
+    function CurveConstraintNoConstraint() {
+    }
+    CurveConstraintNoConstraint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
+    };
+    return CurveConstraintNoConstraint;
+}());
+exports.CurveConstraintNoConstraint = CurveConstraintNoConstraint;
+var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
+    function CurveConstraintClampedFirstControlPoint() {
+    }
+    CurveConstraintClampedFirstControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
+    };
+    return CurveConstraintClampedFirstControlPoint;
+}());
+exports.CurveConstraintClampedFirstControlPoint = CurveConstraintClampedFirstControlPoint;
+var CurveConstraintClampedLastControlPoint = /** @class */ (function () {
+    function CurveConstraintClampedLastControlPoint() {
+    }
+    CurveConstraintClampedLastControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
+    };
+    return CurveConstraintClampedLastControlPoint;
+}());
+exports.CurveConstraintClampedLastControlPoint = CurveConstraintClampedLastControlPoint;
+var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function () {
+    function CurveConstraintClampedFirstAndLastControlPoint() {
+    }
+    CurveConstraintClampedFirstAndLastControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
+    };
+    return CurveConstraintClampedFirstAndLastControlPoint;
+}());
+exports.CurveConstraintClampedFirstAndLastControlPoint = CurveConstraintClampedFirstAndLastControlPoint;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/CurveConstraints.ts":
+/*!***********************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/CurveConstraints.ts ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveConstraints = exports.CurveExtremity = exports.ConstraintType = void 0;
+var ConstraintType;
+(function (ConstraintType) {
+    ConstraintType[ConstraintType["none"] = 0] = "none";
+    ConstraintType[ConstraintType["location"] = 1] = "location";
+    ConstraintType[ConstraintType["tangent"] = 2] = "tangent";
+    ConstraintType[ConstraintType["locationAndTangent"] = 3] = "locationAndTangent";
+})(ConstraintType = exports.ConstraintType || (exports.ConstraintType = {}));
+var CurveExtremity;
+(function (CurveExtremity) {
+    CurveExtremity[CurveExtremity["first"] = 0] = "first";
+    CurveExtremity[CurveExtremity["last"] = 1] = "last";
+})(CurveExtremity = exports.CurveExtremity || (exports.CurveExtremity = {}));
+var CurveConstraints = /** @class */ (function () {
+    function CurveConstraints(curveConstraintProcessor) {
+        this.curveConstraintProcessor = curveConstraintProcessor;
+        this._firstControlPoint = ConstraintType.none;
+        this._lastControlPoint = ConstraintType.none;
+    }
+    Object.defineProperty(CurveConstraints.prototype, "constraintAtFirstPoint", {
+        get: function () {
+            return this._firstControlPoint;
+        },
+        set: function (constraintAtFirstPoint) {
+            this._firstControlPoint = constraintAtFirstPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraints.prototype, "constraintAtLastPoint", {
+        get: function () {
+            return this._lastControlPoint;
+        },
+        set: function (constraintAtLastPoint) {
+            this._lastControlPoint = constraintAtLastPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CurveConstraints.prototype.setConstraint = function (curveConstraintProcessor) {
+        this.curveConstraintProcessor = curveConstraintProcessor;
+    };
+    CurveConstraints.prototype.processConstraint = function () {
+        this.curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
+    };
+    return CurveConstraints;
+}());
+exports.CurveConstraints = CurveConstraints;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor.ts":
+/*!*********************************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor.ts ***!
+  \*********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveShapeSpaceDescriptor = void 0;
+var CurveShapeSpaceDescriptor = /** @class */ (function () {
+    function CurveShapeSpaceDescriptor(curveToAnalyze) {
+        this.curvatureExtremumMonitoringAtCurveExtremities = [];
+        this.inflectionMonitoringAtCurveExtremities = [];
+        // JCL a finaliser avec le nb correct de contraintes
+        this.inflectionsTotalNumberOfConstraints = curveToAnalyze.degree;
+        this.curvatureExtremaTotalNumberOfConstraints = curveToAnalyze.degree;
+    }
+    return CurveShapeSpaceDescriptor;
+}());
+exports.CurveShapeSpaceDescriptor = CurveShapeSpaceDescriptor;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts":
+/*!*******************************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveShapeSpaceNavigator = exports.CONVERGENCE_THRESHOLD = exports.MAX_TRUST_REGION_RADIUS = exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = void 0;
+var OptimizationProblemCtrlParameters_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblemCtrlParameters */ "./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts");
+var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
+var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
+var CurveShapeSpaceDesccriptor_1 = __webpack_require__(/*! ./CurveShapeSpaceDesccriptor */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor.ts");
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
+var NavigationState_1 = __webpack_require__(/*! ./NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
+var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
+var ShapeSpaceDiffEventsConfigurator_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsConfigurator */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts");
+exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
+exports.MAX_TRUST_REGION_RADIUS = 100;
+exports.CONVERGENCE_THRESHOLD = 10e-8;
+var CurveShapeSpaceNavigator = /** @class */ (function () {
+    function CurveShapeSpaceNavigator(curveModeler) {
+        var _this = this;
+        this.displacementCurrentCurveControlPolygon = [];
+        this.curveModeler = curveModeler;
+        this.curveCategory = this.curveModeler.curveCategory;
+        this.curveModel = new CurveModel_1.CurveModel();
+        this.currentCurve = this.curveModel.spline.clone();
+        this.currentControlPolygon = this.currentCurve.controlPoints;
+        this._selectedControlPoint = undefined;
+        this.displacementSelctdCP = new Vector_2d_1.Vector_2d(0, 0);
+        this.targetCurve = this.curveModel.spline.clone();
+        this.currentControlPolygon.forEach(function () { return _this.displacementCurrentCurveControlPolygon.push(new Vector_2d_1.Vector_2d(0.0, 0.0)); });
+        this.navigationState = new NavigationState_1.NavigationStrictlyInsideShapeSpace(this);
+        this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding;
+        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
+        this._shapeSpaceDescriptor = new CurveShapeSpaceDesccriptor_1.CurveShapeSpaceDescriptor(this.currentCurve);
+        this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(this.currentCurve, this);
+        this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+        this.optimizedCurve = this.currentCurve;
+        this.curveAnalyserOptimizedtCurve = new CurveAnalyzer_1.CurveAnalyzer(this.optimizedCurve, this);
+        this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
+        this.diffEvents = new NeighboringEvents_1.NeighboringEvents();
+        //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
+        this.curveConstraintProcessor = new CurveConstraintStrategy_1.CurveConstraintNoConstraint();
+        this._curveConstraints = new CurveConstraints_1.CurveConstraints(this.curveConstraintProcessor);
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+        this._optimizationProblemParam = new OptimizationProblemCtrlParameters_1.OptimizationProblemCtrlParameters();
+        this.navigationState = new NavigationState_1.NavigationThroughSimplerShapeSpaces(this);
+    }
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "curveConstraints", {
+        get: function () {
+            return this._curveConstraints;
+        },
+        // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
+        //     this._navigationParameters = navigationParameters;
+        // }
+        set: function (curveConstraints) {
+            this._curveConstraints = curveConstraints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "optimizationProblemParam", {
+        get: function () {
+            return this._optimizationProblemParam;
+        },
+        set: function (optimPbParam) {
+            this._optimizationProblemParam = optimPbParam;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "selectedControlPoint", {
+        get: function () {
+            if (this._selectedControlPoint !== undefined) {
+                return this._selectedControlPoint;
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'get', 'the selected control point has a status undefined.');
+                error.logMessageToConsole();
+            }
+        },
+        set: function (cpIndex) {
+            if (cpIndex !== undefined) {
+                this.selectedControlPoint = cpIndex;
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'set', 'the control point index must not be of type undefined.');
+                error.logMessageToConsole();
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "shapeSpaceDescriptor", {
+        // get navigationParams(): ShapeSpaceDiffEventsStructure {
+        //     return this._navigationParameters;
+        // }
+        get: function () {
+            return this._shapeSpaceDescriptor;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    CurveShapeSpaceNavigator.prototype.changeNavigationState = function (state) {
+        this.navigationState = state;
+    };
+    CurveShapeSpaceNavigator.prototype.changeCurveState = function (state) {
+        this.curveConstraintProcessor = state;
+    };
+    // initializeNavigationStep(): void {
+    //     const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.currentCurve);
+    //     this.seqDiffEventsCurrentCurve = diffEventsExtractor.generateSeqOfDiffEvents();
+    //     this._optimizationProblemParam.updateConstraintBounds = true;
+    // }
+    CurveShapeSpaceNavigator.prototype.updateCurrentCurve = function (newCurve, newSelectedControlPoint, newDispSelctdCP) {
+        this.curveModel = newCurve;
+        this.currentCurve = newCurve.spline.clone();
+        this.currentControlPolygon = this.currentCurve.controlPoints;
+        this._selectedControlPoint = newSelectedControlPoint;
+        this.displacementSelctdCP = newDispSelctdCP;
+    };
+    CurveShapeSpaceNavigator.prototype.setTargetCurve = function () {
+        if (this.selectedControlPoint !== undefined) {
+            this.targetCurve = this.currentCurve;
+            this.targetCurve.setControlPoint(this.selectedControlPoint, this.displacementSelctdCP);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
+            error.logMessageToConsole();
+        }
+        this.optimizationProblem.setTargetSpline(this.targetCurve);
+    };
+    // updateOptimizerStatus(): void {
+    //     if(this._navigationParameters.inflectionControl === false && this._navigationParameters.curvatureExtremaControl === false) this._optimizationProblemParam.optimizerStatus = false;
+    //     if(this._navigationParameters.inflectionControl === true || this._navigationParameters.curvatureExtremaControl === true) this._optimizationProblemParam.optimizerStatus = true;
+    // }
+    CurveShapeSpaceNavigator.prototype.curveDisplacement = function () {
+        for (var i = 0; i < this.displacementCurrentCurveControlPolygon.length; i += 1) {
+            this.displacementCurrentCurveControlPolygon[i] = this.optimizedCurve.controlPoints[i].substract(this.currentControlPolygon[i]);
+        }
+    };
+    CurveShapeSpaceNavigator.prototype.navigateUnderDevForTest = function () {
+        this.curveAnalyserCurrentCurve.update();
+        this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+        this.setTargetCurve();
+        this._optimizationProblemParam.updateConstraintBounds = true;
+        try {
+            this.optimizer.optimize_using_trust_region(exports.CONVERGENCE_THRESHOLD, exports.MAX_TRUST_REGION_RADIUS, exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            this.optimizedCurve = this.optimizationProblem.spline.clone();
+            this.curveDisplacement();
+            this.curveAnalyserOptimizedtCurve.update();
+            this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
+            var seqComparator = new ComparatorOfSequencesDiffEvents_1.ComparatorOfSequencesOfDiffEvents(this.seqDiffEventsCurrentCurve, this.seqDiffEventsOptimizedCurve);
+            seqComparator.locateNeiboringEvents();
+        }
+        catch (e) {
+        }
+    };
+    CurveShapeSpaceNavigator.prototype.newOptimizer = function (optimizationProblem) {
+        //newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
+        this.setWeightingFactor(optimizationProblem);
+        return new Optimizer_1.Optimizer(optimizationProblem);
+    };
+    CurveShapeSpaceNavigator.prototype.setWeightingFactor = function (optimizationProblem) {
+        //setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
+        optimizationProblem.weigthingFactors[0] = 10;
+        optimizationProblem.weigthingFactors[this.currentControlPolygon.length] = 10;
+        optimizationProblem.weigthingFactors[this.currentControlPolygon.length - 1] = 10;
+        optimizationProblem.weigthingFactors[this.currentControlPolygon.length * 2 - 1] = 10;
+    };
+    return CurveShapeSpaceNavigator;
+}());
+exports.CurveShapeSpaceNavigator = CurveShapeSpaceNavigator;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/NavigationState.ts":
+/*!**********************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/NavigationState.ts ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NavigationStrictlyInsideShapeSpace = exports.NavigationThroughSimplerShapeSpaces = exports.NavigationWithoutShapeSpaceMonitoring = exports.NavigationState = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ./CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var NavigationState = /** @class */ (function () {
+    function NavigationState(curveNavigator) {
+        this.curveShapeSpaceNavigator = curveNavigator;
+    }
+    NavigationState.prototype.setCurveShapeSpaceNavigator = function (curveShapeSpaceNavigator) {
+        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    };
+    NavigationState.prototype.navigate = function () {
+        this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
+        this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+        this.curveShapeSpaceNavigator.setTargetCurve();
+        this.shapeSpaceConstraintsMonitoring();
+        this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
+        try {
+            this.curveShapeSpaceNavigator.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
+            this.curveConstraintsMonitoring();
+            this.curveShapeSpaceNavigator.curveAnalyserOptimizedtCurve.update();
+            this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
+            var seqComparator = new ComparatorOfSequencesDiffEvents_1.ComparatorOfSequencesOfDiffEvents(this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve, this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve);
+            seqComparator.locateNeiboringEvents();
+        }
+        catch (e) {
+        }
+    };
+    NavigationState.prototype.shapeSpaceConstraintsMonitoring = function () { };
+    ;
+    NavigationState.prototype.curveConstraintsMonitoring = function () { };
+    ;
+    return NavigationState;
+}());
+exports.NavigationState = NavigationState;
+var NavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_super) {
+    __extends(NavigationWithoutShapeSpaceMonitoring, _super);
+    function NavigationWithoutShapeSpaceMonitoring(curveNavigator) {
+        return _super.call(this, curveNavigator) || this;
+    }
+    NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationStrictlyInsideShapeSpace = function () {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
+    };
+    NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationThroughSimplerShapeSpaces = function () {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
+    };
+    NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
+        warning.logMessageToConsole();
+    };
+    return NavigationWithoutShapeSpaceMonitoring;
+}(NavigationState));
+exports.NavigationWithoutShapeSpaceMonitoring = NavigationWithoutShapeSpaceMonitoring;
+var NavigationThroughSimplerShapeSpaces = /** @class */ (function (_super) {
+    __extends(NavigationThroughSimplerShapeSpaces, _super);
+    function NavigationThroughSimplerShapeSpaces(curveNavigator) {
+        return _super.call(this, curveNavigator) || this;
+    }
+    NavigationThroughSimplerShapeSpaces.prototype.setNavigationStrictlyInsideShapeSpace = function () {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
+    };
+    NavigationThroughSimplerShapeSpaces.prototype.setNavigationThroughSimplerShapeSpaces = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
+        warning.logMessageToConsole();
+    };
+    NavigationThroughSimplerShapeSpaces.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
+    };
+    return NavigationThroughSimplerShapeSpaces;
+}(NavigationState));
+exports.NavigationThroughSimplerShapeSpaces = NavigationThroughSimplerShapeSpaces;
+var NavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) {
+    __extends(NavigationStrictlyInsideShapeSpace, _super);
+    function NavigationStrictlyInsideShapeSpace() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    NavigationStrictlyInsideShapeSpace.prototype.setNavigationThroughSimplerShapeSpaces = function () {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
+    };
+    NavigationStrictlyInsideShapeSpace.prototype.setNavigationStrictlyInsideShapeSpace = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationStrictlyInsideShapeSpace", "No navigation process to change there.");
+        warning.logMessageToConsole();
+    };
+    NavigationStrictlyInsideShapeSpace.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
+    };
+    return NavigationStrictlyInsideShapeSpace;
+}(NavigationState));
+exports.NavigationStrictlyInsideShapeSpace = NavigationStrictlyInsideShapeSpace;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts":
+/*!***************************************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding = exports.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding = exports.ShapeSpaceConfiguratorWithCurvatureExtremaSliding = exports.ShapeSpaceConfiguratorWithInflectionsSliding = exports.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding = exports.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding = exports.ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding = exports.ShapeSpaceConfiguratorWithInflectionsNoSliding = void 0;
+var ShapeSpaceConfiguratorWithInflectionsNoSliding = /** @class */ (function () {
+    //public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    function ShapeSpaceConfiguratorWithInflectionsNoSliding(curveModel) {
+        this.curveModel = curveModel;
+        //this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
+    }
+    ShapeSpaceConfiguratorWithInflectionsNoSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = true;
+    };
+    return ShapeSpaceConfiguratorWithInflectionsNoSliding;
+}());
+exports.ShapeSpaceConfiguratorWithInflectionsNoSliding = ShapeSpaceConfiguratorWithInflectionsNoSliding;
+var ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding = /** @class */ (function () {
+    function ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding() {
+    }
+    ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = true;
+    };
+    return ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding;
+}());
+exports.ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding = ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding;
+var ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding = /** @class */ (function () {
+    function ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding() {
+    }
+    ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = true;
+    };
+    return ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding;
+}());
+exports.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding = ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding;
+var ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding = /** @class */ (function () {
+    function ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding() {
+    }
+    ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = false;
+    };
+    return ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
+}());
+exports.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding = ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
+var ShapeSpaceConfiguratorWithInflectionsSliding = /** @class */ (function () {
+    //public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    function ShapeSpaceConfiguratorWithInflectionsSliding(curveModel) {
+        this.curveModel = curveModel;
+    }
+    ShapeSpaceConfiguratorWithInflectionsSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = true;
+    };
+    return ShapeSpaceConfiguratorWithInflectionsSliding;
+}());
+exports.ShapeSpaceConfiguratorWithInflectionsSliding = ShapeSpaceConfiguratorWithInflectionsSliding;
+var ShapeSpaceConfiguratorWithCurvatureExtremaSliding = /** @class */ (function () {
+    function ShapeSpaceConfiguratorWithCurvatureExtremaSliding() {
+    }
+    ShapeSpaceConfiguratorWithCurvatureExtremaSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = true;
+    };
+    return ShapeSpaceConfiguratorWithCurvatureExtremaSliding;
+}());
+exports.ShapeSpaceConfiguratorWithCurvatureExtremaSliding = ShapeSpaceConfiguratorWithCurvatureExtremaSliding;
+var ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding = /** @class */ (function () {
+    function ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding() {
+    }
+    ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = true;
+    };
+    return ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding;
+}());
+exports.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding = ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding;
+var ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding = /** @class */ (function () {
+    function ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding() {
+    }
+    ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding.prototype.monitorCurveUsingDifferentialEvents = function (shapSpaceDiffEventsStructure) {
+        shapSpaceDiffEventsStructure.navigation = false;
+    };
+    return ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding;
+}());
+exports.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding = ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts":
+/*!************************************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts ***!
+  \************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * Set of parameters monitoring the state of the navigation process
+ * @_activeControlInflections : if true activates the optimizer to navigate a shape space with a constant set of inflections
+ * @_activeControlCurvatureExtrema : if true activates the optimizer to navigate a shape space with a constant set of curvature extrema
+ * @_activeNavigationWithOptimizer : if true activates the optimizer to navigate a shape space in accordance with
+ * _activeControlInflections and _activeControlCurvatureExtrema settings
+ * if _activeControlInflections and _activeControlCurvatureExtrema are set to false both, _activeNavigationWithOptimizer must be set to false too
+ * (there is no need for an optimization process)
+ * when the _activeNavigationWithOptimizer is set to false, the shape space navigation process halts but the _activeControlInflections
+ * and _activeControlCurvatureExtrema are not reset
+ * @_slidingDifferentialEvents : if true the differential events are allowed to slide along the curve. A complementary feature
+ * to be taken into account by the optimizer
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ShapeSpaceDiffEventsStructure = void 0;
+var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
+    function ShapeSpaceDiffEventsStructure(curveModeler, shapeSpaceConfigurator) {
+        this.curveModel = curveModeler.curveCategory;
+        this.shapeSpaceConfigurator = shapeSpaceConfigurator;
+        this._activeNavigationWithOptimizer = false;
+        this._activeControlInflections = false;
+        this._activeControlCurvatureExtrema = false;
+        this._slidingDifferentialEvents = false;
+        // if(controlOfInflections !== undefined) {
+        //     this._activeControlInflections = controlOfInflections;
+        //     this._activeNavigationWithOptimizer = true;
+        // }
+        // if(controlOfCurvatureExtrema !== undefined) {
+        //     this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
+        //     this._activeNavigationWithOptimizer = true;
+        // }
+        // if(slidingDiffEvents !== undefined) {
+        //     if(this._activeControlInflections !== false || this._activeControlCurvatureExtrema !== false) {
+        //         this._slidingDifferentialEvents = slidingDiffEvents;
+        //     }
+        //}
+    }
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "inflectionControl", {
+        get: function () {
+            return this._activeControlInflections;
+        },
+        set: function (controlOfInflections) {
+            this._activeControlInflections = controlOfInflections;
+            if (this._activeControlInflections === false && this._activeControlCurvatureExtrema === false)
+                this._activeNavigationWithOptimizer = false;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "curvatureExtremaControl", {
+        get: function () {
+            return this._activeControlCurvatureExtrema;
+        },
+        set: function (controlOfCurvatureExtrema) {
+            this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
+            if (this._activeControlInflections === false && this._activeControlCurvatureExtrema === false)
+                this._activeNavigationWithOptimizer = false;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "slidingStatus", {
+        get: function () {
+            return this._slidingDifferentialEvents;
+        },
+        set: function (slidingDiffEvents) {
+            this._slidingDifferentialEvents = slidingDiffEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "navigation", {
+        set: function (activeNavigation) {
+            this._activeNavigationWithOptimizer = activeNavigation;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "navigationStatus", {
+        get: function () {
+            return this._activeNavigationWithOptimizer;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShapeSpaceDiffEventsStructure.prototype.reset = function () {
+        this._activeNavigationWithOptimizer = false;
+        // this._activeControlInflections = false;
+        // this._activeControlCurvatureExtrema = false;
+        // this._slidingDifferentialEvents = false;
+    };
+    ShapeSpaceDiffEventsStructure.prototype.stop = function () {
+        this._activeNavigationWithOptimizer = false;
+    };
+    ShapeSpaceDiffEventsStructure.prototype.restart = function () {
+        this._activeNavigationWithOptimizer = true;
+    };
+    ShapeSpaceDiffEventsStructure.prototype.changeShapSpaceStructure = function (shapeSpaceDiffEventsConfigurator) {
+        this.shapeSpaceConfigurator = shapeSpaceDiffEventsConfigurator;
+        // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
+    };
+    ShapeSpaceDiffEventsStructure.prototype.monitorCurveShape = function () {
+        this.shapeSpaceConfigurator.monitorCurveUsingDifferentialEvents(this);
+    };
+    return ShapeSpaceDiffEventsStructure;
+}());
+exports.ShapeSpaceDiffEventsStructure = ShapeSpaceDiffEventsStructure;
+
+
+/***/ }),
+
+/***/ "./src/errorProcessing/ErrorLoging.ts":
+/*!********************************************!*\
+  !*** ./src/errorProcessing/ErrorLoging.ts ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WarningLog = exports.ErrorLog = exports.ErrorProcessing = void 0;
+var ErrorProcessing = /** @class */ (function () {
+    function ErrorProcessing(className, functionName, message) {
+        this.className = className;
+        this.functionName = functionName;
+        if (message !== undefined) {
+            this.message = message;
+        }
+    }
+    return ErrorProcessing;
+}());
+exports.ErrorProcessing = ErrorProcessing;
+var ErrorLog = /** @class */ (function (_super) {
+    __extends(ErrorLog, _super);
+    function ErrorLog() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ErrorLog.prototype.logMessageToConsole = function () {
+        console.log(this.className + ", " + this.functionName + ":");
+        throw new Error(this.message);
+    };
+    return ErrorLog;
+}(ErrorProcessing));
+exports.ErrorLog = ErrorLog;
+var WarningLog = /** @class */ (function (_super) {
+    __extends(WarningLog, _super);
+    function WarningLog() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    WarningLog.prototype.logMessageToConsole = function () {
+        console.log(this.className + ", " + this.functionName + ":");
+        console.log(this.message);
+    };
+    return WarningLog;
+}(ErrorProcessing));
+exports.WarningLog = WarningLog;
 
 
 /***/ }),
@@ -46608,6 +48441,2205 @@ var CurveModel = /** @class */ (function () {
     return CurveModel;
 }());
 exports.CurveModel = CurveModel;
+
+
+/***/ }),
+
+/***/ "./src/models/CurveModels2D.ts":
+/*!*************************************!*\
+  !*** ./src/models/CurveModels2D.ts ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClosedCurveModel2D = exports.OpenCurveModel2D = exports.CurveModels2D = void 0;
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var CurveModels2D = /** @class */ (function () {
+    function CurveModels2D() {
+        this.observers = [];
+    }
+    CurveModels2D.prototype.registerObserver = function (observer) {
+        this.observers.push(observer);
+    };
+    CurveModels2D.prototype.removeObserver = function (observer) {
+        this.observers.splice(this.observers.indexOf(observer), 1);
+    };
+    return CurveModels2D;
+}());
+exports.CurveModels2D = CurveModels2D;
+var OpenCurveModel2D = /** @class */ (function (_super) {
+    __extends(OpenCurveModel2D, _super);
+    function OpenCurveModel2D(existingKnots, existingControlPoints) {
+        var _this = _super.call(this) || this;
+        // Set up a pre-defined control polygon to start the modelling process
+        var deltay = -0.3;
+        var cp = [[-0.5, 0.2 + deltay], [-0.25, 0 + deltay], [0.25, 0.1 + deltay], [0.5, 0.6 + deltay]];
+        var controlPolygon = [];
+        for (var _i = 0, cp_1 = cp; _i < cp_1.length; _i++) {
+            var vertex = cp_1[_i];
+            var controlPoint = new Vector_2d_1.Vector_2d;
+            controlPoint.x = vertex[0];
+            controlPoint.y = vertex[1];
+            controlPolygon.push(controlPoint);
+        }
+        var knots = [0, 0, 0, 0, 1, 1, 1, 1];
+        _this.spline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(controlPolygon, knots);
+        if ((!existingKnots && existingControlPoints) || (existingKnots && !existingControlPoints)) {
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Creation of B-Spline. The control polygon and/or knot vector input is inconsistent. Turned into a default curve creation.");
+            warning.logMessageToConsole();
+        }
+        else if (!existingKnots && !existingControlPoints) {
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Creation of B-Spline. Use a default curve.");
+            warning.logMessageToConsole();
+        }
+        else if (existingKnots && existingControlPoints) {
+            _this.spline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(existingControlPoints, existingKnots);
+        }
+        return _this;
+    }
+    OpenCurveModel2D.prototype.notifyObservers = function () {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var anObserver = _a[_i];
+            anObserver.update(this.spline);
+        }
+    };
+    OpenCurveModel2D.prototype.moveControlPoint = function (controlPointIndex, deltaX, deltaY) {
+        this.spline.moveControlPoint(controlPointIndex, deltaX, deltaY);
+        if (deltaX * deltaX + deltaY * deltaY > 0) {
+            this.notifyObservers();
+        }
+    };
+    OpenCurveModel2D.prototype.setControlPoint = function (controlPointIndex, x, y) {
+        this.spline.setControlPoint(controlPointIndex, new Vector_2d_1.Vector_2d(x, y));
+        //this.notifyObservers()
+    };
+    OpenCurveModel2D.prototype.setControlPoints = function (controlPoints) {
+        this.spline.setControlPoints(controlPoints);
+        //this.notifyObservers()
+    };
+    OpenCurveModel2D.prototype.setSpline = function (spline) {
+        this.spline = spline;
+        this.notifyObservers();
+    };
+    return OpenCurveModel2D;
+}(CurveModels2D));
+exports.OpenCurveModel2D = OpenCurveModel2D;
+var ClosedCurveModel2D = /** @class */ (function (_super) {
+    __extends(ClosedCurveModel2D, _super);
+    function ClosedCurveModel2D(existingKnots, existingControlPoints) {
+        var _this = _super.call(this) || this;
+        // Set up a pre-defined control polygon to start the modelling process
+        var deltay = -0.3;
+        var cp = [[-0.5, 0.2 + deltay], [-0.25, 0 + deltay], [0.25, 0.1 + deltay], [0.5, 0.6 + deltay]];
+        var controlPolygon = [];
+        for (var _i = 0, cp_2 = cp; _i < cp_2.length; _i++) {
+            var vertex = cp_2[_i];
+            var controlPoint = new Vector_2d_1.Vector_2d;
+            controlPoint.x = vertex[0];
+            controlPoint.y = vertex[1];
+            controlPolygon.push(controlPoint);
+        }
+        var knots = [0, 0, 0, 0, 1, 1, 1, 1];
+        _this.spline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(controlPolygon, knots);
+        return _this;
+    }
+    ClosedCurveModel2D.prototype.notifyObservers = function () {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var anObserver = _a[_i];
+            anObserver.update(this.spline);
+        }
+    };
+    ClosedCurveModel2D.prototype.setSpline = function (spline) {
+        this.spline = spline;
+        this.notifyObservers();
+    };
+    return ClosedCurveModel2D;
+}(CurveModels2D));
+exports.ClosedCurveModel2D = ClosedCurveModel2D;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts":
+/*!*****************************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts ***!
+  \*****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ComparatorOfSequencesOfDiffEvents = exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR = exports.TWO_INFLECTIONS_EVENTS_APPEAR = exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL = exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL = exports.TWO_CURVEXT_EVENTS_DISAPPEAR = exports.TWO_CURVEXT_EVENTS_APPEAR = exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL = exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL = exports.RETURN_ERROR_CODE = exports.CURVE_INTERVAL_SPAN = exports.LOWER_BOUND_CURVE_INTERVAL = exports.UPPER_BOUND_CURVE_INTERVAL = void 0;
+var ModifiedDifferentialEvents_1 = __webpack_require__(/*! ./ModifiedDifferentialEvents */ "./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts");
+var LocalizerOfDifferentialEvents_1 = __webpack_require__(/*! ./LocalizerOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts");
+var DifferentialEvent_1 = __webpack_require__(/*! ./DifferentialEvent */ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+exports.UPPER_BOUND_CURVE_INTERVAL = 1.0;
+exports.LOWER_BOUND_CURVE_INTERVAL = 0.0;
+exports.CURVE_INTERVAL_SPAN = exports.UPPER_BOUND_CURVE_INTERVAL - exports.LOWER_BOUND_CURVE_INTERVAL;
+exports.RETURN_ERROR_CODE = -1;
+exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL = 1;
+exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL = -1;
+exports.TWO_CURVEXT_EVENTS_APPEAR = 2;
+exports.TWO_CURVEXT_EVENTS_DISAPPEAR = -2;
+exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL = 1;
+exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL = -1;
+exports.TWO_INFLECTIONS_EVENTS_APPEAR = 2;
+exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR = -2;
+/**
+ * Compare the sequences of differential events _sequenceDiffEvents1 and _sequenceDiffEvents2 to look for curvature extrema changes (appearing/disappearing)
+ * when the number of inflections is identical in each sequence:
+ * @returns : array of ModifiedCurvatureEvents where each interval is defined by two successive inflections.
+ * This interval is characterized by the right inflection identified by its INDEX in the array of indices of inflections found in _sequenceDiffEvents1.
+ * When event changes occur in the last interval of _sequenceDiffEvents1, i.e., after the last inflection of this sequence, the right bound of this interval
+ * is set to: indicesInflection1.length (the number inflections + 1). This process is used to designate an interval, only, and is
+ * not altering the content of the array of indices of inflections. In case a sequence has no inflection, i.e., this array has length zero,
+ * though the interval is designated with zero.
+ * It can  be an array of modifiedInflectionEvents where each interval is defined by the INDEX of a curvature
+ * extremum in _sequenceDiffEvents1 (if two inflections appear or disappear, they are adjacent to a curvature extremum).
+ * When event changes occur in the last interval of _sequenceDiffEvents1, i.e., after the last curvature extremum of this sequence, the right bound of this interval
+ * is set to: _sequenceDiffEvents1.length (the number of events + 1). If the inflection change occurs in the first interval,
+ * the index is set to 1.
+ */
+var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
+    function ComparatorOfSequencesOfDiffEvents(sequenceDiffEvents1, sequenceDiffEvents2) {
+        this.modifiedCurvExEvents = [];
+        this.modifiedInflectionEvents = [];
+        this.neighboringEvents = [];
+        this._sequenceDiffEvents1 = sequenceDiffEvents1;
+        this._sequenceDiffEvents2 = sequenceDiffEvents2;
+    }
+    Object.defineProperty(ComparatorOfSequencesOfDiffEvents.prototype, "sequenceDiffEvents1", {
+        get: function () {
+            return this._sequenceDiffEvents1;
+        },
+        set: function (sequenceDiffEvents) {
+            sequenceDiffEvents.checkSequenceConsistency();
+            this._sequenceDiffEvents1 = sequenceDiffEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComparatorOfSequencesOfDiffEvents.prototype, "sequenceDiffEvents2", {
+        get: function () {
+            return this._sequenceDiffEvents2;
+        },
+        set: function (sequenceDiffEvents) {
+            sequenceDiffEvents.checkSequenceConsistency();
+            this._sequenceDiffEvents2 = sequenceDiffEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ComparatorOfSequencesOfDiffEvents.prototype.locateIntervalAndNumberOfCurvExEventChanges = function () {
+        if (this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+            var shift = 0;
+            for (var j = 0; j < this._sequenceDiffEvents1.indicesOfInflections.length; j += 1) {
+                var delta = this._sequenceDiffEvents1.indicesOfInflections[j] - this._sequenceDiffEvents2.indicesOfInflections[j];
+                if (delta !== shift) {
+                    var modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedCurvatureEvents(j, (shift - delta));
+                    this.modifiedCurvExEvents.push(modEventInInterval);
+                    shift = shift + delta;
+                }
+            }
+            if (this._sequenceDiffEvents1.indicesOfInflections.length > 0 && this.modifiedCurvExEvents.length === 0) {
+                // There are inflections and no changes in the first indicesInflectionInit.length intervals -> changes take place in the last interval
+                var modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedCurvatureEvents(this._sequenceDiffEvents1.indicesOfInflections.length, (this._sequenceDiffEvents2.length() - this._sequenceDiffEvents1.length()));
+                this.modifiedCurvExEvents.push(modEventInInterval);
+            }
+            if (this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
+                // There is no inflexion in the sequence of events -> all events take place in the 'first' interval
+                var modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedCurvatureEvents(0, (this._sequenceDiffEvents2.length() - this._sequenceDiffEvents1.length()));
+                this.modifiedCurvExEvents.push(modEventInInterval);
+            }
+        }
+        if (this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length() && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
+            this.checkConsistencySumModifiedEvents();
+        }
+        this.checkConsistencyModifiedEvents();
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.setModifedInflectionEventInExtremeInterval = function (sequenceDiffEvents, nbModifiedInflections) {
+        var modificationOfInflectionEventExist = false;
+        if (sequenceDiffEvents.eventAt(0).order === DifferentialEvent_1.ORDER_INFLECTION) {
+            if (sequenceDiffEvents.length() === 1) {
+                var modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedInflectionEvents(0, nbModifiedInflections);
+                this.modifiedInflectionEvents.push(modEventInInterval);
+            }
+            else if (sequenceDiffEvents.eventAt(1).order === DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) {
+                var modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedInflectionEvents(1, nbModifiedInflections);
+                this.modifiedInflectionEvents.push(modEventInInterval);
+            }
+            modificationOfInflectionEventExist = true;
+        }
+        if (sequenceDiffEvents.length() > 1) {
+            if (sequenceDiffEvents.eventAt(sequenceDiffEvents.length() - 1).order === DifferentialEvent_1.ORDER_INFLECTION
+                && sequenceDiffEvents.eventAt(sequenceDiffEvents.length() - 2).order === DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) {
+                var modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedInflectionEvents(sequenceDiffEvents.length() - 2, nbModifiedInflections);
+                this.modifiedInflectionEvents.push(modEventInInterval);
+                modificationOfInflectionEventExist = true;
+            }
+        }
+        if (!modificationOfInflectionEventExist) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "setModifedInflectionEventInExtremeInterval", "Inconsistent variation of sequences of differential events.");
+            error.logMessageToConsole();
+        }
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.areTwoInflectionsDisappearingAtCurveExtremities = function (sequenceDiffEvents1, sequenceDiffEvents2) {
+        var twoInflectionsAtCurveExtremities = false;
+        if (sequenceDiffEvents2.length() > 1) {
+            if (sequenceDiffEvents1.eventAt(0).order === DifferentialEvent_1.ORDER_INFLECTION && sequenceDiffEvents2.eventAt(0).order === DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM
+                && sequenceDiffEvents1.eventAt(sequenceDiffEvents1.length() - 1).order === DifferentialEvent_1.ORDER_INFLECTION && sequenceDiffEvents2.eventAt(sequenceDiffEvents2.length() - 1).order === DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) {
+                twoInflectionsAtCurveExtremities = true;
+            }
+        }
+        return twoInflectionsAtCurveExtremities;
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.setModifedInflectionEventsAtCurveEx = function (sequenceDiffEvents1, sequenceDiffEvents2, nbModifiedInflections) {
+        var generateModEvents = false;
+        if (nbModifiedInflections === exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+            if (this.areTwoInflectionsDisappearingAtCurveExtremities(sequenceDiffEvents1, sequenceDiffEvents2)) {
+                this.setModifedInflectionEventInExtremeInterval(sequenceDiffEvents1, exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL);
+                generateModEvents = true;
+            }
+        }
+        else if (nbModifiedInflections === exports.TWO_INFLECTIONS_EVENTS_APPEAR) {
+            if (this.areTwoInflectionsDisappearingAtCurveExtremities(sequenceDiffEvents2, sequenceDiffEvents1)) {
+                this.setModifedInflectionEventInExtremeInterval(sequenceDiffEvents2, exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL);
+                generateModEvents = true;
+            }
+        }
+        return generateModEvents;
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.setModifedInflectionEventsAjacentToCurvEx = function (sequenceDiffEvents1, sequenceDiffEvents2, nbModifiedInflections) {
+        if (this.setModifedInflectionEventsAtCurveEx(sequenceDiffEvents1, sequenceDiffEvents2, nbModifiedInflections)) {
+            return;
+        }
+        var shift = 0;
+        for (var j = 0; j < sequenceDiffEvents1.length(); j += 1) {
+            if (sequenceDiffEvents1.eventAt(j).order !== sequenceDiffEvents2.eventAt(j + shift).order) {
+                var modEventInInterval = void 0;
+                if (nbModifiedInflections > 0) {
+                    modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedInflectionEvents(j, exports.TWO_INFLECTIONS_EVENTS_APPEAR);
+                }
+                else {
+                    modEventInInterval = new ModifiedDifferentialEvents_1.ModifiedInflectionEvents(j, exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR);
+                }
+                this.modifiedInflectionEvents.push(modEventInInterval);
+                shift = shift + exports.TWO_INFLECTIONS_EVENTS_APPEAR;
+            }
+        }
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.locateIntervalAndNumberOfInflectionEventChanges = function () {
+        var nbCurvExtrema1 = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents1.indicesOfInflections.length;
+        var nbCurvExtrema2 = this._sequenceDiffEvents2.length() - this._sequenceDiffEvents2.indicesOfInflections.length;
+        if (nbCurvExtrema1 === nbCurvExtrema2) {
+            var nbModifiedInflections = this._sequenceDiffEvents2.indicesOfInflections.length - this._sequenceDiffEvents1.indicesOfInflections.length;
+            if (nbModifiedInflections === exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL) {
+                this.setModifedInflectionEventInExtremeInterval(this._sequenceDiffEvents2, nbModifiedInflections);
+            }
+            else if (nbModifiedInflections === exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL) {
+                this.setModifedInflectionEventInExtremeInterval(this._sequenceDiffEvents1, nbModifiedInflections);
+            }
+            else if (nbModifiedInflections === exports.TWO_INFLECTIONS_EVENTS_APPEAR) {
+                if (nbCurvExtrema1 > 0) {
+                    this.setModifedInflectionEventsAjacentToCurvEx(this._sequenceDiffEvents1, this._sequenceDiffEvents2, nbModifiedInflections);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateIntervalAndNumberOfInflectionEventChanges", "Inconsistent number of curvature extrema. There must be one, at least.");
+                    error.logMessageToConsole();
+                }
+            }
+            else if (nbModifiedInflections === exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+                if (nbCurvExtrema2 > 0) {
+                    this.setModifedInflectionEventsAjacentToCurvEx(this._sequenceDiffEvents2, this._sequenceDiffEvents1, nbModifiedInflections);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateIntervalAndNumberOfInflectionEventChanges", "Inconsistent number of curvature extrema. There must be one, at least.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.locateNeiboringEventsUnderCurvExEventChanges = function () {
+        if (this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+            for (var _i = 0, _a = this.modifiedCurvExEvents; _i < _a.length; _i++) {
+                var modifiedCurvExEvent = _a[_i];
+                this._sequenceDiffEvents1.checkConsistencyIntervalBtwInflections(modifiedCurvExEvent);
+                if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
+                    var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
+                    var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
+                    // Because there is only one event appearing and this event is of type curvature extremum, it can take place either in the first or in the last interval
+                    var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
+                    var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length > 0) {
+                    // Because there is only one event appearing and this event is of type curvature extremum, it can take place either in the first or in the last interval
+                    var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
+                    var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedCurvExEvent.nbEvents === exports.TWO_CURVEXT_EVENTS_APPEAR) {
+                    var locatorCurvEventAppearing = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremaAppearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
+                    var neighboringEvent = locatorCurvEventAppearing.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedCurvExEvent.nbEvents === exports.TWO_CURVEXT_EVENTS_DISAPPEAR) {
+                    var locatorCurvEventDisappearing = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremaDisappearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
+                    var neighboringEvent = locatorCurvEventDisappearing.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "Cannot process the curvature extremum event.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "No curvature extremum event processed because inflection events are modified too.");
+            warning.logMessageToConsole();
+        }
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.locateNeiboringEventsUnderInflectionEventChanges = function () {
+        var nbEventsModified = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents2.length();
+        var nbInflectionsModified = this._sequenceDiffEvents1.indicesOfInflections.length - this._sequenceDiffEvents2.indicesOfInflections.length;
+        if (nbEventsModified === nbInflectionsModified) {
+            for (var _i = 0, _a = this.modifiedInflectionEvents; _i < _a.length; _i++) {
+                var modifiedInflectionEvent = _a[_i];
+                if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
+                    var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionAppearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length > 0) {
+                    var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionDisappearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
+                    var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionAppearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
+                    var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionDisappearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedInflectionEvent.nbEvents === exports.TWO_INFLECTIONS_EVENTS_APPEAR) {
+                    var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else if (modifiedInflectionEvent.nbEvents === exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+                    var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
+                    var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
+                    this.neighboringEvents.push(neighboringEvent);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "Cannot process the inflection event.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "No inflection event processed because curvature extrema events are modified too.");
+            warning.logMessageToConsole();
+        }
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.locateNeiboringEvents = function () {
+        this.modifiedCurvExEvents = [];
+        this.modifiedInflectionEvents = [];
+        this.locateIntervalAndNumberOfCurvExEventChanges();
+        if (this.modifiedCurvExEvents.length === 0) {
+            if (this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+                // No change in curvature extrema has been identified as well as no change in inflections
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEvents", "Inconsistent analysis of lost events in the sequence of differential events.");
+                error.logMessageToConsole();
+            }
+            this.locateIntervalAndNumberOfInflectionEventChanges();
+            this.locateNeiboringEventsUnderInflectionEventChanges();
+        }
+        else if (this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
+            this.locateNeiboringEventsUnderCurvExEventChanges();
+        }
+        else if (this.modifiedCurvExEvents.length === 0 && this.modifiedInflectionEvents.length === 0
+            && this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length()) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateNeiboringEvents", "Cannot process this configuration yet.");
+            warning.logMessageToConsole();
+        }
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.checkConsistencyModifiedEvents = function () {
+        var _this = this;
+        this.modifiedCurvExEvents.forEach(function (element) {
+            if (element.indexInflection > 0 && element.indexInflection < _this._sequenceDiffEvents1.indicesOfInflections.length) {
+                if (element.nbEvents % 2 !== 0) {
+                    var message = "The number of differential events appaearing/disappearing in interval [" + _this._sequenceDiffEvents1.indicesOfInflections[element.indexInflection - 1]
+                        + ", " + _this._sequenceDiffEvents1.indicesOfInflections[element.indexInflection] + "] must be even.";
+                    var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "checkConsistencyModifiedEvents", message);
+                    error.logMessageToConsole();
+                }
+            }
+        });
+    };
+    ComparatorOfSequencesOfDiffEvents.prototype.checkConsistencySumModifiedEvents = function () {
+        var sum = 0;
+        this.modifiedCurvExEvents.forEach(function (element) {
+            sum += element.nbEvents;
+        });
+        if (sum !== 0) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencySumModifiedEvents", "The sum of events appearing/disappearing must be null but is not: " + sum);
+            error.logMessageToConsole();
+        }
+    };
+    return ComparatorOfSequencesOfDiffEvents;
+}());
+exports.ComparatorOfSequencesOfDiffEvents = ComparatorOfSequencesOfDiffEvents;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts":
+/*!******************************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts ***!
+  \******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ComparatorOfSequencesOfIntervals = void 0;
+var MaxIntervalVariation_1 = __webpack_require__(/*! ./MaxIntervalVariation */ "./src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+/* named constants */
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ./ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var ComparatorOfSequencesDiffEvents_2 = __webpack_require__(/*! ./ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var ComparatorOfSequencesOfIntervals = /** @class */ (function () {
+    function ComparatorOfSequencesOfIntervals(sequenceOfIntervals1, sequenceOfIntervals2) {
+        this._sequenceOfIntervals1 = sequenceOfIntervals1;
+        this._sequenceOfIntervals2 = sequenceOfIntervals2;
+        this.maxVariationInSeq1 = new MaxIntervalVariation_1.MaxIntervalVariation();
+    }
+    ComparatorOfSequencesOfIntervals.prototype.indexIntervalMaximalVariationUnderForwardScan = function (candidateEvent, nbEvents) {
+        if (this.maxVariationInSeq1.index !== ComparatorOfSequencesDiffEvents_2.RETURN_ERROR_CODE) {
+            this.maxVariationInSeq1 = new MaxIntervalVariation_1.MaxIntervalVariation();
+        }
+        this.checkCandidateIndexInReferenceSequence(candidateEvent, nbEvents);
+        var upperBound = candidateEvent;
+        var lowerBound = 0;
+        /* JCL To process intervals that are uniquely bounded by events */
+        if ((nbEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR || nbEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR) && candidateEvent > 1) {
+            lowerBound = 1;
+        }
+        // if(candidateEvent === 1) {
+        //     if(this._sequenceOfIntervals1.sequence.length > this._sequenceOfIntervals2.sequence.length) {
+        //         this.maxVariationInSeq1.value = 1.0/(this._sequenceOfIntervals1.sequence[0]/this._sequenceOfIntervals1.span);
+        //     } else if(this._sequenceOfIntervals1.sequence.length < this._sequenceOfIntervals2.sequence.length) {
+        //         this.maxVariationInSeq1.value = 1.0/(this._sequenceOfIntervals2.sequence[0]/this._sequenceOfIntervals1.span);
+        //     }
+        //     this.maxVariationInSeq1.index = 0;
+        // }
+        for (var k = lowerBound; k < upperBound; k += 1) {
+            var currentRatio = 0.0;
+            if (this._sequenceOfIntervals1.sequence.length > this._sequenceOfIntervals2.sequence.length) {
+                currentRatio = (this._sequenceOfIntervals2.sequence[k] / this._sequenceOfIntervals2.span) / (this._sequenceOfIntervals1.sequence[k] / this._sequenceOfIntervals1.span);
+            }
+            else if (this._sequenceOfIntervals1.sequence.length < this._sequenceOfIntervals2.sequence.length) {
+                currentRatio = (this._sequenceOfIntervals1.sequence[k] / this._sequenceOfIntervals1.span) / (this._sequenceOfIntervals2.sequence[k] / this._sequenceOfIntervals2.span);
+            }
+            if (k === 0 || currentRatio > this.maxVariationInSeq1.value) {
+                this.maxVariationInSeq1.value = currentRatio;
+                this.maxVariationInSeq1.index = k;
+            }
+        }
+    };
+    ComparatorOfSequencesOfIntervals.prototype.indexIntervalMaximalVariationUnderReverseScan = function (candidateEvent, nbEvents) {
+        if (this.maxVariationInSeq1.index !== ComparatorOfSequencesDiffEvents_2.RETURN_ERROR_CODE) {
+            this.maxVariationInSeq1 = new MaxIntervalVariation_1.MaxIntervalVariation();
+        }
+        this.checkCandidateIndexInReferenceSequence(candidateEvent, nbEvents);
+        var upperBound = 0;
+        var lowerBound = 0;
+        if (this._sequenceOfIntervals1.sequence.length > this._sequenceOfIntervals2.sequence.length) {
+            lowerBound = candidateEvent + nbEvents;
+            upperBound = this._sequenceOfIntervals2.sequence.length - 1;
+            if (nbEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR && candidateEvent < this._sequenceOfIntervals2.sequence.length - 1)
+                upperBound -= 1;
+        }
+        else if (this._sequenceOfIntervals1.sequence.length < this._sequenceOfIntervals2.sequence.length) {
+            lowerBound = candidateEvent - nbEvents;
+            upperBound = this._sequenceOfIntervals1.sequence.length - 1;
+            if (nbEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && candidateEvent < this._sequenceOfIntervals1.sequence.length - 1)
+                upperBound -= 1;
+        }
+        // if(candidateEvent === 1) {
+        //     if(this._sequenceOfIntervals1.sequence.length > this._sequenceOfIntervals2.sequence.length) {
+        //         this.maxVariationInSeq1.value = 1.0/(this._sequenceOfIntervals1.sequence[this._sequenceOfIntervals1.sequence.length - 1]/this._sequenceOfIntervals1.span);
+        //     } else if(this._sequenceOfIntervals1.sequence.length < this._sequenceOfIntervals2.sequence.length) {
+        //         this.maxVariationInSeq1.value = 1.0/(this._sequenceOfIntervals2.sequence[this._sequenceOfIntervals2.sequence.length - 1]/this._sequenceOfIntervals2.span);
+        //     }
+        //     this.maxVariationInSeq1.index = upperBound;
+        // }
+        for (var k = upperBound; k > lowerBound; k -= 1) {
+            var currentRatio = 0.0;
+            if (this._sequenceOfIntervals1.sequence.length > this._sequenceOfIntervals2.sequence.length) {
+                currentRatio = (this._sequenceOfIntervals2.sequence[k] / this._sequenceOfIntervals2.span) / (this._sequenceOfIntervals1.sequence[k - nbEvents] / this._sequenceOfIntervals1.span);
+            }
+            else if (this._sequenceOfIntervals1.sequence.length < this._sequenceOfIntervals2.sequence.length) {
+                currentRatio = (this._sequenceOfIntervals1.sequence[k] / this._sequenceOfIntervals1.span) / (this._sequenceOfIntervals2.sequence[k + nbEvents] / this._sequenceOfIntervals2.span);
+            }
+            if (k === this._sequenceOfIntervals2.sequence.length - 1 || currentRatio > this.maxVariationInSeq1.value) {
+                this.maxVariationInSeq1.value = currentRatio;
+                this.maxVariationInSeq1.index = k;
+            }
+        }
+    };
+    ComparatorOfSequencesOfIntervals.prototype.checkCandidateIndexInReferenceSequence = function (CandidateEvent, nbEvents) {
+        if (nbEvents === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && CandidateEvent >= this._sequenceOfIntervals1.sequence.length) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCandidateIndexInReferenceSequence", "Invalid index to scan sequence1 of intervals: out of bounds.");
+            error.logMessageToConsole();
+        }
+        else if (nbEvents === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && CandidateEvent >= this._sequenceOfIntervals2.sequence.length) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCandidateIndexInReferenceSequence", "Invalid index to scan sequence2 of intervals: out of bounds.");
+            error.logMessageToConsole();
+        }
+    };
+    return ComparatorOfSequencesOfIntervals;
+}());
+exports.ComparatorOfSequencesOfIntervals = ComparatorOfSequencesOfIntervals;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts":
+/*!***************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/DifferentialEvent.ts ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurvatureExtremumEvent = exports.InflectionEvent = exports.DifferentialEvent = exports.ORDER_CURVATURE_EXTREMUM = exports.ORDER_INFLECTION = void 0;
+/*
+* Characterization of differential events as key points of the curvature derivatives along a curve
+*/
+exports.ORDER_INFLECTION = 0;
+exports.ORDER_CURVATURE_EXTREMUM = 1;
+var DifferentialEvent = /** @class */ (function () {
+    /**
+     * instantiation of differential event given its type and location along a curve
+     * @param order order of differential event that indicates
+     * @param uAbscissa location of the differential event along the curve as defined with its parametric location
+     */
+    function DifferentialEvent(order, uAbscissa) {
+        this._order = order;
+        this._location = uAbscissa;
+        this.checkOrder();
+    }
+    Object.defineProperty(DifferentialEvent.prototype, "location", {
+        get: function () {
+            return this._location;
+        },
+        set: function (uAbscissa) {
+            this._location = uAbscissa;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(DifferentialEvent.prototype, "order", {
+        get: function () {
+            return this._order;
+        },
+        set: function (order) {
+            this._order = order;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    DifferentialEvent.prototype.clone = function () {
+        var event = this._order;
+        var location = this._location;
+        return new DifferentialEvent(event, location);
+    };
+    DifferentialEvent.prototype.checkOrder = function () {
+        if (this._order < exports.ORDER_INFLECTION) {
+            throw new Error("Incorrect order of differential event " + this._order + ". Must be positive.");
+        }
+    };
+    return DifferentialEvent;
+}());
+exports.DifferentialEvent = DifferentialEvent;
+var InflectionEvent = /** @class */ (function (_super) {
+    __extends(InflectionEvent, _super);
+    function InflectionEvent(uAbscissa) {
+        var _this = this;
+        var order = exports.ORDER_INFLECTION;
+        _this = _super.call(this, order, uAbscissa) || this;
+        return _this;
+    }
+    return InflectionEvent;
+}(DifferentialEvent));
+exports.InflectionEvent = InflectionEvent;
+var CurvatureExtremumEvent = /** @class */ (function (_super) {
+    __extends(CurvatureExtremumEvent, _super);
+    function CurvatureExtremumEvent(uAbscissa) {
+        var _this = this;
+        var order = exports.ORDER_CURVATURE_EXTREMUM;
+        _this = _super.call(this, order, uAbscissa) || this;
+        return _this;
+    }
+    return CurvatureExtremumEvent;
+}(DifferentialEvent));
+exports.CurvatureExtremumEvent = CurvatureExtremumEvent;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts":
+/*!***************************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum = exports.LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum = exports.LocalizerOfInflectionsAdjacentCurvatureExtremum = exports.LocalizerOfInflectionDisappearingInExtremeInterval = exports.LocalizerOfInflectionAppearingInExtremeInterval = exports.LocalizerOfInflectionInExtremeInterval = exports.LocalizerOfInflectionAppearingInUniqueInterval = exports.LocalizerOfInflectionDisappearingInUniqueInterval = exports.LocalizerOfInflectionInUniqueInterval = exports.LocalizerOfCurvatureExtremaDisappearing = exports.LocalizerOfCurvatureExtremaAppearing = exports.LocalizerOfCurvatureExtrema = exports.LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval = exports.LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval = exports.LocalizerOfCurvatureExtremumInsideUniqueInterval = exports.LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval = exports.LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval = exports.LocalizerOfCurvatureExtremumInsideExtremeInterval = exports.LocalizerOfDifferentialEvents = exports.intervalLocation = void 0;
+var ComparatorOfSequencesOfIntervals_1 = __webpack_require__(/*! ./ComparatorOfSequencesOfIntervals */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts");
+var NeighboringEvents_1 = __webpack_require__(/*! ./NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+/* named constants */
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ./ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var NeighboringEvents_2 = __webpack_require__(/*! ./NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var DifferentialEvent_1 = __webpack_require__(/*! ./DifferentialEvent */ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts");
+var intervalLocation;
+(function (intervalLocation) {
+    intervalLocation[intervalLocation["first"] = 0] = "first";
+    intervalLocation[intervalLocation["last"] = 1] = "last";
+})(intervalLocation = exports.intervalLocation || (exports.intervalLocation = {}));
+var LocalizerOfDifferentialEvents = /** @class */ (function () {
+    /**
+     * Localize the differential events modifications in the sequence sequenceDiffEvents1, i.e., before optimization
+     * @param sequenceDiffEvents1 : diffrential event sequence before the optimization
+     * @param sequenceDiffEvents2 : differential event sequence after the optimization
+     * @param indexInflection : definition of the interval of sequenceDiffEvents1 where the events get modified.
+     *      It is the right bound of the interval characterized by the inflection located there, if any. This
+     *      inflection is defined by its INDEX in the sequence of inflections attached to the sequence of differential events.
+     *      If the right bound is the right hand side of the interval, indexInflection contains the length of the
+     *      inflection sequence
+     */
+    function LocalizerOfDifferentialEvents(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        this.sequenceDiffEvents1 = sequenceDiffEvents1;
+        this.sequenceDiffEvents2 = sequenceDiffEvents2;
+        this.location = indexInflection;
+    }
+    return LocalizerOfDifferentialEvents;
+}());
+exports.LocalizerOfDifferentialEvents = LocalizerOfDifferentialEvents;
+var LocalizerOfCurvatureExtremumInsideExtremeInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremumInsideExtremeInterval, _super);
+    function LocalizerOfCurvatureExtremumInsideExtremeInterval(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        if (_this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence1' of differential events input.");
+            error.logMessageToConsole();
+        }
+        else if (_this.sequenceDiffEvents2.indicesOfInflections.length === 0) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence2' of differential events input.");
+            error.logMessageToConsole();
+        }
+        _this.intervalsBtwExtrema1 = _this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(_this.location);
+        _this.intervalsBtwExtrema2 = _this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(_this.location);
+        _this.comparatorSequenceOfIntervals = new ComparatorOfSequencesOfIntervals_1.ComparatorOfSequencesOfIntervals(_this.intervalsBtwExtrema1, _this.intervalsBtwExtrema2);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremumInsideExtremeInterval.prototype.assignNewEventInExtremeInterval = function (sequenceDiffEvents, candidateEventIndex, indexMaxInterVar, nbEventsModified) {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        if (this.location === sequenceDiffEvents.indicesOfInflections.length && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+            if (candidateEventIndex !== NeighboringEvents_2.INITIAL_INTERV_INDEX && (candidateEventIndex !== this.intervalsBtwExtrema2.sequence.length - 1 || indexMaxInterVar !== this.intervalsBtwExtrema2.sequence.length - 1)) {
+                /* Temporary statement. Should evolve to decide whether to process it as an error or not */
+                // newEvent.type = NeighboringEventsType.none;
+                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.");
+            }
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringCurExtremumRightBoundary;
+            newEvent.index = sequenceDiffEvents.sequence.length - 1;
+        }
+        else if (this.location === sequenceDiffEvents.indicesOfInflections.length && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+            if (candidateEventIndex !== NeighboringEvents_2.INITIAL_INTERV_INDEX && (candidateEventIndex !== this.intervalsBtwExtrema1.sequence.length - 1 || indexMaxInterVar !== this.intervalsBtwExtrema1.sequence.length - 1)) {
+                /* Temporary statement. Should evolve to decide whether to process it as an error or not */
+                // newEvent.type = NeighboringEventsType.none;
+                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.");
+            }
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringCurExtremumRightBoundary;
+            newEvent.index = sequenceDiffEvents.sequence.length - 1;
+        }
+        else {
+            if (candidateEventIndex !== NeighboringEvents_2.INITIAL_INTERV_INDEX && (candidateEventIndex !== 0 || indexMaxInterVar !== 0)) {
+                /* Temporary statement. Should evolve to decide whether to process it as an error or not */
+                // newEvent.type = NeighboringEventsType.none;
+                console.log("A first evaluation of intervals between events shows that the event identified may be inconsistent.");
+            }
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringCurExtremumLeftBoundary;
+            newEvent.index = 0;
+        }
+        return newEvent;
+    };
+    LocalizerOfCurvatureExtremumInsideExtremeInterval.prototype.analyzeExtremeIntervalVariations = function (nbEventsModified) {
+        var modifiedEventIndex = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+        var ratio = 0.0;
+        this.checkIndexConsistency(this.location);
+        if (this.intervalsBtwExtrema2.sequence.length > 0 && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+            if (this.location === this.sequenceDiffEvents1.indicesOfInflections.length) {
+                ratio = this.variationOfExtremeInterval(intervalLocation.last, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
+                modifiedEventIndex = this.intervalsBtwExtrema1.sequence.length - 1;
+                this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderForwardScan(modifiedEventIndex - 1, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
+            }
+            else if (this.location === 0) {
+                ratio = this.variationOfExtremeInterval(intervalLocation.first, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
+                modifiedEventIndex = 0;
+                this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderReverseScan(modifiedEventIndex, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL);
+            }
+            if (this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratio) {
+                modifiedEventIndex = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
+            }
+        }
+        else if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+            if (this.location === this.sequenceDiffEvents1.indicesOfInflections.length) {
+                modifiedEventIndex = this.intervalsBtwExtrema1.sequence.length - 1;
+            }
+            else
+                modifiedEventIndex = 0;
+        }
+        else if (this.intervalsBtwExtrema1.sequence.length > 0 && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+            if (this.location === this.sequenceDiffEvents1.indicesOfInflections.length) {
+                ratio = this.variationOfExtremeInterval(intervalLocation.last, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+                modifiedEventIndex = this.intervalsBtwExtrema2.sequence.length - 1; // a voir
+                this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderForwardScan(modifiedEventIndex - 1, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+            }
+            else if (this.location === 0) {
+                ratio = this.variationOfExtremeInterval(intervalLocation.first, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+                modifiedEventIndex = 0;
+                this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderReverseScan(modifiedEventIndex, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+            }
+            if (this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratio) {
+                modifiedEventIndex = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
+            }
+        }
+        else if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+            if (this.location === this.sequenceDiffEvents1.indicesOfInflections.length) {
+                modifiedEventIndex = this.intervalsBtwExtrema2.sequence.length - 1;
+            }
+            else
+                modifiedEventIndex = 0;
+        }
+        return modifiedEventIndex;
+    };
+    LocalizerOfCurvatureExtremumInsideExtremeInterval.prototype.variationOfExtremeInterval = function (interval, nbEventsModified) {
+        var ratio = 0.0;
+        if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+            if (interval === intervalLocation.last) {
+                ratio = (this.intervalsBtwExtrema2.sequence[this.intervalsBtwExtrema2.sequence.length - 1] / this.intervalsBtwExtrema2.span) / (this.intervalsBtwExtrema1.sequence[this.intervalsBtwExtrema1.sequence.length - 1] / this.intervalsBtwExtrema1.span);
+            }
+            else if (interval === intervalLocation.first) {
+                ratio = (this.intervalsBtwExtrema2.sequence[0] / this.intervalsBtwExtrema2.span) / (this.intervalsBtwExtrema1.sequence[0] / this.intervalsBtwExtrema1.span);
+            }
+        }
+        else if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+            if (interval === intervalLocation.last) {
+                ratio = (this.intervalsBtwExtrema1.sequence[this.intervalsBtwExtrema1.sequence.length - 1] / this.intervalsBtwExtrema1.span) / (this.intervalsBtwExtrema2.sequence[this.intervalsBtwExtrema2.sequence.length - 1] / this.intervalsBtwExtrema2.span);
+            }
+            else if (interval === intervalLocation.first) {
+                ratio = (this.intervalsBtwExtrema1.sequence[0] / this.intervalsBtwExtrema1.span) / (this.intervalsBtwExtrema2.sequence[0] / this.intervalsBtwExtrema2.span);
+            }
+        }
+        return ratio;
+    };
+    LocalizerOfCurvatureExtremumInsideExtremeInterval.prototype.checkIndexConsistency = function (indexInflection) {
+        if ((indexInflection !== this.sequenceDiffEvents1.indicesOfInflections.length && indexInflection !== 0 && this.sequenceDiffEvents1.indicesOfInflections.length > 0)
+            || (indexInflection !== 0 && this.sequenceDiffEvents1.indicesOfInflections.length === 0)) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexConsistency", "Index of inflection in the sequence of differerntial events is invalid.");
+            error.logMessageToConsole();
+        }
+    };
+    return LocalizerOfCurvatureExtremumInsideExtremeInterval;
+}(LocalizerOfDifferentialEvents));
+exports.LocalizerOfCurvatureExtremumInsideExtremeInterval = LocalizerOfCurvatureExtremumInsideExtremeInterval;
+var LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval, _super);
+    function LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        _this.ONE_EVENT_APPEAR = ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL;
+        _this.candidateEventIndex = _this.intervalsBtwExtrema2.indexSmallestInterval(_this.ONE_EVENT_APPEAR);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval.prototype.locateDifferentialEvents = function () {
+        var indexMaxInterVar = this.analyzeExtremeIntervalVariations(this.ONE_EVENT_APPEAR);
+        return this.assignNewEventInExtremeInterval(this.sequenceDiffEvents2, this.candidateEventIndex, indexMaxInterVar, this.ONE_EVENT_APPEAR);
+    };
+    return LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval;
+}(LocalizerOfCurvatureExtremumInsideExtremeInterval));
+exports.LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval = LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval;
+var LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval, _super);
+    function LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        _this.ONE_EVENT_DISAPPEAR = ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL;
+        _this.candidateEventIndex = _this.intervalsBtwExtrema1.indexSmallestInterval(_this.ONE_EVENT_DISAPPEAR);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval.prototype.locateDifferentialEvents = function () {
+        var indexMaxInterVar = this.analyzeExtremeIntervalVariations(this.ONE_EVENT_DISAPPEAR);
+        return this.assignNewEventInExtremeInterval(this.sequenceDiffEvents1, this.candidateEventIndex, indexMaxInterVar, this.ONE_EVENT_DISAPPEAR);
+    };
+    return LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval;
+}(LocalizerOfCurvatureExtremumInsideExtremeInterval));
+exports.LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval = LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval;
+var LocalizerOfCurvatureExtremumInsideUniqueInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremumInsideUniqueInterval, _super);
+    function LocalizerOfCurvatureExtremumInsideUniqueInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        var _this = this;
+        var indexInflection = 0;
+        _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        if (_this.sequenceDiffEvents1.indicesOfInflections.length !== 0) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence1' of differential events input.");
+            error.logMessageToConsole();
+        }
+        else if (_this.sequenceDiffEvents2.indicesOfInflections.length !== 0) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence2' of differential events input.");
+            error.logMessageToConsole();
+        }
+        _this.intervalsBtwExtrema1 = _this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(_this.location);
+        _this.intervalsBtwExtrema2 = _this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(_this.location);
+        _this.comparatorSequenceOfIntervals = new ComparatorOfSequencesOfIntervals_1.ComparatorOfSequencesOfIntervals(_this.intervalsBtwExtrema1, _this.intervalsBtwExtrema2);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremumInsideUniqueInterval.prototype.assignNewEventInUniqueInterval = function (sequenceDiffEvents, candidateEventIndex, nbEventsModified) {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        newEvent.type = NeighboringEvents_2.NeighboringEventsType.none;
+        if (candidateEventIndex === 0) {
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringCurExtremumLeftBoundary;
+            newEvent.index = 0;
+        }
+        else if ((candidateEventIndex === this.intervalsBtwExtrema2.sequence.length - 1 && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) ||
+            (candidateEventIndex === this.intervalsBtwExtrema1.sequence.length - 1 && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL)) {
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringCurExtremumRightBoundary;
+            newEvent.index = sequenceDiffEvents.sequence.length - 1;
+        }
+        else {
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.none;
+            newEvent.index = candidateEventIndex;
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "assignNewEventInUniqueInterval", "Inconsistent identification of curvature extremum. Possibly extremum at a knot.");
+            warning.logMessageToConsole();
+        }
+        return newEvent;
+    };
+    LocalizerOfCurvatureExtremumInsideUniqueInterval.prototype.analyzeUniqueIntervalVariations = function (candidateEventIndex, nbEventsModified) {
+        var modifiedEventIndex = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+        var ratioLeft = 0.0, ratioRight = 0.0;
+        if ((nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this.intervalsBtwExtrema1.sequence.length > 0) ||
+            (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this.intervalsBtwExtrema2.sequence.length > 0)) {
+            ratioLeft = this.variationOfExtremeInterval(intervalLocation.first, nbEventsModified);
+            ratioRight = this.variationOfExtremeInterval(intervalLocation.last, nbEventsModified);
+            if (ratioLeft > ratioRight) {
+                modifiedEventIndex = 0;
+                this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderReverseScan(modifiedEventIndex, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+                if (this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratioLeft) {
+                    modifiedEventIndex = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
+                }
+            }
+            else {
+                if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+                    modifiedEventIndex = this.intervalsBtwExtrema2.sequence.length - 1;
+                }
+                else if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+                    modifiedEventIndex = this.intervalsBtwExtrema1.sequence.length - 1;
+                }
+                this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderForwardScan(modifiedEventIndex - 1, ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
+                if (this.comparatorSequenceOfIntervals.maxVariationInSeq1.value > ratioRight) {
+                    modifiedEventIndex = this.comparatorSequenceOfIntervals.maxVariationInSeq1.index;
+                }
+            }
+        }
+        else if (nbEventsModified !== ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && nbEventsModified !== ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Incorrect number of modified differential events.");
+            error.logMessageToConsole();
+        }
+        else {
+            if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+                modifiedEventIndex = candidateEventIndex;
+            }
+            else if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+                modifiedEventIndex = 0;
+            }
+        }
+        if (candidateEventIndex !== NeighboringEvents_2.INITIAL_INTERV_INDEX) {
+            if (this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
+                if (modifiedEventIndex === candidateEventIndex) {
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Events are stable as well as the candidate event.");
+                    warning.logMessageToConsole();
+                }
+                else {
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Other events variations may influence the decision about the candidate event.");
+                    warning.logMessageToConsole();
+                    if (!(ratioLeft > ratioRight && candidateEventIndex === 0)) {
+                        modifiedEventIndex = 0;
+                    }
+                    else if (!(ratioLeft < ratioRight && candidateEventIndex === this.intervalsBtwExtrema1.sequence.length - 1) && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+                        modifiedEventIndex = this.intervalsBtwExtrema1.sequence.length - 1;
+                    }
+                    else if (!(ratioLeft < ratioRight && candidateEventIndex === this.intervalsBtwExtrema2.sequence.length - 1) && nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+                        modifiedEventIndex = this.intervalsBtwExtrema2.sequence.length - 1;
+                    }
+                }
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Unable to generate the smallest interval of differential events for this curve.");
+            error.logMessageToConsole();
+        }
+        return modifiedEventIndex;
+    };
+    LocalizerOfCurvatureExtremumInsideUniqueInterval.prototype.variationOfExtremeInterval = function (interval, nbEventsModified) {
+        var ratio = 0.0;
+        if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
+            if (interval === intervalLocation.last) {
+                ratio = (this.intervalsBtwExtrema2.sequence[this.intervalsBtwExtrema2.sequence.length - 1] / this.intervalsBtwExtrema2.span) / (this.intervalsBtwExtrema1.sequence[this.intervalsBtwExtrema1.sequence.length - 1] / this.intervalsBtwExtrema1.span);
+            }
+            else if (interval === intervalLocation.first) {
+                ratio = (this.intervalsBtwExtrema2.sequence[0] / this.intervalsBtwExtrema2.span) / (this.intervalsBtwExtrema1.sequence[0] / this.intervalsBtwExtrema1.span);
+            }
+        }
+        else if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
+            if (interval === intervalLocation.last) {
+                ratio = (this.intervalsBtwExtrema1.sequence[this.intervalsBtwExtrema1.sequence.length - 1] / this.intervalsBtwExtrema1.span) / (this.intervalsBtwExtrema2.sequence[this.intervalsBtwExtrema2.sequence.length - 1] / this.intervalsBtwExtrema2.span);
+            }
+            else if (interval === intervalLocation.first) {
+                ratio = (this.intervalsBtwExtrema1.sequence[0] / this.intervalsBtwExtrema1.span) / (this.intervalsBtwExtrema2.sequence[0] / this.intervalsBtwExtrema2.span);
+            }
+        }
+        return ratio;
+    };
+    return LocalizerOfCurvatureExtremumInsideUniqueInterval;
+}(LocalizerOfDifferentialEvents));
+exports.LocalizerOfCurvatureExtremumInsideUniqueInterval = LocalizerOfCurvatureExtremumInsideUniqueInterval;
+var LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval, _super);
+    function LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+        _this.ONE_EVENT_APPEAR = ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL;
+        _this.candidateEventIndex = _this.intervalsBtwExtrema2.indexSmallestInterval(_this.ONE_EVENT_APPEAR);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval.prototype.locateDifferentialEvents = function () {
+        this.candidateEventIndex = this.analyzeUniqueIntervalVariations(this.candidateEventIndex, this.ONE_EVENT_APPEAR);
+        return this.assignNewEventInUniqueInterval(this.sequenceDiffEvents2, this.candidateEventIndex, this.ONE_EVENT_APPEAR);
+    };
+    return LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval;
+}(LocalizerOfCurvatureExtremumInsideUniqueInterval));
+exports.LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval = LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval;
+var LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval, _super);
+    function LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+        _this.ONE_EVENT_DISAPPEAR = ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL;
+        _this.candidateEventIndex = _this.intervalsBtwExtrema1.indexSmallestInterval(_this.ONE_EVENT_DISAPPEAR);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval.prototype.locateDifferentialEvents = function () {
+        this.candidateEventIndex = this.analyzeUniqueIntervalVariations(this.candidateEventIndex, this.ONE_EVENT_DISAPPEAR);
+        return this.assignNewEventInUniqueInterval(this.sequenceDiffEvents1, this.candidateEventIndex, this.ONE_EVENT_DISAPPEAR);
+    };
+    return LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval;
+}(LocalizerOfCurvatureExtremumInsideUniqueInterval));
+exports.LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval = LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval;
+var LocalizerOfCurvatureExtrema = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtrema, _super);
+    function LocalizerOfCurvatureExtrema(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        _this.intervalsBtwExtrema1 = _this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(_this.location);
+        _this.intervalsBtwExtrema2 = _this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(_this.location);
+        _this.comparatorSequenceOfIntervals = new ComparatorOfSequencesOfIntervals_1.ComparatorOfSequencesOfIntervals(_this.intervalsBtwExtrema1, _this.intervalsBtwExtrema2);
+        return _this;
+    }
+    LocalizerOfCurvatureExtrema.prototype.assignNewEvent = function (sequenceDiffEvents, candidateEventIndex) {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringCurvatureExtrema;
+        if (sequenceDiffEvents.indicesOfInflections.length === 0 || this.location === 0) {
+            /* JCL To avoid use of incorrect indices */
+            if (candidateEventIndex === sequenceDiffEvents.length()) {
+                newEvent.index = candidateEventIndex - 2;
+                console.log("Probably incorrect identification of events indices close to curve extremity.");
+            }
+            else if (candidateEventIndex === NeighboringEvents_2.INITIAL_INTERV_INDEX) {
+                newEvent.index = 0;
+                console.log("Probably incorrect identification of events indices close to curve origin.");
+            }
+            else {
+                /* JCL Set the effectively computed event index*/
+                newEvent.index = candidateEventIndex - 1;
+            }
+        }
+        else if (this.location === sequenceDiffEvents.indicesOfInflections.length) {
+            /* JCL To avoid use of incorrect indices */
+            if (sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1] + candidateEventIndex === sequenceDiffEvents.length() - 1) {
+                newEvent.index = sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1] + candidateEventIndex - 1;
+                console.log("Probably incorrect identification of events indices.");
+            }
+            else {
+                /* JCL Set the effectively computed event index*/
+                newEvent.index = sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1] + candidateEventIndex;
+            }
+        }
+        else {
+            newEvent.index = sequenceDiffEvents.indicesOfInflections[this.location - 1] + candidateEventIndex;
+        }
+        return newEvent;
+    };
+    LocalizerOfCurvatureExtrema.prototype.analyzeIntervalVariations = function (candidateEventIndex, nbEventsModified) {
+        var modifiedEventIndex = candidateEventIndex;
+        this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderForwardScan(candidateEventIndex, nbEventsModified);
+        var maxRatioF = this.comparatorSequenceOfIntervals.maxVariationInSeq1;
+        this.comparatorSequenceOfIntervals.indexIntervalMaximalVariationUnderReverseScan(candidateEventIndex, nbEventsModified);
+        var maxRatioR = this.comparatorSequenceOfIntervals.maxVariationInSeq1;
+        if (candidateEventIndex !== NeighboringEvents_2.INITIAL_INTERV_INDEX) {
+            if (this.intervalsBtwExtrema1.sequence.length > 0) {
+                if (maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeIntervalVariations", "Events are stable as well as the candidate events.");
+                    warning.logMessageToConsole();
+                }
+                else if (maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeIntervalVariations", "The candidate events are not the ones added.");
+                    warning.logMessageToConsole();
+                    /* Current assumption consists in considering an adjacent interval as candidate */
+                    if (maxRatioF.value > maxRatioR.value) {
+                        modifiedEventIndex = maxRatioF.index - 1;
+                    }
+                    else
+                        modifiedEventIndex = maxRatioF.index + 1;
+                }
+                else {
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeIntervalVariations", "Events are not stable enough.");
+                    warning.logMessageToConsole();
+                }
+            }
+            else {
+                /* JCL this.sequenceDiffEvents2 contains two events only that may appear/disappear */
+                modifiedEventIndex = 1;
+            }
+            // This initial code is not adequate for an arbitrary interval between inflection -> should be adapted if the code is needed
+            // } else if(nbEventsModified === TWO_CURVEXT_EVENTS_APPEAR) {
+            //     console.log("Error when computing smallest interval. Assign arbitrarily interval to 0.");
+            //     if(this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
+            //         modifiedEventIndex = 1;
+            //     } else if(this.location === this.sequenceDiffEvents2.indicesOfInflections.length) {
+            //         modifiedEventIndex = this.sequenceDiffEvents2.length() - this.sequenceDiffEvents2.indicesOfInflections[this.sequenceDiffEvents2.indicesOfInflections.length - 1] - 2;
+            //     } else modifiedEventIndex = 0;
+            // } else if(nbEventsModified === TWO_CURVEXT_EVENTS_DISAPPEAR) {
+            //     console.log("Error when computing smallest interval. Assign arbitrarily interval to 0.");
+            //     if(this.sequenceDiffEvents1.indicesOfInflections.length === 0 || this.location === 0) {
+            //         modifiedEventIndex = 1;
+            //     } else if(this.location === this.sequenceDiffEvents1.indicesOfInflections.length) {
+            //         modifiedEventIndex = this.sequenceDiffEvents1.length() - this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1] - 2;
+            //     } else modifiedEventIndex = 0;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeIntervalVariations", "Incorrect number of modified differential events.");
+            error.logMessageToConsole();
+        }
+        return modifiedEventIndex;
+    };
+    return LocalizerOfCurvatureExtrema;
+}(LocalizerOfDifferentialEvents));
+exports.LocalizerOfCurvatureExtrema = LocalizerOfCurvatureExtrema;
+var LocalizerOfCurvatureExtremaAppearing = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremaAppearing, _super);
+    function LocalizerOfCurvatureExtremaAppearing(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        _this.candidateEventIndex = _this.intervalsBtwExtrema2.indexSmallestInterval(ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremaAppearing.prototype.locateDifferentialEvents = function () {
+        this.candidateEventIndex = this.analyzeIntervalVariations(this.candidateEventIndex, ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR);
+        return this.assignNewEvent(this.sequenceDiffEvents2, this.candidateEventIndex);
+    };
+    return LocalizerOfCurvatureExtremaAppearing;
+}(LocalizerOfCurvatureExtrema));
+exports.LocalizerOfCurvatureExtremaAppearing = LocalizerOfCurvatureExtremaAppearing;
+var LocalizerOfCurvatureExtremaDisappearing = /** @class */ (function (_super) {
+    __extends(LocalizerOfCurvatureExtremaDisappearing, _super);
+    function LocalizerOfCurvatureExtremaDisappearing(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
+        var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
+        _this.candidateEventIndex = _this.intervalsBtwExtrema1.indexSmallestInterval(ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR);
+        return _this;
+    }
+    LocalizerOfCurvatureExtremaDisappearing.prototype.locateDifferentialEvents = function () {
+        this.candidateEventIndex = this.analyzeIntervalVariations(this.candidateEventIndex, ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR);
+        return this.assignNewEvent(this.sequenceDiffEvents1, this.candidateEventIndex);
+    };
+    return LocalizerOfCurvatureExtremaDisappearing;
+}(LocalizerOfCurvatureExtrema));
+exports.LocalizerOfCurvatureExtremaDisappearing = LocalizerOfCurvatureExtremaDisappearing;
+var LocalizerOfInflectionInUniqueInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionInUniqueInterval, _super);
+    function LocalizerOfInflectionInUniqueInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        var _this = this;
+        var index = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+        _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, index) || this;
+        _this.inflectionVariation = _this.sequenceDiffEvents1.indicesOfInflections.length - _this.sequenceDiffEvents2.indicesOfInflections.length;
+        return _this;
+    }
+    LocalizerOfInflectionInUniqueInterval.prototype.analyzeIntervalVariations = function (sequenceDiffEvents) {
+        var index;
+        var intervalExtrema = [];
+        if (sequenceDiffEvents.indicesOfInflections.length === 1) {
+            if (sequenceDiffEvents.eventAt(0).order === DifferentialEvent_1.ORDER_INFLECTION) {
+                intervalExtrema.push(sequenceDiffEvents.eventAt(0).location);
+            }
+            else if (sequenceDiffEvents.eventAt(sequenceDiffEvents.length() - 1).order === DifferentialEvent_1.ORDER_INFLECTION) {
+                intervalExtrema.push(sequenceDiffEvents.eventAt(sequenceDiffEvents.length() - 1).location);
+            }
+            intervalExtrema.push(ComparatorOfSequencesDiffEvents_1.UPPER_BOUND_CURVE_INTERVAL - sequenceDiffEvents.eventAt(sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1]).location);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeIntervalVariations", "Inconsistent content of the sequence of events to identify the curve extremity where the inflection is lost.");
+            error.logMessageToConsole();
+        }
+        if (intervalExtrema[0] > intervalExtrema[intervalExtrema.length - 1]) {
+            index = sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1];
+            if (sequenceDiffEvents.length() === 1) {
+                index = 1;
+            }
+        }
+        else {
+            index = 0;
+        }
+        return index;
+    };
+    return LocalizerOfInflectionInUniqueInterval;
+}(LocalizerOfDifferentialEvents));
+exports.LocalizerOfInflectionInUniqueInterval = LocalizerOfInflectionInUniqueInterval;
+var LocalizerOfInflectionDisappearingInUniqueInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionDisappearingInUniqueInterval, _super);
+    function LocalizerOfInflectionDisappearingInUniqueInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        return _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+    }
+    LocalizerOfInflectionDisappearingInUniqueInterval.prototype.locateDifferentialEvents = function () {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        if (this.analyzeIntervalVariations(this.sequenceDiffEvents1) === 0 && this.inflectionVariation === 1) {
+            newEvent.index = 0;
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionLeftBoundary;
+        }
+        else if (this.analyzeIntervalVariations(this.sequenceDiffEvents1) === this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1]) {
+            newEvent.index = this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1];
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionRightBoundary;
+        }
+        else if (this.analyzeIntervalVariations(this.sequenceDiffEvents1) === 1 && this.sequenceDiffEvents1.length() === 1) {
+            newEvent.index = 0;
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionRightBoundary;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into the unique interval.");
+            error.logMessageToConsole();
+        }
+        return newEvent;
+    };
+    return LocalizerOfInflectionDisappearingInUniqueInterval;
+}(LocalizerOfInflectionInUniqueInterval));
+exports.LocalizerOfInflectionDisappearingInUniqueInterval = LocalizerOfInflectionDisappearingInUniqueInterval;
+var LocalizerOfInflectionAppearingInUniqueInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionAppearingInUniqueInterval, _super);
+    function LocalizerOfInflectionAppearingInUniqueInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        return _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+    }
+    LocalizerOfInflectionAppearingInUniqueInterval.prototype.locateDifferentialEvents = function () {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        if (this.analyzeIntervalVariations(this.sequenceDiffEvents2) === 0 && this.inflectionVariation === -1) {
+            newEvent.index = 0;
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionLeftBoundary;
+        }
+        else if (this.analyzeIntervalVariations(this.sequenceDiffEvents2) === this.sequenceDiffEvents2.indicesOfInflections[this.sequenceDiffEvents2.indicesOfInflections.length - 1]) {
+            newEvent.index = this.sequenceDiffEvents2.indicesOfInflections[this.sequenceDiffEvents2.indicesOfInflections.length - 1];
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionRightBoundary;
+        }
+        else if (this.analyzeIntervalVariations(this.sequenceDiffEvents2) === 1 && this.sequenceDiffEvents2.length() === 1) {
+            newEvent.index = 0;
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionRightBoundary;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into the unique interval.");
+            error.logMessageToConsole();
+        }
+        return newEvent;
+    };
+    return LocalizerOfInflectionAppearingInUniqueInterval;
+}(LocalizerOfInflectionInUniqueInterval));
+exports.LocalizerOfInflectionAppearingInUniqueInterval = LocalizerOfInflectionAppearingInUniqueInterval;
+var LocalizerOfInflectionInExtremeInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionInExtremeInterval, _super);
+    function LocalizerOfInflectionInExtremeInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        var _this = this;
+        var index = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+        _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, index) || this;
+        _this.inflectionVariation = _this.sequenceDiffEvents1.indicesOfInflections.length - _this.sequenceDiffEvents2.indicesOfInflections.length;
+        if (_this.inflectionVariation === 1 && _this.sequenceDiffEvents1.indicesOfInflections.length === 1 ||
+            _this.inflectionVariation === -1 && _this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Differential event sequence inadequate for this configuration.");
+            error.logMessageToConsole();
+        }
+        return _this;
+    }
+    LocalizerOfInflectionInExtremeInterval.prototype.analyzeIntervalVariations = function () {
+        var index = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+        if (this.sequenceDiffEvents1.eventAt(0).order === DifferentialEvent_1.ORDER_INFLECTION && this.sequenceDiffEvents2.eventAt(0).order !== DifferentialEvent_1.ORDER_INFLECTION ||
+            this.sequenceDiffEvents2.eventAt(0).order === DifferentialEvent_1.ORDER_INFLECTION && this.sequenceDiffEvents1.eventAt(0).order !== DifferentialEvent_1.ORDER_INFLECTION) {
+            index = 0;
+        }
+        else if (this.sequenceDiffEvents1.eventAt(this.sequenceDiffEvents1.length() - 1).order === DifferentialEvent_1.ORDER_INFLECTION && this.sequenceDiffEvents2.eventAt(this.sequenceDiffEvents2.length() - 1).order !== DifferentialEvent_1.ORDER_INFLECTION) {
+            index = this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1];
+        }
+        else if (this.sequenceDiffEvents2.eventAt(this.sequenceDiffEvents2.length() - 1).order === DifferentialEvent_1.ORDER_INFLECTION && this.sequenceDiffEvents1.eventAt(this.sequenceDiffEvents1.length() - 1).order !== DifferentialEvent_1.ORDER_INFLECTION) {
+            index = this.sequenceDiffEvents2.indicesOfInflections[this.sequenceDiffEvents2.indicesOfInflections.length - 1];
+        }
+        return index;
+    };
+    return LocalizerOfInflectionInExtremeInterval;
+}(LocalizerOfDifferentialEvents));
+exports.LocalizerOfInflectionInExtremeInterval = LocalizerOfInflectionInExtremeInterval;
+var LocalizerOfInflectionAppearingInExtremeInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionAppearingInExtremeInterval, _super);
+    function LocalizerOfInflectionAppearingInExtremeInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        return _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+    }
+    LocalizerOfInflectionAppearingInExtremeInterval.prototype.locateDifferentialEvents = function () {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        if (this.analyzeIntervalVariations() === 0 && this.inflectionVariation === -1) {
+            newEvent.index = 0;
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionLeftBoundary;
+        }
+        else if (this.analyzeIntervalVariations() === this.sequenceDiffEvents2.indicesOfInflections[this.sequenceDiffEvents2.indicesOfInflections.length - 1]) {
+            newEvent.index = this.sequenceDiffEvents2.indicesOfInflections[this.sequenceDiffEvents2.indicesOfInflections.length - 1];
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionRightBoundary;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into an extreme interval.");
+            error.logMessageToConsole();
+        }
+        return newEvent;
+    };
+    return LocalizerOfInflectionAppearingInExtremeInterval;
+}(LocalizerOfInflectionInExtremeInterval));
+exports.LocalizerOfInflectionAppearingInExtremeInterval = LocalizerOfInflectionAppearingInExtremeInterval;
+var LocalizerOfInflectionDisappearingInExtremeInterval = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionDisappearingInExtremeInterval, _super);
+    function LocalizerOfInflectionDisappearingInExtremeInterval(sequenceDiffEvents1, sequenceDiffEvents2) {
+        return _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+    }
+    LocalizerOfInflectionDisappearingInExtremeInterval.prototype.locateDifferentialEvents = function () {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        if (this.analyzeIntervalVariations() === 0 && this.inflectionVariation === 1) {
+            newEvent.index = 0;
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionLeftBoundary;
+        }
+        else if (this.analyzeIntervalVariations() === this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1]) {
+            newEvent.index = this.sequenceDiffEvents1.indicesOfInflections[this.sequenceDiffEvents1.indicesOfInflections.length - 1];
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionRightBoundary;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", " Inconsistent index to locate an inflection into an extreme interval.");
+            error.logMessageToConsole();
+        }
+        return newEvent;
+    };
+    return LocalizerOfInflectionDisappearingInExtremeInterval;
+}(LocalizerOfInflectionInExtremeInterval));
+exports.LocalizerOfInflectionDisappearingInExtremeInterval = LocalizerOfInflectionDisappearingInExtremeInterval;
+var LocalizerOfInflectionsAdjacentCurvatureExtremum = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionsAdjacentCurvatureExtremum, _super);
+    function LocalizerOfInflectionsAdjacentCurvatureExtremum(sequenceDiffEvents1, sequenceDiffEvents2) {
+        var _this = this;
+        var index = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+        _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, index) || this;
+        _this.indicesOscillations1 = _this.sequenceDiffEvents1.generateIndicesOscillations();
+        _this.indicesOscillations2 = _this.sequenceDiffEvents2.generateIndicesOscillations();
+        _this.inflectionVariation = _this.sequenceDiffEvents1.indicesOfInflections.length - _this.sequenceDiffEvents2.indicesOfInflections.length;
+        return _this;
+    }
+    LocalizerOfInflectionsAdjacentCurvatureExtremum.prototype.analyzeIntervalVariations = function (indicesOscillations) {
+        var intervalEvent = [];
+        if (indicesOscillations.length > 0) {
+            if (indicesOscillations[0] !== 0)
+                intervalEvent.push(indicesOscillations[0]);
+            for (var j = 0; j < indicesOscillations.length - 1; j += 1) {
+                intervalEvent.push(indicesOscillations[j + 1] - indicesOscillations[j]);
+            }
+        }
+        this.checkIndexLocation();
+        return intervalEvent;
+    };
+    LocalizerOfInflectionsAdjacentCurvatureExtremum.prototype.checkIndexLocation = function () {
+        var nbModifedEvents = this.sequenceDiffEvents2.indicesOfInflections.length - this.sequenceDiffEvents1.indicesOfInflections.length;
+        if (nbModifedEvents === ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_APPEAR) {
+            if ((this.indicesOscillations2.length - this.indicesOscillations1.length === 1 && this.indicesOscillations1.length !== 0) ||
+                (this.indicesOscillations2.length - this.indicesOscillations1.length === 2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== 2) ||
+                (this.indicesOscillations2.length - this.indicesOscillations1.length === 3 && this.indicesOscillations1.length > 0)) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
+                error.logMessageToConsole();
+            }
+        }
+        else if (nbModifedEvents === ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+            if ((this.indicesOscillations2.length - this.indicesOscillations1.length === -1 && this.indicesOscillations2.length !== 0) ||
+                (this.indicesOscillations2.length - this.indicesOscillations1.length === -2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== -2) ||
+                (this.indicesOscillations2.length - this.indicesOscillations1.length === -3 && this.indicesOscillations2.length > 0)) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
+                error.logMessageToConsole();
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistent variation of number of differential events.");
+            error.logMessageToConsole();
+        }
+    };
+    LocalizerOfInflectionsAdjacentCurvatureExtremum.prototype.assignNewEvent = function (sequenceDiffEvents, nbModifedEvents) {
+        var newEvent = new NeighboringEvents_1.NeighboringEvents();
+        var intervalEvent1 = [];
+        var intervalEvent2 = [];
+        var indicesOscillations1 = [];
+        var indicesOscillations2 = [];
+        if (nbModifedEvents === ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+            intervalEvent1 = this.analyzeIntervalVariations(this.indicesOscillations1);
+            intervalEvent2 = this.analyzeIntervalVariations(this.indicesOscillations2);
+            indicesOscillations1 = this.indicesOscillations1;
+            indicesOscillations2 = this.indicesOscillations2;
+        }
+        else if (nbModifedEvents === ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_APPEAR) {
+            intervalEvent1 = this.analyzeIntervalVariations(this.indicesOscillations2);
+            intervalEvent2 = this.analyzeIntervalVariations(this.indicesOscillations1);
+            indicesOscillations1 = this.indicesOscillations2;
+            indicesOscillations2 = this.indicesOscillations1;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "assignNewEvent", "Incorrect number of modified differential events.");
+            error.logMessageToConsole();
+        }
+        if (indicesOscillations1.length > 0) {
+            newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionsCurvatureExtremum;
+            if (indicesOscillations2.length === 0) {
+                if (indicesOscillations1.length === 1) {
+                    newEvent.index = indicesOscillations1[0];
+                }
+                else if (indicesOscillations1.length === 2) {
+                    if (sequenceDiffEvents.eventAt(0).order === DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) {
+                        newEvent.index = indicesOscillations1[1];
+                    }
+                    else {
+                        newEvent.index = indicesOscillations1[0];
+                    }
+                }
+                else if (indicesOscillations1.length === 3) {
+                    newEvent.index = indicesOscillations1[1];
+                }
+            }
+            else {
+                newEvent.index = NeighboringEvents_2.INITIAL_INTERV_INDEX;
+                for (var k = 0; k < intervalEvent2.length; k += 1) {
+                    if (intervalEvent1[k] !== intervalEvent2[k]) {
+                        newEvent.index = indicesOscillations1[k];
+                    }
+                }
+                if (indicesOscillations1.length - indicesOscillations2.length === 2 && newEvent.index === NeighboringEvents_2.INITIAL_INTERV_INDEX) {
+                    newEvent.index = indicesOscillations1[indicesOscillations1.length - 1];
+                }
+            }
+        }
+        return newEvent;
+    };
+    return LocalizerOfInflectionsAdjacentCurvatureExtremum;
+}(LocalizerOfDifferentialEvents));
+exports.LocalizerOfInflectionsAdjacentCurvatureExtremum = LocalizerOfInflectionsAdjacentCurvatureExtremum;
+var LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum, _super);
+    function LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(sequenceDiffEvents1, sequenceDiffEvents2) {
+        return _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+    }
+    LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum.prototype.locateDifferentialEvents = function () {
+        return this.assignNewEvent(this.sequenceDiffEvents2, ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_DISAPPEAR);
+    };
+    return LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum;
+}(LocalizerOfInflectionsAdjacentCurvatureExtremum));
+exports.LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum = LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum;
+var LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum = /** @class */ (function (_super) {
+    __extends(LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum, _super);
+    function LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(sequenceDiffEvents1, sequenceDiffEvents2) {
+        return _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2) || this;
+    }
+    LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum.prototype.locateDifferentialEvents = function () {
+        return this.assignNewEvent(this.sequenceDiffEvents1, ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_APPEAR);
+    };
+    return LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum;
+}(LocalizerOfInflectionsAdjacentCurvatureExtremum));
+exports.LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum = LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts":
+/*!******************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MaxIntervalVariation = void 0;
+/* named constants */
+var NeighboringEvents_1 = __webpack_require__(/*! ./NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var MaxIntervalVariation = /** @class */ (function () {
+    function MaxIntervalVariation(intervalIndex, value) {
+        if (intervalIndex !== undefined) {
+            this._index = intervalIndex;
+        }
+        else {
+            this._index = NeighboringEvents_1.INITIAL_INTERV_INDEX;
+        }
+        if (value !== undefined) {
+            this._value = value;
+        }
+        else {
+            this._value = 0.0;
+        }
+    }
+    Object.defineProperty(MaxIntervalVariation.prototype, "index", {
+        get: function () {
+            return this._index;
+        },
+        set: function (intervalIndex) {
+            this._index = intervalIndex;
+            return;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MaxIntervalVariation.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (value) {
+            this._value = value;
+            return;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return MaxIntervalVariation;
+}());
+exports.MaxIntervalVariation = MaxIntervalVariation;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts":
+/*!************************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts ***!
+  \************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ModifiedInflectionEvents = exports.ModifiedCurvatureEvents = exports.ModifiedDifferentialEvents = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var DifferentialEvent_1 = __webpack_require__(/*! ./DifferentialEvent */ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts");
+var ModifiedDifferentialEvents = /** @class */ (function () {
+    function ModifiedDifferentialEvents(order) {
+        this.order = order;
+        this.checkOrder();
+    }
+    ModifiedDifferentialEvents.prototype.checkOrder = function () {
+        if (this.order !== DifferentialEvent_1.ORDER_INFLECTION && this.order !== DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkOrder", "Inconsistent value of differential event order.");
+            error.logMessageToConsole();
+        }
+    };
+    return ModifiedDifferentialEvents;
+}());
+exports.ModifiedDifferentialEvents = ModifiedDifferentialEvents;
+/**
+* Characterization of modified differential events of type curvature extrema within a sequence of differential events.
+* It applies to configurations where inflections are invariant (constant number) when a curve gets modified.
+* The events are located within a sequence of differential events using the index of an inflection to identify the interval between two successive inflections
+*/
+var ModifiedCurvatureEvents = /** @class */ (function (_super) {
+    __extends(ModifiedCurvatureEvents, _super);
+    /**
+     * instantiates a ModifiedCurvatureEvents that is located within a sequence of differential events
+    * @param indexInflection index of the inflection defining the interval between inflection where the number of curvature extrema is modified
+    * @param nbEventsModified number of curvature extrema appearing (nbEventsModified > 0) or disappearing (nbEventsModified < 0) between
+    * two successive inflections defined by indexInflection.
+    * @throws errors if the number of modified event is null
+    */
+    function ModifiedCurvatureEvents(indexInflection, nbEventsModified) {
+        var _this = _super.call(this, DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) || this;
+        _this._indexInflection = indexInflection;
+        _this._nbEvents = nbEventsModified;
+        if (_this._nbEvents === 0) {
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.");
+            warning.logMessageToConsole();
+        }
+        return _this;
+    }
+    Object.defineProperty(ModifiedCurvatureEvents.prototype, "indexInflection", {
+        get: function () {
+            return this._indexInflection;
+        },
+        set: function (indexInflection) {
+            this._indexInflection = indexInflection;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ModifiedCurvatureEvents.prototype, "nbEvents", {
+        get: function () {
+            return this._nbEvents;
+        },
+        set: function (nbEventsModified) {
+            this._nbEvents = nbEventsModified;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ModifiedCurvatureEvents;
+}(ModifiedDifferentialEvents));
+exports.ModifiedCurvatureEvents = ModifiedCurvatureEvents;
+/**
+* Characterization of modified differential events of type inflections within a sequence of differential events.
+* It applies to configurations where curvature extrema are invariant (constant number) when a curve gets modified.
+* The events are located within a sequence of differential events using the index of a curvature extremum to identify
+* either the interval between two successive inflections or an extreme interval (in case of open curves)
+*/
+var ModifiedInflectionEvents = /** @class */ (function (_super) {
+    __extends(ModifiedInflectionEvents, _super);
+    /**
+     * instantiates a ModifiedInflectionEvents that is located within a sequence of differential events
+    * @param indexCurvatureEx index of the curvature ext defining the intervals where the number of inflections is modified
+    * @param nbEventsModified number of inflections appearing (nbEventsModified > 0) or disappearing (nbEventsModified < 0) that
+    * are adjacent to the event defined by indexCurvatureEx.
+    * @throws errors if the number of modified event is null
+    */
+    function ModifiedInflectionEvents(indexCurvatureEx, nbEventsModified) {
+        var _this = _super.call(this, DifferentialEvent_1.ORDER_INFLECTION) || this;
+        _this._indexCurvatureEx = indexCurvatureEx;
+        _this._nbEvents = nbEventsModified;
+        if (_this._nbEvents === 0) {
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.");
+            warning.logMessageToConsole();
+        }
+        return _this;
+    }
+    Object.defineProperty(ModifiedInflectionEvents.prototype, "indexCurvatureEx", {
+        get: function () {
+            return this._indexCurvatureEx;
+        },
+        set: function (indexCurvatureEx) {
+            this._indexCurvatureEx = indexCurvatureEx;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ModifiedInflectionEvents.prototype, "nbEvents", {
+        get: function () {
+            return this._nbEvents;
+        },
+        set: function (nbEventsModified) {
+            this._nbEvents = nbEventsModified;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ModifiedInflectionEvents;
+}(ModifiedDifferentialEvents));
+exports.ModifiedInflectionEvents = ModifiedInflectionEvents;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts":
+/*!***************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/NeighboringEvents.ts ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NeighboringEvents = exports.INITIAL_INTERV_INDEX = exports.NeighboringEventsType = void 0;
+var NeighboringEventsType;
+(function (NeighboringEventsType) {
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundary"] = 0] = "neighboringCurExtremumLeftBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionLeftBoundary"] = 1] = "neighboringInflectionLeftBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundary"] = 2] = "neighboringCurExtremumRightBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionRightBoundary"] = 3] = "neighboringInflectionRightBoundary";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurvatureExtrema"] = 4] = "neighboringCurvatureExtrema";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionsCurvatureExtremum"] = 5] = "neighboringInflectionsCurvatureExtremum";
+    NeighboringEventsType[NeighboringEventsType["none"] = 6] = "none";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurvatureExtremaAppear"] = 7] = "neighboringCurvatureExtremaAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurvatureExtremaDisappear"] = 8] = "neighboringCurvatureExtremaDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionsCurvatureExtremumAppear"] = 9] = "neighboringInflectionsCurvatureExtremumAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionsCurvatureExtremumDisappear"] = 10] = "neighboringInflectionsCurvatureExtremumDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundaryAppear"] = 11] = "neighboringCurExtremumLeftBoundaryAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundaryDisappear"] = 12] = "neighboringCurExtremumLeftBoundaryDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundaryAppear"] = 13] = "neighboringCurExtremumRightBoundaryAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundaryDisappear"] = 14] = "neighboringCurExtremumRightBoundaryDisappear";
+})(NeighboringEventsType = exports.NeighboringEventsType || (exports.NeighboringEventsType = {}));
+exports.INITIAL_INTERV_INDEX = -1;
+var NeighboringEvents = /** @class */ (function () {
+    /**
+     * All configurations of events that can appear or disappear when comparing two consecutive sequences of differential events.
+     * The configurations are elementary ones enumerated in NeighboringEventsType.
+     * @param eventType Type of differential events enumerated in NeighboringEventsType
+     * @param indexInSequence Location of interval where the events appear in the sequence of differential events.
+     * It is defined by the index of the index of an inflection as right bound of the interval betwwen [0,sequence.length] and initialized
+     * to INITIAL_INTERV_INDEX, i.e., -1, if not explicitly defined.
+     */
+    function NeighboringEvents(eventType, indexInSequence) {
+        if (eventType !== undefined) {
+            this._type = eventType;
+        }
+        else {
+            this._type = NeighboringEventsType.none;
+        }
+        if (indexInSequence !== undefined) {
+            this._index = indexInSequence;
+        }
+        else {
+            this._index = exports.INITIAL_INTERV_INDEX;
+        }
+    }
+    Object.defineProperty(NeighboringEvents.prototype, "type", {
+        get: function () {
+            return this._type;
+        },
+        set: function (eventType) {
+            this._type = eventType;
+            return;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(NeighboringEvents.prototype, "index", {
+        get: function () {
+            return this._index;
+        },
+        set: function (indexInSequence) {
+            this._index = indexInSequence;
+            return;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return NeighboringEvents;
+}());
+exports.NeighboringEvents = NeighboringEvents;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts":
+/*!**************************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SequenceOfDifferentialEvents = exports.MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED = exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED = exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED = void 0;
+var DifferentialEvent_1 = __webpack_require__(/*! ./DifferentialEvent */ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts");
+var SequenceOfIntervals_1 = __webpack_require__(/*! ./SequenceOfIntervals */ "./src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+/* named constants */
+var DifferentialEvent_2 = __webpack_require__(/*! ./DifferentialEvent */ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ./ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+/*
+* Set up a sequence of differential events as part of the characterization of a curve shape space
+*/
+exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED = 4;
+exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED = 2;
+exports.MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED = 3;
+var SequenceOfDifferentialEvents = /** @class */ (function () {
+    /**
+     * Instantiates a sequence of differential events using optionally:
+     * @param curvatureExtrema  a strictly increasing sequence of locations of curvature extrema along a curve
+     * @param inflections a strictly increasing sequence of locations of inflections along a curve
+     * @throws Errors if:
+     *          a sequence of inflections is provided only and contains more than one inflection (a sequence cannot contain two or more consecutive inflections)
+     *          the sequence of curvature extrema supplied is not strictly increasing
+     *          the sequence terminates with more two or more successive inflections
+     *          the sequence instantiated has a length that is not equal to the sum of the lengthes of curvatureExtrema.length + inflections.length
+     *          type or location inconsistecies are detected in the sequence instantiated or modified
+     */
+    function SequenceOfDifferentialEvents(curvatureExtrema, inflections) {
+        this._sequence = [];
+        if (curvatureExtrema !== undefined && inflections === undefined) {
+            for (var _i = 0, curvatureExtrema_1 = curvatureExtrema; _i < curvatureExtrema_1.length; _i++) {
+                var curvatExtremum = curvatureExtrema_1[_i];
+                var event_1 = new DifferentialEvent_1.CurvatureExtremumEvent(curvatExtremum);
+                this._sequence.push(event_1);
+            }
+        }
+        else if (curvatureExtrema === undefined && inflections !== undefined) {
+            if (inflections.length > 1) {
+                throw new Error("Unable to generate a sequence of differential events: too many consecutive inflections.");
+            }
+            else {
+                var event_2 = new DifferentialEvent_1.InflectionEvent(inflections[0]);
+                this._sequence.push(event_2);
+            }
+        }
+        else if (curvatureExtrema !== undefined && inflections !== undefined) {
+            this.insertEvents(curvatureExtrema, inflections);
+        }
+        this._indicesOfInflections = this.generateIndicesInflection();
+    }
+    Object.defineProperty(SequenceOfDifferentialEvents.prototype, "event", {
+        set: function (event) {
+            this._sequence.push(event);
+            this.checkSequenceConsistency();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(SequenceOfDifferentialEvents.prototype, "lastEvent", {
+        get: function () {
+            var event;
+            if (this._sequence[this._sequence.length - 1] !== undefined) {
+                event = this._sequence[this._sequence.length - 1];
+                this._sequence.pop();
+                return event;
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "lastEvent", "Cannot get event because the sequence is empty.");
+                error.logMessageToConsole();
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(SequenceOfDifferentialEvents.prototype, "sequence", {
+        get: function () {
+            return this._sequence;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(SequenceOfDifferentialEvents.prototype, "indicesOfInflections", {
+        get: function () {
+            return this._indicesOfInflections;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    SequenceOfDifferentialEvents.prototype.length = function () {
+        return this._sequence.length;
+    };
+    SequenceOfDifferentialEvents.prototype.eventAt = function (i) {
+        if (i >= 0 && i < this._sequence.length) {
+            return this._sequence[i].clone();
+        }
+        else {
+            return undefined;
+        }
+    };
+    SequenceOfDifferentialEvents.prototype.insertAt = function (event, index) {
+        this._sequence.splice(index, 0, event);
+        this.checkSequenceConsistency();
+    };
+    SequenceOfDifferentialEvents.prototype.nbInflections = function () {
+        var nbInflections = 0;
+        this._sequence.forEach(function (element) {
+            if (element.order === DifferentialEvent_2.ORDER_INFLECTION) {
+                nbInflections += 1;
+            }
+        });
+        return nbInflections;
+    };
+    SequenceOfDifferentialEvents.prototype.nbCurvatureExtrema = function () {
+        var nbCurvatureExtrema = 0;
+        this._sequence.forEach(function (element) {
+            if (element.order === DifferentialEvent_2.ORDER_CURVATURE_EXTREMUM) {
+                nbCurvatureExtrema += 1;
+            }
+        });
+        return nbCurvatureExtrema;
+    };
+    SequenceOfDifferentialEvents.prototype.generateIndicesInflection = function () {
+        var inflectionIndices = [];
+        this._sequence.forEach(function (element, index) {
+            if (element.order === DifferentialEvent_2.ORDER_INFLECTION) {
+                inflectionIndices.push(index);
+            }
+        });
+        return inflectionIndices;
+    };
+    SequenceOfDifferentialEvents.prototype.generateIndicesOscillations = function () {
+        var oscillationIndices = [];
+        for (var _i = 0, _a = this._indicesOfInflections; _i < _a.length; _i++) {
+            var index = _a[_i];
+            if (this._sequence.length > index + 2 &&
+                this._sequence[index + 1].order === DifferentialEvent_2.ORDER_CURVATURE_EXTREMUM && this._sequence[index + 2].order === DifferentialEvent_2.ORDER_INFLECTION) {
+                oscillationIndices.push(index + 1);
+            }
+        }
+        return oscillationIndices;
+    };
+    SequenceOfDifferentialEvents.prototype.insertEvents = function (curvatureExtrema, inflections) {
+        var j = 0;
+        var currentLocExtrema = 0.0;
+        var indexExtrema = 0;
+        for (var i = 0; i < curvatureExtrema.length; i += 1) {
+            if (i === 0) {
+                currentLocExtrema = curvatureExtrema[i];
+            }
+            else if (i > 0 && curvatureExtrema[i] > currentLocExtrema) {
+                currentLocExtrema = curvatureExtrema[i - 1];
+            }
+            else {
+                indexExtrema = i;
+            }
+            if (curvatureExtrema[i] > inflections[j]) {
+                while (curvatureExtrema[i] > inflections[j]) {
+                    var inflectionEvent = new DifferentialEvent_1.InflectionEvent(inflections[j]);
+                    this._sequence.push(inflectionEvent);
+                    j += 1;
+                }
+            }
+            var curvatureEvent = new DifferentialEvent_1.CurvatureExtremumEvent(curvatureExtrema[i]);
+            this._sequence.push(curvatureEvent);
+        }
+        if (j < inflections.length) {
+            var inflectionEvent = new DifferentialEvent_1.InflectionEvent(inflections[j]);
+            this._sequence.push(inflectionEvent);
+            j += 1;
+        }
+        if (indexExtrema > 0) {
+            throw new Error("Inconsistent sequence of differential events because the location of curvature extrema is not stricly increasing at index."
+                + indexExtrema);
+        }
+        if (j < inflections.length) {
+            throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections.");
+        }
+        else if (this._sequence.length !== curvatureExtrema.length + inflections.length) {
+            throw new Error("Inconsistent length of sequence of differential events.");
+        }
+        this.checkSequenceConsistency();
+        this._indicesOfInflections = this.generateIndicesInflection();
+    };
+    SequenceOfDifferentialEvents.prototype.computeIntervalsBtwCurvatureExtrema = function (indexInflection) {
+        var intervalExtrema = new SequenceOfIntervals_1.SequenceOfIntervals();
+        if (this._indicesOfInflections.length === 0 && this._sequence.length === 0) {
+            intervalExtrema.span = ComparatorOfSequencesDiffEvents_1.CURVE_INTERVAL_SPAN;
+            intervalExtrema.sequence.push(intervalExtrema.span);
+        }
+        else if (this._indicesOfInflections.length === 0 && this._sequence.length > 0) {
+            intervalExtrema.span = ComparatorOfSequencesDiffEvents_1.CURVE_INTERVAL_SPAN;
+            intervalExtrema.sequence.push(this._sequence[0].location - ComparatorOfSequencesDiffEvents_1.LOWER_BOUND_CURVE_INTERVAL);
+            for (var k = 0; k < this._sequence.length - 1; k += 1) {
+                intervalExtrema.sequence.push(this._sequence[k + 1].location - this._sequence[k].location);
+            }
+            intervalExtrema.sequence.push(ComparatorOfSequencesDiffEvents_1.UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._sequence.length - 1].location);
+        }
+        else if (indexInflection === this._indicesOfInflections.length) {
+            intervalExtrema.span = ComparatorOfSequencesDiffEvents_1.UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._indicesOfInflections[indexInflection - 1]].location;
+            for (var k = this._indicesOfInflections[this._indicesOfInflections.length - 1]; k < this._sequence.length - 1; k += 1) {
+                intervalExtrema.sequence.push(this._sequence[k + 1].location - this._sequence[k].location);
+            }
+            intervalExtrema.sequence.push(ComparatorOfSequencesDiffEvents_1.UPPER_BOUND_CURVE_INTERVAL - this._sequence[this._sequence.length - 1].location);
+        }
+        else if (indexInflection === 0 && this._indicesOfInflections[0] > 0) {
+            intervalExtrema.span = this._sequence[this._indicesOfInflections[indexInflection]].location - ComparatorOfSequencesDiffEvents_1.LOWER_BOUND_CURVE_INTERVAL;
+            intervalExtrema.sequence.push(this._sequence[0].location - ComparatorOfSequencesDiffEvents_1.LOWER_BOUND_CURVE_INTERVAL);
+            for (var k = 1; k < this._indicesOfInflections[indexInflection]; k += 1) {
+                intervalExtrema.sequence.push(this._sequence[k].location - this._sequence[k - 1].location);
+            }
+            intervalExtrema.sequence.push(intervalExtrema.span - this._sequence[this._indicesOfInflections[indexInflection] - 1].location);
+        }
+        else if (indexInflection === 0 && this._indicesOfInflections[0] === 0) {
+            intervalExtrema.span = this._sequence[this._indicesOfInflections[indexInflection]].location - ComparatorOfSequencesDiffEvents_1.LOWER_BOUND_CURVE_INTERVAL;
+            intervalExtrema.sequence.push(intervalExtrema.span);
+        }
+        else if (this._indicesOfInflections.length > 1 && indexInflection < this._indicesOfInflections.length) {
+            intervalExtrema.span = this._sequence[this._indicesOfInflections[indexInflection]].location - this._sequence[this._indicesOfInflections[indexInflection - 1]].location;
+            for (var k = this._indicesOfInflections[indexInflection - 1] + 1; k < this._indicesOfInflections[indexInflection]; k += 1) {
+                intervalExtrema.sequence.push(this._sequence[k].location - this._sequence[k - 1].location);
+            }
+            intervalExtrema.sequence.push(this._sequence[this._indicesOfInflections[indexInflection]].location - this._sequence[this._indicesOfInflections[indexInflection] - 1].location);
+        }
+        return intervalExtrema;
+    };
+    SequenceOfDifferentialEvents.prototype.checkTypeConsistency = function () {
+        if (this._sequence.length === 0)
+            return;
+        var currentOrder = this._sequence[0].order;
+        var index = 0;
+        // Look for type consistency. If two successive differential events are inflections, the sequence is incorrect
+        // All other configurations are valid
+        for (var i = 1; i < this._sequence.length; i += 1) {
+            if (currentOrder === DifferentialEvent_2.ORDER_INFLECTION && this._sequence[i].order === DifferentialEvent_2.ORDER_INFLECTION) {
+                index = i;
+                break;
+            }
+            else {
+                currentOrder = this._sequence[i].order;
+            }
+        }
+        if (index > 0) {
+            var message = "Inconsistent sequence of differential events: two successive inflections at indices " + (index - 1) + " and " + index;
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkTypeConsistency", message);
+            error.logMessageToConsole();
+        }
+    };
+    SequenceOfDifferentialEvents.prototype.checkLocationConsistency = function () {
+        if (this._sequence.length === 0)
+            return;
+        var index = 0;
+        // Look for location consistency. The sequence of abscissae must be strictly increasing
+        for (var i = 1; i < this._sequence.length; i += 1) {
+            if (this._sequence[i].location > this._sequence[i - 1].location) {
+                continue;
+            }
+            else {
+                index = i;
+                break;
+            }
+        }
+        if (index > 0) {
+            var message = "Inconsistent sequence of differential events: two successive events have non strictly increasing abscissa at indices " +
+                (index - 1) + " and " + index + " with values " + this._sequence[index - 1].location + " and " + this._sequence[index].location;
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkLocationConsistency", message);
+            error.logMessageToConsole();
+        }
+    };
+    SequenceOfDifferentialEvents.prototype.checkSequenceConsistency = function () {
+        this.checkTypeConsistency();
+        this.checkLocationConsistency();
+    };
+    SequenceOfDifferentialEvents.prototype.checkConsistencyIntervalBtwInflections = function (modifiedEvent) {
+        var inflectionIndex = modifiedEvent.indexInflection;
+        var nbModifiedEvents = modifiedEvent.nbEvents;
+        if (this._indicesOfInflections.length > 2) {
+            if (inflectionIndex > 0) {
+                if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED) {
+                    /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
+                    error.logMessageToConsole();
+                }
+                else if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED) {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+        else if ((inflectionIndex === 0 || inflectionIndex === this._indicesOfInflections.length) && this._indicesOfInflections.length > 0) {
+            if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === 0 && this._indicesOfInflections[inflectionIndex] < exports.MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
+                error.logMessageToConsole();
+            }
+            else if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === this._indicesOfInflections.length && this._indicesOfInflections.length - this._indicesOfInflections[inflectionIndex - 1] < exports.MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
+                error.logMessageToConsole();
+            }
+        }
+    };
+    return SequenceOfDifferentialEvents;
+}());
+exports.SequenceOfDifferentialEvents = SequenceOfDifferentialEvents;
+
+
+/***/ }),
+
+/***/ "./src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts":
+/*!*****************************************************************!*\
+  !*** ./src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SequenceOfIntervals = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+/* named constants */
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ./ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+/* named constants */
+var NeighboringEvents_1 = __webpack_require__(/*! ./NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var SequenceOfIntervals = /** @class */ (function () {
+    /**
+     * Instantiates a sequence of adjacents intervals whose width is defined by span.
+     * @param span the width of the interval sequence
+     * @param sequence the sequence of interval width whose sum equals span
+     */
+    function SequenceOfIntervals(span, sequence) {
+        if (span !== undefined) {
+            this._span = span;
+        }
+        else {
+            this._span = 0.0;
+        }
+        if (sequence !== undefined) {
+            this._sequence = sequence;
+        }
+        else {
+            this._sequence = [];
+        }
+    }
+    Object.defineProperty(SequenceOfIntervals.prototype, "span", {
+        get: function () {
+            return this._span;
+        },
+        set: function (span) {
+            this._span = span;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(SequenceOfIntervals.prototype, "nbEvents", {
+        set: function (sequence) {
+            this._sequence = sequence;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(SequenceOfIntervals.prototype, "sequence", {
+        get: function () {
+            return this._sequence;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    SequenceOfIntervals.prototype.indexSmallestInterval = function (nbEvents) {
+        var candidateEventIndex = NeighboringEvents_1.INITIAL_INTERV_INDEX;
+        var ratio = [];
+        if ((nbEvents === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL || nbEvents === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) && this._sequence.length > 1) {
+            /* JCL Look at first and last intervals only. Other intervals add noise to get a consistent candidate interval */
+            ratio.push(this._sequence[0] / this._span);
+            ratio.push(this._sequence[this._sequence.length - 1] / this._span);
+            if (ratio[0] < ratio[1])
+                candidateEventIndex = 0;
+            else
+                candidateEventIndex = this._sequence.length - 1;
+        }
+        else if ((nbEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR || nbEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR) && this._sequence.length > 2) {
+            for (var _i = 0, _a = this._sequence; _i < _a.length; _i++) {
+                var interval = _a[_i];
+                ratio.push(interval / this._span);
+            }
+            var mappedRatio = ratio.map(function (location, i) {
+                return { index: i, value: location };
+            });
+            mappedRatio.sort(function (a, b) {
+                if (a.value > b.value) {
+                    return 1;
+                }
+                if (a.value < b.value) {
+                    return -1;
+                }
+                return 0;
+            });
+            candidateEventIndex = mappedRatio[0].index;
+            /* JCL Take into account the optional number of events  */
+            /* if the number of events removed equals 2 smallest intervals at both extremities can be removed because */
+            /* they are of different types of there no event if it is a free extremity of the curve */
+            if (mappedRatio[0].index === 0 || mappedRatio[0].index === this._sequence.length - 1) {
+                candidateEventIndex = mappedRatio[1].index;
+                if (mappedRatio[1].index === 0 || mappedRatio[1].index === this._sequence.length - 1) {
+                    candidateEventIndex = mappedRatio[2].index;
+                }
+            }
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "indexSmallestInterval", "Inconsistent number of events (Must be a positive number not larger than two) or inconsistent number of intervals between curvature extrema.");
+            warning.logMessageToConsole();
+        }
+        return candidateEventIndex;
+    };
+    return SequenceOfIntervals;
+}());
+exports.SequenceOfIntervals = SequenceOfIntervals;
 
 
 /***/ }),
