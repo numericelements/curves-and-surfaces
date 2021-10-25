@@ -3,20 +3,27 @@ import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventState
 
 export class EventMgmtAtCurveExtremities {
 
-    public eventState: EventStateAtCurveExtremity;
+    private _eventState: EventStateAtCurveExtremity;
 
     constructor() {
-        this.eventState = new EventSlideOutsideCurve(this);
+        this._eventState = new EventSlideOutsideCurve(this);
+    }
 
+    get eventState(): EventStateAtCurveExtremity {
+        return this._eventState;
+    }
+
+    set eventState(eventState: EventStateAtCurveExtremity) {
+        this._eventState = eventState;
     }
 
     transitionToState(eventState: EventStateAtCurveExtremity): void {
-        this.eventState = eventState;
+        this._eventState = eventState;
 
     }
 
     processEventAtCurveExtremity(): void {
-        this.eventState.handleEventAtCurveExtremity();
+        this._eventState.handleEventAtCurveExtremity();
     }
 
 }

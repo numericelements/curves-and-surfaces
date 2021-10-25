@@ -524,6 +524,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
     toggleControlCurveEventsAtExtremities() {
         this.curveEventAtExtremityMayVanish = ! this.curveEventAtExtremityMayVanish;
+        this.curveModeler.curveShapeSpaceNavigator.curveEventAtExtremityMayVanish = this.curveEventAtExtremityMayVanish;
         this.eventStateAtCurveExtremity.handleEventAtCurveExtremity();
     }
 

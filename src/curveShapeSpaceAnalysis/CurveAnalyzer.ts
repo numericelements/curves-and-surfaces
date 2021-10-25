@@ -12,51 +12,54 @@ import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShap
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 
 export class CurveAnalyzer {
 
     private curve: BSpline_R1_to_R2;
     private _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
-    private curveCurvatureCntrlPolygon: number[];
-    private curvatureSignChanges: number[];
+    private _curveCurvatureCntrlPolygon: number[];
+    private _curvatureSignChanges: number[];
     private globalExtremumOffAxisCurvaturePoly: ExtremumLocation;
-    private curvatureCrtlPtsClosestToZero: number[];
-    private curveCurvatureDerivativeCntrlPolygon: number[];
-    private curvatureDerivativeSignChanges:  number[];
+    private _curvatureCrtlPtsClosestToZero: number[];
+    private _curveCurvatureDerivativeCntrlPolygon: number[];
+    private _curvatureDerivativeSignChanges:  number[];
     private globalExtremumOffAxisCurvatureDerivPoly: ExtremumLocation;
-    private curvatureDerivCrtlPtsClosestToZero: number[];
-    private shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
+    private _curvatureDerivCrtlPtsClosestToZero: number[];
+    private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private navigationState: NavigationState;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
+    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
+    private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
 
-    constructor(curveToAnalyze: BSpline_R1_to_R2, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
+    constructor(curveToAnalyze: BSpline_R1_to_R2, curveShapeSpaceNavigator: CurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         this.curve = curveToAnalyze;
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+        this._slidingEventsAtExtremities = slidingEventsAtExtremities;
         this.navigationState = curveShapeSpaceNavigator.navigationState;
-        this.shapeSpaceDescriptor = curveShapeSpaceNavigator.shapeSpaceDescriptor;
-        this.shapeSpaceDiffEventsConfigurator = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+        this._shapeSpaceDescriptor = curveShapeSpaceNavigator.shapeSpaceDescriptor;
+        this._shapeSpaceDiffEventsConfigurator = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
         const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
-        this.curvatureCrtlPtsClosestToZero = [];
-        this.curveCurvatureCntrlPolygon = [];
-        this.curvatureSignChanges = [];
+        this._curvatureCrtlPtsClosestToZero = [];
+        this._curveCurvatureCntrlPolygon = [];
+        this._curvatureSignChanges = [];
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
         if(this.shapeSpaceDiffEventsConfigurator) {
-            this.curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
-            this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
-            this.curvatureSignChanges = this.getSignChangesControlPolygon(this.curveCurvatureCntrlPolygon);
-            this.getCurvatureCrtlPtsClosestToZero();
+            this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+            this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
+            this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
+            this.computeCurvatureCPClosestToZero();
         }
-        this.curvatureDerivCrtlPtsClosestToZero = [];
-        this.curveCurvatureDerivativeCntrlPolygon = [];
-        this.curvatureDerivativeSignChanges = [];
+        this._curvatureDerivCrtlPtsClosestToZero = [];
+        this._curveCurvatureDerivativeCntrlPolygon = [];
+        this._curvatureDerivativeSignChanges = [];
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
         if(this.shapeSpaceDiffEventsConfigurator) {
-            this.curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
-            this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
-            this.curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this.curveCurvatureDerivativeCntrlPolygon);
-            this.getCurvatureDerivCrtlPtsClosestToZero();
+            this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+            this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
+            this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
+            this.computeCurvatureDerivCPClosestToZero();
         }
     }
 
@@ -64,22 +67,78 @@ export class CurveAnalyzer {
         return this._sequenceOfDifferentialEvents;
     }
 
+    get curvatureSignChanges(): number[] {
+        return this._curvatureSignChanges;
+    }
+
+    get curveCurvatureCntrlPolygon(): number[] {
+        return this._curveCurvatureCntrlPolygon;
+    }
+
+    get curvatureCrtlPtsClosestToZero(): number[] {
+        return this._curvatureCrtlPtsClosestToZero;
+    }
+
+    get curvatureDerivativeSignChanges(): number[] {
+        return this._curvatureDerivativeSignChanges;
+    }
+
+    get curveCurvatureDerivativeCntrlPolygon(): number[] {
+        return this._curveCurvatureDerivativeCntrlPolygon;
+    }
+
+    get curvatureDerivCrtlPtsClosestToZero(): number[] {
+        return this._curvatureDerivCrtlPtsClosestToZero;
+    }
+
+    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEvventsConfigurator {
+        return this._shapeSpaceDiffEventsConfigurator;
+    }
+
+    get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {
+        return this._shapeSpaceDescriptor;
+    }
+
+    get slidingEventsAtExtremities(): SlidingEventsAtExtremities {
+        return this._slidingEventsAtExtremities;
+    }
+
+    set slidingEventsAtExtremities(slidingEventsAtExtremities: SlidingEventsAtExtremities) {
+        this._slidingEventsAtExtremities = slidingEventsAtExtremities;
+    }
+
+    // set curvatureCrtlPtsClosestToZero(controlPolygon: number[]) {
+    //     this._curvatureCrtlPtsClosestToZero = controlPolygon;
+    // }
+
+    setStrategyForSlidingEventsAtExtremitities(slidingEventsAtExtremities: SlidingEventsAtExtremities): void {
+         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
+    }
+
+    computeCurvatureCPClosestToZero(): void {
+        this._slidingEventsAtExtremities.getCurvatureCrtlPtsClosestToZero(this);
+    }
+
+    computeCurvatureDerivCPClosestToZero(): void {
+        this._slidingEventsAtExtremities.getCurvatureDerivCrtlPtsClosestToZero(this);
+    }
+
     update(): void {
         const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         if(this.shapeSpaceDiffEventsConfigurator) {
-            this.curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+            this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
         } else {
-            this.curveCurvatureCntrlPolygon = [];
+            this._curveCurvatureCntrlPolygon = [];
             this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
         }
         if(this.shapeSpaceDiffEventsConfigurator) {
-            this.curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+            this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
         }
         else {
-            this.curveCurvatureDerivativeCntrlPolygon = [];
+            this._curveCurvatureDerivativeCntrlPolygon = [];
             this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
         }
     }
@@ -146,155 +205,4 @@ export class CurveAnalyzer {
     //     return result;
     // }
 
-    getCurvatureCrtlPtsClosestToZero(): void {
-        for (let i = 0, n = this.curvatureSignChanges.length; i < n; i += 1) {
-            if (Math.pow(this.curveCurvatureCntrlPolygon[this.curvatureSignChanges[i]], 2) < Math.pow(this.curveCurvatureCntrlPolygon[this.curvatureSignChanges[i] + 1], 2)) {
-                if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined){
-                    if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
-                        if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureSignChanges[i] > 0 && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) {
-                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i])
-                        } else if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(this.curveCurvatureCntrlPolygon.length - 1) !== -1 && this.curvatureSignChanges[i] === (this.curveCurvatureCntrlPolygon.length - 2) && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) {
-                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
-                            this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(this.curveCurvatureCntrlPolygon.length - 1), 1);
-                        } else if(this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
-                    } else if(this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
-
-                } else {
-                    if(this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i]) === -1) this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i]);
-                }
-            } else {
-                if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined) {
-                    /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
-                    if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
-                        if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(this.curveCurvatureCntrlPolygon.length - 1) !== -1 && (this.curvatureSignChanges[i] + 1) < (this.curveCurvatureCntrlPolygon.length - 1) && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1){
-                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
-                        } else if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureSignChanges[i] === 0 && this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1) {
-                            this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
-                            this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0), 1)
-                        } else if(this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1) this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
-                    } else if(this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1) this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
-
-                } else {
-                    /* JCL general setting where events can slip out of the curve */
-                    if(this.curvatureCrtlPtsClosestToZero.indexOf(this.curvatureSignChanges[i] + 1) === -1) this.curvatureCrtlPtsClosestToZero.push(this.curvatureSignChanges[i] + 1);
-                }
-            }
-        }
-    }
-
-
-    getCurvatureDerivCrtlPtsClosestToZero(): void {
-        for (let i = 0, n = this.curvatureDerivativeSignChanges.length; i < n; i += 1) {
-            if (Math.pow(this.curveCurvatureDerivativeCntrlPolygon[this.curvatureDerivativeSignChanges[i]], 2) < Math.pow(this.curveCurvatureDerivativeCntrlPolygon[this.curvatureDerivativeSignChanges[i] + 1], 2)) {
-                if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined){
-                    /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
-                    if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
-                        if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureDerivativeSignChanges[i] > 0 && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) {
-                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
-                        } else if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(this.curveCurvatureDerivativeCntrlPolygon.length - 1) !== -1 && this.curvatureDerivativeSignChanges[i] === (this.curveCurvatureDerivativeCntrlPolygon.length - 2) && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) {
-                            // Verifier le fonctionnement de curvatureExtremumMonitoringAtCurveExtremities
-                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
-                            this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(this.curveCurvatureDerivativeCntrlPolygon.length - 1), 1);
-                        } else if(this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
-                    } else if(this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
-
-                } else {
-                    /* JCL general setting where events can slip out of the curve */
-                    if(this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i]) === -1) this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i]);
-                }
-            } else {
-                if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined) {
-                    /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
-                    if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
-                        if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(this.curveCurvatureDerivativeCntrlPolygon.length - 1) !== -1 && (this.curvatureDerivativeSignChanges[i] + 1) < (this.curveCurvatureDerivativeCntrlPolygon.length - 1) && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1){
-                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
-                        } else if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && this.curvatureDerivativeSignChanges[i] === 0 && this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1) {
-                            this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
-                            this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0), 1);
-                        } else if(this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1) this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
-                    } else if(this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1) this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
-
-                } else {
-                    /* JCL general setting where events can slip out of the curve */
-                    if(this.curvatureDerivCrtlPtsClosestToZero.indexOf(this.curvatureDerivativeSignChanges[i] + 1) === -1) this.curvatureDerivCrtlPtsClosestToZero.push(this.curvatureDerivativeSignChanges[i] + 1);
-                }
-            }
-        }
-    }
-
-    getControlPointsClosestToZero(signChangesIntervals: number[], controlPoints: number[]) {
-        let result: number[] = [];
-
-        for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
-            if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
-                if(controlPoints.length === this.shapeSpaceDescriptor.curvatureExtremaTotalNumberOfConstraints) {
-                    if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined){
-                        /* JCL Conditions to prevent events to slip out of the curve through its left extremity */
-                        if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
-                            if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
-                                result.push(signChangesIntervals[i]);
-                            } else if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
-                                // Verifier le fonctionnement de curvatureExtremumMonitoringAtCurveExtremities
-                                result.push(signChangesIntervals[i]);
-                                this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1), 1);
-                            } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-                        } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-    
-                    } else {
-                        /* JCL general setting where events can slip out of the curve */
-                        if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-                    }
-                } else if(controlPoints.length === this.shapeSpaceDescriptor.inflectionsTotalNumberOfConstraints) {
-                    if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined){
-                        if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
-                            if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] > 0 && result.indexOf(signChangesIntervals[i]) === -1) {
-                                result.push(signChangesIntervals[i])
-                            } else if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && signChangesIntervals[i] === (controlPoints.length - 2) && result.indexOf(signChangesIntervals[i]) === -1) {
-                                result.push(signChangesIntervals[i]);
-                                this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1), 1);
-                            } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-                        } else if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-
-                    } else {
-                        if(result.indexOf(signChangesIntervals[i]) === -1) result.push(signChangesIntervals[i]);
-                    }
-                }
-            } else {
-                if(controlPoints.length === this.shapeSpaceDescriptor.curvatureExtremaTotalNumberOfConstraints) {
-                    if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities !== undefined) {
-                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
-                        if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.length > 0) {
-                            if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1){
-                                result.push(signChangesIntervals[i] + 1);
-                            } else if(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
-                                result.push(signChangesIntervals[i] + 1);
-                                this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.curvatureExtremumMonitoringAtCurveExtremities.indexOf(0), 1);
-                            } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
-                        } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
-
-                    } else {
-                        /* JCL general setting where events can slip out of the curve */
-                        if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
-                    }
-                } else if(controlPoints.length === this.shapeSpaceDescriptor.inflectionsTotalNumberOfConstraints) {
-                    if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities !== undefined) {
-                        /* JCL Conditions to prevent events to slip out of the curve through its right extremity */
-                        if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.length > 0) {
-                            if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(controlPoints.length - 1) !== -1 && (signChangesIntervals[i] + 1) < (controlPoints.length - 1) && result.indexOf(signChangesIntervals[i] + 1) === -1){
-                                result.push(signChangesIntervals[i] + 1);
-                            } else if(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0) !== -1 && signChangesIntervals[i] === 0 && result.indexOf(signChangesIntervals[i] + 1) === -1) {
-                                result.push(signChangesIntervals[i] + 1);
-                                this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.splice(this.shapeSpaceDescriptor.inflectionMonitoringAtCurveExtremities.indexOf(0), 1)
-                            } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
-                        } else if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
-
-                    } else {
-                        /* JCL general setting where events can slip out of the curve */
-                        if(result.indexOf(signChangesIntervals[i] + 1) === -1) result.push(signChangesIntervals[i] + 1);
-                    }
-                }
-            }
-        }
-        return result
-    }
 }

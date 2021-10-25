@@ -20,6 +20,8 @@ import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceC
 import { CurveCategory } from "../curveModeler/CurveCategory";
 import { ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding, ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding } from "./ShapeSpaceDiffEventsConfigurator";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
+import { CurveAnalyzerEventsSlidingOutOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 
 export const MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 export const MAX_TRUST_REGION_RADIUS = 100;
@@ -53,6 +55,8 @@ export class CurveShapeSpaceNavigator {
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
     private curveConstraintProcessor: CurveConstraintProcessor;
+    public curveEventAtExtremityMayVanish: boolean;
+    private slidingEventsAtExtremities: SlidingEventsAtExtremities;
 
     constructor(curveModeler: CurveModeler) {
         this.curveModeler = curveModeler;
@@ -68,10 +72,12 @@ export class CurveShapeSpaceNavigator {
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this.currentCurve);
-        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this);
+        this.curveEventAtExtremityMayVanish = true;
+        this.slidingEventsAtExtremities = new CurveAnalyzerEventsSlidingOutOfInterval();
+        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this, this.slidingEventsAtExtremities);
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.optimizedCurve = this.currentCurve;
-        this.curveAnalyserOptimizedtCurve = new CurveAnalyzer(this.optimizedCurve, this);
+        this.curveAnalyserOptimizedtCurve = new CurveAnalyzer(this.optimizedCurve, this,  this.slidingEventsAtExtremities);
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedtCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
         //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
