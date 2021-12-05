@@ -1,4 +1,4 @@
-import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
+import { EventStayInsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
 
 
 export class EventMgmtAtCurveExtremities {
@@ -6,7 +6,7 @@ export class EventMgmtAtCurveExtremities {
     private _eventState: EventStateAtCurveExtremity;
 
     constructor() {
-        this._eventState = new EventSlideOutsideCurve(this);
+        this._eventState = new EventStayInsideCurve(this);
     }
 
     get eventState(): EventStateAtCurveExtremity {

@@ -2,6 +2,7 @@ import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
 import { ShapeSpaceDiffEvventsConfigurator as ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveModels2D } from "../models/CurveModels2D";
 import { CurveCategory } from "../curveModeler/CurveCategory";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
 export class ShapeSpaceConfiguratorWithInflectionsNoSliding implements ShapeSpaceDiffEventsConfigurator {
@@ -15,8 +16,17 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding implements ShapeSpac
         //this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
     }
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = true;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = true;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
+        shapeSpaceDiffEventsStructure.activeControlInflections = true;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
     // setShapeSpaceMonitoringToCurvatureExtrema(): void {
@@ -27,8 +37,17 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding implements ShapeSpac
 
 export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = true;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = true;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
+        shapeSpaceDiffEventsStructure.activeControlInflections = false;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
 
@@ -43,8 +62,17 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding implements Shap
 
 export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = true;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = true;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
+        shapeSpaceDiffEventsStructure.activeControlInflections = true;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
 
@@ -59,8 +87,18 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding i
 
 export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = false;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = false;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
+        shapeSpaceDiffEventsStructure.activeControlInflections = false;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
+
     }
 
     // setShapeSpaceMonitoringToInflections(): void {
@@ -82,32 +120,68 @@ export class ShapeSpaceConfiguratorWithInflectionsSliding implements ShapeSpaceD
 
     }
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = true;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = true;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
+        shapeSpaceDiffEventsStructure.activeControlInflections = true;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
 }
 
 export class ShapeSpaceConfiguratorWithCurvatureExtremaSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = true;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = true;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
+        shapeSpaceDiffEventsStructure.activeControlInflections = false;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
 }
 
 export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = true;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = true;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
+        shapeSpaceDiffEventsStructure.activeControlInflections = true;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
 }
 
 export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding implements ShapeSpaceDiffEventsConfigurator {
 
-    monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
-        shapSpaceDiffEventsStructure.navigation = false;
+    monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {
+        shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer = false;
+        shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
+        shapeSpaceDiffEventsStructure.activeControlInflections = false;
+        shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
+        let warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
+        " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
+        + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
+        + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
+        + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
+        warning.logMessageToConsole();
     }
 
     // setShapeSpaceMonitoringToInflections(): void {

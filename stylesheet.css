@@ -118,6 +118,10 @@ select {
   width: 6em;
 }
 
+#navigationMode {
+  width: 8em;
+}
+
 #inputFileName {
   width: 25em;
   background-color: rgb(255, 255, 255);

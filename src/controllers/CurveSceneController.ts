@@ -42,14 +42,14 @@ import { ShapeSpaceConfiguratorWithInflectionsNoSliding, ShapeSpaceConfiguratorW
 import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 import { CurveControlState, HandleInflectionsAndCurvatureExtremaNoSlidingState, HandleNoDiffEventNoSlidingState } from "./CurveControlState";
 import { CurveCategory, OpenPlanarCurve } from "../curveModeler/CurveCategory";
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { NavigationState, NavigationThroughSimplerShapeSpaces } from "../curveShapeSpaceNavigation/NavigationState";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { NavigationState, NavigationStrictlyInsideShapeSpace, NavigationThroughSimplerShapeSpaces, NavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "../curveModeler/EventStateAtCurveExtremity";
+import { EventSlideOutsideCurve, EventStayInsideCurve, EventStateAtCurveExtremity } from "../curveModeler/EventStateAtCurveExtremity";
 import { EventMgmtAtCurveExtremities } from "../curveModeler/EventMgmtAtCurveExtremities";
 import { CurveConstraints } from "../curveShapeSpaceNavigation/CurveConstraints";
 import { CurveConstraintClampedFirstControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
-import { CurveConstraintSelectionState, HandleConstraintAtPoint1Point2NoConstraintState } from "./CurveConstraintSelectionState";
+import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState } from "./CurveConstraintSelectionState";
 
 
 
@@ -122,13 +122,13 @@ export class CurveSceneController implements SceneControllerInterface {
     private closedCurve: boolean;
     private curveCategory: CurveCategory;
     private navigationState: NavigationState;
-    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     public curveEventAtExtremityMayVanish: boolean;
-    private eventStateAtCurveExtremity: EventStateAtCurveExtremity;
+    // private eventStateAtCurveExtremity: EventStateAtCurveExtremity;
     public eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private constraintAtPoint1: boolean;
     private constraintAtPoint2: boolean;
-    public curveConstraints: CurveConstraints;
+    //public curveConstraints: CurveConstraints;
     private curveConstraintSelectionState: CurveConstraintSelectionState;
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = [],
@@ -172,7 +172,6 @@ export class CurveSceneController implements SceneControllerInterface {
         this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
         this.allowShapeSpaceChange = false
 
-
         this.controlOfCurvatureExtrema = true
         this.controlOfInflection = true
         this.controlOfCurveClamping = true
@@ -213,18 +212,19 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModeler = new CurveModeler(this);
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
-        this.curveControlState = new HandleInflectionsAndCurvatureExtremaNoSlidingState(this);
+        this.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this.curveCategory = new OpenPlanarCurve(this.curveModeler);
         this.closedCurve = false;
         this.curveEventAtExtremityMayVanish = true;
         this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
-        this.navigationState = new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator);
+        this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator);
+        this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
         this.eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities();
-        this.eventStateAtCurveExtremity = new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities);
         this.constraintAtPoint1 = true;
         this.constraintAtPoint2 = false;
-        this.curveConstraints = new CurveConstraints( new CurveConstraintClampedFirstControlPoint);
-        this.curveConstraintSelectionState = new HandleConstraintAtPoint1Point2NoConstraintState(this);
+        //this.curveConstraints = new CurveConstraints( new CurveConstraintClampedFirstControlPoint, this.curveShapeSpaceNavigator);
+        this.curveConstraintSelectionState = new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
     }
 
     renderFrame() {
@@ -469,8 +469,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
         //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
 
-        /* JCL 2021/09/29 Add modeller for new code architecture */
-        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.curvatureExtremaControl = this.controlOfCurvatureExtrema;
+        /* JCL 2021/12/02 Add control state for new code architecture */
+        /* JCL 2021/12/02 controlOfCurvatureExtrema can be used to characterize the control state and set it appropriately when changing the navigation mode */
         this.curveControlState.handleCurvatureExtrema();
     }
 
@@ -479,8 +479,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlOfInflection = ! this.controlOfInflection
         //console.log("control of inflections: " + this.controlOfInflection)
 
-        /* JCL 2021/10/12 Add modeller for new code architecture */
-        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.inflectionControl = this.controlOfInflection;
+        /* JCL 2021/12/02 Add control state for new code architecture */
+        /* JCL 2021/12/02 controlOfInflection can be used to characterize the control state and set it appropriately when changing the navigation mode */
         this.curveControlState.handleInflections();
     }
 
@@ -501,17 +501,23 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     inputSelectNavigationProcess(navigationID: number) {
+        let warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
+        warning.logMessageToConsole();
+
         switch(navigationID) {
             case 0: {
-                this.navigationState.setNavigationThroughSimplerShapeSpaces();
+                this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator);
+                this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
                 break;
             }
             case 1: {
-                this.navigationState.setNavigationStrictlyInsideShapeSpace();
+                this.navigationState = new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator);
+                this.navigationState.setNavigationThroughSimplerShapeSpaces();
                 break;
             }
             case 2: {
-                this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
+                this.navigationState = new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator);
+                this.navigationState.setNavigationStrictlyInsideShapeSpace();
                 break;
             }
             default: {
@@ -524,8 +530,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
     toggleControlCurveEventsAtExtremities() {
         this.curveEventAtExtremityMayVanish = ! this.curveEventAtExtremityMayVanish;
-        this.curveModeler.curveShapeSpaceNavigator.curveEventAtExtremityMayVanish = this.curveEventAtExtremityMayVanish;
-        this.eventStateAtCurveExtremity.handleEventAtCurveExtremity();
+        this.eventMgmtAtCurveExtremities.processEventAtCurveExtremity();
     }
 
     /* JCL fin test code */
@@ -546,8 +551,7 @@ export class CurveSceneController implements SceneControllerInterface {
             }
         } else throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model")
     
-        /* JCL 2021/10/12 Add modeller for new code architecture */
-        this.curveModeler.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.slidingStatus = this.sliding;
+        /* JCL 2021/10/12 Add curveControlState for new code architecture */
         this.curveControlState.handleSliding();
     }
 
@@ -618,6 +622,8 @@ export class CurveSceneController implements SceneControllerInterface {
             //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
             //    && (this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming || this.allowShapeSpaceChange === true)) {
             if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
+                // JCL new code
+                this.curveShapeSpaceNavigator.navigateSpace(selectedControlPoint, x, y);
                 if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                     /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
                     because it is part of the optimize method (whether sliding is active or not) */
@@ -666,11 +672,19 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     shiftKeyDown() {
-        this.allowShapeSpaceChange = true
+        this.allowShapeSpaceChange = true;
+        // JCL 2021/12/03 code added for new architecture
+        this.eventMgmtAtCurveExtremities.processEventAtCurveExtremity();
+        let message = new WarningLog(this.constructor.name, " shiftKeyDown ", this.eventMgmtAtCurveExtremities.eventState.constructor.name);
+        message.logMessageToConsole();
     }
 
     shiftKeyUp() {
         this.allowShapeSpaceChange = false
+        // JCL 2021/12/03 code added for new architecture
+        this.eventMgmtAtCurveExtremities.processEventAtCurveExtremity();
+        let message = new WarningLog(this.constructor.name, " shiftKeyUp ", this.eventMgmtAtCurveExtremities.eventState.constructor.name);
+        message.logMessageToConsole();
     }
 
     /* JCL 2020/10/07 Add the curve degree elevation process */
@@ -712,16 +726,20 @@ export class CurveSceneController implements SceneControllerInterface {
     dbleClick_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01): boolean {
         let result: boolean
         if(this.curveModel !== undefined) {
+                                
+            // JCL 2021/10/19 code pour nvelle architecture
+            let selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
+            if(selectedControlPoint === 0 ) {
+                this.constraintAtPoint1 = ! this.constraintAtPoint1;
+                this.curveConstraintSelectionState.handleCurveConstraintAtPoint1();
+            }
+            if(selectedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
+                this.constraintAtPoint2 = ! this.constraintAtPoint2;
+                this.curveConstraintSelectionState.handleCurveConstraintAtPoint2();
+            }
             if(this.controlOfCurveClamping) {
                 if(this.clampedControlPointView !== null) {
                     let selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
-                    
-                    // JCL 2021/10/19 code pour nvelle architecture
-                    let selectedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
-                    if(selectedControlPoint === 0 ) this.constraintAtPoint1 = ! this.constraintAtPoint1;
-                    if(selectedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) this.constraintAtPoint2 = ! this.constraintAtPoint2;
-                    this.curveConstraintSelectionState.handleCurveConstraintAtPoint1();
-                    this.curveConstraintSelectionState.handleCurveConstraintAtPoint2();
 
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint)
                     if(selectedClampedControlPoint !== null) {

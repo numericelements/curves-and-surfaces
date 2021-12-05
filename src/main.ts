@@ -52,6 +52,8 @@ export function main() {
     let checkBoxAbsCurvature = <HTMLButtonElement> document.getElementById("chkBoxAbsCurvature")
     let inputDegree = <HTMLSelectElement> document.getElementById("curveDegree")
     let currentCurveDegree = "3"
+    let inputNavigationMode = <HTMLSelectElement> document.getElementById("navigationMode")
+    let currentNavigationMode = "0"
     /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
 
@@ -610,7 +612,7 @@ export function main() {
     }
 
     function inputSelectDegree() {
-        console.log("select" + inputDegree.value);
+        console.log("select:  " + inputDegree.value);
         let optionName = "option"
         let curveDegree: number;
         if(!isNaN(Number(inputDegree.value))){
@@ -630,9 +632,24 @@ export function main() {
         }
     }
 
+    function inputSelectNavigationMode() {
+        console.log("select" + inputNavigationMode.value);
+        let optionName = "option"
+        let navigationMode: number;
+        navigationMode = Number(inputNavigationMode.value);
+        currentNavigationMode = inputNavigationMode.value;
+        sceneController.inputSelectNavigationProcess(navigationMode);
+
+    }
+
     function clickSelectDegree() {
         console.log("select Degree click");
         inputDegree.value = currentCurveDegree;
+    }
+
+    function clickNavigationMode() {
+        console.log("select Navigation click");
+        inputNavigationMode.value = currentNavigationMode;
     }
 
     function buttonFileLoadCurve(ev: MouseEvent) {
@@ -894,6 +911,9 @@ export function main() {
     /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
     inputDegree.addEventListener('input', inputSelectDegree);
     inputDegree.addEventListener('click', clickSelectDegree);
+
+    inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
+    inputNavigationMode.addEventListener('click', clickNavigationMode);
 
     /* JCL 2020/10/13 Add event handlers for file processing */
     buttonFileLoad.addEventListener('click', buttonFileLoadCurve);

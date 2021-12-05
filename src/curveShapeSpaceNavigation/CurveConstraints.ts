@@ -1,4 +1,5 @@
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 
 export enum ConstraintType {none, location, tangent, locationAndTangent}
 
@@ -9,9 +10,11 @@ export class CurveConstraints {
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
     private curveConstraintProcessor: CurveConstraintProcessor;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
-    constructor(curveConstraintProcessor: CurveConstraintProcessor) {
+    constructor(curveConstraintProcessor: CurveConstraintProcessor, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         this.curveConstraintProcessor = curveConstraintProcessor;
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
 
@@ -31,6 +34,9 @@ export class CurveConstraints {
 
     get constraintAtLastPoint(): ConstraintType {
         return this._lastControlPoint;
+    }
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
+        return this._curveShapeSpaceNavigator;
     }
 
     setConstraint(curveConstraintProcessor: CurveConstraintProcessor): void {

@@ -50,37 +50,45 @@ export class ShapeSpaceDiffEventsStructure {
         //}
     }
 
-    set inflectionControl(controlOfInflections: boolean) {
+    set activeControlInflections(controlOfInflections: boolean) {
         this._activeControlInflections = controlOfInflections;
-        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) this._activeNavigationWithOptimizer = false;
+        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
+            this._activeNavigationWithOptimizer = false;
+        } else {
+            this._activeNavigationWithOptimizer = true;
+        }
     }
 
-    set curvatureExtremaControl(controlOfCurvatureExtrema: boolean) {
+    set activeControlCurvatureExtrema(controlOfCurvatureExtrema: boolean) {
         this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) this._activeNavigationWithOptimizer = false;
+        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
+            this._activeNavigationWithOptimizer = false;
+        } else {
+            this._activeNavigationWithOptimizer = true;
+        }
     }
 
-    set slidingStatus(slidingDiffEvents: boolean) {
+    set slidingDifferentialEvents(slidingDiffEvents: boolean) {
         this._slidingDifferentialEvents = slidingDiffEvents;
     }
 
-    set navigation(activeNavigation: boolean) {
+    set activeNavigationWithOptimizer(activeNavigation: boolean) {
         this._activeNavigationWithOptimizer = activeNavigation;
     }
 
-    get inflectionControl(): boolean {
+    get activeControlInflections(): boolean {
         return this._activeControlInflections;
     }
 
-    get curvatureExtremaControl(): boolean {
+    get activeControlCurvatureExtrema(): boolean {
         return this._activeControlCurvatureExtrema;
     }
 
-    get slidingStatus(): boolean {
+    get slidingDifferentialEvents(): boolean {
         return this._slidingDifferentialEvents;
     }
 
-    get navigationStatus(): boolean {
+    get activeNavigationWithOptimizer(): boolean {
         return this._activeNavigationWithOptimizer;
     }
 
