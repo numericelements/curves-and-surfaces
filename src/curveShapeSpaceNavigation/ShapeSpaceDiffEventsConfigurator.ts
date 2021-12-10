@@ -13,7 +13,6 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding implements ShapeSpac
     constructor(curveModel: CurveCategory) {
         this.curveModel = curveModel;
 
-        //this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
     }
 
     monitorCurveUsingDifferentialEvents(shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void {

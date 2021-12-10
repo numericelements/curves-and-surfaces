@@ -8,6 +8,7 @@ import { ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding,
     ShapeSpaceConfiguratorWithCurvatureExtremaSliding,
     ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding} from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator"
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 export abstract class CurveControlState {
 
@@ -16,7 +17,14 @@ export abstract class CurveControlState {
 
     constructor(context: CurveSceneController) {
         this.curveSceneController = context;
-        this.curveShapeSpaceNavigator = this.curveSceneController.curveShapeSpaceNavigator;
+        if(this.curveSceneController.curveShapeSpaceNavigator !== undefined) {
+            this.curveShapeSpaceNavigator = this.curveSceneController.curveShapeSpaceNavigator;
+        }
+        else {
+            this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(context.curveModeler);
+            let error = new ErrorLog(this.constructor.name, 'constructor', 'Unable to update curveShapeSpaceNavigator context. Check its initialization.');
+            error.logMessageToConsole();
+        }
     }
 
     setContext(context: CurveSceneController) {
@@ -25,7 +33,7 @@ export abstract class CurveControlState {
 
 
     updateShapeSpaceNavigator(): void {
-        this.curveSceneController.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceConfigurator;
+        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceConfigurator;
     }
 
     abstract handleInflections(): void
@@ -141,15 +149,18 @@ export class HandleInflectionsSlidingState extends CurveControlState {
     }
 
     handleInflections(): void {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleCurvatureExtrema(): void {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleSliding(): void {
-        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
 }
@@ -163,15 +174,18 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
     }
 
     handleInflections(): void {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleCurvatureExtrema(): void {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleSliding(): void {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
 }
@@ -185,15 +199,18 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
     }
 
     handleInflections(): void {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
     
     handleCurvatureExtrema(): void {
-        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleSliding(): void {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
 }
@@ -207,14 +224,17 @@ export class HandleNoDiffEventSlidingState extends CurveControlState {
     }
 
     handleInflections(): void {
-        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleCurvatureExtrema(): void {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 
     handleSliding(): void {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController))
+        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
+        this.updateShapeSpaceNavigator();
     }
 }

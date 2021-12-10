@@ -47,8 +47,6 @@ import { NavigationState, NavigationStrictlyInsideShapeSpace, NavigationThroughS
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { EventSlideOutsideCurve, EventStayInsideCurve, EventStateAtCurveExtremity } from "../curveModeler/EventStateAtCurveExtremity";
 import { EventMgmtAtCurveExtremities } from "../curveModeler/EventMgmtAtCurveExtremities";
-import { CurveConstraints } from "../curveShapeSpaceNavigation/CurveConstraints";
-import { CurveConstraintClampedFirstControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState } from "./CurveConstraintSelectionState";
 
 
@@ -124,11 +122,9 @@ export class CurveSceneController implements SceneControllerInterface {
     private navigationState: NavigationState;
     public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     public curveEventAtExtremityMayVanish: boolean;
-    // private eventStateAtCurveExtremity: EventStateAtCurveExtremity;
     public eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private constraintAtPoint1: boolean;
     private constraintAtPoint2: boolean;
-    //public curveConstraints: CurveConstraints;
     private curveConstraintSelectionState: CurveConstraintSelectionState;
 
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = [],
@@ -210,21 +206,22 @@ export class CurveSceneController implements SceneControllerInterface {
 
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this.curveModeler = new CurveModeler(this);
-        this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
-        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this.curveModeler, this.shapeSpaceDiffEventsConfigurator);
-        this.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        this.curveCategory = this.curveModeler.curveCategory;
+        this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
+        this.navigationState = this.curveShapeSpaceNavigator.navigationState;
+        this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
+        this.shapeSpaceDiffEventsConfigurator = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+        this.shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
-        this.curveCategory = new OpenPlanarCurve(this.curveModeler);
+
         this.closedCurve = false;
         this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.curveModeler);
-        this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator);
-        this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
-        this.eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities();
+
+        this.eventMgmtAtCurveExtremities = this.curveShapeSpaceNavigator.eventMgmtAtCurveExtremities;
         this.constraintAtPoint1 = true;
         this.constraintAtPoint2 = false;
-        //this.curveConstraints = new CurveConstraints( new CurveConstraintClampedFirstControlPoint, this.curveShapeSpaceNavigator);
         this.curveConstraintSelectionState = new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
+        console.log("end constructor curveSceneController")
     }
 
     renderFrame() {
@@ -506,26 +503,51 @@ export class CurveSceneController implements SceneControllerInterface {
 
         switch(navigationID) {
             case 0: {
-                this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator);
                 this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
                 break;
             }
             case 1: {
-                this.navigationState = new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator);
                 this.navigationState.setNavigationThroughSimplerShapeSpaces();
                 break;
             }
             case 2: {
-                this.navigationState = new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator);
                 this.navigationState.setNavigationStrictlyInsideShapeSpace();
                 break;
             }
             default: {
-                let error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.")
+                let error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
                 error.logMessageToConsole();
                 break;
             }
         }
+        // JCL 2021/12/07 temporary setting to keep consistency between curvescenecontroller context and curveShapeSpaceNavigator context
+        // JCL 2021/12/07 should be removed when the curveScenceController context would be decomposed into (UI and graphics) and the curveShapeSpaceNavigator context on the other side
+        this.navigationState = this.curveShapeSpaceNavigator.navigationState;
+    }
+
+    inputSelectCurveCategoryProcess(crvCategoryID: number) {
+        let warning = new WarningLog(this.constructor.name, "inputSelectCurveCategoryProcess", crvCategoryID.toString());
+        warning.logMessageToConsole();
+
+        switch(crvCategoryID) {
+            case 0: {
+                this.curveCategory.setModelerWithOpenPlanarCurve();
+                break;
+            }
+            case 1: {
+                this.curveCategory.setModelerWithClosedPlanarCurve();
+                break;
+            }
+            default: {
+                let error = new ErrorLog(this.constructor.name, "inputSelectCurveCategoryProcess", "no available curve category.");
+                error.logMessageToConsole();
+                break;
+            }
+        }
+        // JCL for consistency with the curveModeler context
+        this.curveCategory = this.curveModeler.curveCategory;
+        // JCL for consistency of the curveShapeSpaceNavigator context wrt curveModeler one
+        this.curveShapeSpaceNavigator.curveCategory = this.curveCategory;
     }
 
     toggleControlCurveEventsAtExtremities() {

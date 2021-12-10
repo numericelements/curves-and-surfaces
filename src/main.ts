@@ -54,6 +54,8 @@ export function main() {
     let currentCurveDegree = "3"
     let inputNavigationMode = <HTMLSelectElement> document.getElementById("navigationMode")
     let currentNavigationMode = "0"
+    let inputCurveCategory = <HTMLSelectElement> document.getElementById("curveCategory")
+    let currentCurveCategory = "0"
     /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
     let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
 
@@ -634,12 +636,18 @@ export function main() {
 
     function inputSelectNavigationMode() {
         console.log("select" + inputNavigationMode.value);
-        let optionName = "option"
         let navigationMode: number;
         navigationMode = Number(inputNavigationMode.value);
         currentNavigationMode = inputNavigationMode.value;
         sceneController.inputSelectNavigationProcess(navigationMode);
+    }
 
+    function inputSelectCurveCategory() {
+        console.log("select" + inputCurveCategory.value);
+        let curveCategory: number;
+        curveCategory = Number(inputCurveCategory.value);
+        currentCurveCategory = inputCurveCategory.value;
+        sceneController.inputSelectCurveCategoryProcess(curveCategory);
     }
 
     function clickSelectDegree() {
@@ -650,6 +658,11 @@ export function main() {
     function clickNavigationMode() {
         console.log("select Navigation click");
         inputNavigationMode.value = currentNavigationMode;
+    }
+
+    function clickCurveCategory() {
+        console.log("select Curve type click");
+        inputCurveCategory.value = currentCurveCategory;
     }
 
     function buttonFileLoadCurve(ev: MouseEvent) {
@@ -914,6 +927,9 @@ export function main() {
 
     inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
     inputNavigationMode.addEventListener('click', clickNavigationMode);
+
+    inputCurveCategory.addEventListener('input', inputSelectCurveCategory);
+    inputCurveCategory.addEventListener('click', clickCurveCategory);
 
     /* JCL 2020/10/13 Add event handlers for file processing */
     buttonFileLoad.addEventListener('click', buttonFileLoadCurve);

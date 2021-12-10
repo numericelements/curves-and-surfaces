@@ -57,10 +57,14 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
     }
 
     setNavigationStrictlyInsideShapeSpace(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
+        warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
     }
 
     setNavigationThroughSimplerShapeSpaces(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
+        warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
     }
 
@@ -69,7 +73,7 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
         warning.logMessageToConsole();
     }
 
-    navigate(): void {
+    navigate(selectedControlPoint: number, x: number, y: number): void {
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
@@ -86,12 +90,23 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
 
 export class NavigationThroughSimplerShapeSpaces extends NavigationState {
 
+    private currentCurve: BSpline_R1_to_R2;
+    private optimizedCurve: BSpline_R1_to_R2;
+    private curveAnalyserCurrentCurve: CurveAnalyzer;
+    private curveAnalyserOptimizedCurve: CurveAnalyzer;
 
-    // constructor(curveNavigator: CurveShapeSpaceNavigator) {
-    //     super(curveNavigator);
-    // }
+    constructor(curveNavigator: CurveShapeSpaceNavigator) {
+        super(curveNavigator);
+        // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
+        this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
+        this.optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+    }
 
     setNavigationStrictlyInsideShapeSpace(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
+        warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
     }
 
@@ -101,11 +116,13 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
+        warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     }
 
-    navigate(): void {
-        this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
+    navigate(selectedControlPoint: number, x: number, y: number): void {
+        this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
         this.shapeSpaceConstraintsMonitoring();
@@ -114,7 +131,7 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
             this.curveShapeSpaceNavigator.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
             this.curveConstraintsMonitoring();
-            this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.update();
+            this.curveAnalyserOptimizedCurve.update();
             this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve, this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve);
             seqComparator.locateNeiboringEvents();
@@ -130,6 +147,8 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
 export class NavigationStrictlyInsideShapeSpace extends NavigationState {
 
     setNavigationThroughSimplerShapeSpaces(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
+        warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
     }
 
@@ -139,10 +158,12 @@ export class NavigationStrictlyInsideShapeSpace extends NavigationState {
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
+        warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     }
 
-    navigate(): void {
+    navigate(selectedControlPoint: number, x: number, y: number): void {
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();

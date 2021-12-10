@@ -9,42 +9,49 @@ export class CurveConstraints {
 
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
-    private curveConstraintProcessor: CurveConstraintProcessor;
+    private _curveConstraintProcessor: CurveConstraintProcessor;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
     constructor(curveConstraintProcessor: CurveConstraintProcessor, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
-        this.curveConstraintProcessor = curveConstraintProcessor;
+        this._curveConstraintProcessor = curveConstraintProcessor;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this._firstControlPoint = ConstraintType.none;
-        this._lastControlPoint = ConstraintType.none;
+        this._firstControlPoint = curveConstraintProcessor.firstControlPoint;
+        this._lastControlPoint = curveConstraintProcessor.lastControlPoint;
 
     }
 
-    set constraintAtFirstPoint(constraintAtFirstPoint: ConstraintType) {
+    set firstControlPoint(constraintAtFirstPoint: ConstraintType) {
         this._firstControlPoint = constraintAtFirstPoint;
     }
 
-    set constraintAtLastPoint(constraintAtLastPoint: ConstraintType) {
+    set lastControlPoint(constraintAtLastPoint: ConstraintType) {
         this._lastControlPoint = constraintAtLastPoint;
     }
 
-    get constraintAtFirstPoint(): ConstraintType {
+    get firstControlPoint(): ConstraintType {
         return this._firstControlPoint;
     }
 
-    get constraintAtLastPoint(): ConstraintType {
+    get lastControlPoint(): ConstraintType {
         return this._lastControlPoint;
     }
+
+    get curveConstraintProcessor(): CurveConstraintProcessor {
+        return this._curveConstraintProcessor;
+    }
+
     get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
         return this._curveShapeSpaceNavigator;
     }
 
     setConstraint(curveConstraintProcessor: CurveConstraintProcessor): void {
-        this.curveConstraintProcessor = curveConstraintProcessor;
+        this._curveConstraintProcessor = curveConstraintProcessor;
+        this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
+        this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
     }
 
     processConstraint(): void {
-        this.curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
+        this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
     }
 
     // clearConstraint(extremity: CurveExtremity): void {

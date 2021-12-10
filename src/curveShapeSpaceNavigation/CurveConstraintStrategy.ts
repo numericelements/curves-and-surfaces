@@ -14,11 +14,15 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private curveModeler: CurveModeler;
     private targetCurve: BSpline_R1_to_R2;
+    public firstControlPoint: ConstraintType;
+    public lastControlPoint: ConstraintType;
     private _optimizedCurve: BSpline_R1_to_R2;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.firstControlPoint = ConstraintType.none;
+        this.lastControlPoint = ConstraintType.none;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;
@@ -30,9 +34,17 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
         return this._optimizedCurve;
     }
 
+    // get firstControlPoint(): ConstraintType {
+    //     return this._firstControlPoint;
+    // }
+
+    // get lastControlPoint(): ConstraintType {
+    //     return this._lastControlPoint;
+    // }
+
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
-        if(curveConstraints.constraintAtFirstPoint === ConstraintType.none 
-            && curveConstraints.constraintAtLastPoint === ConstraintType.none) {
+        if(curveConstraints.firstControlPoint === ConstraintType.none 
+            && curveConstraints.lastControlPoint === ConstraintType.none) {
                 this._optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
         } else {
             let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
@@ -48,11 +60,15 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     private curveModeler: CurveModeler;
     private targetCurve: BSpline_R1_to_R2;
     private displacementCurrentCurveControlPolygon: Vector_2d[];
+    public firstControlPoint: ConstraintType;
+    public lastControlPoint: ConstraintType;
     private _optimizedCurve: BSpline_R1_to_R2;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.firstControlPoint = ConstraintType.location;
+        this.lastControlPoint = ConstraintType.none;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;
@@ -64,6 +80,14 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     get optimizedCurve(): BSpline_R1_to_R2 {
         return this._optimizedCurve;
     }
+
+    // get firstControlPoint(): ConstraintType {
+    //     return this._firstControlPoint;
+    // }
+
+    // get lastControlPoint(): ConstraintType {
+    //     return this._lastControlPoint;
+    // }
 
     relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
         let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
@@ -77,8 +101,8 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
-        if(curveConstraints.constraintAtFirstPoint === ConstraintType.location
-            && curveConstraints.constraintAtLastPoint === ConstraintType.none) {
+        if(curveConstraints.firstControlPoint === ConstraintType.location
+            && curveConstraints.lastControlPoint === ConstraintType.none) {
                 this.relocateCurveAfterOptimization();
         } else {
             let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
@@ -95,11 +119,15 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
     private curveModeler: CurveModeler;
     private targetCurve: BSpline_R1_to_R2;
     private displacementCurrentCurveControlPolygon: Vector_2d[];
+    public firstControlPoint: ConstraintType;
+    public lastControlPoint: ConstraintType;
     private _optimizedCurve: BSpline_R1_to_R2;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.firstControlPoint = ConstraintType.none;
+        this.lastControlPoint = ConstraintType.location;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;
@@ -107,6 +135,14 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for last CP clamped.");
         warning.logMessageToConsole();
     }
+
+    // get firstControlPoint(): ConstraintType {
+    //     return this._firstControlPoint;
+    // }
+
+    // get lastControlPoint(): ConstraintType {
+    //     return this._lastControlPoint;
+    // }
 
     relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
         let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
@@ -120,8 +156,8 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
-        if(curveConstraints.constraintAtFirstPoint === ConstraintType.none
-            && curveConstraints.constraintAtLastPoint === ConstraintType.location) {
+        if(curveConstraints.firstControlPoint === ConstraintType.none
+            && curveConstraints.lastControlPoint === ConstraintType.location) {
                 this.relocateCurveAfterOptimization();
         } else {
             let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
@@ -139,11 +175,15 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
     private currentCurve: BSpline_R1_to_R2;
     private targetCurve: BSpline_R1_to_R2;
     private displacementCurrentCurveControlPolygon: Vector_2d[];
+    public firstControlPoint: ConstraintType;
+    public lastControlPoint: ConstraintType;
     private _optimizedCurve: BSpline_R1_to_R2;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.firstControlPoint = ConstraintType.location;
+        this.lastControlPoint = ConstraintType.location;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
         this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
@@ -152,6 +192,14 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for first and last CP clamped.");
         warning.logMessageToConsole();
     }
+
+    // get firstControlPoint(): ConstraintType {
+    //     return this._firstControlPoint;
+    // }
+
+    // get lastControlPoint(): ConstraintType {
+    //     return this._lastControlPoint;
+    // }
 
     relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
         let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
@@ -172,8 +220,8 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
-        if(curveConstraints.constraintAtFirstPoint === ConstraintType.location
-            && curveConstraints.constraintAtLastPoint === ConstraintType.location) {
+        if(curveConstraints.firstControlPoint === ConstraintType.location
+            && curveConstraints.lastControlPoint === ConstraintType.location) {
                 this.relocateCurveAfterOptimization();
         } else {
             let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");

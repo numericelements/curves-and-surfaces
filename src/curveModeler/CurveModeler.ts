@@ -7,23 +7,29 @@ enum CurveType { PLANAR_OPEN, PLANAR_CLOSED }
 
 export class CurveModeler{
     public curveType: CurveType;
-    public curveCategory: CurveCategory;
+    private _curveCategory: CurveCategory;
     public curveSceneController: CurveSceneController;
-    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
     constructor(curveSceneController: CurveSceneController) {
         this.curveSceneController = curveSceneController;
-        this.curveCategory = new OpenPlanarCurve(this);
+        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this);
+        this._curveCategory = new OpenPlanarCurve(this);
+        this._curveShapeSpaceNavigator.curveCategory = this._curveCategory;
         this.curveType = CurveType.PLANAR_OPEN;
-        this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this);
-
     }
 
     changeCurveCategory(category: CurveCategory): void {
-        this.curveCategory = category;
-        this.curveCategory.setCurveModeler(this);
+        this._curveCategory = category;
+        //this._curveCategory.setCurveModeler(this);
     }
 
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
+        return this._curveShapeSpaceNavigator;
+    }
 
+    get curveCategory(): CurveCategory {
+        return this._curveCategory;
+    }
 
 }

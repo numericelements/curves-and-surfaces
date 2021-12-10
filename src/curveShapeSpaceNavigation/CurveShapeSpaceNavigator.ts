@@ -69,7 +69,7 @@ export class CurveShapeSpaceNavigator {
         this.displacementSelctdCP = new Vector_2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector_2d(0.0, 0.0)))
-        this.navigationState = new NavigationStrictlyInsideShapeSpace(this);
+        this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this);
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
@@ -83,13 +83,13 @@ export class CurveShapeSpaceNavigator {
         this.diffEvents = new NeighboringEvents();
         //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
         this._curveConstraintProcessor = new CurveConstraintClampedFirstControlPoint(this);
-        this._curveConstraints = new CurveConstraints(this.curveConstraintProcessor, this);
+        this._curveConstraints = new CurveConstraints(this._curveConstraintProcessor, this);
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
 
         this.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this));
-
+        console.log("end constructor curveShapeSpaceNavigator")
     }
 
     // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
@@ -190,9 +190,11 @@ export class CurveShapeSpaceNavigator {
     navigateSpace(selectedControlPoint: number, x: number, y: number): void {
         let message = new WarningLog(this.constructor.name, "navigateSpace", this.navigationState.constructor.name + " "
         + this.shapeSpaceDiffEventsConfigurator.constructor.name + " "
-        + this._eventMgmtAtCurveExtremities.constructor.name + " "
-        + this._curveConstraintProcessor.constructor.name);
+        + this._eventMgmtAtCurveExtremities.eventState.constructor.name + " "
+        + this._curveConstraints.curveConstraintProcessor.constructor.name + " "
+        + this._curveModeler.curveCategory.constructor.name);
         message.logMessageToConsole();
+        this._selectedControlPoint = selectedControlPoint;
         this.navigationState.navigate(selectedControlPoint, x, y);
     }
 

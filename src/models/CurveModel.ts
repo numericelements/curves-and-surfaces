@@ -28,9 +28,9 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
         this.spline = create_BSpline_R1_to_R2(controlPolygon, knots)
 
         if((!existingKnots && existingControlPoints) || (existingKnots && !existingControlPoints)) {
-            console.log("Creation of B-Spline. The control polygon and/or knot vector input is inconsistent. Turned into a default curve creation.")
+            console.log("CurveModel: Creation of B-Spline. The control polygon and/or knot vector input is inconsistent. Turned into a default curve creation.")
         } else if(!existingKnots && !existingControlPoints) {
-            console.log("Creation of B-Spline. Use a default curve.")
+            console.log("CurveModel: Creation of B-Spline. Use a default curve.")
         }
          else if(existingKnots && existingControlPoints) {
             this.spline = create_BSpline_R1_to_R2(existingControlPoints, existingKnots)
