@@ -42,10 +42,16 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
     //     return this._lastControlPoint;
     // }
 
+    updateCurve(): void {
+        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+    }
+
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
         if(curveConstraints.firstControlPoint === ConstraintType.none 
             && curveConstraints.lastControlPoint === ConstraintType.none) {
-                this._optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
+                this.updateCurve();
+                this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+                this.curveConstraints.optimizedCurve = this._optimizedCurve;
         } else {
             let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
             warning.logMessageToConsole();
@@ -89,7 +95,12 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     //     return this._lastControlPoint;
     // }
 
+    updateCurve(): void {
+        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+    }
+
     relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
+        this.updateCurve();
         let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
         this.curveShapeSpaceNavigator.curveDisplacement();
         for(let controlP of controlPoints) {
@@ -97,7 +108,8 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
             controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
         }
         this._optimizedCurve.controlPoints = controlPoints;
-        return this._optimizedCurve;
+        this.curveConstraints.optimizedCurve = this._optimizedCurve;
+        return this.curveConstraints.optimizedCurve;
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
@@ -144,7 +156,12 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
     //     return this._lastControlPoint;
     // }
 
+    updateCurve(): void {
+        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+    }
+
     relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
+        this.updateCurve();
         let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
         this.curveShapeSpaceNavigator.curveDisplacement();
         for(let controlP of controlPoints) {
@@ -152,7 +169,8 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
             controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
         }
         this._optimizedCurve.controlPoints = controlPoints;
-        return this._optimizedCurve;
+        this.curveConstraints.optimizedCurve = this._optimizedCurve;
+        return this.curveConstraints.optimizedCurve;
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{

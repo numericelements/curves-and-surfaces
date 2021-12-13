@@ -204,10 +204,10 @@ export class CurveShapeSpaceNavigator {
     //     this._optimizationProblemParam.updateConstraintBounds = true;
     // }
 
-    updateCurrentCurve(newCurve: CurveModel, newSelectedControlPoint: number, newDispSelctdCP: Vector_2d): void {
-        this.curveModel = newCurve;
-        this._currentCurve = newCurve.spline.clone();
-        this.currentControlPolygon = this.currentCurve.controlPoints;
+    updateCurrentCurve(newSelectedControlPoint: number, newDispSelctdCP: Vector_2d): void {
+        //this.curveModel = newCurve;
+        //this._currentCurve = newCurve.spline.clone();
+        this.currentControlPolygon = this._currentCurve.controlPoints;
         this._selectedControlPoint = newSelectedControlPoint;
         this.displacementSelctdCP = newDispSelctdCP;
     }
@@ -220,7 +220,9 @@ export class CurveShapeSpaceNavigator {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
             error.logMessageToConsole();
         }
-        this.optimizationProblem.setTargetSpline(this.targetCurve);
+        if(this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
+            this.optimizationProblem.setTargetSpline(this.targetCurve);
+        }
     }
 
     // updateOptimizerStatus(): void {

@@ -8,6 +8,7 @@ import { OpenMode } from "fs";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { CurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { CurveConstraints } from "./CurveConstraints";
+import { Vector_2d } from "../mathematics/Vector_2d";
 
 
 export abstract class NavigationState {
@@ -22,10 +23,6 @@ export abstract class NavigationState {
 
     setCurveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): void {
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-    }
-
-    curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
     }
 
     abstract setNavigationStrictlyInsideShapeSpace(): void;
@@ -73,14 +70,22 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
         warning.logMessageToConsole();
     }
 
+
+    curveConstraintsMonitoring(): void {
+        this.curveConstraints.processConstraint();
+    }
+
     navigate(selectedControlPoint: number, x: number, y: number): void {
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
         this.shapeSpaceConstraintsMonitoring();
-        this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
+        // JCL pas nécessaire dans cette config si pas incompaticle avec la connexion de l'optimiseur
+        this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
 
-        this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
+        this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
+        this.curveConstraints.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -119,6 +124,10 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
         let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
         warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
+    }
+
+    curveConstraintsMonitoring(): void {
+        this.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -161,6 +170,10 @@ export class NavigationStrictlyInsideShapeSpace extends NavigationState {
         let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
         warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
+    }
+
+    curveConstraintsMonitoring(): void {
+        this.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {

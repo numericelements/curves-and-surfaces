@@ -1,3 +1,4 @@
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 
@@ -11,13 +12,14 @@ export class CurveConstraints {
     private _lastControlPoint: ConstraintType;
     private _curveConstraintProcessor: CurveConstraintProcessor;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private _optimizedCurve: BSpline_R1_to_R2;
 
     constructor(curveConstraintProcessor: CurveConstraintProcessor, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         this._curveConstraintProcessor = curveConstraintProcessor;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._firstControlPoint = curveConstraintProcessor.firstControlPoint;
         this._lastControlPoint = curveConstraintProcessor.lastControlPoint;
-
+        this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
     }
 
     set firstControlPoint(constraintAtFirstPoint: ConstraintType) {
@@ -26,6 +28,10 @@ export class CurveConstraints {
 
     set lastControlPoint(constraintAtLastPoint: ConstraintType) {
         this._lastControlPoint = constraintAtLastPoint;
+    }
+
+    set optimizedCurve(curve: BSpline_R1_to_R2) {
+        this._optimizedCurve = curve;
     }
 
     get firstControlPoint(): ConstraintType {
@@ -44,6 +50,10 @@ export class CurveConstraints {
         return this._curveShapeSpaceNavigator;
     }
 
+    get optimizedCurve(): BSpline_R1_to_R2 {
+        return this._optimizedCurve;
+    }
+
     setConstraint(curveConstraintProcessor: CurveConstraintProcessor): void {
         this._curveConstraintProcessor = curveConstraintProcessor;
         this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
@@ -52,6 +62,11 @@ export class CurveConstraints {
 
     processConstraint(): void {
         this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
+        this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
+    }
+
+    updateCurve(): void {
+        this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
     }
 
     // clearConstraint(extremity: CurveExtremity): void {
