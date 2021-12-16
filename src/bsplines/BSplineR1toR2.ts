@@ -20,14 +20,19 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         this._controlPoints = JSON.parse(JSON.stringify(controlPoints))
         this._knots = [...knots]
-        this._degree = this._knots.length - this._controlPoints.length - 1;
-        if (this._degree < 0) {
-            throw new Error("Negative degree BSpline_R1_to_R2 are not supported")
+        this._degree = this.computeDegree()
+    }
+
+    computeDegree() {
+        let degree = this._knots.length - this._controlPoints.length - 1;
+        if (degree < 0) {
+            throw new Error("Negative degree BSplineR1toR1 are not supported")
         }
+        return degree
     }
 
     get controlPoints() : Vector2d[] {
-        return this._controlPoints
+        return JSON.parse(JSON.stringify(this._controlPoints))
     }
 
     visibleControlPoints() {
@@ -35,15 +40,16 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
     }
 
     set controlPoints(controlPoints: Vector2d[]) {
-        this._controlPoints = controlPoints
+        this._controlPoints = JSON.parse(JSON.stringify(controlPoints))
     }
 
     get knots() : number[] {
-        return this._knots
+        return [...this._knots]
     }
 
     set knots(knots: number[]) {
-        this._knots = knots
+        this._knots = [...knots]
+        this._degree = this.computeDegree()
     }
 
     get degree() : number {
@@ -54,9 +60,6 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
         this._controlPoints[index] =  JSON.parse(JSON.stringify(value))
     }
 
-    setControlPoints(controlPoints: Vector2d[]) {
-        this._controlPoints = JSON.parse(JSON.stringify(controlPoints))
-    }
 
     /**
      * B-Spline evaluation
@@ -176,18 +179,15 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
     }
 
     grevilleAbscissae() {
-        let result = [],
-        i,
-        j,
-        sum;
-    for (i = 0; i < this.controlPoints.length; i += 1) {
-        sum = 0;
-        for (j = i + 1; j < i + this.degree + 1; j += 1) {
-            sum += this.knots[j];
+        let result = []
+        for (let i = 0; i < this.controlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + 1; j < i + this.degree + 1; j += 1) {
+                sum += this.knots[j];
+            }
+            result.push(sum / this.degree);
         }
-        result.push(sum / this.degree);
-    }
-    return result;
+        return result;
     }
 
 

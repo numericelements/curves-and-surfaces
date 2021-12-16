@@ -35,12 +35,10 @@ export class Vector2d {
     }
 
     dot(v: Vector2d) {
-        'use strict';
         return this.x * v.x + this.y * v.y;
     }
 
     distance(v: Vector2d) {
-        'use strict';
         return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
     }
 
