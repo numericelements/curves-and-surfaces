@@ -27,7 +27,6 @@ export class ErrorLog extends ErrorProcessing {
 export class WarningLog extends ErrorProcessing {
 
     logMessageToConsole(): void {
-        console.log(this.className + ", " + this.functionName + ":");
-        console.log(this.message);
+        console.log(this.className + ", " + this.functionName + ": " + this.message);
     }
 }

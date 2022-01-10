@@ -13,15 +13,16 @@ export class CurveModeler{
 
     constructor(curveSceneController: CurveSceneController) {
         this.curveSceneController = curveSceneController;
-        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this);
         this._curveCategory = new OpenPlanarCurve(this);
-        this._curveShapeSpaceNavigator.curveCategory = this._curveCategory;
         this.curveType = CurveType.PLANAR_OPEN;
+        // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
+        // JCL To ensure its correct initialization, it must be called lastto ensure a consistent
+        // JCL initialization of each context.
+        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this);
     }
 
     changeCurveCategory(category: CurveCategory): void {
         this._curveCategory = category;
-        //this._curveCategory.setCurveModeler(this);
     }
 
     get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {

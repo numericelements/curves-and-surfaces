@@ -16,7 +16,7 @@ import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveModels2D } from "../models/CurveModels2D";
 import { NavigationState, NavigationWithoutShapeSpaceMonitoring, NavigationStrictlyInsideShapeSpace } from "./NavigationState";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint} from "./CurveConstraintStrategy";
-import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveCategory } from "../curveModeler/CurveCategory";
 import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding, ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding } from "./ShapeSpaceDiffEventsConfigurator";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
@@ -54,7 +54,7 @@ export class CurveShapeSpaceNavigator {
 
     public navigationState: NavigationState;
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
-    public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
+    public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     private _curveConstraintProcessor: CurveConstraintProcessor;
     private _eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
@@ -68,22 +68,26 @@ export class CurveShapeSpaceNavigator {
         this._selectedControlPoint = undefined;
         this.displacementSelctdCP = new Vector_2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
+        this._optimizedCurve = this._currentCurve;
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector_2d(0.0, 0.0)))
-        this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this);
+        this._curveConstraints = new CurveConstraints(this);
+        this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
-        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator);
+        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator, this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
         this._eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities();
         this._slidingEventsAtExtremities = new CurveAnalyzerEventsSlidingOutOfInterval();
+        // JCL Setting up the navigation state requires having defined the shapeSpaceDiffEventsStructure and its shapeSpaceDiffEventsConfigurator
+        // JCL as well as the CurveShapeSpaceDescriptor
+        this.navigationState = new NavigationWithoutShapeSpaceMonitoring(this);
+        // JCL requires the setting of the navigationState
         this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this, this.slidingEventsAtExtremities);
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
-        this._optimizedCurve = this._currentCurve;
         this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this._optimizedCurve, this,  this.slidingEventsAtExtremities);
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
         //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
-        this._curveConstraintProcessor = new CurveConstraintClampedFirstControlPoint(this);
-        this._curveConstraints = new CurveConstraints(this._curveConstraintProcessor, this);
+
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
@@ -119,6 +123,10 @@ export class CurveShapeSpaceNavigator {
 
     set optimizedCurve(aBSpline: BSpline_R1_to_R2) {
         this._optimizedCurve = aBSpline;
+    }
+
+    set curveConstraintProcessor(curveConstraintProcessor: CurveConstraintProcessor) {
+        this._curveConstraintProcessor = curveConstraintProcessor;
     }
 
     // get navigationParams(): ShapeSpaceDiffEventsStructure {

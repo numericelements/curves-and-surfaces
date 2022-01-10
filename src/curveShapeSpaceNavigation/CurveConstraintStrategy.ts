@@ -18,9 +18,9 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
     public lastControlPoint: ConstraintType;
     private _optimizedCurve: BSpline_R1_to_R2;
 
-    constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
+    constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator, curveConstraints: CurveConstraints){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.curveConstraints = curveConstraints;
         this.firstControlPoint = ConstraintType.none;
         this.lastControlPoint = ConstraintType.none;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
@@ -70,9 +70,9 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     public lastControlPoint: ConstraintType;
     private _optimizedCurve: BSpline_R1_to_R2;
 
-    constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
+    constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator, curveConstraints: CurveConstraints){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.curveConstraints = curveConstraints;
         this.firstControlPoint = ConstraintType.location;
         this.lastControlPoint = ConstraintType.none;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;

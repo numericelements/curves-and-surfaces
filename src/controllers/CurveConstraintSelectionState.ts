@@ -32,7 +32,7 @@ export class HandleConstraintAtPoint1Point2NoConstraintState extends CurveConstr
 
     constructor(context: CurveSceneController) {
         super(context)
-        this.curveConstraints.setConstraint(new CurveConstraintNoConstraint(this.curveShapeSpaceNavigator));
+        this.curveConstraints.setConstraint(new CurveConstraintNoConstraint(this.curveShapeSpaceNavigator, this.curveConstraints));
     }
 
     handleCurveConstraintAtPoint1(): void {
@@ -53,7 +53,7 @@ export class HandleConstraintAtPoint1ConstraintPoint2NoConstraintState extends C
 
     constructor(context: CurveSceneController) {
         super(context)
-        this.curveConstraints.setConstraint(new CurveConstraintClampedFirstControlPoint(this.curveShapeSpaceNavigator));
+        this.curveConstraints.setConstraint(new CurveConstraintClampedFirstControlPoint(this.curveShapeSpaceNavigator, this.curveConstraints));
     }
 
     handleCurveConstraintAtPoint1(): void {

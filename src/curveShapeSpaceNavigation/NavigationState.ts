@@ -19,6 +19,10 @@ export abstract class NavigationState {
     constructor(curveNavigator: CurveShapeSpaceNavigator) {
         this.curveShapeSpaceNavigator = curveNavigator;
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        if(!this.curveShapeSpaceNavigator.curveConstraints) {
+            let warning = new WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
+            warning.logMessageToConsole();
+        }
     }
 
     setCurveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): void {
@@ -32,8 +36,6 @@ export abstract class NavigationState {
     abstract setNavigationWithoutShapeSpaceMonitoring(): void;
 
     abstract navigate(selectedControlPoint: number, x: number, y: number): void;
-
-    protected shapeSpaceConstraintsMonitoring(): void {}
 
 }
 
@@ -80,8 +82,7 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
-        this.shapeSpaceConstraintsMonitoring();
-        // JCL pas nécessaire dans cette config si pas incompaticle avec la connexion de l'optimiseur
+        // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
 
         this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
@@ -131,10 +132,10 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
-        this.shapeSpaceConstraintsMonitoring();
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
         try {
             this.curveShapeSpaceNavigator.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
@@ -177,10 +178,10 @@ export class NavigationStrictlyInsideShapeSpace extends NavigationState {
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d(x, y));
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
-        this.shapeSpaceConstraintsMonitoring();
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
         try {
             this.curveShapeSpaceNavigator.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);

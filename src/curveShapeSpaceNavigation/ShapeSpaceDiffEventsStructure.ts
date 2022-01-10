@@ -14,8 +14,10 @@
 
 import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveModels2D } from "../models/CurveModels2D";
-import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import {  ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveCategory } from "../curveModeler/CurveCategory";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 
 export class ShapeSpaceDiffEventsStructure {
 
@@ -23,31 +25,21 @@ export class ShapeSpaceDiffEventsStructure {
     private _activeControlCurvatureExtrema: boolean;
     private _activeNavigationWithOptimizer: boolean;
     private _slidingDifferentialEvents: boolean;
-    public shapeSpaceConfigurator: ShapeSpaceDiffEvventsConfigurator;
-    public curveModel: CurveCategory;
+    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    private _curveCategory: CurveCategory;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
 
-    constructor(curveModeler: CurveModeler, shapeSpaceConfigurator: ShapeSpaceDiffEvventsConfigurator) {
-        this.curveModel = curveModeler.curveCategory;
-        this.shapeSpaceConfigurator = shapeSpaceConfigurator;
+    constructor(curveModeler: CurveModeler, shapeSpaceConfigurator: ShapeSpaceDiffEventsConfigurator, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
+        let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+        warning.logMessageToConsole();
+        this._curveCategory = curveModeler.curveCategory;
+        this._shapeSpaceDiffEventsConfigurator = shapeSpaceConfigurator;
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._activeNavigationWithOptimizer = false;
         this._activeControlInflections = false;
         this._activeControlCurvatureExtrema = false;
         this._slidingDifferentialEvents =  false;
-        // if(controlOfInflections !== undefined) {
-        //     this._activeControlInflections = controlOfInflections;
-        //     this._activeNavigationWithOptimizer = true;
-        // }
-        // if(controlOfCurvatureExtrema !== undefined) {
-        //     this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-        //     this._activeNavigationWithOptimizer = true;
-        // }
-        // if(slidingDiffEvents !== undefined) {
-        //     if(this._activeControlInflections !== false || this._activeControlCurvatureExtrema !== false) {
-        //         this._slidingDifferentialEvents = slidingDiffEvents;
-        //     }
-
-        //}
     }
 
     set activeControlInflections(controlOfInflections: boolean) {
@@ -92,6 +84,14 @@ export class ShapeSpaceDiffEventsStructure {
         return this._activeNavigationWithOptimizer;
     }
 
+    get curveCategory(): CurveCategory {
+        return this._curveCategory;
+    }
+
+    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEventsConfigurator {
+        return this._shapeSpaceDiffEventsConfigurator;
+    }
+
     reset(): void {
         this._activeNavigationWithOptimizer = false;
         // this._activeControlInflections = false;
@@ -107,13 +107,13 @@ export class ShapeSpaceDiffEventsStructure {
         this._activeNavigationWithOptimizer = true;
     }
 
-    changeShapSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator): void {
-        this.shapeSpaceConfigurator = shapeSpaceDiffEventsConfigurator;
+    changeShapSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator): void {
+        this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
         // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
     }
 
     monitorCurveShape(): void {
-        this.shapeSpaceConfigurator.monitorCurveUsingDifferentialEvents(this);
+        this.shapeSpaceDiffEventsConfigurator.monitorCurveUsingDifferentialEvents(this);
     }
 
     // addInflectionsToShapeSpaceStructure(): void {

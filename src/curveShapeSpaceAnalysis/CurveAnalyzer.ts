@@ -11,8 +11,9 @@ import { NavigationState,
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
-import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
 export class CurveAnalyzer {
 
@@ -29,10 +30,12 @@ export class CurveAnalyzer {
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private navigationState: NavigationState;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
+    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
 
     constructor(curveToAnalyze: BSpline_R1_to_R2, curveShapeSpaceNavigator: CurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
+        let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+        warning.logMessageToConsole();
         this.curve = curveToAnalyze;
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
@@ -50,6 +53,9 @@ export class CurveAnalyzer {
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
             this.computeCurvatureCPClosestToZero();
+        } else {
+            warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
+            warning.logMessageToConsole();
         }
         this._curvatureDerivCrtlPtsClosestToZero = [];
         this._curveCurvatureDerivativeCntrlPolygon = [];
@@ -60,6 +66,9 @@ export class CurveAnalyzer {
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
             this.computeCurvatureDerivCPClosestToZero();
+        } else {
+            warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
+            warning.logMessageToConsole();
         }
     }
 
@@ -91,7 +100,7 @@ export class CurveAnalyzer {
         return this._curvatureDerivCrtlPtsClosestToZero;
     }
 
-    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEvventsConfigurator {
+    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEventsConfigurator {
         return this._shapeSpaceDiffEventsConfigurator;
     }
 
@@ -124,23 +133,13 @@ export class CurveAnalyzer {
     }
 
     update(): void {
+        this.curve = this.curveShapeSpaceNavigator.currentCurve;
         const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
-        if(this.shapeSpaceDiffEventsConfigurator) {
-            this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
-            this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
-        } else {
-            this._curveCurvatureCntrlPolygon = [];
-            this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
-        }
-        if(this.shapeSpaceDiffEventsConfigurator) {
-            this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
-            this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
-        }
-        else {
-            this._curveCurvatureDerivativeCntrlPolygon = [];
-            this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
-        }
+        this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+        this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
+        this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+        this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
     }
 
     getGlobalExtremmumOffAxis(controlPoints: number[]): ExtremumLocation {

@@ -27,8 +27,6 @@ export abstract class CurveCategory {
 
 export class OpenPlanarCurve extends CurveCategory {
 
-    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-
     // JCL temporaire: pour assurer la compatibilité avec les classes existantes
     public curveModel: OpenCurveModel2D;
     public eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
@@ -42,7 +40,6 @@ export class OpenPlanarCurve extends CurveCategory {
         this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities();
         this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         this.eventState = new EventSlideOutsideCurve(this.eventMgmtAtExtremities);
-        this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
     }
 
     setCurveCategory(): void {
@@ -64,8 +61,6 @@ export class OpenPlanarCurve extends CurveCategory {
 
 export class ClosedPlanarCurve extends CurveCategory {
 
-    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-
     // JCL temporaire: pour assurer la compatibilité avec les classes existantes
     public curveModel: ClosedCurveModel2D;
 
@@ -74,8 +69,6 @@ export class ClosedPlanarCurve extends CurveCategory {
         // JCL temporaire: pour assurer la compatibilité avec les classes existantes
         this.curveModel = new ClosedCurveModel2D();
         //this.curveModel = new ClosedPlanarCurve(this.curveModeler);
-
-        this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
     }
 
     setCurveCategory(): void {

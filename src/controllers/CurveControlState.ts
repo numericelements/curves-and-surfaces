@@ -33,7 +33,7 @@ export abstract class CurveControlState {
 
 
     updateShapeSpaceNavigator(): void {
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceConfigurator;
+        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceDiffEventsConfigurator;
     }
 
     abstract handleInflections(): void

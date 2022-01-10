@@ -1,6 +1,6 @@
 import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 
-export interface ShapeSpaceDiffEvventsConfigurator {
+export interface ShapeSpaceDiffEventsConfigurator {
     
     monitorCurveUsingDifferentialEvents(shapSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure): void;
 }

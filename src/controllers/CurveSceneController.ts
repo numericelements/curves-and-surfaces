@@ -37,7 +37,7 @@ import { NONAME } from "dns";
 import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"
 
 import { CurveModeler } from "../curveModeler/CurveModeler";
-import { ShapeSpaceDiffEvventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { ShapeSpaceConfiguratorWithInflectionsNoSliding, ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator";
 import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 import { CurveControlState, HandleInflectionsAndCurvatureExtremaNoSlidingState, HandleNoDiffEventNoSlidingState } from "./CurveControlState";
@@ -114,7 +114,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
     /* JCL 2021/09/29 Add modeller for new code architecture */
     public curveModeler: CurveModeler;
-    public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEvventsConfigurator;
+    public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     private curveControlState: CurveControlState;
     private closedCurve: boolean;
@@ -205,6 +205,10 @@ export class CurveSceneController implements SceneControllerInterface {
 
 
         /* JCL 2021/09/29 Add modeller for new code architecture */
+        this.closedCurve = false;
+        this.curveEventAtExtremityMayVanish = true;
+        this.constraintAtPoint1 = true;
+        this.constraintAtPoint2 = false;
         this.curveModeler = new CurveModeler(this);
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
@@ -214,12 +218,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
 
-        this.closedCurve = false;
-        this.curveEventAtExtremityMayVanish = true;
-
         this.eventMgmtAtCurveExtremities = this.curveShapeSpaceNavigator.eventMgmtAtCurveExtremities;
-        this.constraintAtPoint1 = true;
-        this.constraintAtPoint2 = false;
         this.curveConstraintSelectionState = new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
         console.log("end constructor curveSceneController")
     }
