@@ -119,16 +119,15 @@ export class BSplineR1toR1 {
             greville = spline.grevilleAbscissae()
 
             for (let v of vertexIndex) {
-                let uLeft = greville[v - 1]
+                let uLeft = greville[v - 1] 
                 let uRight = greville[v]
                 if (uRight - uLeft > maximum) {
                     maximum = uRight - uLeft
                 }
                 if (uRight - uLeft > tolerance) {
-                    newKnots.push((uLeft + uRight) / 2)
-                    //newKnots.push(this.findLineZero(uLeft, spline.controlPoints[v-1], uRight, spline.controlPoints[v]))
+                    let lineZero = this.robustFindLineZero(uLeft, spline.controlPoints[v-1], uRight, spline.controlPoints[v])
+                    newKnots.push(0.05 * (uLeft + uRight) / 2 + 0.95 * lineZero)
                 }
-
             }
             for (let knot of newKnots) {
                 spline.insertKnot(knot)
@@ -266,6 +265,14 @@ export class BSplineR1toR1 {
         let a = (y2 - y1) / (x2 - x1)
         let b = y1 - a * x1
         return -b / a
+    }
+
+    robustFindLineZero(x1: number, y1: number, x2: number, y2: number) {
+        let result = this.findLineZero(x1, y1, x2, y2)
+        if (isNaN(result)) {
+            return x1
+        }
+        return result
     }
 
     
