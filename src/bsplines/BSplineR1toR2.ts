@@ -8,9 +8,9 @@ import { BSplineR1toR2Interface as BSplineR1toR2Interface } from "./BSplineInter
  */
 export class BSplineR1toR2 implements BSplineR1toR2Interface {
 
-    private _controlPoints: Vector2d[] = []
-    private _knots: number[] = []
-    private _degree: number = 0
+    private _controlPoints: Vector2d[]
+    private _knots: number[]
+    private _degree: number
 
     /**
      * Create a B-Spline
@@ -18,7 +18,7 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
      * @param knots The knot vector
      */
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
-        this._controlPoints = JSON.parse(JSON.stringify(controlPoints))
+        this._controlPoints = deepCopyControlPoints(controlPoints)
         this._knots = [...knots]
         this._degree = this.computeDegree()
     }
@@ -31,16 +31,16 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
         return degree
     }
 
-    get controlPoints() : Vector2d[] {
-        return JSON.parse(JSON.stringify(this._controlPoints))
+    get controlPoints(): Vector2d[] {
+        return deepCopyControlPoints(this._controlPoints)
     }
 
-    visibleControlPoints() {
+    visibleControlPoints(): Vector2d[] {
         return this.controlPoints
     }
 
     set controlPoints(controlPoints: Vector2d[]) {
-        this._controlPoints = JSON.parse(JSON.stringify(controlPoints))
+        this._controlPoints = deepCopyControlPoints(controlPoints)
     }
 
     get knots() : number[] {
@@ -57,7 +57,8 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
     }
 
     setControlPoint(index: number, value: Vector2d) {
-        this._controlPoints[index] =  JSON.parse(JSON.stringify(value))
+        //this._controlPoints[index] =  JSON.parse(JSON.stringify(value))
+        this._controlPoints[index] =  value
     }
 
 
@@ -81,10 +82,7 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
      * Return a deep copy of this b-spline
      */
     clone() {
-        let cloneControlPoints: Vector2d[] = []
-        for (let cp of this.controlPoints) {
-            cloneControlPoints.push(new Vector2d(cp.x, cp.y))
-        }
+        let cloneControlPoints = deepCopyControlPoints(this._controlPoints)
         return new BSplineR1toR2(cloneControlPoints, this.knots.slice());
     }
 
@@ -292,5 +290,13 @@ export class BSplineR1toR2 implements BSplineR1toR2Interface {
         this._degree = this._knots.length - this._controlPoints.length - 1;
     }
 
+}
+
+function deepCopyControlPoints(controlPoints: Vector2d[]): Vector2d[] {
+    let result: Vector2d[] = []
+    for (let cp of controlPoints) {
+        result.push(new Vector2d(cp.x, cp.y))
+    }
+    return result
 }
 
