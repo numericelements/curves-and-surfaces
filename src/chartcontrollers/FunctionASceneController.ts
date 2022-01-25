@@ -1,48 +1,47 @@
-import { IObserver } from "../designPatterns/Observer";
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
-import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
-import { ControlPointsShaders } from "../views/ControlPointsShaders";
-import { ControlPointsView } from "../views/ControlPointsView";
-import { ControlPolygonShaders } from "../views/ControlPolygonShaders";
-import { ControlPolygonView } from "../views/ControlPolygonView";
-import { CurveShaders } from "../views/CurveShaders";
-import { CurveView } from "../views/CurveView";
 import { BSpline_R1_to_R1 } from "../bsplines/BSpline_R1_to_R1";
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
 import { Vector_2d } from "../mathematics/Vector_2d";
 import { ChartController } from "./ChartController";
+import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES, NB_CURVE_POINTS } from "./ChartSceneController";
 
 
-export class FunctionBSceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
+export class FunctionASceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
 
 
     private spline: BSpline_R1_to_R2
-    private readonly POINT_SEQUENCE_SIZE = 100
+    private readonly POINT_SEQUENCE_SIZE = NB_CURVE_POINTS
 
     constructor(private chartController: ChartController) {
+        
         this.spline = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
     }
 
+
+
     update(message: BSpline_R1_to_R2): void {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve()
+        this.spline = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve()
         let points = this.pointSequenceOnSpline()
 
         this.chartController.dataCleanUp();
-        this.chartController.addPolylineDataset('Control Polygon', this.spline.controlPoints);
-        this.chartController.addCurvePointDataset('Function B', points, {red: 0, green: 0, blue: 200, alpha: 0.5});
-        this.chartController.setChartLabel('Function B(u)');
-        this.chartController.setYaxisScale('linear');
+        this.chartController.addPolylineDataset(DATASET_NAMES[0], this.spline.controlPoints);
+        this.chartController.addCurvePointDataset(CHART_AXES_NAMES[0], points, {red: 200, green: 0, blue: 0, alpha: 0.5});
+        this.chartController.setChartLabel(CHART_TITLES[0]);
+        this.chartController.setYaxisScale(CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     }
 
     reset(message: BSpline_R1_to_R2): void{
+        console.log("reset chart FunctionA")
+
         let points: Vector_2d[] = []
         let curvePoints: Vector_2d[] = []
-        this.chartController.addPolylineDataset('tbd', points);
-        this.chartController.addCurvePointDataset('tbd', curvePoints, {red: 100, green: 0, blue: 0, alpha: 0.5});
-        this.chartController.setChartLabel('Graph tbd');
-        this.chartController.setYaxisScale('linear');
+        this.chartController.addPolylineDataset(DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(CHART_AXES_NAMES[CHART_AXES_NAMES.length - 1], curvePoints, {red: 100, green: 0, blue: 0, alpha: 0.5});
+        this.chartController.setChartLabel(CHART_TITLES[CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     }
 
@@ -59,5 +58,5 @@ export class FunctionBSceneController implements IRenderFrameObserver<BSpline_R1
         }
         return result
     }
-
+    
 }

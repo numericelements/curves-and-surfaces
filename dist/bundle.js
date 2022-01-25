@@ -40712,10 +40712,10 @@ exports.decomposeFunction = decomposeFunction;
 
 /***/ }),
 
-/***/ "./src/controllers/AbsCurvatureSceneController.ts":
-/*!********************************************************!*\
-  !*** ./src/controllers/AbsCurvatureSceneController.ts ***!
-  \********************************************************/
+/***/ "./src/chartcontrollers/AbsCurvatureSceneController.ts":
+/*!*************************************************************!*\
+  !*** ./src/chartcontrollers/AbsCurvatureSceneController.ts ***!
+  \*************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -40725,10 +40725,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbsCurvatureSceneController = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var AbsCurvatureSceneController = /** @class */ (function () {
     function AbsCurvatureSceneController(chartController) {
         this.chartController = chartController;
-        this.POINT_SEQUENCE_SIZE = 100;
+        this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
         this.splineNumerator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
         this.splineDenominator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
@@ -40737,18 +40738,18 @@ var AbsCurvatureSceneController = /** @class */ (function () {
         this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve();
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
-        this.chartController.addCurvePointDataset('Curvature', points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Curvature of curve');
-        this.chartController.setYaxisScale('logarithmic');
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[3], points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[3]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[1]);
         this.chartController.drawChart();
     };
     AbsCurvatureSceneController.prototype.reset = function (message) {
         var points = [];
         var curvePoints = [];
-        this.chartController.addPolylineDataset('tbd', points);
-        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Graph tbd');
-        this.chartController.setYaxisScale('linear');
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     };
     AbsCurvatureSceneController.prototype.renderFrame = function () {
@@ -40774,10 +40775,176 @@ exports.AbsCurvatureSceneController = AbsCurvatureSceneController;
 
 /***/ }),
 
-/***/ "./src/controllers/ChartController.ts":
-/*!********************************************!*\
-  !*** ./src/controllers/ChartController.ts ***!
-  \********************************************/
+/***/ "./src/chartcontrollers/ChartContentState.ts":
+/*!***************************************************!*\
+  !*** ./src/chartcontrollers/ChartContentState.ts ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChartFunctionBsqrtScaled = exports.ChartAbsCurvatureCrv = exports.ChartCurvatureCrv = exports.ChartFunctionB = exports.ChartFunctionA = exports.ChartWithNoFunction = exports.ChartContentState = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var AbsCurvatureSceneController_1 = __webpack_require__(/*! ./AbsCurvatureSceneController */ "./src/chartcontrollers/AbsCurvatureSceneController.ts");
+var CurvatureSceneController_1 = __webpack_require__(/*! ./CurvatureSceneController */ "./src/chartcontrollers/CurvatureSceneController.ts");
+var FunctionASceneController_1 = __webpack_require__(/*! ./FunctionASceneController */ "./src/chartcontrollers/FunctionASceneController.ts");
+var FunctionBSceneController_1 = __webpack_require__(/*! ./FunctionBSceneController */ "./src/chartcontrollers/FunctionBSceneController.ts");
+var FunctionBSceneControllerSqrtScaled_1 = __webpack_require__(/*! ./FunctionBSceneControllerSqrtScaled */ "./src/chartcontrollers/FunctionBSceneControllerSqrtScaled.ts");
+var NoFunctionSceneController_1 = __webpack_require__(/*! ./NoFunctionSceneController */ "./src/chartcontrollers/NoFunctionSceneController.ts");
+var ChartContentState = /** @class */ (function () {
+    function ChartContentState(chartSceneController, chartController) {
+        this.chartSceneController = chartSceneController;
+        this.chartController = chartController;
+    }
+    ChartContentState.prototype.setChartSceneController = function (chartSceneController) {
+        this.chartSceneController = chartSceneController;
+    };
+    ChartContentState.prototype.setChartWithNoFunction = function () {
+        this.chartSceneController.changeChartContentState(this.chartController, new ChartWithNoFunction(this.chartSceneController, this.chartController));
+    };
+    ChartContentState.prototype.setChartWithFunctionA = function () {
+        this.chartSceneController.changeChartContentState(this.chartController, new ChartFunctionA(this.chartSceneController, this.chartController));
+    };
+    ChartContentState.prototype.setChartWithFunctionB = function () {
+        this.chartSceneController.changeChartContentState(this.chartController, new ChartFunctionB(this.chartSceneController, this.chartController));
+    };
+    ChartContentState.prototype.setChartWithCurvatureCrv = function () {
+        this.chartSceneController.changeChartContentState(this.chartController, new ChartCurvatureCrv(this.chartSceneController, this.chartController));
+    };
+    ChartContentState.prototype.setChartWithAbsCurvature = function () {
+        this.chartSceneController.changeChartContentState(this.chartController, new ChartAbsCurvatureCrv(this.chartSceneController, this.chartController));
+    };
+    ChartContentState.prototype.setChartWithFunctionBsqrtScaled = function () {
+        this.chartSceneController.changeChartContentState(this.chartController, new ChartFunctionBsqrtScaled(this.chartSceneController, this.chartController));
+    };
+    return ChartContentState;
+}());
+exports.ChartContentState = ChartContentState;
+var ChartWithNoFunction = /** @class */ (function (_super) {
+    __extends(ChartWithNoFunction, _super);
+    function ChartWithNoFunction(chartSceneController, chartController) {
+        var _this = _super.call(this, chartSceneController, chartController) || this;
+        var chartObservedBySceneController = new NoFunctionSceneController_1.NoFunctionSceneController(_this.chartController);
+        var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
+        _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
+        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        return _this;
+    }
+    ChartWithNoFunction.prototype.setChartWithNoFunction = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithNoFunction", "no state change to perform there.");
+        warning.logMessageToConsole();
+    };
+    return ChartWithNoFunction;
+}(ChartContentState));
+exports.ChartWithNoFunction = ChartWithNoFunction;
+var ChartFunctionA = /** @class */ (function (_super) {
+    __extends(ChartFunctionA, _super);
+    function ChartFunctionA(chartSceneController, chartController) {
+        var _this = _super.call(this, chartSceneController, chartController) || this;
+        var chartObservedBySceneController = new FunctionASceneController_1.FunctionASceneController(_this.chartController);
+        var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
+        _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
+        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        return _this;
+    }
+    ChartFunctionA.prototype.setChartWithFunctionA = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithFunctionA", "no state change to perform there.");
+        warning.logMessageToConsole();
+    };
+    return ChartFunctionA;
+}(ChartContentState));
+exports.ChartFunctionA = ChartFunctionA;
+var ChartFunctionB = /** @class */ (function (_super) {
+    __extends(ChartFunctionB, _super);
+    function ChartFunctionB(chartSceneController, chartController) {
+        var _this = _super.call(this, chartSceneController, chartController) || this;
+        var chartObservedBySceneController = new FunctionBSceneController_1.FunctionBSceneController(_this.chartController);
+        var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
+        _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
+        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        return _this;
+    }
+    ChartFunctionB.prototype.setChartWithFunctionB = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithFunctionB", "no state change to perform there.");
+        warning.logMessageToConsole();
+    };
+    return ChartFunctionB;
+}(ChartContentState));
+exports.ChartFunctionB = ChartFunctionB;
+var ChartCurvatureCrv = /** @class */ (function (_super) {
+    __extends(ChartCurvatureCrv, _super);
+    function ChartCurvatureCrv(chartSceneController, chartController) {
+        var _this = _super.call(this, chartSceneController, chartController) || this;
+        var chartObservedBySceneController = new CurvatureSceneController_1.CurvatureSceneController(_this.chartController);
+        var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
+        _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
+        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        return _this;
+    }
+    ChartCurvatureCrv.prototype.setChartWithCurvatureCrv = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithCurvatureCrv", "no state change to perform there.");
+        warning.logMessageToConsole();
+    };
+    return ChartCurvatureCrv;
+}(ChartContentState));
+exports.ChartCurvatureCrv = ChartCurvatureCrv;
+var ChartAbsCurvatureCrv = /** @class */ (function (_super) {
+    __extends(ChartAbsCurvatureCrv, _super);
+    function ChartAbsCurvatureCrv(chartSceneController, chartController) {
+        var _this = _super.call(this, chartSceneController, chartController) || this;
+        var chartObservedBySceneController = new AbsCurvatureSceneController_1.AbsCurvatureSceneController(_this.chartController);
+        var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
+        _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
+        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        return _this;
+    }
+    ChartAbsCurvatureCrv.prototype.setChartWithAbsCurvature = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithAbsCurvature", "no state change to perform there.");
+        warning.logMessageToConsole();
+    };
+    return ChartAbsCurvatureCrv;
+}(ChartContentState));
+exports.ChartAbsCurvatureCrv = ChartAbsCurvatureCrv;
+var ChartFunctionBsqrtScaled = /** @class */ (function (_super) {
+    __extends(ChartFunctionBsqrtScaled, _super);
+    function ChartFunctionBsqrtScaled(chartSceneController, chartController) {
+        var _this = _super.call(this, chartSceneController, chartController) || this;
+        var chartObservedBySceneController = new FunctionBSceneControllerSqrtScaled_1.FunctionBSceneControllerSqrtScaled(_this.chartController);
+        var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
+        _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
+        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        return _this;
+    }
+    ChartFunctionBsqrtScaled.prototype.setChartWithFunctionBsqrtScaled = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithFunctionBsqrtScaled", "no state change to perform there.");
+        warning.logMessageToConsole();
+    };
+    return ChartFunctionBsqrtScaled;
+}(ChartContentState));
+exports.ChartFunctionBsqrtScaled = ChartFunctionBsqrtScaled;
+
+
+/***/ }),
+
+/***/ "./src/chartcontrollers/ChartController.ts":
+/*!*************************************************!*\
+  !*** ./src/chartcontrollers/ChartController.ts ***!
+  \*************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -40786,6 +40953,7 @@ exports.AbsCurvatureSceneController = AbsCurvatureSceneController;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChartController = void 0;
 var chart_js_1 = __webpack_require__(/*! chart.js */ "./node_modules/chart.js/dist/Chart.js");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var ChartController = /** @class */ (function () {
     function ChartController(chartTitle, canvasContext, chartHeight, chartWidth, chartXaxisLabel) {
         var _a;
@@ -40799,16 +40967,16 @@ var ChartController = /** @class */ (function () {
         this.datasetPolylineLabel = '';
         this.datasetCurveLabel = '';
         this.colorSpline = '';
-        this.yAxisScale = 'linear';
+        this.yAxisScale = ChartSceneController_1.CHART_AXIS_SCALE[0];
         if (chartXaxisLabel)
             this.chartXaxisLabel = chartXaxisLabel;
         else
-            this.chartXaxisLabel = 'u parameter';
+            this.chartXaxisLabel = ChartSceneController_1.CHART_X_AXIS_NAME;
         this.chart = new chart_js_1.Chart(canvasContext, {
             type: 'scatter',
             data: {
                 datasets: [{
-                        label: 'tbd',
+                        label: ChartSceneController_1.DATASET_NAMES[1],
                         data: [{
                                 x: 0,
                                 y: 0
@@ -40825,7 +40993,7 @@ var ChartController = /** @class */ (function () {
                 },
                 scales: {
                     xAxes: [{
-                            type: 'linear',
+                            type: ChartSceneController_1.CHART_AXIS_SCALE[0],
                             position: 'bottom',
                             scaleLabel: {
                                 display: true,
@@ -40909,7 +41077,7 @@ var ChartController = /** @class */ (function () {
             },
             scales: {
                 xAxes: [{
-                        type: 'linear',
+                        type: ChartSceneController_1.CHART_AXIS_SCALE[0],
                         position: 'bottom',
                         scaleLabel: {
                             display: true,
@@ -40936,10 +41104,319 @@ exports.ChartController = ChartController;
 
 /***/ }),
 
-/***/ "./src/controllers/CurvatureSceneController.ts":
-/*!*****************************************************!*\
-  !*** ./src/controllers/CurvatureSceneController.ts ***!
-  \*****************************************************/
+/***/ "./src/chartcontrollers/ChartSceneController.ts":
+/*!******************************************************!*\
+  !*** ./src/chartcontrollers/ChartSceneController.ts ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChartSceneController = exports.CHART_AXIS_SCALE = exports.DATASET_NAMES = exports.CHART_X_AXIS_NAME = exports.CHART_AXES_NAMES = exports.CHART_TITLES = exports.CHART_WIDTH = exports.CHART_HEIGHT = exports.NB_CURVE_POINTS = exports.MAX_NB_CHARTS = void 0;
+var ChartDescriptorQueueItem_1 = __webpack_require__(/*! ../containers/ChartDescriptorQueueItem */ "./src/containers/ChartDescriptorQueueItem.ts");
+var Queue_1 = __webpack_require__(/*! ../containers/Queue */ "./src/containers/Queue.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ChartContentState_1 = __webpack_require__(/*! ./ChartContentState */ "./src/chartcontrollers/ChartContentState.ts");
+var ChartController_1 = __webpack_require__(/*! ./ChartController */ "./src/chartcontrollers/ChartController.ts");
+var NoFunctionSceneController_1 = __webpack_require__(/*! ./NoFunctionSceneController */ "./src/chartcontrollers/NoFunctionSceneController.ts");
+exports.MAX_NB_CHARTS = 3;
+exports.NB_CURVE_POINTS = 100;
+exports.CHART_HEIGHT = '600px';
+exports.CHART_WIDTH = '700px';
+exports.CHART_TITLES = ["Function A(u)",
+    "Function B(u)",
+    "Curvature of curve",
+    "Absolute value of curvature of curve",
+    "Function (+/-) sqrt[abs(B(u))]",
+    "Graph tbd"];
+exports.CHART_AXES_NAMES = ["Function A",
+    "Function B",
+    "Curvature",
+    "Abs curvature",
+    "(+/-) sqrt[abs(B(u))]",
+    "tbd"];
+exports.CHART_X_AXIS_NAME = "u parameter";
+exports.DATASET_NAMES = ["Control Polygon", "tbd"];
+exports.CHART_AXIS_SCALE = ["linear", "logarithmic"];
+var ChartSceneController = /** @class */ (function () {
+    function ChartSceneController(chartRenderingContext, curveSceneController) {
+        this.chartRenderingContext = chartRenderingContext;
+        this._curveSceneController = curveSceneController;
+        this._uncheckedChart = "";
+        this._curveObservers = [];
+        this.checkRenderingContext();
+        this._chartControllers = [];
+        this.chartContent = [];
+        this.freeChartsQueue = new Queue_1.QueueChartController(exports.MAX_NB_CHARTS);
+        this.chartsDescriptorsQueue = new Queue_1.QueueChartDescriptor(exports.MAX_NB_CHARTS);
+        this.defaultChartTitles = [];
+        this.generateDefaultChartNames();
+        this.init();
+    }
+    Object.defineProperty(ChartSceneController.prototype, "curveSceneController", {
+        get: function () {
+            return this._curveSceneController;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartSceneController.prototype, "curveObservers", {
+        get: function () {
+            return this._curveObservers;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartSceneController.prototype, "chartControllers", {
+        get: function () {
+            return this._chartControllers;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartSceneController.prototype, "uncheckedChart", {
+        get: function () {
+            return this._uncheckedChart;
+        },
+        set: function (chartTitle) {
+            this._uncheckedChart = chartTitle;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartSceneController.prototype, "curveObserver", {
+        set: function (curveObservers) {
+            this._curveObservers = curveObservers;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ChartSceneController.prototype.resetUncheckedChart = function () {
+        this._uncheckedChart = "";
+    };
+    ChartSceneController.prototype.generateDefaultChartNames = function () {
+        for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+            this.defaultChartTitles.push('Graph' + (i + 1) + ' tbd');
+        }
+    };
+    ChartSceneController.prototype.changeChartContentState = function (chartController, chartContent) {
+        for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+            if (this.chartControllers[i] === chartController)
+                this.chartContent[i] = chartContent;
+        }
+    };
+    ChartSceneController.prototype.init = function () {
+        for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+            if (this.chartControllers.length === exports.MAX_NB_CHARTS) {
+                this.chartControllers[i].destroy();
+            }
+            this.chartControllers.push(new ChartController_1.ChartController(this.defaultChartTitles[i], this.chartRenderingContext[i], exports.CHART_HEIGHT, exports.CHART_WIDTH));
+            this._curveObservers.push(new NoFunctionSceneController_1.NoFunctionSceneController(this.chartControllers[this.chartControllers.length - 1]));
+            this.chartContent.push(new ChartContentState_1.ChartWithNoFunction(this, this.chartControllers[i]));
+            var queueItem = new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(this.chartControllers[this.chartControllers.length - 1], this.defaultChartTitles[i], this._curveObservers[this._curveObservers.length - 1]);
+            this.freeChartsQueue.enqueue(queueItem.chartController);
+            this.chartsDescriptorsQueue.enqueue(queueItem);
+        }
+    };
+    ChartSceneController.prototype.restart = function () {
+        this._uncheckedChart = "";
+        this._curveObservers = [];
+        this.checkRenderingContext();
+        this._chartControllers = [];
+        this.chartContent = [];
+        this.freeChartsQueue = new Queue_1.QueueChartController(exports.MAX_NB_CHARTS);
+        this.chartsDescriptorsQueue = new Queue_1.QueueChartDescriptor(exports.MAX_NB_CHARTS);
+        this.defaultChartTitles = [];
+        this.generateDefaultChartNames();
+        this.init();
+    };
+    ChartSceneController.prototype.switchChartState = function (chartTitle, indexCtrlr) {
+        var chartIndex = exports.CHART_TITLES.indexOf(chartTitle);
+        if (chartIndex !== -1) {
+            switch (chartIndex) {
+                case 0: {
+                    this.chartContent[indexCtrlr].setChartWithFunctionA();
+                    break;
+                }
+                case 1: {
+                    this.chartContent[indexCtrlr].setChartWithFunctionB();
+                    break;
+                }
+                case 2: {
+                    this.chartContent[indexCtrlr].setChartWithCurvatureCrv();
+                    break;
+                }
+                case 3: {
+                    this.chartContent[indexCtrlr].setChartWithAbsCurvature();
+                    break;
+                }
+                case 4: {
+                    this.chartContent[indexCtrlr].setChartWithFunctionBsqrtScaled();
+                    break;
+                }
+            }
+        }
+        else {
+            this.chartContent[indexCtrlr].setChartWithNoFunction();
+        }
+        var queueItem = new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(this.chartControllers[indexCtrlr], chartTitle, this._curveObservers[indexCtrlr]);
+        if (exports.CHART_TITLES.indexOf(chartTitle) === -1) {
+            this.chartsDescriptorsQueue.enqueue(queueItem);
+        }
+        else {
+            this.chartsDescriptorsQueue.insertAtController(this.chartControllers[indexCtrlr], queueItem);
+        }
+    };
+    ChartSceneController.prototype.resetChartToDefaultChart = function (chartTitle, currentQueueItem) {
+        var index = this.chartsDescriptorsQueue.indexOfFromTitle(chartTitle);
+        this.chartsDescriptorsQueue.extractAt(index);
+        this.enqueueAndReorderFreeCharts(currentQueueItem.chartController);
+        var chartOberserver = currentQueueItem.curveObserver;
+        if (chartOberserver !== undefined) {
+            this.curveSceneController.removeCurveObserver(chartOberserver);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
+            error.logMessageToConsole();
+        }
+        var indexCtrlr = this.chartControllers.indexOf(currentQueueItem.chartController);
+        chartTitle = this.defaultChartTitles[indexCtrlr];
+        this._uncheckedChart = chartTitle;
+        this.switchChartState(chartTitle, indexCtrlr);
+    };
+    ChartSceneController.prototype.addChartAtADefaultChartPlace = function (chartTitle) {
+        var chartController = this.freeChartsQueue.dequeue();
+        if (chartController !== undefined) {
+            var indexCtrlr = this.chartControllers.indexOf(chartController);
+            var currentQueueItem = this.chartsDescriptorsQueue.findItemFromChartController(chartController);
+            if (currentQueueItem !== undefined) {
+                var chartOberserver = currentQueueItem.curveObserver;
+                this._uncheckedChart = currentQueueItem.chartTitle;
+                if (chartOberserver !== undefined) {
+                    this.curveSceneController.removeCurveObserver(chartOberserver);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
+                    error.logMessageToConsole();
+                }
+            }
+            this.switchChartState(chartTitle, indexCtrlr);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined ChartController. Impossible to process graphs correctly.");
+            error.logMessageToConsole();
+        }
+    };
+    ChartSceneController.prototype.addChartInPlaceOfTheOldestOne = function (chartTitle) {
+        var item = this.chartsDescriptorsQueue.get(0);
+        if (item !== undefined) {
+            this._uncheckedChart = item.chartTitle;
+            var chartController = item.chartController;
+            var indexCtrlr = this.chartControllers.indexOf(chartController);
+            var chartOberserver = item.curveObserver;
+            if (chartOberserver !== undefined) {
+                this.curveSceneController.removeCurveObserver(chartOberserver);
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
+                error.logMessageToConsole();
+            }
+            this.switchChartState(chartTitle, indexCtrlr);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined ChartController. Queue content is inconsistent.");
+            error.logMessageToConsole();
+        }
+    };
+    ChartSceneController.prototype.addChart = function (chartTitle) {
+        var currentQueueItem = this.chartsDescriptorsQueue.findItemFromTitle(chartTitle);
+        if (currentQueueItem !== undefined) {
+            this.resetChartToDefaultChart(chartTitle, currentQueueItem);
+        }
+        else {
+            if (this.freeChartsQueue.length() > 0) {
+                this.addChartAtADefaultChartPlace(chartTitle);
+            }
+            else {
+                this.addChartInPlaceOfTheOldestOne(chartTitle);
+            }
+        }
+    };
+    ChartSceneController.prototype.reorderFreeCharts = function (chartController, indexCtrlr) {
+        var i = this.freeChartsQueue.length() - 2;
+        var insert = false;
+        while (i >= 0) {
+            var chartCtrlr = this.freeChartsQueue.at(i);
+            var index = this.chartControllers.indexOf(chartCtrlr);
+            if (index < indexCtrlr) {
+                this.freeChartsQueue.insertAt(i, chartController);
+                insert = true;
+            }
+            i--;
+        }
+        if (!insert)
+            this.freeChartsQueue.insertAt(0, chartController);
+    };
+    ChartSceneController.prototype.enqueueAndReorderFreeCharts = function (chartController) {
+        var lastChartCtrlr = this.freeChartsQueue.getLast();
+        if (lastChartCtrlr !== undefined) {
+            var indexCtrlr = this.chartControllers.indexOf(chartController);
+            var indexLast = this.chartControllers.indexOf(lastChartCtrlr);
+            if (indexCtrlr > indexLast) {
+                this.freeChartsQueue.enqueue(chartController);
+            }
+            else {
+                if (this.freeChartsQueue.length() === 1) {
+                    this.freeChartsQueue.insertAt(0, chartController);
+                }
+                else {
+                    this.reorderFreeCharts(chartController, indexCtrlr);
+                    // let i = this.freeChartsQueue.length() - 2;
+                    // let insert = false;
+                    // while(i >= 0) {
+                    //     const chartCtrlr = this.freeChartsQueue.at(i);
+                    //     const index = this.chartControllers.indexOf(chartCtrlr);
+                    //     if(index < indexCtrlr) {
+                    //         this.freeChartsQueue.insertAt(i, chartController);
+                    //         insert = true;
+                    //     }
+                    //     i--;
+                    // }
+                    // if(!insert) this.freeChartsQueue.insertAt(0, chartController);
+                }
+            }
+        }
+        else {
+            this.freeChartsQueue.enqueue(chartController);
+        }
+    };
+    ChartSceneController.prototype.checkRenderingContext = function () {
+        if (this.chartRenderingContext.length !== exports.MAX_NB_CHARTS) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Inconsistent number of rendering contexts. Must be equal to MAX_NB_GRAPHS.");
+            error.logMessageToConsole();
+        }
+        else {
+            for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+                if (this.chartRenderingContext[i] === null) {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Rendering context of graph" + (i + 1) + " is null. Impossible to process graphs correctly.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+    };
+    return ChartSceneController;
+}());
+exports.ChartSceneController = ChartSceneController;
+
+
+/***/ }),
+
+/***/ "./src/chartcontrollers/CurvatureSceneController.ts":
+/*!**********************************************************!*\
+  !*** ./src/chartcontrollers/CurvatureSceneController.ts ***!
+  \**********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -40949,10 +41426,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurvatureSceneController = void 0;
 var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var CurvatureSceneController = /** @class */ (function () {
     function CurvatureSceneController(chartController) {
         this.chartController = chartController;
-        this.POINT_SEQUENCE_SIZE = 100;
+        this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
         this.splineNumerator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
         this.splineDenominator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
@@ -40961,18 +41439,18 @@ var CurvatureSceneController = /** @class */ (function () {
         this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve();
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
-        this.chartController.addCurvePointDataset('Curvature', points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Curvature of curve');
-        this.chartController.setYaxisScale('linear');
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[2], points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[2]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     };
     CurvatureSceneController.prototype.reset = function (message) {
         var points = [];
         var curvePoints = [];
-        this.chartController.addPolylineDataset('tbd', points);
-        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Graph tbd');
-        this.chartController.setYaxisScale('linear');
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     };
     CurvatureSceneController.prototype.renderFrame = function () {
@@ -40993,6 +41471,466 @@ var CurvatureSceneController = /** @class */ (function () {
     return CurvatureSceneController;
 }());
 exports.CurvatureSceneController = CurvatureSceneController;
+
+
+/***/ }),
+
+/***/ "./src/chartcontrollers/FunctionASceneController.ts":
+/*!**********************************************************!*\
+  !*** ./src/chartcontrollers/FunctionASceneController.ts ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionASceneController = void 0;
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var FunctionASceneController = /** @class */ (function () {
+    function FunctionASceneController(chartController) {
+        this.chartController = chartController;
+        this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
+        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+    }
+    FunctionASceneController.prototype.update = function (message) {
+        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
+        var points = this.pointSequenceOnSpline();
+        this.chartController.dataCleanUp();
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[0], this.spline.controlPoints);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[0], points, { red: 200, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[0]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    FunctionASceneController.prototype.reset = function (message) {
+        console.log("reset chart FunctionA");
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    FunctionASceneController.prototype.renderFrame = function () {
+    };
+    FunctionASceneController.prototype.pointSequenceOnSpline = function () {
+        var start = this.spline.knots[this.spline.degree];
+        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        var result = [];
+        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
+            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            result.push(point);
+        }
+        return result;
+    };
+    return FunctionASceneController;
+}());
+exports.FunctionASceneController = FunctionASceneController;
+
+
+/***/ }),
+
+/***/ "./src/chartcontrollers/FunctionBSceneController.ts":
+/*!**********************************************************!*\
+  !*** ./src/chartcontrollers/FunctionBSceneController.ts ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionBSceneController = void 0;
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var FunctionBSceneController = /** @class */ (function () {
+    function FunctionBSceneController(chartController) {
+        this.chartController = chartController;
+        this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
+        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+    }
+    FunctionBSceneController.prototype.update = function (message) {
+        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        var points = this.pointSequenceOnSpline();
+        this.chartController.dataCleanUp();
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[0], this.spline.controlPoints);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[1], points, { red: 0, green: 0, blue: 200, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    FunctionBSceneController.prototype.reset = function (message) {
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    FunctionBSceneController.prototype.renderFrame = function () {
+    };
+    FunctionBSceneController.prototype.pointSequenceOnSpline = function () {
+        var start = this.spline.knots[this.spline.degree];
+        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        var result = [];
+        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
+            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            result.push(point);
+        }
+        return result;
+    };
+    return FunctionBSceneController;
+}());
+exports.FunctionBSceneController = FunctionBSceneController;
+
+
+/***/ }),
+
+/***/ "./src/chartcontrollers/FunctionBSceneControllerSqrtScaled.ts":
+/*!********************************************************************!*\
+  !*** ./src/chartcontrollers/FunctionBSceneControllerSqrtScaled.ts ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionBSceneControllerSqrtScaled = void 0;
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
+var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
+    function FunctionBSceneControllerSqrtScaled(chartController) {
+        this.chartController = chartController;
+        this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
+        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+    }
+    FunctionBSceneControllerSqrtScaled.prototype.update = function (message) {
+        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        var points = this.pointSequenceOnSpline();
+        points.forEach(function (element) {
+            /* apply a non linear transformation to graphically emphasize the behavior of function B around 0 */
+            if (element.y < 0.0) {
+                element.y = -Math.sqrt(Math.abs(element.y));
+            }
+            else {
+                element.y = Math.sqrt(element.y);
+            }
+        });
+        this.chartController.dataCleanUp();
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[4], points, { red: 0, green: 0, blue: 200, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[4]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    FunctionBSceneControllerSqrtScaled.prototype.reset = function (message) {
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    FunctionBSceneControllerSqrtScaled.prototype.renderFrame = function () {
+    };
+    FunctionBSceneControllerSqrtScaled.prototype.pointSequenceOnSpline = function () {
+        var start = this.spline.knots[this.spline.degree];
+        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        var result = [];
+        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
+            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            result.push(point);
+        }
+        return result;
+    };
+    return FunctionBSceneControllerSqrtScaled;
+}());
+exports.FunctionBSceneControllerSqrtScaled = FunctionBSceneControllerSqrtScaled;
+
+
+/***/ }),
+
+/***/ "./src/chartcontrollers/NoFunctionSceneController.ts":
+/*!***********************************************************!*\
+  !*** ./src/chartcontrollers/NoFunctionSceneController.ts ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NoFunctionSceneController = void 0;
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var NoFunctionSceneController = /** @class */ (function () {
+    function NoFunctionSceneController(chartController) {
+        this.chartController = chartController;
+    }
+    NoFunctionSceneController.prototype.update = function (message) {
+        var points = [];
+        points.push(new Vector_2d_1.Vector_2d(0.0, 0.0));
+        this.chartController.dataCleanUp();
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], points, { red: 0, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    NoFunctionSceneController.prototype.reset = function (message) {
+        var points = [];
+        var curvePoints = [];
+        this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[1], points);
+        this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], curvePoints, { red: 0, green: 0, blue: 0, alpha: 0.5 });
+        this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
+        this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
+        this.chartController.drawChart();
+    };
+    NoFunctionSceneController.prototype.renderFrame = function () {
+    };
+    return NoFunctionSceneController;
+}());
+exports.NoFunctionSceneController = NoFunctionSceneController;
+
+
+/***/ }),
+
+/***/ "./src/containers/ChartDescriptorQueueItem.ts":
+/*!****************************************************!*\
+  !*** ./src/containers/ChartDescriptorQueueItem.ts ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChartDescriptorQueueItem = void 0;
+var ChartDescriptorQueueItem = /** @class */ (function () {
+    function ChartDescriptorQueueItem(chartController, chartName, curveObserver) {
+        this._chartController = chartController;
+        this._charTitle = chartName;
+        if (curveObserver !== undefined)
+            this._curveObserver = curveObserver;
+        else
+            this._curveObserver = undefined;
+    }
+    Object.defineProperty(ChartDescriptorQueueItem.prototype, "chartController", {
+        get: function () {
+            return this._chartController;
+        },
+        set: function (chartController) {
+            this._chartController = chartController;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartDescriptorQueueItem.prototype, "chartTitle", {
+        get: function () {
+            return this._charTitle;
+        },
+        set: function (chartTitle) {
+            this._charTitle = chartTitle;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartDescriptorQueueItem.prototype, "curveObserver", {
+        get: function () {
+            return this._curveObserver;
+        },
+        set: function (curveObserver) {
+            this._curveObserver = curveObserver;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ChartDescriptorQueueItem;
+}());
+exports.ChartDescriptorQueueItem = ChartDescriptorQueueItem;
+
+
+/***/ }),
+
+/***/ "./src/containers/Queue.ts":
+/*!*********************************!*\
+  !*** ./src/containers/Queue.ts ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueueChartDescriptor = exports.QueueChartController = void 0;
+var ChartSceneController_1 = __webpack_require__(/*! ../chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ChartDescriptorQueueItem_1 = __webpack_require__(/*! ./ChartDescriptorQueueItem */ "./src/containers/ChartDescriptorQueueItem.ts");
+var Queue = /** @class */ (function () {
+    function Queue(size) {
+        this.size = size;
+        this.items = [];
+    }
+    Queue.prototype.enqueue = function (newItem) {
+        if (this.items.length < this.size) {
+            this.items.push(newItem);
+            return undefined;
+        }
+        else {
+            var removedItem = this.items.shift();
+            this.items.push(newItem);
+            return removedItem;
+        }
+    };
+    Queue.prototype.dequeue = function () {
+        if (this.items.length === 0) {
+            return undefined;
+        }
+        else {
+            return this.items.shift();
+        }
+    };
+    Queue.prototype.length = function () {
+        return this.items.length;
+    };
+    Queue.prototype.getLast = function () {
+        if (this.items.length === 0) {
+            return undefined;
+        }
+        else {
+            return this.items[this.items.length - 1];
+        }
+    };
+    Queue.prototype.at = function (index) {
+        return this.items[index];
+    };
+    Queue.prototype.insertAt = function (index, item) {
+        this.items.splice(index, 0, item);
+    };
+    return Queue;
+}());
+var QueueChartController = /** @class */ (function (_super) {
+    __extends(QueueChartController, _super);
+    function QueueChartController() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return QueueChartController;
+}(Queue));
+exports.QueueChartController = QueueChartController;
+var QueueChartDescriptor = /** @class */ (function (_super) {
+    __extends(QueueChartDescriptor, _super);
+    function QueueChartDescriptor() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    QueueChartDescriptor.prototype.extract = function (item) {
+        var index = this.items.indexOf(item);
+        if (index !== -1) {
+            this.items.splice(index, 1);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, " extract ", "the item does not exists in the queue.");
+            error.logMessageToConsole();
+        }
+    };
+    QueueChartDescriptor.prototype.extractAt = function (index) {
+        if (index >= 0 && index < this.items.length) {
+            this.items.splice(index, 1);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, " extractAt ", "the index is out of range.");
+            error.logMessageToConsole();
+        }
+    };
+    QueueChartDescriptor.prototype.get = function (index) {
+        if (index < 0 && index > this.size) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "get", " index out of range.");
+            error.logMessageToConsole();
+        }
+        var title = this.items[index].chartTitle;
+        var chartCtrl = this.items[index].chartController;
+        var crvObsr = this.items[index].curveObserver;
+        return new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(chartCtrl, title, crvObsr);
+    };
+    QueueChartDescriptor.prototype.insertAtController = function (chartController, itemToInsert) {
+        var location = -1;
+        for (var i = 0; i < this.items.length; i++) {
+            if (this.items[i].chartController === chartController) {
+                location = i;
+            }
+        }
+        if (location !== -1) {
+            this.extractAt(location);
+            var existChart = [];
+            var noChart = [];
+            for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
+                var item = _a[_i];
+                if (ChartSceneController_1.CHART_TITLES.indexOf(item.chartTitle) !== -1) {
+                    existChart.push(item);
+                }
+                else {
+                    noChart.push(item);
+                }
+            }
+            var newItems_1 = [];
+            existChart.forEach(function (element) { newItems_1.push(element); });
+            newItems_1.push(itemToInsert);
+            noChart.forEach(function (element) { newItems_1.push(element); });
+            this.items = newItems_1;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertAtController", " inconsistent location of the queue item to be removed.");
+            error.logMessageToConsole();
+        }
+    };
+    QueueChartDescriptor.prototype.findItemFromTitle = function (title) {
+        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
+            var item = _a[_i];
+            if (item.chartTitle === title) {
+                return new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(item.chartController, item.chartTitle, item.curveObserver);
+            }
+        }
+        return undefined;
+    };
+    QueueChartDescriptor.prototype.findItemFromChartController = function (chartController) {
+        for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
+            var item = _a[_i];
+            if (item.chartController === chartController) {
+                return new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(item.chartController, item.chartTitle, item.curveObserver);
+            }
+        }
+        return undefined;
+    };
+    QueueChartDescriptor.prototype.indexOfFromTitle = function (title) {
+        for (var item = 0; item < this.items.length; item++) {
+            if (this.items[item].chartTitle === title) {
+                return item;
+            }
+        }
+        return -1;
+    };
+    return QueueChartDescriptor;
+}(Queue));
+exports.QueueChartDescriptor = QueueChartDescriptor;
 
 
 /***/ }),
@@ -41040,7 +41978,7 @@ var HandleConstraintAtPoint1Point2NoConstraintState = /** @class */ (function (_
     __extends(HandleConstraintAtPoint1Point2NoConstraintState, _super);
     function HandleConstraintAtPoint1Point2NoConstraintState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintNoConstraint(_this.curveShapeSpaceNavigator));
+        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintNoConstraint(_this.curveShapeSpaceNavigator, _this.curveConstraints));
         return _this;
     }
     HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
@@ -41060,7 +41998,7 @@ var HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = /** @class */ (f
     __extends(HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, _super);
     function HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(_this.curveShapeSpaceNavigator));
+        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(_this.curveShapeSpaceNavigator, _this.curveConstraints));
         return _this;
     }
     HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
@@ -41163,7 +42101,7 @@ var CurveControlState = /** @class */ (function () {
         this.curveSceneController = context;
     };
     CurveControlState.prototype.updateShapeSpaceNavigator = function () {
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceConfigurator;
+        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceDiffEventsConfigurator;
     };
     return CurveControlState;
 }());
@@ -41514,6 +42452,10 @@ var CurveSceneController = /** @class */ (function () {
         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         this.sliding = true;
         /* JCL 2021/09/29 Add modeller for new code architecture */
+        this.closedCurve = false;
+        this.curveEventAtExtremityMayVanish = true;
+        this.constraintAtPoint1 = true;
+        this.constraintAtPoint2 = false;
         this.curveModeler = new CurveModeler_1.CurveModeler(this);
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
@@ -41522,11 +42464,7 @@ var CurveSceneController = /** @class */ (function () {
         this.shapeSpaceDiffEventsConfigurator = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
         this.shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this.curveControlState = new CurveControlState_1.HandleNoDiffEventNoSlidingState(this);
-        this.closedCurve = false;
-        this.curveEventAtExtremityMayVanish = true;
         this.eventMgmtAtCurveExtremities = this.curveShapeSpaceNavigator.eventMgmtAtCurveExtremities;
-        this.constraintAtPoint1 = true;
-        this.constraintAtPoint2 = false;
         this.curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
         console.log("end constructor curveSceneController");
     }
@@ -41637,152 +42575,6 @@ var CurveSceneController = /** @class */ (function () {
         }
         else
             this.activeLocationControl = ActiveLocationControl.none;
-    };
-    /* 2020/09/07 Add management of function graphs display */
-    CurveSceneController.prototype.chkboxFunctionA = function () {
-        this.controlOfGraphFunctionA = !this.controlOfGraphFunctionA;
-        var result = [];
-        if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
-            /* JCL 2020/09/09 There only one event because the stack is not full yet */
-            this.stackOfSelectedGraphs.push("functionA");
-            result.push("functionA");
-            console.log("push A");
-        }
-        else if (!this.controlOfGraphFunctionA && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionA") === -1) {
-            /* JCL 2020/09/09 There only one event because the stack is full and it is the event processing to remove effectively the controller */
-            result.push("-functionA");
-            this.stackOfSelectedGraphs.shift();
-            console.log("push -A to remove");
-        }
-        else if (this.stackOfSelectedGraphs.indexOf("functionA") !== -1) {
-            /* JCL 2020/09/09 There only one event because whether the stack is full or not what matters is the removal of only one graph */
-            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionA"), 1);
-            result.push("-functionA");
-            console.log("remove A");
-        }
-        else {
-            /* JCL 2020/09/09 There are two events because whether the stack is full and one graph is added that does not exists already
-                Consequently, the first graph of the stack must be removed (second event) */
-            var controlOfGraphToRemove = "-";
-            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
-            result.push("functionA");
-            this.stackOfSelectedGraphs.push("functionA");
-            console.log("send click " + result);
-        }
-        console.log("functionA graph display: " + this.controlOfGraphFunctionA + " result " + result + " stack " + this.stackOfSelectedGraphs);
-        return result;
-    };
-    CurveSceneController.prototype.chkboxFunctionB = function () {
-        this.controlOfGraphFunctionB = !this.controlOfGraphFunctionB;
-        var result = [];
-        if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
-            this.stackOfSelectedGraphs.push("functionB");
-            result.push("functionB");
-            console.log("push B");
-        }
-        else if (!this.controlOfGraphFunctionB && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("functionB") === -1) {
-            result.push("-functionB");
-            this.stackOfSelectedGraphs.shift();
-            console.log("push -B to remove");
-        }
-        else if (this.stackOfSelectedGraphs.indexOf("functionB") !== -1) {
-            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("functionB"), 1);
-            result.push("-functionB");
-            console.log("remove B");
-        }
-        else {
-            var controlOfGraphToRemove = "-";
-            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
-            result.push("functionB");
-            this.stackOfSelectedGraphs.push("functionB");
-            console.log("send click " + result);
-        }
-        console.log("functionB graph display: " + this.controlOfGraphFunctionB + " result " + result + " stack " + this.stackOfSelectedGraphs);
-        return result;
-    };
-    CurveSceneController.prototype.chkboxFunctionBsqrtScaled = function () {
-        this.controlOfGraphFunctionBsqrtScaled = !this.controlOfGraphFunctionBsqrtScaled;
-        var result = [];
-        if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
-            this.stackOfSelectedGraphs.push("sqrtFunctionB");
-            result.push("sqrtFunctionB");
-            console.log("push sqrtB");
-        }
-        else if (!this.controlOfGraphFunctionBsqrtScaled && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") === -1) {
-            result.push("-sqrtFunctionB");
-            this.stackOfSelectedGraphs.shift();
-            console.log("push -sqrtB to remove");
-        }
-        else if (this.stackOfSelectedGraphs.indexOf("sqrtFunctionB") !== -1) {
-            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("sqrtFunctionB"), 1);
-            result.push("-sqrtFunctionB");
-            console.log("remove sqrtB");
-        }
-        else {
-            var controlOfGraphToRemove = "-";
-            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
-            result.push("sqrtFunctionB");
-            this.stackOfSelectedGraphs.push("sqrtFunctionB");
-            console.log("send click" + result);
-        }
-        console.log("functionBsqrtScaled graph display: " + this.controlOfGraphFunctionBsqrtScaled + " result " + result + " stack " + this.stackOfSelectedGraphs);
-        return result;
-    };
-    CurveSceneController.prototype.chkboxCurvature = function () {
-        this.controlOfGraphCurvature = !this.controlOfGraphCurvature;
-        var result = [];
-        if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
-            this.stackOfSelectedGraphs.push("curvature");
-            result.push("curvature");
-            console.log("push curvature");
-        }
-        else if (!this.controlOfGraphCurvature && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("curvature") === -1) {
-            result.push("-curvature");
-            this.stackOfSelectedGraphs.shift();
-            console.log("push -curvature to remove");
-        }
-        else if (this.stackOfSelectedGraphs.indexOf("curvature") !== -1) {
-            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("curvature"), 1);
-            result.push("-curvature");
-            console.log("remove curvature");
-        }
-        else {
-            var controlOfGraphToRemove = "-";
-            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
-            result.push("curvature");
-            this.stackOfSelectedGraphs.push("curvature");
-            console.log("send click" + result);
-        }
-        console.log("curvature graph display: " + this.controlOfGraphCurvature + " result " + result + " stack " + this.stackOfSelectedGraphs);
-        return result;
-    };
-    CurveSceneController.prototype.chkboxAbsCurvature = function () {
-        this.controlOfGraphAbsCurvature = !this.controlOfGraphAbsCurvature;
-        var result = [];
-        if (this.stackOfSelectedGraphs.length < this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
-            this.stackOfSelectedGraphs.push("absCurvature");
-            result.push("absCurvature");
-            console.log("push absCurvature");
-        }
-        else if (!this.controlOfGraphAbsCurvature && this.stackOfSelectedGraphs.length > this.MAX_NB_GRAPHS && this.stackOfSelectedGraphs.indexOf("absCurvature") === -1) {
-            result.push("-absCurvature");
-            this.stackOfSelectedGraphs.shift();
-            console.log("push -absCurvature to remove");
-        }
-        else if (this.stackOfSelectedGraphs.indexOf("absCurvature") !== -1) {
-            this.stackOfSelectedGraphs.splice(this.stackOfSelectedGraphs.indexOf("absCurvature"), 1);
-            result.push("-absCurvature");
-            console.log("remove absCurvature");
-        }
-        else {
-            var controlOfGraphToRemove = "-";
-            result.push(controlOfGraphToRemove.concat(this.stackOfSelectedGraphs[0]));
-            result.push("absCurvature");
-            this.stackOfSelectedGraphs.push("absCurvature");
-            console.log("send click" + result);
-        }
-        console.log("curvature graph display: " + this.controlOfGraphAbsCurvature + " result " + result + " stack " + this.stackOfSelectedGraphs);
-        return result;
     };
     CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
         this.curveControl.toggleControlOfCurvatureExtrema();
@@ -42248,182 +43040,6 @@ var CurveSceneController = /** @class */ (function () {
     return CurveSceneController;
 }());
 exports.CurveSceneController = CurveSceneController;
-
-
-/***/ }),
-
-/***/ "./src/controllers/FunctionASceneController.ts":
-/*!*****************************************************!*\
-  !*** ./src/controllers/FunctionASceneController.ts ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FunctionASceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
-var FunctionASceneController = /** @class */ (function () {
-    function FunctionASceneController(chartController) {
-        this.chartController = chartController;
-        this.POINT_SEQUENCE_SIZE = 100;
-        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
-    }
-    FunctionASceneController.prototype.update = function (message) {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
-        var points = this.pointSequenceOnSpline();
-        this.chartController.dataCleanUp();
-        this.chartController.addPolylineDataset('Control Polygon', this.spline.controlPoints);
-        this.chartController.addCurvePointDataset('Function A', points, { red: 200, green: 0, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Function A(u)');
-        this.chartController.setYaxisScale('linear');
-        this.chartController.drawChart();
-    };
-    FunctionASceneController.prototype.reset = function (message) {
-        console.log("reset chart FunctionA");
-        var points = [];
-        var curvePoints = [];
-        this.chartController.addPolylineDataset('tbd', points);
-        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Graph tbd');
-        this.chartController.setYaxisScale('linear');
-        this.chartController.drawChart();
-    };
-    FunctionASceneController.prototype.renderFrame = function () {
-    };
-    FunctionASceneController.prototype.pointSequenceOnSpline = function () {
-        var start = this.spline.knots[this.spline.degree];
-        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
-        var result = [];
-        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
-            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
-            result.push(point);
-        }
-        return result;
-    };
-    return FunctionASceneController;
-}());
-exports.FunctionASceneController = FunctionASceneController;
-
-
-/***/ }),
-
-/***/ "./src/controllers/FunctionBSceneController.ts":
-/*!*****************************************************!*\
-  !*** ./src/controllers/FunctionBSceneController.ts ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FunctionBSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
-var FunctionBSceneController = /** @class */ (function () {
-    function FunctionBSceneController(chartController) {
-        this.chartController = chartController;
-        this.POINT_SEQUENCE_SIZE = 100;
-        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
-    }
-    FunctionBSceneController.prototype.update = function (message) {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
-        var points = this.pointSequenceOnSpline();
-        this.chartController.dataCleanUp();
-        this.chartController.addPolylineDataset('Control Polygon', this.spline.controlPoints);
-        this.chartController.addCurvePointDataset('Function B', points, { red: 0, green: 0, blue: 200, alpha: 0.5 });
-        this.chartController.setChartLabel('Function B(u)');
-        this.chartController.setYaxisScale('linear');
-        this.chartController.drawChart();
-    };
-    FunctionBSceneController.prototype.reset = function (message) {
-        var points = [];
-        var curvePoints = [];
-        this.chartController.addPolylineDataset('tbd', points);
-        this.chartController.addCurvePointDataset('tbd', curvePoints, { red: 100, green: 0, blue: 0, alpha: 0.5 });
-        this.chartController.setChartLabel('Graph tbd');
-        this.chartController.setYaxisScale('linear');
-        this.chartController.drawChart();
-    };
-    FunctionBSceneController.prototype.renderFrame = function () {
-    };
-    FunctionBSceneController.prototype.pointSequenceOnSpline = function () {
-        var start = this.spline.knots[this.spline.degree];
-        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
-        var result = [];
-        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
-            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
-            result.push(point);
-        }
-        return result;
-    };
-    return FunctionBSceneController;
-}());
-exports.FunctionBSceneController = FunctionBSceneController;
-
-
-/***/ }),
-
-/***/ "./src/controllers/FunctionBSceneControllerSqrtScaled.ts":
-/*!***************************************************************!*\
-  !*** ./src/controllers/FunctionBSceneControllerSqrtScaled.ts ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FunctionBSceneControllerSqrtScaled = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
-var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
-    function FunctionBSceneControllerSqrtScaled(chartController) {
-        this.chartController = chartController;
-        this.POINT_SEQUENCE_SIZE = 100;
-        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
-    }
-    FunctionBSceneControllerSqrtScaled.prototype.update = function (message) {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
-        var points = this.pointSequenceOnSpline();
-        var scaledPoints = [];
-        points.forEach(function (element) {
-            /* apply a non linear transformation to graphically emphasize the behavior of function B around 0 */
-            if (element.y < 0.0) {
-                element.y = -Math.sqrt(Math.abs(element.y));
-            }
-            else {
-                element.y = Math.sqrt(element.y);
-            }
-            scaledPoints.push(new Vector_2d_1.Vector_2d(element.x, element.y));
-        });
-        this.chartController.dataCleanUp();
-        this.chartController.addCurvePointDataset('sqrt Function B', points, { red: 0, green: 0, blue: 200, alpha: 0.5 });
-        this.chartController.setChartLabel('Function (+/-)sqrt[abs(B(u))]');
-        this.chartController.setYaxisScale('linear');
-        this.chartController.drawChart();
-    };
-    FunctionBSceneControllerSqrtScaled.prototype.reset = function (message) {
-    };
-    FunctionBSceneControllerSqrtScaled.prototype.renderFrame = function () {
-    };
-    FunctionBSceneControllerSqrtScaled.prototype.pointSequenceOnSpline = function () {
-        var start = this.spline.knots[this.spline.degree];
-        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
-        var result = [];
-        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
-            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
-            result.push(point);
-        }
-        return result;
-    };
-    return FunctionBSceneControllerSqrtScaled;
-}());
-exports.FunctionBSceneControllerSqrtScaled = FunctionBSceneControllerSqrtScaled;
 
 
 /***/ }),
@@ -44327,7 +44943,6 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
         _this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
         _this.curveEventAtExtremityMayVanish = _this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         _this.eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(_this.eventMgmtAtExtremities);
-        _this.curveShapeSpaceNavigator = _this.curveModeler.curveShapeSpaceNavigator;
         return _this;
     }
     OpenPlanarCurve.prototype.setCurveCategory = function () {
@@ -44351,9 +44966,8 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
         var _this = _super.call(this, curveModeler) || this;
         // JCL temporaire: pour assurer la compatibilité avec les classes existantes
         _this.curveModel = new CurveModels2D_1.ClosedCurveModel2D();
-        //this.curveModel = new ClosedPlanarCurve(this.curveModeler);
-        _this.curveShapeSpaceNavigator = _this.curveModeler.curveShapeSpaceNavigator;
         return _this;
+        //this.curveModel = new ClosedPlanarCurve(this.curveModeler);
     }
     ClosedPlanarCurve.prototype.setCurveCategory = function () {
         this.curveModeler.changeCurveCategory(new OpenPlanarCurve(this.curveModeler));
@@ -44395,14 +45009,15 @@ var CurveType;
 var CurveModeler = /** @class */ (function () {
     function CurveModeler(curveSceneController) {
         this.curveSceneController = curveSceneController;
-        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(this);
         this._curveCategory = new CurveCategory_1.OpenPlanarCurve(this);
-        this._curveShapeSpaceNavigator.curveCategory = this._curveCategory;
         this.curveType = CurveType.PLANAR_OPEN;
+        // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
+        // JCL To ensure its correct initialization, it must be called lastto ensure a consistent
+        // JCL initialization of each context.
+        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(this);
     }
     CurveModeler.prototype.changeCurveCategory = function (category) {
         this._curveCategory = category;
-        //this._curveCategory.setCurveModeler(this);
     };
     Object.defineProperty(CurveModeler.prototype, "curveShapeSpaceNavigator", {
         get: function () {
@@ -44537,8 +45152,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveAnalyzer = void 0;
 var curveDifferentialEventsExtractor_1 = __webpack_require__(/*! ../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor */ "./src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor.ts");
 var ExtremumLocationClassifiier_1 = __webpack_require__(/*! ./ExtremumLocationClassifiier */ "./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveAnalyzer = /** @class */ (function () {
     function CurveAnalyzer(curveToAnalyze, curveShapeSpaceNavigator, slidingEventsAtExtremities) {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+        warning.logMessageToConsole();
         this.curve = curveToAnalyze;
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
@@ -44557,6 +45175,10 @@ var CurveAnalyzer = /** @class */ (function () {
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
             this.computeCurvatureCPClosestToZero();
         }
+        else {
+            warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
+            warning.logMessageToConsole();
+        }
         this._curvatureDerivCrtlPtsClosestToZero = [];
         this._curveCurvatureDerivativeCntrlPolygon = [];
         this._curvatureDerivativeSignChanges = [];
@@ -44566,6 +45188,10 @@ var CurveAnalyzer = /** @class */ (function () {
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
             this.computeCurvatureDerivCPClosestToZero();
+        }
+        else {
+            warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
+            warning.logMessageToConsole();
         }
     }
     Object.defineProperty(CurveAnalyzer.prototype, "sequenceOfDifferentialEvents", {
@@ -44654,24 +45280,13 @@ var CurveAnalyzer = /** @class */ (function () {
         this._slidingEventsAtExtremities.getCurvatureDerivCrtlPtsClosestToZero(this);
     };
     CurveAnalyzer.prototype.update = function () {
+        this.curve = this.curveShapeSpaceNavigator.currentCurve;
         var diffEventsExtractor = new curveDifferentialEventsExtractor_1.CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
-        if (this.shapeSpaceDiffEventsConfigurator) {
-            this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
-            this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
-        }
-        else {
-            this._curveCurvatureCntrlPolygon = [];
-            this.globalExtremumOffAxisCurvaturePoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
-        }
-        if (this.shapeSpaceDiffEventsConfigurator) {
-            this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
-            this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
-        }
-        else {
-            this._curveCurvatureDerivativeCntrlPolygon = [];
-            this.globalExtremumOffAxisCurvatureDerivPoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
-        }
+        this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+        this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
+        this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+        this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
     };
     CurveAnalyzer.prototype.getGlobalExtremmumOffAxis = function (controlPoints) {
         var localMinima = new ExtremumLocationClassifiier_1.ExtremumLocationClassifier(controlPoints);
@@ -45052,9 +45667,9 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
 var TOL_LOCATION_CURVE_EXTREMITIES = 1.0E-6;
 var CurveConstraintNoConstraint = /** @class */ (function () {
-    function CurveConstraintNoConstraint(curveShapeSpaceNavigator) {
+    function CurveConstraintNoConstraint(curveShapeSpaceNavigator, curveConstraints) {
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.curveConstraints = curveConstraints;
         this.firstControlPoint = CurveConstraints_1.ConstraintType.none;
         this.lastControlPoint = CurveConstraints_1.ConstraintType.none;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
@@ -45076,10 +45691,15 @@ var CurveConstraintNoConstraint = /** @class */ (function () {
     // get lastControlPoint(): ConstraintType {
     //     return this._lastControlPoint;
     // }
+    CurveConstraintNoConstraint.prototype.updateCurve = function () {
+        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+    };
     CurveConstraintNoConstraint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.none
             && curveConstraints.lastControlPoint === CurveConstraints_1.ConstraintType.none) {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
+            this.updateCurve();
+            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+            this.curveConstraints.optimizedCurve = this._optimizedCurve;
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
@@ -45090,9 +45710,9 @@ var CurveConstraintNoConstraint = /** @class */ (function () {
 }());
 exports.CurveConstraintNoConstraint = CurveConstraintNoConstraint;
 var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
-    function CurveConstraintClampedFirstControlPoint(curveShapeSpaceNavigator) {
+    function CurveConstraintClampedFirstControlPoint(curveShapeSpaceNavigator, curveConstraints) {
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.curveConstraints = curveConstraints;
         this.firstControlPoint = CurveConstraints_1.ConstraintType.location;
         this.lastControlPoint = CurveConstraints_1.ConstraintType.none;
         this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
@@ -45115,7 +45735,11 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
     // get lastControlPoint(): ConstraintType {
     //     return this._lastControlPoint;
     // }
+    CurveConstraintClampedFirstControlPoint.prototype.updateCurve = function () {
+        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+    };
     CurveConstraintClampedFirstControlPoint.prototype.relocateCurveAfterOptimization = function () {
+        this.updateCurve();
         var controlPoints = this._optimizedCurve.controlPoints;
         this.curveShapeSpaceNavigator.curveDisplacement();
         for (var _i = 0, controlPoints_1 = controlPoints; _i < controlPoints_1.length; _i++) {
@@ -45124,7 +45748,8 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
             controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
         }
         this._optimizedCurve.controlPoints = controlPoints;
-        return this._optimizedCurve;
+        this.curveConstraints.optimizedCurve = this._optimizedCurve;
+        return this.curveConstraints.optimizedCurve;
     };
     CurveConstraintClampedFirstControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.location
@@ -45158,7 +45783,11 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function () {
     // get lastControlPoint(): ConstraintType {
     //     return this._lastControlPoint;
     // }
+    CurveConstraintClampedLastControlPoint.prototype.updateCurve = function () {
+        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+    };
     CurveConstraintClampedLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
+        this.updateCurve();
         var controlPoints = this._optimizedCurve.controlPoints;
         this.curveShapeSpaceNavigator.curveDisplacement();
         for (var _i = 0, controlPoints_2 = controlPoints; _i < controlPoints_2.length; _i++) {
@@ -45167,7 +45796,8 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function () {
             controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
         }
         this._optimizedCurve.controlPoints = controlPoints;
-        return this._optimizedCurve;
+        this.curveConstraints.optimizedCurve = this._optimizedCurve;
+        return this.curveConstraints.optimizedCurve;
     };
     CurveConstraintClampedLastControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.none
@@ -45249,6 +45879,8 @@ exports.CurveConstraintClampedFirstAndLastControlPoint = CurveConstraintClampedF
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveConstraints = exports.CurveExtremity = exports.ConstraintType = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ConstraintType;
 (function (ConstraintType) {
     ConstraintType[ConstraintType["none"] = 0] = "none";
@@ -45262,11 +45894,19 @@ var CurveExtremity;
     CurveExtremity[CurveExtremity["last"] = 1] = "last";
 })(CurveExtremity = exports.CurveExtremity || (exports.CurveExtremity = {}));
 var CurveConstraints = /** @class */ (function () {
-    function CurveConstraints(curveConstraintProcessor, curveShapeSpaceNavigator) {
-        this._curveConstraintProcessor = curveConstraintProcessor;
+    function CurveConstraints(curveShapeSpaceNavigator, curveConstraintProcessor) {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+        warning.logMessageToConsole();
+        if (!curveConstraintProcessor) {
+            this._curveConstraintProcessor = new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(curveShapeSpaceNavigator, this);
+        }
+        else {
+            this._curveConstraintProcessor = curveConstraintProcessor;
+        }
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this._firstControlPoint = curveConstraintProcessor.firstControlPoint;
-        this._lastControlPoint = curveConstraintProcessor.lastControlPoint;
+        this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
+        this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
+        this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
     }
     Object.defineProperty(CurveConstraints.prototype, "firstControlPoint", {
         get: function () {
@@ -45284,6 +45924,16 @@ var CurveConstraints = /** @class */ (function () {
         },
         set: function (constraintAtLastPoint) {
             this._lastControlPoint = constraintAtLastPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraints.prototype, "optimizedCurve", {
+        get: function () {
+            return this._optimizedCurve;
+        },
+        set: function (curve) {
+            this._optimizedCurve = curve;
         },
         enumerable: false,
         configurable: true
@@ -45309,6 +45959,10 @@ var CurveConstraints = /** @class */ (function () {
     };
     CurveConstraints.prototype.processConstraint = function () {
         this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
+        this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
+    };
+    CurveConstraints.prototype.updateCurve = function () {
+        this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
     };
     return CurveConstraints;
 }());
@@ -45367,7 +46021,6 @@ var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/cu
 var CurveShapeSpaceDesccriptor_1 = __webpack_require__(/*! ./CurveShapeSpaceDesccriptor */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor.ts");
 var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var NavigationState_1 = __webpack_require__(/*! ./NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
-var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ShapeSpaceDiffEventsConfigurator_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsConfigurator */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts");
 var ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties */ "./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts");
 var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ../curveModeler/EventMgmtAtCurveExtremities */ "./src/curveModeler/EventMgmtAtCurveExtremities.ts");
@@ -45386,22 +46039,25 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         this._selectedControlPoint = undefined;
         this.displacementSelctdCP = new Vector_2d_1.Vector_2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
+        this._optimizedCurve = this._currentCurve;
         this.currentControlPolygon.forEach(function () { return _this.displacementCurrentCurveControlPolygon.push(new Vector_2d_1.Vector_2d(0.0, 0.0)); });
-        this.navigationState = new NavigationState_1.NavigationWithoutShapeSpaceMonitoring(this);
+        this._curveConstraints = new CurveConstraints_1.CurveConstraints(this);
+        this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
-        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator);
+        this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator, this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDesccriptor_1.CurveShapeSpaceDescriptor(this._currentCurve);
         this._eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
         this._slidingEventsAtExtremities = new ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties_1.CurveAnalyzerEventsSlidingOutOfInterval();
+        // JCL Setting up the navigation state requires having defined the shapeSpaceDiffEventsStructure and its shapeSpaceDiffEventsConfigurator
+        // JCL as well as the CurveShapeSpaceDescriptor
+        this.navigationState = new NavigationState_1.NavigationWithoutShapeSpaceMonitoring(this);
+        // JCL requires the setting of the navigationState
         this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(this.currentCurve, this, this.slidingEventsAtExtremities);
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
-        this._optimizedCurve = this._currentCurve;
         this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(this._optimizedCurve, this, this.slidingEventsAtExtremities);
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents_1.NeighboringEvents();
         //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
-        this._curveConstraintProcessor = new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(this);
-        this._curveConstraints = new CurveConstraints_1.CurveConstraints(this._curveConstraintProcessor, this);
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
         this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters_1.OptimizationProblemCtrlParameters();
@@ -45473,6 +46129,16 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "curveConstraintProcessor", {
+        get: function () {
+            return this._curveConstraintProcessor;
+        },
+        set: function (curveConstraintProcessor) {
+            this._curveConstraintProcessor = curveConstraintProcessor;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(CurveShapeSpaceNavigator.prototype, "curveModeler", {
         // get navigationParams(): ShapeSpaceDiffEventsStructure {
         //     return this._navigationParameters;
@@ -45518,13 +46184,6 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "curveConstraintProcessor", {
-        get: function () {
-            return this._curveConstraintProcessor;
-        },
-        enumerable: false,
-        configurable: true
-    });
     CurveShapeSpaceNavigator.prototype.changeNavigationState = function (state) {
         this.navigationState = state;
         this.navigationState.setCurveShapeSpaceNavigator(this);
@@ -45547,10 +46206,10 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     //     this.seqDiffEventsCurrentCurve = diffEventsExtractor.generateSeqOfDiffEvents();
     //     this._optimizationProblemParam.updateConstraintBounds = true;
     // }
-    CurveShapeSpaceNavigator.prototype.updateCurrentCurve = function (newCurve, newSelectedControlPoint, newDispSelctdCP) {
-        this.curveModel = newCurve;
-        this._currentCurve = newCurve.spline.clone();
-        this.currentControlPolygon = this.currentCurve.controlPoints;
+    CurveShapeSpaceNavigator.prototype.updateCurrentCurve = function (newSelectedControlPoint, newDispSelctdCP) {
+        //this.curveModel = newCurve;
+        //this._currentCurve = newCurve.spline.clone();
+        this.currentControlPolygon = this._currentCurve.controlPoints;
         this._selectedControlPoint = newSelectedControlPoint;
         this.displacementSelctdCP = newDispSelctdCP;
     };
@@ -45563,7 +46222,9 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
             error.logMessageToConsole();
         }
-        this.optimizationProblem.setTargetSpline(this.targetCurve);
+        if (this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
+            this.optimizationProblem.setTargetSpline(this.targetCurve);
+        }
     };
     // updateOptimizerStatus(): void {
     //     if(this._navigationParameters.inflectionControl === false && this._navigationParameters.curvatureExtremaControl === false) this._optimizationProblemParam.optimizerStatus = false;
@@ -45638,18 +46299,19 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ./CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
 var NavigationState = /** @class */ (function () {
     function NavigationState(curveNavigator) {
         this.curveShapeSpaceNavigator = curveNavigator;
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        if (!this.curveShapeSpaceNavigator.curveConstraints) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
+            warning.logMessageToConsole();
+        }
     }
     NavigationState.prototype.setCurveShapeSpaceNavigator = function (curveShapeSpaceNavigator) {
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
     };
-    NavigationState.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
-    };
-    NavigationState.prototype.shapeSpaceConstraintsMonitoring = function () { };
     return NavigationState;
 }());
 exports.NavigationState = NavigationState;
@@ -45678,13 +46340,18 @@ var NavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_super) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
         warning.logMessageToConsole();
     };
+    NavigationWithoutShapeSpaceMonitoring.prototype.curveConstraintsMonitoring = function () {
+        this.curveConstraints.processConstraint();
+    };
     NavigationWithoutShapeSpaceMonitoring.prototype.navigate = function (selectedControlPoint, x, y) {
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d_1.Vector_2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
-        this.shapeSpaceConstraintsMonitoring();
-        this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
-        this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
+        // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
+        this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
+        this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
+        this.curveConstraints.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -45717,11 +46384,14 @@ var NavigationThroughSimplerShapeSpaces = /** @class */ (function (_super) {
         warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     };
+    NavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
+        this.curveConstraints.processConstraint();
+    };
     NavigationThroughSimplerShapeSpaces.prototype.navigate = function (selectedControlPoint, x, y) {
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d_1.Vector_2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
-        this.shapeSpaceConstraintsMonitoring();
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
         try {
             this.curveShapeSpaceNavigator.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
@@ -45757,11 +46427,14 @@ var NavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) {
         warning.logMessageToConsole();
         this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     };
+    NavigationStrictlyInsideShapeSpace.prototype.curveConstraintsMonitoring = function () {
+        this.curveConstraints.processConstraint();
+    };
     NavigationStrictlyInsideShapeSpace.prototype.navigate = function (selectedControlPoint, x, y) {
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d_1.Vector_2d(x, y));
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
-        this.shapeSpaceConstraintsMonitoring();
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = true;
         try {
             this.curveShapeSpaceNavigator.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
@@ -45962,27 +46635,18 @@ exports.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding = Sha
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShapeSpaceDiffEventsStructure = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
-    function ShapeSpaceDiffEventsStructure(curveModeler, shapeSpaceConfigurator) {
-        this.curveModel = curveModeler.curveCategory;
-        this.shapeSpaceConfigurator = shapeSpaceConfigurator;
+    function ShapeSpaceDiffEventsStructure(curveModeler, shapeSpaceConfigurator, curveShapeSpaceNavigator) {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+        warning.logMessageToConsole();
+        this._curveCategory = curveModeler.curveCategory;
+        this._shapeSpaceDiffEventsConfigurator = shapeSpaceConfigurator;
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._activeNavigationWithOptimizer = false;
         this._activeControlInflections = false;
         this._activeControlCurvatureExtrema = false;
         this._slidingDifferentialEvents = false;
-        // if(controlOfInflections !== undefined) {
-        //     this._activeControlInflections = controlOfInflections;
-        //     this._activeNavigationWithOptimizer = true;
-        // }
-        // if(controlOfCurvatureExtrema !== undefined) {
-        //     this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-        //     this._activeNavigationWithOptimizer = true;
-        // }
-        // if(slidingDiffEvents !== undefined) {
-        //     if(this._activeControlInflections !== false || this._activeControlCurvatureExtrema !== false) {
-        //         this._slidingDifferentialEvents = slidingDiffEvents;
-        //     }
-        //}
     }
     Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "activeControlInflections", {
         get: function () {
@@ -46036,6 +46700,20 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "curveCategory", {
+        get: function () {
+            return this._curveCategory;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "shapeSpaceDiffEventsConfigurator", {
+        get: function () {
+            return this._shapeSpaceDiffEventsConfigurator;
+        },
+        enumerable: false,
+        configurable: true
+    });
     ShapeSpaceDiffEventsStructure.prototype.reset = function () {
         this._activeNavigationWithOptimizer = false;
         // this._activeControlInflections = false;
@@ -46049,11 +46727,11 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
         this._activeNavigationWithOptimizer = true;
     };
     ShapeSpaceDiffEventsStructure.prototype.changeShapSpaceStructure = function (shapeSpaceDiffEventsConfigurator) {
-        this.shapeSpaceConfigurator = shapeSpaceDiffEventsConfigurator;
+        this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
         // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
     };
     ShapeSpaceDiffEventsStructure.prototype.monitorCurveShape = function () {
-        this.shapeSpaceConfigurator.monitorCurveUsingDifferentialEvents(this);
+        this.shapeSpaceDiffEventsConfigurator.monitorCurveUsingDifferentialEvents(this);
     };
     return ShapeSpaceDiffEventsStructure;
 }());
@@ -46115,8 +46793,7 @@ var WarningLog = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     WarningLog.prototype.logMessageToConsole = function () {
-        console.log(this.className + ", " + this.functionName + ":");
-        console.log(this.message);
+        console.log(this.className + ", " + this.functionName + ": " + this.message);
     };
     return WarningLog;
 }(ErrorProcessing));
@@ -47080,15 +47757,9 @@ exports.main = void 0;
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
-var ChartController_1 = __webpack_require__(/*! ./controllers/ChartController */ "./src/controllers/ChartController.ts");
-var FunctionASceneController_1 = __webpack_require__(/*! ./controllers/FunctionASceneController */ "./src/controllers/FunctionASceneController.ts");
-var FunctionBSceneController_1 = __webpack_require__(/*! ./controllers/FunctionBSceneController */ "./src/controllers/FunctionBSceneController.ts");
-var FunctionBSceneControllerSqrtScaled_1 = __webpack_require__(/*! ./controllers/FunctionBSceneControllerSqrtScaled */ "./src/controllers/FunctionBSceneControllerSqrtScaled.ts");
-var CurvatureSceneController_1 = __webpack_require__(/*! ./controllers/CurvatureSceneController */ "./src/controllers/CurvatureSceneController.ts");
-var AbsCurvatureSceneController_1 = __webpack_require__(/*! ./controllers/AbsCurvatureSceneController */ "./src/controllers/AbsCurvatureSceneController.ts");
 var cuon_utils_1 = __webpack_require__(/*! ./webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+var ChartSceneController_1 = __webpack_require__(/*! ./chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 function main() {
-    var _a;
     var VSHADER_SOURCE = 'attribute vec4 a_position;\n' +
         'attribute vec2 a_texcoord;\n' +
         'uniform mat4 u_matrix;\n' +
@@ -47208,23 +47879,67 @@ function main() {
     var ctxChart2 = canvasChart2.getContext('2d');
     var canvasChart3 = document.getElementById('chart3');
     var ctxChart3 = canvasChart3.getContext('2d');
-    var chart1 = new ChartController_1.ChartController('Graph1 tbd', ctxChart1, '600px', '700px');
-    var chart2 = new ChartController_1.ChartController('Graph2 tbd', ctxChart2, '600px', '700px');
-    var chart3 = new ChartController_1.ChartController('Graph3 tbd', ctxChart3, '600px', '700px');
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
-    /*let att = functionB.hasAttribute('display');
-    let disp = functionB.getAttribute('display'); */
-    var id = document.getElementById('chartjsFunctionB');
-    var functionB = (_a = document.getElementById('chartjsFunctionB')) === null || _a === void 0 ? void 0 : _a.style.display;
-    console.log("state chart function B: " + functionB);
-    /*if(id !== null) {
-        let style = window.getComputedStyle(id, null);
-        console.log("style chart function B: " + style.getPropertyValue("display"));
-        style.setProperty("display", "none", "important");
-        style = window.getComputedStyle(id, null);
-        console.log("style chart function B bis: " + style.getPropertyValue("display"));
-    }*/
+    var chartFunctionA = false;
+    var chartFunctionB = false;
+    var chartCurvatureCrv = false;
+    var chartAbsCurvatureCurv = false;
+    var chartFunctionBsqrtScaled = false;
+    var chartRenderingContext = [];
+    if (ctxChart1 !== null)
+        chartRenderingContext.push(ctxChart1);
+    if (ctxChart2 !== null)
+        chartRenderingContext.push(ctxChart2);
+    if (ctxChart3 !== null)
+        chartRenderingContext.push(ctxChart3);
+    var noAddChart = false;
+    var chartSceneController = new ChartSceneController_1.ChartSceneController(chartRenderingContext, sceneController);
+    function uncheckCkbox() {
+        console.log("uncheckChart " + chartSceneController.uncheckedChart);
+        if (ChartSceneController_1.CHART_TITLES.indexOf(chartSceneController.uncheckedChart) !== -1) {
+            noAddChart = true;
+            switch (chartSceneController.uncheckedChart) {
+                case ChartSceneController_1.CHART_TITLES[0]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[0]);
+                    checkBoxFunctionA.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[1]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[1]);
+                    checkBoxFunctionB.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[2]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[2]);
+                    checkBoxCurvature.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[3]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[3]);
+                    checkBoxAbsCurvature.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[4]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[4]);
+                    checkBoxFunctionBsqrtScaled.click();
+                    break;
+            }
+        }
+        chartSceneController.resetUncheckedChart();
+        noAddChart = false;
+    }
+    function resetChartContext() {
+        chartSceneController.restart();
+        noAddChart = true;
+        if (chartFunctionA)
+            checkBoxFunctionA.click();
+        if (chartFunctionB)
+            checkBoxFunctionB.click();
+        if (chartCurvatureCrv)
+            checkBoxCurvature.click();
+        if (chartAbsCurvatureCurv)
+            checkBoxAbsCurvature.click();
+        if (chartFunctionBsqrtScaled)
+            checkBoxFunctionBsqrtScaled.click();
+        noAddChart = false;
+    }
     function mouse_get_NormalizedDeviceCoordinates(event) {
         var x, y, rect = canvas.getBoundingClientRect(), ev;
         ev = event;
@@ -47307,330 +48022,64 @@ function main() {
         if (keyName === "Shift")
             sceneController.shiftKeyUp();
     }
-    /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
-        var chkboxValue = "";
-        var functionSceneControllerToRemove = "";
-        var eventToBeProcessed = sceneController.chkboxFunctionA();
-        if (eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0];
+        if (chartFunctionA) {
+            chartFunctionA = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
         }
         else {
-            functionSceneControllerToRemove = eventToBeProcessed[0];
-            chkboxValue = eventToBeProcessed[1];
-        }
-        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
-        switch (functionSceneControllerToRemove) {
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        /* JCL 2020/09/07 Process the event related to the checkbox */
-        switch (chkboxValue) {
-            case "functionA": {
-                var indexChart = stackOfAvailableCharts.indexOf("available");
-                switch (indexChart) {
-                    case 0: {
-                        functionASceneController = new FunctionASceneController_1.FunctionASceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        functionASceneController = new FunctionASceneController_1.FunctionASceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        functionASceneController = new FunctionASceneController_1.FunctionASceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "functionA";
-                sceneController.addCurveObserver(functionASceneController);
-                break;
-            }
-            case "-functionA": {
-                var indexChart = stackOfAvailableCharts.indexOf("functionA");
-                stackOfAvailableCharts[indexChart] = "available";
-                sceneController.removeCurveObserver(functionASceneController);
-                switch (indexChart) {
-                    case 0: {
-                        chart1.destroy();
-                        chart1 = new ChartController_1.ChartController('Graph1 tbd', ctxChart1, '600px', '700px');
-                        break;
-                    }
-                    case 1: {
-                        chart2.destroy();
-                        chart2 = new ChartController_1.ChartController('Graph2 tbd', ctxChart2, '600px', '700px');
-                        break;
-                    }
-                    case 2: {
-                        chart3.destroy();
-                        chart3 = new ChartController_1.ChartController('Graph3 tbd', ctxChart3, '600px', '700px');
-                        break;
-                    }
-                }
-            }
+            chartFunctionA = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
+            uncheckCkbox();
         }
     }
     function chkboxFunctionB() {
-        var chkboxValue = "";
-        var functionSceneControllerToRemove = "";
-        var eventToBeProcessed = sceneController.chkboxFunctionB();
-        if (eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0];
+        if (chartFunctionB) {
+            chartFunctionB = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
         }
         else {
-            functionSceneControllerToRemove = eventToBeProcessed[0];
-            chkboxValue = eventToBeProcessed[1];
-        }
-        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
-        switch (functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        switch (chkboxValue) {
-            case "functionB": {
-                var indexChart = stackOfAvailableCharts.indexOf("available");
-                switch (indexChart) {
-                    case 0: {
-                        functionBSceneController = new FunctionBSceneController_1.FunctionBSceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        functionBSceneController = new FunctionBSceneController_1.FunctionBSceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        functionBSceneController = new FunctionBSceneController_1.FunctionBSceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "functionB";
-                sceneController.addCurveObserver(functionBSceneController);
-                break;
-            }
-            case "-functionB": {
-                var indexChart = stackOfAvailableCharts.indexOf("functionB");
-                stackOfAvailableCharts[indexChart] = "available";
-                sceneController.removeCurveObserver(functionBSceneController);
-            }
+            chartFunctionB = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
+            uncheckCkbox();
         }
     }
     function chkboxFunctionBsqrtScaled() {
-        var chkboxValue = "";
-        var functionSceneControllerToRemove = "";
-        var eventToBeProcessed = sceneController.chkboxFunctionBsqrtScaled();
-        if (eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0];
+        if (chartFunctionBsqrtScaled) {
+            chartFunctionBsqrtScaled = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
         }
         else {
-            functionSceneControllerToRemove = eventToBeProcessed[0];
-            chkboxValue = eventToBeProcessed[1];
-        }
-        switch (functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        switch (chkboxValue) {
-            case "sqrtFunctionB": {
-                var indexChart = stackOfAvailableCharts.indexOf("available");
-                switch (indexChart) {
-                    case 0: {
-                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled_1.FunctionBSceneControllerSqrtScaled(chart1);
-                        break;
-                    }
-                    case 1: {
-                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled_1.FunctionBSceneControllerSqrtScaled(chart2);
-                        break;
-                    }
-                    case 2: {
-                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled_1.FunctionBSceneControllerSqrtScaled(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "sqrtFunctionB";
-                sceneController.addCurveObserver(functionBsqrtScaledSceneController);
-                break;
-            }
-            case "-sqrtFunctionB": {
-                var indexChart = stackOfAvailableCharts.indexOf("sqrtFunctionB");
-                stackOfAvailableCharts[indexChart] = "available";
-                sceneController.removeCurveObserver(functionBsqrtScaledSceneController);
-            }
+            chartFunctionBsqrtScaled = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
+            uncheckCkbox();
         }
     }
     function chkboxCurvature() {
-        var chkboxValue = "";
-        var functionSceneControllerToRemove = "";
-        var eventToBeProcessed = sceneController.chkboxCurvature();
-        if (eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0];
+        if (chartCurvatureCrv) {
+            chartCurvatureCrv = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
         }
         else {
-            functionSceneControllerToRemove = eventToBeProcessed[0];
-            chkboxValue = eventToBeProcessed[1];
-        }
-        switch (functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        switch (chkboxValue) {
-            case "curvature": {
-                var indexChart = stackOfAvailableCharts.indexOf("available");
-                switch (indexChart) {
-                    case 0: {
-                        curvatureSceneController = new CurvatureSceneController_1.CurvatureSceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        curvatureSceneController = new CurvatureSceneController_1.CurvatureSceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        curvatureSceneController = new CurvatureSceneController_1.CurvatureSceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "curvature";
-                sceneController.addCurveObserver(curvatureSceneController);
-                break;
-            }
-            case "-curvature": {
-                var indexChart = stackOfAvailableCharts.indexOf("curvature");
-                stackOfAvailableCharts[indexChart] = "available";
-                sceneController.removeCurveObserver(curvatureSceneController);
-            }
+            chartCurvatureCrv = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
+            uncheckCkbox();
         }
     }
     function chkboxAbsCurvature() {
-        var chkboxValue = "";
-        var functionSceneControllerToRemove = "";
-        var eventToBeProcessed = sceneController.chkboxAbsCurvature();
-        if (eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0];
+        if (chartAbsCurvatureCurv) {
+            chartAbsCurvatureCurv = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
         }
         else {
-            functionSceneControllerToRemove = eventToBeProcessed[0];
-            chkboxValue = eventToBeProcessed[1];
-        }
-        switch (functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-        }
-        switch (chkboxValue) {
-            case "absCurvature": {
-                var indexChart = stackOfAvailableCharts.indexOf("available");
-                switch (indexChart) {
-                    case 0: {
-                        absCurvatureSceneController = new AbsCurvatureSceneController_1.AbsCurvatureSceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        absCurvatureSceneController = new AbsCurvatureSceneController_1.AbsCurvatureSceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        absCurvatureSceneController = new AbsCurvatureSceneController_1.AbsCurvatureSceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "absCurvature";
-                sceneController.addCurveObserver(absCurvatureSceneController);
-                break;
-            }
-            case "-absCurvature": {
-                var indexChart = stackOfAvailableCharts.indexOf("absCurvature");
-                stackOfAvailableCharts[indexChart] = "available";
-                sceneController.removeCurveObserver(absCurvatureSceneController);
-            }
+            chartAbsCurvatureCurv = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
+            uncheckCkbox();
         }
     }
     function inputSelectDegree() {
@@ -47774,17 +48223,17 @@ function main() {
                         option = document.getElementById(optionName + (newCurveDegree - 2).toString());
                         option.setAttribute("selected", "selected");
                         for (var i = 1; i < (newCurveDegree - 2); i += 1) {
-                            var option_1 = document.getElementById(optionName + i.toString());
-                            if (option_1 !== null)
-                                option_1.setAttribute("disabled", "");
+                            option = document.getElementById(optionName + i.toString());
+                            if (option !== null)
+                                option.setAttribute("disabled", "");
                             else
                                 throw new Error('No id found to identify an Option in the Selector');
                         }
                         for (var i = (newCurveDegree - 2); i <= 4; i += 1) {
-                            var option_2 = document.getElementById(optionName + i.toString());
+                            option = document.getElementById(optionName + i.toString());
                             //if(option !== null) option.setAttribute("disabled", "disabled");
-                            if (option_2 !== null)
-                                option_2.removeAttribute("disabled");
+                            if (option !== null)
+                                option.removeAttribute("disabled");
                             else
                                 throw new Error('No id found to identify an Option in the Selector');
                         }
@@ -47797,40 +48246,6 @@ function main() {
                 }
                 else
                     throw new Error("Unable to update the curve degree selector. Undefined curve model");
-                /* JCL 2020/10/18 Reset all the active checkboxes */
-                for (var _i = 0, stackOfAvailableCharts_1 = stackOfAvailableCharts; _i < stackOfAvailableCharts_1.length; _i++) {
-                    var item = stackOfAvailableCharts_1[_i];
-                    switch (item) {
-                        case "functionA": {
-                            checkBoxFunctionA.click();
-                            break;
-                        }
-                        case "functionB": {
-                            checkBoxFunctionB.click();
-                            break;
-                        }
-                        case "sqrtFunctionB": {
-                            checkBoxFunctionBsqrtScaled.click();
-                            break;
-                        }
-                        case "curvature": {
-                            checkBoxCurvature.click();
-                            break;
-                        }
-                        case "absCurvature": {
-                            checkBoxAbsCurvature.click();
-                            break;
-                        }
-                    }
-                }
-                stackOfAvailableCharts = ["available", "available", "available"];
-                /* JCL 2020/10/15 Reinitialize the three graphs */
-                chart1.destroy();
-                chart1 = new ChartController_1.ChartController('Graph1 tbd', ctxChart1, '600px', '700px');
-                chart2.destroy();
-                chart2 = new ChartController_1.ChartController('Graph2 tbd', ctxChart2, '600px', '700px');
-                chart3.destroy();
-                chart3 = new ChartController_1.ChartController('Graph3 tbd', ctxChart3, '600px', '700px');
                 /* JCL 2020/10/18 Reset the appropriate control buttons */
                 if (!sceneController.sliding) {
                     toggleButtonSliding.click();
@@ -47846,6 +48261,7 @@ function main() {
                 }
                 if (typeof (aSpline) !== "undefined") {
                     sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+                    resetChartContext();
                 }
                 else
                     throw new Error("Unable to reset the curve context. Undefined curve model");
@@ -47857,7 +48273,6 @@ function main() {
             }
         }
     }
-    ;
     function drawImage(tex, texWidth, texHeight, dstX, dstY) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         // Tell WebGL to use our shader program pair

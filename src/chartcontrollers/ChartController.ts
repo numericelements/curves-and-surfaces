@@ -1,5 +1,6 @@
 import { Chart } from "chart.js";
 import { Vector_2d } from "../mathematics/Vector_2d";
+import { CHART_AXIS_SCALE, CHART_X_AXIS_NAME, DATASET_NAMES } from "./ChartSceneController";
 
 export class ChartController {
 
@@ -17,15 +18,15 @@ export class ChartController {
         this.datasetPolylineLabel = '';
         this.datasetCurveLabel = '';
         this.colorSpline = '';
-        this.yAxisScale = 'linear';
+        this.yAxisScale = CHART_AXIS_SCALE[0];
         if(chartXaxisLabel) this.chartXaxisLabel = chartXaxisLabel
-            else this.chartXaxisLabel = 'u parameter';
+            else this.chartXaxisLabel = CHART_X_AXIS_NAME;
 
         this.chart = new Chart(canvasContext!, {
             type: 'scatter',
             data: {
                 datasets: [{
-                    label: 'tbd',
+                    label: DATASET_NAMES[1],
                     data: [{
                         x: 0,
                         y: 0
@@ -42,7 +43,7 @@ export class ChartController {
                 },
                 scales: {
                     xAxes: [{
-                        type: 'linear',
+                        type: CHART_AXIS_SCALE[0],
                         position: 'bottom',
                         scaleLabel: {
                             display: true,
@@ -134,7 +135,7 @@ export class ChartController {
             },
             scales: {
                 xAxes: [{
-                    type: 'linear',
+                    type: CHART_AXIS_SCALE[0],
                     position: 'bottom',
                     scaleLabel: {
                         display: true,

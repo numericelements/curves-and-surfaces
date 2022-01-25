@@ -1,17 +1,18 @@
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
-import { ChartController } from "./controllers/ChartController"
-import { FunctionASceneController } from "./controllers/FunctionASceneController"
-import { FunctionBSceneController } from "./controllers/FunctionBSceneController"
-import { FunctionBSceneControllerSqrtScaled } from "./controllers/FunctionBSceneControllerSqrtScaled"
-import { CurvatureSceneController } from "./controllers/CurvatureSceneController"
-import { AbsCurvatureSceneController } from "./controllers/AbsCurvatureSceneController"
+import { ChartController } from "./chartcontrollers/ChartController"
+import { FunctionASceneController } from "./chartcontrollers/FunctionASceneController"
+import { FunctionBSceneController } from "./chartcontrollers/FunctionBSceneController"
+import { FunctionBSceneControllerSqrtScaled } from "./chartcontrollers/FunctionBSceneControllerSqrtScaled"
+import { CurvatureSceneController } from "./chartcontrollers/CurvatureSceneController"
+import { AbsCurvatureSceneController } from "./chartcontrollers/AbsCurvatureSceneController"
 import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
 import { BSpline_R1_to_R2_interface } from "./bsplines/BSplineInterfaces"
 
 import { CurveModel } from "./models/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
+import { ChartSceneController, CHART_TITLES } from "./chartcontrollers/ChartSceneController"
 
 
 export function main() {
@@ -157,27 +158,63 @@ export function main() {
 
     let canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3')
     let ctxChart3 = canvasChart3.getContext('2d');
-   
-    let chart1 = new ChartController('Graph1 tbd', ctxChart1!, '600px', '700px');
-    let chart2 = new ChartController('Graph2 tbd', ctxChart2!, '600px', '700px');
-    let chart3 = new ChartController('Graph3 tbd', ctxChart3!, '600px', '700px');
 
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     let sceneController = new CurveSceneController(canvas, gl)
 
-    /*let att = functionB.hasAttribute('display');
-    let disp = functionB.getAttribute('display'); */
-    let id = document.getElementById('chartjsFunctionB');
-    let functionB = document.getElementById('chartjsFunctionB')?.style.display;
-    console.log("state chart function B: " + functionB);
-    /*if(id !== null) {
-        let style = window.getComputedStyle(id, null);
-        console.log("style chart function B: " + style.getPropertyValue("display"));
-        style.setProperty("display", "none", "important");
-        style = window.getComputedStyle(id, null);
-        console.log("style chart function B bis: " + style.getPropertyValue("display"));
-    }*/
+    let chartFunctionA = false;
+    let chartFunctionB = false;
+    let chartCurvatureCrv = false;
+    let chartAbsCurvatureCurv = false;
+    let chartFunctionBsqrtScaled = false;
+    let chartRenderingContext = [];
+    if(ctxChart1 !== null) chartRenderingContext.push(ctxChart1);
+    if(ctxChart2 !== null) chartRenderingContext.push(ctxChart2);
+    if(ctxChart3 !== null) chartRenderingContext.push(ctxChart3);
+    let noAddChart = false;
+    const chartSceneController = new ChartSceneController(chartRenderingContext, sceneController);
 
+    function uncheckCkbox() {
+        console.log("uncheckChart " + chartSceneController.uncheckedChart)
+        if(CHART_TITLES.indexOf(chartSceneController.uncheckedChart) !== -1) {
+            noAddChart = true;
+            switch(chartSceneController.uncheckedChart) {
+                case CHART_TITLES[0]:
+                    console.log("uncheck " +CHART_TITLES[0])
+                    checkBoxFunctionA.click();
+                    break;
+                case CHART_TITLES[1]:
+                    console.log("uncheck " +CHART_TITLES[1])
+                    checkBoxFunctionB.click();
+                    break;
+                case CHART_TITLES[2]:
+                    console.log("uncheck " +CHART_TITLES[2])
+                    checkBoxCurvature.click();
+                    break;
+                case CHART_TITLES[3]:
+                    console.log("uncheck " +CHART_TITLES[3])
+                    checkBoxAbsCurvature.click();
+                    break;
+                case CHART_TITLES[4]:
+                    console.log("uncheck " +CHART_TITLES[4])
+                    checkBoxFunctionBsqrtScaled.click();
+                    break;
+            }
+        }
+        chartSceneController.resetUncheckedChart();
+        noAddChart = false;
+    }
+
+    function resetChartContext() {
+        chartSceneController.restart();
+        noAddChart = true;
+        if(chartFunctionA) checkBoxFunctionA.click();
+        if(chartFunctionB) checkBoxFunctionB.click();
+        if(chartCurvatureCrv) checkBoxCurvature.click();
+        if(chartAbsCurvatureCurv) checkBoxAbsCurvature.click();
+        if(chartFunctionBsqrtScaled) checkBoxFunctionBsqrtScaled.click();
+        noAddChart = false;
+    }
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
         var x, y,
@@ -282,334 +319,58 @@ export function main() {
         if(keyName === "Shift") sceneController.shiftKeyUp()
     }
 
-    /* JCL 2020/09/07 Add callbacks for checkbox processing */
     function chkboxFunctionA() {
-        let chkboxValue: string = ""
-        let functionSceneControllerToRemove: string = ""
-        let eventToBeProcessed = sceneController.chkboxFunctionA();
-        if(eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0]
-        }
-        else {
-            functionSceneControllerToRemove = eventToBeProcessed[0]
-            chkboxValue = eventToBeProcessed[1]
-        }
-        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
-        switch(functionSceneControllerToRemove) {
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        /* JCL 2020/09/07 Process the event related to the checkbox */
-        switch(chkboxValue) {
-            case "functionA": {
-                let indexChart = stackOfAvailableCharts.indexOf("available")
-                switch(indexChart) {
-                    case 0: {
-                        functionASceneController = new FunctionASceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        functionASceneController = new FunctionASceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        functionASceneController = new FunctionASceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "functionA"
-                sceneController.addCurveObserver(functionASceneController)
-                break;
-            }
-            case "-functionA": {
-                let indexChart = stackOfAvailableCharts.indexOf("functionA")
-                stackOfAvailableCharts[indexChart] = "available"
-                sceneController.removeCurveObserver(functionASceneController)
-                switch(indexChart) {
-                    case 0: {
-                        chart1.destroy();
-                        chart1 = new ChartController('Graph1 tbd', ctxChart1!, '600px', '700px');
-                        break;
-                    }
-                    case 1: {
-                        chart2.destroy();
-                        chart2 = new ChartController('Graph2 tbd', ctxChart2!, '600px', '700px');
-                        break;
-                    }
-                    case 2: {
-                        chart3.destroy();
-                        chart3 = new ChartController('Graph3 tbd', ctxChart3!, '600px', '700px');
-                        break;
-                    }
-                }
-            }
+        if(chartFunctionA) {
+            chartFunctionA = false;
+            if(!noAddChart) chartSceneController.addChart(CHART_TITLES[0]);
+        } else {
+            chartFunctionA = true;
+            chartSceneController.addChart(CHART_TITLES[0]);
+            uncheckCkbox();
         }
     }
 
     function chkboxFunctionB() {
-        let chkboxValue: string = ""
-        let functionSceneControllerToRemove: string = ""
-        let eventToBeProcessed = sceneController.chkboxFunctionB();
-        if(eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0]
-        }
-        else {
-            functionSceneControllerToRemove = eventToBeProcessed[0]
-            chkboxValue = eventToBeProcessed[1]
-        }
-        /* JCL 2020/09/07 Remove functionSceneController indirectly through a message sending process to update the checkboxes */
-        switch(functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        switch(chkboxValue) {
-            case "functionB": {
-                let indexChart = stackOfAvailableCharts.indexOf("available")
-                switch(indexChart) {
-                    case 0: {
-                        functionBSceneController = new FunctionBSceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        functionBSceneController = new FunctionBSceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        functionBSceneController = new FunctionBSceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "functionB"
-                sceneController.addCurveObserver(functionBSceneController)
-                break;
-            }
-            case "-functionB": {
-                let indexChart = stackOfAvailableCharts.indexOf("functionB")
-                stackOfAvailableCharts[indexChart] = "available"
-                sceneController.removeCurveObserver(functionBSceneController)
-            }
+        if(chartFunctionB) {
+            chartFunctionB = false;
+            if(!noAddChart) chartSceneController.addChart(CHART_TITLES[1]);
+        } else {
+            chartFunctionB = true;
+            chartSceneController.addChart(CHART_TITLES[1]);
+            uncheckCkbox();
         }
     }
 
     function chkboxFunctionBsqrtScaled() {
-        let chkboxValue: string = ""
-        let functionSceneControllerToRemove: string = ""
-        let eventToBeProcessed = sceneController.chkboxFunctionBsqrtScaled();
-        if(eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0]
-        }
-        else {
-            functionSceneControllerToRemove = eventToBeProcessed[0]
-            chkboxValue = eventToBeProcessed[1]
-        }
-        switch(functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        switch(chkboxValue) {
-            case "sqrtFunctionB": {
-                let indexChart = stackOfAvailableCharts.indexOf("available")
-                switch(indexChart) {
-                    case 0: {
-                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chart1);
-                        break;
-                    }
-                    case 1: {
-                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chart2);
-                        break;
-                    }
-                    case 2: {
-                        functionBsqrtScaledSceneController = new FunctionBSceneControllerSqrtScaled(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "sqrtFunctionB"
-                sceneController.addCurveObserver(functionBsqrtScaledSceneController)
-                break;
-            }
-            case "-sqrtFunctionB": {
-                let indexChart = stackOfAvailableCharts.indexOf("sqrtFunctionB")
-                stackOfAvailableCharts[indexChart] = "available"
-                sceneController.removeCurveObserver(functionBsqrtScaledSceneController)
-            }
+        if(chartFunctionBsqrtScaled) {
+            chartFunctionBsqrtScaled = false;
+            if(!noAddChart) chartSceneController.addChart(CHART_TITLES[4]);
+        } else {
+            chartFunctionBsqrtScaled = true;
+            chartSceneController.addChart(CHART_TITLES[4]);
+            uncheckCkbox();
         }
     }
 
     function chkboxCurvature() {
-        let chkboxValue: string = ""
-        let functionSceneControllerToRemove: string = ""
-        let eventToBeProcessed = sceneController.chkboxCurvature();
-        if(eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0]
-        }
-        else {
-            functionSceneControllerToRemove = eventToBeProcessed[0]
-            chkboxValue = eventToBeProcessed[1]
-        }
-        switch(functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-absCurvature": {
-                checkBoxAbsCurvature.click();
-                break;
-            }
-        }
-        switch(chkboxValue) {
-            case "curvature": {
-                let indexChart = stackOfAvailableCharts.indexOf("available")
-                switch(indexChart) {
-                    case 0: {
-                        curvatureSceneController = new CurvatureSceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        curvatureSceneController = new CurvatureSceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        curvatureSceneController = new CurvatureSceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "curvature"
-                sceneController.addCurveObserver(curvatureSceneController)
-                break;
-            }
-            case "-curvature": {
-                let indexChart = stackOfAvailableCharts.indexOf("curvature")
-                stackOfAvailableCharts[indexChart] = "available"
-                sceneController.removeCurveObserver(curvatureSceneController)
-            }
+        if(chartCurvatureCrv) {
+            chartCurvatureCrv = false;
+            if(!noAddChart) chartSceneController.addChart(CHART_TITLES[2]);
+        } else {
+            chartCurvatureCrv = true;
+            chartSceneController.addChart(CHART_TITLES[2]);
+            uncheckCkbox();
         }
     }
 
     function chkboxAbsCurvature() {
-        let chkboxValue: string = ""
-        let functionSceneControllerToRemove: string = ""
-        let eventToBeProcessed = sceneController.chkboxAbsCurvature();
-        if(eventToBeProcessed.length < 2) {
-            chkboxValue = eventToBeProcessed[0]
-        }
-        else {
-            functionSceneControllerToRemove = eventToBeProcessed[0]
-            chkboxValue = eventToBeProcessed[1]
-        }
-        switch(functionSceneControllerToRemove) {
-            case "-functionA": {
-                checkBoxFunctionA.click();
-                break;
-            }
-            case "-functionB": {
-                checkBoxFunctionB.click();
-                break;
-            }
-            case "-sqrtFunctionB": {
-                checkBoxFunctionBsqrtScaled.click();
-                break;
-            }
-            case "-curvature": {
-                checkBoxCurvature.click();
-                break;
-            }
-        }
-        switch(chkboxValue) {
-            case "absCurvature": {
-                let indexChart = stackOfAvailableCharts.indexOf("available")
-                switch(indexChart) {
-                    case 0: {
-                        absCurvatureSceneController = new AbsCurvatureSceneController(chart1);
-                        break;
-                    }
-                    case 1: {
-                        absCurvatureSceneController = new AbsCurvatureSceneController(chart2);
-                        break;
-                    }
-                    case 2: {
-                        absCurvatureSceneController = new AbsCurvatureSceneController(chart3);
-                        break;
-                    }
-                    default: {
-                        console.log("Error: no available chart");
-                        break;
-                    }
-                }
-                stackOfAvailableCharts[indexChart] = "absCurvature"
-                sceneController.addCurveObserver(absCurvatureSceneController)
-                break;
-            }
-            case "-absCurvature": {
-                let indexChart = stackOfAvailableCharts.indexOf("absCurvature")
-                stackOfAvailableCharts[indexChart] = "available"
-                sceneController.removeCurveObserver(absCurvatureSceneController)
-            }
+        if(chartAbsCurvatureCurv) {
+            chartAbsCurvatureCurv = false;
+            if(!noAddChart) chartSceneController.addChart(CHART_TITLES[3]);
+        } else {
+            chartAbsCurvatureCurv = true;
+            chartSceneController.addChart(CHART_TITLES[3]);
+            uncheckCkbox();
         }
     }
 
@@ -759,12 +520,12 @@ export function main() {
                         option = <HTMLOptionElement> document.getElementById(optionName + (newCurveDegree - 2).toString());
                         option.setAttribute("selected", "selected");
                         for(let i = 1; i < (newCurveDegree - 2); i += 1) {
-                            let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                            option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
                             if(option !== null) option.setAttribute("disabled", "");
                             else throw new Error('No id found to identify an Option in the Selector');
                         }
                         for(let i = (newCurveDegree - 2); i <= 4; i += 1) {
-                            let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                            option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
                             //if(option !== null) option.setAttribute("disabled", "disabled");
                             if(option !== null) option.removeAttribute("disabled");
                             else throw new Error('No id found to identify an Option in the Selector');
@@ -775,41 +536,6 @@ export function main() {
                         throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
                     }
                 } else throw new Error("Unable to update the curve degree selector. Undefined curve model");
-
-                /* JCL 2020/10/18 Reset all the active checkboxes */
-                for(let item of stackOfAvailableCharts) {
-                    switch (item) {
-                        case "functionA": {
-                            checkBoxFunctionA.click()
-                            break;
-                        }
-                        case "functionB": {
-                            checkBoxFunctionB.click()
-                            break;
-                        }
-                        case "sqrtFunctionB": {
-                            checkBoxFunctionBsqrtScaled.click()
-                            break;
-                        }
-                        case "curvature": {
-                            checkBoxCurvature.click()
-                            break;
-                        }
-                        case "absCurvature": {
-                            checkBoxAbsCurvature.click()
-                            break;
-                        }
-                    }
-                }
-                stackOfAvailableCharts = ["available", "available", "available"];
-
-                /* JCL 2020/10/15 Reinitialize the three graphs */
-                chart1.destroy();
-                chart1 = new ChartController('Graph1 tbd', ctxChart1!, '600px', '700px');
-                chart2.destroy();
-                chart2 = new ChartController('Graph2 tbd', ctxChart2!, '600px', '700px');
-                chart3.destroy();
-                chart3 = new ChartController('Graph3 tbd', ctxChart3!, '600px', '700px');
 
                 /* JCL 2020/10/18 Reset the appropriate control buttons */
                 if(!sceneController.sliding) {
@@ -826,6 +552,7 @@ export function main() {
                 }
                 if(typeof(aSpline) !== "undefined") {
                     sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+                    resetChartContext();
                 } else throw new Error("Unable to reset the curve context. Undefined curve model");
                 // to be discussed
                 //sceneController = new CurveSceneController(canvas, gl, , curveModel)
@@ -834,7 +561,7 @@ export function main() {
                 throw new Error('Error when reading the input file. Incorrect text format.');
             } 
         }
-    };
+    }
 
     function drawImage(tex: any, texWidth: number, texHeight: number, dstX: number, dstY: number) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
