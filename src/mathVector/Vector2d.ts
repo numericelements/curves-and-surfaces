@@ -35,10 +35,12 @@ export class Vector2d {
     }
 
     dot(v: Vector2d) {
+        'use strict';
         return this.x * v.x + this.y * v.y;
     }
 
     distance(v: Vector2d) {
+        'use strict';
         return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
     }
 
@@ -46,4 +48,33 @@ export class Vector2d {
         return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
+    clone() {
+        return new Vector2d(this.x, this.y)
+    }
+
 }
+
+export function scale(factor: number, v: Vector2d[]) {
+    let result: Vector2d[] = []
+    v.forEach(element => {
+        result.push(element.multiply(factor))
+    })
+    return result
+}
+
+export function scaleX(factor: number, v: Vector2d[]) {
+    let result: Vector2d[] = []
+    v.forEach(element => {
+        v.push(new Vector2d(element.x * factor, element.y))
+    })
+    return result
+}
+
+export function scaleY(factor: number, v: Vector2d[]) {
+    let result: Vector2d[] = []
+    v.forEach(element => {
+        v.push(new Vector2d(element.x, element.y * factor))
+    })
+    return result
+}
+
