@@ -1,4 +1,4 @@
-import { CurveModelInterface } from "../models/CurveModelINterface";
+import { CurveModelInterface } from "../models/CurveModelInterface";
 
 
 export class CurveSceneController {

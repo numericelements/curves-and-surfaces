@@ -1,5 +1,5 @@
 import { CurveSceneController } from "../controllers/CurveSceneController"
-import { CurveModelInterface } from "../models/CurveModelINterface"
+import { CurveModelInterface } from "../models/CurveModelInterface"
 import { ControlPointsShaders } from "../views/ControlPointsShaders"
 import { ControlPointsView } from "../views/ControlPointsView"
 import { ControlPolygonShaders } from "../views/ControlPolygonShaders"
@@ -67,7 +67,7 @@ export class CurveSceneView {
 
     leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {
             this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
-            this.controlPointsView.setSelected(this.selectedControlPoint);
+            this.controlPointsView.setSelected(this.selectedControlPoint)
             if (this.selectedControlPoint !== null) {
                 this.dragging = true;
             }
@@ -83,6 +83,22 @@ export class CurveSceneView {
 
     leftMouseUp_event() {
         this.dragging = false;
+    }
+
+    addControlPoint() {
+        const cp = this.selectedControlPoint
+        this.selectedControlPoint = null
+        this.controlPointsView.setSelected(this.selectedControlPoint)
+        this.curveModel.addControlPoint(cp)
+        this.renderFrame()
+    }
+
+    toggleControlOfCurvatureExtrema() {
+        this.curveModel.toggleActiveControlOfCurvatureExtrema()
+    }
+
+    toggleControlOfInflections() {
+        this.curveModel.toggleActiveControlOfInflections()
     }
 
 }

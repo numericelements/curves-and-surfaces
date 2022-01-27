@@ -2,9 +2,11 @@ import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../bsplines
 import { IObserver, IObservable } from "../designPatterns/Observer"
 import { BSplineR1toR2Interface } from "../bsplines/BSplineR1toR2Interface"
 import { Vector2d } from "../mathVector/Vector2d"
-import { CurveModelInterface } from "./CurveModelINterface"
-import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
+import { CurveModelInterface } from "./CurveModelInterface"
+import { OptimizationProblemPeriodicBSplineR1toR2, ActiveControl } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
 import { Optimizer } from "../optimizers/Optimizer"
+
+
 
 export class ClosedCurveModel implements CurveModelInterface,  IObservable<BSplineR1toR2Interface> {
 
@@ -13,6 +15,7 @@ export class ClosedCurveModel implements CurveModelInterface,  IObservable<BSpli
     private optimizer: Optimizer
     private optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2
     private activeOptimizer: boolean = true
+    private activeControl: ActiveControl = ActiveControl.both
 
     constructor() {
 
@@ -31,7 +34,7 @@ export class ClosedCurveModel implements CurveModelInterface,  IObservable<BSpli
         this._spline = create_PeriodicBSplineR1toR2(cp1, knots)
 
 
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone())
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
 
        
@@ -104,6 +107,76 @@ export class ClosedCurveModel implements CurveModelInterface,  IObservable<BSpli
 
 
     }
+
+    addControlPoint(controlPointIndex: number | null) {
+        let cp = controlPointIndex
+        if (cp != null) {
+            if (cp === 0) { cp += 1}
+            if (cp === this._spline.freeControlPoints.length -1) { cp -= 1} 
+            const grevilleAbscissae = this._spline.grevilleAbscissae()
+            let meanGA = (grevilleAbscissae[cp] + grevilleAbscissae[cp+1]) / 2
+            if (meanGA < this._spline.knots[this._spline.degree]) {
+                let index = this._spline.degree;
+                meanGA = (this._spline.knots[index] + this._spline.knots[index + 1]) / 2;
+            }
+            else if (meanGA > this._spline.knots[this._spline.knots.length - this._spline.degree - 1]) {
+                let index = this._spline.knots.length - this._spline.degree - 1;
+                meanGA = (this._spline.knots[index] + this._spline.knots[index - 1]) / 2;
+            }
+            this._spline.insertKnot(meanGA)
+        }
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this.optimizer = new Optimizer(this.optimizationProblem)
+        this.notifyObservers()
+    }
+
+    setActiveControl() {
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this.optimizer = new Optimizer(this.optimizationProblem)
+        this.notifyObservers()
+    }
+
+    toggleActiveControlOfCurvatureExtrema() {
+        //console.log("bla")
+        if (!this.activeOptimizer) {
+            this.activeOptimizer = true
+            this.activeControl = ActiveControl.curvatureExtrema
+        }
+        else if (this.activeControl == ActiveControl.both){
+            this.activeControl = ActiveControl.inflections
+        }
+        else if (this.activeControl == ActiveControl.inflections){
+            this.activeControl = ActiveControl.both
+        }
+        else if (this.activeControl == ActiveControl.curvatureExtrema){
+            this.activeOptimizer = false
+        }
+        if (this.activeOptimizer){
+            this.setActiveControl()
+        }
+    }
+
+    toggleActiveControlOfInflections() {
+        //console.log("blo")
+        if (!this.activeOptimizer) {
+            this.activeOptimizer = true
+            this.activeControl = ActiveControl.inflections
+        }
+        else if (this.activeControl == ActiveControl.both){
+            this.activeControl = ActiveControl.curvatureExtrema
+        }
+        else if (this.activeControl == ActiveControl.curvatureExtrema){
+            this.activeControl = ActiveControl.both
+        }
+        else if (this.activeControl == ActiveControl.inflections){
+            this.activeOptimizer = false
+        }
+
+        if (this.activeOptimizer){
+            this.setActiveControl()
+        }
+    }
+
     
 
 }

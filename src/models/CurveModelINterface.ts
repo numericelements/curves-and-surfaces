@@ -12,4 +12,10 @@ export interface CurveModelInterface extends IObservable<BSplineR1toR2Interface>
 
     setSpline(spline: BSplineR1toR2Interface): void 
 
+    addControlPoint(controlPointIndex: number | null): void
+
+    toggleActiveControlOfCurvatureExtrema() : void
+
+    toggleActiveControlOfInflections() : void
+
 }
