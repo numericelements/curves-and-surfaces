@@ -41373,18 +41373,6 @@ var ChartSceneController = /** @class */ (function () {
                 }
                 else {
                     this.reorderFreeCharts(chartController, indexCtrlr);
-                    // let i = this.freeChartsQueue.length() - 2;
-                    // let insert = false;
-                    // while(i >= 0) {
-                    //     const chartCtrlr = this.freeChartsQueue.at(i);
-                    //     const index = this.chartControllers.indexOf(chartCtrlr);
-                    //     if(index < indexCtrlr) {
-                    //         this.freeChartsQueue.insertAt(i, chartController);
-                    //         insert = true;
-                    //     }
-                    //     i--;
-                    // }
-                    // if(!insert) this.freeChartsQueue.insertAt(0, chartController);
                 }
             }
         }
@@ -46312,6 +46300,21 @@ var NavigationState = /** @class */ (function () {
     NavigationState.prototype.setCurveShapeSpaceNavigator = function (curveShapeSpaceNavigator) {
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
     };
+    NavigationState.prototype.setNavigationStrictlyInsideShapeSpace = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
+        warning.logMessageToConsole();
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
+    };
+    NavigationState.prototype.setNavigationThroughSimplerShapeSpaces = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
+        warning.logMessageToConsole();
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
+    };
+    NavigationState.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
+        warning.logMessageToConsole();
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
+    };
     return NavigationState;
 }());
 exports.NavigationState = NavigationState;
@@ -46326,16 +46329,6 @@ var NavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_super) {
         _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.optimizedCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         return _this;
     }
-    NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationStrictlyInsideShapeSpace = function () {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
-    };
-    NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationThroughSimplerShapeSpaces = function () {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
-    };
     NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
         warning.logMessageToConsole();
@@ -46370,19 +46363,9 @@ var NavigationThroughSimplerShapeSpaces = /** @class */ (function (_super) {
         _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.optimizedCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         return _this;
     }
-    NavigationThroughSimplerShapeSpaces.prototype.setNavigationStrictlyInsideShapeSpace = function () {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
-    };
     NavigationThroughSimplerShapeSpaces.prototype.setNavigationThroughSimplerShapeSpaces = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
         warning.logMessageToConsole();
-    };
-    NavigationThroughSimplerShapeSpaces.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     };
     NavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
         this.curveConstraints.processConstraint();
@@ -46413,19 +46396,9 @@ var NavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) {
     function NavigationStrictlyInsideShapeSpace() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    NavigationStrictlyInsideShapeSpace.prototype.setNavigationThroughSimplerShapeSpaces = function () {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
-    };
     NavigationStrictlyInsideShapeSpace.prototype.setNavigationStrictlyInsideShapeSpace = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationStrictlyInsideShapeSpace", "No navigation process to change there.");
         warning.logMessageToConsole();
-    };
-    NavigationStrictlyInsideShapeSpace.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     };
     NavigationStrictlyInsideShapeSpace.prototype.curveConstraintsMonitoring = function () {
         this.curveConstraints.processConstraint();
