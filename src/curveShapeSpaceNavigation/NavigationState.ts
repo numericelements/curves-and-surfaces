@@ -29,11 +29,23 @@ export abstract class NavigationState {
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
     }
 
-    abstract setNavigationStrictlyInsideShapeSpace(): void;
+    setNavigationStrictlyInsideShapeSpace(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
+        warning.logMessageToConsole();
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
+    }
 
-    abstract setNavigationThroughSimplerShapeSpaces(): void;
+    setNavigationThroughSimplerShapeSpaces(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
+        warning.logMessageToConsole();
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
+    }
 
-    abstract setNavigationWithoutShapeSpaceMonitoring(): void;
+    setNavigationWithoutShapeSpaceMonitoring(): void {
+        let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
+        warning.logMessageToConsole();
+        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
+    }
 
     abstract navigate(selectedControlPoint: number, x: number, y: number): void;
 
@@ -55,23 +67,10 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
         this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
     }
 
-    setNavigationStrictlyInsideShapeSpace(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
-    }
-
-    setNavigationThroughSimplerShapeSpaces(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
-    }
-
     setNavigationWithoutShapeSpaceMonitoring(): void {
         let warning = new WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
         warning.logMessageToConsole();
     }
-
 
     curveConstraintsMonitoring(): void {
         this.curveConstraints.processConstraint();
@@ -110,21 +109,9 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
         this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
     }
 
-    setNavigationStrictlyInsideShapeSpace(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationStrictlyInsideShapeSpace(this.curveShapeSpaceNavigator));
-    }
-
     setNavigationThroughSimplerShapeSpaces(): void {
         let warning = new WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
         warning.logMessageToConsole();
-    }
-
-    setNavigationWithoutShapeSpaceMonitoring(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     }
 
     curveConstraintsMonitoring(): void {
@@ -156,21 +143,10 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
 
 export class NavigationStrictlyInsideShapeSpace extends NavigationState {
 
-    setNavigationThroughSimplerShapeSpaces(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationThroughSimplerShapeSpaces(this.curveShapeSpaceNavigator));
-    }
 
     setNavigationStrictlyInsideShapeSpace(): void {
         let warning = new WarningLog(this.constructor.name, "setNavigationStrictlyInsideShapeSpace", "No navigation process to change there.");
         warning.logMessageToConsole();
-    }
-
-    setNavigationWithoutShapeSpaceMonitoring(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
-        warning.logMessageToConsole();
-        this.curveShapeSpaceNavigator.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this.curveShapeSpaceNavigator));
     }
 
     curveConstraintsMonitoring(): void {
