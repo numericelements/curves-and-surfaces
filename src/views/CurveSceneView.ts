@@ -9,6 +9,10 @@ import { CurveView } from "../views/CurveView"
 import { CurvatureExtremaShaders } from "./CurvatureExtremaShaders"
 import { CurvatureExtremaView } from "./CurvatureExtremaView"
 import { InflectionsView } from "../views/InflectionsView"
+import { CurveModel } from "../models/CurveModel"
+import { ClosedCurveModel } from "../models/ClosedCurveModel"
+import { CurveModelAlternative01 } from "../models/CurveModelAlternative01"
+import { ClosedCurveModelAlternative01 } from "../models/ClosedCurveModelAlternative01"
 
 export class CurveSceneView {
 
@@ -37,12 +41,11 @@ export class CurveSceneView {
         this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1)
         this.inflectionsView = new InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1)
 
-        
-        this.curveModel.registerObserver(this.controlPointsView)
-        this.curveModel.registerObserver(this.controlPolygonView)
-        this.curveModel.registerObserver(this.curveView)
-        this.curveModel.registerObserver(this.curvatureExtremaView)
-        this.curveModel.registerObserver(this.inflectionsView)
+        this.curveModel.registerObserver(this.controlPointsView, "control points")
+        this.curveModel.registerObserver(this.controlPolygonView, "control points")
+        this.curveModel.registerObserver(this.curveView, "curve")
+        this.curveModel.registerObserver(this.curvatureExtremaView, "curve")
+        this.curveModel.registerObserver(this.inflectionsView, "curve")
         this.curveSceneControler = new CurveSceneController(curveModel)
         this.renderFrame()
 
@@ -99,6 +102,38 @@ export class CurveSceneView {
 
     toggleControlOfInflections() {
         this.curveModel.toggleActiveControlOfInflections()
+    }
+
+    selectCurveCategory(s: string) {
+        switch(s) {
+            case "0":
+                this.updateCurveModel(new CurveModel())
+                break
+            case "1":
+                this.updateCurveModel(new ClosedCurveModel())
+                break
+            case "2":
+                this.updateCurveModel(new CurveModelAlternative01())
+                break
+            case "3":
+                this.updateCurveModel(new ClosedCurveModelAlternative01())
+                break
+        }
+    }
+
+    updateCurveModel(curveModel: CurveModelInterface) {
+        this.curveModel = curveModel
+        this.curveModel.registerObserver(this.controlPointsView, "control points")
+        this.curveModel.registerObserver(this.controlPolygonView, "control points")
+        this.curveModel.registerObserver(this.curveView, "curve")
+        this.curveModel.registerObserver(this.curvatureExtremaView, "curve")
+        this.curveModel.registerObserver(this.inflectionsView, "curve")
+        this.curveSceneControler = new CurveSceneController(curveModel)
+
+        this.controlPolygonView.isClosed = this.curveModel.isClosed
+
+        this.curveModel.notifyObservers()
+        this.renderFrame()
     }
 
 }

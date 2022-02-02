@@ -45,19 +45,19 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
 
     /**
      * 
-     * @param from Parametric position where the section start
-     * @param to Parametric position where the section end
+     * @param fromU Parametric position where the section start
+     * @param toU Parametric position where the section end
      * @retrun the BSpline_R1_to_R2 section
      */
-    section(from: number, to: number) {
+    extract(fromU: number, toU: number) {
 
         let spline = this.clone()
-        spline.clamp(from)
-        spline.clamp(to)
+        spline.clamp(fromU)
+        spline.clamp(toU)
 
 
-        const newFromSpan = clampingFindSpan(from, spline._knots, spline._degree)
-        const newToSpan = clampingFindSpan(to, spline._knots, spline._degree)
+        const newFromSpan = clampingFindSpan(fromU, spline._knots, spline._degree)
+        const newToSpan = clampingFindSpan(toU, spline._knots, spline._degree)
 
         let newKnots : number[] = []
         let newControlPoints : Vector2d[] = []

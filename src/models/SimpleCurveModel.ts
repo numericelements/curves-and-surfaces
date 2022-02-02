@@ -3,14 +3,16 @@ import { BSplineR1toR2 } from "../bsplines/BSplineR1toR2"
 import { IObserver } from "../designPatterns/Observer"
 import { Vector2d } from "../mathVector/Vector2d"
 import { CurveModelInterface } from "./CurveModelInterface"
+import { AbstractCurveModel } from "./AbstractCurveModel"
 
 
-export class SimpleCurveModel implements CurveModelInterface {
+export class SimpleCurveModel extends AbstractCurveModel {
 
-    private _spline: BSplineR1toR2
-    private observers: IObserver<BSplineR1toR2Interface>[] = []
+    protected _spline: BSplineR1toR2
+    //private observers: IObserver<BSplineR1toR2Interface>[] = []
 
     constructor() {
+        super()
         const cp0 = new Vector2d(-0.5, 0)
         const cp1 = new Vector2d(-0.1, 0.5)
         const cp2 = new Vector2d(0.1, 0.5)
@@ -28,36 +30,19 @@ export class SimpleCurveModel implements CurveModelInterface {
         return false
     }
 
-    registerObserver(observer: IObserver<BSplineR1toR2Interface>) {
-        this.observers.push(observer)
-    }
 
-    removeObserver(observer: IObserver<BSplineR1toR2Interface>) {
-        this.observers.splice(this.observers.indexOf(observer), 1)
-    }
-
-    notifyObservers() {
-        for (let observer of this.observers){
-            observer.update(this._spline)
-        }
-    }
-
+    /*
     moveControlPoint(controlPointIndex: number, deltaX: number, deltaY: number) {
         this._spline.moveControlPoint(controlPointIndex, deltaX, deltaY)
         if (deltaX*deltaX + deltaY*deltaY > 0) {
             this.notifyObservers()
         }
     }
-
-    /*
-    setControlPointPosition(controlPointIndex: number, x: number, y: number) {
-        this._spline.setControlPoint(controlPointIndex, new Vector2d(x, y))
-        this.notifyObservers()
-    }
     */
 
+
     setControlPointPosition(controlPointIndex: number, x: number, y: number) {
-        this._spline.setControlPoint(controlPointIndex, new Vector2d(x, y))
+        this._spline.setControlPointPosition(controlPointIndex, new Vector2d(x, y))
         this.notifyObservers()
     }
 

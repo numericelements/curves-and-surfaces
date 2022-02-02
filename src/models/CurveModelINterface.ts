@@ -1,14 +1,15 @@
 import { BSplineR1toR2Interface } from "../bsplines/BSplineR1toR2Interface";
-import { IObservable } from "../designPatterns/Observer";
+import {  IMultiObservable, IObservable, IObserver } from "../designPatterns/Observer";
 
+export type KindOfObservers = 'curve' | 'control points'
 
-export interface CurveModelInterface extends IObservable<BSplineR1toR2Interface> {
+export interface CurveModelInterface extends IMultiObservable<BSplineR1toR2Interface, KindOfObservers> {
 
     spline : BSplineR1toR2Interface
 
-    setControlPointPosition(controlPointIndex: number, x: number, y: number) : void
-
     isClosed : boolean
+
+    setControlPointPosition(controlPointIndex: number, x: number, y: number) : void
 
     setSpline(spline: BSplineR1toR2Interface): void 
 
@@ -17,5 +18,7 @@ export interface CurveModelInterface extends IObservable<BSplineR1toR2Interface>
     toggleActiveControlOfCurvatureExtrema() : void
 
     toggleActiveControlOfInflections() : void
+
+    notifyObservers() : void
 
 }

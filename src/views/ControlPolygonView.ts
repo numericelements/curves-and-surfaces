@@ -27,7 +27,11 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         if (check < 0) {
             console.log('Failed to set the positions of the vertices')
         }
-    }      
+    }
+
+    set isClosed(bool: boolean) {
+        this.closed = bool
+    }
 
 
     updateVerticesAndIndices() {

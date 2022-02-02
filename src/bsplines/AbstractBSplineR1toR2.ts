@@ -100,7 +100,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         return result
     }
 
-    distinctKnots() {
+    getDistinctKnots() {
         let result: number[] = [this._knots[0]]
         let temp = result[0]
         for (let i = 1; i < this._knots.length; i += 1) {
@@ -121,7 +121,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     }
 
 
-    setControlPoint(index: number, value: Vector2d) {
+    setControlPointPosition(index: number, value: Vector2d) {
         this._controlPoints[index] =  value
     }
 
@@ -218,11 +218,11 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     /**
      * 
-     * @param from Parametric position where the section start
-     * @param to Parametric position where the section end
+     * @param fromU Parametric position where the section start
+     * @param toU Parametric position where the section end
      * @retrun the BSpline_R1_to_R2 section
      */
-    abstract section(from: number, to: number) : AbstractBSplineR1toR2
+    abstract extract(fromU: number, toU: number) : AbstractBSplineR1toR2
 
 }
 

@@ -15,7 +15,7 @@ export abstract class AbstractBSplineR1toR2DifferentialProperties {
         this._spline = spline.clone()
     }
 
-    expensiveComputation(spline: AbstractBSplineR1toR2) {
+    protected expensiveComputation(spline: AbstractBSplineR1toR2) {
         const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots);
         const sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots);
         const sxu = sx.derivative();
@@ -46,7 +46,7 @@ export abstract class AbstractBSplineR1toR2DifferentialProperties {
 
     curvatureNumerator() {
         const e = this.expensiveComputation(this._spline)
-        const distinctKnots = this._spline.distinctKnots()
+        const distinctKnots = this._spline.getDistinctKnots()
         const controlPoints = e.h4.flattenControlPointsArray()
         const curvatureNumeratorDegree = 2 * this._spline.degree - 3
         let knots = []
@@ -60,7 +60,7 @@ export abstract class AbstractBSplineR1toR2DifferentialProperties {
 
     h1() {
         const e = this.expensiveComputation(this._spline)
-        const distinctKnots = this._spline.distinctKnots()
+        const distinctKnots = this._spline.getDistinctKnots()
         const controlPoints = e.h1.flattenControlPointsArray()
         const h1Degree = 2 * this._spline.degree - 2
         let knots = []
@@ -91,7 +91,7 @@ export abstract class AbstractBSplineR1toR2DifferentialProperties {
     curvatureDerivativeNumerator() {
         const e = this.expensiveComputation(this._spline)
         const bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3))
-        const distinctKnots = this._spline.distinctKnots()
+        const distinctKnots = this._spline.getDistinctKnots()
         const controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray()
         const curvatureDerivativeNumeratorDegree = 4 * this._spline.degree - 6
         let knots = []

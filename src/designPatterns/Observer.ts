@@ -8,3 +8,10 @@ export interface IObservable<T> {
     removeObserver(observer: IObserver<T>): void
     notifyObservers(): void
 }
+
+
+export interface IMultiObservable<T, N> {
+    registerObserver(observer: IObserver<T>, name: N): void
+    removeObserver(observer: IObserver<T>, name: N): void
+    notifyObservers(): void
+}

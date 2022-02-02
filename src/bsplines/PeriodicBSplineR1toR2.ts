@@ -70,26 +70,26 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
 
         let n = this.periodicControlPointsLength
         if (i < this.degree) {
-            super.setControlPoint(n + i, this.getControlPoint(i))
+            super.setControlPointPosition(n + i, this.getControlPoint(i))
         }
 
     }
 
     /**
      * 
-     * @param from Parametric position where the section start
-     * @param to Parametric position where the section end
+     * @param fromU Parametric position where the section start
+     * @param toU Parametric position where the section end
      * @retrun the BSpline_R1_to_R2 section
      */
-     section(from: number, to: number) {
+     extract(fromU: number, toU: number) {
 
         let spline = this.clone()
-        spline.clamp(from)
-        spline.clamp(to)
+        spline.clamp(fromU)
+        spline.clamp(toU)
 
 
-        const newFromSpan = clampingFindSpan(from, spline._knots, spline._degree)
-        const newToSpan = clampingFindSpan(to, spline._knots, spline._degree)
+        const newFromSpan = clampingFindSpan(fromU, spline._knots, spline._degree)
+        const newToSpan = clampingFindSpan(toU, spline._knots, spline._degree)
 
         let newKnots : number[] = []
         let newControlPoints : Vector2d[] = []
@@ -108,22 +108,22 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
 
 
 
-    distinctKnots() {
-        const result = super.distinctKnots()
+    getDistinctKnots() {
+        const result = super.getDistinctKnots()
         return result.slice(this.degree, result.length - this.degree)
     }
 
-    setControlPoint(i: number, value: Vector2d) {
+    setControlPointPosition(i: number, value: Vector2d) {
 
         if (i < 0 || i >= this.periodicControlPointsLength) {
             throw new Error("Control point indentifier is out of range")
         }
         
-        super.setControlPoint(i, value.clone())
+        super.setControlPointPosition(i, value.clone())
 
         if (i < this._degree) {
             const j = this.periodicControlPointsLength + i
-            super.setControlPoint(j, value.clone())
+            super.setControlPointPosition(j, value.clone())
         }
         
 

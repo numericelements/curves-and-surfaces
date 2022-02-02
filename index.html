@@ -1,19 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Elements</title>
-        <style>
-            body{margin:0;}
-            div{height: 50px; width:50px; background-color:red; border:10px solid gray; margin: 100px}
-        </style>
+        <title>Numeric Elements</title>
+        <link href="stylesheet.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,800,800i" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i" rel="stylesheet">
     </head>
-    <body>
-        <div> </div>
-        <script>
-            var divEdges = document.querySelector('div').getBoundingClientRect();
 
-            console.log(divEdges.top, divEdges.right, divEdges.bottom, divEdges.left);
-        </script>
-    </body>
+    <body>
+        <h1 class="text_center">NUMERIC ELEMENTS</h1>
+        <h3 class="text_center">Software Development and Research in Applied Mathematics</h3>
+        
+
+
+       
+
+        <div class="text_center">
+            <canvas id="webgl" width="600" height="600"> Please use a browser that supports "canvas" </canvas>
+        </div>
+
+        <p style="margin-bottom:1cm;"> </p>
+
+        <div id="contextMenu" class="context-menu">
+            <ul class="menu-options">
+                <li id="addControlPoint" class="menu-option"> add </li>
+                <li id="removeControlPoint" class="menu-option"> remove </li>
+            </ul>
+        </div>
+
+
+        <div class="text_center">
+            <!-- Rounded switch - curvature extrema -->
+            <center>  <p class="text_control_button"> Curvature extrema </p> 
+              <label class="switch">
+                <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
+                <span class="slider round"></span>
+              </label>
+            </center>
+
+            <p style="margin-bottom:0.5cm;"> </p>
+
+            <!-- Rounded switch - inflexions -->
+            <center>  <p class="text_control_button"> Inflexions </p>
+              <label class="switch">
+                <input type="checkbox" checked id="toggleButtonInflections">
+                <span class="slider round"></span>
+              </label>
+            </center>
+        </div>
+        
+
+      <p style="margin-bottom:1cm;"> </p>
+
+      <div>
+        <center>  <p class="text_control_button"> Curve Category: </p>
+        <label for="curveCategory">  </label>
+        <select name="curveCategorySelector" id="curveCategory">
+          <option id= "option1" value="0" selected="selected"> Open planar </option>
+          <option id= "option2" value="1" > Closed planar </option>
+          <option id= "option3" value="2" > Alternative open planar </option>
+          <option id= "option4" value="3" > Alternative closed planar </option>
+        </select>
+      </div>
+
+      <p style="margin-bottom:1cm;"> </p>
+
+      <div class="text_center" id="footer" style="margin-bottom:1cm; color:rgb(100, 100, 100); font-size: 80%;">
+       &copy; 2018-2022
+      </div>
+
+        <script src="dist/bundle.js"></script>
+
+    </body>    
 
 </html>

@@ -130,6 +130,8 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
 
     let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
     let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
+    let curveCategoryButton = <HTMLSelectElement> document.getElementById("curveCategory")
+
 
 
     function toggleControlOfCurvatureExtrema() {
@@ -140,8 +142,18 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
         curveSceneView.toggleControlOfInflections()
     }
 
+    function selectCurveCategory(event: Event) {
+        let category = event.target as HTMLSelectElement
+        curveSceneView.selectCurveCategory(category.value)
+    }
+
     toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
     toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
+
+//    curveCategoryButton.addEventListener('select', selectCurveCategory)
+//    curveCategoryButton.addEventListener('selectionchange', selectCurveCategory)
+//    curveCategoryButton.addEventListener('click', selectCurveCategory)
+    curveCategoryButton.addEventListener('change', selectCurveCategory)
 
 
 }

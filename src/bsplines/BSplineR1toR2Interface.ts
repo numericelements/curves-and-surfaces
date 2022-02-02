@@ -1,5 +1,4 @@
-import { Vector2d } from "../mathVector/Vector2d";
-import { AbstractBSplineR1toR2 } from "./AbstractBSplineR1toR2";
+import { Vector2d } from "../mathVector/Vector2d"
 
 export interface BSplineR1toR2Interface {
 
@@ -20,5 +19,9 @@ export interface BSplineR1toR2Interface {
     getControlPointsX(): number[]
 
     getControlPointsY(): number[]
+
+    moveControlPoint(i: number, deltaX: number, deltaY: number): void
+
+    setControlPointPosition(index: number, value: Vector2d): void
 
 }

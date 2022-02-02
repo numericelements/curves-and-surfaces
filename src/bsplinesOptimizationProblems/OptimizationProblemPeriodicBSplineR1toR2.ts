@@ -7,6 +7,7 @@ import { SymmetricMatrixInterface } from "../linearAlgebra/MatrixInterfaces"
 import { identityMatrix } from "../linearAlgebra/DiagonalMatrix"
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix"
 import { BSplineR1toR2Interface } from "../bsplines/BSplineR1toR2Interface"
+import { AbstractOptimizationProblemBSplineR1toR2, ActiveControl } from "./AbstractOptimizationProblemBSplineR1toR2"
 
 
 
@@ -38,10 +39,10 @@ class ExpensiveComputationResults {
 
 }
 
-export enum ActiveControl {curvatureExtrema, inflections, both}
 
 
-export class OptimizationProblemPeriodicBSplineR1toR2 implements OptimizationProblemInterface {
+
+export class OptimizationProblemPeriodicBSplineR1toR2 extends AbstractOptimizationProblemBSplineR1toR2 {
 
     public spline: PeriodicBSplineR1toR2
     private _target: PeriodicBSplineR1toR2
@@ -70,6 +71,7 @@ export class OptimizationProblemPeriodicBSplineR1toR2 implements OptimizationPro
     private _hessian_f: SymmetricMatrixInterface[] | undefined = undefined
 
     constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
+        super()
         this.spline = initial.clone()
         this._target = target.clone()
         const n = this.spline.controlPoints.length

@@ -1,4 +1,3 @@
-import { OptimizationProblemInterface } from "./OptimizationProblemInterface"
 import { BSplineR1toR2 } from "../bsplines/BSplineR1toR2"
 import { zeroVector, containsNaN } from "../linearAlgebra/MathVectorBasicOperations"
 import { BSplineR1toR1 } from "../bsplines/BSplineR1toR1"
@@ -8,6 +7,7 @@ import { DiagonalMatrix, identityMatrix } from "../linearAlgebra/DiagonalMatrix"
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix"
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix"
 import { BSplineR1toR2Interface } from "../bsplines/BSplineR1toR2Interface"
+import { AbstractOptimizationProblemBSplineR1toR2, ActiveControl } from "./AbstractOptimizationProblemBSplineR1toR2"
 
 class ExpensiveComputationResults {
 
@@ -36,9 +36,7 @@ class ExpensiveComputationResults {
         public h4: BernsteinDecompositionR1toR1) {}
 
 }
-
-export enum ActiveControl {curvatureExtrema, inflections, both}
-export class OptimizationProblemBSplineR1toR2 implements OptimizationProblemInterface {
+export class OptimizationProblemBSplineR1toR2 extends AbstractOptimizationProblemBSplineR1toR2 {
 
     public spline: BSplineR1toR2
     private _target: BSplineR1toR2
@@ -76,6 +74,7 @@ export class OptimizationProblemBSplineR1toR2 implements OptimizationProblemInte
 
 
     constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
+        super()
         this.spline = initial.clone()
         this._target = target.clone()
         const n = this.spline.freeControlPoints.length
@@ -825,11 +824,15 @@ export class OptimizationProblemBSplineR1toR2WithWeigthingFactors extends Optimi
 
     public weigthingFactors: number[] = []
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
         super(target, initial)
         for (let i = 0; i < this.spline.freeControlPoints.length * 2; i += 1) {
             this.weigthingFactors.push(1)
         }
+        this.weigthingFactors[0] = 1000
+        this.weigthingFactors[this.spline.freeControlPoints.length-1] = 1000
+        this.weigthingFactors[this.spline.freeControlPoints.length] = 1000
+        this.weigthingFactors[this.weigthingFactors.length -1] = 1000
     }
 
     get f0() {
@@ -884,7 +887,7 @@ export class OptimizationProblemBSplineR1toR2WithWeigthingFactors extends Optimi
 export class OptimizationProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints extends OptimizationProblemBSplineR1toR2WithWeigthingFactors {
 
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
         super(target, initial)
     }
 
