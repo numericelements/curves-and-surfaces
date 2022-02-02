@@ -1,18 +1,10 @@
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
-import { ChartController } from "./chartcontrollers/ChartController"
-import { FunctionASceneController } from "./chartcontrollers/FunctionASceneController"
-import { FunctionBSceneController } from "./chartcontrollers/FunctionBSceneController"
-import { FunctionBSceneControllerSqrtScaled } from "./chartcontrollers/FunctionBSceneControllerSqrtScaled"
-import { CurvatureSceneController } from "./chartcontrollers/CurvatureSceneController"
-import { AbsCurvatureSceneController } from "./chartcontrollers/AbsCurvatureSceneController"
-import { IRenderFrameObserver } from "./designPatterns/RenderFrameObserver"
-import { BSpline_R1_to_R2_interface } from "./bsplines/BSplineInterfaces"
-
 import { CurveModel } from "./models/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
 import { ChartSceneController, CHART_TITLES } from "./chartcontrollers/ChartSceneController"
+import { ErrorLog } from "./errorProcessing/ErrorLoging"
 
 
 export function main() {
@@ -71,15 +63,6 @@ export function main() {
     let currentFileName: string = ""
     let fileR = new FileReader()
     //let imageFile: File
-
-    /* JCL 2020/09/08 Set the reference parameters for the function graphs */
-    const MAX_NB_GRAPHS = 3;
-    let functionASceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
-    let functionBSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
-    let functionBsqrtScaledSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
-    let curvatureSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
-    let absCurvatureSceneController: IRenderFrameObserver<BSpline_R1_to_R2_interface>;
-    let stackOfAvailableCharts: Array<string> = ["available", "available", "available"];
 
     let gl = WebGLUtils().setupWebGL(canvas)
 
@@ -147,9 +130,6 @@ export function main() {
     };
     iconKnotInsertion = new Image();
 
-    /*let canvasFunctionA = <HTMLCanvasElement> document.getElementById('chartjsFunctionA')
-    let ctxFunctionA = canvasFunctionA.getContext('2d');*/
-
     let canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1')
     let ctxChart1 = canvasChart1.getContext('2d');
 
@@ -160,7 +140,12 @@ export function main() {
     let ctxChart3 = canvasChart3.getContext('2d');
 
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
-    let sceneController = new CurveSceneController(canvas, gl)
+    let sceneController = new CurveSceneController(canvas, gl);
+    if(sceneController.curveModel === undefined) {
+        const error = new ErrorLog("main", "", "Unable to create a chartSceneController because of undefined curveModel.");
+        error.logMessageToConsole();
+        return;
+    }
 
     let chartFunctionA = false;
     let chartFunctionB = false;
@@ -172,7 +157,8 @@ export function main() {
     if(ctxChart2 !== null) chartRenderingContext.push(ctxChart2);
     if(ctxChart3 !== null) chartRenderingContext.push(ctxChart3);
     let noAddChart = false;
-    const chartSceneController = new ChartSceneController(chartRenderingContext, sceneController);
+    const chartSceneController = new ChartSceneController(chartRenderingContext, sceneController.curveModel);
+
 
     function uncheckCkbox() {
         console.log("uncheckChart " + chartSceneController.uncheckedChart)
@@ -205,8 +191,8 @@ export function main() {
         noAddChart = false;
     }
 
-    function resetChartContext() {
-        chartSceneController.restart();
+    function resetChartContext(curveModel: CurveModel) {
+        chartSceneController.restart(curveModel);
         noAddChart = true;
         if(chartFunctionA) checkBoxFunctionA.click();
         if(chartFunctionB) checkBoxFunctionB.click();
@@ -552,7 +538,12 @@ export function main() {
                 }
                 if(typeof(aSpline) !== "undefined") {
                     sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-                    resetChartContext();
+                    if(sceneController.curveModel === undefined) {
+                        const error = new ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
+                        error.logMessageToConsole();
+                        return;
+                    }
+                    resetChartContext(sceneController.curveModel);
                 } else throw new Error("Unable to reset the curve context. Undefined curve model");
                 // to be discussed
                 //sceneController = new CurveSceneController(canvas, gl, , curveModel)

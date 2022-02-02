@@ -1,12 +1,12 @@
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { ChartDescriptorQueueItem } from "../containers/ChartDescriptorQueueItem";
 import { QueueChartDescriptor, QueueChartController } from "../containers/Queue";
-import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { ChartContentState, ChartWithNoFunction } from "./ChartContentState";
 import { ChartController } from "./ChartController";
-import { CurveSceneController } from "../controllers/CurveSceneController";
 import { NoFunctionSceneController } from "./NoFunctionSceneController";
+import { IObserver } from "../designPatterns/Observer";
+import { CurveModel } from "../models/CurveModel";
 
 export const MAX_NB_CHARTS = 3;
 export const NB_CURVE_POINTS = 100;
@@ -37,13 +37,13 @@ export class ChartSceneController {
     private defaultChartTitles: Array<string>;
     private chartContent: Array<ChartContentState>;
     private _chartControllers: Array<ChartController>;
-    private _curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>>;
-    private _curveSceneController: CurveSceneController;
+    private _curveObservers: Array<IObserver<BSpline_R1_to_R2_interface>>;
     private _uncheckedChart: string;
+    private _curveModel: CurveModel;
 
-    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveSceneController: CurveSceneController) {
+    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveModel: CurveModel) {
         this.chartRenderingContext = chartRenderingContext;
-        this._curveSceneController = curveSceneController;
+        this._curveModel = curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -54,10 +54,16 @@ export class ChartSceneController {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
-    }
 
-    get curveSceneController() {
-        return this._curveSceneController;
+        this._curveObservers.forEach(element => {
+            if(this._curveModel !== undefined) {
+                element.update(this._curveModel.spline)
+                this._curveModel.registerObserver(element)
+            } else {
+                const error =  new ErrorLog(this.constructor.name, "constructor", "Unable to initialize a ChartSceneController with appropriate curve observers.");
+                error.logMessageToConsole();
+            }
+        });
     }
 
     get curveObservers() {
@@ -72,7 +78,11 @@ export class ChartSceneController {
         return this._uncheckedChart;
     }
 
-    set curveObserver(curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>>) {
+    set curveModel(curveModel: CurveModel) {
+        this._curveModel = curveModel;
+    }
+
+    set curveObserver(curveObservers: Array<IObserver<BSpline_R1_to_R2_interface>>) {
         this._curveObservers = curveObservers;
     }
 
@@ -110,7 +120,8 @@ export class ChartSceneController {
         }
     }
 
-    restart(): void {
+    restart(curveModel: CurveModel): void {
+        this._curveModel = curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -121,6 +132,10 @@ export class ChartSceneController {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
+        this._curveObservers.forEach(element => {
+            element.update(this._curveModel.spline);
+            this._curveModel.registerObserver(element);
+        });
     }
 
     switchChartState(chartTitle: string, indexCtrlr: number): void {
@@ -166,7 +181,7 @@ export class ChartSceneController {
         this.enqueueAndReorderFreeCharts(currentQueueItem.chartController);
         const chartOberserver = currentQueueItem.curveObserver;
         if(chartOberserver !== undefined) {
-            this.curveSceneController.removeCurveObserver(chartOberserver);
+            this.removeCurveObserver(chartOberserver);
         } else {
             const error = new ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
             error.logMessageToConsole();
@@ -187,7 +202,7 @@ export class ChartSceneController {
                 const chartOberserver = currentQueueItem.curveObserver;
                 this._uncheckedChart = currentQueueItem.chartTitle;
                 if(chartOberserver !== undefined) {
-                    this.curveSceneController.removeCurveObserver(chartOberserver);
+                    this.removeCurveObserver(chartOberserver);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
                     error.logMessageToConsole();
@@ -208,7 +223,7 @@ export class ChartSceneController {
             const indexCtrlr = this.chartControllers.indexOf(chartController);
             const chartOberserver = item.curveObserver;
             if(chartOberserver !== undefined) {
-                this.curveSceneController.removeCurveObserver(chartOberserver);
+                this.removeCurveObserver(chartOberserver);
             } else {
                 const error = new ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
             error.logMessageToConsole();
@@ -278,6 +293,26 @@ export class ChartSceneController {
                     error.logMessageToConsole();
                 }
             }
+        }
+    }
+
+    addCurveObserver(curveObserver: IObserver<BSpline_R1_to_R2_interface>) {
+        if(this._curveModel !== undefined) {
+            curveObserver.update(this._curveModel.spline);
+            this._curveModel.registerObserver(curveObserver);
+        } else {
+            const error = new ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
+            error.logMessageToConsole();
+        }
+    }
+
+    removeCurveObserver(curveObserver: IObserver<BSpline_R1_to_R2_interface>) {
+        if(this._curveModel !== undefined) {
+            curveObserver.update(this._curveModel.spline);
+            this._curveModel.removeObserver(curveObserver);
+        } else {
+            const error = new ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
+            error.logMessageToConsole();
         }
     }
 

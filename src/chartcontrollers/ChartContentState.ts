@@ -55,7 +55,7 @@ export class ChartWithNoFunction extends ChartContentState {
         const chartObservedBySceneController = new NoFunctionSceneController(this.chartController);
         const index = this.chartSceneController.chartControllers.indexOf(this.chartController);
         this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        this.chartSceneController.addCurveObserver(chartObservedBySceneController);
     }
     
     setChartWithNoFunction(): void {
@@ -71,7 +71,7 @@ export class ChartFunctionA extends ChartContentState {
         const chartObservedBySceneController = new FunctionASceneController(this.chartController);
         const index = this.chartSceneController.chartControllers.indexOf(this.chartController);
         this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        this.chartSceneController.addCurveObserver(chartObservedBySceneController);
     }
 
     setChartWithFunctionA(): void {
@@ -87,7 +87,7 @@ export class ChartFunctionB extends ChartContentState {
         const chartObservedBySceneController = new FunctionBSceneController(this.chartController);
         const index = this.chartSceneController.chartControllers.indexOf(this.chartController);
         this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        this.chartSceneController.addCurveObserver(chartObservedBySceneController);
     }
 
     setChartWithFunctionB(): void {
@@ -103,7 +103,7 @@ export class ChartCurvatureCrv extends ChartContentState {
         const chartObservedBySceneController = new CurvatureSceneController(this.chartController);
         const index = this.chartSceneController.chartControllers.indexOf(this.chartController);
         this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        this.chartSceneController.addCurveObserver(chartObservedBySceneController);
     }
 
     setChartWithCurvatureCrv(): void {
@@ -119,7 +119,7 @@ export class ChartAbsCurvatureCrv extends ChartContentState {
         const chartObservedBySceneController = new AbsCurvatureSceneController(this.chartController);
         const index = this.chartSceneController.chartControllers.indexOf(this.chartController);
         this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        this.chartSceneController.addCurveObserver(chartObservedBySceneController);
     }
 
     setChartWithAbsCurvature(): void {
@@ -135,7 +135,7 @@ export class ChartFunctionBsqrtScaled extends ChartContentState {
         const chartObservedBySceneController = new FunctionBSceneControllerSqrtScaled(this.chartController);
         const index = this.chartSceneController.chartControllers.indexOf(this.chartController);
         this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        this.chartSceneController.addCurveObserver(chartObservedBySceneController);
     }
 
     setChartWithFunctionBsqrtScaled(): void {

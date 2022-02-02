@@ -1,16 +1,14 @@
-import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { ChartController } from "./ChartController";
 import { Vector_2d } from "../mathematics/Vector_2d";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES } from "./ChartSceneController";
+import { IObserver } from "../designPatterns/Observer";
 
-export class NoFunctionSceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
+export class NoFunctionSceneController implements IObserver<BSpline_R1_to_R2_interface> {
 
     constructor(private chartController: ChartController) {
     }
-
-
 
     update(message: BSpline_R1_to_R2): void {
         let points: Vector_2d[] = []
@@ -30,9 +28,6 @@ export class NoFunctionSceneController implements IRenderFrameObserver<BSpline_R
         this.chartController.setChartLabel(CHART_TITLES[CHART_TITLES.length - 1]);
         this.chartController.setYaxisScale(CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
-    }
-
-    renderFrame() {
     }
     
 }

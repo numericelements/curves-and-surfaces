@@ -40752,8 +40752,6 @@ var AbsCurvatureSceneController = /** @class */ (function () {
         this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     };
-    AbsCurvatureSceneController.prototype.renderFrame = function () {
-    };
     AbsCurvatureSceneController.prototype.pointSequenceOnSpline = function () {
         var start = this.splineNumerator.knots[this.splineNumerator.degree];
         var end = this.splineNumerator.knots[this.splineNumerator.knots.length - this.splineNumerator.degree - 1];
@@ -40842,7 +40840,7 @@ var ChartWithNoFunction = /** @class */ (function (_super) {
         var chartObservedBySceneController = new NoFunctionSceneController_1.NoFunctionSceneController(_this.chartController);
         var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
         _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        _this.chartSceneController.addCurveObserver(chartObservedBySceneController);
         return _this;
     }
     ChartWithNoFunction.prototype.setChartWithNoFunction = function () {
@@ -40859,7 +40857,7 @@ var ChartFunctionA = /** @class */ (function (_super) {
         var chartObservedBySceneController = new FunctionASceneController_1.FunctionASceneController(_this.chartController);
         var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
         _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        _this.chartSceneController.addCurveObserver(chartObservedBySceneController);
         return _this;
     }
     ChartFunctionA.prototype.setChartWithFunctionA = function () {
@@ -40876,7 +40874,7 @@ var ChartFunctionB = /** @class */ (function (_super) {
         var chartObservedBySceneController = new FunctionBSceneController_1.FunctionBSceneController(_this.chartController);
         var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
         _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        _this.chartSceneController.addCurveObserver(chartObservedBySceneController);
         return _this;
     }
     ChartFunctionB.prototype.setChartWithFunctionB = function () {
@@ -40893,7 +40891,7 @@ var ChartCurvatureCrv = /** @class */ (function (_super) {
         var chartObservedBySceneController = new CurvatureSceneController_1.CurvatureSceneController(_this.chartController);
         var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
         _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        _this.chartSceneController.addCurveObserver(chartObservedBySceneController);
         return _this;
     }
     ChartCurvatureCrv.prototype.setChartWithCurvatureCrv = function () {
@@ -40910,7 +40908,7 @@ var ChartAbsCurvatureCrv = /** @class */ (function (_super) {
         var chartObservedBySceneController = new AbsCurvatureSceneController_1.AbsCurvatureSceneController(_this.chartController);
         var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
         _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        _this.chartSceneController.addCurveObserver(chartObservedBySceneController);
         return _this;
     }
     ChartAbsCurvatureCrv.prototype.setChartWithAbsCurvature = function () {
@@ -40927,7 +40925,7 @@ var ChartFunctionBsqrtScaled = /** @class */ (function (_super) {
         var chartObservedBySceneController = new FunctionBSceneControllerSqrtScaled_1.FunctionBSceneControllerSqrtScaled(_this.chartController);
         var index = _this.chartSceneController.chartControllers.indexOf(_this.chartController);
         _this.chartSceneController.curveObservers[index] = chartObservedBySceneController;
-        _this.chartSceneController.curveSceneController.addCurveObserver(chartObservedBySceneController);
+        _this.chartSceneController.addCurveObserver(chartObservedBySceneController);
         return _this;
     }
     ChartFunctionBsqrtScaled.prototype.setChartWithFunctionBsqrtScaled = function () {
@@ -41141,9 +41139,10 @@ exports.CHART_X_AXIS_NAME = "u parameter";
 exports.DATASET_NAMES = ["Control Polygon", "tbd"];
 exports.CHART_AXIS_SCALE = ["linear", "logarithmic"];
 var ChartSceneController = /** @class */ (function () {
-    function ChartSceneController(chartRenderingContext, curveSceneController) {
+    function ChartSceneController(chartRenderingContext, curveModel) {
+        var _this = this;
         this.chartRenderingContext = chartRenderingContext;
-        this._curveSceneController = curveSceneController;
+        this._curveModel = curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -41154,14 +41153,17 @@ var ChartSceneController = /** @class */ (function () {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
+        this._curveObservers.forEach(function (element) {
+            if (_this._curveModel !== undefined) {
+                element.update(_this._curveModel.spline);
+                _this._curveModel.registerObserver(element);
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Unable to initialize a ChartSceneController with appropriate curve observers.");
+                error.logMessageToConsole();
+            }
+        });
     }
-    Object.defineProperty(ChartSceneController.prototype, "curveSceneController", {
-        get: function () {
-            return this._curveSceneController;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(ChartSceneController.prototype, "curveObservers", {
         get: function () {
             return this._curveObservers;
@@ -41182,6 +41184,13 @@ var ChartSceneController = /** @class */ (function () {
         },
         set: function (chartTitle) {
             this._uncheckedChart = chartTitle;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartSceneController.prototype, "curveModel", {
+        set: function (curveModel) {
+            this._curveModel = curveModel;
         },
         enumerable: false,
         configurable: true
@@ -41220,7 +41229,9 @@ var ChartSceneController = /** @class */ (function () {
             this.chartsDescriptorsQueue.enqueue(queueItem);
         }
     };
-    ChartSceneController.prototype.restart = function () {
+    ChartSceneController.prototype.restart = function (curveModel) {
+        var _this = this;
+        this._curveModel = curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -41231,6 +41242,10 @@ var ChartSceneController = /** @class */ (function () {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
+        this._curveObservers.forEach(function (element) {
+            element.update(_this._curveModel.spline);
+            _this._curveModel.registerObserver(element);
+        });
     };
     ChartSceneController.prototype.switchChartState = function (chartTitle, indexCtrlr) {
         var chartIndex = exports.CHART_TITLES.indexOf(chartTitle);
@@ -41275,7 +41290,7 @@ var ChartSceneController = /** @class */ (function () {
         this.enqueueAndReorderFreeCharts(currentQueueItem.chartController);
         var chartOberserver = currentQueueItem.curveObserver;
         if (chartOberserver !== undefined) {
-            this.curveSceneController.removeCurveObserver(chartOberserver);
+            this.removeCurveObserver(chartOberserver);
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
@@ -41295,7 +41310,7 @@ var ChartSceneController = /** @class */ (function () {
                 var chartOberserver = currentQueueItem.curveObserver;
                 this._uncheckedChart = currentQueueItem.chartTitle;
                 if (chartOberserver !== undefined) {
-                    this.curveSceneController.removeCurveObserver(chartOberserver);
+                    this.removeCurveObserver(chartOberserver);
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
@@ -41317,7 +41332,7 @@ var ChartSceneController = /** @class */ (function () {
             var indexCtrlr = this.chartControllers.indexOf(chartController);
             var chartOberserver = item.curveObserver;
             if (chartOberserver !== undefined) {
-                this.curveSceneController.removeCurveObserver(chartOberserver);
+                this.removeCurveObserver(chartOberserver);
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
@@ -41394,6 +41409,26 @@ var ChartSceneController = /** @class */ (function () {
             }
         }
     };
+    ChartSceneController.prototype.addCurveObserver = function (curveObserver) {
+        if (this._curveModel !== undefined) {
+            curveObserver.update(this._curveModel.spline);
+            this._curveModel.registerObserver(curveObserver);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
+            error.logMessageToConsole();
+        }
+    };
+    ChartSceneController.prototype.removeCurveObserver = function (curveObserver) {
+        if (this._curveModel !== undefined) {
+            curveObserver.update(this._curveModel.spline);
+            this._curveModel.removeObserver(curveObserver);
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
+            error.logMessageToConsole();
+        }
+    };
     return ChartSceneController;
 }());
 exports.ChartSceneController = ChartSceneController;
@@ -41440,8 +41475,6 @@ var CurvatureSceneController = /** @class */ (function () {
         this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
         this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
-    };
-    CurvatureSceneController.prototype.renderFrame = function () {
     };
     CurvatureSceneController.prototype.pointSequenceOnSpline = function () {
         var start = this.splineNumerator.knots[this.splineNumerator.degree];
@@ -41503,8 +41536,6 @@ var FunctionASceneController = /** @class */ (function () {
         this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     };
-    FunctionASceneController.prototype.renderFrame = function () {
-    };
     FunctionASceneController.prototype.pointSequenceOnSpline = function () {
         var start = this.spline.knots[this.spline.degree];
         var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
@@ -41560,8 +41591,6 @@ var FunctionBSceneController = /** @class */ (function () {
         this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
         this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
-    };
-    FunctionBSceneController.prototype.renderFrame = function () {
     };
     FunctionBSceneController.prototype.pointSequenceOnSpline = function () {
         var start = this.spline.knots[this.spline.degree];
@@ -41627,8 +41656,6 @@ var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
         this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
     };
-    FunctionBSceneControllerSqrtScaled.prototype.renderFrame = function () {
-    };
     FunctionBSceneControllerSqrtScaled.prototype.pointSequenceOnSpline = function () {
         var start = this.spline.knots[this.spline.degree];
         var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
@@ -41680,8 +41707,6 @@ var NoFunctionSceneController = /** @class */ (function () {
         this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
         this.chartController.setYaxisScale(ChartSceneController_1.CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
-    };
-    NoFunctionSceneController.prototype.renderFrame = function () {
     };
     return NoFunctionSceneController;
 }());
@@ -42361,8 +42386,6 @@ var CurveSceneController = /** @class */ (function () {
         this.selectedInflection = null;
         this.allowShapeSpaceChange = false;
         this.dragging = false;
-        this.stackOfSelectedGraphs = [];
-        this.MAX_NB_GRAPHS = 3;
         /* JCL 2020/09/24 Add visualization and selection of clamped control points */
         this.clampedControlPointView = null;
         this.clampedControlPoints = [];
@@ -42413,12 +42436,6 @@ var CurveSceneController = /** @class */ (function () {
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.controlOfCurveClamping = true;
-        /* JCL 2020/09/07 Add monitoring of checkboxes to select the proper graphs to display */
-        this.controlOfGraphFunctionA = false;
-        this.controlOfGraphFunctionB = false;
-        this.controlOfGraphFunctionBsqrtScaled = false;
-        this.controlOfGraphCurvature = false;
-        this.controlOfGraphAbsCurvature = false;
         this.curveModel.registerObserver(this.controlPointsView);
         this.curveModel.registerObserver(this.controlPolygonView);
         this.curveModel.registerObserver(this.curveView);
@@ -42838,7 +42855,6 @@ var CurveSceneController = /** @class */ (function () {
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
     CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
-        var result;
         if (this.curveModel !== undefined) {
             // JCL 2021/10/19 code pour nvelle architecture
             var selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
@@ -42860,7 +42876,7 @@ var CurveSceneController = /** @class */ (function () {
                             this.clampedControlPointView = null;
                             this.clampedControlPoints.pop();
                             this.activeLocationControl = ActiveLocationControl.none;
-                            return result = false;
+                            return false;
                         }
                         else if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint
                             && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
@@ -42871,7 +42887,7 @@ var CurveSceneController = /** @class */ (function () {
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
                             this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
                             this.activeLocationControl = ActiveLocationControl.both;
-                            return result = true;
+                            return true;
                         }
                         else if (this.clampedControlPoints.length === 2) {
                             if (selectedClampedControlPoint === 0) {
@@ -42900,19 +42916,19 @@ var CurveSceneController = /** @class */ (function () {
                                 this.activeLocationControl = ActiveLocationControl.firstControlPoint;
                                 console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
                             }
-                            return result = true;
+                            return true;
                         }
                         else
-                            return result = true;
+                            return true;
                     }
                     else
-                        return result = true;
+                        return true;
                 }
                 else
-                    return result = true;
+                    return true;
             }
             else
-                return result = true;
+                return true;
         }
         else {
             throw new Error("Unable to process the selected point for clamping. Undefined curve model");
@@ -42996,11 +43012,6 @@ var CurveSceneController = /** @class */ (function () {
             this.controlOfCurvatureExtrema = true;
             this.controlOfInflection = true;
             this.controlOfCurveClamping = true;
-            this.controlOfGraphFunctionA = false;
-            this.controlOfGraphFunctionB = false;
-            this.controlOfGraphFunctionBsqrtScaled = false;
-            this.controlOfGraphCurvature = false;
-            this.controlOfGraphAbsCurvature = false;
             this.curveModel.registerObserver(this.controlPointsView);
             this.curveModel.registerObserver(this.controlPolygonView);
             this.curveModel.registerObserver(this.curveView);
@@ -47732,6 +47743,7 @@ var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneCon
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
 var cuon_utils_1 = __webpack_require__(/*! ./webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ./errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 function main() {
     var VSHADER_SOURCE = 'attribute vec4 a_position;\n' +
         'attribute vec2 a_texcoord;\n' +
@@ -47780,14 +47792,6 @@ function main() {
     var currentFileName = "";
     var fileR = new FileReader();
     //let imageFile: File
-    /* JCL 2020/09/08 Set the reference parameters for the function graphs */
-    var MAX_NB_GRAPHS = 3;
-    var functionASceneController;
-    var functionBSceneController;
-    var functionBsqrtScaledSceneController;
-    var curvatureSceneController;
-    var absCurvatureSceneController;
-    var stackOfAvailableCharts = ["available", "available", "available"];
     var gl = webgl_utils_1.WebGLUtils().setupWebGL(canvas);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
@@ -47844,8 +47848,6 @@ function main() {
         texture: tex,
     };
     iconKnotInsertion = new Image();
-    /*let canvasFunctionA = <HTMLCanvasElement> document.getElementById('chartjsFunctionA')
-    let ctxFunctionA = canvasFunctionA.getContext('2d');*/
     var canvasChart1 = document.getElementById('chart1');
     var ctxChart1 = canvasChart1.getContext('2d');
     var canvasChart2 = document.getElementById('chart2');
@@ -47854,6 +47856,11 @@ function main() {
     var ctxChart3 = canvasChart3.getContext('2d');
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
+    if (sceneController.curveModel === undefined) {
+        var error = new ErrorLoging_1.ErrorLog("main", "", "Unable to create a chartSceneController because of undefined curveModel.");
+        error.logMessageToConsole();
+        return;
+    }
     var chartFunctionA = false;
     var chartFunctionB = false;
     var chartCurvatureCrv = false;
@@ -47867,7 +47874,7 @@ function main() {
     if (ctxChart3 !== null)
         chartRenderingContext.push(ctxChart3);
     var noAddChart = false;
-    var chartSceneController = new ChartSceneController_1.ChartSceneController(chartRenderingContext, sceneController);
+    var chartSceneController = new ChartSceneController_1.ChartSceneController(chartRenderingContext, sceneController.curveModel);
     function uncheckCkbox() {
         console.log("uncheckChart " + chartSceneController.uncheckedChart);
         if (ChartSceneController_1.CHART_TITLES.indexOf(chartSceneController.uncheckedChart) !== -1) {
@@ -47898,8 +47905,8 @@ function main() {
         chartSceneController.resetUncheckedChart();
         noAddChart = false;
     }
-    function resetChartContext() {
-        chartSceneController.restart();
+    function resetChartContext(curveModel) {
+        chartSceneController.restart(curveModel);
         noAddChart = true;
         if (chartFunctionA)
             checkBoxFunctionA.click();
@@ -48234,7 +48241,12 @@ function main() {
                 }
                 if (typeof (aSpline) !== "undefined") {
                     sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-                    resetChartContext();
+                    if (sceneController.curveModel === undefined) {
+                        var error = new ErrorLoging_1.ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
+                        error.logMessageToConsole();
+                        return;
+                    }
+                    resetChartContext(sceneController.curveModel);
                 }
                 else
                     throw new Error("Unable to reset the curve context. Undefined curve model");

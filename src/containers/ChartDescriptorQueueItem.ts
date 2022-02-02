@@ -1,14 +1,14 @@
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { ChartController } from "../chartcontrollers/ChartController";
-import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
+import { IObserver } from "../designPatterns/Observer";
 
 export class ChartDescriptorQueueItem {
 
     private _chartController: ChartController;
     private _charTitle: string;
-    private _curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>|undefined;
+    private _curveObserver: IObserver<BSpline_R1_to_R2_interface>|undefined;
 
-    constructor(chartController: ChartController, chartName: string, curveObserver?: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+    constructor(chartController: ChartController, chartName: string, curveObserver?: IObserver<BSpline_R1_to_R2_interface>) {
         this._chartController = chartController;
         this._charTitle = chartName;
         if(curveObserver !== undefined) this._curveObserver = curveObserver
@@ -23,7 +23,7 @@ export class ChartDescriptorQueueItem {
         return this._charTitle;
     }
 
-    get curveObserver():IRenderFrameObserver<BSpline_R1_to_R2_interface>|undefined {
+    get curveObserver():IObserver<BSpline_R1_to_R2_interface>|undefined {
         return this._curveObserver;
     }
 
@@ -35,7 +35,7 @@ export class ChartDescriptorQueueItem {
         this._charTitle = chartTitle;
     }
 
-    set curveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>|undefined) {
+    set curveObserver(curveObserver: IObserver<BSpline_R1_to_R2_interface>|undefined) {
         this._curveObserver = curveObserver;
     }
 }

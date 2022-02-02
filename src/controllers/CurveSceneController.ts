@@ -16,7 +16,6 @@ import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./SlidingStrategy";
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
-import { IObserver } from "../designPatterns/Observer";
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 
@@ -86,14 +85,6 @@ export class CurveSceneController implements SceneControllerInterface {
     public controlOfCurvatureExtrema: boolean
     public controlOfInflection: boolean
     public controlOfCurveClamping: boolean
-    /* JCL 2020/09/07 Add controls to monitor function graphs display */
-    private controlOfGraphFunctionA: boolean
-    private controlOfGraphFunctionB: boolean
-    private controlOfGraphFunctionBsqrtScaled: boolean
-    private controlOfGraphCurvature: boolean
-    private controlOfGraphAbsCurvature: boolean
-    private stackOfSelectedGraphs: Array<string> = []
-    private readonly MAX_NB_GRAPHS = 3
     /* JCL 2020/09/24 Add visualization and selection of clamped control points */
     private clampedControlPointView: ClampedControlPointView | null = null
     private clampedControlPoints: number[] = []
@@ -171,14 +162,6 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlOfCurvatureExtrema = true
         this.controlOfInflection = true
         this.controlOfCurveClamping = true
-
-        /* JCL 2020/09/07 Add monitoring of checkboxes to select the proper graphs to display */
-        this.controlOfGraphFunctionA = false
-        this.controlOfGraphFunctionB = false
-        this.controlOfGraphFunctionBsqrtScaled = false
-        this.controlOfGraphCurvature = false
-        this.controlOfGraphAbsCurvature = false
-        
         
         this.curveModel.registerObserver(this.controlPointsView)
         this.curveModel.registerObserver(this.controlPolygonView)
@@ -609,7 +592,6 @@ export class CurveSceneController implements SceneControllerInterface {
 
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
     dbleClick_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01): boolean {
-        let result: boolean
         if(this.curveModel !== undefined) {
                                 
             // JCL 2021/10/19 code pour nvelle architecture
@@ -633,7 +615,7 @@ export class CurveSceneController implements SceneControllerInterface {
                             this.clampedControlPointView = null
                             this.clampedControlPoints.pop()
                             this.activeLocationControl = ActiveLocationControl.none
-                            return result = false
+                            return false
                         }
                         else if(this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint 
                             && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
@@ -644,7 +626,7 @@ export class CurveSceneController implements SceneControllerInterface {
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
                             this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
                             this.activeLocationControl = ActiveLocationControl.both
-                            return result = true
+                            return true
                         }
                         else if(this.clampedControlPoints.length === 2) {
                             if(selectedClampedControlPoint === 0) {
@@ -668,11 +650,11 @@ export class CurveSceneController implements SceneControllerInterface {
                                 this.activeLocationControl = ActiveLocationControl.firstControlPoint
                                 console.log("dble click: clampedControlPoints " + this.clampedControlPoints)
                             }
-                            return result = true
-                        } else return result = true
-                    } else return result = true;
-                } else return result = true
-            } else return result = true
+                            return true
+                        } else return true
+                    } else return true;
+                } else return true
+            } else return true
         } else {
             throw new Error("Unable to process the selected point for clamping. Undefined curve model")
         }
@@ -759,11 +741,6 @@ export class CurveSceneController implements SceneControllerInterface {
             this.controlOfCurvatureExtrema = true
             this.controlOfInflection = true
             this.controlOfCurveClamping = true
-            this.controlOfGraphFunctionA = false
-            this.controlOfGraphFunctionB = false
-            this.controlOfGraphFunctionBsqrtScaled = false
-            this.controlOfGraphCurvature = false
-            this.controlOfGraphAbsCurvature = false
 
             this.curveModel.registerObserver(this.controlPointsView)
             this.curveModel.registerObserver(this.controlPolygonView)

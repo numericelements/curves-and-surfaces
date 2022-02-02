@@ -1,14 +1,14 @@
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { BSpline_R1_to_R1 } from "../bsplines/BSpline_R1_to_R1";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
-import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
 import { Vector_2d } from "../mathematics/Vector_2d";
 import { ChartController } from "./ChartController";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES, NB_CURVE_POINTS } from "./ChartSceneController";
+import { IObserver } from "../designPatterns/Observer";
 
 
-export class AbsCurvatureSceneController implements IRenderFrameObserver<BSpline_R1_to_R2_interface> {
+export class AbsCurvatureSceneController implements IObserver<BSpline_R1_to_R2_interface> {
 
 
     private splineNumerator: BSpline_R1_to_R2
@@ -44,9 +44,6 @@ export class AbsCurvatureSceneController implements IRenderFrameObserver<BSpline
         this.chartController.setYaxisScale(CHART_AXIS_SCALE[0]);
         this.chartController.drawChart();
 
-    }
-
-    renderFrame() {
     }
 
     pointSequenceOnSpline() {
