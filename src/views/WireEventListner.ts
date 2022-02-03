@@ -96,7 +96,6 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
 
     function hideContextMenu() {
         const cm = document.getElementById("contextMenu")
-        //const cm = document.querySelector(".context-menu")
         if (cm) {
             cm.style.display = "none"
         }
@@ -106,7 +105,6 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
         e.preventDefault()
 
         const cm = document.getElementById("contextMenu")
-        //const cm = document.querySelector(".context-menu")
         if (cm) {
                 //cm.style.display = "block"
                 cm.style.left = e.pageX + "px"
@@ -122,17 +120,12 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
 
     document.getElementById("addControlPoint")?.addEventListener('click', addControlPoint)
 
-    //document.onclick = hideMenu
-    //document.oncontextmenu = rightClick
     canvas.addEventListener('contextmenu', rightClick, false)
-
 
 
     let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
     let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
-    let curveCategoryButton = <HTMLSelectElement> document.getElementById("curveCategory")
-
-
+    
 
     function toggleControlOfCurvatureExtrema() {
         curveSceneView.toggleControlOfCurvatureExtrema()
@@ -142,18 +135,16 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
         curveSceneView.toggleControlOfInflections()
     }
 
-    function selectCurveCategory(event: Event) {
-        let category = event.target as HTMLSelectElement
-        curveSceneView.selectCurveCategory(category.value)
+
+    function selectCurveCategory(event: any) {
+        curveSceneView.selectCurveCategory(event.detail.category)
     }
 
     toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
     toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
 
-//    curveCategoryButton.addEventListener('select', selectCurveCategory)
-//    curveCategoryButton.addEventListener('selectionchange', selectCurveCategory)
-//    curveCategoryButton.addEventListener('click', selectCurveCategory)
-    curveCategoryButton.addEventListener('change', selectCurveCategory)
+    let app = document.getElementsByTagName("app-curves-and-surfaces")[0]
+    app.addEventListener("changeCurveCategory", selectCurveCategory)
 
 
 }
