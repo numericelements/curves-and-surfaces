@@ -1,39 +1,38 @@
 import { BSplineR1toR1 } from "./BSplineR1toR1"
-import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { AbstractBSplineR1toR2 } from "./AbstractBSplineR1toR2"
-
-
-
-
+import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 
 
 export abstract class AbstractBSplineR1toR2DifferentialProperties {
 
     protected _spline: AbstractBSplineR1toR2
 
+    abstract bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1Interface
+
+
     constructor(spline: AbstractBSplineR1toR2) {
         this._spline = spline.clone()
     }
 
     protected expensiveComputation(spline: AbstractBSplineR1toR2) {
-        const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots);
-        const sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots);
-        const sxu = sx.derivative();
-        const syu = sy.derivative();
-        const sxuu = sxu.derivative();
-        const syuu = syu.derivative();
-        const sxuuu = sxuu.derivative();
-        const syuuu = syuu.derivative();
-        const bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition());
-        const bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition());
-        const bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition());
-        const bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition());
-        const bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition());
-        const bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition());
-        const h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
-        const h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
-        const h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
-        const h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots)
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots)
+        const sxu = sx.derivative()
+        const syu = sy.derivative()
+        const sxuu = sxu.derivative()
+        const syuu = syu.derivative()
+        const sxuuu = sxuu.derivative()
+        const syuuu = syuu.derivative()
+        const bdsxu = sxu.bernsteinDecomposition()
+        const bdsyu = syu.bernsteinDecomposition()
+        const bdsxuu = sxuu.bernsteinDecomposition()
+        const bdsyuu = syuu.bernsteinDecomposition()
+        const bdsxuuu = sxuuu.bernsteinDecomposition()
+        const bdsyuuu = syuuu.bernsteinDecomposition()
+        const h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)))
+        const h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)))
+        const h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)))
+        const h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)))
         return {
             h1 : h1,
             h2 : h2,

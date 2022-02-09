@@ -1,10 +1,10 @@
 import { BSplineR1toR2 } from "../bsplines/BSplineR1toR2"
 import { Vector2d } from "../mathVector/Vector2d"
-import { OptimizationProblemBSplineR1toR2, OptimizationProblemBSplineR1toR2WithWeigthingFactors } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2"
+import { OptimizationProblemBSplineR1toR2} from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2"
+import { OptimizationProblemBSplineR1toR2WithWeigthingFactors } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2WithWeigthingFactors"
 import { Optimizer } from "../optimizers/Optimizer"
 import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
 import { AbstractCurveModel } from "./AbstractCurveModel"
-
 
 export class CurveModelAlternative01 extends AbstractCurveModel {
 

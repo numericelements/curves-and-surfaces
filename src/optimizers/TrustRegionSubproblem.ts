@@ -185,9 +185,7 @@ export class TrustRegionSubproblem {
             // Step 3d. Replace lambda.lb by max [ lambda_lb, lambda_current + delta / || v ||^2 ]
             let vSquaredNorm = squaredNorm(sls.vector);
             this.lambda.lowerBound = Math.max(this.lambda.lowerBound, this.lambda.current + sls.delta / vSquaredNorm);
-            //lambda.current = Math.max(Math.sqrt(lambda.lb * lambda.ub), lambda.lb + this.UPDATE_COEFF * (lambda.ub - lambda.lb));
         }
-
     }
 
     /**
@@ -223,8 +221,6 @@ export class TrustRegionSubproblem {
             // alpha^2 <u, H(lambda), u> <= k_hard ( <s(lambda), H(lambda) * s(lambda) + lambda * trustRegionRadius^2 >)
             let s_min = estimateSmallestSingularValue(choleskyDecomposition.g)
 
-            //let alpha = s_min.value
-            //let u = s_min.vector
 
             let intersection = getBoundariesIntersections(this.step, s_min.vector, trustRegionRadius)
             let t_abs_max: number
@@ -242,7 +238,6 @@ export class TrustRegionSubproblem {
             let quadraticTerm = hessianPlusLambda.quadraticForm(this.step)
 
             let relative_error = Math.pow(t_abs_max * s_min.value, 2) / (quadraticTerm + this.lambda.current * Math.pow(trustRegionRadius, 2))
-            //if (relative_error <= this.k_hard || t_abs_min < this.CLOSE_TO_ZERO) {
             if (relative_error <= this.k_hard) {
                 //saxpy(t_abs_min, s_min.vector, this.step) done at step 3b iii.
                 this.hitsBoundary = true

@@ -1,5 +1,6 @@
 import { decomposeFunction } from "./Piegl_Tiller_NURBS_Book"
 import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1"
+import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
 
 
 /**
@@ -18,7 +19,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
 
     bernsteinDecomposition() {
         // Piegl_Tiller_NURBS_Book.ts
-        return decomposeFunction(this);
+        return new BernsteinDecompositionR1toR1(decomposeFunction(this))
     }
 
     clone() {

@@ -14,7 +14,7 @@ export function binomialCoefficient(n: number, k: number) {
     for (let x = n - k + 1; x <= n; x += 1) {result *= x; }
     for (let x = 1; x <= k; x += 1) {result /= x; }
     return result;
-};
+}
 
 export function memoizedBinomialCoefficient() {
     let cache: number[][] = []
@@ -32,4 +32,4 @@ export function memoizedBinomialCoefficient() {
         }
     }
 
-};
+}

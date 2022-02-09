@@ -1,5 +1,5 @@
 import { BSplineR1toR2Interface } from "../bsplines/BSplineR1toR2Interface";
-import {  IMultiObservable, IObservable, IObserver } from "../designPatterns/Observer";
+import {  IMultiObservable } from "../designPatterns/Observer";
 
 export type KindOfObservers = 'curve' | 'control points'
 

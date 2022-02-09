@@ -1,6 +1,6 @@
-import {WebGLUtils} from "./webgl/webgl-utils"
+import { WebGLUtils } from "./webgl/webgl-utils"
 import { CurveSceneView } from "./views/CurveSceneView"
-import { CurveModel} from "./models/CurveModel"
+import { CurveModel } from "./models/CurveModel"
 import { wireEventListner as wireEventListener } from "./views/WireEventListner"
 import { AppCurvesAndSurfaces } from "./webComponents/AppCurvesAndSurfaces"
 
@@ -14,9 +14,8 @@ export function main() {
     }
     let curveModel = new CurveModel()
     let curveSceneView = new CurveSceneView(canvas, gl, curveModel)
-    wireEventListener(canvas, curveSceneView)
-
     window.customElements.define('app-curves-and-surfaces', AppCurvesAndSurfaces)
+    wireEventListener(canvas, curveSceneView)
 
 }
 

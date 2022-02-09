@@ -1,11 +1,13 @@
 import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { Vector2d } from "../mathVector/Vector2d"
 import { BSplineR1toR2 } from "./BSplineR1toR2"
+import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
+import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
  */
-export abstract class AbstractBSplineR1toR1 {
+export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
 
     protected _controlPoints: number[] = []
     protected _knots: number[] = []
@@ -70,7 +72,9 @@ export abstract class AbstractBSplineR1toR1 {
 
     abstract derivative() : AbstractBSplineR1toR1
 
-    abstract bernsteinDecomposition() : number[][] 
+    //abstract bernsteinDecomposition() : number[][] 
+
+    abstract bernsteinDecomposition() : BernsteinDecompositionR1toR1 
 
     distinctKnots() {
         let result = [this._knots[0]]

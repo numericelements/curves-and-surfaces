@@ -3,9 +3,6 @@ import { Vector2d } from "../mathVector/Vector2d"
 import { OptimizationProblemBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2"
 import { Optimizer } from "../optimizers/Optimizer"
 import { AbstractCurveModel } from "./AbstractCurveModel"
-import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
-import { IObserver } from "../designPatterns/Observer"
-import { BSplineR1toR2Interface } from "../bsplines/BSplineR1toR2Interface"
 
 export class CurveModel extends AbstractCurveModel {
 
