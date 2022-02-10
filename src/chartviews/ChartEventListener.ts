@@ -1,32 +1,33 @@
 import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSceneController"
 import { CurveModel } from "../models/CurveModel"
 
-export function chartEventListener(curveModel: CurveModel) {
+let chartFunctionA = false;
+let chartFunctionB = false;
+let chartCurvatureCrv = false;
+let chartAbsCurvatureCurv = false;
+let chartFunctionBsqrtScaled = false;
+let noAddChart = false;
+
+/* Get checkboxes IDs for the selection of function graphs*/
+const checkBoxFunctionA = <HTMLButtonElement> document.getElementById("chkBoxFunctionA");
+const checkBoxFunctionB = <HTMLButtonElement> document.getElementById("chkBoxFunctionB");
+const checkBoxFunctionBsqrtScaled = <HTMLButtonElement> document.getElementById("chkBoxSqrtFunctionB");
+const checkBoxCurvature = <HTMLButtonElement> document.getElementById("chkBoxCurvature");
+const checkBoxAbsCurvature = <HTMLButtonElement> document.getElementById("chkBoxAbsCurvature");
+
+export function chartEventListener(curveModel: CurveModel): ChartSceneController {
 
     function setupChartRenderingContexts() {
-        let canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1');
-        let ctxChart1 = canvasChart1.getContext('2d');
-        let canvasChart2 = <HTMLCanvasElement> document.getElementById('chart2');
-        let ctxChart2 = canvasChart2.getContext('2d');
-        let canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3');
-        let ctxChart3 = canvasChart3.getContext('2d');
+        const canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1');
+        const ctxChart1 = canvasChart1.getContext('2d');
+        const canvasChart2 = <HTMLCanvasElement> document.getElementById('chart2');
+        const ctxChart2 = canvasChart2.getContext('2d');
+        const canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3');
+        const ctxChart3 = canvasChart3.getContext('2d');
         if(ctxChart1 !== null) chartRenderingContext.push(ctxChart1);
         if(ctxChart2 !== null) chartRenderingContext.push(ctxChart2);
         if(ctxChart3 !== null) chartRenderingContext.push(ctxChart3);
     }
-    /* Get checkboxes IDs for the selection of function graphs*/
-    let checkBoxFunctionA = <HTMLButtonElement> document.getElementById("chkBoxFunctionA");
-    let checkBoxFunctionB = <HTMLButtonElement> document.getElementById("chkBoxFunctionB");
-    let checkBoxFunctionBsqrtScaled = <HTMLButtonElement> document.getElementById("chkBoxSqrtFunctionB");
-    let checkBoxCurvature = <HTMLButtonElement> document.getElementById("chkBoxCurvature");
-    let checkBoxAbsCurvature = <HTMLButtonElement> document.getElementById("chkBoxAbsCurvature");
-
-    let chartFunctionA = false;
-    let chartFunctionB = false;
-    let chartCurvatureCrv = false;
-    let chartAbsCurvatureCurv = false;
-    let chartFunctionBsqrtScaled = false;
-    let noAddChart = false;
 
     let chartRenderingContext: CanvasRenderingContext2D[] = [];
     setupChartRenderingContexts();
@@ -124,4 +125,17 @@ export function chartEventListener(curveModel: CurveModel) {
     checkBoxFunctionBsqrtScaled.addEventListener('click',chkboxFunctionBsqrtScaled);
     checkBoxCurvature.addEventListener('click',chkboxCurvature);
     checkBoxAbsCurvature.addEventListener('click',chkboxAbsCurvature);
+
+    return chartSceneController;
+}
+
+export function resetChartContext(chartSceneController: ChartSceneController, curveModel: CurveModel) {
+    chartSceneController.restart(curveModel);
+    noAddChart = true;
+    if(chartFunctionA) checkBoxFunctionA.click();
+    if(chartFunctionB) checkBoxFunctionB.click();
+    if(chartCurvatureCrv) checkBoxCurvature.click();
+    if(chartAbsCurvatureCurv) checkBoxAbsCurvature.click();
+    if(chartFunctionBsqrtScaled) checkBoxFunctionBsqrtScaled.click();
+    noAddChart = false;
 }

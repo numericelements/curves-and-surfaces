@@ -41715,6 +41715,167 @@ exports.NoFunctionSceneController = NoFunctionSceneController;
 
 /***/ }),
 
+/***/ "./src/chartviews/ChartEventListener.ts":
+/*!**********************************************!*\
+  !*** ./src/chartviews/ChartEventListener.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resetChartContext = exports.chartEventListener = void 0;
+var ChartSceneController_1 = __webpack_require__(/*! ../chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var chartFunctionA = false;
+var chartFunctionB = false;
+var chartCurvatureCrv = false;
+var chartAbsCurvatureCurv = false;
+var chartFunctionBsqrtScaled = false;
+var noAddChart = false;
+/* Get checkboxes IDs for the selection of function graphs*/
+var checkBoxFunctionA = document.getElementById("chkBoxFunctionA");
+var checkBoxFunctionB = document.getElementById("chkBoxFunctionB");
+var checkBoxFunctionBsqrtScaled = document.getElementById("chkBoxSqrtFunctionB");
+var checkBoxCurvature = document.getElementById("chkBoxCurvature");
+var checkBoxAbsCurvature = document.getElementById("chkBoxAbsCurvature");
+function chartEventListener(curveModel) {
+    function setupChartRenderingContexts() {
+        var canvasChart1 = document.getElementById('chart1');
+        var ctxChart1 = canvasChart1.getContext('2d');
+        var canvasChart2 = document.getElementById('chart2');
+        var ctxChart2 = canvasChart2.getContext('2d');
+        var canvasChart3 = document.getElementById('chart3');
+        var ctxChart3 = canvasChart3.getContext('2d');
+        if (ctxChart1 !== null)
+            chartRenderingContext.push(ctxChart1);
+        if (ctxChart2 !== null)
+            chartRenderingContext.push(ctxChart2);
+        if (ctxChart3 !== null)
+            chartRenderingContext.push(ctxChart3);
+    }
+    var chartRenderingContext = [];
+    setupChartRenderingContexts();
+    var chartSceneController = new ChartSceneController_1.ChartSceneController(chartRenderingContext, curveModel);
+    function uncheckCkbox() {
+        console.log("uncheckChart " + chartSceneController.uncheckedChart);
+        if (ChartSceneController_1.CHART_TITLES.indexOf(chartSceneController.uncheckedChart) !== -1) {
+            noAddChart = true;
+            switch (chartSceneController.uncheckedChart) {
+                case ChartSceneController_1.CHART_TITLES[0]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[0]);
+                    checkBoxFunctionA.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[1]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[1]);
+                    checkBoxFunctionB.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[2]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[2]);
+                    checkBoxCurvature.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[3]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[3]);
+                    checkBoxAbsCurvature.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[4]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[4]);
+                    checkBoxFunctionBsqrtScaled.click();
+                    break;
+            }
+        }
+        chartSceneController.resetUncheckedChart();
+        noAddChart = false;
+    }
+    function chkboxFunctionA() {
+        if (chartFunctionA) {
+            chartFunctionA = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
+        }
+        else {
+            chartFunctionA = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
+            uncheckCkbox();
+        }
+    }
+    function chkboxFunctionB() {
+        if (chartFunctionB) {
+            chartFunctionB = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
+        }
+        else {
+            chartFunctionB = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
+            uncheckCkbox();
+        }
+    }
+    function chkboxCurvature() {
+        if (chartCurvatureCrv) {
+            chartCurvatureCrv = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
+        }
+        else {
+            chartCurvatureCrv = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
+            uncheckCkbox();
+        }
+    }
+    function chkboxAbsCurvature() {
+        if (chartAbsCurvatureCurv) {
+            chartAbsCurvatureCurv = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
+        }
+        else {
+            chartAbsCurvatureCurv = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
+            uncheckCkbox();
+        }
+    }
+    function chkboxFunctionBsqrtScaled() {
+        if (chartFunctionBsqrtScaled) {
+            chartFunctionBsqrtScaled = false;
+            if (!noAddChart)
+                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
+        }
+        else {
+            chartFunctionBsqrtScaled = true;
+            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
+            uncheckCkbox();
+        }
+    }
+    /* Add event handlers for checkbox processing */
+    checkBoxFunctionA.addEventListener('click', chkboxFunctionA);
+    checkBoxFunctionB.addEventListener('click', chkboxFunctionB);
+    checkBoxFunctionBsqrtScaled.addEventListener('click', chkboxFunctionBsqrtScaled);
+    checkBoxCurvature.addEventListener('click', chkboxCurvature);
+    checkBoxAbsCurvature.addEventListener('click', chkboxAbsCurvature);
+    return chartSceneController;
+}
+exports.chartEventListener = chartEventListener;
+function resetChartContext(chartSceneController, curveModel) {
+    chartSceneController.restart(curveModel);
+    noAddChart = true;
+    if (chartFunctionA)
+        checkBoxFunctionA.click();
+    if (chartFunctionB)
+        checkBoxFunctionB.click();
+    if (chartCurvatureCrv)
+        checkBoxCurvature.click();
+    if (chartAbsCurvatureCurv)
+        checkBoxAbsCurvature.click();
+    if (chartFunctionBsqrtScaled)
+        checkBoxFunctionBsqrtScaled.click();
+    noAddChart = false;
+}
+exports.resetChartContext = resetChartContext;
+
+
+/***/ }),
+
 /***/ "./src/containers/ChartDescriptorQueueItem.ts":
 /*!****************************************************!*\
   !*** ./src/containers/ChartDescriptorQueueItem.ts ***!
@@ -42461,7 +42622,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveEventAtExtremityMayVanish = true;
         this.constraintAtPoint1 = true;
         this.constraintAtPoint2 = false;
-        this.curveModeler = new CurveModeler_1.CurveModeler(this);
+        this.curveModeler = new CurveModeler_1.CurveModeler();
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
         this.navigationState = this.curveShapeSpaceNavigator.navigationState;
@@ -42840,7 +43001,7 @@ var CurveSceneController = /** @class */ (function () {
                 else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
                     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                 }
-                if (this.sliding == true) {
+                if (this.sliding) {
                     this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
                 else {
@@ -44923,6 +45084,7 @@ var CurveModels2D_1 = __webpack_require__(/*! ../models/CurveModels2D */ "./src/
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ./EventMgmtAtCurveExtremities */ "./src/curveModeler/EventMgmtAtCurveExtremities.ts");
 var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ./EventStateAtCurveExtremity */ "./src/curveModeler/EventStateAtCurveExtremity.ts");
+var BSpline_R1_to_R2_degree_Raising_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_degree_Raising */ "./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts");
 var CurveCategory = /** @class */ (function () {
     function CurveCategory(curveModeler) {
         this.curveModeler = curveModeler;
@@ -44935,12 +45097,13 @@ var CurveCategory = /** @class */ (function () {
 exports.CurveCategory = CurveCategory;
 var OpenPlanarCurve = /** @class */ (function (_super) {
     __extends(OpenPlanarCurve, _super);
+    // public curveEventAtExtremityMayVanish: boolean;
     function OpenPlanarCurve(curveModeler) {
         var _this = _super.call(this, curveModeler) || this;
         // JCL temporaire: pour assurer la compatibilité avec les classes existantes
         _this.curveModel = new CurveModels2D_1.OpenCurveModel2D();
         _this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
-        _this.curveEventAtExtremityMayVanish = _this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
+        // this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         _this.eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(_this.eventMgmtAtExtremities);
         return _this;
     }
@@ -44955,6 +45118,39 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'change to closed planar curves.');
         warning.logMessageToConsole();
         this.curveModeler.changeCurveCategory(new ClosedPlanarCurve(this.curveModeler));
+    };
+    OpenPlanarCurve.prototype.inputSelectDegree = function (curveDegree) {
+        if (this.curveModel !== undefined) {
+            if (curveDegree > this.curveModel.spline.degree) {
+                var controlPoints = this.curveModel.spline.controlPoints;
+                var knots = this.curveModel.spline.knots;
+                for (var i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                    var aSpline = new BSpline_R1_to_R2_degree_Raising_1.BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
+                    var newSpline = aSpline.degreeIncrease();
+                    controlPoints = newSpline.controlPoints;
+                    knots = newSpline.knots;
+                }
+                this.curveModel.spline.renewCurve(controlPoints, knots);
+                // this.curveControl.resetCurve(this.curveModel)
+                // if(this.activeLocationControl === ActiveLocationControl.both) {
+                //     if(this.clampedControlPoints[0] === 0){
+                //         this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                //     } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                // }
+                // else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                //     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                // }
+                // if (this.sliding) {
+                //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+                // }
+                // else {
+                //     this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+                // }
+                this.curveModel.notifyObservers();
+            }
+        }
+        else
+            throw new Error("Unable to assign a new degree to the curve. Undefined curve model");
     };
     return OpenPlanarCurve;
 }(CurveCategory));
@@ -45006,12 +45202,11 @@ var CurveType;
     CurveType[CurveType["PLANAR_CLOSED"] = 1] = "PLANAR_CLOSED";
 })(CurveType || (CurveType = {}));
 var CurveModeler = /** @class */ (function () {
-    function CurveModeler(curveSceneController) {
-        this.curveSceneController = curveSceneController;
+    function CurveModeler() {
         this._curveCategory = new CurveCategory_1.OpenPlanarCurve(this);
         this.curveType = CurveType.PLANAR_OPEN;
         // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
-        // JCL To ensure its correct initialization, it must be called lastto ensure a consistent
+        // JCL To ensure its correct initialization, it must be called last to ensure a consistent
         // JCL initialization of each context.
         this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(this);
     }
@@ -46786,6 +46981,183 @@ exports.WarningLog = WarningLog;
 
 /***/ }),
 
+/***/ "./src/filecontrollers/FileEventListener.ts":
+/*!**************************************************!*\
+  !*** ./src/filecontrollers/FileEventListener.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fileEventListener = void 0;
+var ChartEventListener_1 = __webpack_require__(/*! ../chartviews/ChartEventListener */ "./src/chartviews/ChartEventListener.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var main_1 = __webpack_require__(/*! ../main */ "./src/main.ts");
+function fileEventListener(sceneController, chartSceneController) {
+    // function fileEventListener(sceneController: CurveSceneController, chartSceneController: ChartSceneController): string {
+    /* JCL 2020/10/13 Get input IDs for file management purposes */
+    var buttonFileLoad = document.getElementById("buttonFileLoad");
+    var buttonFileSave = document.getElementById("buttonFileSave");
+    var inputFileLoad = document.getElementById("inputFileLoad");
+    var inputFileSave = document.getElementById("inputFileSave");
+    var inputFileName = document.getElementById("inputFileName");
+    var validateInput = document.getElementById("validateInput");
+    var labelFileExtension = document.getElementById("labelFileExtension");
+    var currentFileName = "";
+    var fileR = new FileReader();
+    var updatedCurrentDegree = main_1.currentCurveDegree;
+    function buttonFileLoadCurve(ev) {
+        if (inputFileLoad !== null)
+            inputFileLoad.click();
+    }
+    function buttonFileSaveCurve(ev) {
+        if (currentFileName === "") {
+            inputFileName.style.display = "inline";
+            labelFileExtension.style.display = "inline";
+            validateInput.style.display = "inline";
+        }
+        else {
+            sceneController.saveCurveToFile(currentFileName);
+        }
+        ev.preventDefault();
+    }
+    function inputLoadFileCurve() {
+        var _a;
+        if (inputFileLoad !== null) {
+            var aFileList = inputFileLoad.files;
+            if (aFileList !== null && aFileList.length > 0) {
+                if (((_a = aFileList.item(0)) === null || _a === void 0 ? void 0 : _a.name) !== undefined) {
+                    var curveFile = aFileList.item(0);
+                    if (curveFile !== null) {
+                        inputFileLoad.value = "";
+                        currentFileName = curveFile.name;
+                        if (currentFileName.indexOf(".json") !== -1) {
+                            fileR.readAsText(curveFile);
+                        }
+                        else if (currentFileName.indexOf(".png") !== -1) {
+                            console.log("read an image");
+                            fileR.readAsArrayBuffer(curveFile);
+                            /* for test purposes to load an image
+                            // iconKnotInsertion.src = currentFileName
+                            //imageFile = curveFile*/
+                        }
+                    }
+                }
+            }
+        }
+    }
+    function inputSaveFileCurve() {
+    }
+    function inputCurveFileName() {
+    }
+    function inputButtonValidate() {
+        currentFileName = inputFileName.value;
+        console.log("inputButtonValidate:" + inputFileName.value);
+        inputFileName.style.display = "none";
+        labelFileExtension.style.display = "none";
+        validateInput.style.display = "none";
+        sceneController.saveCurveToFile(currentFileName);
+    }
+    function processInputFile(ev) {
+        if (ev.target !== null)
+            console.log("Reading the file" + currentFileName);
+        if (fileR.readyState === fileR.DONE) {
+            if (fileR.result !== null) {
+                var aString = "";
+                if (typeof fileR.result === "string") {
+                    aString = fileR.result.toString();
+                }
+                else {
+                    /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
+                    if (currentFileName.indexOf(".png") !== -1) {
+                        console.log("Input file is an image. No need to reinitialize curve controls.");
+                        return;
+                    }
+                }
+                var aSpline = sceneController.loadCurveFromFile(aString);
+                if (typeof (aSpline) !== "undefined") {
+                    /* JCL 2020/10/18 Reconfigure the degree selector */
+                    var newCurveDegree = aSpline.degree;
+                    if (newCurveDegree >= 3) {
+                        var optionNumber = Number(main_1.currentCurveDegree) - 2;
+                        var optionName = "option";
+                        var option = void 0;
+                        for (var i = 1; i < (newCurveDegree - 2); i += 1) {
+                            option = document.getElementById(optionName + i.toString());
+                            if (option !== null)
+                                option.setAttribute("disabled", "");
+                            else
+                                throw new Error('No id found to identify an Option in the Selector');
+                        }
+                        option = document.getElementById(optionName + optionNumber);
+                        option.removeAttribute("selected");
+                        option = document.getElementById(optionName + (newCurveDegree - 2).toString());
+                        option.setAttribute("selected", "selected");
+                        // for(let i = (newCurveDegree - 2); i <= 4; i += 1) {
+                        //     option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                        //     if(option !== null) option.setAttribute("disabled", "disabled");
+                        //     // if(option !== null) option.removeAttribute("disabled");
+                        //     else throw new Error('No id found to identify an Option in the Selector');
+                        // }
+                        updatedCurrentDegree = newCurveDegree.toString();
+                        // currentCurveDegree = newCurveDegree.toString();
+                        main_1.inputDegree.click();
+                    }
+                    else {
+                        throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
+                    }
+                }
+                else
+                    throw new Error("Unable to update the curve degree selector. Undefined curve model");
+                /* JCL 2020/10/18 Reset the appropriate control buttons */
+                if (!sceneController.sliding) {
+                    main_1.toggleButtonSliding.click();
+                }
+                if (!sceneController.controlOfCurvatureExtrema) {
+                    main_1.toggleButtonCurvatureExtrema.click();
+                }
+                if (!sceneController.controlOfInflection) {
+                    main_1.toggleButtonInflection.click();
+                }
+                if (!sceneController.controlOfCurveClamping) {
+                    main_1.toggleButtonCurveClamping.click();
+                }
+                if (typeof (aSpline) !== "undefined") {
+                    sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+                    if (sceneController.curveModel === undefined) {
+                        var error = new ErrorLoging_1.ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
+                        error.logMessageToConsole();
+                        return;
+                    }
+                    ChartEventListener_1.resetChartContext(chartSceneController, sceneController.curveModel);
+                }
+                else
+                    throw new Error("Unable to reset the curve context. Undefined curve model");
+                // to be discussed
+                //sceneController = new CurveSceneController(canvas, gl, , curveModel)
+            }
+            else {
+                throw new Error('Error when reading the input file. Incorrect text format.');
+            }
+        }
+    }
+    /* JCL 2020/10/13 Add event handlers for file processing */
+    buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
+    buttonFileSave.addEventListener('click', buttonFileSaveCurve);
+    inputFileLoad.addEventListener('input', inputLoadFileCurve);
+    inputFileSave.addEventListener('input', inputSaveFileCurve);
+    inputFileName.addEventListener('input', inputCurveFileName);
+    validateInput.addEventListener('click', inputButtonValidate);
+    fileR.addEventListener('load', processInputFile);
+    return updatedCurrentDegree;
+}
+exports.fileEventListener = fileEventListener;
+
+
+/***/ }),
+
 /***/ "./src/linearAlgebra/CholeskyDecomposition.ts":
 /*!****************************************************!*\
   !*** ./src/linearAlgebra/CholeskyDecomposition.ts ***!
@@ -47737,13 +48109,21 @@ exports.SymmetricMatrix = SymmetricMatrix;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.main = void 0;
+exports.main = exports.toggleButtonCurveClamping = exports.toggleButtonSliding = exports.toggleButtonInflection = exports.toggleButtonCurvatureExtrema = exports.inputDegree = exports.currentCurveDegree = void 0;
 //import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
 var cuon_utils_1 = __webpack_require__(/*! ./webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-var ChartSceneController_1 = __webpack_require__(/*! ./chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ./errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ChartEventListener_1 = __webpack_require__(/*! ./chartviews/ChartEventListener */ "./src/chartviews/ChartEventListener.ts");
+var FileEventListener_1 = __webpack_require__(/*! ./filecontrollers/FileEventListener */ "./src/filecontrollers/FileEventListener.ts");
+exports.currentCurveDegree = "3";
+exports.inputDegree = document.getElementById("curveDegree");
+/* JCL Get control button IDs for curve control*/
+exports.toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
+exports.toggleButtonInflection = document.getElementById("toggleButtonInflections");
+exports.toggleButtonSliding = document.getElementById("toggleButtonSliding");
+exports.toggleButtonCurveClamping = document.getElementById("toggleButtonCurveClamping");
 function main() {
     var VSHADER_SOURCE = 'attribute vec4 a_position;\n' +
         'attribute vec2 a_texcoord;\n' +
@@ -47762,36 +48142,21 @@ function main() {
     var canvas = document.getElementById("webgl");
     /* JCL Get icons of insert knot and insert control point functions */
     var iconKnotInsertion;
-    /* JCL Get control button IDs for curve control*/
-    var toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
-    var toggleButtonInflection = document.getElementById("toggleButtonInflections");
-    var toggleButtonSliding = document.getElementById("toggleButtonSliding");
-    var toggleButtonCurveClamping = document.getElementById("toggleButtonCurveClamping");
-    /* JCL 2020/09/07 Get checkboxes IDs for the selection of function graphs*/
-    var checkBoxFunctionA = document.getElementById("chkBoxFunctionA");
-    var checkBoxFunctionB = document.getElementById("chkBoxFunctionB");
-    var checkBoxFunctionBsqrtScaled = document.getElementById("chkBoxSqrtFunctionB");
-    var checkBoxCurvature = document.getElementById("chkBoxCurvature");
-    var checkBoxAbsCurvature = document.getElementById("chkBoxAbsCurvature");
-    var inputDegree = document.getElementById("curveDegree");
-    var currentCurveDegree = "3";
     var inputNavigationMode = document.getElementById("navigationMode");
     var currentNavigationMode = "0";
     var inputCurveCategory = document.getElementById("curveCategory");
     var currentCurveCategory = "0";
-    /*let checkBoxFunctionA = document.querySelector('input[value="functionA"]');
-    let checkBoxFunctionB = document.querySelector('input[value="functionB"]');*/
     /* JCL 2020/10/13 Get input IDs for file management purposes */
-    var buttonFileLoad = document.getElementById("buttonFileLoad");
-    var buttonFileSave = document.getElementById("buttonFileSave");
-    var inputFileLoad = document.getElementById("inputFileLoad");
-    var inputFileSave = document.getElementById("inputFileSave");
-    var inputFileName = document.getElementById("inputFileName");
-    var validateInput = document.getElementById("validateInput");
-    var labelFileExtension = document.getElementById("labelFileExtension");
-    var currentFileName = "";
-    var fileR = new FileReader();
-    //let imageFile: File
+    // let buttonFileLoad = <HTMLButtonElement> document.getElementById("buttonFileLoad")
+    // let buttonFileSave = <HTMLButtonElement> document.getElementById("buttonFileSave")
+    // let inputFileLoad = <HTMLInputElement>document.getElementById("inputFileLoad")
+    // let inputFileSave = <HTMLInputElement> document.getElementById("inputFileSave")
+    // let inputFileName = <HTMLInputElement> document.getElementById("inputFileName")
+    // let validateInput = <HTMLButtonElement> document.getElementById("validateInput")
+    // let labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension")
+    // let currentFileName: string = ""
+    // let fileR = new FileReader()
+    var imageFile;
     var gl = webgl_utils_1.WebGLUtils().setupWebGL(canvas);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
@@ -47848,12 +48213,6 @@ function main() {
         texture: tex,
     };
     iconKnotInsertion = new Image();
-    var canvasChart1 = document.getElementById('chart1');
-    var ctxChart1 = canvasChart1.getContext('2d');
-    var canvasChart2 = document.getElementById('chart2');
-    var ctxChart2 = canvasChart2.getContext('2d');
-    var canvasChart3 = document.getElementById('chart3');
-    var ctxChart3 = canvasChart3.getContext('2d');
     /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
     if (sceneController.curveModel === undefined) {
@@ -47861,65 +48220,8 @@ function main() {
         error.logMessageToConsole();
         return;
     }
-    var chartFunctionA = false;
-    var chartFunctionB = false;
-    var chartCurvatureCrv = false;
-    var chartAbsCurvatureCurv = false;
-    var chartFunctionBsqrtScaled = false;
-    var chartRenderingContext = [];
-    if (ctxChart1 !== null)
-        chartRenderingContext.push(ctxChart1);
-    if (ctxChart2 !== null)
-        chartRenderingContext.push(ctxChart2);
-    if (ctxChart3 !== null)
-        chartRenderingContext.push(ctxChart3);
-    var noAddChart = false;
-    var chartSceneController = new ChartSceneController_1.ChartSceneController(chartRenderingContext, sceneController.curveModel);
-    function uncheckCkbox() {
-        console.log("uncheckChart " + chartSceneController.uncheckedChart);
-        if (ChartSceneController_1.CHART_TITLES.indexOf(chartSceneController.uncheckedChart) !== -1) {
-            noAddChart = true;
-            switch (chartSceneController.uncheckedChart) {
-                case ChartSceneController_1.CHART_TITLES[0]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[0]);
-                    checkBoxFunctionA.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[1]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[1]);
-                    checkBoxFunctionB.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[2]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[2]);
-                    checkBoxCurvature.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[3]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[3]);
-                    checkBoxAbsCurvature.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[4]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[4]);
-                    checkBoxFunctionBsqrtScaled.click();
-                    break;
-            }
-        }
-        chartSceneController.resetUncheckedChart();
-        noAddChart = false;
-    }
-    function resetChartContext(curveModel) {
-        chartSceneController.restart(curveModel);
-        noAddChart = true;
-        if (chartFunctionA)
-            checkBoxFunctionA.click();
-        if (chartFunctionB)
-            checkBoxFunctionB.click();
-        if (chartCurvatureCrv)
-            checkBoxCurvature.click();
-        if (chartAbsCurvatureCurv)
-            checkBoxAbsCurvature.click();
-        if (chartFunctionBsqrtScaled)
-            checkBoxFunctionBsqrtScaled.click();
-        noAddChart = false;
-    }
+    var chartSceneController = ChartEventListener_1.chartEventListener(sceneController.curveModel);
+    exports.currentCurveDegree = FileEventListener_1.fileEventListener(sceneController, chartSceneController);
     function mouse_get_NormalizedDeviceCoordinates(event) {
         var x, y, rect = canvas.getBoundingClientRect(), ev;
         ev = event;
@@ -47948,7 +48250,7 @@ function main() {
         sceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
         if (!active_clamping)
-            toggleButtonCurveClamping.click();
+            exports.toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
     //function drag(ev, canvas) {
@@ -48002,73 +48304,13 @@ function main() {
         if (keyName === "Shift")
             sceneController.shiftKeyUp();
     }
-    function chkboxFunctionA() {
-        if (chartFunctionA) {
-            chartFunctionA = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
-        }
-        else {
-            chartFunctionA = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxFunctionB() {
-        if (chartFunctionB) {
-            chartFunctionB = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
-        }
-        else {
-            chartFunctionB = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxFunctionBsqrtScaled() {
-        if (chartFunctionBsqrtScaled) {
-            chartFunctionBsqrtScaled = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
-        }
-        else {
-            chartFunctionBsqrtScaled = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxCurvature() {
-        if (chartCurvatureCrv) {
-            chartCurvatureCrv = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
-        }
-        else {
-            chartCurvatureCrv = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxAbsCurvature() {
-        if (chartAbsCurvatureCurv) {
-            chartAbsCurvatureCurv = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
-        }
-        else {
-            chartAbsCurvatureCurv = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
-            uncheckCkbox();
-        }
-    }
     function inputSelectDegree() {
-        console.log("select:  " + inputDegree.value);
+        console.log("select:  " + exports.inputDegree.value);
         var optionName = "option";
         var curveDegree;
-        if (!isNaN(Number(inputDegree.value))) {
-            curveDegree = Number(inputDegree.value);
-            currentCurveDegree = inputDegree.value;
+        if (!isNaN(Number(exports.inputDegree.value))) {
+            curveDegree = Number(exports.inputDegree.value);
+            exports.currentCurveDegree = exports.inputDegree.value;
             sceneController.inputSelectDegree(curveDegree);
             if (curveDegree > 3) {
                 for (var i = 1; i < (curveDegree - 2); i += 1) {
@@ -48101,7 +48343,7 @@ function main() {
     }
     function clickSelectDegree() {
         console.log("select Degree click");
-        inputDegree.value = currentCurveDegree;
+        exports.inputDegree.value = exports.currentCurveDegree;
     }
     function clickNavigationMode() {
         console.log("select Navigation click");
@@ -48111,153 +48353,138 @@ function main() {
         console.log("select Curve type click");
         inputCurveCategory.value = currentCurveCategory;
     }
-    function buttonFileLoadCurve(ev) {
-        if (inputFileLoad !== null)
-            inputFileLoad.click();
-        //ev.preventDefault();
-    }
-    function buttonFileSaveCurve(ev) {
-        if (currentFileName === "") {
-            inputFileName.style.display = "inline";
-            labelFileExtension.style.display = "inline";
-            validateInput.style.display = "inline";
-        }
-        else {
-            sceneController.saveCurveToFile(currentFileName);
-        }
-        ev.preventDefault();
-    }
-    function inputLoadFileCurve() {
-        var _a;
-        if (inputFileLoad !== null) {
-            var aFileList = inputFileLoad.files;
-            if (aFileList !== null && aFileList.length > 0) {
-                if (((_a = aFileList.item(0)) === null || _a === void 0 ? void 0 : _a.name) !== undefined) {
-                    var curveFile = aFileList.item(0);
-                    if (curveFile !== null) {
-                        inputFileLoad.value = "";
-                        currentFileName = curveFile.name;
-                        if (currentFileName.indexOf(".json") !== -1) {
-                            fileR.readAsText(curveFile);
-                        }
-                        else if (currentFileName.indexOf(".png") !== -1) {
-                            console.log("read an image");
-                            fileR.readAsArrayBuffer(curveFile);
-                            iconKnotInsertion.src = currentFileName;
-                            //imageFile = curveFile
-                        }
-                    }
-                }
-            }
-        }
-    }
-    function inputSaveFileCurve() {
-    }
-    function inputCurveFileName() {
-    }
-    function inputButtonValidate() {
-        currentFileName = inputFileName.value;
-        console.log("inputButtonValidate:" + inputFileName.value);
-        inputFileName.style.display = "none";
-        labelFileExtension.style.display = "none";
-        validateInput.style.display = "none";
-        sceneController.saveCurveToFile(currentFileName);
-    }
+    // function buttonFileLoadCurve(ev: MouseEvent) {
+    //     if(inputFileLoad !== null) inputFileLoad.click();
+    //     //ev.preventDefault();
+    // }
+    // function buttonFileSaveCurve(ev: MouseEvent) {
+    //     if(currentFileName === "") {
+    //         inputFileName.style.display = "inline";
+    //         labelFileExtension.style.display = "inline";
+    //         validateInput.style.display = "inline";
+    //     }
+    //     else {
+    //         sceneController.saveCurveToFile(currentFileName);
+    //     }
+    //     ev.preventDefault();
+    // }
+    // function inputLoadFileCurve() {
+    //     if(inputFileLoad !== null) {
+    //         let aFileList = inputFileLoad.files;
+    //         if(aFileList !== null && aFileList.length > 0) {
+    //             if(aFileList.item(0)?.name !== undefined) {
+    //                 let curveFile = aFileList.item(0);
+    //                 if(curveFile !== null) {
+    //                     inputFileLoad.value = ""
+    //                     currentFileName = curveFile.name;
+    //                     if(currentFileName.indexOf(".json") !== -1) {
+    //                         fileR.readAsText(curveFile);
+    //                     } else if(currentFileName.indexOf(".png") !== -1) {
+    //                         console.log("read an image");
+    //                         fileR.readAsArrayBuffer(curveFile);
+    //                         iconKnotInsertion.src = currentFileName
+    //                         //imageFile = curveFile
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // function inputSaveFileCurve() {
+    // }
+    // function inputCurveFileName() {
+    // }
+    // function inputButtonValidate() {
+    //     currentFileName = inputFileName.value;
+    //     console.log("inputButtonValidate:" + inputFileName.value)
+    //     inputFileName.style.display = "none";
+    //     labelFileExtension.style.display = "none";
+    //     validateInput.style.display = "none";
+    //     sceneController.saveCurveToFile(currentFileName);
+    // }
     function processInputTexture() {
         textureInfo.width = iconKnotInsertion.width;
         textureInfo.height = iconKnotInsertion.height;
         gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iconKnotInsertion);
     }
-    function processInputFile(ev) {
-        if (ev.target !== null)
-            console.log("Reading the file" + currentFileName);
-        if (fileR.readyState === fileR.DONE) {
-            if (fileR.result !== null) {
-                var aString = "";
-                if (typeof fileR.result === "string") {
-                    aString = fileR.result.toString();
-                }
-                else {
-                    /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
-                    //Promise.all([createImageBitmap(imageFile)]).then(function(image){ iconKnotInsertion = image[0]})
-                    //const requiredData = await Promise.all([createImageBitmap(imageFile)])
-                    //iconKnotInsertion = requiredData[0]
-                    //Promise.all([createImageBitmap(imageFile)])
-                    if (currentFileName.indexOf(".png") !== -1) {
-                        console.log("Input file is an image. No need to reinitialize curve controls.");
-                        return;
-                    }
-                    /*let string  = new String(fileR.result);
-                    aString = string.toString();*/
-                }
-                var aSpline = sceneController.loadCurveFromFile(aString);
-                if (typeof (aSpline) !== "undefined") {
-                    /* JCL 2020/10/18 Reconfigure the degree selector */
-                    var newCurveDegree = aSpline.degree;
-                    if (newCurveDegree >= 3) {
-                        var optionNumber = Number(currentCurveDegree) - 2;
-                        var optionName = "option";
-                        var option = document.getElementById(optionName + optionNumber);
-                        option.setAttribute("selected", "");
-                        option = document.getElementById(optionName + (newCurveDegree - 2).toString());
-                        option.setAttribute("selected", "selected");
-                        for (var i = 1; i < (newCurveDegree - 2); i += 1) {
-                            option = document.getElementById(optionName + i.toString());
-                            if (option !== null)
-                                option.setAttribute("disabled", "");
-                            else
-                                throw new Error('No id found to identify an Option in the Selector');
-                        }
-                        for (var i = (newCurveDegree - 2); i <= 4; i += 1) {
-                            option = document.getElementById(optionName + i.toString());
-                            //if(option !== null) option.setAttribute("disabled", "disabled");
-                            if (option !== null)
-                                option.removeAttribute("disabled");
-                            else
-                                throw new Error('No id found to identify an Option in the Selector');
-                        }
-                        currentCurveDegree = newCurveDegree.toString();
-                        inputDegree.click();
-                    }
-                    else {
-                        throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
-                    }
-                }
-                else
-                    throw new Error("Unable to update the curve degree selector. Undefined curve model");
-                /* JCL 2020/10/18 Reset the appropriate control buttons */
-                if (!sceneController.sliding) {
-                    toggleButtonSliding.click();
-                }
-                if (!sceneController.controlOfCurvatureExtrema) {
-                    toggleButtonCurvatureExtrema.click();
-                }
-                if (!sceneController.controlOfInflection) {
-                    toggleButtonInflection.click();
-                }
-                if (!sceneController.controlOfCurveClamping) {
-                    toggleButtonCurveClamping.click();
-                }
-                if (typeof (aSpline) !== "undefined") {
-                    sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-                    if (sceneController.curveModel === undefined) {
-                        var error = new ErrorLoging_1.ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
-                        error.logMessageToConsole();
-                        return;
-                    }
-                    resetChartContext(sceneController.curveModel);
-                }
-                else
-                    throw new Error("Unable to reset the curve context. Undefined curve model");
-                // to be discussed
-                //sceneController = new CurveSceneController(canvas, gl, , curveModel)
-            }
-            else {
-                throw new Error('Error when reading the input file. Incorrect text format.');
-            }
-        }
-    }
+    // function processInputFile(ev: ProgressEvent) {
+    //     if(ev.target !== null) console.log("Reading the file" + currentFileName);
+    //     if(fileR.readyState === fileR.DONE) {
+    //         if(fileR.result !== null) {
+    //             let aString = "";
+    //             if(typeof fileR.result === "string") {
+    //                 aString = fileR.result.toString();
+    //             } else {
+    //                 /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
+    //                 //Promise.all([createImageBitmap(imageFile)]).then(function(image){ iconKnotInsertion = image[0]})
+    //                 //const requiredData = await Promise.all([createImageBitmap(imageFile)])
+    //                 //iconKnotInsertion = requiredData[0]
+    //                 //Promise.all([createImageBitmap(imageFile)])
+    //                 if(currentFileName.indexOf(".png") !== -1) {
+    //                     console.log("Input file is an image. No need to reinitialize curve controls.")
+    //                     return
+    //                 }
+    //                 /*let string  = new String(fileR.result);
+    //                 aString = string.toString();*/
+    //             }
+    //             let aSpline = sceneController.loadCurveFromFile(aString);
+    //             if(typeof(aSpline) !== "undefined") {
+    //                 /* JCL 2020/10/18 Reconfigure the degree selector */
+    //                 let newCurveDegree = aSpline.degree;
+    //                 if(newCurveDegree >= 3) {
+    //                     let optionNumber = Number(currentCurveDegree) - 2;
+    //                     let optionName = "option";
+    //                     let option = <HTMLOptionElement> document.getElementById(optionName + optionNumber);
+    //                     option.setAttribute("selected", "");
+    //                     option = <HTMLOptionElement> document.getElementById(optionName + (newCurveDegree - 2).toString());
+    //                     option.setAttribute("selected", "selected");
+    //                     for(let i = 1; i < (newCurveDegree - 2); i += 1) {
+    //                         option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+    //                         if(option !== null) option.setAttribute("disabled", "");
+    //                         else throw new Error('No id found to identify an Option in the Selector');
+    //                     }
+    //                     for(let i = (newCurveDegree - 2); i <= 4; i += 1) {
+    //                         option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+    //                         if(option !== null) option.setAttribute("disabled", "disabled");
+    //                         //if(option !== null) option.removeAttribute("disabled");
+    //                         else throw new Error('No id found to identify an Option in the Selector');
+    //                     }
+    //                     currentCurveDegree = newCurveDegree.toString();
+    //                     inputDegree.click();
+    //                 } else {
+    //                     throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
+    //                 }
+    //             } else throw new Error("Unable to update the curve degree selector. Undefined curve model");
+    //             /* JCL 2020/10/18 Reset the appropriate control buttons */
+    //             if(!sceneController.sliding) {
+    //                 toggleButtonSliding.click()
+    //             }
+    //             if(!sceneController.controlOfCurvatureExtrema) {
+    //                 toggleButtonCurvatureExtrema.click()
+    //             }
+    //             if(!sceneController.controlOfInflection) {
+    //                 toggleButtonInflection.click()
+    //             }
+    //             if(!sceneController.controlOfCurveClamping) {
+    //                 toggleButtonCurveClamping.click()
+    //             }
+    //             if(typeof(aSpline) !== "undefined") {
+    //                 sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+    //                 if(sceneController.curveModel === undefined) {
+    //                     const error = new ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
+    //                     error.logMessageToConsole();
+    //                     return;
+    //                 }
+    //                 resetChartContext(chartSceneController, sceneController.curveModel);
+    //             } else throw new Error("Unable to reset the curve context. Undefined curve model");
+    //             // to be discussed
+    //             //sceneController = new CurveSceneController(canvas, gl, , curveModel)
+    //         } else {
+    //             throw new Error('Error when reading the input file. Incorrect text format.');
+    //         } 
+    //     }
+    // }
     function drawImage(tex, texWidth, texHeight, dstX, dstY) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
         // Tell WebGL to use our shader program pair
@@ -48318,31 +48545,25 @@ function main() {
     canvas.addEventListener('touchend', touch_stop_drag, false);
     /* JCL 2020/09/25 Add dble click event processing */
     canvas.addEventListener('dblclick', mouse_double_click, false);
-    toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema);
-    toggleButtonInflection.addEventListener('click', toggleControlOfInflections);
-    toggleButtonSliding.addEventListener('click', toggleSliding);
-    toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping);
-    /* JCL 2020/09/07 Add event handlers for checkbox processing */
-    checkBoxFunctionA.addEventListener('click', chkboxFunctionA);
-    checkBoxFunctionB.addEventListener('click', chkboxFunctionB);
-    checkBoxFunctionBsqrtScaled.addEventListener('click', chkboxFunctionBsqrtScaled);
-    checkBoxCurvature.addEventListener('click', chkboxCurvature);
-    checkBoxAbsCurvature.addEventListener('click', chkboxAbsCurvature);
+    exports.toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema);
+    exports.toggleButtonInflection.addEventListener('click', toggleControlOfInflections);
+    exports.toggleButtonSliding.addEventListener('click', toggleSliding);
+    exports.toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping);
     /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-    inputDegree.addEventListener('input', inputSelectDegree);
-    inputDegree.addEventListener('click', clickSelectDegree);
+    exports.inputDegree.addEventListener('input', inputSelectDegree);
+    exports.inputDegree.addEventListener('click', clickSelectDegree);
     inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
     inputNavigationMode.addEventListener('click', clickNavigationMode);
     inputCurveCategory.addEventListener('input', inputSelectCurveCategory);
     inputCurveCategory.addEventListener('click', clickCurveCategory);
     /* JCL 2020/10/13 Add event handlers for file processing */
-    buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
-    buttonFileSave.addEventListener('click', buttonFileSaveCurve);
-    inputFileLoad.addEventListener('input', inputLoadFileCurve);
-    inputFileSave.addEventListener('input', inputSaveFileCurve);
-    inputFileName.addEventListener('input', inputCurveFileName);
-    validateInput.addEventListener('click', inputButtonValidate);
-    fileR.addEventListener('load', processInputFile);
+    // buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
+    // buttonFileSave.addEventListener('click', buttonFileSaveCurve);
+    // inputFileLoad.addEventListener('input', inputLoadFileCurve);
+    // inputFileSave.addEventListener('input', inputSaveFileCurve);
+    // inputFileName.addEventListener('input', inputCurveFileName);
+    // validateInput.addEventListener('click', inputButtonValidate);
+    // fileR.addEventListener('load', processInputFile);
     iconKnotInsertion.addEventListener('load', processInputTexture);
     document.body.addEventListener('keydown', keyDown);
     document.body.addEventListener('keyup', keyUp);

@@ -192,7 +192,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveEventAtExtremityMayVanish = true;
         this.constraintAtPoint1 = true;
         this.constraintAtPoint2 = false;
-        this.curveModeler = new CurveModeler(this);
+        this.curveModeler = new CurveModeler();
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
         this.navigationState = this.curveShapeSpaceNavigator.navigationState;
@@ -579,7 +579,7 @@ export class CurveSceneController implements SceneControllerInterface {
                     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                 }
 
-                if (this.sliding == true) {
+                if (this.sliding) {
                     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
                 }
                 else {

@@ -4,6 +4,9 @@ import { ClosedCurveModel2D, OpenCurveModel2D } from "../models/CurveModels2D";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
+import { BSpline_R1_to_R2_degree_Raising } from "../bsplines/BSpline_R1_to_R2_degree_Raising";
+import { SlidingStrategy } from "../controllers/SlidingStrategy";
+import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 
 export abstract class CurveCategory {
 
@@ -31,14 +34,14 @@ export class OpenPlanarCurve extends CurveCategory {
     public curveModel: OpenCurveModel2D;
     public eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
     public eventState: EventStateAtCurveExtremity;
-    public curveEventAtExtremityMayVanish: boolean;
+    // public curveEventAtExtremityMayVanish: boolean;
 
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
         // JCL temporaire: pour assurer la compatibilité avec les classes existantes
         this.curveModel = new OpenCurveModel2D();
         this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities();
-        this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
+        // this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         this.eventState = new EventSlideOutsideCurve(this.eventMgmtAtExtremities);
     }
 
@@ -55,6 +58,40 @@ export class OpenPlanarCurve extends CurveCategory {
         let warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'change to closed planar curves.');
         warning.logMessageToConsole();
         this.curveModeler.changeCurveCategory(new ClosedPlanarCurve(this.curveModeler));
+    }
+
+    inputSelectDegree(curveDegree: number) {
+        if(this.curveModel !== undefined) {
+            if(curveDegree > this.curveModel.spline.degree) {
+                let controlPoints = this.curveModel.spline.controlPoints
+                let knots = this.curveModel.spline.knots
+                for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                    let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
+                    let newSpline = aSpline.degreeIncrease()
+                    controlPoints = newSpline.controlPoints
+                    knots = newSpline.knots
+                }
+                this.curveModel.spline.renewCurve(controlPoints, knots)
+                // this.curveControl.resetCurve(this.curveModel)
+
+                // if(this.activeLocationControl === ActiveLocationControl.both) {
+                //     if(this.clampedControlPoints[0] === 0){
+                //         this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                //     } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                // }
+                // else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                //     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                // }
+
+                // if (this.sliding) {
+                //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+                // }
+                // else {
+                //     this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+                // }
+                this.curveModel.notifyObservers()
+            }
+        } else throw new Error("Unable to assign a new degree to the curve. Undefined curve model")
     }
 
 }

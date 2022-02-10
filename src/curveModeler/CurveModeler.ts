@@ -8,15 +8,13 @@ enum CurveType { PLANAR_OPEN, PLANAR_CLOSED }
 export class CurveModeler{
     public curveType: CurveType;
     private _curveCategory: CurveCategory;
-    public curveSceneController: CurveSceneController;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
-    constructor(curveSceneController: CurveSceneController) {
-        this.curveSceneController = curveSceneController;
+    constructor() {
         this._curveCategory = new OpenPlanarCurve(this);
         this.curveType = CurveType.PLANAR_OPEN;
         // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
-        // JCL To ensure its correct initialization, it must be called lastto ensure a consistent
+        // JCL To ensure its correct initialization, it must be called last to ensure a consistent
         // JCL initialization of each context.
         this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this);
     }
