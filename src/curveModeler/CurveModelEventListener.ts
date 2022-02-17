@@ -1,13 +1,9 @@
-import { CurveModel } from "../models/CurveModel";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { CurveModel, DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
+import { CurveShapeModelerUserInterface } from "../userInterfaceConntroller/CurveShapeModelerUserInterface";
 import { CurveModeler } from "./CurveModeler";
 
-
-export function curveModelEventListener(): CurveModel {
-
-    const inputDegree = <HTMLSelectElement> document.getElementById("curveDegree");
-    let currentCurveDegree = "3";
-    const inputCurveCategory = <HTMLSelectElement> document.getElementById("curveCategory");
-    let currentCurveCategory = "0";
+export function curveModelEventListener(curveShapeModelerUserInterface: CurveShapeModelerUserInterface): CurveModel {
 
     let curveModel: CurveModel;
 
@@ -15,50 +11,55 @@ export function curveModelEventListener(): CurveModel {
     curveModel = new CurveModel();
 
     function inputSelectDegree() {
-        console.log("select:  " + inputDegree.value);
-        let optionName = "option"
+        console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
+        const optionName = "option";
         let curveDegree: number;
-        if(!isNaN(Number(inputDegree.value))){
-            curveDegree = Number(inputDegree.value);
-            currentCurveDegree = inputDegree.value;
+        if(!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))){
+            curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
+            curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
             // sceneController.inputSelectDegree(curveDegree);
-            if(curveDegree > 3) {
-                for(let i = 1; i < (curveDegree - 2); i += 1) {
+            if(curveDegree > DEFAULT_CURVE_DEGREE) {
+                for(let i = 1; i < (curveDegree - DEFAULT_CURVE_DEGREE + 1); i += 1) {
                     console.log("select" + optionName + i.toString());
-                    let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                    const option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
                     if(option !== null) option.setAttribute("disabled", "");
-                    else throw new Error('No id found to identify an Option in the Selector');
+                    else {
+                        const error = new ErrorLog("curveModelEventListener", "inputSelectDegree", "No ID found to identify an Option in the Selector.");
+                        error.logMessageToConsole();
+                    }
                 }
             }
         } else {
-              throw new Error('The selected option cannot be converted into a Number');
+            const error = new ErrorLog("curveModelEventListener", "inputSelectDegree", "The selected option cannot be converted into a Number");
+            error.logMessageToConsole();
         }
     }
 
     function inputSelectCurveCategory() {
-        console.log("select" + inputCurveCategory.value);
+        console.log("select" + curveShapeModelerUserInterface.inputCurveCategory.value);
         let curveCategory: number;
-        curveCategory = Number(inputCurveCategory.value);
-        currentCurveCategory = inputCurveCategory.value;
+        curveCategory = Number(curveShapeModelerUserInterface.inputCurveCategory.value);
+        curveShapeModelerUserInterface.currentCurveCategory = curveShapeModelerUserInterface.inputCurveCategory.value;
+        curveModeler.inputSelectCurveCategoryProcess(curveCategory);
         // sceneController.inputSelectCurveCategoryProcess(curveCategory);
     }
 
     function clickSelectDegree() {
         console.log("select Degree click");
-        inputDegree.value = currentCurveDegree;
+        curveShapeModelerUserInterface.inputDegree.value = curveShapeModelerUserInterface.currentCurveDegree;
     }
 
     function clickCurveCategory() {
         console.log("select Curve type click");
-        inputCurveCategory.value = currentCurveCategory;
+        curveShapeModelerUserInterface.inputCurveCategory.value = curveShapeModelerUserInterface.currentCurveCategory;
     }
 
-        /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-        inputDegree.addEventListener('input', inputSelectDegree);
-        inputDegree.addEventListener('click', clickSelectDegree);
+    /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
+    curveShapeModelerUserInterface.inputDegree.addEventListener('input', inputSelectDegree);
+    curveShapeModelerUserInterface.inputDegree.addEventListener('click', clickSelectDegree);
 
-        inputCurveCategory.addEventListener('input', inputSelectCurveCategory);
-        inputCurveCategory.addEventListener('click', clickCurveCategory);
+    curveShapeModelerUserInterface.inputCurveCategory.addEventListener('input', inputSelectCurveCategory);
+    curveShapeModelerUserInterface.inputCurveCategory.addEventListener('click', clickCurveCategory);
 
     return curveModel;
 }

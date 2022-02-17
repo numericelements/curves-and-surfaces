@@ -1,11 +1,14 @@
-import { ChartSceneController } from "../chartcontrollers/ChartSceneController"
-import { resetChartContext } from "../chartviews/ChartEventListener"
-import { CurveSceneController } from "../controllers/CurveSceneController"
-import { ErrorLog } from "../errorProcessing/ErrorLoging"
-import { currentCurveDegree, inputDegree, toggleButtonCurvatureExtrema, toggleButtonCurveClamping, toggleButtonInflection, toggleButtonSliding } from "../main"
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { ChartSceneController } from "../chartcontrollers/ChartSceneController";
+import { resetChartContext } from "../chartviews/ChartEventListener";
+import { CurveSceneController } from "../controllers/CurveSceneController";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
+import { CurveShapeModelerUserInterface } from "../userInterfaceConntroller/CurveShapeModelerUserInterface";
+import { FileController } from "./FileController";
 
-export function fileEventListener(sceneController: CurveSceneController, chartSceneController: ChartSceneController): string {
-// function fileEventListener(sceneController: CurveSceneController, chartSceneController: ChartSceneController): string {
+export function fileEventListener(sceneController: CurveSceneController, chartSceneController: ChartSceneController,
+    curveShapeModelerUserInterface: CurveShapeModelerUserInterface): void {
 
     /* JCL 2020/10/13 Get input IDs for file management purposes */
     const buttonFileLoad = <HTMLButtonElement> document.getElementById("buttonFileLoad")
@@ -16,9 +19,9 @@ export function fileEventListener(sceneController: CurveSceneController, chartSc
     const validateInput = <HTMLButtonElement> document.getElementById("validateInput")
     const labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension")
     
-    let currentFileName: string = ""
-    const fileR = new FileReader()
-    let updatedCurrentDegree = currentCurveDegree;
+    const fileR = new FileReader();
+    let aString = "";
+    const fileController = new FileController(sceneController.curveModel!, sceneController);
 
 
     function buttonFileLoadCurve(ev: MouseEvent) {
@@ -26,13 +29,12 @@ export function fileEventListener(sceneController: CurveSceneController, chartSc
     }
 
     function buttonFileSaveCurve(ev: MouseEvent) {
-        if(currentFileName === "") {
+        if(curveShapeModelerUserInterface.currentFileName === "") {
             inputFileName.style.display = "inline";
             labelFileExtension.style.display = "inline";
             validateInput.style.display = "inline";
-        }
-        else {
-            sceneController.saveCurveToFile(currentFileName);
+        } else {
+            fileController.saveCurveToFile(curveShapeModelerUserInterface.currentFileName);
         }
         ev.preventDefault();
     }
@@ -45,10 +47,10 @@ export function fileEventListener(sceneController: CurveSceneController, chartSc
                     let curveFile = aFileList.item(0);
                     if(curveFile !== null) {
                         inputFileLoad.value = ""
-                        currentFileName = curveFile.name;
-                        if(currentFileName.indexOf(".json") !== -1) {
+                        curveShapeModelerUserInterface.currentFileName = curveFile.name;
+                        if(curveShapeModelerUserInterface.currentFileName.indexOf(".json") !== -1) {
                             fileR.readAsText(curveFile);
-                        } else if(currentFileName.indexOf(".png") !== -1) {
+                        } else if(curveShapeModelerUserInterface.currentFileName.indexOf(".png") !== -1) {
                             console.log("read an image");
                             fileR.readAsArrayBuffer(curveFile);
                             /* for test purposes to load an image
@@ -68,88 +70,91 @@ export function fileEventListener(sceneController: CurveSceneController, chartSc
     }
 
     function inputButtonValidate() {
-        currentFileName = inputFileName.value;
+        curveShapeModelerUserInterface.currentFileName = inputFileName.value;
         console.log("inputButtonValidate:" + inputFileName.value)
         inputFileName.style.display = "none";
         labelFileExtension.style.display = "none";
         validateInput.style.display = "none";
-        sceneController.saveCurveToFile(currentFileName);
+        fileController.saveCurveToFile(curveShapeModelerUserInterface.currentFileName);
     }
 
-    function processInputFile(ev: ProgressEvent) {
-        if(ev.target !== null) console.log("Reading the file" + currentFileName);
+    function getFileContent(ev: ProgressEvent): void {
+        if(ev.target !== null) console.log("Reading the file" + curveShapeModelerUserInterface.currentFileName);
         if(fileR.readyState === fileR.DONE) {
             if(fileR.result !== null) {
-                let aString = "";
+                aString = "";
                 if(typeof fileR.result === "string") {
                     aString = fileR.result.toString();
+                    return;
                 } else {
                     /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
-                    if(currentFileName.indexOf(".png") !== -1) {
+                    if(curveShapeModelerUserInterface.currentFileName.indexOf(".png") !== -1) {
                         console.log("Input file is an image. No need to reinitialize curve controls.")
                         return
                     }
                 }
-                let aSpline = sceneController.loadCurveFromFile(aString);
-
-                if(typeof(aSpline) !== "undefined") {
-                    /* JCL 2020/10/18 Reconfigure the degree selector */
-                    let newCurveDegree = aSpline.degree;
-                    if(newCurveDegree >= 3) {
-                        let optionNumber = Number(currentCurveDegree) - 2;
-                        let optionName = "option";
-                        let option;
-                        for(let i = 1; i < (newCurveDegree - 2); i += 1) {
-                            option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
-                            if(option !== null) option.setAttribute("disabled", "");
-                            else throw new Error('No id found to identify an Option in the Selector');
-                        }
-                        option = <HTMLOptionElement> document.getElementById(optionName + optionNumber);
-                        option.removeAttribute("selected");
-                        option = <HTMLOptionElement> document.getElementById(optionName + (newCurveDegree - 2).toString());
-                        option.setAttribute("selected", "selected");
-                        // for(let i = (newCurveDegree - 2); i <= 4; i += 1) {
-                        //     option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
-                        //     if(option !== null) option.setAttribute("disabled", "disabled");
-                        //     // if(option !== null) option.removeAttribute("disabled");
-                        //     else throw new Error('No id found to identify an Option in the Selector');
-                        // }
-                        updatedCurrentDegree = newCurveDegree.toString();
-                        // currentCurveDegree = newCurveDegree.toString();
-                        inputDegree.click();
-                    } else {
-                        throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
-                    }
-                } else throw new Error("Unable to update the curve degree selector. Undefined curve model");
-
-                /* JCL 2020/10/18 Reset the appropriate control buttons */
-                if(!sceneController.sliding) {
-                    toggleButtonSliding.click()
-                }
-                if(!sceneController.controlOfCurvatureExtrema) {
-                    toggleButtonCurvatureExtrema.click()
-                }
-                if(!sceneController.controlOfInflection) {
-                    toggleButtonInflection.click()
-                }
-                if(!sceneController.controlOfCurveClamping) {
-                    toggleButtonCurveClamping.click()
-                }
-                if(typeof(aSpline) !== "undefined") {
-                    sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-                    if(sceneController.curveModel === undefined) {
-                        const error = new ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
-                        error.logMessageToConsole();
-                        return;
-                    }
-                    resetChartContext(chartSceneController, sceneController.curveModel);
-                } else throw new Error("Unable to reset the curve context. Undefined curve model");
-                // to be discussed
-                //sceneController = new CurveSceneController(canvas, gl, , curveModel)
-
             } else {
-                throw new Error('Error when reading the input file. Incorrect text format.');
-            } 
+                const error = new ErrorLog("FileEventListener", "processInputFile", "Error when reading the input file. Incorrect text format.");
+                error.logMessageToConsole();
+            }
+        }
+    }
+
+    function updateCurveDegreeSelector(aSpline: BSpline_R1_to_R2) {
+        const newCurveDegree = aSpline.degree;
+        if(newCurveDegree >= DEFAULT_CURVE_DEGREE) {
+            const optionNumber = Number(curveShapeModelerUserInterface.currentCurveDegree) - DEFAULT_CURVE_DEGREE + 1;
+            const optionName = "option";
+            let option;
+            for(let i = 1; i < (newCurveDegree - DEFAULT_CURVE_DEGREE + 1); i += 1) {
+                option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+                if(option !== null) option.setAttribute("disabled", "");
+                else throw new Error('No id found to identify an Option in the Selector');
+            }
+            option = <HTMLOptionElement> document.getElementById(optionName + optionNumber);
+            option.removeAttribute("selected");
+            option = <HTMLOptionElement> document.getElementById(optionName + (newCurveDegree - 2).toString());
+            option.setAttribute("selected", "selected");
+            curveShapeModelerUserInterface.currentCurveDegree = newCurveDegree.toString();
+            curveShapeModelerUserInterface.inputDegree.click();
+        } else {
+            const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
+            error.logMessageToConsole();
+        }
+    }
+
+    function resetCurveShapeControlButtons() {
+        if(!sceneController.sliding) {
+            curveShapeModelerUserInterface.toggleButtonSliding.click();
+        }
+        if(!sceneController.controlOfCurvatureExtrema) {
+            curveShapeModelerUserInterface.toggleButtonCurvatureExtrema.click();
+        }
+        if(!sceneController.controlOfInflection) {
+            curveShapeModelerUserInterface.toggleButtonInflection.click();
+        }
+        if(!sceneController.controlOfCurveClamping) {
+            curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
+        }
+    }
+
+    function processInputFile(ev: ProgressEvent) {
+        getFileContent(ev);
+        const aSpline = fileController.loadCurveFromFile(aString);
+
+        if(typeof(aSpline) !== "undefined") {
+            updateCurveDegreeSelector(aSpline);
+            resetCurveShapeControlButtons();
+            fileController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+            if(sceneController.curveModel === undefined) {
+                const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
+                error.logMessageToConsole();
+                return;
+            }
+            resetChartContext(chartSceneController, sceneController.curveModel);
+        } else {
+            const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to reset the curve context. Undefined curve model.");
+            error.logMessageToConsole();
         }
     }
 
@@ -163,5 +168,4 @@ export function fileEventListener(sceneController: CurveSceneController, chartSc
         validateInput.addEventListener('click', inputButtonValidate);
         fileR.addEventListener('load', processInputFile);
 
-    return updatedCurrentDegree;
 }

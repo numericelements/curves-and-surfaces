@@ -2,6 +2,7 @@ import { CurveCategory, OpenPlanarCurve } from "../curveModeler/CurveCategory";
 import { CurveModels2D } from "../models/CurveModels2D";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
 enum CurveType { PLANAR_OPEN, PLANAR_CLOSED }
 
@@ -31,4 +32,28 @@ export class CurveModeler{
         return this._curveCategory;
     }
 
+    inputSelectCurveCategoryProcess(crvCategoryID: number) {
+        let warning = new WarningLog(this.constructor.name, "inputSelectCurveCategoryProcess", crvCategoryID.toString());
+        warning.logMessageToConsole();
+
+        switch(crvCategoryID) {
+            case 0: {
+                this.curveCategory.setModelerWithOpenPlanarCurve();
+                break;
+            }
+            case 1: {
+                this.curveCategory.setModelerWithClosedPlanarCurve();
+                break;
+            }
+            default: {
+                let error = new ErrorLog(this.constructor.name, "inputSelectCurveCategoryProcess", "no available curve category.");
+                error.logMessageToConsole();
+                break;
+            }
+        }
+        // JCL for consistency with the curveModeler context
+        // this._curveCategory = this.curveModeler.curveCategory;
+        // JCL for consistency of the curveShapeSpaceNavigator context wrt curveModeler one
+        this.curveShapeSpaceNavigator.curveCategory = this._curveCategory;
+    }
 }

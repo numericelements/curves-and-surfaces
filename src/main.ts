@@ -1,21 +1,13 @@
-//import { OvalCurveSceneController } from "./controllers/OvalCurveSceneController"
 import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
 import { CurveModel } from "./models/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
-import { ChartSceneController } from "./chartcontrollers/ChartSceneController"
 import { ErrorLog } from "./errorProcessing/ErrorLoging"
-import { chartEventListener, resetChartContext } from "./chartviews/ChartEventListener";
+import { chartEventListener } from "./chartviews/ChartEventListener";
 import { fileEventListener } from "./filecontrollers/FileEventListener";
+import { CurveShapeModelerUserInterface } from "./userInterfaceConntroller/CurveShapeModelerUserInterface";
+import { curveModelEventListener } from "./curveModeler/CurveModelEventListener";
 
-export let currentCurveDegree = "3"
-export let inputDegree = <HTMLSelectElement> document.getElementById("curveDegree")
-
-    /* JCL Get control button IDs for curve control*/
-export let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
-export let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
-export let toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding")
-export let toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping")
 
 export function main() {
 
@@ -40,23 +32,6 @@ export function main() {
     let canvas = <HTMLCanvasElement> document.getElementById("webgl")
     /* JCL Get icons of insert knot and insert control point functions */
     let iconKnotInsertion: HTMLImageElement;
-
-
-    let inputNavigationMode = <HTMLSelectElement> document.getElementById("navigationMode")
-    let currentNavigationMode = "0"
-    let inputCurveCategory = <HTMLSelectElement> document.getElementById("curveCategory")
-    let currentCurveCategory = "0"
-
-    /* JCL 2020/10/13 Get input IDs for file management purposes */
-    // let buttonFileLoad = <HTMLButtonElement> document.getElementById("buttonFileLoad")
-    // let buttonFileSave = <HTMLButtonElement> document.getElementById("buttonFileSave")
-    // let inputFileLoad = <HTMLInputElement>document.getElementById("inputFileLoad")
-    // let inputFileSave = <HTMLInputElement> document.getElementById("inputFileSave")
-    // let inputFileName = <HTMLInputElement> document.getElementById("inputFileName")
-    // let validateInput = <HTMLButtonElement> document.getElementById("validateInput")
-    // let labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension")
-    // let currentFileName: string = ""
-    // let fileR = new FileReader()
     let imageFile: File
 
     let gl = WebGLUtils().setupWebGL(canvas)
@@ -133,15 +108,15 @@ export function main() {
         return;
     }
 
+    const curveShapeModelerUserInterface = new CurveShapeModelerUserInterface();
+    const curveModel = curveModelEventListener(curveShapeModelerUserInterface);
     const chartSceneController = chartEventListener(sceneController.curveModel);
-
-    currentCurveDegree = fileEventListener(sceneController, chartSceneController);
+    fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface);
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
         var x, y,
             rect  = canvas.getBoundingClientRect(),
             ev;
-
         ev = event;
         
         x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2);
@@ -153,7 +128,6 @@ export function main() {
         var x, y,
             rect  = canvas.getBoundingClientRect(),
             ev;
- 
         ev = event.touches[0];
         
         x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2);
@@ -161,7 +135,6 @@ export function main() {
         return [x, y];
     }
 
-    //function click(ev, canvas) {
     function mouse_click(ev: MouseEvent) {
         let c = mouse_get_NormalizedDeviceCoordinates(ev);
         sceneController.leftMouseDown_event(c[0], c[1], 0.0005);
@@ -175,11 +148,10 @@ export function main() {
         let active_clamping = sceneController.dbleClick_event(c[0], c[1], 0.0005);
         sceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
-        if(!active_clamping) toggleButtonCurveClamping.click();
+        if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
 
-    //function drag(ev, canvas) {
     function mouse_drag(ev: MouseEvent) {
         var c = mouse_get_NormalizedDeviceCoordinates(ev);
         sceneController.leftMouseDragged_event(c[0], c[1]);
@@ -193,7 +165,6 @@ export function main() {
         ev.preventDefault();
     }
 
-    //function click(ev, canvas) {
     function touch_click(ev: TouchEvent) {
         let c = touch_get_NormalizedDeviceCoordinates(ev);
         sceneController.leftMouseDown_event(c[0], c[1]);
@@ -201,7 +172,6 @@ export function main() {
         ev.preventDefault();
     }
 
-    //function drag(ev, canvas) {
     function touch_drag(ev: TouchEvent) {
         var c = touch_get_NormalizedDeviceCoordinates(ev);
         sceneController.leftMouseDragged_event(c[0], c[1]);
@@ -241,12 +211,12 @@ export function main() {
     }
 
     function inputSelectDegree() {
-        console.log("select:  " + inputDegree.value);
+        console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
         let optionName = "option"
         let curveDegree: number;
-        if(!isNaN(Number(inputDegree.value))){
-            curveDegree = Number(inputDegree.value);
-            currentCurveDegree = inputDegree.value;
+        if(!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))){
+            curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
+            curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
             sceneController.inputSelectDegree(curveDegree);
             if(curveDegree > 3) {
                 for(let i = 1; i < (curveDegree - 2); i += 1) {
@@ -262,90 +232,22 @@ export function main() {
     }
 
     function inputSelectNavigationMode() {
-        console.log("select" + inputNavigationMode.value);
+        console.log("select" + curveShapeModelerUserInterface.inputNavigationMode.value);
         let navigationMode: number;
-        navigationMode = Number(inputNavigationMode.value);
-        currentNavigationMode = inputNavigationMode.value;
+        navigationMode = Number(curveShapeModelerUserInterface.inputNavigationMode.value);
+        curveShapeModelerUserInterface.currentNavigationMode = curveShapeModelerUserInterface.inputNavigationMode.value;
         sceneController.inputSelectNavigationProcess(navigationMode);
-    }
-
-    function inputSelectCurveCategory() {
-        console.log("select" + inputCurveCategory.value);
-        let curveCategory: number;
-        curveCategory = Number(inputCurveCategory.value);
-        currentCurveCategory = inputCurveCategory.value;
-        sceneController.inputSelectCurveCategoryProcess(curveCategory);
     }
 
     function clickSelectDegree() {
         console.log("select Degree click");
-        inputDegree.value = currentCurveDegree;
+        curveShapeModelerUserInterface.inputDegree.value = curveShapeModelerUserInterface.currentCurveDegree;
     }
 
     function clickNavigationMode() {
         console.log("select Navigation click");
-        inputNavigationMode.value = currentNavigationMode;
+        curveShapeModelerUserInterface.inputNavigationMode.value = curveShapeModelerUserInterface.currentNavigationMode;
     }
-
-    function clickCurveCategory() {
-        console.log("select Curve type click");
-        inputCurveCategory.value = currentCurveCategory;
-    }
-
-    // function buttonFileLoadCurve(ev: MouseEvent) {
-    //     if(inputFileLoad !== null) inputFileLoad.click();
-    //     //ev.preventDefault();
-    // }
-
-    // function buttonFileSaveCurve(ev: MouseEvent) {
-    //     if(currentFileName === "") {
-    //         inputFileName.style.display = "inline";
-    //         labelFileExtension.style.display = "inline";
-    //         validateInput.style.display = "inline";
-    //     }
-    //     else {
-    //         sceneController.saveCurveToFile(currentFileName);
-    //     }
-    //     ev.preventDefault();
-    // }
-
-    // function inputLoadFileCurve() {
-    //     if(inputFileLoad !== null) {
-    //         let aFileList = inputFileLoad.files;
-    //         if(aFileList !== null && aFileList.length > 0) {
-    //             if(aFileList.item(0)?.name !== undefined) {
-    //                 let curveFile = aFileList.item(0);
-    //                 if(curveFile !== null) {
-    //                     inputFileLoad.value = ""
-    //                     currentFileName = curveFile.name;
-    //                     if(currentFileName.indexOf(".json") !== -1) {
-    //                         fileR.readAsText(curveFile);
-    //                     } else if(currentFileName.indexOf(".png") !== -1) {
-    //                         console.log("read an image");
-    //                         fileR.readAsArrayBuffer(curveFile);
-    //                         iconKnotInsertion.src = currentFileName
-    //                         //imageFile = curveFile
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // function inputSaveFileCurve() {
-    // }
-
-    // function inputCurveFileName() {
-    // }
-
-    // function inputButtonValidate() {
-    //     currentFileName = inputFileName.value;
-    //     console.log("inputButtonValidate:" + inputFileName.value)
-    //     inputFileName.style.display = "none";
-    //     labelFileExtension.style.display = "none";
-    //     validateInput.style.display = "none";
-    //     sceneController.saveCurveToFile(currentFileName);
-    // }
 
     function processInputTexture() {
         textureInfo.width = iconKnotInsertion.width;
@@ -353,87 +255,6 @@ export function main() {
         gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iconKnotInsertion);
     }
-
-    // function processInputFile(ev: ProgressEvent) {
-    //     if(ev.target !== null) console.log("Reading the file" + currentFileName);
-    //     if(fileR.readyState === fileR.DONE) {
-    //         if(fileR.result !== null) {
-    //             let aString = "";
-    //             if(typeof fileR.result === "string") {
-    //                 aString = fileR.result.toString();
-    //             } else {
-    //                 /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
-    //                 //Promise.all([createImageBitmap(imageFile)]).then(function(image){ iconKnotInsertion = image[0]})
-    //                 //const requiredData = await Promise.all([createImageBitmap(imageFile)])
-    //                 //iconKnotInsertion = requiredData[0]
-    //                 //Promise.all([createImageBitmap(imageFile)])
-    //                 if(currentFileName.indexOf(".png") !== -1) {
-    //                     console.log("Input file is an image. No need to reinitialize curve controls.")
-    //                     return
-    //                 }
-    //                 /*let string  = new String(fileR.result);
-    //                 aString = string.toString();*/
-    //             }
-    //             let aSpline = sceneController.loadCurveFromFile(aString);
-
-    //             if(typeof(aSpline) !== "undefined") {
-    //                 /* JCL 2020/10/18 Reconfigure the degree selector */
-    //                 let newCurveDegree = aSpline.degree;
-    //                 if(newCurveDegree >= 3) {
-    //                     let optionNumber = Number(currentCurveDegree) - 2;
-    //                     let optionName = "option";
-    //                     let option = <HTMLOptionElement> document.getElementById(optionName + optionNumber);
-    //                     option.setAttribute("selected", "");
-    //                     option = <HTMLOptionElement> document.getElementById(optionName + (newCurveDegree - 2).toString());
-    //                     option.setAttribute("selected", "selected");
-    //                     for(let i = 1; i < (newCurveDegree - 2); i += 1) {
-    //                         option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
-    //                         if(option !== null) option.setAttribute("disabled", "");
-    //                         else throw new Error('No id found to identify an Option in the Selector');
-    //                     }
-    //                     for(let i = (newCurveDegree - 2); i <= 4; i += 1) {
-    //                         option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
-    //                         if(option !== null) option.setAttribute("disabled", "disabled");
-    //                         //if(option !== null) option.removeAttribute("disabled");
-    //                         else throw new Error('No id found to identify an Option in the Selector');
-    //                     }
-    //                     currentCurveDegree = newCurveDegree.toString();
-    //                     inputDegree.click();
-    //                 } else {
-    //                     throw new Error("Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
-    //                 }
-    //             } else throw new Error("Unable to update the curve degree selector. Undefined curve model");
-
-    //             /* JCL 2020/10/18 Reset the appropriate control buttons */
-    //             if(!sceneController.sliding) {
-    //                 toggleButtonSliding.click()
-    //             }
-    //             if(!sceneController.controlOfCurvatureExtrema) {
-    //                 toggleButtonCurvatureExtrema.click()
-    //             }
-    //             if(!sceneController.controlOfInflection) {
-    //                 toggleButtonInflection.click()
-    //             }
-    //             if(!sceneController.controlOfCurveClamping) {
-    //                 toggleButtonCurveClamping.click()
-    //             }
-    //             if(typeof(aSpline) !== "undefined") {
-    //                 sceneController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-    //                 if(sceneController.curveModel === undefined) {
-    //                     const error = new ErrorLog("main", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
-    //                     error.logMessageToConsole();
-    //                     return;
-    //                 }
-    //                 resetChartContext(chartSceneController, sceneController.curveModel);
-    //             } else throw new Error("Unable to reset the curve context. Undefined curve model");
-    //             // to be discussed
-    //             //sceneController = new CurveSceneController(canvas, gl, , curveModel)
-
-    //         } else {
-    //             throw new Error('Error when reading the input file. Incorrect text format.');
-    //         } 
-    //     }
-    // }
 
     function drawImage(tex: any, texWidth: number, texHeight: number, dstX: number, dstY: number) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -508,29 +329,18 @@ export function main() {
     /* JCL 2020/09/25 Add dble click event processing */
     canvas.addEventListener('dblclick', mouse_double_click, false);
 
-    toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
-    toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
-    toggleButtonSliding.addEventListener('click', toggleSliding)
-    toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping)
+    curveShapeModelerUserInterface.toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
+    curveShapeModelerUserInterface.toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
+    curveShapeModelerUserInterface.toggleButtonSliding.addEventListener('click', toggleSliding)
+    curveShapeModelerUserInterface.toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping)
 
     /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-    inputDegree.addEventListener('input', inputSelectDegree);
-    inputDegree.addEventListener('click', clickSelectDegree);
+    curveShapeModelerUserInterface.inputDegree.addEventListener('input', inputSelectDegree);
+    curveShapeModelerUserInterface.inputDegree.addEventListener('click', clickSelectDegree);
 
-    inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
-    inputNavigationMode.addEventListener('click', clickNavigationMode);
+    curveShapeModelerUserInterface.inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
+    curveShapeModelerUserInterface.inputNavigationMode.addEventListener('click', clickNavigationMode);
 
-    inputCurveCategory.addEventListener('input', inputSelectCurveCategory);
-    inputCurveCategory.addEventListener('click', clickCurveCategory);
-
-    /* JCL 2020/10/13 Add event handlers for file processing */
-    // buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
-    // buttonFileSave.addEventListener('click', buttonFileSaveCurve);
-    // inputFileLoad.addEventListener('input', inputLoadFileCurve);
-    // inputFileSave.addEventListener('input', inputSaveFileCurve);
-    // inputFileName.addEventListener('input', inputCurveFileName);
-    // validateInput.addEventListener('click', inputButtonValidate);
-    // fileR.addEventListener('load', processInputFile);
     iconKnotInsertion.addEventListener('load', processInputTexture);
 
     document.body.addEventListener('keydown', keyDown);

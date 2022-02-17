@@ -3,6 +3,8 @@ import { IObserver, IObservable } from "../designPatterns/Observer";
 import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 import { Vector_2d } from "../mathematics/Vector_2d";
 
+export const DEFAULT_CURVE_DEGREE = 3;
+
 export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
 
     public spline: BSpline_R1_to_R2

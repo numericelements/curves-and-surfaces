@@ -1,7 +1,7 @@
 import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ClosedCurveModel2D, OpenCurveModel2D } from "../models/CurveModels2D";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
 import { BSpline_R1_to_R2_degree_Raising } from "../bsplines/BSpline_R1_to_R2_degree_Raising";
@@ -60,18 +60,19 @@ export class OpenPlanarCurve extends CurveCategory {
         this.curveModeler.changeCurveCategory(new ClosedPlanarCurve(this.curveModeler));
     }
 
+    /* JCL 2020/10/07 Add the curve degree elevation process */
     inputSelectDegree(curveDegree: number) {
         if(this.curveModel !== undefined) {
             if(curveDegree > this.curveModel.spline.degree) {
-                let controlPoints = this.curveModel.spline.controlPoints
-                let knots = this.curveModel.spline.knots
+                let controlPoints = this.curveModel.spline.controlPoints;
+                let knots = this.curveModel.spline.knots;
                 for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                    let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
-                    let newSpline = aSpline.degreeIncrease()
-                    controlPoints = newSpline.controlPoints
-                    knots = newSpline.knots
+                    const aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
+                    const newSpline = aSpline.degreeIncrease();
+                    controlPoints = newSpline.controlPoints;
+                    knots = newSpline.knots;
                 }
-                this.curveModel.spline.renewCurve(controlPoints, knots)
+                this.curveModel.spline.renewCurve(controlPoints, knots);
                 // this.curveControl.resetCurve(this.curveModel)
 
                 // if(this.activeLocationControl === ActiveLocationControl.both) {
@@ -91,7 +92,10 @@ export class OpenPlanarCurve extends CurveCategory {
                 // }
                 this.curveModel.notifyObservers()
             }
-        } else throw new Error("Unable to assign a new degree to the curve. Undefined curve model")
+        } else {
+            const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
+            error.logMessageToConsole();
+        }
     }
 
 }
