@@ -10,9 +10,11 @@ import { CurvatureExtremaShaders } from "./CurvatureExtremaShaders"
 import { CurvatureExtremaView } from "./CurvatureExtremaView"
 import { InflectionsView } from "../views/InflectionsView"
 import { CurveModel } from "../models/CurveModel"
+import { CurveModelHessian } from "../models/CurveModelHessian"
 import { ClosedCurveModel } from "../models/ClosedCurveModel"
 import { CurveModelAlternative01 } from "../models/CurveModelAlternative01"
 import { ClosedCurveModelAlternative01 } from "../models/ClosedCurveModelAlternative01"
+import { ClosedCurveModelHessian } from "../models/ClosedCurveModelHessian"
 
 export class CurveSceneView {
 
@@ -105,7 +107,7 @@ export class CurveSceneView {
     }
 
     selectCurveCategory(s: string) {
-        switch(s) {
+       switch(s) {
             case "0":
                 this.updateCurveModel(new CurveModel())
                 break
@@ -119,6 +121,10 @@ export class CurveSceneView {
                 this.updateCurveModel(new ClosedCurveModelAlternative01())
                 break
         }
+        let toggleButtonCurvatureExtrema = <HTMLInputElement> document.getElementById("toggleButtonCurvatureExtrema")
+        let toggleButtonInflection = <HTMLInputElement> document.getElementById("toggleButtonInflections")
+        toggleButtonCurvatureExtrema.checked = true
+        toggleButtonInflection.checked = true
     }
 
     updateCurveModel(curveModel: CurveModelInterface) {
@@ -129,9 +135,7 @@ export class CurveSceneView {
         this.curveModel.registerObserver(this.curvatureExtremaView, "curve")
         this.curveModel.registerObserver(this.inflectionsView, "curve")
         this.curveSceneControler = new CurveSceneController(curveModel)
-
         this.controlPolygonView.isClosed = this.curveModel.isClosed
-
         this.curveModel.notifyObservers()
         this.renderFrame()
     }

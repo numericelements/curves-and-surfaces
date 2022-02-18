@@ -11,7 +11,6 @@ template.innerHTML = `
         text-align: center;
         margin-bottom: 1%;
     }
-    <!-- @import "../../stylesheet.css" -->
     </style>
     <div id="container">
     <p class="text_control_button"> Curve Category: </p>
@@ -23,7 +22,6 @@ template.innerHTML = `
         </select>
     </div>
 `
-
 export class CurveCategory extends HTMLElement {
 
     constructor() {

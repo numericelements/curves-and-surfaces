@@ -74,7 +74,7 @@ export class OptimizationProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConst
         super(target, initial)
     }
 
-    computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
+    computeInactiveConstraints(curvatureDerivativeNumerator: number[]) {
         return []
     }
 
@@ -90,7 +90,7 @@ export class OptimizationProblemBSplineR1toR2NoInactiveConstraints extends Optim
         super(target, initial)
     }
 
-    computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
+    computeInactiveConstraints(curvatureDerivativeNumerator: number[]) {
         return []
     }
 

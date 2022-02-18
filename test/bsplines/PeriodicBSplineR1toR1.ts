@@ -42,8 +42,8 @@ describe('BSplineR1toR1', () => {
         const sx = new PeriodicBSplineR1toR1(periodicSpline.getControlPointsX(), periodicSpline.knots) 
         const sy = new PeriodicBSplineR1toR1(periodicSpline.getControlPointsY(), periodicSpline.knots)
 
-        const bdsx = new BernsteinDecompositionR1toR1(sx.bernsteinDecomposition())
-        const bdsy = new BernsteinDecompositionR1toR1(sx.bernsteinDecomposition())
+        const bdsx = sx.bernsteinDecomposition()
+        const bdsy = sx.bernsteinDecomposition()
 
         spline.clamp(spline.knots[3])
         spline.clamp(spline.knots[spline.knots.length - 3 - 1])

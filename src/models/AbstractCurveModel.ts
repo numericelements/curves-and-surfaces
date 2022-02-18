@@ -45,8 +45,10 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
         switch(kind) {
             case 'curve':
                 this.observers.splice(this.observers.indexOf(observer), 1)
+                break
             case 'control points':
                 this.observersCP.splice(this.observersCP.indexOf(observer), 1)
+                break
         }
     }
 

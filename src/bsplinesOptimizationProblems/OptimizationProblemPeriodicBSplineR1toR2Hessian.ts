@@ -4,13 +4,25 @@ import { PeriodicBSplineR1toR1 } from "../bsplines/PeriodicBSplineR1toR1"
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix"
 import { AbstractOptimizationProblemBSplineR1toR2, ActiveControl, ExpensiveComputationResults } from "./AbstractOptimizationProblemBSplineR1toR2"
 import { BernsteinDecompositionR1toR1 } from "../bsplines/BernsteinDecompositionR1toR1"
+import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix"
 
 
 
-export class OptimizationProblemPeriodicBSplineR1toR2 extends AbstractOptimizationProblemBSplineR1toR2 {
+export class OptimizationProblemPeriodicBSplineR1toR2Hessian extends AbstractOptimizationProblemBSplineR1toR2 {
+
+
+    private Dh5xx: BernsteinDecompositionR1toR1[][] = []
+    private Dh6_7xy: BernsteinDecompositionR1toR1[][] = []
+    private Dh8_9xx: BernsteinDecompositionR1toR1[][] = []
+    private Dh10_11xy: BernsteinDecompositionR1toR1[][] = []
 
     constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
         super(target, initial, activeControl) 
+
+        const e = this.expensiveComputation(this._spline)
+        this.prepareForHessianComputation(this.dBasisFunctions_du, this.d2BasisFunctions_du2, this.d3BasisFunctions_du3)
+        this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+
     }
 
     get spline(): PeriodicBSplineR1toR2 {
@@ -94,7 +106,6 @@ export class OptimizationProblemPeriodicBSplineR1toR2 extends AbstractOptimizati
         result.splice(maxIndex, 1)
         return result
     }
-
 
     
     compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
@@ -417,5 +428,197 @@ export class OptimizationProblemPeriodicBSplineR1toR2 extends AbstractOptimizati
 
     }
 
+    compute_hessian_f( sxu: BernsteinDecompositionR1toR1, 
+        syu: BernsteinDecompositionR1toR1, 
+        sxuu: BernsteinDecompositionR1toR1, 
+        syuu: BernsteinDecompositionR1toR1, 
+        sxuuu: BernsteinDecompositionR1toR1, 
+        syuuu: BernsteinDecompositionR1toR1, 
+        h1: BernsteinDecompositionR1toR1, 
+        h2: BernsteinDecompositionR1toR1, 
+        h3: BernsteinDecompositionR1toR1, 
+        h4: BernsteinDecompositionR1toR1,
+        constraintsSign: number[], 
+        inactiveConstraints: number[]) {
+
+        return undefined
+
+
+        const n = this.spline.freeControlPoints.length
+        let result: SymmetricMatrix[] = []
+        
+        let h5x: BernsteinDecompositionR1toR1[] = []
+        let h5y: BernsteinDecompositionR1toR1[] = []         
+        let h6x: BernsteinDecompositionR1toR1[] = []
+        let h6y: BernsteinDecompositionR1toR1[] = []
+        let h7x: BernsteinDecompositionR1toR1[] = []
+        let h7y: BernsteinDecompositionR1toR1[] = []        
+        let h8x: BernsteinDecompositionR1toR1[] = []
+        let h8y: BernsteinDecompositionR1toR1[] = []
+        let h9x: BernsteinDecompositionR1toR1[] = []
+        let h9y: BernsteinDecompositionR1toR1[] = []
+        let h10x: BernsteinDecompositionR1toR1[] = []
+        let h10y: BernsteinDecompositionR1toR1[] = []        
+        let h11x: BernsteinDecompositionR1toR1[] = []
+        let h11y: BernsteinDecompositionR1toR1[] = []
+
+        let hessian_gxx: number[][][] = []
+        let hessian_gyy: number[][][] = []
+        let hessian_gxy: number[][][] = []
+
+        for (let i = 0; i < n; i += 1){
+            hessian_gxx.push([])
+            hessian_gyy.push([])
+            hessian_gxy.push([])
+        }
+
+        for (let i = 0; i < n; i += 1){
+            h5x.push(this.dBasisFunctions_du[i].multiply(sxu))
+            h6x.push(this.dBasisFunctions_du[i].multiply(syuuu))
+            h7x.push(syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1))
+            h8x.push(this.dBasisFunctions_du[i].multiply(sxuu))
+            h9x.push(sxu.multiply(this.d2BasisFunctions_du2[i]))
+            h10x.push(this.dBasisFunctions_du[i].multiply(syuu))
+            h11x.push(syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1))
+        }
+        for (let i = 0; i < n; i += 1){
+            h5y.push(this.dBasisFunctions_du[i].multiply(syu))
+            h6y.push(this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1))
+            h7y.push(sxu.multiply(this.d3BasisFunctions_du3[i]))
+            h8y.push(this.dBasisFunctions_du[i].multiply(syuu))
+            h9y.push(syu.multiply(this.d2BasisFunctions_du2[i]))
+            h10y.push(this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1));
+            h11y.push(sxu.multiply(this.d2BasisFunctions_du2[i]))
+        }
+
+
+        
+        for (let i = 0; i < n; i += 1){
+            for (let j = 0; j <= i; j += 1){
+                const term1 = this.Dh5xx[i][j].multiply(h2).multiplyByScalar(2)
+                const term2xx = ((h5x[j].multiply(h6x[i].add(h7x[i]))).add(h5x[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2)
+                const term2yy = ((h5y[j].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6y[j].add(h7y[j]))))).multiplyByScalar(2)
+                // term3 = 0
+                const term4 = this.Dh8_9xx[i][j].multiply(h4).multiplyByScalar(-3)
+                const term5xx = (((h8x[j].add(h9x[j])).multiply(h10x[i].add(h11x[i]))).add((h8x[i].add(h9x[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3)
+                const term5yy = (((h8y[j].add(h9y[j])).multiply(h10y[i].add(h11y[i]))).add((h8y[i].add(h9y[i])).multiply((h10y[j].add(h11y[j]))))).multiplyByScalar(-3)
+                // term 6 = 0
+                hessian_gxx[i][j] = (term1.add(term2xx).add(term4).add(term5xx)).flattenControlPointsArray()
+                hessian_gyy[i][j] = (term1.add(term2yy).add(term4).add(term5yy)).flattenControlPointsArray()
+            }
+        }
+        
+        
+        for (let i = 1; i < n; i += 1){
+            for (let j = 0; j < i; j += 1){
+                // term1 = 0
+                const term2xy = ((h5x[j].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2)
+                const term3 = this.Dh6_7xy[j][i].multiply(h1).multiplyByScalar(-1) //Dh_6_7xy is antisymmetric
+                // term4 = 0
+                const term5xy = (((h8x[j].add(h9x[j])).multiply((h10y[i].add(h11y[i])))).add((h8y[i].add(h9y[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3)
+                const term6 = this.Dh10_11xy[j][i].multiply(h3).multiplyByScalar(3); //Dh_10_11xy is antisymmetric
+
+                hessian_gxy[i][j] = (term2xy.add(term3).add(term5xy).add(term6)).flattenControlPointsArray();
+            }
+        }
+        for (let i = 0; i < n; i += 1){
+            for (let j = i + 1; j < n; j += 1){
+                // term1 = 0
+                const term2xy = ((h5x[j].multiply((h6y[i].add(h7y[i])))).add(h5y[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2)
+                const term3 = this.Dh6_7xy[i][j].multiply(h1) //Dh_6_7xy is antisymmetric
+                // term4 = 0
+                const term5xy = (((h8x[j].add(h9x[j])).multiply((h10y[i].add(h11y[i])))).add((h8y[i].add(h9y[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3)
+                const term6 = this.Dh10_11xy[i][j].multiply(h3).multiplyByScalar(-3); //Dh_10_11xy is antisymmetric
+                hessian_gxy[i][j] = (term2xy.add(term3).add(term5xy).add(term6)).flattenControlPointsArray();
+                
+            }
+        }
+        for (let i = 0; i < n; i += 1){
+            // term1 = 0
+            const term2xy = ((h5x[i].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6x[i].add(h7x[i]))))).multiplyByScalar(2)
+            //const term3 = this.Dh6_7xy[i][i].multiply(h1)
+            // term3 = 0
+            // term4 = 0
+            const term5xy = (((h8y[i].add(h9y[i])).multiply((h10x[i].add(h11x[i])))).add((h8x[i].add(h9x[i])).multiply(h10y[i].add(h11y[i])))).multiplyByScalar(-3)
+            // term6 = 0
+            hessian_gxy[i][i] = (term2xy.add(term5xy)).flattenControlPointsArray();
+        }
+
+        
+        let deltak = 0
+        for (let k = 0; k < constraintsSign.length; k += 1){
+            if (k === inactiveConstraints[deltak]) {
+                deltak += 1
+            }
+            else {
+                let m = new SymmetricMatrix(2*n)
+                for (let i = 0; i < n; i += 1){
+                    for (let j = 0; j <= i; j += 1){
+                        m.set(i, j, hessian_gxx[i][j][k] * constraintsSign[k])
+                        m.set(n + i, n + j, hessian_gyy[i][j][k] * constraintsSign[k])
+                    }
+                }
+                for (let i = 0; i < n; i += 1){
+                    for (let j = 0; j < n; j += 1){
+                        m.set(n + i, j, hessian_gxy[i][j][k] * constraintsSign[k])
+                    }
+                }
+                result.push(m);
+            }
+        }
+        return result;
+    }
+    
+    prepareForHessianComputation(Dsu: BernsteinDecompositionR1toR1[], Dsuu: BernsteinDecompositionR1toR1[], Dsuuu: BernsteinDecompositionR1toR1[]) {
+        const n = this.spline.freeControlPoints.length
+
+        for (let i = 0; i < n; i += 1){
+            this.Dh5xx.push([])
+            this.Dh6_7xy.push([])
+            this.Dh8_9xx.push([])
+            this.Dh10_11xy.push([])
+        }
+
+        for (let i = 0; i < n; i += 1){
+            for (let j = 0; j <= i; j += 1){
+                this.Dh5xx[i][j] = Dsu[i].multiply(Dsu[j]);
+            }
+        }
+        
+        for (let i = 0; i < n; i += 1){
+            for (let j = 0; j < n; j += 1){
+                this.Dh6_7xy[i][j] = (Dsu[i].multiply(Dsuuu[j])).subtract(Dsu[j].multiply(Dsuuu[i]))
+            }
+        }
+        
+        
+        for (let i = 0; i < n; i += 1){
+            for (let j = 0; j <= i; j += 1){
+                this.Dh8_9xx[i][j] = (Dsu[i].multiply(Dsuu[j])).add(Dsu[j].multiply(Dsuu[i]))
+            }
+        }
+        
+        for (let i = 0; i < n; i += 1){
+            for (let j = 0; j < n; j += 1){
+                this.Dh10_11xy[i][j] = (Dsu[i].multiply(Dsuu[j])).subtract(Dsu[j].multiply(Dsuu[i]))
+            }
+        }
+    }
+
+    step(deltaX: number[]) {
+        this.spline.optimizerStep(deltaX)
+        this._gradient_f0 = this.compute_gradient_f0(this._spline)
+        this._f0 = this.compute_f0(this._gradient_f0)
+        const e = this.expensiveComputation(this._spline)  
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
+        const curvatureNumerator = this.curvatureNumerator(e.h4)
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+    }
 
 }

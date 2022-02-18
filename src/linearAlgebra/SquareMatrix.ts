@@ -133,7 +133,7 @@ export class SquareMatrix implements SquareMatrixInterface {
         let result = new SquareMatrix(this.shape[1])
 
         for (let i = 0; i < this.shape[0]; i += 1) {
-            for (let j = 0; j < this.shape[0]; j += 1) {
+            for (let j = 0; j < this.shape[0]; j += 1) {
                 let temp = 0;
                 for (let k = 0; k < this.shape[0]; k += 1) {
                     temp += this.get(i, k) * that.get(k, j);

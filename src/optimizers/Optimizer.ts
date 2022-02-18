@@ -28,7 +28,7 @@ export class Optimizer {
         const mu = 10 // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
         while (this.o.numberOfConstraints / t > epsilon) {
             while (true) {
-                numSteps += 1;                
+                numSteps += 1              
                 if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
                     console.log("Problem about f length and gradient_f shape 0 is in the function optimize_using_trust_region")
                 }
@@ -36,7 +36,7 @@ export class Optimizer {
                 let gradient = saxpy2(t, this.o.gradient_f0, b.gradient)
                 let hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t)
                 let trustRegionSubproblem = new TrustRegionSubproblem(gradient, hessian);
-                let tr = trustRegionSubproblem.solve(trustRadius);
+                let tr = trustRegionSubproblem.solve(trustRadius)
                 let fStep = this.o.fStep(tr.step)
                 let numSteps2 = 0
                 while(Math.max.apply(null, fStep) >= 0) {
@@ -50,14 +50,14 @@ export class Optimizer {
                 }
 
                 let barrierValueStep = this.barrierValue(fStep)
-                let actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep);
-                let predictedReduction = -dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
+                let actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep)
+                let predictedReduction = -dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step)
 
-                rho = actualReduction / predictedReduction;
+                rho = actualReduction / predictedReduction
                 if (rho < 0.25) {
                     trustRadius *= 0.25;
                 } else if (rho > 0.75 && tr.hitsBoundary) {
-                    trustRadius = Math.min(2 * trustRadius, maxTrustRadius);
+                    trustRadius = Math.min(2 * trustRadius, maxTrustRadius)
                 }
                 if (rho > eta) {
                     this.o.step(tr.step)
@@ -65,12 +65,14 @@ export class Optimizer {
                 if (numSteps > maxNumSteps) {
                     return
                 }
-                let newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
-                if (newtonDecrementSquared < 0) {
-                    throw new Error("newtonDecrementSquared is smaller than zero")
-                }
-                if (newtonDecrementSquared < epsilon) {
-                    break;
+                if ((new CholeskyDecomposition(hessian).success)) {
+                    let newtonDecrementSquared = -dotProduct(gradient, tr.step)
+                    if (newtonDecrementSquared < 0) {
+                        throw new Error("newtonDecrementSquared is smaller than zero")
+                    }
+                    if (newtonDecrementSquared < epsilon) {
+                        break
+                    }
                 }
                 if (trustRadius < 10e-18) {
                     console.log(b)
@@ -108,18 +110,18 @@ export class Optimizer {
                     throw new Error("newtonDecrementSquared is smaller than zero")
                 }
                 if (newtonDecrementSquared < epsilon) {
-                    break;
+                    break
                 }
 
             }
-            t *= mu;
+            t *= mu
         }
     }
 
 
 
     newtonDecrementSquared(newtonStep: number[], t: number, gradient_f0: number[], barrierGradient: number[]) {
-        return -dotProduct(saxpy2(t, gradient_f0, barrierGradient), newtonStep);
+        return -dotProduct(saxpy2(t, gradient_f0, barrierGradient), newtonStep)
     }
 
     barrierValue(f: number[]) {

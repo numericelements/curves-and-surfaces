@@ -9,8 +9,8 @@ import { DenseMatrix } from './DenseMatrix';
  */
 export function multiplyVectorByScalar(vector: number[], value: number) {
     let result: number[] = []
-    for (let i = 0; i < vector.length; i += 1) {
-        result.push(vector[i] * value)
+    for(let vi of vector){
+        result.push(vi * value)
     }
     return result
 }
@@ -26,8 +26,8 @@ export function divideVectorByScalar(vector: number[], value: number) {
         throw new Error("Division by zero")
     }
     let result: number[] = []
-    for (let i = 0; i < vector.length; i += 1) {
-        result.push(vector[i] / value)
+    for(let vi of vector){
+        result.push(vi / value)
     }
     return result
 }
@@ -125,10 +125,10 @@ export function addSecondVectorToFirst(x: number[], y: number[]) {
  * @param v Vector
  * @return Non negative scalar
  */
-export function squaredNorm(v: number[]) {
+export function squaredNorm(vector: number[]) {
     let result = 0
-    for (let i = 0; i < v.length; i += 1) {
-        result += v[i] * v[i];
+    for(let vi of vector){
+        result += vi * vi
     }
     return result;
 }
@@ -147,10 +147,10 @@ export function norm(v: number[]) {
  * @param v Vector
  * @return Non negative scalar
  */
-export function norm1(v: number[]) {
+export function norm1(vector: number[]) {
     let result = 0
-    for (let i = 0; i < v.length; i += 1) {
-        result += Math.abs(v[i]);
+    for(let vi of vector){
+        result += Math.abs(vi)
     }
     return result;
 }
@@ -161,11 +161,11 @@ export function norm1(v: number[]) {
  */
 export function zeroVector(n: number) {
     let result: number[] = []
-    for (let i = 0; i < n; i += 1) {
+    for (let i = 0; i < n; i += 1) {
         result.push(0);
     }
     return result;
-};
+}
 
 /**
  * Compute the product of a vector and its transpose
@@ -199,11 +199,10 @@ export function product_v1_v2t(v1: number[], v2: number[]) {
     return result;
 }
 
-export function isZeroVector(v: number[]) {
-    const n = v.length
-    for (let i = 0; i < v.length; i += 1) {
-        if (v[i] !== 0) {
-            return false;
+export function isZeroVector(vector: number[]) {
+    for (let vi of vector) {
+        if (vi !== 0) {
+            return false
         }
     }
     return true;
@@ -222,14 +221,13 @@ export function randomVector(n: number){
     return result
 }
 
-export function containsNaN(v: number[]) {
-    const n = v.length
-    for (let i = 0; i < v.length; i += 1) {
-        if (isNaN(v[i])) {
-            return true;
+export function containsNaN(vector: number[]) {
+    for (let vi of vector) {
+        if (isNaN(vi)) {
+            return true
         }
     }
-    return false;
+    return false
 }
 
 /**
@@ -239,5 +237,6 @@ export function containsNaN(v: number[]) {
  * @param x Number
  */
 export function sign(x: number) {
-    return  x ? x < 0 ? -1 : 1 : 0
+    if (x == 0) return 0
+    else return  x < 0 ? -1 : 1
 }

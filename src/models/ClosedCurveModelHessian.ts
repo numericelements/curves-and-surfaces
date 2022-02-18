@@ -1,17 +1,17 @@
 import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../bsplines/PeriodicBSplineR1toR2"
-import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
+import { Vector2d } from "../mathVector/Vector2d"
+import { OptimizationProblemPeriodicBSplineR1toR2Hessian } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2Hessian"
 import { Optimizer } from "../optimizers/Optimizer"
 import { AbstractCurveModel } from "./AbstractCurveModel"
 
-
-
-export class ClosedCurveModel extends AbstractCurveModel {
+export class ClosedCurveModelHessian extends AbstractCurveModel {
 
     protected _spline: PeriodicBSplineR1toR2
-    protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2
+    protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2Hessian
 
     constructor() {
         super()
+        /*
         const px0 = 0, px1 = 0.15, px2 = 0.27, px3 = 0.3
         const py0 = 0, py2 = 0.35, py4 = 0.6, py5 = 0.72
         const cp = [ [-px2, -py2], [-px3, py0], [-px2, py2], [-px1, py4], 
@@ -25,22 +25,33 @@ export class ClosedCurveModel extends AbstractCurveModel {
 
         const knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         this._spline = create_PeriodicBSplineR1toR2(cp1, knots)
+        */
 
-
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this._spline = create_PeriodicBSplineR1toR2([[-0.28, -0.2], [-0.235, 0.176], [0, 0.358], [0.235, 0.176], [0.28, -0.201], [0, -0.406], [-0.28, -0.2], [-0.235, 0.176], [0, 0.358], [0.235, 0.176] ], [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2Hessian(this._spline.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
 
-       
+    }
+
+    get spline(): PeriodicBSplineR1toR2 {
+        return this._spline.clone()
     }
 
     get isClosed(): boolean {
         return true
     }
 
-    get spline(): PeriodicBSplineR1toR2 {
-        return this._spline.clone()
-    }
+
     
+    setControlPointPosition(controlPointIndex: number, x: number, y: number) {
+        this._spline.setControlPointPosition(controlPointIndex, new Vector2d(x, y))
+        this.notifyObservers()
+        if (this.activeOptimizer) {
+            this.optimize(controlPointIndex, x, y)
+        }
+    }
+
+
     setSpline(spline: PeriodicBSplineR1toR2) {
         this._spline = spline
         this.notifyObservers()
@@ -63,13 +74,13 @@ export class ClosedCurveModel extends AbstractCurveModel {
             }
             this._spline.insertKnot(meanGA)
         }
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2Hessian(this._spline.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
         this.notifyObservers()
     }
 
     setActiveControl() {
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2Hessian(this._spline.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
         this.notifyObservers()
     }

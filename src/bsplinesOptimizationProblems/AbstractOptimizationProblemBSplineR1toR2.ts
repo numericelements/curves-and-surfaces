@@ -8,34 +8,6 @@ import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { OptimizationProblemBSplineR1toR2Interface } from "./OptimizationProblemBSplineR1toR2Interface";
 
 
-export enum ActiveControl {curvatureExtrema, inflections, both}
-
-export interface ExpensiveComputationResults {
-    /*
-    * B-spline curve c(u) = x(u) i + y(u) j
-    * @param sxu x_u
-    * @param syu y_u
-    * @param sxuu x_uu
-    * @param syuu y_uu
-    * @param sxuuu x_uuu
-    * @param syuuu y_uuu
-    * @param h1 c_u dot product c_u
-    * @param h2 c_u cross product c_uuu
-    * @param h3 c_u dot product c_uu
-    * @param h4 c_u cross product c_uu
-    */
-    bdsxu: BernsteinDecompositionR1toR1
-    bdsyu: BernsteinDecompositionR1toR1
-    bdsxuu: BernsteinDecompositionR1toR1
-    bdsyuu: BernsteinDecompositionR1toR1
-    bdsxuuu: BernsteinDecompositionR1toR1 
-    bdsyuuu: BernsteinDecompositionR1toR1 
-    h1: BernsteinDecompositionR1toR1
-    h2: BernsteinDecompositionR1toR1
-    h3: BernsteinDecompositionR1toR1 
-    h4: BernsteinDecompositionR1toR1 
-}
-
 export abstract class AbstractOptimizationProblemBSplineR1toR2 implements OptimizationProblemBSplineR1toR2Interface {
     
     abstract spline: BSplineR1toR2Interface
@@ -47,55 +19,65 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
     abstract compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
         constraintsSign: number[], 
         inactiveConstraints: number[]): DenseMatrix
-    abstract computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]): number[]
-    abstract computeDs(): void
+    //abstract computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]): number[]
+    abstract computeInactiveConstraints(controlPoints: number[]): number[]
 
+    abstract computeBasisFunctionsDerivatives(): void
 
     protected _spline: BSplineR1toR2Interface
     protected _target: BSplineR1toR2Interface
+
     protected _numberOfIndependentVariables: number
     protected _f0: number
     protected _gradient_f0: number[]
     protected _hessian_f0: SymmetricMatrixInterface
-    protected _curvatureExtremaNumberOfActiveConstraints: number
-    protected _inflectionNumberOfActiveConstraints: number
-    protected curvatureExtremaTotalNumberOfConstraints: number
-    protected inflectionConstraintsSign: number[] = []
-    protected inflectionInactiveConstraints: number[] = []
     protected _f: number[]
     protected _gradient_f: DenseMatrix
     protected _hessian_f: SymmetricMatrix[] | undefined = undefined
+
+    protected dBasisFunctions_du: BernsteinDecompositionR1toR1[] = []
+    protected d2BasisFunctions_du2: BernsteinDecompositionR1toR1[] = []
+    protected d3BasisFunctions_du3: BernsteinDecompositionR1toR1[] = []
+
+    protected inflectionConstraintsSign: number[] = []
+    protected _inflectionInactiveConstraints: number[] = []
     protected curvatureExtremaConstraintsSign: number[] = []
-    protected curvatureExtremaInactiveConstraints: number[] = []
-    protected Dsu: BernsteinDecompositionR1toR1[] = []
-    protected Dsuu: BernsteinDecompositionR1toR1[] = []
-    protected Dsuuu: BernsteinDecompositionR1toR1[] = []
+    protected _curvatureExtremaInactiveConstraints: number[] = []
+
     
     constructor(target: BSplineR1toR2Interface, initial: BSplineR1toR2Interface, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
         this._spline = initial.clone()
         this._target = target.clone()
-        this.computeDs()
-        const m = this._spline.freeControlPoints.length
-        this._numberOfIndependentVariables = m * 2
+        this.computeBasisFunctionsDerivatives()
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2
         this._gradient_f0 = this.compute_gradient_f0(this._spline)
         this._f0 = this.compute_f0(this._gradient_f0)
         this._hessian_f0 = identityMatrix(this._numberOfIndependentVariables)
         const e = this.expensiveComputation(this._spline)
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        this.curvatureExtremaTotalNumberOfConstraints = g.length
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
         if (this._f.length !== this._gradient_f.shape[0]) {
             throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor")
         }
     }
+
+    get inflectionInactiveConstraints() {
+        return this._inflectionInactiveConstraints
+    }
+
+    get curvatureExtremaInactiveConstraints() {
+        return this._curvatureExtremaInactiveConstraints
+    }
+
+
 
     get numberOfIndependentVariables() {
         return this._numberOfIndependentVariables
@@ -113,9 +95,21 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
         return this._hessian_f0
     }
 
+    
     get numberOfConstraints() {
-        return this._curvatureExtremaNumberOfActiveConstraints + this._inflectionNumberOfActiveConstraints
+        switch (this.activeControl) {
+            case ActiveControl.both: {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length
+            }
+            case ActiveControl.curvatureExtrema: {
+                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length
+            }
+            case ActiveControl.inflections: {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length
+            }
+        }
     }
+    
 
     get f() {
         return this._f
@@ -136,14 +130,14 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
         const e = this.expensiveComputation(this._spline)  
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)  
+        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)  
     }
 
      fStep(step: number[]) {
@@ -152,7 +146,7 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
         let e = this.expensiveComputation(splineTemp)
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         const curvatureNumerator = this.curvatureNumerator(e.h4)
-        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
     }
 
     f0Step(step: number[]) {
@@ -254,10 +248,6 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
         return g.flattenControlPointsArray()
     }
 
-    g() {
-        const e = this.expensiveComputation(this.spline)
-        return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-    }
 
     computeConstraintsSign(controlPoints: number[]) {
         let result: number[] = []
@@ -287,23 +277,18 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
         
     }
     
-
     compute_gradient_f( e: ExpensiveComputationResults,
         inflectionConstraintsSign: number[],
         inflectionInactiveConstraints: number[],
         curvatureExtremaConstraintsSign: number[], 
         curvatureExtremaInactiveConstraints: number[]) {
-    
             if (this.activeControl === ActiveControl.both) {
                 const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
                 const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
                 const [row_m1, n] = m1.shape
                 const [row_m2, ] = m2.shape
-    
                 const m = row_m1 + row_m2
-    
                 let result = new DenseMatrix(m, n)
-    
                 for (let i = 0; i < row_m1; i += 1) {
                     for (let j = 0; j < n; j += 1 ) {
                         result.set(i, j, m1.get(i, j))
@@ -323,5 +308,33 @@ export abstract class AbstractOptimizationProblemBSplineR1toR2 implements Optimi
                 return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
             }
     }
+}
 
+
+export enum ActiveControl {curvatureExtrema, inflections, both}
+
+export interface ExpensiveComputationResults {
+    /*
+    * B-spline curve c(u) = x(u) i + y(u) j
+    * @param sxu x_u
+    * @param syu y_u
+    * @param sxuu x_uu
+    * @param syuu y_uu
+    * @param sxuuu x_uuu
+    * @param syuuu y_uuu
+    * @param h1 c_u dot product c_u
+    * @param h2 c_u cross product c_uuu
+    * @param h3 c_u dot product c_uu
+    * @param h4 c_u cross product c_uu
+    */
+    bdsxu: BernsteinDecompositionR1toR1
+    bdsyu: BernsteinDecompositionR1toR1
+    bdsxuu: BernsteinDecompositionR1toR1
+    bdsyuu: BernsteinDecompositionR1toR1
+    bdsxuuu: BernsteinDecompositionR1toR1 
+    bdsyuuu: BernsteinDecompositionR1toR1 
+    h1: BernsteinDecompositionR1toR1
+    h2: BernsteinDecompositionR1toR1
+    h3: BernsteinDecompositionR1toR1 
+    h4: BernsteinDecompositionR1toR1 
 }

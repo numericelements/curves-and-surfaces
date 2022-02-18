@@ -3,6 +3,7 @@ import { CurveSceneView } from "./views/CurveSceneView"
 import { CurveModel } from "./models/CurveModel"
 import { wireEventListner as wireEventListener } from "./views/WireEventListner"
 import { AppCurvesAndSurfaces } from "./webComponents/AppCurvesAndSurfaces"
+import { CurveModelHessian } from "./models/CurveModelHessian"
 
 
 export function main() {

@@ -45,7 +45,7 @@ describe('PeriodicBSplineR1toR2DifferentialProperties', () => {
 
         let dp = new PeriodicBSplineR1toR2DifferentialProperties(spline)
 
-        let ec = dp.expensiveComputation(spline)
+        //let ec = dp.expensiveComputation(spline)
 
         const sx = new PeriodicBSplineR1toR1(spline.getControlPointsX(), spline.knots) 
         const sy = new PeriodicBSplineR1toR1(spline.getControlPointsY(), spline.knots)
@@ -55,12 +55,12 @@ describe('PeriodicBSplineR1toR2DifferentialProperties', () => {
         const syuu = syu.derivative()
         const sxuuu = sxuu.derivative()
         const syuuu = syuu.derivative()
-        const bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition())
-        const bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition())
-        const bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition())
-        const bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition())
-        const bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition())
-        const bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition())
+        const bdsxu = sxu.bernsteinDecomposition()
+        const bdsyu = syu.bernsteinDecomposition()
+        const bdsxuu = sxuu.bernsteinDecomposition()
+        const bdsyuu = syuu.bernsteinDecomposition()
+        const bdsxuuu = sxuuu.bernsteinDecomposition()
+        const bdsyuuu = syuuu.bernsteinDecomposition()
         const h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)))
         const h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)))
         const h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)))
