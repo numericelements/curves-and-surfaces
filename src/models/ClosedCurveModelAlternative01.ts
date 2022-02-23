@@ -4,13 +4,14 @@ import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizat
 import { AbstractCurveModel } from "./AbstractCurveModel"
 import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../bsplines/PeriodicBSplineR1toR2"
 import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
+import { OptimizationProblemPeriodicBSplineR1toR2QuasiNewton } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton"
 
 
 export class ClosedCurveModelAlternative01 extends AbstractCurveModel {
 
     private _splineTarget: PeriodicBSplineR1toR2
     protected _spline: PeriodicBSplineR1toR2
-    protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2
+    protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2QuasiNewton
 
 
     constructor() {
@@ -30,7 +31,7 @@ export class ClosedCurveModelAlternative01 extends AbstractCurveModel {
         this._splineTarget = create_PeriodicBSplineR1toR2(cp1, knots)
         this._spline = this._splineTarget.clone()
 
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2QuasiNewton(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
 
     }
@@ -114,13 +115,13 @@ export class ClosedCurveModelAlternative01 extends AbstractCurveModel {
             this._splineTarget.insertKnot(meanGA)
             this._spline.insertKnot(meanGA)
         }
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2QuasiNewton(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
         this.notifyObservers()
     }
 
     setActiveControl() {
-        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
+        this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2QuasiNewton(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)
         this.notifyObservers()
     }

@@ -11,12 +11,23 @@ export class CurveModelHessian extends AbstractCurveModel {
 
     constructor() {
         super()
+        /*
         const cp0 = new Vector2d(-0.5, 0)
         const cp1 = new Vector2d(-0.1, 0.5)
         const cp2 = new Vector2d(0.1, 0.7)
         const cp3 = new Vector2d(0.5, 0)
 
         this._spline = new BSplineR1toR2([ cp0, cp1, cp2, cp3 ], [ 0, 0, 0, 0, 1, 1, 1, 1 ])
+        */
+
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(-0.3, 0.5)
+        const cp2 = new Vector2d(0, 0.7)
+        const cp3 = new Vector2d(0.3, 0.6)
+        const cp4 = new Vector2d(0.5, 0)
+
+        this._spline = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4 ], [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 ])
+
 
         this.optimizationProblem = new  OptimizationProblemBSplineR1toR2Hessian(this._spline.clone(), this._spline.clone(), this.activeControl)
         this.optimizer = new Optimizer(this.optimizationProblem)

@@ -4,6 +4,7 @@ import { CurveModel } from "./models/CurveModel"
 import { wireEventListner as wireEventListener } from "./views/WireEventListner"
 import { AppCurvesAndSurfaces } from "./webComponents/AppCurvesAndSurfaces"
 import { CurveModelHessian } from "./models/CurveModelHessian"
+import { CurveModelQuasiNewton } from "./models/CurveModelQuasiNewton"
 
 
 export function main() {
@@ -13,7 +14,7 @@ export function main() {
         console.log('Failed to get the rendering context for WebGL')
         return
     }
-    let curveModel = new CurveModel()
+    let curveModel = new CurveModelQuasiNewton()
     let curveSceneView = new CurveSceneView(canvas, gl, curveModel)
     window.customElements.define('app-curves-and-surfaces', AppCurvesAndSurfaces)
     wireEventListener(canvas, curveSceneView)

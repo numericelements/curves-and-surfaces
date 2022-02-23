@@ -27,7 +27,6 @@ export class OptimizationProblemBSplineR1toR2 extends AbstractOptimizationProble
         this._f0 = this.compute_f0(this._gradient_f0)
     }
 
-    
     /**
      * Some contraints are set inactive to allowed the point of inflection or curvature extrema 
      * to slide along the curve. 
@@ -168,8 +167,6 @@ export class OptimizationProblemBSplineR1toR2 extends AbstractOptimizationProble
             return result
         }
 
-
-    
     compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
         constraintsSign: number[], 
         inactiveConstraints: number[]) {

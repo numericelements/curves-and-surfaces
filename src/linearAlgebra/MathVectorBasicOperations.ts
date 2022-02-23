@@ -240,3 +240,11 @@ export function sign(x: number) {
     if (x == 0) return 0
     else return  x < 0 ? -1 : 1
 }
+
+export function removeElements(array: any[], indices: number[]) {
+    let result = array.slice()
+    for (let i = indices.length -1; i >= 0; i--) {
+        result.splice(indices[i], 1)
+    }
+    return result
+}

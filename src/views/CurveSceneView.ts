@@ -15,6 +15,8 @@ import { ClosedCurveModel } from "../models/ClosedCurveModel"
 import { CurveModelAlternative01 } from "../models/CurveModelAlternative01"
 import { ClosedCurveModelAlternative01 } from "../models/ClosedCurveModelAlternative01"
 import { ClosedCurveModelHessian } from "../models/ClosedCurveModelHessian"
+import { ClosedCurveModelQuasiNewton } from "../models/ClosedCurveModelQuasiNewton"
+import { CurveModelQuasiNewton } from "../models/CurveModelQuasiNewton"
 
 export class CurveSceneView {
 
@@ -110,8 +112,10 @@ export class CurveSceneView {
        switch(s) {
             case "0":
                 this.updateCurveModel(new CurveModel())
+                //this.updateCurveModel(new CurveModelQuasiNewton())
                 break
             case "1":
+                //this.updateCurveModel(new ClosedCurveModelQuasiNewton())
                 this.updateCurveModel(new ClosedCurveModel())
                 break
             case "2":

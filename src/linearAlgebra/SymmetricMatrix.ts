@@ -219,5 +219,9 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
     containsNaN() {
        return containsNaN(this.data)
     }
+
+    getData() {
+        return this.data
+    }
 }
 

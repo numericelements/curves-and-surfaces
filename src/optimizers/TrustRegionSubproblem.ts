@@ -88,6 +88,9 @@ export class TrustRegionSubproblem {
             // step 5.
             this.update_lambda()
             if (this.numberOfIterations > maxNumberOfIterations) {
+                console.log("gradient: " + this.gradient)
+                console.log("hessian: " + this.hessian.getData())
+                console.log("trust region radius: " + trustRegionRadius)
                 throw new Error("Trust region subproblem maximum number of step exceeded")
             }
         }
