@@ -14,7 +14,7 @@ export function main() {
         console.log('Failed to get the rendering context for WebGL')
         return
     }
-    let curveModel = new CurveModelQuasiNewton()
+    let curveModel = new CurveModel()
     let curveSceneView = new CurveSceneView(canvas, gl, curveModel)
     window.customElements.define('app-curves-and-surfaces', AppCurvesAndSurfaces)
     wireEventListener(canvas, curveSceneView)

@@ -86,7 +86,13 @@ export class Optimizer {
                     throw new Error("trust Radius < 10e-18")
                 }
             }
-            t *= mu;
+
+            if (trustRadius > 0.001) {
+                t *= mu
+            } else {
+                t *= 100 * mu
+                //console.log("100*mu")
+            }
         }
         this.success = true
         if (numSteps > 100) {
