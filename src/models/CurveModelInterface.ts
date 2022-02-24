@@ -3,6 +3,7 @@ import {  IMultiObservable } from "../designPatterns/Observer";
 
 export type KindOfObservers = 'curve' | 'control points'
 
+
 export interface CurveModelInterface extends IMultiObservable<BSplineR1toR2Interface, KindOfObservers> {
 
     spline : BSplineR1toR2Interface
