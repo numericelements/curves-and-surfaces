@@ -3,11 +3,11 @@ import {WebGLUtils} from "./webgl/webgl-utils"
 import { CurveModel } from "./models/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
 import { ErrorLog } from "./errorProcessing/ErrorLoging"
-import { chartEventListener } from "./chartviews/ChartEventListener";
-import { fileEventListener } from "./filecontrollers/FileEventListener";
-import { CurveShapeModelerUserInterface } from "./userInterfaceConntroller/CurveShapeModelerUserInterface";
-import { curveModelEventListener } from "./curveModeler/CurveModelEventListener";
-
+// import { chartEventListener } from "./chartviews/ChartEventListener";
+// import { fileEventListener } from "./filecontrollers/FileEventListener";
+// import { CurveShapeModelerUserInterface } from "./userInterfaceController/CurveShapeModelerUserInterface";
+// import { curveModelEventListener } from "./curveModeler/CurveModelEventListener";
+import { ChartEventListener, CurveModelerEventListener, FileEventListener, ShapeSpaceNavigationEventListener } from "./userInterfaceController/UserInterfaceEventListener";
 
 export function main() {
 
@@ -100,18 +100,18 @@ export function main() {
     };
     iconKnotInsertion = new Image();
 
-    /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
-    let sceneController = new CurveSceneController(canvas, gl);
-    if(sceneController.curveModel === undefined) {
-        const error = new ErrorLog("main", "", "Unable to create a chartSceneController because of undefined curveModel.");
-        error.logMessageToConsole();
-        return;
-    }
+    const curveModelerEventListener = new CurveModelerEventListener();
+    const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener.curveModel);
+    const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
+    // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener.curveModel);
+    const chartEventListener = new ChartEventListener(curveModelerEventListener.curveModel);
+    const fileEventListener = new FileEventListener(curveModelerEventListener.curveModel, chartEventListener,
+        curveModelerEventListener, shapeSpaceNavigationEventListener, sceneController);
+    // const curveShapeModelerUserInterface = new CurveShapeModelerUserInterface();
+    // const curveModel = curveModelEventListener(curveShapeModelerUserInterface);
+    // const chartSceneController = chartEventListener(sceneController.curveModel);
+    // fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface);
 
-    const curveShapeModelerUserInterface = new CurveShapeModelerUserInterface();
-    const curveModel = curveModelEventListener(curveShapeModelerUserInterface);
-    const chartSceneController = chartEventListener(sceneController.curveModel);
-    fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface);
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
         var x, y,
@@ -148,7 +148,8 @@ export function main() {
         let active_clamping = sceneController.dbleClick_event(c[0], c[1], 0.0005);
         sceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
-        if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
+        // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
+        if(!active_clamping) shapeSpaceNavigationEventListener.toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
 
@@ -184,22 +185,6 @@ export function main() {
         ev.preventDefault();
     }
 
-    function toggleControlOfCurvatureExtrema() {
-        sceneController.toggleControlOfCurvatureExtrema()
-    }
-
-    function toggleControlOfInflections() {
-        sceneController.toggleControlOfInflections()
-    }
-
-    function toggleSliding() {
-        sceneController.toggleSliding()
-    }
-
-    function toggleCurveClamping() {
-        sceneController.toggleCurveClamping()
-    }
-
     function keyDown(ev: KeyboardEvent) {
         const keyName = ev.key
         if(keyName === "Shift") sceneController.shiftKeyDown()
@@ -210,44 +195,39 @@ export function main() {
         if(keyName === "Shift") sceneController.shiftKeyUp()
     }
 
-    function inputSelectDegree() {
-        console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
-        let optionName = "option"
-        let curveDegree: number;
-        if(!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))){
-            curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
-            curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
-            sceneController.inputSelectDegree(curveDegree);
-            if(curveDegree > 3) {
-                for(let i = 1; i < (curveDegree - 2); i += 1) {
-                    console.log("select" + optionName + i.toString());
-                    let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
-                    if(option !== null) option.setAttribute("disabled", "");
-                    else throw new Error('No id found to identify an Option in the Selector');
-                }
-            }
-        } else {
-              throw new Error('The selected option cannot be converted into a Number');
-        }
-    }
+    // function inputSelectDegree() {
+    //     console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
+    //     let optionName = "option"
+    //     let curveDegree: number;
+    //     if(!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))){
+    //         curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
+    //         curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
+    //         sceneController.inputSelectDegree(curveDegree);
+    //         if(curveDegree > 3) {
+    //             for(let i = 1; i < (curveDegree - 2); i += 1) {
+    //                 console.log("select" + optionName + i.toString());
+    //                 let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+    //                 if(option !== null) option.setAttribute("disabled", "");
+    //                 else throw new Error('No id found to identify an Option in the Selector');
+    //             }
+    //         }
+    //     } else {
+    //           throw new Error('The selected option cannot be converted into a Number');
+    //     }
+    // }
 
-    function inputSelectNavigationMode() {
-        console.log("select" + curveShapeModelerUserInterface.inputNavigationMode.value);
-        let navigationMode: number;
-        navigationMode = Number(curveShapeModelerUserInterface.inputNavigationMode.value);
-        curveShapeModelerUserInterface.currentNavigationMode = curveShapeModelerUserInterface.inputNavigationMode.value;
-        sceneController.inputSelectNavigationProcess(navigationMode);
-    }
+    // function inputSelectNavigationMode() {
+    //     console.log("select" + curveShapeModelerUserInterface.inputNavigationMode.value);
+    //     let navigationMode: number;
+    //     navigationMode = Number(curveShapeModelerUserInterface.inputNavigationMode.value);
+    //     curveShapeModelerUserInterface.currentNavigationMode = curveShapeModelerUserInterface.inputNavigationMode.value;
+    //     sceneController.inputSelectNavigationProcess(navigationMode);
+    // }
 
-    function clickSelectDegree() {
-        console.log("select Degree click");
-        curveShapeModelerUserInterface.inputDegree.value = curveShapeModelerUserInterface.currentCurveDegree;
-    }
-
-    function clickNavigationMode() {
-        console.log("select Navigation click");
-        curveShapeModelerUserInterface.inputNavigationMode.value = curveShapeModelerUserInterface.currentNavigationMode;
-    }
+    // function clickNavigationMode() {
+    //     console.log("select Navigation click");
+    //     curveShapeModelerUserInterface.inputNavigationMode.value = curveShapeModelerUserInterface.currentNavigationMode;
+    // }
 
     function processInputTexture() {
         textureInfo.width = iconKnotInsertion.width;
@@ -329,17 +309,10 @@ export function main() {
     /* JCL 2020/09/25 Add dble click event processing */
     canvas.addEventListener('dblclick', mouse_double_click, false);
 
-    curveShapeModelerUserInterface.toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
-    curveShapeModelerUserInterface.toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
-    curveShapeModelerUserInterface.toggleButtonSliding.addEventListener('click', toggleSliding)
-    curveShapeModelerUserInterface.toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping)
-
     /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-    curveShapeModelerUserInterface.inputDegree.addEventListener('input', inputSelectDegree);
-    curveShapeModelerUserInterface.inputDegree.addEventListener('click', clickSelectDegree);
 
-    curveShapeModelerUserInterface.inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
-    curveShapeModelerUserInterface.inputNavigationMode.addEventListener('click', clickNavigationMode);
+    // curveShapeModelerUserInterface.inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
+    // curveShapeModelerUserInterface.inputNavigationMode.addEventListener('click', clickNavigationMode);
 
     iconKnotInsertion.addEventListener('load', processInputTexture);
 

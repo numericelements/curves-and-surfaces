@@ -1,13 +1,15 @@
 import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { CurveSceneController } from "../controllers/CurveSceneController";
+import { IObservable, IObserver } from "../designPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector_2d } from "../mathematics/Vector_2d";
 import { CurveModel } from "../models/CurveModel";
 
-export class FileController {
+export class FileController implements IObservable<CurveModel> {
 
     private _curveModel: CurveModel;
     private _curveSceneController: CurveSceneController;
+    private observers: IObserver<CurveModel>[] = [];
 
     constructor(curveModel: CurveModel, curveSceneController: CurveSceneController) {
         this._curveModel = curveModel;
@@ -16,6 +18,20 @@ export class FileController {
 
     get curveModel() {
         return this._curveModel;
+    }
+
+    registerObserver(observer: IObserver<CurveModel>) {
+        this.observers.push(observer)
+    }
+
+    removeObserver(observer: IObserver<CurveModel>) {
+        this.observers.splice(this.observers.indexOf(observer), 1)
+    }
+
+    notifyObservers() {
+        for (let observer of this.observers) {
+            observer.update(this._curveModel);
+        }
     }
 
     /* JCL 2020/10/13 Add curve serialization to file */
@@ -61,6 +77,7 @@ export class FileController {
     resetCurveContext(knots: number[], controlPoints: Array<Vector_2d>) {
         if(this._curveModel !== undefined) {
             this._curveModel = new CurveModel(knots, controlPoints);
+            this.notifyObservers();
             this._curveSceneController.curveModel = this._curveModel;
             this._curveSceneController.initCurveSceneView();
         } else {

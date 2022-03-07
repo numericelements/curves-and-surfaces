@@ -3,7 +3,8 @@ import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 import { Vector_2d } from "../mathematics/Vector_2d";
-import { CurveSceneController, ActiveLocationControl } from "./CurveSceneController"
+import { CurveSceneController } from "./CurveSceneController"
+import { ActiveLocationControl } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 
 
 export class NoSlidingStrategy implements CurveControlStrategyInterface {
@@ -14,13 +15,13 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
 
     private curveModel: CurveModel
     /* JCL 2020/09/23 Add management of the curve location */
-    private curveSceneController: CurveSceneController
+    private activeLocationControl: ActiveLocationControl
 
-    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, curveSceneController: CurveSceneController ) {
+    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, activeLocationControl: ActiveLocationControl ) {
         let activeControl : ActiveControl = ActiveControl.both
 
         /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
-        this.curveSceneController = curveSceneController
+        this.activeLocationControl = activeLocationControl
 
         if (!controlOfCurvatureExtrema) {
             activeControl = ActiveControl.inflections
@@ -123,22 +124,22 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
                 let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
                 delta.push(inc)
             }
-            if(this.curveSceneController.activeLocationControl === ActiveLocationControl.firstControlPoint) {
+            if(this.activeLocationControl === ActiveLocationControl.firstControlPoint) {
                 /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
-                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
-            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.both) {
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl)
+            } else if(this.activeLocationControl === ActiveLocationControl.both) {
                 if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                     /*console.log("optimize: s0sn constant")*/
                     /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
                     delta[delta.length - 1] = delta[0]
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl)
                 } else {
                     /*console.log("optimize: s0sn variable -> stop evolving")*/
-                    this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+                    this.activeLocationControl = ActiveLocationControl.stopDeforming
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl)
                 }
-            } else if(this.curveSceneController.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl)
+            } else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl)
             }
 
             this.curveModel.setSpline(this.optimizationProblem.spline.clone())

@@ -32,7 +32,7 @@ export class CurveModeler{
         return this._curveCategory;
     }
 
-    inputSelectCurveCategoryProcess(crvCategoryID: number) {
+    inputSelectCurveCategory(crvCategoryID: number) {
         let warning = new WarningLog(this.constructor.name, "inputSelectCurveCategoryProcess", crvCategoryID.toString());
         warning.logMessageToConsole();
 

@@ -39810,7 +39810,7 @@ exports.create_BSpline_R1_to_R2 = exports.BSpline_R1_to_R2 = void 0;
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var CurveSceneController_1 = __webpack_require__(/*! ../controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
@@ -39896,12 +39896,12 @@ var BSpline_R1_to_R2 = /** @class */ (function () {
     };
     /* JCL 2020/09/18 shift the control polygon using the increment of the curve after the optimization process */
     BSpline_R1_to_R2.prototype.relocateAfterOptimization = function (step, activeLocationControl) {
-        if (activeLocationControl !== CurveSceneController_1.ActiveLocationControl.stopDeforming) {
+        if (activeLocationControl !== CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming) {
             var index = 0;
-            if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint || activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+            if (activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint || activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                 index = 0;
             }
-            else if (activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+            else if (activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
                 index = this.controlPoints.length - 1;
             }
             for (var i = 0; i < this.controlPoints.length; i += 1) {
@@ -41092,7 +41092,6 @@ exports.DATASET_NAMES = ["Control Polygon", "tbd"];
 exports.CHART_AXIS_SCALE = ["linear", "logarithmic"];
 var ChartSceneController = /** @class */ (function () {
     function ChartSceneController(chartRenderingContext, curveModel) {
-        var _this = this;
         this.chartRenderingContext = chartRenderingContext;
         this._curveModel = curveModel;
         this._uncheckedChart = "";
@@ -41105,16 +41104,6 @@ var ChartSceneController = /** @class */ (function () {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
-        this._curveObservers.forEach(function (element) {
-            if (_this._curveModel !== undefined) {
-                element.update(_this._curveModel.spline);
-                _this._curveModel.registerObserver(element);
-            }
-            else {
-                var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Unable to initialize a ChartSceneController with appropriate curve observers.");
-                error.logMessageToConsole();
-            }
-        });
     }
     Object.defineProperty(ChartSceneController.prototype, "curveObservers", {
         get: function () {
@@ -41667,167 +41656,6 @@ exports.NoFunctionSceneController = NoFunctionSceneController;
 
 /***/ }),
 
-/***/ "./src/chartviews/ChartEventListener.ts":
-/*!**********************************************!*\
-  !*** ./src/chartviews/ChartEventListener.ts ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetChartContext = exports.chartEventListener = void 0;
-var ChartSceneController_1 = __webpack_require__(/*! ../chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
-var chartFunctionA = false;
-var chartFunctionB = false;
-var chartCurvatureCrv = false;
-var chartAbsCurvatureCurv = false;
-var chartFunctionBsqrtScaled = false;
-var noAddChart = false;
-/* Get checkboxes IDs for the selection of function graphs*/
-var checkBoxFunctionA = document.getElementById("chkBoxFunctionA");
-var checkBoxFunctionB = document.getElementById("chkBoxFunctionB");
-var checkBoxFunctionBsqrtScaled = document.getElementById("chkBoxSqrtFunctionB");
-var checkBoxCurvature = document.getElementById("chkBoxCurvature");
-var checkBoxAbsCurvature = document.getElementById("chkBoxAbsCurvature");
-function chartEventListener(curveModel) {
-    function setupChartRenderingContexts() {
-        var canvasChart1 = document.getElementById('chart1');
-        var ctxChart1 = canvasChart1.getContext('2d');
-        var canvasChart2 = document.getElementById('chart2');
-        var ctxChart2 = canvasChart2.getContext('2d');
-        var canvasChart3 = document.getElementById('chart3');
-        var ctxChart3 = canvasChart3.getContext('2d');
-        if (ctxChart1 !== null)
-            chartRenderingContext.push(ctxChart1);
-        if (ctxChart2 !== null)
-            chartRenderingContext.push(ctxChart2);
-        if (ctxChart3 !== null)
-            chartRenderingContext.push(ctxChart3);
-    }
-    var chartRenderingContext = [];
-    setupChartRenderingContexts();
-    var chartSceneController = new ChartSceneController_1.ChartSceneController(chartRenderingContext, curveModel);
-    function uncheckCkbox() {
-        console.log("uncheckChart " + chartSceneController.uncheckedChart);
-        if (ChartSceneController_1.CHART_TITLES.indexOf(chartSceneController.uncheckedChart) !== -1) {
-            noAddChart = true;
-            switch (chartSceneController.uncheckedChart) {
-                case ChartSceneController_1.CHART_TITLES[0]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[0]);
-                    checkBoxFunctionA.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[1]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[1]);
-                    checkBoxFunctionB.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[2]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[2]);
-                    checkBoxCurvature.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[3]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[3]);
-                    checkBoxAbsCurvature.click();
-                    break;
-                case ChartSceneController_1.CHART_TITLES[4]:
-                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[4]);
-                    checkBoxFunctionBsqrtScaled.click();
-                    break;
-            }
-        }
-        chartSceneController.resetUncheckedChart();
-        noAddChart = false;
-    }
-    function chkboxFunctionA() {
-        if (chartFunctionA) {
-            chartFunctionA = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
-        }
-        else {
-            chartFunctionA = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxFunctionB() {
-        if (chartFunctionB) {
-            chartFunctionB = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
-        }
-        else {
-            chartFunctionB = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxCurvature() {
-        if (chartCurvatureCrv) {
-            chartCurvatureCrv = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
-        }
-        else {
-            chartCurvatureCrv = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxAbsCurvature() {
-        if (chartAbsCurvatureCurv) {
-            chartAbsCurvatureCurv = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
-        }
-        else {
-            chartAbsCurvatureCurv = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
-            uncheckCkbox();
-        }
-    }
-    function chkboxFunctionBsqrtScaled() {
-        if (chartFunctionBsqrtScaled) {
-            chartFunctionBsqrtScaled = false;
-            if (!noAddChart)
-                chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
-        }
-        else {
-            chartFunctionBsqrtScaled = true;
-            chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
-            uncheckCkbox();
-        }
-    }
-    /* Add event handlers for checkbox processing */
-    checkBoxFunctionA.addEventListener('click', chkboxFunctionA);
-    checkBoxFunctionB.addEventListener('click', chkboxFunctionB);
-    checkBoxFunctionBsqrtScaled.addEventListener('click', chkboxFunctionBsqrtScaled);
-    checkBoxCurvature.addEventListener('click', chkboxCurvature);
-    checkBoxAbsCurvature.addEventListener('click', chkboxAbsCurvature);
-    return chartSceneController;
-}
-exports.chartEventListener = chartEventListener;
-function resetChartContext(chartSceneController, curveModel) {
-    chartSceneController.restart(curveModel);
-    noAddChart = true;
-    if (chartFunctionA)
-        checkBoxFunctionA.click();
-    if (chartFunctionB)
-        checkBoxFunctionB.click();
-    if (chartCurvatureCrv)
-        checkBoxCurvature.click();
-    if (chartAbsCurvatureCurv)
-        checkBoxAbsCurvature.click();
-    if (chartFunctionBsqrtScaled)
-        checkBoxFunctionBsqrtScaled.click();
-    noAddChart = false;
-}
-exports.resetChartContext = resetChartContext;
-
-
-/***/ }),
-
 /***/ "./src/containers/ChartDescriptorQueueItem.ts":
 /*!****************************************************!*\
   !*** ./src/containers/ChartDescriptorQueueItem.ts ***!
@@ -42209,25 +42037,21 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HandleNoDiffEventSlidingState = exports.HandleInflectionsAndCurvatureExtremaSlidingState = exports.HandleCurvatureExtremaSlidingState = exports.HandleInflectionsSlidingState = exports.HandleNoDiffEventNoSlidingState = exports.HandleInflectionsAndCurvatureExtremaNoSlidingState = exports.HandleCurvatureExtremaNoSlidingState = exports.HandleInflectionsNoSlidingState = exports.CurveControlState = void 0;
 var ShapeSpaceDiffEventsConfigurator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts");
-var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
-var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveControlState = /** @class */ (function () {
+    // protected curveSceneController: CurveSceneController;
     function CurveControlState(context) {
-        this.curveSceneController = context;
-        if (this.curveSceneController.curveShapeSpaceNavigator !== undefined) {
-            this.curveShapeSpaceNavigator = this.curveSceneController.curveShapeSpaceNavigator;
-        }
-        else {
-            this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.CurveShapeSpaceNavigator(context.curveModeler);
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'constructor', 'Unable to update curveShapeSpaceNavigator context. Check its initialization.');
-            error.logMessageToConsole();
-        }
+        this.curveShapeSpaceNavigator = context;
+        // if(this.curveShapeSpaceNavigator !== undefined) {
+        //     this.curveShapeSpaceNavigator = this.curveSceneController.curveShapeSpaceNavigator;
+        // }
+        // else {
+        //     this.curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(context.curveModeler);
+        //     let error = new ErrorLog(this.constructor.name, 'constructor', 'Unable to update curveShapeSpaceNavigator context. Check its initialization.');
+        //     error.logMessageToConsole();
+        // }
     }
     CurveControlState.prototype.setContext = function (context) {
-        this.curveSceneController = context;
-    };
-    CurveControlState.prototype.updateShapeSpaceNavigator = function () {
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this.curveSceneController.shapeSpaceDiffEventsStructure.shapeSpaceDiffEventsConfigurator;
+        this.curveShapeSpaceNavigator = context;
     };
     return CurveControlState;
 }());
@@ -42236,21 +42060,21 @@ var HandleInflectionsNoSlidingState = /** @class */ (function (_super) {
     __extends(HandleInflectionsNoSlidingState, _super);
     function HandleInflectionsNoSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsNoSliding(_this.curveSceneController.curveModeler.curveCategory));
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsNoSliding(_this.curveShapeSpaceNavigator.curveModeler.curveCategory));
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleInflectionsNoSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsNoSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsNoSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleInflectionsNoSlidingState;
 }(CurveControlState));
@@ -42259,21 +42083,21 @@ var HandleCurvatureExtremaNoSlidingState = /** @class */ (function (_super) {
     __extends(HandleCurvatureExtremaNoSlidingState, _super);
     function HandleCurvatureExtremaNoSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding());
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding());
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleCurvatureExtremaNoSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleCurvatureExtremaNoSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleCurvatureExtremaNoSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleCurvatureExtremaNoSlidingState;
 }(CurveControlState));
@@ -42282,21 +42106,21 @@ var HandleInflectionsAndCurvatureExtremaNoSlidingState = /** @class */ (function
     __extends(HandleInflectionsAndCurvatureExtremaNoSlidingState, _super);
     function HandleInflectionsAndCurvatureExtremaNoSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding());
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding());
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleInflectionsAndCurvatureExtremaNoSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsAndCurvatureExtremaNoSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsAndCurvatureExtremaNoSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleInflectionsAndCurvatureExtremaNoSlidingState;
 }(CurveControlState));
@@ -42305,21 +42129,21 @@ var HandleNoDiffEventNoSlidingState = /** @class */ (function (_super) {
     __extends(HandleNoDiffEventNoSlidingState, _super);
     function HandleNoDiffEventNoSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding());
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding());
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleNoDiffEventNoSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleNoDiffEventNoSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleNoDiffEventNoSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleNoDiffEventSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleNoDiffEventNoSlidingState;
 }(CurveControlState));
@@ -42328,21 +42152,21 @@ var HandleInflectionsSlidingState = /** @class */ (function (_super) {
     __extends(HandleInflectionsSlidingState, _super);
     function HandleInflectionsSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsSliding(_this.curveSceneController.curveModeler.curveCategory));
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsSliding(_this.curveShapeSpaceNavigator.curveModeler.curveCategory));
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleInflectionsSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleNoDiffEventSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleInflectionsSlidingState;
 }(CurveControlState));
@@ -42351,21 +42175,21 @@ var HandleCurvatureExtremaSlidingState = /** @class */ (function (_super) {
     __extends(HandleCurvatureExtremaSlidingState, _super);
     function HandleCurvatureExtremaSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithCurvatureExtremaSliding());
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithCurvatureExtremaSliding());
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleCurvatureExtremaSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleCurvatureExtremaSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleNoDiffEventSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleCurvatureExtremaSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleCurvatureExtremaSlidingState;
 }(CurveControlState));
@@ -42374,21 +42198,21 @@ var HandleInflectionsAndCurvatureExtremaSlidingState = /** @class */ (function (
     __extends(HandleInflectionsAndCurvatureExtremaSlidingState, _super);
     function HandleInflectionsAndCurvatureExtremaSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding());
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding());
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleInflectionsAndCurvatureExtremaSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsAndCurvatureExtremaSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleInflectionsAndCurvatureExtremaSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleInflectionsAndCurvatureExtremaSlidingState;
 }(CurveControlState));
@@ -42397,21 +42221,21 @@ var HandleNoDiffEventSlidingState = /** @class */ (function (_super) {
     __extends(HandleNoDiffEventSlidingState, _super);
     function HandleNoDiffEventSlidingState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding());
-        _this.curveSceneController.shapeSpaceDiffEventsStructure.monitorCurveShape();
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding());
+        _this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
         return _this;
     }
     HandleNoDiffEventSlidingState.prototype.handleInflections = function () {
-        this.curveSceneController.transitionTo(new HandleInflectionsSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleInflectionsSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleNoDiffEventSlidingState.prototype.handleCurvatureExtrema = function () {
-        this.curveSceneController.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleCurvatureExtremaSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     HandleNoDiffEventSlidingState.prototype.handleSliding = function () {
-        this.curveSceneController.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveSceneController));
-        this.updateShapeSpaceNavigator();
+        this.curveShapeSpaceNavigator.transitionTo(new HandleNoDiffEventNoSlidingState(this.curveShapeSpaceNavigator));
+        // this.updateShapeSpaceNavigator();
     };
     return HandleNoDiffEventSlidingState;
 }(CurveControlState));
@@ -42430,8 +42254,7 @@ exports.HandleNoDiffEventSlidingState = HandleNoDiffEventSlidingState;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveSceneController = exports.ActiveInflectionLocationControl = exports.ActiveExtremaLocationControl = exports.ActiveLocationControl = void 0;
-var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
+exports.CurveSceneController = exports.ActiveInflectionLocationControl = exports.ActiveExtremaLocationControl = void 0;
 var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
 var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
 var ControlPolygonShaders_1 = __webpack_require__(/*! ../views/ControlPolygonShaders */ "./src/views/ControlPolygonShaders.ts");
@@ -42455,18 +42278,11 @@ var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ 
 var BSpline_R1_to_R2_degree_Raising_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_degree_Raising */ "./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts");
 var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ../views/SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
 var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./src/curveModeler/CurveModeler.ts");
-var CurveControlState_1 = __webpack_require__(/*! ./CurveControlState */ "./src/controllers/CurveControlState.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var CurveConstraintSelectionState_1 = __webpack_require__(/*! ./CurveConstraintSelectionState */ "./src/controllers/CurveConstraintSelectionState.ts");
-/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
-var ActiveLocationControl;
-(function (ActiveLocationControl) {
-    ActiveLocationControl[ActiveLocationControl["firstControlPoint"] = 0] = "firstControlPoint";
-    ActiveLocationControl[ActiveLocationControl["lastControlPoint"] = 1] = "lastControlPoint";
-    ActiveLocationControl[ActiveLocationControl["both"] = 2] = "both";
-    ActiveLocationControl[ActiveLocationControl["none"] = 3] = "none";
-    ActiveLocationControl[ActiveLocationControl["stopDeforming"] = 4] = "stopDeforming";
-})(ActiveLocationControl = exports.ActiveLocationControl || (exports.ActiveLocationControl = {}));
+// /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+// export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
 /* JCL 2020/11/06 Add controls to monitor the location of the curvature extrema and inflection points */
 var ActiveExtremaLocationControl;
 (function (ActiveExtremaLocationControl) {
@@ -42483,11 +42299,9 @@ var ActiveInflectionLocationControl;
     ActiveInflectionLocationControl[ActiveInflectionLocationControl["stopDeforming"] = 2] = "stopDeforming";
 })(ActiveInflectionLocationControl = exports.ActiveInflectionLocationControl || (exports.ActiveInflectionLocationControl = {}));
 var CurveSceneController = /** @class */ (function () {
-    function CurveSceneController(canvas, gl, curveObservers, curveModel) {
-        if (curveObservers === void 0) { curveObservers = []; }
+    function CurveSceneController(canvas, gl, curveModel) {
         this.canvas = canvas;
         this.gl = gl;
-        this.curveObservers = curveObservers;
         this.curveModel = curveModel;
         this.selectedControlPoint = null;
         this.selectedCurvatureExtrema = null;
@@ -42498,7 +42312,7 @@ var CurveSceneController = /** @class */ (function () {
         this.clampedControlPointView = null;
         this.clampedControlPoints = [];
         /* JCL 2020/09/23 Add management of the curve location */
-        this.activeLocationControl = ActiveLocationControl.none;
+        this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.none;
         /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
         this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
         this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
@@ -42507,12 +42321,13 @@ var CurveSceneController = /** @class */ (function () {
         this.MAX_NB_CONFIGS_CP = 5;
         this.counterLostEvent = 0;
         this.lastLostEvent = { event: SlidingStrategy_1.NeighboringEventsType.none, index: 0 };
-        if (!curveModel) {
-            this.curveModel = new CurveModel_1.CurveModel();
-        }
-        else {
-            this.curveModel = curveModel;
-        }
+        this.curveObservers = [];
+        // if(!curveModel) {
+        //     this.curveModel = new CurveModel()
+        // } else {
+        //     this.curveModel = curveModel
+        // }
+        this.curveModel = curveModel;
         this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
         this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1);
         this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
@@ -42536,7 +42351,7 @@ var CurveSceneController = /** @class */ (function () {
         clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
         this.clampedControlPoints.push(0);
         this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-        this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+        this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint;
         this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
         this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
         this.allowShapeSpaceChange = false;
@@ -42559,7 +42374,7 @@ var CurveSceneController = /** @class */ (function () {
         this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
         this.shapeSpaceDiffEventsConfigurator = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
         this.shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
-        this.curveControlState = new CurveControlState_1.HandleNoDiffEventNoSlidingState(this);
+        // this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this.eventMgmtAtCurveExtremities = this.curveShapeSpaceNavigator.eventMgmtAtCurveExtremities;
         this.curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
         console.log("end constructor curveSceneController");
@@ -42593,7 +42408,7 @@ var CurveSceneController = /** @class */ (function () {
         }
         this.clampedControlPoints.push(0);
         this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-        this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+        this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint;
         this.clampedControlPointView.update(clampedControlPoint);
         this.dragging = false;
         this.selectedControlPoint = null;
@@ -42637,7 +42452,7 @@ var CurveSceneController = /** @class */ (function () {
         this.controlPolygonView.renderFrame();
         this.curveKnotsView.renderFrame();
         if (this.curveModel !== undefined) {
-            if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
+            if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming) {
                 this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 0.9, 1);
             }
             else {
@@ -42721,34 +42536,34 @@ var CurveSceneController = /** @class */ (function () {
             this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
             this.clampedControlPoints = [];
             this.clampedControlPoints.push(0);
-            this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+            this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint;
             if (this.clampedControlPointView !== null)
                 this.clampedControlPointView.update(clampedControlPoint);
         }
         else
-            this.activeLocationControl = ActiveLocationControl.none;
+            this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.none;
     };
-    CurveSceneController.prototype.toggleControlOfCurvatureExtrema = function () {
-        this.curveControl.toggleControlOfCurvatureExtrema();
-        this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
-        //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
-        /* JCL 2021/12/02 Add control state for new code architecture */
-        /* JCL 2021/12/02 controlOfCurvatureExtrema can be used to characterize the control state and set it appropriately when changing the navigation mode */
-        this.curveControlState.handleCurvatureExtrema();
-    };
-    CurveSceneController.prototype.toggleControlOfInflections = function () {
-        this.curveControl.toggleControlOfInflections();
-        this.controlOfInflection = !this.controlOfInflection;
-        //console.log("control of inflections: " + this.controlOfInflection)
-        /* JCL 2021/12/02 Add control state for new code architecture */
-        /* JCL 2021/12/02 controlOfInflection can be used to characterize the control state and set it appropriately when changing the navigation mode */
-        this.curveControlState.handleInflections();
-    };
-    /* JCL test code debut */
-    CurveSceneController.prototype.transitionTo = function (curveControlState) {
-        this.curveControlState = curveControlState;
-        this.curveControlState.setContext(this);
-    };
+    // toggleControlOfCurvatureExtrema() {
+    //     this.curveControl.toggleControlOfCurvatureExtrema()
+    //     this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
+    //     //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
+    //     /* JCL 2021/12/02 Add control state for new code architecture */
+    //     /* JCL 2021/12/02 controlOfCurvatureExtrema can be used to characterize the control state and set it appropriately when changing the navigation mode */
+    //     this.curveControlState.handleCurvatureExtrema();
+    // }
+    // toggleControlOfInflections() {
+    //     this.curveControl.toggleControlOfInflections()
+    //     this.controlOfInflection = ! this.controlOfInflection
+    //     //console.log("control of inflections: " + this.controlOfInflection)
+    //     /* JCL 2021/12/02 Add control state for new code architecture */
+    //     /* JCL 2021/12/02 controlOfInflection can be used to characterize the control state and set it appropriately when changing the navigation mode */
+    //     this.curveControlState.handleInflections();
+    // }
+    // /* JCL test code debut */
+    // transitionTo(curveControlState: CurveControlState): void {
+    //     this.curveControlState = curveControlState;
+    //     this.curveControlState.setContext(this);
+    // }
     CurveSceneController.prototype.curveConstraintTransitionTo = function (curveConstraintSelectionState) {
         this.curveConstraintSelectionState = curveConstraintSelectionState;
         this.curveConstraintSelectionState.setContext(this);
@@ -42784,26 +42599,24 @@ var CurveSceneController = /** @class */ (function () {
         this.eventMgmtAtCurveExtremities.processEventAtCurveExtremity();
     };
     /* JCL fin test code */
-    CurveSceneController.prototype.toggleSliding = function () {
-        if (this.curveModel !== undefined) {
-            if (this.sliding) {
-                this.sliding = false;
-                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
-                //console.log("constrol of inflections: " + this.controlOfInflection)
-                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-            }
-            else {
-                this.sliding = true;
-                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
-                //console.log("constrol of inflections: " + this.controlOfInflection)
-                this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-            }
-        }
-        else
-            throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model");
-        /* JCL 2021/10/12 Add curveControlState for new code architecture */
-        this.curveControlState.handleSliding();
-    };
+    // toggleSliding() {
+    //     if(this.curveModel !== undefined) {
+    //         if(this.sliding) {
+    //             this.sliding = false
+    //             //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+    //             //console.log("constrol of inflections: " + this.controlOfInflection)
+    //             this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+    //         }
+    //         else {
+    //             this.sliding = true
+    //             //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+    //             //console.log("constrol of inflections: " + this.controlOfInflection)
+    //             this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+    //         }
+    //     } else throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model")
+    //     /* JCL 2021/10/12 Add curveControlState for new code architecture */
+    //     this.curveControlState.handleSliding();
+    // }
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
         if (this.curveModel !== undefined) {
@@ -42819,14 +42632,14 @@ var CurveSceneController = /** @class */ (function () {
                 if (cp != null) {
                     this.curveModel.spline.insertKnot(grevilleAbscissae[cp]);
                     this.curveControl.resetCurve(this.curveModel);
-                    if (this.activeLocationControl === ActiveLocationControl.both) {
+                    if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                         if (this.clampedControlPoints[0] === 0) {
                             this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
                         }
                         else
                             this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                     }
-                    else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                    else if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
                         this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                     }
                     // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
@@ -42839,12 +42652,12 @@ var CurveSceneController = /** @class */ (function () {
                         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                     }
                     else {
-                        this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                        this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
                     }
                     this.curveModel.notifyObservers();
                 }
             }
-            if (this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
+            if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both && this.selectedControlPoint === null) {
                 /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
                 if (this.sliding) {
                     this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
@@ -42854,7 +42667,7 @@ var CurveSceneController = /** @class */ (function () {
                     this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
                 else {
-                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
                 }
                 this.curveModel.notifyObservers();
             }
@@ -42873,7 +42686,7 @@ var CurveSceneController = /** @class */ (function () {
             /* JCL 2020/09/27 Add clamping condition when dragging a control point */
             //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
             //    && (this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming || this.allowShapeSpaceChange === true)) {
-            if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
+            if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming) {
                 // JCL new code
                 this.curveShapeSpaceNavigator.navigateSpace(selectedControlPoint, x, y);
                 if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
@@ -42912,8 +42725,8 @@ var CurveSceneController = /** @class */ (function () {
     };
     CurveSceneController.prototype.leftMouseUp_event = function () {
         this.dragging = false;
-        if (this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-            this.activeLocationControl = ActiveLocationControl.both;
+        if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming) {
+            this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.both;
             this.selectedControlPoint = null;
         }
         if (this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming) {
@@ -42951,21 +42764,21 @@ var CurveSceneController = /** @class */ (function () {
                 }
                 this.curveModel.spline.renewCurve(controlPoints, knots);
                 this.curveControl.resetCurve(this.curveModel);
-                if (this.activeLocationControl === ActiveLocationControl.both) {
+                if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                     if (this.clampedControlPoints[0] === 0) {
                         this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
                     }
                     else
                         this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                 }
-                else if (this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                else if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
                     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                 }
                 if (this.sliding) {
                     this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
                 }
                 else {
-                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                    this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
                 }
                 this.curveModel.notifyObservers();
             }
@@ -42996,7 +42809,7 @@ var CurveSceneController = /** @class */ (function () {
                             console.log("dlble_click: no cp left");
                             this.clampedControlPointView = null;
                             this.clampedControlPoints.pop();
-                            this.activeLocationControl = ActiveLocationControl.none;
+                            this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.none;
                             return false;
                         }
                         else if (this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint
@@ -43007,7 +42820,7 @@ var CurveSceneController = /** @class */ (function () {
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
                             this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-                            this.activeLocationControl = ActiveLocationControl.both;
+                            this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.both;
                             return true;
                         }
                         else if (this.clampedControlPoints.length === 2) {
@@ -43021,7 +42834,7 @@ var CurveSceneController = /** @class */ (function () {
                                 var clampedControlPoint = [];
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
                                 this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-                                this.activeLocationControl = ActiveLocationControl.lastControlPoint;
+                                this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint;
                                 console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
                             }
                             else if (selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
@@ -43034,7 +42847,7 @@ var CurveSceneController = /** @class */ (function () {
                                 var clampedControlPoint = [];
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
                                 this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
-                                this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+                                this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint;
                                 console.log("dble click: clampedControlPoints " + this.clampedControlPoints);
                             }
                             return true;
@@ -43075,13 +42888,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NoSlidingStrategy = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
-var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var NoSlidingStrategy = /** @class */ (function () {
-    function NoSlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, curveSceneController) {
+    function NoSlidingStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, activeLocationControl) {
         this.activeOptimizer = true;
         var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
         /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
-        this.curveSceneController = curveSceneController;
+        this.activeLocationControl = activeLocationControl;
         if (!controlOfCurvatureExtrema) {
             activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections;
         }
@@ -43171,25 +42984,25 @@ var NoSlidingStrategy = /** @class */ (function () {
                 var inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i]);
                 delta.push(inc);
             }
-            if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+            if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint) {
                 /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
-                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl);
             }
-            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+            else if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                 if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                     /*console.log("optimize: s0sn constant")*/
                     /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped */
                     delta[delta.length - 1] = delta[0];
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl);
                 }
                 else {
                     /*console.log("optimize: s0sn variable -> stop evolving")*/
-                    this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+                    this.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming;
+                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl);
                 }
             }
-            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
-                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
+            else if (this.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
+                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.activeLocationControl);
             }
             this.curveModel.setSpline(this.optimizationProblem.spline.clone());
         }
@@ -43221,6 +43034,7 @@ var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mat
 var CurveSceneController_1 = __webpack_require__(/*! ./CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../bsplines/Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var NeighboringEventsType;
 (function (NeighboringEventsType) {
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundary"] = 0] = "neighboringCurExtremumLeftBoundary";
@@ -44185,12 +43999,12 @@ var SlidingStrategy = /** @class */ (function () {
                     //console.log("Possibly an inconsistency between sequences of differential events at the transision between statuses of inflection and curvature controls")
                 }
             }
-            if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+            if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint) {
                 /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
             }
-            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+            else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                 if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                     /*console.log("optimize: s0sn constant")*/
                     /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
@@ -44200,16 +44014,16 @@ var SlidingStrategy = /** @class */ (function () {
                 }
                 else {
                     /*console.log("optimize: s0sn variable -> stop evolving")*/
-                    this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                    this.curveSceneController.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming;
                     this.curveModel.setControlPoints(controlPointsInit);
                 }
             }
-            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+            else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                 //}
             }
-            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.none) {
+            else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.none) {
                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
             }
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
@@ -44412,12 +44226,12 @@ var SlidingStrategy = /** @class */ (function () {
                                 }
                             }
                             /* JCL Add the curve relocation process */
-                            if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+                            if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint) {
                                 /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
                                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                             }
-                            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                            else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                                 if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                                     /*console.log("optimize: s0sn constant")*/
                                     /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
@@ -44427,16 +44241,16 @@ var SlidingStrategy = /** @class */ (function () {
                                 }
                                 else {
                                     /*console.log("optimize: s0sn variable -> stop evolving")*/
-                                    this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                                    this.curveSceneController.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming;
                                     this.curveModel.setControlPoints(controlPointsInit);
                                 }
                             }
-                            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                            else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
                                 this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                                 //}
                             }
-                            else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.none) {
+                            else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.none) {
                                 this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                             }
                         }
@@ -44768,12 +44582,12 @@ var SlidingStrategy = /** @class */ (function () {
                                     this.curveSceneController.activeInflectionLocationControl = CurveSceneController_1.ActiveInflectionLocationControl.mergeExtremaAndInflection;
                                     this.curveSceneController.activeExtremaLocationControl = CurveSceneController_1.ActiveExtremaLocationControl.extremumEntering;
                                     /* JCL Add the curve relocation process */
-                                    if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.firstControlPoint) {
+                                    if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.firstControlPoint) {
                                         /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
                                         this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                         this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                                     }
-                                    else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.both) {
+                                    else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.both) {
                                         if (Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
                                             /*console.log("optimize: s0sn constant")*/
                                             /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
@@ -44783,16 +44597,16 @@ var SlidingStrategy = /** @class */ (function () {
                                         }
                                         else {
                                             /*console.log("optimize: s0sn variable -> stop evolving")*/
-                                            this.curveSceneController.activeLocationControl = CurveSceneController_1.ActiveLocationControl.stopDeforming;
+                                            this.curveSceneController.activeLocationControl = CurveShapeSpaceNavigator_1.ActiveLocationControl.stopDeforming;
                                             this.curveModel.setControlPoints(controlPointsInit);
                                         }
                                     }
-                                    else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.lastControlPoint) {
+                                    else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.lastControlPoint) {
                                         this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController.activeLocationControl);
                                         this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                                         //}
                                     }
-                                    else if (this.curveSceneController.activeLocationControl === CurveSceneController_1.ActiveLocationControl.none) {
+                                    else if (this.curveSceneController.activeLocationControl === CurveShapeSpaceNavigator_1.ActiveLocationControl.none) {
                                         this.curveModel.setSpline(this.optimizationProblem.spline.clone());
                                     }
                                 }
@@ -45044,78 +44858,6 @@ exports.ClosedPlanarCurve = ClosedPlanarCurve;
 
 /***/ }),
 
-/***/ "./src/curveModeler/CurveModelEventListener.ts":
-/*!*****************************************************!*\
-  !*** ./src/curveModeler/CurveModelEventListener.ts ***!
-  \*****************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.curveModelEventListener = void 0;
-var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
-var CurveModeler_1 = __webpack_require__(/*! ./CurveModeler */ "./src/curveModeler/CurveModeler.ts");
-function curveModelEventListener(curveShapeModelerUserInterface) {
-    var curveModel;
-    var curveModeler = new CurveModeler_1.CurveModeler();
-    curveModel = new CurveModel_1.CurveModel();
-    function inputSelectDegree() {
-        console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
-        var optionName = "option";
-        var curveDegree;
-        if (!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))) {
-            curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
-            curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
-            // sceneController.inputSelectDegree(curveDegree);
-            if (curveDegree > CurveModel_1.DEFAULT_CURVE_DEGREE) {
-                for (var i = 1; i < (curveDegree - CurveModel_1.DEFAULT_CURVE_DEGREE + 1); i += 1) {
-                    console.log("select" + optionName + i.toString());
-                    var option = document.getElementById(optionName + i.toString());
-                    if (option !== null)
-                        option.setAttribute("disabled", "");
-                    else {
-                        var error = new ErrorLoging_1.ErrorLog("curveModelEventListener", "inputSelectDegree", "No ID found to identify an Option in the Selector.");
-                        error.logMessageToConsole();
-                    }
-                }
-            }
-        }
-        else {
-            var error = new ErrorLoging_1.ErrorLog("curveModelEventListener", "inputSelectDegree", "The selected option cannot be converted into a Number");
-            error.logMessageToConsole();
-        }
-    }
-    function inputSelectCurveCategory() {
-        console.log("select" + curveShapeModelerUserInterface.inputCurveCategory.value);
-        var curveCategory;
-        curveCategory = Number(curveShapeModelerUserInterface.inputCurveCategory.value);
-        curveShapeModelerUserInterface.currentCurveCategory = curveShapeModelerUserInterface.inputCurveCategory.value;
-        curveModeler.inputSelectCurveCategoryProcess(curveCategory);
-        // sceneController.inputSelectCurveCategoryProcess(curveCategory);
-    }
-    function clickSelectDegree() {
-        console.log("select Degree click");
-        curveShapeModelerUserInterface.inputDegree.value = curveShapeModelerUserInterface.currentCurveDegree;
-    }
-    function clickCurveCategory() {
-        console.log("select Curve type click");
-        curveShapeModelerUserInterface.inputCurveCategory.value = curveShapeModelerUserInterface.currentCurveCategory;
-    }
-    /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-    curveShapeModelerUserInterface.inputDegree.addEventListener('input', inputSelectDegree);
-    curveShapeModelerUserInterface.inputDegree.addEventListener('click', clickSelectDegree);
-    curveShapeModelerUserInterface.inputCurveCategory.addEventListener('input', inputSelectCurveCategory);
-    curveShapeModelerUserInterface.inputCurveCategory.addEventListener('click', clickCurveCategory);
-    return curveModel;
-}
-exports.curveModelEventListener = curveModelEventListener;
-
-
-/***/ }),
-
 /***/ "./src/curveModeler/CurveModeler.ts":
 /*!******************************************!*\
   !*** ./src/curveModeler/CurveModeler.ts ***!
@@ -45161,7 +44903,7 @@ var CurveModeler = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    CurveModeler.prototype.inputSelectCurveCategoryProcess = function (crvCategoryID) {
+    CurveModeler.prototype.inputSelectCurveCategory = function (crvCategoryID) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectCurveCategoryProcess", crvCategoryID.toString());
         warning.logMessageToConsole();
         switch (crvCategoryID) {
@@ -46158,7 +45900,7 @@ exports.CurveShapeSpaceDescriptor = CurveShapeSpaceDescriptor;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveShapeSpaceNavigator = exports.CONVERGENCE_THRESHOLD = exports.MAX_TRUST_REGION_RADIUS = exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = void 0;
+exports.CurveShapeSpaceNavigator = exports.ActiveLocationControl = exports.CONVERGENCE_THRESHOLD = exports.MAX_TRUST_REGION_RADIUS = exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = void 0;
 var OptimizationProblemCtrlParameters_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblemCtrlParameters */ "./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts");
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
 var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
@@ -46175,16 +45917,34 @@ var NavigationState_1 = __webpack_require__(/*! ./NavigationState */ "./src/curv
 var ShapeSpaceDiffEventsConfigurator_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsConfigurator */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts");
 var ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties */ "./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts");
 var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ../curveModeler/EventMgmtAtCurveExtremities */ "./src/curveModeler/EventMgmtAtCurveExtremities.ts");
+var CurveControlState_1 = __webpack_require__(/*! ../controllers/CurveControlState */ "./src/controllers/CurveControlState.ts");
+var NoSlidingStrategy_1 = __webpack_require__(/*! ../controllers/NoSlidingStrategy */ "./src/controllers/NoSlidingStrategy.ts");
 exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 exports.MAX_TRUST_REGION_RADIUS = 100;
 exports.CONVERGENCE_THRESHOLD = 10e-8;
+/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+var ActiveLocationControl;
+(function (ActiveLocationControl) {
+    ActiveLocationControl[ActiveLocationControl["firstControlPoint"] = 0] = "firstControlPoint";
+    ActiveLocationControl[ActiveLocationControl["lastControlPoint"] = 1] = "lastControlPoint";
+    ActiveLocationControl[ActiveLocationControl["both"] = 2] = "both";
+    ActiveLocationControl[ActiveLocationControl["none"] = 3] = "none";
+    ActiveLocationControl[ActiveLocationControl["stopDeforming"] = 4] = "stopDeforming";
+})(ActiveLocationControl = exports.ActiveLocationControl || (exports.ActiveLocationControl = {}));
 var CurveShapeSpaceNavigator = /** @class */ (function () {
     function CurveShapeSpaceNavigator(curveModeler) {
         var _this = this;
         this._displacementCurrentCurveControlPolygon = [];
+        this._controlOfCurvatureExtrema = true;
+        this._controlOfInflection = true;
+        this._sliding = true;
+        this._controlOfCurveClamping = true;
         this._curveModeler = curveModeler;
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveModel = new CurveModel_1.CurveModel();
+        this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+        // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+        this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
@@ -46196,6 +45956,7 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator, this);
+        this.curveControlState = new CurveControlState_1.HandleNoDiffEventNoSlidingState(this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDesccriptor_1.CurveShapeSpaceDescriptor(this._currentCurve);
         this._eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
         this._slidingEventsAtExtremities = new ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties_1.CurveAnalyzerEventsSlidingOutOfInterval();
@@ -46215,6 +45976,26 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         this.changeNavigationState(new NavigationState_1.NavigationWithoutShapeSpaceMonitoring(this));
         console.log("end constructor curveShapeSpaceNavigator");
     }
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "controlOfCurvatureExtrema", {
+        get: function () {
+            return this._controlOfCurvatureExtrema;
+        },
+        set: function (controlOfCurvatureExtrema) {
+            this._controlOfCurvatureExtrema = controlOfCurvatureExtrema;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "controlOfInflection", {
+        get: function () {
+            return this._controlOfInflection;
+        },
+        set: function (controlOfInflection) {
+            this._controlOfInflection = controlOfInflection;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(CurveShapeSpaceNavigator.prototype, "curveConstraints", {
         get: function () {
             return this._curveConstraints;
@@ -46290,6 +46071,16 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "currentCurve", {
+        get: function () {
+            return this._currentCurve;
+        },
+        set: function (curve) {
+            this._currentCurve = curve;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(CurveShapeSpaceNavigator.prototype, "curveModeler", {
         // get navigationParams(): ShapeSpaceDiffEventsStructure {
         //     return this._navigationParameters;
@@ -46303,13 +46094,6 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     Object.defineProperty(CurveShapeSpaceNavigator.prototype, "shapeSpaceDescriptor", {
         get: function () {
             return this._shapeSpaceDescriptor;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeSpaceNavigator.prototype, "currentCurve", {
-        get: function () {
-            return this._currentCurve;
         },
         enumerable: false,
         configurable: true
@@ -46341,6 +46125,11 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     };
     CurveShapeSpaceNavigator.prototype.changeCurveState = function (state) {
         this._curveConstraintProcessor = state;
+    };
+    /* JCL test code debut */
+    CurveShapeSpaceNavigator.prototype.transitionTo = function (curveControlState) {
+        this.curveControlState = curveControlState;
+        this.curveControlState.setContext(this);
     };
     CurveShapeSpaceNavigator.prototype.navigateSpace = function (selectedControlPoint, x, y) {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, "navigateSpace", this.navigationState.constructor.name + " "
@@ -46414,6 +46203,68 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         optimizationProblem.weigthingFactors[this.currentControlPolygon.length] = 10;
         optimizationProblem.weigthingFactors[this.currentControlPolygon.length - 1] = 10;
         optimizationProblem.weigthingFactors[this.currentControlPolygon.length * 2 - 1] = 10;
+    };
+    CurveShapeSpaceNavigator.prototype.inputSelectNavigationProcess = function (navigationID) {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
+        warning.logMessageToConsole();
+        switch (navigationID) {
+            case 0: {
+                this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
+                break;
+            }
+            case 1: {
+                this.navigationState.setNavigationThroughSimplerShapeSpaces();
+                break;
+            }
+            case 2: {
+                this.navigationState.setNavigationStrictlyInsideShapeSpace();
+                break;
+            }
+            default: {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
+                error.logMessageToConsole();
+                break;
+            }
+        }
+        // JCL 2021/12/07 temporary setting to keep consistency between curvescenecontroller context and curveShapeSpaceNavigator context
+        // JCL 2021/12/07 should be removed when the curveScenceController context would be decomposed into (UI and graphics) and the curveShapeSpaceNavigator context on the other side
+        // this.navigationState = this.curveShapeSpaceNavigator.navigationState;
+    };
+    CurveShapeSpaceNavigator.prototype.toggleControlOfCurvatureExtrema = function () {
+        this.curveControl.toggleControlOfCurvatureExtrema();
+        this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema;
+        //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
+        /* JCL 2021/12/02 Add control state for new code architecture */
+        /* JCL 2021/12/02 controlOfCurvatureExtrema can be used to characterize the control state and set it appropriately when changing the navigation mode */
+        this.curveControlState.handleCurvatureExtrema();
+    };
+    CurveShapeSpaceNavigator.prototype.toggleControlOfInflections = function () {
+        this.curveControl.toggleControlOfInflections();
+        this.controlOfInflection = !this.controlOfInflection;
+        //console.log("control of inflections: " + this.controlOfInflection)
+        /* JCL 2021/12/02 Add control state for new code architecture */
+        /* JCL 2021/12/02 controlOfInflection can be used to characterize the control state and set it appropriately when changing the navigation mode */
+        this.curveControlState.handleInflections();
+    };
+    CurveShapeSpaceNavigator.prototype.toggleSliding = function () {
+        if (this.curveModel !== undefined) {
+            if (this._sliding) {
+                this._sliding = false;
+                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+                //console.log("constrol of inflections: " + this.controlOfInflection)
+                this.curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
+            }
+            else {
+                this._sliding = true;
+                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+                //console.log("constrol of inflections: " + this.controlOfInflection)
+                // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            }
+        }
+        else
+            throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model");
+        /* JCL 2021/10/12 Add curveControlState for new code architecture */
+        this.curveControlState.handleSliding();
     };
     return CurveShapeSpaceNavigator;
 }());
@@ -46954,6 +46805,7 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
 var FileController = /** @class */ (function () {
     function FileController(curveModel, curveSceneController) {
+        this.observers = [];
         this._curveModel = curveModel;
         this._curveSceneController = curveSceneController;
     }
@@ -46964,6 +46816,18 @@ var FileController = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    FileController.prototype.registerObserver = function (observer) {
+        this.observers.push(observer);
+    };
+    FileController.prototype.removeObserver = function (observer) {
+        this.observers.splice(this.observers.indexOf(observer), 1);
+    };
+    FileController.prototype.notifyObservers = function () {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var observer = _a[_i];
+            observer.update(this._curveModel);
+        }
+    };
     /* JCL 2020/10/13 Add curve serialization to file */
     FileController.prototype.saveCurveToFile = function (currentFileName) {
         if (this._curveModel !== undefined) {
@@ -47001,6 +46865,7 @@ var FileController = /** @class */ (function () {
     FileController.prototype.resetCurveContext = function (knots, controlPoints) {
         if (this._curveModel !== undefined) {
             this._curveModel = new CurveModel_1.CurveModel(knots, controlPoints);
+            this.notifyObservers();
             this._curveSceneController.curveModel = this._curveModel;
             this._curveSceneController.initCurveSceneView();
         }
@@ -47012,181 +46877,6 @@ var FileController = /** @class */ (function () {
     return FileController;
 }());
 exports.FileController = FileController;
-
-
-/***/ }),
-
-/***/ "./src/filecontrollers/FileEventListener.ts":
-/*!**************************************************!*\
-  !*** ./src/filecontrollers/FileEventListener.ts ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.fileEventListener = void 0;
-var ChartEventListener_1 = __webpack_require__(/*! ../chartviews/ChartEventListener */ "./src/chartviews/ChartEventListener.ts");
-var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
-var FileController_1 = __webpack_require__(/*! ./FileController */ "./src/filecontrollers/FileController.ts");
-function fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface) {
-    /* JCL 2020/10/13 Get input IDs for file management purposes */
-    var buttonFileLoad = document.getElementById("buttonFileLoad");
-    var buttonFileSave = document.getElementById("buttonFileSave");
-    var inputFileLoad = document.getElementById("inputFileLoad");
-    var inputFileSave = document.getElementById("inputFileSave");
-    var inputFileName = document.getElementById("inputFileName");
-    var validateInput = document.getElementById("validateInput");
-    var labelFileExtension = document.getElementById("labelFileExtension");
-    var fileR = new FileReader();
-    var aString = "";
-    var fileController = new FileController_1.FileController(sceneController.curveModel, sceneController);
-    function buttonFileLoadCurve(ev) {
-        if (inputFileLoad !== null)
-            inputFileLoad.click();
-    }
-    function buttonFileSaveCurve(ev) {
-        if (curveShapeModelerUserInterface.currentFileName === "") {
-            inputFileName.style.display = "inline";
-            labelFileExtension.style.display = "inline";
-            validateInput.style.display = "inline";
-        }
-        else {
-            fileController.saveCurveToFile(curveShapeModelerUserInterface.currentFileName);
-        }
-        ev.preventDefault();
-    }
-    function inputLoadFileCurve() {
-        var _a;
-        if (inputFileLoad !== null) {
-            var aFileList = inputFileLoad.files;
-            if (aFileList !== null && aFileList.length > 0) {
-                if (((_a = aFileList.item(0)) === null || _a === void 0 ? void 0 : _a.name) !== undefined) {
-                    var curveFile = aFileList.item(0);
-                    if (curveFile !== null) {
-                        inputFileLoad.value = "";
-                        curveShapeModelerUserInterface.currentFileName = curveFile.name;
-                        if (curveShapeModelerUserInterface.currentFileName.indexOf(".json") !== -1) {
-                            fileR.readAsText(curveFile);
-                        }
-                        else if (curveShapeModelerUserInterface.currentFileName.indexOf(".png") !== -1) {
-                            console.log("read an image");
-                            fileR.readAsArrayBuffer(curveFile);
-                            /* for test purposes to load an image
-                            // iconKnotInsertion.src = currentFileName
-                            //imageFile = curveFile*/
-                        }
-                    }
-                }
-            }
-        }
-    }
-    function inputSaveFileCurve() {
-    }
-    function inputCurveFileName() {
-    }
-    function inputButtonValidate() {
-        curveShapeModelerUserInterface.currentFileName = inputFileName.value;
-        console.log("inputButtonValidate:" + inputFileName.value);
-        inputFileName.style.display = "none";
-        labelFileExtension.style.display = "none";
-        validateInput.style.display = "none";
-        fileController.saveCurveToFile(curveShapeModelerUserInterface.currentFileName);
-    }
-    function getFileContent(ev) {
-        if (ev.target !== null)
-            console.log("Reading the file" + curveShapeModelerUserInterface.currentFileName);
-        if (fileR.readyState === fileR.DONE) {
-            if (fileR.result !== null) {
-                aString = "";
-                if (typeof fileR.result === "string") {
-                    aString = fileR.result.toString();
-                    return;
-                }
-                else {
-                    /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
-                    if (curveShapeModelerUserInterface.currentFileName.indexOf(".png") !== -1) {
-                        console.log("Input file is an image. No need to reinitialize curve controls.");
-                        return;
-                    }
-                }
-            }
-            else {
-                var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Error when reading the input file. Incorrect text format.");
-                error.logMessageToConsole();
-            }
-        }
-    }
-    function updateCurveDegreeSelector(aSpline) {
-        var newCurveDegree = aSpline.degree;
-        if (newCurveDegree >= CurveModel_1.DEFAULT_CURVE_DEGREE) {
-            var optionNumber = Number(curveShapeModelerUserInterface.currentCurveDegree) - CurveModel_1.DEFAULT_CURVE_DEGREE + 1;
-            var optionName = "option";
-            var option = void 0;
-            for (var i = 1; i < (newCurveDegree - CurveModel_1.DEFAULT_CURVE_DEGREE + 1); i += 1) {
-                option = document.getElementById(optionName + i.toString());
-                if (option !== null)
-                    option.setAttribute("disabled", "");
-                else
-                    throw new Error('No id found to identify an Option in the Selector');
-            }
-            option = document.getElementById(optionName + optionNumber);
-            option.removeAttribute("selected");
-            option = document.getElementById(optionName + (newCurveDegree - 2).toString());
-            option.setAttribute("selected", "selected");
-            curveShapeModelerUserInterface.currentCurveDegree = newCurveDegree.toString();
-            curveShapeModelerUserInterface.inputDegree.click();
-        }
-        else {
-            var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
-            error.logMessageToConsole();
-        }
-    }
-    function resetCurveShapeControlButtons() {
-        if (!sceneController.sliding) {
-            curveShapeModelerUserInterface.toggleButtonSliding.click();
-        }
-        if (!sceneController.controlOfCurvatureExtrema) {
-            curveShapeModelerUserInterface.toggleButtonCurvatureExtrema.click();
-        }
-        if (!sceneController.controlOfInflection) {
-            curveShapeModelerUserInterface.toggleButtonInflection.click();
-        }
-        if (!sceneController.controlOfCurveClamping) {
-            curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
-        }
-    }
-    function processInputFile(ev) {
-        getFileContent(ev);
-        var aSpline = fileController.loadCurveFromFile(aString);
-        if (typeof (aSpline) !== "undefined") {
-            updateCurveDegreeSelector(aSpline);
-            resetCurveShapeControlButtons();
-            fileController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-            if (sceneController.curveModel === undefined) {
-                var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
-                error.logMessageToConsole();
-                return;
-            }
-            ChartEventListener_1.resetChartContext(chartSceneController, sceneController.curveModel);
-        }
-        else {
-            var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to reset the curve context. Undefined curve model.");
-            error.logMessageToConsole();
-        }
-    }
-    /* JCL 2020/10/13 Add event handlers for file processing */
-    buttonFileLoad.addEventListener('click', buttonFileLoadCurve);
-    buttonFileSave.addEventListener('click', buttonFileSaveCurve);
-    inputFileLoad.addEventListener('input', inputLoadFileCurve);
-    inputFileSave.addEventListener('input', inputSaveFileCurve);
-    inputFileName.addEventListener('input', inputCurveFileName);
-    validateInput.addEventListener('click', inputButtonValidate);
-    fileR.addEventListener('load', processInputFile);
-}
-exports.fileEventListener = fileEventListener;
 
 
 /***/ }),
@@ -48146,11 +47836,11 @@ exports.main = void 0;
 var CurveSceneController_1 = __webpack_require__(/*! ./controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
 var webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
 var cuon_utils_1 = __webpack_require__(/*! ./webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-var ErrorLoging_1 = __webpack_require__(/*! ./errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var ChartEventListener_1 = __webpack_require__(/*! ./chartviews/ChartEventListener */ "./src/chartviews/ChartEventListener.ts");
-var FileEventListener_1 = __webpack_require__(/*! ./filecontrollers/FileEventListener */ "./src/filecontrollers/FileEventListener.ts");
-var CurveShapeModelerUserInterface_1 = __webpack_require__(/*! ./userInterfaceConntroller/CurveShapeModelerUserInterface */ "./src/userInterfaceConntroller/CurveShapeModelerUserInterface.ts");
-var CurveModelEventListener_1 = __webpack_require__(/*! ./curveModeler/CurveModelEventListener */ "./src/curveModeler/CurveModelEventListener.ts");
+// import { chartEventListener } from "./chartviews/ChartEventListener";
+// import { fileEventListener } from "./filecontrollers/FileEventListener";
+// import { CurveShapeModelerUserInterface } from "./userInterfaceController/CurveShapeModelerUserInterface";
+// import { curveModelEventListener } from "./curveModeler/CurveModelEventListener";
+var UserInterfaceEventListener_1 = __webpack_require__(/*! ./userInterfaceController/UserInterfaceEventListener */ "./src/userInterfaceController/UserInterfaceEventListener.ts");
 function main() {
     var VSHADER_SOURCE = 'attribute vec4 a_position;\n' +
         'attribute vec2 a_texcoord;\n' +
@@ -48226,17 +47916,16 @@ function main() {
         texture: tex,
     };
     iconKnotInsertion = new Image();
-    /* JCL 2020/09/09 Generate the scenecontroller with the graphic area only in a first step to add scenecontrollers as required by the user*/
-    var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl);
-    if (sceneController.curveModel === undefined) {
-        var error = new ErrorLoging_1.ErrorLog("main", "", "Unable to create a chartSceneController because of undefined curveModel.");
-        error.logMessageToConsole();
-        return;
-    }
-    var curveShapeModelerUserInterface = new CurveShapeModelerUserInterface_1.CurveShapeModelerUserInterface();
-    var curveModel = CurveModelEventListener_1.curveModelEventListener(curveShapeModelerUserInterface);
-    var chartSceneController = ChartEventListener_1.chartEventListener(sceneController.curveModel);
-    FileEventListener_1.fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface);
+    var curveModelerEventListener = new UserInterfaceEventListener_1.CurveModelerEventListener();
+    var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl, curveModelerEventListener.curveModel);
+    var shapeSpaceNavigationEventListener = new UserInterfaceEventListener_1.ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
+    // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener.curveModel);
+    var chartEventListener = new UserInterfaceEventListener_1.ChartEventListener(curveModelerEventListener.curveModel);
+    var fileEventListener = new UserInterfaceEventListener_1.FileEventListener(curveModelerEventListener.curveModel, chartEventListener, curveModelerEventListener, shapeSpaceNavigationEventListener, sceneController);
+    // const curveShapeModelerUserInterface = new CurveShapeModelerUserInterface();
+    // const curveModel = curveModelEventListener(curveShapeModelerUserInterface);
+    // const chartSceneController = chartEventListener(sceneController.curveModel);
+    // fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface);
     function mouse_get_NormalizedDeviceCoordinates(event) {
         var x, y, rect = canvas.getBoundingClientRect(), ev;
         ev = event;
@@ -48263,8 +47952,9 @@ function main() {
         var active_clamping = sceneController.dbleClick_event(c[0], c[1], 0.0005);
         sceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
+        // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
         if (!active_clamping)
-            curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
+            shapeSpaceNavigationEventListener.toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
     function mouse_drag(ev) {
@@ -48293,18 +47983,6 @@ function main() {
         sceneController.leftMouseUp_event();
         ev.preventDefault();
     }
-    function toggleControlOfCurvatureExtrema() {
-        sceneController.toggleControlOfCurvatureExtrema();
-    }
-    function toggleControlOfInflections() {
-        sceneController.toggleControlOfInflections();
-    }
-    function toggleSliding() {
-        sceneController.toggleSliding();
-    }
-    function toggleCurveClamping() {
-        sceneController.toggleCurveClamping();
-    }
     function keyDown(ev) {
         var keyName = ev.key;
         if (keyName === "Shift")
@@ -48315,44 +47993,37 @@ function main() {
         if (keyName === "Shift")
             sceneController.shiftKeyUp();
     }
-    function inputSelectDegree() {
-        console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
-        var optionName = "option";
-        var curveDegree;
-        if (!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))) {
-            curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
-            curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
-            sceneController.inputSelectDegree(curveDegree);
-            if (curveDegree > 3) {
-                for (var i = 1; i < (curveDegree - 2); i += 1) {
-                    console.log("select" + optionName + i.toString());
-                    var option = document.getElementById(optionName + i.toString());
-                    if (option !== null)
-                        option.setAttribute("disabled", "");
-                    else
-                        throw new Error('No id found to identify an Option in the Selector');
-                }
-            }
-        }
-        else {
-            throw new Error('The selected option cannot be converted into a Number');
-        }
-    }
-    function inputSelectNavigationMode() {
-        console.log("select" + curveShapeModelerUserInterface.inputNavigationMode.value);
-        var navigationMode;
-        navigationMode = Number(curveShapeModelerUserInterface.inputNavigationMode.value);
-        curveShapeModelerUserInterface.currentNavigationMode = curveShapeModelerUserInterface.inputNavigationMode.value;
-        sceneController.inputSelectNavigationProcess(navigationMode);
-    }
-    function clickSelectDegree() {
-        console.log("select Degree click");
-        curveShapeModelerUserInterface.inputDegree.value = curveShapeModelerUserInterface.currentCurveDegree;
-    }
-    function clickNavigationMode() {
-        console.log("select Navigation click");
-        curveShapeModelerUserInterface.inputNavigationMode.value = curveShapeModelerUserInterface.currentNavigationMode;
-    }
+    // function inputSelectDegree() {
+    //     console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
+    //     let optionName = "option"
+    //     let curveDegree: number;
+    //     if(!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))){
+    //         curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
+    //         curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
+    //         sceneController.inputSelectDegree(curveDegree);
+    //         if(curveDegree > 3) {
+    //             for(let i = 1; i < (curveDegree - 2); i += 1) {
+    //                 console.log("select" + optionName + i.toString());
+    //                 let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
+    //                 if(option !== null) option.setAttribute("disabled", "");
+    //                 else throw new Error('No id found to identify an Option in the Selector');
+    //             }
+    //         }
+    //     } else {
+    //           throw new Error('The selected option cannot be converted into a Number');
+    //     }
+    // }
+    // function inputSelectNavigationMode() {
+    //     console.log("select" + curveShapeModelerUserInterface.inputNavigationMode.value);
+    //     let navigationMode: number;
+    //     navigationMode = Number(curveShapeModelerUserInterface.inputNavigationMode.value);
+    //     curveShapeModelerUserInterface.currentNavigationMode = curveShapeModelerUserInterface.inputNavigationMode.value;
+    //     sceneController.inputSelectNavigationProcess(navigationMode);
+    // }
+    // function clickNavigationMode() {
+    //     console.log("select Navigation click");
+    //     curveShapeModelerUserInterface.inputNavigationMode.value = curveShapeModelerUserInterface.currentNavigationMode;
+    // }
     function processInputTexture() {
         textureInfo.width = iconKnotInsertion.width;
         textureInfo.height = iconKnotInsertion.height;
@@ -48419,15 +48090,9 @@ function main() {
     canvas.addEventListener('touchend', touch_stop_drag, false);
     /* JCL 2020/09/25 Add dble click event processing */
     canvas.addEventListener('dblclick', mouse_double_click, false);
-    curveShapeModelerUserInterface.toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema);
-    curveShapeModelerUserInterface.toggleButtonInflection.addEventListener('click', toggleControlOfInflections);
-    curveShapeModelerUserInterface.toggleButtonSliding.addEventListener('click', toggleSliding);
-    curveShapeModelerUserInterface.toggleButtonCurveClamping.addEventListener('click', toggleCurveClamping);
     /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-    curveShapeModelerUserInterface.inputDegree.addEventListener('input', inputSelectDegree);
-    curveShapeModelerUserInterface.inputDegree.addEventListener('click', clickSelectDegree);
-    curveShapeModelerUserInterface.inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
-    curveShapeModelerUserInterface.inputNavigationMode.addEventListener('click', clickNavigationMode);
+    // curveShapeModelerUserInterface.inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
+    // curveShapeModelerUserInterface.inputNavigationMode.addEventListener('click', clickNavigationMode);
     iconKnotInsertion.addEventListener('load', processInputTexture);
     document.body.addEventListener('keydown', keyDown);
     document.body.addEventListener('keyup', keyUp);
@@ -49477,8 +49142,9 @@ var CurveModel = /** @class */ (function () {
         this.observers.splice(this.observers.indexOf(observer), 1);
     };
     CurveModel.prototype.notifyObservers = function () {
-        for (var i = 0; i < this.observers.length; i += 1) {
-            this.observers[i].update(this.spline);
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var observer = _a[_i];
+            observer.update(this.spline);
         }
     };
     CurveModel.prototype.moveControlPoint = function (controlPointIndex, deltaX, deltaY) {
@@ -49502,6 +49168,112 @@ var CurveModel = /** @class */ (function () {
     return CurveModel;
 }());
 exports.CurveModel = CurveModel;
+
+
+/***/ }),
+
+/***/ "./src/models/CurveModelObserver.ts":
+/*!******************************************!*\
+  !*** ./src/models/CurveModelObserver.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CurveModelObserverInShapeSpaceNavigationEventListener = exports.CurveModelObserverInCurveModelEventListener = exports.CurveModelObserverInChartEventListener = void 0;
+var CurveModel_1 = __webpack_require__(/*! ./CurveModel */ "./src/models/CurveModel.ts");
+var CurveModelObserver = /** @class */ (function () {
+    function CurveModelObserver() {
+    }
+    return CurveModelObserver;
+}());
+var CurveModelObserverInChartEventListener = /** @class */ (function (_super) {
+    __extends(CurveModelObserverInChartEventListener, _super);
+    function CurveModelObserverInChartEventListener(listener) {
+        var _this = _super.call(this) || this;
+        _this.listener = listener;
+        return _this;
+    }
+    CurveModelObserverInChartEventListener.prototype.update = function (message) {
+        if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+            this.listener.curveModel = message;
+            this.listener.resetChartContext();
+        }
+    };
+    CurveModelObserverInChartEventListener.prototype.reset = function (message) {
+        var curveModel = new CurveModel_1.CurveModel();
+        if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+            this.listener.curveModel = curveModel;
+        }
+    };
+    return CurveModelObserverInChartEventListener;
+}(CurveModelObserver));
+exports.CurveModelObserverInChartEventListener = CurveModelObserverInChartEventListener;
+var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_super) {
+    __extends(CurveModelObserverInCurveModelEventListener, _super);
+    function CurveModelObserverInCurveModelEventListener(listener) {
+        var _this = _super.call(this) || this;
+        _this.listener = listener;
+        return _this;
+    }
+    CurveModelObserverInCurveModelEventListener.prototype.update = function (message) {
+        if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+            this.listener.curveModel = message;
+            this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = message;
+            this.listener.curveModeler.curveShapeSpaceNavigator.currentCurve = message.spline;
+            var degree = message.spline.degree;
+            this.listener.updateCurveDegreeSelector(degree);
+        }
+    };
+    CurveModelObserverInCurveModelEventListener.prototype.reset = function (message) {
+        var curveModel = new CurveModel_1.CurveModel();
+        if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+            this.listener.curveModel = curveModel;
+            this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = curveModel;
+        }
+    };
+    return CurveModelObserverInCurveModelEventListener;
+}(CurveModelObserver));
+exports.CurveModelObserverInCurveModelEventListener = CurveModelObserverInCurveModelEventListener;
+var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (function (_super) {
+    __extends(CurveModelObserverInShapeSpaceNavigationEventListener, _super);
+    function CurveModelObserverInShapeSpaceNavigationEventListener(listener) {
+        var _this = _super.call(this) || this;
+        _this.listener = listener;
+        return _this;
+    }
+    CurveModelObserverInShapeSpaceNavigationEventListener.prototype.update = function (message) {
+        var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+        if (curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel')) {
+            this.listener.curveShapeSpaceNavigator.curveModel = message;
+            this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
+            this.listener.resetCurveShapeControlButtons();
+        }
+    };
+    CurveModelObserverInShapeSpaceNavigationEventListener.prototype.reset = function (message) {
+        var curveModel = new CurveModel_1.CurveModel();
+        if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+            this.listener.curveShapeSpaceNavigator.curveModel = curveModel;
+        }
+    };
+    return CurveModelObserverInShapeSpaceNavigationEventListener;
+}(CurveModelObserver));
+exports.CurveModelObserverInShapeSpaceNavigationEventListener = CurveModelObserverInShapeSpaceNavigationEventListener;
 
 
 /***/ }),
@@ -51705,70 +51477,345 @@ exports.SequenceOfIntervals = SequenceOfIntervals;
 
 /***/ }),
 
-/***/ "./src/userInterfaceConntroller/CurveShapeModelerUserInterface.ts":
-/*!************************************************************************!*\
-  !*** ./src/userInterfaceConntroller/CurveShapeModelerUserInterface.ts ***!
-  \************************************************************************/
+/***/ "./src/userInterfaceController/UserInterfaceEventListener.ts":
+/*!*******************************************************************!*\
+  !*** ./src/userInterfaceController/UserInterfaceEventListener.ts ***!
+  \*******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveShapeModelerUserInterface = void 0;
-var CurveShapeModelerUserInterface = /** @class */ (function () {
-    function CurveShapeModelerUserInterface() {
-        /* Get control button IDs for curve shape control*/
-        this._toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
-        this._toggleButtonInflection = document.getElementById("toggleButtonInflections");
-        this._toggleButtonSliding = document.getElementById("toggleButtonSliding");
-        this._toggleButtonCurveClamping = document.getElementById("toggleButtonCurveClamping");
-        /* Get control button IDs for curve shape control*/
-        this._currentNavigationMode = "0";
-        this._inputNavigationMode = document.getElementById("navigationMode");
+exports.ShapeSpaceNavigationEventListener = exports.CurveModelerEventListener = exports.FileEventListener = exports.ChartEventListener = void 0;
+var ChartSceneController_1 = __webpack_require__(/*! ../chartcontrollers/ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./src/curveModeler/CurveModeler.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var FileController_1 = __webpack_require__(/*! ../filecontrollers/FileController */ "./src/filecontrollers/FileController.ts");
+var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
+var CurveModelObserver_1 = __webpack_require__(/*! ../models/CurveModelObserver */ "./src/models/CurveModelObserver.ts");
+// export abstract class UserInterfaceEventListener {
+// }
+// export class ChartEventListener extends UserInterfaceEventListener {
+var ChartEventListener = /** @class */ (function () {
+    // private  static a: ChartEventListener
+    function ChartEventListener(curveModel) {
+        this.chartRenderingContext = [];
+        // super();
+        // ChartEventListener.a = this
+        this._curveModel = curveModel;
+        this.canvasChart1 = document.getElementById('chart1');
+        this.canvasChart2 = document.getElementById('chart2');
+        this.canvasChart3 = document.getElementById('chart3');
+        this.checkBoxFunctionA = document.getElementById("chkBoxFunctionA");
+        this.checkBoxFunctionB = document.getElementById("chkBoxFunctionB");
+        this.checkBoxFunctionBsqrtScaled = document.getElementById("chkBoxSqrtFunctionB");
+        this.checkBoxCurvature = document.getElementById("chkBoxCurvature");
+        this.checkBoxAbsCurvature = document.getElementById("chkBoxAbsCurvature");
+        this.chartFunctionA = false;
+        this.chartFunctionB = false;
+        this.chartCurvatureCrv = false;
+        this.chartAbsCurvatureCurv = false;
+        this.chartFunctionBsqrtScaled = false;
+        this.noAddChart = false;
+        this.ctxChart1 = this.canvasChart1.getContext('2d');
+        this.ctxChart2 = this.canvasChart2.getContext('2d');
+        this.ctxChart3 = this.canvasChart3.getContext('2d');
+        this.setupChartRenderingContexts();
+        this._chartSceneController = new ChartSceneController_1.ChartSceneController(this.chartRenderingContext, this._curveModel);
+        /* Add event handlers for checkbox processing */
+        this.checkBoxFunctionA.addEventListener('click', this.chkboxFunctionA.bind(this));
+        this.checkBoxFunctionB.addEventListener('click', this.chkboxFunctionB.bind(this));
+        this.checkBoxFunctionBsqrtScaled.addEventListener('click', this.chkboxFunctionBsqrtScaled.bind(this));
+        this.checkBoxCurvature.addEventListener('click', this.chkboxCurvature.bind(this));
+        this.checkBoxAbsCurvature.addEventListener('click', this.chkboxAbsCurvature.bind(this));
+    }
+    Object.defineProperty(ChartEventListener.prototype, "chartSceneController", {
+        get: function () {
+            return this._chartSceneController;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ChartEventListener.prototype, "curveModel", {
+        get: function () {
+            return this._curveModel;
+        },
+        set: function (curveModel) {
+            this._curveModel = curveModel;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ChartEventListener.prototype.setupChartRenderingContexts = function () {
+        if (this.ctxChart1 !== null)
+            this.chartRenderingContext.push(this.ctxChart1);
+        if (this.ctxChart2 !== null)
+            this.chartRenderingContext.push(this.ctxChart2);
+        if (this.ctxChart3 !== null)
+            this.chartRenderingContext.push(this.ctxChart3);
+        if (this.ctxChart1 === null || this.ctxChart2 === null || this.ctxChart3 === null) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "setupChartRenderingContexts", "Unable to get one or more CanvasRenderingContext2D required to process charts.");
+            error.logMessageToConsole();
+        }
+    };
+    ChartEventListener.prototype.uncheckCkbox = function () {
+        console.log("uncheckChart " + this._chartSceneController.uncheckedChart);
+        if (ChartSceneController_1.CHART_TITLES.indexOf(this._chartSceneController.uncheckedChart) !== -1) {
+            this.noAddChart = true;
+            switch (this._chartSceneController.uncheckedChart) {
+                case ChartSceneController_1.CHART_TITLES[0]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[0]);
+                    this.checkBoxFunctionA.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[1]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[1]);
+                    this.checkBoxFunctionB.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[2]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[2]);
+                    this.checkBoxCurvature.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[3]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[3]);
+                    this.checkBoxAbsCurvature.click();
+                    break;
+                case ChartSceneController_1.CHART_TITLES[4]:
+                    console.log("uncheck " + ChartSceneController_1.CHART_TITLES[4]);
+                    this.checkBoxFunctionBsqrtScaled.click();
+                    break;
+            }
+        }
+        this._chartSceneController.resetUncheckedChart();
+        this.noAddChart = false;
+    };
+    ChartEventListener.prototype.chkboxFunctionA = function () {
+        // if(ChartEventListener.a.chartFunctionA) {
+        if (this.chartFunctionA) {
+            this.chartFunctionA = false;
+            if (!this.noAddChart)
+                this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
+        }
+        else {
+            this.chartFunctionA = true;
+            this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[0]);
+            this.uncheckCkbox();
+        }
+    };
+    ChartEventListener.prototype.chkboxFunctionB = function () {
+        if (this.chartFunctionB) {
+            this.chartFunctionB = false;
+            if (!this.noAddChart)
+                this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
+        }
+        else {
+            this.chartFunctionB = true;
+            this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[1]);
+            this.uncheckCkbox();
+        }
+    };
+    ChartEventListener.prototype.chkboxFunctionBsqrtScaled = function () {
+        if (this.chartFunctionBsqrtScaled) {
+            this.chartFunctionBsqrtScaled = false;
+            if (!this.noAddChart)
+                this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
+        }
+        else {
+            this.chartFunctionBsqrtScaled = true;
+            this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[4]);
+            this.uncheckCkbox();
+        }
+    };
+    ChartEventListener.prototype.chkboxCurvature = function () {
+        if (this.chartCurvatureCrv) {
+            this.chartCurvatureCrv = false;
+            if (!this.noAddChart)
+                this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
+        }
+        else {
+            this.chartCurvatureCrv = true;
+            this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[2]);
+            this.uncheckCkbox();
+        }
+    };
+    ChartEventListener.prototype.chkboxAbsCurvature = function () {
+        if (this.chartAbsCurvatureCurv) {
+            this.chartAbsCurvatureCurv = false;
+            if (!this.noAddChart)
+                this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
+        }
+        else {
+            this.chartAbsCurvatureCurv = true;
+            this._chartSceneController.addChart(ChartSceneController_1.CHART_TITLES[3]);
+            this.uncheckCkbox();
+        }
+    };
+    ChartEventListener.prototype.resetChartContext = function () {
+        this._chartSceneController.restart(this._curveModel);
+        this.noAddChart = true;
+        if (this.chartFunctionA)
+            this.checkBoxFunctionA.click();
+        if (this.chartFunctionB)
+            this.checkBoxFunctionB.click();
+        if (this.chartCurvatureCrv)
+            this.checkBoxCurvature.click();
+        if (this.chartAbsCurvatureCurv)
+            this.checkBoxAbsCurvature.click();
+        if (this.chartFunctionBsqrtScaled)
+            this.checkBoxFunctionBsqrtScaled.click();
+        this.noAddChart = false;
+    };
+    return ChartEventListener;
+}());
+exports.ChartEventListener = ChartEventListener;
+// export class FileEventListener extends UserInterfaceEventListener {
+var FileEventListener = /** @class */ (function () {
+    function FileEventListener(curveModel, chartEventListener, curveModelEventListener, shapeSpaceNavigationEventListener, curveSceneController) {
+        // super();
+        this.curveModel = curveModel;
+        this.chartEventListener = chartEventListener;
+        this.curveModelEventListener = curveModelEventListener;
+        this.shapeSpaceNavigationEventListener = shapeSpaceNavigationEventListener;
+        this.curveSceneController = curveSceneController;
+        /* JCL 2020/10/13 Get input IDs for file management purposes */
+        this.buttonFileLoad = document.getElementById("buttonFileLoad");
+        this.buttonFileSave = document.getElementById("buttonFileSave");
+        this.inputFileLoad = document.getElementById("inputFileLoad");
+        this.inputFileSave = document.getElementById("inputFileSave");
+        this.inputFileName = document.getElementById("inputFileName");
+        this.validateInput = document.getElementById("validateInput");
+        this.labelFileExtension = document.getElementById("labelFileExtension");
+        this.fileR = new FileReader();
+        this.fileController = new FileController_1.FileController(this.curveModel, this.curveSceneController);
+        this.currentFileName = "";
+        this.fileController.registerObserver(new CurveModelObserver_1.CurveModelObserverInChartEventListener(this.chartEventListener));
+        this.fileController.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveModelEventListener(this.curveModelEventListener));
+        this.fileController.registerObserver(new CurveModelObserver_1.CurveModelObserverInShapeSpaceNavigationEventListener(this.shapeSpaceNavigationEventListener));
+        /* JCL 2020/10/13 Add event handlers for file processing */
+        this.buttonFileLoad.addEventListener('click', this.buttonFileLoadCurve.bind(this));
+        this.buttonFileSave.addEventListener('click', this.buttonFileSaveCurve.bind(this));
+        this.inputFileLoad.addEventListener('input', this.inputLoadFileCurve.bind(this));
+        this.inputFileSave.addEventListener('input', this.inputSaveFileCurve.bind(this));
+        this.inputFileName.addEventListener('input', this.inputCurveFileName.bind(this));
+        this.validateInput.addEventListener('click', this.inputButtonValidate.bind(this));
+        this.fileR.addEventListener('load', this.processInputFile.bind(this));
+    }
+    FileEventListener.prototype.buttonFileLoadCurve = function (ev) {
+        if (this.inputFileLoad !== null)
+            this.inputFileLoad.click();
+    };
+    FileEventListener.prototype.buttonFileSaveCurve = function (ev) {
+        if (this.currentFileName === "") {
+            this.inputFileName.style.display = "inline";
+            this.labelFileExtension.style.display = "inline";
+            this.validateInput.style.display = "inline";
+        }
+        else {
+            this.fileController.saveCurveToFile(this.currentFileName);
+        }
+        ev.preventDefault();
+    };
+    FileEventListener.prototype.inputLoadFileCurve = function () {
+        var _a;
+        if (this.inputFileLoad !== null) {
+            var aFileList = this.inputFileLoad.files;
+            if (aFileList !== null && aFileList.length > 0) {
+                if (((_a = aFileList.item(0)) === null || _a === void 0 ? void 0 : _a.name) !== undefined) {
+                    var curveFile = aFileList.item(0);
+                    if (curveFile !== null) {
+                        this.inputFileLoad.value = "";
+                        this.currentFileName = curveFile.name;
+                        if (this.currentFileName.indexOf(".json") !== -1) {
+                            this.fileR.readAsText(curveFile);
+                        }
+                        else if (this.currentFileName.indexOf(".png") !== -1) {
+                            console.log("read an image");
+                            this.fileR.readAsArrayBuffer(curveFile);
+                            /* for test purposes to load an image
+                            // iconKnotInsertion.src = currentFileName
+                            //imageFile = curveFile*/
+                        }
+                    }
+                }
+            }
+        }
+    };
+    FileEventListener.prototype.inputSaveFileCurve = function () {
+    };
+    FileEventListener.prototype.inputCurveFileName = function () {
+    };
+    FileEventListener.prototype.inputButtonValidate = function () {
+        this.currentFileName = this.inputFileName.value;
+        console.log("inputButtonValidate:" + this.inputFileName.value);
+        this.inputFileName.style.display = "none";
+        this.labelFileExtension.style.display = "none";
+        this.validateInput.style.display = "none";
+        this.fileController.saveCurveToFile(this.currentFileName);
+    };
+    FileEventListener.prototype.getFileContent = function (ev) {
+        if (ev.target !== null)
+            console.log("Reading the file: " + this.currentFileName);
+        if (this.fileR.readyState === this.fileR.DONE) {
+            if (this.fileR.result !== null) {
+                this.currentFileName = "";
+                if (typeof this.fileR.result === "string") {
+                    this.currentFileName = this.fileR.result.toString();
+                    return;
+                }
+                else {
+                    /* JCL 2020/10/16 fileR.result is of type ArrayBuffer */
+                    if (this.currentFileName.indexOf(".png") !== -1) {
+                        console.log("Input file is an image. No need to reinitialize curve controls.");
+                        return;
+                    }
+                }
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Error when reading the input file. Incorrect text format.");
+                error.logMessageToConsole();
+            }
+        }
+    };
+    FileEventListener.prototype.processInputFile = function (ev) {
+        this.getFileContent(ev);
+        var aSpline = this.fileController.loadCurveFromFile(this.currentFileName);
+        if (typeof (aSpline) !== "undefined") {
+            this.fileController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+            this.curveModel = this.fileController.curveModel;
+            if (this.curveModel === undefined) {
+                var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
+                error.logMessageToConsole();
+                return;
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to reset the curve context. Undefined curve model.");
+            error.logMessageToConsole();
+        }
+    };
+    return FileEventListener;
+}());
+exports.FileEventListener = FileEventListener;
+// export class CurveModelerEventListener extends UserInterfaceEventListener {
+var CurveModelerEventListener = /** @class */ (function () {
+    function CurveModelerEventListener() {
+        // super();
         /* Get selector ID for curve category and degree*/
         this._currentCurveDegree = "3";
         this._currentCurveCategory = "0";
         this._inputCurveCategory = document.getElementById("curveCategory");
         this._inputDegree = document.getElementById("curveDegree");
-        this._currentFileName = "";
+        // to be used later
+        this._curveModeler = new CurveModeler_1.CurveModeler();
+        this._curveModel = new CurveModel_1.CurveModel();
+        this.activeLocationControl = this._curveModeler.curveShapeSpaceNavigator.activeLocationControl;
+        /* JCL  Add event handlers for curve degree and curve category selection processing */
+        this._inputDegree.addEventListener('input', this.inputSelectDegree.bind(this));
+        this._inputDegree.addEventListener('click', this.clickSelectDegree.bind(this));
+        this._inputCurveCategory.addEventListener('input', this.inputSelectCurveCategory.bind(this));
+        this._inputCurveCategory.addEventListener('click', this.clickCurveCategory.bind(this));
     }
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "toggleButtonCurvatureExtrema", {
-        get: function () {
-            return this._toggleButtonCurvatureExtrema;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "toggleButtonInflection", {
-        get: function () {
-            return this._toggleButtonInflection;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "toggleButtonSliding", {
-        get: function () {
-            return this._toggleButtonSliding;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "toggleButtonCurveClamping", {
-        get: function () {
-            return this._toggleButtonCurveClamping;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "inputDegree", {
-        get: function () {
-            return this._inputDegree;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "currentCurveDegree", {
+    Object.defineProperty(CurveModelerEventListener.prototype, "currentCurveDegree", {
         get: function () {
             return this._currentCurveDegree;
         },
@@ -51778,53 +51825,205 @@ var CurveShapeModelerUserInterface = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "currentFileName", {
+    Object.defineProperty(CurveModelerEventListener.prototype, "inputDegree", {
         get: function () {
-            return this._currentFileName;
-        },
-        set: function (fileName) {
-            this._currentFileName = fileName;
+            return this._inputDegree;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "currentCurveCategory", {
+    Object.defineProperty(CurveModelerEventListener.prototype, "curveModel", {
         get: function () {
-            return this._currentCurveCategory;
+            return this._curveModel;
         },
-        set: function (curveCategory) {
-            this._currentCurveCategory = curveCategory;
+        set: function (curveModel) {
+            this._curveModel = curveModel;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "inputCurveCategory", {
+    Object.defineProperty(CurveModelerEventListener.prototype, "curveModeler", {
         get: function () {
-            return this._inputCurveCategory;
+            return this._curveModeler;
+        },
+        set: function (curveModeler) {
+            this._curveModeler = curveModeler;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "currentNavigationMode", {
-        get: function () {
-            return this._currentNavigationMode;
-        },
-        set: function (navigationMode) {
-            this._currentNavigationMode = navigationMode;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveShapeModelerUserInterface.prototype, "inputNavigationMode", {
-        get: function () {
-            return this._inputNavigationMode;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    return CurveShapeModelerUserInterface;
+    CurveModelerEventListener.prototype.clickSelectDegree = function () {
+        console.log("select Degree click");
+        this._inputDegree.value = this._currentCurveDegree;
+    };
+    CurveModelerEventListener.prototype.clickCurveCategory = function () {
+        console.log("select Curve type click");
+        this._inputCurveCategory.value = this._currentCurveCategory;
+    };
+    CurveModelerEventListener.prototype.inputSelectCurveCategory = function () {
+        console.log("select" + this._inputCurveCategory.value);
+        var curveCategory;
+        curveCategory = Number(this._inputCurveCategory.value);
+        this._currentCurveCategory = this._inputCurveCategory.value;
+        this.curveModeler.inputSelectCurveCategory(curveCategory);
+    };
+    CurveModelerEventListener.prototype.inputSelectDegree = function () {
+        console.log("select:  " + this._inputDegree.value);
+        var optionName = "option";
+        var curveDegree;
+        if (!isNaN(Number(this._inputDegree.value))) {
+            curveDegree = Number(this._inputDegree.value);
+            this._currentCurveDegree = this._inputDegree.value;
+            if (curveDegree > CurveModel_1.DEFAULT_CURVE_DEGREE) {
+                for (var i = 1; i < (curveDegree - CurveModel_1.DEFAULT_CURVE_DEGREE + 1); i += 1) {
+                    console.log("select" + optionName + i.toString());
+                    var option = document.getElementById(optionName + i.toString());
+                    if (option !== null)
+                        option.setAttribute("disabled", "");
+                    else {
+                        var error = new ErrorLoging_1.ErrorLog("curveModelEventListener", "inputSelectDegree", "No ID found to identify an Option in the Selector.");
+                        error.logMessageToConsole();
+                    }
+                }
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog("curveModelEventListener", "inputSelectDegree", "The selected option cannot be converted into a Number");
+            error.logMessageToConsole();
+        }
+    };
+    CurveModelerEventListener.prototype.updateCurveDegreeSelector = function (newCurveDegree) {
+        if (newCurveDegree >= CurveModel_1.DEFAULT_CURVE_DEGREE) {
+            var optionNumber = Number(this.currentCurveDegree) - CurveModel_1.DEFAULT_CURVE_DEGREE + 1;
+            var optionName = "option";
+            var option = void 0;
+            for (var i = 1; i < (newCurveDegree - CurveModel_1.DEFAULT_CURVE_DEGREE + 1); i += 1) {
+                option = document.getElementById(optionName + i.toString());
+                if (option !== null)
+                    option.setAttribute("disabled", "");
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "updateCurveDegreeSelector", "No id found to identify an Option in the Selector.");
+                    error.logMessageToConsole();
+                }
+            }
+            option = document.getElementById(optionName + optionNumber);
+            option.removeAttribute("selected");
+            option = document.getElementById(optionName + (newCurveDegree - 2).toString());
+            option.setAttribute("selected", "selected");
+            this.currentCurveDegree = newCurveDegree.toString();
+            this.inputDegree.click();
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
+            error.logMessageToConsole();
+        }
+    };
+    return CurveModelerEventListener;
 }());
-exports.CurveShapeModelerUserInterface = CurveShapeModelerUserInterface;
+exports.CurveModelerEventListener = CurveModelerEventListener;
+// export class ShapeSpaceNavigationEventListener extends UserInterfaceEventListener {
+var ShapeSpaceNavigationEventListener = /** @class */ (function () {
+    function ShapeSpaceNavigationEventListener(curveModeler, sceneController) {
+        // super();
+        this.sceneController = sceneController;
+        this._curveShapeSpaceNavigator = curveModeler.curveShapeSpaceNavigator;
+        /* Get control button IDs for curve shape control*/
+        this._toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
+        this._toggleButtonInflection = document.getElementById("toggleButtonInflections");
+        this._toggleButtonSliding = document.getElementById("toggleButtonSliding");
+        this._toggleButtonCurveClamping = document.getElementById("toggleButtonCurveClamping");
+        /* Get control button IDs for curve shape control*/
+        this._currentNavigationMode = "0";
+        this._inputNavigationMode = document.getElementById("navigationMode");
+        this.controlOfCurvatureExtrema = true;
+        this.controlOfInflection = true;
+        this.sliding = true;
+        this.controlOfCurveClamping = true;
+        this._inputNavigationMode.addEventListener('input', this.inputSelectNavigationMode.bind(this));
+        this._inputNavigationMode.addEventListener('click', this.clickNavigationMode.bind(this));
+        this._toggleButtonCurvatureExtrema.addEventListener('click', this.toggleControlOfCurvatureExtrema.bind(this));
+        this._toggleButtonInflection.addEventListener('click', this.toggleControlOfInflections.bind(this));
+        this._toggleButtonSliding.addEventListener('click', this.toggleSliding.bind(this));
+        this._toggleButtonCurveClamping.addEventListener('click', this.toggleCurveClamping.bind(this));
+    }
+    Object.defineProperty(ShapeSpaceNavigationEventListener.prototype, "curveShapeSpaceNavigator", {
+        get: function () {
+            return this._curveShapeSpaceNavigator;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceNavigationEventListener.prototype, "toggleButtonCurvatureExtrema", {
+        get: function () {
+            return this._toggleButtonCurvatureExtrema;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceNavigationEventListener.prototype, "toggleButtonInflection", {
+        get: function () {
+            return this._toggleButtonInflection;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceNavigationEventListener.prototype, "toggleButtonSliding", {
+        get: function () {
+            return this._toggleButtonSliding;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeSpaceNavigationEventListener.prototype, "toggleButtonCurveClamping", {
+        get: function () {
+            return this._toggleButtonCurveClamping;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    ShapeSpaceNavigationEventListener.prototype.toggleControlOfCurvatureExtrema = function () {
+        this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
+        this._curveShapeSpaceNavigator.toggleControlOfCurvatureExtrema();
+    };
+    ShapeSpaceNavigationEventListener.prototype.toggleControlOfInflections = function () {
+        this.controlOfInflection = !this.controlOfInflection;
+        this._curveShapeSpaceNavigator.toggleControlOfInflections();
+    };
+    ShapeSpaceNavigationEventListener.prototype.toggleSliding = function () {
+        this.sliding = !this.sliding;
+        this._curveShapeSpaceNavigator.toggleSliding();
+    };
+    ShapeSpaceNavigationEventListener.prototype.toggleCurveClamping = function () {
+        this.controlOfCurveClamping = !this.controlOfCurveClamping;
+        this.sceneController.toggleCurveClamping();
+    };
+    ShapeSpaceNavigationEventListener.prototype.clickNavigationMode = function () {
+        console.log("select Navigation click");
+        this._inputNavigationMode.value = this._currentNavigationMode;
+    };
+    ShapeSpaceNavigationEventListener.prototype.inputSelectNavigationMode = function () {
+        console.log("select" + this._inputNavigationMode.value);
+        var navigationMode = Number(this._inputNavigationMode.value);
+        this._currentNavigationMode = this._inputNavigationMode.value;
+        this.curveShapeSpaceNavigator.inputSelectNavigationProcess(navigationMode);
+    };
+    ShapeSpaceNavigationEventListener.prototype.resetCurveShapeControlButtons = function () {
+        if (!this.sliding) {
+            this._toggleButtonSliding.click();
+        }
+        if (!this.controlOfCurvatureExtrema) {
+            this._toggleButtonCurvatureExtrema.click();
+        }
+        if (!this.controlOfInflection) {
+            this._toggleButtonInflection.click();
+        }
+        if (!this.controlOfCurveClamping) {
+            this._toggleButtonCurveClamping.click();
+        }
+    };
+    return ShapeSpaceNavigationEventListener;
+}());
+exports.ShapeSpaceNavigationEventListener = ShapeSpaceNavigationEventListener;
 
 
 /***/ }),

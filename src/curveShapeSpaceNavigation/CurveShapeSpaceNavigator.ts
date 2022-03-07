@@ -23,10 +23,16 @@ import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProce
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { CurveAnalyzerEventsSlidingOutOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 import { EventMgmtAtCurveExtremities } from "../curveModeler/EventMgmtAtCurveExtremities";
+import { SlidingStrategy } from "../controllers/SlidingStrategy";
+import { CurveControlStrategyInterface } from "../controllers/CurveControlStrategyInterface";
+import { CurveControlState, HandleNoDiffEventNoSlidingState } from "../controllers/CurveControlState";
+import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 
 export const MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 export const MAX_TRUST_REGION_RADIUS = 100;
 export const CONVERGENCE_THRESHOLD = 10e-8;
+/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
 
 export class CurveShapeSpaceNavigator {
 
@@ -58,11 +64,29 @@ export class CurveShapeSpaceNavigator {
     private _curveConstraintProcessor: CurveConstraintProcessor;
     private _eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
+    private curveControlState: CurveControlState;
+
+    private _controlOfCurvatureExtrema: boolean;
+    private _controlOfInflection: boolean;
+    private _sliding: boolean;
+    private _controlOfCurveClamping: boolean;
+    private curveControl: CurveControlStrategyInterface;
+    public activeLocationControl: ActiveLocationControl
 
     constructor(curveModeler: CurveModeler) {
+        this._controlOfCurvatureExtrema = true;
+        this._controlOfInflection = true;
+        this._sliding = true;
+        this._controlOfCurveClamping = true;
+
         this._curveModeler = curveModeler;
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveModel = new CurveModel();
+
+        this.activeLocationControl = ActiveLocationControl.firstControlPoint
+        // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+        this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
+
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
@@ -74,6 +98,7 @@ export class CurveShapeSpaceNavigator {
         this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._curveModeler, this.shapeSpaceDiffEventsConfigurator, this);
+        this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
         this._eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities();
         this._slidingEventsAtExtremities = new CurveAnalyzerEventsSlidingOutOfInterval();
@@ -94,6 +119,22 @@ export class CurveShapeSpaceNavigator {
 
         this.changeNavigationState(new NavigationWithoutShapeSpaceMonitoring(this));
         console.log("end constructor curveShapeSpaceNavigator")
+    }
+
+    get controlOfCurvatureExtrema() {
+        return this._controlOfCurvatureExtrema;
+    }
+
+    set controlOfCurvatureExtrema(controlOfCurvatureExtrema: boolean) {
+        this._controlOfCurvatureExtrema = controlOfCurvatureExtrema;
+    }
+
+    get controlOfInflection() {
+        return this._controlOfInflection;
+    }
+
+    set controlOfInflection(controlOfInflection: boolean) {
+        this._controlOfInflection = controlOfInflection;
     }
 
     // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
@@ -127,6 +168,10 @@ export class CurveShapeSpaceNavigator {
 
     set curveConstraintProcessor(curveConstraintProcessor: CurveConstraintProcessor) {
         this._curveConstraintProcessor = curveConstraintProcessor;
+    }
+
+    set currentCurve(curve: BSpline_R1_to_R2)  {
+        this._currentCurve = curve;
     }
 
     // get navigationParams(): ShapeSpaceDiffEventsStructure {
@@ -193,6 +238,12 @@ export class CurveShapeSpaceNavigator {
 
     changeCurveState(state: CurveConstraintProcessor): void {
         this._curveConstraintProcessor = state;
+    }
+
+    /* JCL test code debut */
+    transitionTo(curveControlState: CurveControlState): void {
+        this.curveControlState = curveControlState;
+        this.curveControlState.setContext(this);
     }
 
     navigateSpace(selectedControlPoint: number, x: number, y: number): void {
@@ -267,15 +318,85 @@ export class CurveShapeSpaceNavigator {
 
     newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
         //newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
-            this.setWeightingFactor(optimizationProblem)
-            return new Optimizer(optimizationProblem)
-        }
+        this.setWeightingFactor(optimizationProblem)
+        return new Optimizer(optimizationProblem)
+    }
 
     setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
         //setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
-            optimizationProblem.weigthingFactors[0] = 10
-            optimizationProblem.weigthingFactors[this.currentControlPolygon.length] = 10
-            optimizationProblem.weigthingFactors[this.currentControlPolygon.length-1] = 10
-            optimizationProblem.weigthingFactors[this.currentControlPolygon.length*2-1] = 10
+        optimizationProblem.weigthingFactors[0] = 10
+        optimizationProblem.weigthingFactors[this.currentControlPolygon.length] = 10
+        optimizationProblem.weigthingFactors[this.currentControlPolygon.length-1] = 10
+        optimizationProblem.weigthingFactors[this.currentControlPolygon.length*2-1] = 10
+    }
+
+    inputSelectNavigationProcess(navigationID: number) {
+        let warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
+        warning.logMessageToConsole();
+
+        switch(navigationID) {
+            case 0: {
+                this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
+                break;
+            }
+            case 1: {
+                this.navigationState.setNavigationThroughSimplerShapeSpaces();
+                break;
+            }
+            case 2: {
+                this.navigationState.setNavigationStrictlyInsideShapeSpace();
+                break;
+            }
+            default: {
+                let error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
+                error.logMessageToConsole();
+                break;
+            }
         }
+        // JCL 2021/12/07 temporary setting to keep consistency between curvescenecontroller context and curveShapeSpaceNavigator context
+        // JCL 2021/12/07 should be removed when the curveScenceController context would be decomposed into (UI and graphics) and the curveShapeSpaceNavigator context on the other side
+        // this.navigationState = this.curveShapeSpaceNavigator.navigationState;
+    }
+
+    toggleControlOfCurvatureExtrema() {
+        this.curveControl.toggleControlOfCurvatureExtrema()
+        this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema
+        //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
+
+        /* JCL 2021/12/02 Add control state for new code architecture */
+        /* JCL 2021/12/02 controlOfCurvatureExtrema can be used to characterize the control state and set it appropriately when changing the navigation mode */
+        this.curveControlState.handleCurvatureExtrema();
+    }
+
+    toggleControlOfInflections() {
+        this.curveControl.toggleControlOfInflections()
+        this.controlOfInflection = ! this.controlOfInflection
+        //console.log("control of inflections: " + this.controlOfInflection)
+
+        /* JCL 2021/12/02 Add control state for new code architecture */
+        /* JCL 2021/12/02 controlOfInflection can be used to characterize the control state and set it appropriately when changing the navigation mode */
+        this.curveControlState.handleInflections();
+    }
+
+    toggleSliding() {
+        if(this.curveModel !== undefined) {
+            if(this._sliding) {
+                this._sliding = false
+                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+                //console.log("constrol of inflections: " + this.controlOfInflection)
+                this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
+            }
+            else {
+                this._sliding = true
+                //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
+                //console.log("constrol of inflections: " + this.controlOfInflection)
+
+                // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            }
+        } else throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model")
+    
+        /* JCL 2021/10/12 Add curveControlState for new code architecture */
+        this.curveControlState.handleSliding();
+    }
+    
 }

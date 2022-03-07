@@ -122,8 +122,8 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
     }
 
     notifyObservers() {
-        for (let i = 0; i < this.observers.length; i += 1) {
-            this.observers[i].update(this.spline)
+        for (let observer of this.observers) {
+            observer.update(this.spline);
         }
     }
 

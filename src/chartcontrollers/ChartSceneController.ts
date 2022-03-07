@@ -55,15 +55,6 @@ export class ChartSceneController {
         this.generateDefaultChartNames();
         this.init();
 
-        this._curveObservers.forEach(element => {
-            if(this._curveModel !== undefined) {
-                element.update(this._curveModel.spline)
-                this._curveModel.registerObserver(element)
-            } else {
-                const error =  new ErrorLog(this.constructor.name, "constructor", "Unable to initialize a ChartSceneController with appropriate curve observers.");
-                error.logMessageToConsole();
-            }
-        });
     }
 
     get curveObservers() {
