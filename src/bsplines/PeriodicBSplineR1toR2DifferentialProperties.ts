@@ -1,7 +1,7 @@
-import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2"
-import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1"
 import { AbstractBSplineR1toR2DifferentialProperties } from "./AbstractBSplineR1toR2DifferentialProperties"
 import { BSplineR1toR1 } from "./BSplineR1toR1"
+import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1"
+import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2"
 
 
 

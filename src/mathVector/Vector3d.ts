@@ -50,6 +50,10 @@ import { VectorInterface } from "./VectorInterface"
      clone() {
          return new Vector3d(this.x, this.y, this.z)
      }
+
+     crossPoduct(v: Vector3d) {
+        return new Vector3d(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x)
+    }
  
  }
  

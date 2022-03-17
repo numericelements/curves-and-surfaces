@@ -32,9 +32,11 @@ export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Ve
         return degree
     }
 
+    
     get controlPoints(): Vector3d[] {
         return deepCopyControlPoints(this._controlPoints)
     }
+    
 
     abstract get freeControlPoints(): Vector3d[] 
 

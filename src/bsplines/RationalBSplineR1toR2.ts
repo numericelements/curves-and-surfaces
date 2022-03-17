@@ -17,4 +17,13 @@ export class RationalBSplineR1toR2 extends BSplineR1toR3 {
         let result = super.evaluate(u) as Vector3d
         return new Vector2d(result.x / result.z, result.y / result.z)
     }
+
+    controlPoints2D() : Vector2d[] {
+        let result: Vector2d[] = []
+        for (let cp of this.controlPoints) {
+            result.push(new Vector2d(cp.x, cp.y))
+        }
+        return result
+    }
+
 }

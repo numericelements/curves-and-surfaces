@@ -1,6 +1,6 @@
 import { CurveSceneView } from "./CurveSceneView"
 
-export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: CurveSceneView) {
+export function wireEventListener(canvas: HTMLCanvasElement, curveSceneView: CurveSceneView) {
     
     hideContextMenu()
     
@@ -121,10 +121,6 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
     document.getElementById("addControlPoint")?.addEventListener('click', addControlPoint)
 
     canvas.addEventListener('contextmenu', rightClick, false)
-
-
-    let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
-    let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
     
 
     function toggleControlOfCurvatureExtrema() {
@@ -140,11 +136,11 @@ export function wireEventListner(canvas: HTMLCanvasElement, curveSceneView: Curv
         curveSceneView.selectCurveCategory(event.detail.category)
     }
 
-    toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
-    toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
-
     let app = document.getElementsByTagName("app-curves-and-surfaces")[0]
     app.addEventListener("changeCurveCategory", selectCurveCategory)
+    app.addEventListener("toogleControlOverCurvatureExtrema", toggleControlOfCurvatureExtrema)
+    app.addEventListener("toogleControlOverInflections", toggleControlOfInflections)
+
 
 
 }

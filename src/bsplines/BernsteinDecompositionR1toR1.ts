@@ -1,4 +1,5 @@
-import {memoizedBinomialCoefficient} from "./BinomialCoefficient"
+import {binomialCoefficient, memoizedBinomialCoefficient} from "./BinomialCoefficient"
+import { BSplineR1toR1 } from "./BSplineR1toR1"
 
 /**
 * A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
@@ -112,4 +113,65 @@ export class BernsteinDecompositionR1toR1 {
 
     }
 
+    elevateDegree(times: number = 1) {
+        let newControlPointsArray: number[][] = []
+
+        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
+            newControlPointsArray.push(this.elevateDegreeB( this.controlPointsArray[i], times))
+        }
+        this.controlPointsArray = newControlPointsArray
+        
+    }
+
+    elevateDegreeB(controlPoints: number[], times: number = 1) {
+        const degree = controlPoints.length - 1
+        let result: number[] = []
+        for (let i = 0; i < controlPoints.length + times; i += 1) {
+            let cp = 0
+            for (let j = Math.max(0, i - times); j <= Math.min(degree, i); j += 1){
+                const bc0 = binomialCoefficient(times, i-j)
+                const bc1 = binomialCoefficient(degree, j)
+                const bc2 = binomialCoefficient(degree+times, i)
+                cp += bc0 * bc1 / bc2 * controlPoints[j]
+            }
+            result.push(cp)
+        }
+        return result
+    }
+
+    
+    
+    splineRecomposition(distinctKnots: number[]) {
+        const cp = this.flattenControlPointsArray()
+        const degree = this.getDegree()
+        let knots: number[] = []
+
+        for (let i = 0; i < distinctKnots.length; i += 1) {
+            for (let j = 0; j < degree + 1; j += 1) {
+                knots.push(distinctKnots[i])
+            }
+        }
+
+        return new BSplineR1toR1(cp, knots)
+    }
+    
+    
+
+    getDegree() {
+        return this.controlPointsArray[0].length - 1
+    }
+
+}
+
+export function splineRecomposition(bernsteinDecomposiiton: BernsteinDecompositionR1toR1, distinctKnots: number[]) {
+    const cp = bernsteinDecomposiiton.flattenControlPointsArray()
+    const degree = bernsteinDecomposiiton.getDegree()
+    let knots: number[] = []
+
+    for (let i = 0; i < distinctKnots.length; i += 1) {
+        for (let j = 0; j < degree + 1; j += 1) {
+            knots.push(distinctKnots[i])
+        }
+    }
+    return new BSplineR1toR1(cp, knots)
 }

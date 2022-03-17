@@ -1,5 +1,5 @@
-import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { AbstractBSplineR1toR2 } from "./AbstractBSplineR1toR2"
+import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 
 

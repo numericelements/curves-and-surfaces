@@ -1,6 +1,8 @@
+import { Vector2d } from "../mathVector/Vector2d";
 import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
-import { BSplineR1toR1 } from "./BSplineR1toR1"
+import { BSplineR1toR1 } from "./BSplineR1toR1";
+import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { decomposeFunction } from "./Piegl_Tiller_NURBS_Book";
 
 
@@ -37,6 +39,16 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
         }
         newKnots = this._knots.slice(1, this._knots.length - 1);
         return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
+    }
+
+    curve() {
+        let x = this.grevilleAbscissae()
+        let cp: Array<Vector2d> = []
+        for (let i = 0; i < x.length; i +=1) {
+            cp.push(new Vector2d(x[i], this._controlPoints[i]))
+        }
+        return new BSplineR1toR2(cp, this._knots.slice());
+
     }
 
 

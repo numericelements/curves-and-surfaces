@@ -78,7 +78,7 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
             const numberOfStep = 3 * Math.ceil(distance * 10)
             //const numberOfStep = 1
             for (let i = 1; i <= numberOfStep; i += 1) {
-                let alpha = i / numberOfStep
+                let alpha = Math.pow(i / numberOfStep, 3)
                 this._spline.setControlPointPosition(selectedControlPoint, new Vector2d((1-alpha)*p.x + alpha * ndcX, (1-alpha)*p.y + alpha * ndcY))
                 this.optimizationProblem.setTargetSpline(this._spline)
                 try {

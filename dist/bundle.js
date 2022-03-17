@@ -11,8 +11,6 @@
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
  */
@@ -220,14 +218,6 @@ class AbstractBSplineR1toR1 {
             return x1;
         }
         return result;
-    }
-    curve() {
-        let x = this.grevilleAbscissae();
-        let cp = [];
-        for (let i = 0; i < x.length; i += 1) {
-            cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
-        }
-        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
     }
 }
 exports.AbstractBSplineR1toR1 = AbstractBSplineR1toR1;
@@ -551,6 +541,198 @@ exports.AbstractBSplineR1toR2DifferentialProperties = AbstractBSplineR1toR2Diffe
 
 /***/ }),
 
+/***/ "./src/bsplines/AbstractBSplineR1toR3.ts":
+/*!***********************************************!*\
+  !*** ./src/bsplines/AbstractBSplineR1toR3.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+class AbstractBSplineR1toR3 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
+        this._controlPoints = deepCopyControlPoints(controlPoints);
+        this._knots = [...knots];
+        this._degree = this.computeDegree();
+    }
+    computeDegree() {
+        let degree = this._knots.length - this._controlPoints.length - 1;
+        if (degree < 0) {
+            throw new Error("Negative degree BSplineR1toR1 are not supported");
+        }
+        return degree;
+    }
+    get controlPoints() {
+        return deepCopyControlPoints(this._controlPoints);
+    }
+    set controlPoints(controlPoints) {
+        this._controlPoints = deepCopyControlPoints(controlPoints);
+    }
+    get knots() {
+        return [...this._knots];
+    }
+    set knots(knots) {
+        this._knots = [...knots];
+        this._degree = this.computeDegree();
+    }
+    get degree() {
+        return this._degree;
+    }
+    getControlPoint(index) {
+        return this._controlPoints[index].clone();
+    }
+    /**
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    evaluate(u) {
+        const span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
+        const basis = Piegl_Tiller_NURBS_Book_1.basisFunctions(span, u, this._knots, this._degree);
+        let result = new Vector3d_1.Vector3d(0, 0, 0);
+        for (let i = 0; i < this._degree + 1; i += 1) {
+            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
+            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
+            result.z += basis[i] * this._controlPoints[span - this._degree + i].z;
+        }
+        return result;
+    }
+    getControlPointsX() {
+        let result = [];
+        for (let cp of this._controlPoints) {
+            result.push(cp.x);
+        }
+        return result;
+    }
+    getControlPointsY() {
+        let result = [];
+        for (let cp of this._controlPoints) {
+            result.push(cp.y);
+        }
+        return result;
+    }
+    getDistinctKnots() {
+        let result = [this._knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this._knots.length; i += 1) {
+            if (this._knots[i] !== temp) {
+                result.push(this._knots[i]);
+                temp = this._knots[i];
+            }
+        }
+        return result;
+    }
+    moveControlPoint(i, deltaX, deltaY) {
+        if (i < 0 || i >= this._controlPoints.length - this._degree) {
+            throw new Error("Control point indentifier is out of range");
+        }
+        this._controlPoints[i].x += deltaX;
+        this._controlPoints[i].y += deltaY;
+    }
+    setControlPointPosition(index, value) {
+        this._controlPoints[index] = value;
+    }
+    insertKnot(u, times = 1) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        if (times <= 0) {
+            return;
+        }
+        let index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
+        let multiplicity = 0;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (let t = 0; t < times; t += 1) {
+            let newControlPoints = [];
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = this._controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
+                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this._controlPoints[i];
+            }
+            this._knots.splice(index + 1, 0, u);
+            this._controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    }
+    knotMultiplicity(indexFromFindSpan) {
+        let result = 0;
+        let i = 0;
+        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    }
+    grevilleAbscissae() {
+        let result = [];
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
+                sum += this._knots[j];
+            }
+            result.push(sum / this._degree);
+        }
+        return result;
+    }
+    clamp(u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        let index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this._knots, this._degree);
+        let newControlPoints = [];
+        let multiplicity = 0;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        const times = this._degree - multiplicity + 1;
+        for (let t = 0; t < times; t += 1) {
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = this._controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
+                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this._controlPoints[i];
+            }
+            this._knots.splice(index + 1, 0, u);
+            this._controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    }
+}
+exports.AbstractBSplineR1toR3 = AbstractBSplineR1toR3;
+function deepCopyControlPoints(controlPoints) {
+    let result = [];
+    for (let cp of controlPoints) {
+        result.push(cp.clone());
+    }
+    return result;
+}
+exports.deepCopyControlPoints = deepCopyControlPoints;
+
+
+/***/ }),
+
 /***/ "./src/bsplines/BSplineR1toR1.ts":
 /*!***************************************!*\
   !*** ./src/bsplines/BSplineR1toR1.ts ***!
@@ -560,8 +742,10 @@ exports.AbstractBSplineR1toR2DifferentialProperties = AbstractBSplineR1toR2Diffe
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 const AbstractBSplineR1toR1_1 = __webpack_require__(/*! ./AbstractBSplineR1toR1 */ "./src/bsplines/AbstractBSplineR1toR1.ts");
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
+const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
  */
@@ -590,6 +774,94 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
         newKnots = this._knots.slice(1, this._knots.length - 1);
         return new BSplineR1toR1(newControlPoints, newKnots);
     }
+    elevateDegree(times = 1) {
+        const bds = this.bernsteinDecomposition();
+        bds.elevateDegree();
+        const knots = this.distinctKnots();
+        const newSpline = BernsteinDecompositionR1toR1_1.splineRecomposition(bds, knots);
+        for (let i = 0; i < knots.length; i += 1) {
+            let m = this.knotMultiplicity(Piegl_Tiller_NURBS_Book_1.findSpan(knots[i], this.knots, this.degree));
+            for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
+                newSpline.removeKnot(Piegl_Tiller_NURBS_Book_1.findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
+            }
+        }
+        this.controlPoints = newSpline.controlPoints;
+        this.knots = newSpline.knots;
+        this._degree = newSpline.degree;
+    }
+    removeKnot(indexFromFindSpan, tolerance = 10e-5) {
+        //Piegl and Tiller, The NURBS book, p : 185
+        const index = indexFromFindSpan;
+        // end knots are not removed
+        if (index > this._degree && index < this.knots.length - this._degree - 1) {
+            throw new Error("index out of range");
+        }
+        //const double tolerance = 1;
+        const multiplicity = this.knotMultiplicity(index);
+        const last = index - multiplicity;
+        const first = index - this.degree;
+        const offset = first - 1;
+        //std::vector<vectorType> local(2*degree+1);
+        let local = [];
+        local[0] = this.controlPoints[offset];
+        local[last + 1 - offset] = this.controlPoints[last + 1];
+        let i = first;
+        let j = last;
+        let ii = 1;
+        let jj = last - offset;
+        let removable = false;
+        // Compute new control point for one removal step
+        while (j > i) {
+            let alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
+            let alpha_j = (this.knots[index] - this.knots[j]) / (this.knots[j + this.degree + 1] - this.knots[j]);
+            local[ii] = (this.controlPoints[i] - (local[ii - 1] * (1.0 - alpha_i))) / alpha_i;
+            local[jj] = (this.controlPoints[j] - (local[jj + 1] * (alpha_j))) / (1.0 - alpha_j);
+            ++i;
+            ++ii;
+            --j;
+            --jj;
+        }
+        if (j < i) {
+            if ((local[ii - 1] - (local[jj + 1])) <= tolerance) {
+                removable = true;
+            }
+        }
+        else {
+            const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
+            if (((this.controlPoints[i] - ((local[ii + 1] * (alpha_i)))) + (local[ii - 1] * (1.0 - alpha_i))) <= tolerance) {
+                removable = true;
+            }
+        }
+        if (removable == false)
+            return;
+        else {
+            let i = first;
+            let j = last;
+            while (j > i) {
+                this.controlPoints[i] = local[i - offset];
+                this.controlPoints[j] = local[j - offset];
+                ++i;
+                --j;
+            }
+        }
+        this.knots.splice(index, 1);
+        const fout = (2 * index - multiplicity - this.degree) / 2;
+        this._controlPoints.splice(fout, 1);
+    }
+    moveControlPoint(i, delta) {
+        if (i < 0 || i >= this.controlPoints.length) {
+            throw new Error("Control point indentifier is out of range");
+        }
+        this.controlPoints[i] += delta;
+    }
+    curve() {
+        let x = this.grevilleAbscissae();
+        let cp = [];
+        for (let i = 0; i < x.length; i += 1) {
+            cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
+        }
+        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
+    }
 }
 exports.BSplineR1toR1 = BSplineR1toR1;
 
@@ -607,6 +879,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/bsplines/AbstractBSplineR1toR2.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
@@ -657,6 +931,101 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
         }
         return new BSplineR1toR2(newControlPoints, newKnots);
     }
+    elevateDegree(times = 1) {
+        const sx = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsX(), this.knots);
+        const sy = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsY(), this.knots);
+        const bdsx = sx.bernsteinDecomposition();
+        const bdsy = sy.bernsteinDecomposition();
+        bdsx.elevateDegree();
+        bdsy.elevateDegree();
+        const knots = this.distinctKnots();
+        const sxNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsx, knots);
+        const syNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsy, knots);
+        let newcp = [];
+        for (let i = 0; i < sxNew.controlPoints.length; i += 1) {
+            newcp.push(new Vector2d_1.Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
+        }
+        let newSpline = new BSplineR1toR2(newcp, sxNew.knots);
+        for (let i = 0; i < knots.length; i += 1) {
+            let m = this.knotMultiplicity(Piegl_Tiller_NURBS_Book_1.findSpan(knots[i], this.knots, this.degree));
+            for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
+                newSpline.removeKnot(Piegl_Tiller_NURBS_Book_1.findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
+            }
+        }
+        this.controlPoints = newSpline.controlPoints;
+        this.knots = newSpline.knots;
+        this._degree = newSpline.degree;
+    }
+    removeKnot(indexFromFindSpan, tolerance = 10e-5) {
+        //Piegl and Tiller, The NURBS book, p : 185
+        const index = indexFromFindSpan;
+        // end knots are not removed
+        if (index > this._degree && index < this.knots.length - this._degree - 1) {
+            throw new Error("index out of range");
+        }
+        //const double tolerance = 1;
+        const multiplicity = this.knotMultiplicity(index);
+        const last = index - multiplicity;
+        const first = index - this.degree;
+        const offset = first - 1;
+        //std::vector<vectorType> local(2*degree+1);
+        let local = [];
+        local[0] = this.controlPoints[offset];
+        local[last + 1 - offset] = this.controlPoints[last + 1];
+        let i = first;
+        let j = last;
+        let ii = 1;
+        let jj = last - offset;
+        let removable = false;
+        // Compute new control point for one removal step
+        while (j > i) {
+            let alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
+            let alpha_j = (this.knots[index] - this.knots[j]) / (this.knots[j + this.degree + 1] - this.knots[j]);
+            local[ii] = (this.controlPoints[i].substract(local[ii - 1].multiply(1.0 - alpha_i))).multiply(1 / alpha_i);
+            local[jj] = (this.controlPoints[j].substract(local[jj + 1].multiply(alpha_j))).multiply(1 / (1.0 - alpha_j));
+            ++i;
+            ++ii;
+            --j;
+            --jj;
+        }
+        if (j < i) {
+            if ((local[ii - 1].substract(local[jj + 1])).norm() <= tolerance) {
+                removable = true;
+            }
+        }
+        else {
+            const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
+            if (((this.controlPoints[i].substract((local[ii + 1].multiply(alpha_i)))).add(local[ii - 1].multiply(1.0 - alpha_i))).norm() <= tolerance) {
+                removable = true;
+            }
+        }
+        if (removable == false)
+            return;
+        else {
+            let i = first;
+            let j = last;
+            while (j > i) {
+                this.controlPoints[i] = local[i - offset];
+                this.controlPoints[j] = local[j - offset];
+                ++i;
+                --j;
+            }
+        }
+        this.knots.splice(index, 1);
+        const fout = (2 * index - multiplicity - this.degree) / 2;
+        this._controlPoints.splice(fout, 1);
+    }
+    distinctKnots() {
+        let result = [this.knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
+    }
 }
 exports.BSplineR1toR2 = BSplineR1toR2;
 function create_BSplineR1toR2(controlPoints, knots) {
@@ -694,6 +1063,81 @@ exports.BSplineR1toR2DifferentialProperties = BSplineR1toR2DifferentialPropertie
 
 /***/ }),
 
+/***/ "./src/bsplines/BSplineR1toR3.ts":
+/*!***************************************!*\
+  !*** ./src/bsplines/BSplineR1toR3.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const AbstractBSplineR1toR3_1 = __webpack_require__(/*! ./AbstractBSplineR1toR3 */ "./src/bsplines/AbstractBSplineR1toR3.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+class BSplineR1toR3 extends AbstractBSplineR1toR3_1.AbstractBSplineR1toR3 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
+        super(controlPoints, knots);
+    }
+    get freeControlPoints() {
+        return this.controlPoints;
+    }
+    /**
+     * Return a deep copy of this b-spline
+     */
+    clone() {
+        let cloneControlPoints = AbstractBSplineR1toR3_1.deepCopyControlPoints(this._controlPoints);
+        return new BSplineR1toR3(cloneControlPoints, this._knots.slice());
+    }
+    optimizerStep(step) {
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            this._controlPoints[i].x += step[i];
+            this._controlPoints[i].y += step[i + this._controlPoints.length];
+        }
+    }
+    /**
+     *
+     * @param fromU Parametric position where the section start
+     * @param toU Parametric position where the section end
+     * @retrun the BSpline_R1_to_R2 section
+     */
+    extract(fromU, toU) {
+        let spline = this.clone();
+        spline.clamp(fromU);
+        spline.clamp(toU);
+        const newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(fromU, spline._knots, spline._degree);
+        const newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(toU, spline._knots, spline._degree);
+        let newKnots = [];
+        let newControlPoints = [];
+        for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
+            newKnots.push(spline._knots[i]);
+        }
+        for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
+            newControlPoints.push(new Vector3d_1.Vector3d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+        }
+        return new BSplineR1toR3(newControlPoints, newKnots);
+    }
+}
+exports.BSplineR1toR3 = BSplineR1toR3;
+function create_BSplineR1toR3(controlPoints, knots) {
+    let newControlPoints = [];
+    for (let cp of controlPoints) {
+        newControlPoints.push(new Vector3d_1.Vector3d(cp[0], cp[1], cp[2]));
+    }
+    return new BSplineR1toR3(newControlPoints, knots);
+}
+exports.create_BSplineR1toR3 = create_BSplineR1toR3;
+
+
+/***/ }),
+
 /***/ "./src/bsplines/BernsteinDecompositionR1toR1.ts":
 /*!******************************************************!*\
   !*** ./src/bsplines/BernsteinDecompositionR1toR1.ts ***!
@@ -703,6 +1147,7 @@ exports.BSplineR1toR2DifferentialProperties = BSplineR1toR2DifferentialPropertie
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/bsplines/BinomialCoefficient.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
 /**
 * A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
 */
@@ -790,10 +1235,58 @@ class BernsteinDecompositionR1toR1 {
     subset(start, lessThan) {
         return new BernsteinDecompositionR1toR1(this.controlPointsArray.slice(start, lessThan));
     }
+    elevateDegree(times = 1) {
+        let newControlPointsArray = [];
+        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
+            newControlPointsArray.push(this.elevateDegreeB(this.controlPointsArray[i], times));
+        }
+        this.controlPointsArray = newControlPointsArray;
+    }
+    elevateDegreeB(controlPoints, times = 1) {
+        const degree = controlPoints.length - 1;
+        let result = [];
+        for (let i = 0; i < controlPoints.length + times; i += 1) {
+            let cp = 0;
+            for (let j = Math.max(0, i - times); j <= Math.min(degree, i); j += 1) {
+                const bc0 = BinomialCoefficient_1.binomialCoefficient(times, i - j);
+                const bc1 = BinomialCoefficient_1.binomialCoefficient(degree, j);
+                const bc2 = BinomialCoefficient_1.binomialCoefficient(degree + times, i);
+                cp += bc0 * bc1 / bc2 * controlPoints[j];
+            }
+            result.push(cp);
+        }
+        return result;
+    }
+    splineRecomposition(distinctKnots) {
+        const cp = this.flattenControlPointsArray();
+        const degree = this.getDegree();
+        let knots = [];
+        for (let i = 0; i < distinctKnots.length; i += 1) {
+            for (let j = 0; j < degree + 1; j += 1) {
+                knots.push(distinctKnots[i]);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(cp, knots);
+    }
+    getDegree() {
+        return this.controlPointsArray[0].length - 1;
+    }
 }
 exports.BernsteinDecompositionR1toR1 = BernsteinDecompositionR1toR1;
 BernsteinDecompositionR1toR1.binomial = BinomialCoefficient_1.memoizedBinomialCoefficient();
 BernsteinDecompositionR1toR1.flopsCounter = 0;
+function splineRecomposition(bernsteinDecomposiiton, distinctKnots) {
+    const cp = bernsteinDecomposiiton.flattenControlPointsArray();
+    const degree = bernsteinDecomposiiton.getDegree();
+    let knots = [];
+    for (let i = 0; i < distinctKnots.length; i += 1) {
+        for (let j = 0; j < degree + 1; j += 1) {
+            knots.push(distinctKnots[i]);
+        }
+    }
+    return new BSplineR1toR1_1.BSplineR1toR1(cp, knots);
+}
+exports.splineRecomposition = splineRecomposition;
 
 
 /***/ }),
@@ -853,9 +1346,11 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 const AbstractBSplineR1toR1_1 = __webpack_require__(/*! ./AbstractBSplineR1toR1 */ "./src/bsplines/AbstractBSplineR1toR1.ts");
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
 const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
+const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 /**
  * A B-Spline function from a one dimensional real periodic space to a one dimensional real space
@@ -886,6 +1381,14 @@ class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR
         newKnots = this._knots.slice(1, this._knots.length - 1);
         return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
     }
+    curve() {
+        let x = this.grevilleAbscissae();
+        let cp = [];
+        for (let i = 0; i < x.length; i += 1) {
+            cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
+        }
+        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
+    }
 }
 exports.PeriodicBSplineR1toR1 = PeriodicBSplineR1toR1;
 
@@ -900,9 +1403,9 @@ exports.PeriodicBSplineR1toR1 = PeriodicBSplineR1toR1;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
 const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/bsplines/AbstractBSplineR1toR2.ts");
+const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 /**
  * A B-Spline function from a one dimensional real periodic space to a two dimensional real space
@@ -1059,8 +1562,8 @@ exports.create_PeriodicBSplineR1toR2 = create_PeriodicBSplineR1toR2;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ./PeriodicBSplineR1toR1 */ "./src/bsplines/PeriodicBSplineR1toR1.ts");
 const AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/bsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
+const PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ./PeriodicBSplineR1toR1 */ "./src/bsplines/PeriodicBSplineR1toR1.ts");
 class PeriodicBSplineR1toR2DifferentialProperties extends AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties {
     constructor(spline) {
         super(spline);
@@ -3360,6 +3863,52 @@ class SquareMatrix {
         }
         return result;
     }
+    multiplyByVector(v) {
+        if (this.shape[1] !== v.length) {
+            throw new Error("SquareMatrix multiply a vector of incorrect length");
+        }
+        let result = [];
+        const n = this.shape[1];
+        for (let i = 0; i < n; i += 1) {
+            let temp = 0;
+            for (let j = 0; j < n; j += 1) {
+                temp += this.get(i, j) * v[j];
+            }
+            result.push(temp);
+        }
+        return result;
+    }
+    /**
+     * Add two matrices
+     * @param that A square or a symmetric matrix
+     * @return a square matrix
+     */
+    addByMatrix(that) {
+        if (this.shape[1] !== that.shape[0]) {
+            throw new Error("Size mismatch in matrix addition");
+        }
+        let result = new SquareMatrix(this.shape[1]);
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            for (let j = 0; j < this.shape[0]; j += 1) {
+                result.set(i, j, this.get(i, j) + that.get(i, j));
+            }
+        }
+        return result;
+    }
+    /**
+     * Add two matrices
+     * @param that A square or a symmetric matrix
+     * @return a square matrix
+     */
+    mutiplyByConstant(value) {
+        let result = new SquareMatrix(this.shape[1]);
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            for (let j = 0; j < this.shape[0]; j += 1) {
+                result.set(i, j, this.get(i, j) * value);
+            }
+        }
+        return result;
+    }
 }
 exports.SquareMatrix = SquareMatrix;
 
@@ -3581,6 +4130,31 @@ exports.SymmetricMatrix = SymmetricMatrix;
 
 /***/ }),
 
+/***/ "./src/mathVector/RotationMatrix.ts":
+/*!******************************************!*\
+  !*** ./src/mathVector/RotationMatrix.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
+function rotationMatrixFromTwoVectors(unitVector1, unitVector2, tolerance = 10e-5) {
+    // https://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d
+    let p = unitVector1.crossPoduct(unitVector2);
+    let i = new SquareMatrix_1.SquareMatrix(3, [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    let v = new SquareMatrix_1.SquareMatrix(3, [0, -p.z, p.y, p.z, 0, -p.x, -p.y, p.x, 0]);
+    let c = unitVector1.dot(unitVector2);
+    if (1 + c < tolerance) {
+        throw new Error("The two given vectors points in opposite directions, the rotation matrix is indeterminate");
+    }
+    return i.addByMatrix(v).addByMatrix(v.multiplyByMatrix(v).mutiplyByConstant(1 / (1 + c)));
+}
+exports.rotationMatrixFromTwoVectors = rotationMatrixFromTwoVectors;
+
+
+/***/ }),
+
 /***/ "./src/mathVector/Vector2d.ts":
 /*!************************************!*\
   !*** ./src/mathVector/Vector2d.ts ***!
@@ -3660,6 +4234,63 @@ exports.scaleY = scaleY;
 
 /***/ }),
 
+/***/ "./src/mathVector/Vector3d.ts":
+/*!************************************!*\
+  !*** ./src/mathVector/Vector3d.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+/**
+ * A three dimensional vector
+ */
+class Vector3d {
+    constructor(x = 0, y = 0, z = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    negative() {
+        return new Vector3d(-this.x, -this.y, -this.z);
+    }
+    add(v) {
+        return new Vector3d(this.x + v.x, this.y + v.y, this.z + v.z);
+    }
+    multiply(value) {
+        return new Vector3d(this.x * value, this.y * value, this.z * value);
+    }
+    substract(v) {
+        return new Vector3d(this.x - v.x, this.y - v.y, this.z - v.z);
+    }
+    normalize() {
+        let norm = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        let x = this.x / norm;
+        let y = this.y / norm;
+        let z = this.z / norm;
+        return new Vector3d(x, y, z);
+    }
+    dot(v) {
+        return this.x * v.x + this.y * v.y + this.z * v.z;
+    }
+    distance(v) {
+        return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2) + Math.pow(this.z - v.z, 2));
+    }
+    norm() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2));
+    }
+    clone() {
+        return new Vector3d(this.x, this.y, this.z);
+    }
+    crossPoduct(v) {
+        return new Vector3d(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
+    }
+}
+exports.Vector3d = Vector3d;
+
+
+/***/ }),
+
 /***/ "./src/models/AbstractCurveModel.ts":
 /*!******************************************!*\
   !*** ./src/models/AbstractCurveModel.ts ***!
@@ -3725,7 +4356,7 @@ class AbstractCurveModel {
             const numberOfStep = 3 * Math.ceil(distance * 10);
             //const numberOfStep = 1
             for (let i = 1; i <= numberOfStep; i += 1) {
-                let alpha = i / numberOfStep;
+                let alpha = Math.pow(i / numberOfStep, 3);
                 this._spline.setControlPointPosition(selectedControlPoint, new Vector2d_1.Vector2d((1 - alpha) * p.x + alpha * ndcX, (1 - alpha) * p.y + alpha * ndcY));
                 this.optimizationProblem.setTargetSpline(this._spline);
                 try {
@@ -4087,6 +4718,38 @@ exports.CurveModel = CurveModel;
 
 /***/ }),
 
+/***/ "./src/models/CurveModel3d.ts":
+/*!************************************!*\
+  !*** ./src/models/CurveModel3d.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const BSplineR1toR3_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3 */ "./src/bsplines/BSplineR1toR3.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+class CurveModel3d {
+    //private camberSurfaceObservers: IObserver<BSplineR2toCylCoord>[] = []
+    constructor() {
+        const cp0 = new Vector3d_1.Vector3d(-0.25, 0, -0.15);
+        const cp1 = new Vector3d_1.Vector3d(-0.15, 0.15, -0.05);
+        const cp2 = new Vector3d_1.Vector3d(0, 0.25, -0.05);
+        const cp3 = new Vector3d_1.Vector3d(0.15, 0.15, -0.05);
+        const cp4 = new Vector3d_1.Vector3d(0.25, 0, 0.05);
+        this._spline = new BSplineR1toR3_1.BSplineR1toR3([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]);
+    }
+    get spline() {
+        return this._spline.clone();
+    }
+    get isClosed() {
+        return false;
+    }
+}
+exports.CurveModel3d = CurveModel3d;
+
+
+/***/ }),
+
 /***/ "./src/models/CurveModelAlternative01.ts":
 /*!***********************************************!*\
   !*** ./src/models/CurveModelAlternative01.ts ***!
@@ -4322,7 +4985,7 @@ class Optimizer {
             }
             else {
                 t *= 100 * mu;
-                console.log("100*mu");
+                //console.log("100*mu")
             }
         }
         this.success = true;
@@ -4331,6 +4994,7 @@ class Optimizer {
             console.log("t: " + t);
             console.log("trustRadius: " + trustRadius);
         }
+        //console.log(counter)
     }
     optimize_using_line_search(epsilon = 10e-6, maxNumSteps = 300) {
         // Bibliographic reference: Numerical Optimization, second edition, Jorge Nocedal and Stephen J. Wright, p. 69
@@ -5013,6 +5677,617 @@ function updateLambda_using_equation_7_3_14(lowerBound, upperBound, theta = 0.01
 
 /***/ }),
 
+/***/ "./src/views/ArrayConversion.ts":
+/*!**************************************!*\
+  !*** ./src/views/ArrayConversion.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+function toFloat32Array(v) {
+    let result = new Float32Array(v.length);
+    for (let i = 0; i < v.length; i += 1) {
+        result[i] = v[i];
+    }
+    return result;
+}
+exports.toFloat32Array = toFloat32Array;
+function toUint16Array(v) {
+    let result = new Uint16Array(v.length);
+    for (let i = 0; i < v.length; i += 1) {
+        result[i] = v[i];
+    }
+    return result;
+}
+exports.toUint16Array = toUint16Array;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPoints3dShaders.ts":
+/*!*********************************************!*\
+  !*** ./src/views/ControlPoints3dShaders.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class ControlPoints3dShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec3 a_Normal; \n' +
+            'attribute vec3 a_Color; \n' +
+            'uniform mat4 ModelViewProjectionMatrix; \n' +
+            'uniform mat3 NormalMatrix; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '    normal = normalize(NormalMatrix * a_Normal); \n' +
+            '    color = vec4(a_Color, 1.0); \n' +
+            '    gl_Position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec3 Ambient; \n' +
+            'uniform vec3 LightColor; \n' +
+            'uniform vec3 LightDirection; \n' +
+            'uniform vec3 HalfVector; \n' +
+            'uniform float Shininess; \n' +
+            'uniform float Strength; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
+            '   float specular = abs(dot(normal, HalfVector)); \n' +
+            '   specular = pow(specular, Shininess); \n' +
+            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
+            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
+            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
+            '   gl_FragColor = vec4(rgb, color.a); \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfIndices) {
+        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
+    }
+}
+exports.ControlPoints3dShaders = ControlPoints3dShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPoints3dShadowShaders.ts":
+/*!***************************************************!*\
+  !*** ./src/views/ControlPoints3dShadowShaders.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class ControlPoints3dShadowShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec3 a_Normal; \n' +
+            'attribute vec3 a_Color; \n' +
+            'uniform mat4 ModelViewProjectionMatrix; \n' +
+            'uniform mat3 NormalMatrix; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '    normal = normalize(NormalMatrix * a_Normal); \n' +
+            '    color = vec4(a_Color, 1.0); \n' +
+            '    vec4 position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
+            '    gl_Position = vec4(position.x, position.y*0.0 - 1.5, position.z, position.w); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec3 Ambient; \n' +
+            'uniform vec3 LightColor; \n' +
+            'uniform vec3 LightDirection; \n' +
+            'uniform vec3 HalfVector; \n' +
+            'uniform float Shininess; \n' +
+            'uniform float Strength; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
+            '   float specular = abs(dot(normal, HalfVector)); \n' +
+            '   specular = pow(specular, Shininess); \n' +
+            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
+            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
+            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
+            '   gl_FragColor = vec4(rgb, color.a); \n' +
+            '   gl_FragColor = vec4(0.1, 0.1, 0.1, 1); \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfIndices) {
+        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
+    }
+}
+exports.ControlPoints3dShadowShaders = ControlPoints3dShadowShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPoints3dShadowView.ts":
+/*!************************************************!*\
+  !*** ./src/views/ControlPoints3dShadowView.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
+const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+class ControlPoints3dShadowView {
+    //private lightDirection = new Float32Array([0, 0, 1])
+    constructor(spline, controlPoints3dShadowShaders, lightDirection) {
+        this.spline = spline;
+        this.controlPoints3dShadowShaders = controlPoints3dShadowShaders;
+        this.lightDirection = lightDirection;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint16Array([]);
+        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.controlPoints3dShadowShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+    }
+    renderFrame() {
+        let gl = this.controlPoints3dShadowShaders.gl, a_Position = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.controlPoints3dShadowShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        this.setUniforms();
+        this.controlPoints3dShadowShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.015;
+        const sectorCount = 50;
+        const stackCount = 50;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let cp of this.spline.controlPoints) {
+            let v = this.verticesForOneSphere(cp, radius, sectorCount, stackCount);
+            let i = this.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...i];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    verticesForOneSphere(center, radius, sectorCount, stackCount) {
+        //http://www.songho.ca/opengl/gl_sphere.html
+        let x, y, z, xy; // vertex position
+        let nx, ny, nz; // vertex normal
+        let sectorAngle, stackAngle;
+        const lengthInv = 1 / radius;
+        const sectorStep = 2 * Math.PI / sectorCount;
+        const stackStep = Math.PI / stackCount;
+        let result = [];
+        for (let i = 0; i <= stackCount; i += 1) {
+            stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
+            xy = radius * Math.cos(stackAngle);
+            z = radius * Math.sin(stackAngle);
+            // add (sectorCout+1) vertices per stack
+            // the first and last vertices have the same position and normal
+            for (let j = 0; j <= sectorCount; j += 1) {
+                sectorAngle = j * sectorStep; // starting for 0 to 2pi
+                // vertex position (x, y, z)
+                x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
+                y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
+                result.push(x + center.x);
+                result.push(y + center.y);
+                result.push(z + center.z);
+                // normalized vertex normal (nx, ny, nz)
+                nx = x * lengthInv;
+                ny = y * lengthInv;
+                nz = z * lengthInv;
+                result.push(nx);
+                result.push(ny);
+                result.push(nz);
+                // Color
+                result.push(0.5);
+                result.push(0.5);
+                result.push(0.5);
+            }
+        }
+        return result;
+    }
+    indicesForOneSphere(startingIndex, sectorCount, stackCount) {
+        let result = [];
+        for (let i = 0; i < stackCount; i += 1) {
+            let k1 = i * (sectorCount + 1); // beginning of current stack
+            let k2 = k1 + sectorCount + 1; // beginning of next stack
+            for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+                if (i != 0) {
+                    result.push(k1 + startingIndex);
+                    result.push(k2 + startingIndex);
+                    result.push(k1 + 1 + startingIndex);
+                }
+                if (i != (stackCount - 1)) {
+                    result.push(k1 + 1 + startingIndex);
+                    result.push(k2 + startingIndex);
+                    result.push(k2 + 1 + startingIndex);
+                }
+            }
+        }
+        return result;
+    }
+    initVertexBuffers(gl) {
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        let a_Position = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Normal < 0) {
+            console.log('Failed to get the storage location of a_Normal');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    }
+    updateBuffers() {
+        const gl = this.controlPoints3dShadowShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    setUniforms() {
+        const gl = this.controlPoints3dShadowShaders.gl;
+        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
+        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
+        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        //const model = identity_mat4()
+        const view = this.viewMatrix();
+        const projection = this.projectionMatrix();
+        const mv = mat4_1.multiply(view, model);
+        const mvp = mat4_1.multiply(projection, mv);
+        const ambientLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "Ambient");
+        const lightColorLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "LightColor");
+        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "ModelViewProjectionMatrix");
+        const normalMatrixLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "NormalMatrix");
+        const lightDirectionLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "LightDirection");
+        const halfVectorLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "LightDirection");
+        const shininessLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "Shininess");
+        const strengthLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "Strength");
+        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
+        gl.uniform3f(lightColorLoc, 1, 1, 1);
+        gl.uniform3f(ambientLoc, 0.5, 0.5, 0.5);
+        const hvX = this.lightDirection[0];
+        const hvY = this.lightDirection[1];
+        const hvZ = this.lightDirection[2] + 1;
+        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
+        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
+        gl.uniform1f(shininessLoc, 50);
+        gl.uniform1f(strengthLoc, 20);
+    }
+    viewMatrix() {
+        const camera_position = new Float32Array([0, 0, 3.3]);
+        const look_at_origin = new Float32Array([0, -0.2, 0]);
+        const head_is_up = new Float32Array([0, 1, 0]);
+        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
+    }
+    projectionMatrix() {
+        const fovy = 20 * Math.PI / 180;
+        const canvas = this.controlPoints3dShadowShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+    }
+    update(spline) {
+        this.spline = spline;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.ControlPoints3dShadowView = ControlPoints3dShadowView;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPoints3dView.ts":
+/*!******************************************!*\
+  !*** ./src/views/ControlPoints3dView.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
+const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+class ControlPoints3dView {
+    //private lightDirection = new Float32Array([0, 0, 1])
+    constructor(spline, controlPoints3dShaders, lightDirection) {
+        this.spline = spline;
+        this.controlPoints3dShaders = controlPoints3dShaders;
+        this.lightDirection = lightDirection;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint16Array([]);
+        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.controlPoints3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+    }
+    renderFrame() {
+        let gl = this.controlPoints3dShaders.gl, a_Position = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.controlPoints3dShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        this.setUniforms();
+        this.controlPoints3dShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.015;
+        const sectorCount = 50;
+        const stackCount = 50;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let cp of this.spline.controlPoints) {
+            let v = this.verticesForOneSphere(cp, radius, sectorCount, stackCount);
+            let i = this.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...i];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    verticesForOneSphere(center, radius, sectorCount, stackCount) {
+        //http://www.songho.ca/opengl/gl_sphere.html
+        let x, y, z, xy; // vertex position
+        let nx, ny, nz; // vertex normal
+        let sectorAngle, stackAngle;
+        const lengthInv = 1 / radius;
+        const sectorStep = 2 * Math.PI / sectorCount;
+        const stackStep = Math.PI / stackCount;
+        let result = [];
+        for (let i = 0; i <= stackCount; i += 1) {
+            stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
+            xy = radius * Math.cos(stackAngle);
+            z = radius * Math.sin(stackAngle);
+            // add (sectorCout+1) vertices per stack
+            // the first and last vertices have the same position and normal
+            for (let j = 0; j <= sectorCount; j += 1) {
+                sectorAngle = j * sectorStep; // starting for 0 to 2pi
+                // vertex position (x, y, z)
+                x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
+                y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
+                result.push(x + center.x);
+                result.push(y + center.y);
+                result.push(z + center.z);
+                // normalized vertex normal (nx, ny, nz)
+                nx = x * lengthInv;
+                ny = y * lengthInv;
+                nz = z * lengthInv;
+                result.push(nx);
+                result.push(ny);
+                result.push(nz);
+                // Color
+                result.push(0.5);
+                result.push(0.5);
+                result.push(0.5);
+            }
+        }
+        return result;
+    }
+    indicesForOneSphere(startingIndex, sectorCount, stackCount) {
+        let result = [];
+        for (let i = 0; i < stackCount; i += 1) {
+            let k1 = i * (sectorCount + 1); // beginning of current stack
+            let k2 = k1 + sectorCount + 1; // beginning of next stack
+            for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+                if (i != 0) {
+                    result.push(k1 + startingIndex);
+                    result.push(k2 + startingIndex);
+                    result.push(k1 + 1 + startingIndex);
+                }
+                if (i != (stackCount - 1)) {
+                    result.push(k1 + 1 + startingIndex);
+                    result.push(k2 + startingIndex);
+                    result.push(k2 + 1 + startingIndex);
+                }
+            }
+        }
+        return result;
+    }
+    initVertexBuffers(gl) {
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        let a_Position = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Normal < 0) {
+            console.log('Failed to get the storage location of a_Normal');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    }
+    updateBuffers() {
+        const gl = this.controlPoints3dShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    setUniforms() {
+        const gl = this.controlPoints3dShaders.gl;
+        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
+        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
+        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        const view = this.viewMatrix();
+        const projection = this.projectionMatrix();
+        const mv = mat4_1.multiply(view, model);
+        const mvp = mat4_1.multiply(projection, mv);
+        const ambientLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "Ambient");
+        const lightColorLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "LightColor");
+        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "ModelViewProjectionMatrix");
+        const normalMatrixLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "NormalMatrix");
+        const lightDirectionLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "LightDirection");
+        const halfVectorLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "LightDirection");
+        const shininessLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "Shininess");
+        const strengthLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "Strength");
+        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
+        gl.uniform3f(lightColorLoc, 1, 1, 1);
+        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
+        const hvX = this.lightDirection[0];
+        const hvY = this.lightDirection[1];
+        const hvZ = this.lightDirection[2] + 1;
+        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
+        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
+        gl.uniform1f(shininessLoc, 50);
+        gl.uniform1f(strengthLoc, 20);
+    }
+    viewMatrix() {
+        const camera_position = new Float32Array([0, 0, 3.3]);
+        const look_at_origin = new Float32Array([0, -0.2, 0]);
+        const head_is_up = new Float32Array([0, 1, 0]);
+        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
+    }
+    projectionMatrix() {
+        const fovy = 20 * Math.PI / 180;
+        const canvas = this.controlPoints3dShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+    }
+    update(spline) {
+        this.spline = spline;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.ControlPoints3dView = ControlPoints3dView;
+
+
+/***/ }),
+
 /***/ "./src/views/ControlPointsShaders.ts":
 /*!*******************************************!*\
   !*** ./src/views/ControlPointsShaders.ts ***!
@@ -5246,6 +6521,658 @@ class ControlPointsView {
     }
 }
 exports.ControlPointsView = ControlPointsView;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPolygon3dShaders.ts":
+/*!**********************************************!*\
+  !*** ./src/views/ControlPolygon3dShaders.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class ControlPolygon3dShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec3 a_Normal; \n' +
+            'attribute vec3 a_Color; \n' +
+            'uniform mat4 ModelViewProjectionMatrix; \n' +
+            'uniform mat3 NormalMatrix; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '    normal = normalize(NormalMatrix * a_Normal); \n' +
+            '    color = vec4(a_Color, 1); \n' +
+            '    gl_Position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec3 Ambient; \n' +
+            'uniform vec3 LightColor; \n' +
+            'uniform vec3 LightDirection; \n' +
+            'uniform vec3 HalfVector; \n' +
+            'uniform float Shininess; \n' +
+            'uniform float Strength; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
+            '   float specular = abs(dot(normal, HalfVector)); \n' +
+            '   specular = pow(specular, Shininess); \n' +
+            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
+            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
+            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
+            '   gl_FragColor = vec4(rgb, color.a); \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfIndices) {
+        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
+    }
+}
+exports.ControlPolygon3dShaders = ControlPolygon3dShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPolygon3dShadowShaders.ts":
+/*!****************************************************!*\
+  !*** ./src/views/ControlPolygon3dShadowShaders.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class ControlPolygon3dShadowShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec3 a_Normal; \n' +
+            'attribute vec3 a_Color; \n' +
+            'uniform mat4 ModelViewProjectionMatrix; \n' +
+            'uniform mat3 NormalMatrix; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '    normal = normalize(NormalMatrix * a_Normal); \n' +
+            '    color = vec4(a_Color, 1.0); \n' +
+            '    vec4 position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
+            '    gl_Position = vec4(position.x, position.y*0.0 - 1.5, position.z, position.w); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec3 Ambient; \n' +
+            'uniform vec3 LightColor; \n' +
+            'uniform vec3 LightDirection; \n' +
+            'uniform vec3 HalfVector; \n' +
+            'uniform float Shininess; \n' +
+            'uniform float Strength; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
+            '   float specular = abs(dot(normal, HalfVector)); \n' +
+            '   specular = pow(specular, Shininess); \n' +
+            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
+            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
+            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
+            '   gl_FragColor = vec4(rgb, color.a); \n' +
+            '   gl_FragColor = vec4(0.1, 0.1, 0.1, 1); \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfIndices) {
+        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
+    }
+}
+exports.ControlPolygon3dShadowShaders = ControlPolygon3dShadowShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPolygon3dShadowView.ts":
+/*!*************************************************!*\
+  !*** ./src/views/ControlPolygon3dShadowView.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
+const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
+class ControlPolygon3dShadowView {
+    constructor(spline, controlPolygon3dShaders, lightDirection, closed) {
+        this.controlPolygon3dShaders = controlPolygon3dShaders;
+        this.lightDirection = lightDirection;
+        this.closed = closed;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint16Array([]);
+        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.controlPolygon3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+    }
+    renderFrame() {
+        let gl = this.controlPolygon3dShaders.gl, a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.controlPolygon3dShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        this.setUniforms();
+        this.controlPolygon3dShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.003;
+        const sectorCount = 20;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
+            let v = this.verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
+            let ind = this.indicesForOneCylinder(startingIndex, sectorCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...ind];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
+        let axisVector = centerTop.substract(centerBottom).normalize();
+        const circleTop = this.orientedCircle(centerTop, radius, axisVector, sectorCount);
+        const circleBottom = this.orientedCircle(centerBottom, radius, axisVector, sectorCount);
+        let result = [];
+        for (let i = 0; i < circleTop.vertices.length; i += 1) {
+            // vertex position (x, y, z)
+            result.push(circleTop.vertices[i].x);
+            result.push(circleTop.vertices[i].y);
+            result.push(circleTop.vertices[i].z);
+            // normalized vertex normal (nx, ny, nz)
+            result.push(circleTop.normals[i].x);
+            result.push(circleTop.normals[i].y);
+            result.push(circleTop.normals[i].z);
+            // Color
+            result.push(0.5);
+            result.push(0.5);
+            result.push(0.5);
+        }
+        for (let i = 0; i < circleBottom.vertices.length; i += 1) {
+            // vertex position (x, y, z)
+            result.push(circleBottom.vertices[i].x);
+            result.push(circleBottom.vertices[i].y);
+            result.push(circleBottom.vertices[i].z);
+            // normalized vertex normal (nx, ny, nz)
+            result.push(circleBottom.normals[i].x);
+            result.push(circleBottom.normals[i].y);
+            result.push(circleBottom.normals[i].z);
+            // Color
+            result.push(0.8);
+            result.push(0.8);
+            result.push(0.8);
+        }
+        return result;
+    }
+    orientedCircle(center, radius, axisVector, sectorCount) {
+        const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
+        const sectorStep = 2 * Math.PI / sectorCount;
+        let vertices = [];
+        let normals = [];
+        if (n > 0) {
+            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
+            for (let j = 0; j <= sectorCount; j += 1) {
+                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+                // cicle in the plane xy 
+                let x = radius * Math.cos(sectorAngle);
+                let y = radius * Math.sin(sectorAngle);
+                let v = rotationMatrix.multiplyByVector([x, y, 0]);
+                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+                let nx = Math.cos(sectorAngle);
+                let ny = Math.sin(sectorAngle);
+                let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
+                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+            }
+        }
+        else {
+            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
+            for (let j = 0; j <= sectorCount; j += 1) {
+                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+                // cicle in the plane xz 
+                let x = radius * Math.cos(sectorAngle);
+                let z = radius * Math.sin(sectorAngle);
+                let v = rotationMatrix.multiplyByVector([x, 0, z]);
+                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+                let nx = Math.cos(sectorAngle);
+                let nz = Math.sin(sectorAngle);
+                let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
+                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+            }
+        }
+        return { vertices: vertices, normals: normals };
+    }
+    indicesForOneCylinder(startingIndex, sectorCount) {
+        let result = [];
+        let k1 = 0; // beginning of current stack
+        let k2 = k1 + sectorCount + 1; // beginning of next stack
+        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+            result.push(k1 + startingIndex);
+            result.push(k2 + startingIndex);
+            result.push(k1 + 1 + startingIndex);
+            result.push(k1 + 1 + startingIndex);
+            result.push(k2 + startingIndex);
+            result.push(k2 + 1 + startingIndex);
+        }
+        return result;
+    }
+    initVertexBuffers(gl) {
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        let a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Normal < 0) {
+            console.log('Failed to get the storage location of a_Normal');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    }
+    updateBuffers() {
+        const gl = this.controlPolygon3dShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    setUniforms() {
+        const gl = this.controlPolygon3dShaders.gl;
+        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
+        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
+        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        const view = this.viewMatrix();
+        const projection = this.projectionMatrix();
+        const mv = mat4_1.multiply(view, model);
+        const mvp = mat4_1.multiply(projection, mv);
+        const ambientLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Ambient");
+        const lightColorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightColor");
+        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "ModelViewProjectionMatrix");
+        const normalMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "NormalMatrix");
+        const lightDirectionLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
+        const halfVectorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
+        const shininessLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Shininess");
+        const strengthLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Strength");
+        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
+        gl.uniform3f(lightColorLoc, 1, 1, 1);
+        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
+        const hvX = this.lightDirection[0];
+        const hvY = this.lightDirection[1];
+        const hvZ = this.lightDirection[2] + 1;
+        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
+        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
+        gl.uniform1f(shininessLoc, 50);
+        gl.uniform1f(strengthLoc, 20);
+    }
+    viewMatrix() {
+        const camera_position = new Float32Array([0, 0, 3.3]);
+        const look_at_origin = new Float32Array([0, -0.2, 0]);
+        const head_is_up = new Float32Array([0, 1, 0]);
+        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
+    }
+    projectionMatrix() {
+        const fovy = 20 * Math.PI / 180;
+        const canvas = this.controlPolygon3dShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+    }
+    update(spline) {
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.ControlPolygon3dShadowView = ControlPolygon3dShadowView;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPolygon3dView.ts":
+/*!*******************************************!*\
+  !*** ./src/views/ControlPolygon3dView.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
+const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
+class ControlPolygon3dView {
+    constructor(spline, controlPolygon3dShaders, lightDirection, closed) {
+        this.controlPolygon3dShaders = controlPolygon3dShaders;
+        this.lightDirection = lightDirection;
+        this.closed = closed;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint16Array([]);
+        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.controlPolygon3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+    }
+    renderFrame() {
+        let gl = this.controlPolygon3dShaders.gl, a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.controlPolygon3dShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        this.setUniforms();
+        this.controlPolygon3dShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.003;
+        const sectorCount = 20;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
+            let v = this.verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
+            let ind = this.indicesForOneCylinder(startingIndex, sectorCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...ind];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
+        let axisVector = centerTop.substract(centerBottom).normalize();
+        const circleTop = this.orientedCircle(centerTop, radius, axisVector, sectorCount);
+        const circleBottom = this.orientedCircle(centerBottom, radius, axisVector, sectorCount);
+        let result = [];
+        for (let i = 0; i < circleTop.vertices.length; i += 1) {
+            // vertex position (x, y, z)
+            result.push(circleTop.vertices[i].x);
+            result.push(circleTop.vertices[i].y);
+            result.push(circleTop.vertices[i].z);
+            // normalized vertex normal (nx, ny, nz)
+            result.push(circleTop.normals[i].x);
+            result.push(circleTop.normals[i].y);
+            result.push(circleTop.normals[i].z);
+            // Color
+            result.push(0.5);
+            result.push(0.5);
+            result.push(0.5);
+        }
+        for (let i = 0; i < circleBottom.vertices.length; i += 1) {
+            // vertex position (x, y, z)
+            result.push(circleBottom.vertices[i].x);
+            result.push(circleBottom.vertices[i].y);
+            result.push(circleBottom.vertices[i].z);
+            // normalized vertex normal (nx, ny, nz)
+            result.push(circleBottom.normals[i].x);
+            result.push(circleBottom.normals[i].y);
+            result.push(circleBottom.normals[i].z);
+            // Color
+            result.push(0.8);
+            result.push(0.8);
+            result.push(0.8);
+        }
+        return result;
+    }
+    orientedCircle(center, radius, axisVector, sectorCount) {
+        const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
+        const sectorStep = 2 * Math.PI / sectorCount;
+        let vertices = [];
+        let normals = [];
+        if (n > 0) {
+            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
+            for (let j = 0; j <= sectorCount; j += 1) {
+                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+                // cicle in the plane xy 
+                let x = radius * Math.cos(sectorAngle);
+                let y = radius * Math.sin(sectorAngle);
+                let v = rotationMatrix.multiplyByVector([x, y, 0]);
+                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+                let nx = Math.cos(sectorAngle);
+                let ny = Math.sin(sectorAngle);
+                let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
+                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+            }
+        }
+        else {
+            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
+            for (let j = 0; j <= sectorCount; j += 1) {
+                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+                // cicle in the plane xz 
+                let x = radius * Math.cos(sectorAngle);
+                let z = radius * Math.sin(sectorAngle);
+                let v = rotationMatrix.multiplyByVector([x, 0, z]);
+                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+                let nx = Math.cos(sectorAngle);
+                let nz = Math.sin(sectorAngle);
+                let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
+                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+            }
+        }
+        return { vertices: vertices, normals: normals };
+    }
+    indicesForOneCylinder(startingIndex, sectorCount) {
+        let result = [];
+        let k1 = 0; // beginning of current stack
+        let k2 = k1 + sectorCount + 1; // beginning of next stack
+        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+            result.push(k1 + startingIndex);
+            result.push(k2 + startingIndex);
+            result.push(k1 + 1 + startingIndex);
+            result.push(k1 + 1 + startingIndex);
+            result.push(k2 + startingIndex);
+            result.push(k2 + 1 + startingIndex);
+        }
+        return result;
+    }
+    initVertexBuffers(gl) {
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        let a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Normal < 0) {
+            console.log('Failed to get the storage location of a_Normal');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    }
+    updateBuffers() {
+        const gl = this.controlPolygon3dShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    setUniforms() {
+        const gl = this.controlPolygon3dShaders.gl;
+        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
+        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
+        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        const view = this.viewMatrix();
+        const projection = this.projectionMatrix();
+        const mv = mat4_1.multiply(view, model);
+        const mvp = mat4_1.multiply(projection, mv);
+        const ambientLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Ambient");
+        const lightColorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightColor");
+        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "ModelViewProjectionMatrix");
+        const normalMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "NormalMatrix");
+        const lightDirectionLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
+        const halfVectorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
+        const shininessLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Shininess");
+        const strengthLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Strength");
+        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
+        gl.uniform3f(lightColorLoc, 1, 1, 1);
+        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
+        const hvX = this.lightDirection[0];
+        const hvY = this.lightDirection[1];
+        const hvZ = this.lightDirection[2] + 1;
+        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
+        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
+        gl.uniform1f(shininessLoc, 50);
+        gl.uniform1f(strengthLoc, 20);
+    }
+    viewMatrix() {
+        const camera_position = new Float32Array([0, 0, 3.3]);
+        const look_at_origin = new Float32Array([0, -0.2, 0]);
+        const head_is_up = new Float32Array([0, 1, 0]);
+        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
+    }
+    projectionMatrix() {
+        const fovy = 20 * Math.PI / 180;
+        const canvas = this.controlPolygon3dShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+    }
+    update(spline) {
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.ControlPolygon3dView = ControlPolygon3dView;
 
 
 /***/ }),
@@ -5641,6 +7568,107 @@ exports.CurvatureExtremaView = CurvatureExtremaView;
 
 /***/ }),
 
+/***/ "./src/views/CurveScene3dView.ts":
+/*!***************************************!*\
+  !*** ./src/views/CurveScene3dView.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+const ControlPoints3dShaders_1 = __webpack_require__(/*! ./ControlPoints3dShaders */ "./src/views/ControlPoints3dShaders.ts");
+const ControlPoints3dShadowShaders_1 = __webpack_require__(/*! ./ControlPoints3dShadowShaders */ "./src/views/ControlPoints3dShadowShaders.ts");
+const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
+const ControlPoints3dShadowView_1 = __webpack_require__(/*! ./ControlPoints3dShadowView */ "./src/views/ControlPoints3dShadowView.ts");
+const ControlPolygon3dShaders_1 = __webpack_require__(/*! ./ControlPolygon3dShaders */ "./src/views/ControlPolygon3dShaders.ts");
+const ControlPolygon3dView_1 = __webpack_require__(/*! ./ControlPolygon3dView */ "./src/views/ControlPolygon3dView.ts");
+const ControlPolygon3dShadowShaders_1 = __webpack_require__(/*! ./ControlPolygon3dShadowShaders */ "./src/views/ControlPolygon3dShadowShaders.ts");
+const ControlPolygon3dShadowView_1 = __webpack_require__(/*! ./ControlPolygon3dShadowView */ "./src/views/ControlPolygon3dShadowView.ts");
+var STATE;
+(function (STATE) {
+    STATE[STATE["NONE"] = 0] = "NONE";
+    STATE[STATE["ROTATE"] = 1] = "ROTATE";
+})(STATE || (STATE = {}));
+class CurveScene3dView {
+    constructor(canvas, gl, curveModel) {
+        this.canvas = canvas;
+        this.gl = gl;
+        this.lightDirection = [0, 1, 1];
+        this.previousMousePosition = { x: 0, y: 0 };
+        this.state = STATE.NONE;
+        this.curveModel = curveModel;
+        this.controlPoints3dShaders = new ControlPoints3dShaders_1.ControlPoints3dShaders(this.gl);
+        this.controlPoints3dView = new ControlPoints3dView_1.ControlPoints3dView(curveModel.spline, this.controlPoints3dShaders, this.lightDirection);
+        this.controlPoints3dShadowShaders = new ControlPoints3dShadowShaders_1.ControlPoints3dShadowShaders(this.gl);
+        this.controlPoints3dShadowView = new ControlPoints3dShadowView_1.ControlPoints3dShadowView(curveModel.spline, this.controlPoints3dShadowShaders, this.lightDirection);
+        this.controlPolygon3dShaders = new ControlPolygon3dShaders_1.ControlPolygon3dShaders(this.gl);
+        this.controlPolygon3dView = new ControlPolygon3dView_1.ControlPolygon3dView(curveModel.spline, this.controlPolygon3dShaders, this.lightDirection, false);
+        this.controlPolygon3dShadowShaders = new ControlPolygon3dShadowShaders_1.ControlPolygon3dShadowShaders(this.gl);
+        this.controlPolygon3dShadowView = new ControlPolygon3dShadowView_1.ControlPolygon3dShadowView(curveModel.spline, this.controlPolygon3dShadowShaders, this.lightDirection, false);
+    }
+    renderFrame() {
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+        this.gl.clearColor(0.2, 0.2, 0.2, 1);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+        this.controlPoints3dView.renderFrame();
+        this.controlPoints3dShadowView.renderFrame();
+        this.controlPolygon3dView.renderFrame();
+        this.controlPolygon3dShadowView.renderFrame();
+    }
+    mousedown(event) {
+        this.previousMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
+        if (event.button === 0) {
+            this.state = STATE.ROTATE;
+        }
+        //console.log(event.clientX)
+        const ndc = this.mouse_get_NormalizedDeviceCoordinates(event);
+    }
+    mousemove(event) {
+        const currentMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
+        const deltaMove = {
+            x: currentMousePosition.x - this.previousMousePosition.x,
+            y: currentMousePosition.y - this.previousMousePosition.y
+        };
+        this.previousMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
+        if (this.state === STATE.ROTATE) {
+            const deltaRotationQuaternion = quat_1.fromEuler(-deltaMove.y * 500, deltaMove.x * 500, 0);
+            this.controlPoints3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dView.orientation);
+            this.controlPoints3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dShadowView.orientation);
+            this.controlPolygon3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dView.orientation);
+            this.controlPolygon3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation);
+        }
+    }
+    mouseup(event) {
+        this.state = STATE.NONE;
+    }
+    mouse_get_NormalizedDeviceCoordinates(event) {
+        /*
+        const canvas = this.gl.canvas
+        const rect  = canvas.getBoundingClientRect()
+        const ev = event
+        const x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2)
+        const y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2)
+        return {x: x, y: y}
+        */
+        const factor = Math.floor(window.devicePixelRatio);
+        const canvas = this.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        const ev = event;
+        const x = ((ev.clientX - rect.left) - canvas.width / 2 / factor) / (canvas.width / 2 / factor);
+        const y = (canvas.height / 2 / factor - (ev.clientY - rect.top)) / (canvas.height / 2 / factor);
+        return { x: x, y: y };
+    }
+}
+exports.CurveScene3dView = CurveScene3dView;
+
+
+/***/ }),
+
 /***/ "./src/views/CurveSceneView.ts":
 /*!*************************************!*\
   !*** ./src/views/CurveSceneView.ts ***!
@@ -5688,12 +7716,15 @@ class CurveSceneView {
         this.renderFrame();
     }
     renderFrame() {
-        let px = 100;
-        let size = Math.min(window.innerWidth, window.innerHeight) - px;
+        /*
+        let px = 100
+        let size = Math.min(window.innerWidth, window.innerHeight) - px
         this.canvas.width = size;
         this.canvas.height = size;
+        */
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-        this.gl.clearColor(0.3, 0.3, 0.3, 1);
+        //this.gl.clearColor(0.3, 0.3, 0.3, 1)
+        this.gl.clearColor(0.27, 0.27, 0.27, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
@@ -6109,15 +8140,195 @@ exports.InflectionsView = InflectionsView;
 
 /***/ }),
 
-/***/ "./src/views/WireEventListner.ts":
-/*!***************************************!*\
-  !*** ./src/views/WireEventListner.ts ***!
-  \***************************************/
+/***/ "./src/views/Wire3dEventListener.ts":
+/*!******************************************!*\
+  !*** ./src/views/Wire3dEventListener.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+//import { CurveSceneView } from "./CurveSceneView"
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+function wire3dEventListener(canvas, curveSceneView) {
+    /*
+    hideContextMenu()
+
+    function hideContextMenu() {
+        const cm = document.getElementById("contextMenu")
+        if (cm) {
+            cm.style.display = "none"
+        }
+    }
+    */
+    canvas.addEventListener('mousedown', (event) => {
+        curveSceneView.mousedown(event);
+        event.preventDefault();
+        curveSceneView.renderFrame();
+    });
+    canvas.addEventListener('mousemove', (event) => {
+        curveSceneView.mousemove(event);
+        event.preventDefault();
+        curveSceneView.renderFrame();
+    });
+    canvas.addEventListener('mouseup', (event) => {
+        curveSceneView.mouseup(event);
+        event.preventDefault();
+        curveSceneView.renderFrame();
+    });
+    /*
+    
+    function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
+        var x, y,
+            rect  = canvas.getBoundingClientRect(),
+            ev
+
+        ev = event
+        
+        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2)
+        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2)
+        return [x, y]
+    }
+
+    function touch_get_NormalizedDeviceCoordinates(event: TouchEvent) {
+        var x, y,
+            rect  = canvas.getBoundingClientRect(),
+            ev;
+ 
+        ev = event.touches[0]
+        
+        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2)
+        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2)
+        return [x, y]
+    }
+
+
+    function mouse_click(ev: MouseEvent) {
+        hideContextMenu()
+        let c = mouse_get_NormalizedDeviceCoordinates(ev)
+        const mousePrecision =  0.0005
+        curveSceneView.leftMouseDown_event(c[0], c[1], mousePrecision)
+        curveSceneView.renderFrame()
+        ev.preventDefault()
+    }
+
+    function mouse_drag(ev: MouseEvent) {
+        var c = mouse_get_NormalizedDeviceCoordinates(ev)
+        curveSceneView.leftMouseDragged_event(c[0], c[1])
+        curveSceneView.renderFrame()
+        ev.preventDefault()
+
+    }
+
+    function mouse_stop_drag(ev: MouseEvent) {
+        curveSceneView.leftMouseUp_event()
+        ev.preventDefault()
+    }
+
+    function touch_click(ev: TouchEvent) {
+        let c = touch_get_NormalizedDeviceCoordinates(ev)
+        curveSceneView.leftMouseDown_event(c[0], c[1])
+        curveSceneView.renderFrame()
+        ev.preventDefault()
+    }
+
+    function touch_drag(ev: TouchEvent) {
+        var c = touch_get_NormalizedDeviceCoordinates(ev)
+        curveSceneView.leftMouseDragged_event(c[0], c[1])
+        curveSceneView.renderFrame()
+        ev.preventDefault()
+    }
+
+    function touch_stop_drag(ev: TouchEvent) {
+        curveSceneView.leftMouseUp_event()
+        ev.preventDefault()
+    }
+
+    canvas.addEventListener('mousedown', mouse_click, false)
+    canvas.addEventListener('mousemove', mouse_drag, false)
+    canvas.addEventListener('mouseup', mouse_stop_drag, false)
+    canvas.addEventListener('touchstart', touch_click, false)
+    canvas.addEventListener('touchmove', touch_drag, false)
+    canvas.addEventListener('touchend', touch_stop_drag, false)
+
+    // Prevent scrolling when touching the canvas
+    document.body.addEventListener("touchstart", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault()
+        }
+    }, false)
+    document.body.addEventListener("touchend", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault()
+        }
+    }, false)
+    document.body.addEventListener("touchmove", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault()
+        }
+    }, false)
+
+
+
+    function rightClick(e: MouseEvent) {
+        e.preventDefault()
+
+        const cm = document.getElementById("contextMenu")
+        if (cm) {
+                //cm.style.display = "block"
+                cm.style.left = e.pageX + "px"
+                cm.style.top = e.pageY + "px"
+                cm.style.display = "block"
+        }
+    }
+
+    function addControlPoint() {
+        hideContextMenu()
+        curveSceneView.addControlPoint()
+    }
+
+    document.getElementById("addControlPoint")?.addEventListener('click', addControlPoint)
+
+    canvas.addEventListener('contextmenu', rightClick, false)
+
+
+    let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
+    let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
+    
+
+    function toggleControlOfCurvatureExtrema() {
+        curveSceneView.toggleControlOfCurvatureExtrema()
+    }
+
+    function toggleControlOfInflections() {
+        curveSceneView.toggleControlOfInflections()
+    }
+
+
+    function selectCurveCategory(event: any) {
+        curveSceneView.selectCurveCategory(event.detail.category)
+    }
+
+    toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
+    toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
+
+    let app = document.getElementsByTagName("app-curves-and-surfaces")[0]
+    app.addEventListener("changeCurveCategory", selectCurveCategory)
+    */
+}
+exports.wire3dEventListener = wire3dEventListener;
+
+
+/***/ }),
+
+/***/ "./src/views/WireEventListener.ts":
+/*!****************************************!*\
+  !*** ./src/views/WireEventListener.ts ***!
+  \****************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-function wireEventListner(canvas, curveSceneView) {
+function wireEventListener(canvas, curveSceneView) {
     var _a;
     hideContextMenu();
     function mouse_get_NormalizedDeviceCoordinates(event) {
@@ -6212,8 +8423,6 @@ function wireEventListner(canvas, curveSceneView) {
     }
     (_a = document.getElementById("addControlPoint")) === null || _a === void 0 ? void 0 : _a.addEventListener('click', addControlPoint);
     canvas.addEventListener('contextmenu', rightClick, false);
-    let toggleButtonCurvatureExtrema = document.getElementById("toggleButtonCurvatureExtrema");
-    let toggleButtonInflection = document.getElementById("toggleButtonInflections");
     function toggleControlOfCurvatureExtrema() {
         curveSceneView.toggleControlOfCurvatureExtrema();
     }
@@ -6223,12 +8432,12 @@ function wireEventListner(canvas, curveSceneView) {
     function selectCurveCategory(event) {
         curveSceneView.selectCurveCategory(event.detail.category);
     }
-    toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema);
-    toggleButtonInflection.addEventListener('click', toggleControlOfInflections);
     let app = document.getElementsByTagName("app-curves-and-surfaces")[0];
     app.addEventListener("changeCurveCategory", selectCurveCategory);
+    app.addEventListener("toogleControlOverCurvatureExtrema", toggleControlOfCurvatureExtrema);
+    app.addEventListener("toogleControlOverInflections", toggleControlOfInflections);
 }
-exports.wireEventListner = wireEventListner;
+exports.wireEventListener = wireEventListener;
 
 
 /***/ }),
@@ -6243,16 +8452,22 @@ exports.wireEventListner = wireEventListner;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const template = document.createElement('template');
 template.innerHTML = `
+    <rounded-switch-inflections></rounded-switch-inflections>
+    <rounded-switch-curvature-extrema></rounded-switch-curvature-extrema>
     <curve-category></curve-category>
     <copyright-years></copyright-years>
 `;
-const CopyrightYears_1 = __webpack_require__(/*! ./CopyrightYears */ "./src/webComponents/CopyrightYears.ts");
+//import { CopyrightYears } from "./CopyrightYears"
 const CurveCategory_1 = __webpack_require__(/*! ./CurveCategory */ "./src/webComponents/CurveCategory.ts");
+const RoundedSwitchCurvatureExtrema_1 = __webpack_require__(/*! ./RoundedSwitchCurvatureExtrema */ "./src/webComponents/RoundedSwitchCurvatureExtrema.ts");
+const RoundedSwitchInflections_1 = __webpack_require__(/*! ./RoundedSwitchInflections */ "./src/webComponents/RoundedSwitchInflections.ts");
 class AppCurvesAndSurfaces extends HTMLElement {
     constructor() {
         super();
-        window.customElements.define('copyright-years', CopyrightYears_1.CopyrightYears);
+        window.customElements.define('rounded-switch-inflections', RoundedSwitchInflections_1.RoundedSwitchInflections);
+        window.customElements.define('rounded-switch-curvature-extrema', RoundedSwitchCurvatureExtrema_1.RoundedSwitchCurvatureExtrema);
         window.customElements.define('curve-category', CurveCategory_1.CurveCategory);
+        //window.customElements.define('copyright-years', CopyrightYears)
         this.attachShadow({ mode: 'open' });
         this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
@@ -6324,8 +8539,10 @@ template.innerHTML = `
         <select id="curve-category-selector">
             <option id= "option1" value="0" selected="selected"> Open planar </option>
             <option id= "option2" value="1" > Closed planar </option>
+            <!--
             <option id= "option3" value="2" > Alternative open planar </option>
             <option id= "option4" value="3" > Alternative closed planar </option>
+            -->
         </select>
     </div>
 `;
@@ -6353,6 +8570,251 @@ class CurveCategory extends HTMLElement {
     }
 }
 exports.CurveCategory = CurveCategory;
+
+
+/***/ }),
+
+/***/ "./src/webComponents/RoundedSwitchCurvatureExtrema.ts":
+/*!************************************************************!*\
+  !*** ./src/webComponents/RoundedSwitchCurvatureExtrema.ts ***!
+  \************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const template = document.createElement('template');
+template.innerHTML = `
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family:  'Open Sans', sans-serif;
+        background-color: rgb(230, 230, 230);}
+
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+      }
+    
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+      
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 23px;
+        width: 23px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+      
+      input:checked + .slider {
+        background-color: rgb(130, 194, 141);
+      }
+      
+      input:focus + .slider {
+        box-shadow: 0 0 1px rgb(145, 182, 145);
+      }
+      
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+      
+      .slider.round {
+        border-radius: 34px;
+      }
+      
+      .slider.round:before {
+        border-radius: 50%;
+      }
+
+      .text_control_button {
+        font-size: small;
+        font-weight: bold;
+        margin-bottom: 0%;
+        color:rgb(100, 100, 100);
+        }
+    </style>
+
+    <div id="container">
+        <center>  <p class="text_control_button"> Curvature extrema </p> 
+            <label class="switch">
+            <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
+            <span class="slider round"></span>
+            </label>
+        </center>
+    </div>
+`;
+class RoundedSwitchCurvatureExtrema extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
+    connectedCallback() {
+        this.shadowRoot.getElementById('toggleButtonCurvatureExtrema').
+            addEventListener('change', this.toogleControlOverCurvatureExtrema);
+    }
+    disconnectedCallback() {
+        this.shadowRoot.getElementById('toggleButtonCurvatureExtrema').
+            removeEventListener('change', this.toogleControlOverCurvatureExtrema);
+    }
+    toogleControlOverCurvatureExtrema(event) {
+        let category = event.target;
+        this.dispatchEvent(new CustomEvent("toogleControlOverCurvatureExtrema", {
+            bubbles: true,
+            composed: true,
+            detail: { category: category.value }
+        }));
+    }
+}
+exports.RoundedSwitchCurvatureExtrema = RoundedSwitchCurvatureExtrema;
+
+
+/***/ }),
+
+/***/ "./src/webComponents/RoundedSwitchInflections.ts":
+/*!*******************************************************!*\
+  !*** ./src/webComponents/RoundedSwitchInflections.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const template = document.createElement('template');
+template.innerHTML = `
+    <style>
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family:  'Open Sans', sans-serif;
+        background-color: rgb(230, 230, 230);}
+
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+      }
+    
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+      
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 23px;
+        width: 23px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+      
+      input:checked + .slider {
+        background-color: rgb(130, 194, 141);
+      }
+      
+      input:focus + .slider {
+        box-shadow: 0 0 1px rgb(145, 182, 145);
+      }
+      
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+      
+      .slider.round {
+        border-radius: 34px;
+      }
+      
+      .slider.round:before {
+        border-radius: 50%;
+      }
+
+      .text_control_button {
+        font-size: small;
+        font-weight: bold;
+        margin-bottom: 0%;
+        color:rgb(100, 100, 100);
+        }
+    </style>
+
+    <div id="container">
+        <center>  <p class="text_control_button"> Inflections </p>
+            <label class="switch">
+            <input type="checkbox" checked id="toggleButtonInflections">
+            <span class="slider round"></span>
+            </label>
+        </center>
+    </div>
+`;
+class RoundedSwitchInflections extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
+    connectedCallback() {
+        this.shadowRoot.getElementById('toggleButtonInflections').
+            addEventListener('change', this.toogleControlOverCurvatureExtrema);
+    }
+    disconnectedCallback() {
+        this.shadowRoot.getElementById('toggleButtonInflections').
+            removeEventListener('change', this.toogleControlOverCurvatureExtrema);
+    }
+    toogleControlOverCurvatureExtrema(event) {
+        let category = event.target;
+        this.dispatchEvent(new CustomEvent("toogleControlOverInflections", {
+            bubbles: true,
+            composed: true,
+            detail: { category: category.value }
+        }));
+    }
+}
+exports.RoundedSwitchInflections = RoundedSwitchInflections;
 
 
 /***/ }),
@@ -6433,6 +8895,424 @@ function loadShader(gl, type, source) {
     }
     return shader;
 }
+
+
+/***/ }),
+
+/***/ "./src/webgl/mat3.ts":
+/*!***************************!*\
+  !*** ./src/webgl/mat3.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+//http://glmatrix.net/docs/mat4.js.html
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+/**
+ * Copies the upper-left 3x3 values into a mat3.
+ *
+ * @param a   the source 4x4 matrix
+ * @returns  3x3 matrix
+ */
+function mat4_to_mat3(a) {
+    let result = new Float32Array(9);
+    result[0] = a[0];
+    result[1] = a[1];
+    result[2] = a[2];
+    result[3] = a[4];
+    result[4] = a[5];
+    result[5] = a[6];
+    result[6] = a[8];
+    result[7] = a[9];
+    result[8] = a[10];
+    return result;
+}
+exports.mat4_to_mat3 = mat4_to_mat3;
+
+
+/***/ }),
+
+/***/ "./src/webgl/mat4.ts":
+/*!***************************!*\
+  !*** ./src/webgl/mat4.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+//http://glmatrix.net/docs/mat4.js.html
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+function identity_mat4() {
+    let result = new Float32Array(16);
+    result[0] = 1;
+    result[5] = 1;
+    result[10] = 1;
+    result[15] = 1;
+    return result;
+}
+exports.identity_mat4 = identity_mat4;
+function fromQuat(quaternion) {
+    let result = new Float32Array(16);
+    let x = quaternion[0], y = quaternion[1], z = quaternion[2], w = quaternion[3];
+    let x2 = x + x;
+    let y2 = y + y;
+    let z2 = z + z;
+    let xx = x * x2;
+    let yx = y * x2;
+    let yy = y * y2;
+    let zx = z * x2;
+    let zy = z * y2;
+    let zz = z * z2;
+    let wx = w * x2;
+    let wy = w * y2;
+    let wz = w * z2;
+    result[0] = 1 - yy - zz;
+    result[1] = yx + wz;
+    result[2] = zx - wy;
+    result[3] = 0;
+    result[4] = yx - wz;
+    result[5] = 1 - xx - zz;
+    result[6] = zy + wx;
+    result[7] = 0;
+    result[8] = zx + wy;
+    result[9] = zy - wx;
+    result[10] = 1 - xx - yy;
+    result[11] = 0;
+    result[12] = 0;
+    result[13] = 0;
+    result[14] = 0;
+    result[15] = 1;
+    return result;
+}
+exports.fromQuat = fromQuat;
+function hypot(...args) {
+    var y = 0, i = args.length;
+    while (i--)
+        y += args[i] * args[i];
+    return Math.sqrt(y);
+}
+function lookAt(eye, center, up) {
+    let result = new Float32Array(16);
+    const EPSILON = 0.000001;
+    let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
+    let eyex = eye[0];
+    let eyey = eye[1];
+    let eyez = eye[2];
+    let upx = up[0];
+    let upy = up[1];
+    let upz = up[2];
+    let centerx = center[0];
+    let centery = center[1];
+    let centerz = center[2];
+    if (Math.abs(eyex - centerx) < EPSILON &&
+        Math.abs(eyey - centery) < EPSILON &&
+        Math.abs(eyez - centerz) < EPSILON) {
+        return identity_mat4();
+    }
+    z0 = eyex - centerx;
+    z1 = eyey - centery;
+    z2 = eyez - centerz;
+    len = 1 / hypot(z0, z1, z2);
+    z0 *= len;
+    z1 *= len;
+    z2 *= len;
+    x0 = upy * z2 - upz * z1;
+    x1 = upz * z0 - upx * z2;
+    x2 = upx * z1 - upy * z0;
+    len = hypot(x0, x1, x2);
+    if (!len) {
+        x0 = 0;
+        x1 = 0;
+        x2 = 0;
+    }
+    else {
+        len = 1 / len;
+        x0 *= len;
+        x1 *= len;
+        x2 *= len;
+    }
+    y0 = z1 * x2 - z2 * x1;
+    y1 = z2 * x0 - z0 * x2;
+    y2 = z0 * x1 - z1 * x0;
+    len = hypot(y0, y1, y2);
+    if (!len) {
+        y0 = 0;
+        y1 = 0;
+        y2 = 0;
+    }
+    else {
+        len = 1 / len;
+        y0 *= len;
+        y1 *= len;
+        y2 *= len;
+    }
+    result[0] = x0;
+    result[1] = y0;
+    result[2] = z0;
+    result[3] = 0;
+    result[4] = x1;
+    result[5] = y1;
+    result[6] = z1;
+    result[7] = 0;
+    result[8] = x2;
+    result[9] = y2;
+    result[10] = z2;
+    result[11] = 0;
+    result[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+    result[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+    result[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+    result[15] = 1;
+    return result;
+}
+exports.lookAt = lookAt;
+/**
+ * Generates a perspective projection matrix with the given bounds.
+ * Passing null/undefined/no value for far will generate infinite projection matrix.
+ *
+ * @param fovy Vertical field of view in radians
+ * @param aspect Aspect ratio. typically viewport width/height
+ * @param  near Near bound of the frustum
+ * @param  far Far bound of the frustum, can be null or Infinity
+ * @returns projection matrix
+ */
+function perspective(fovy, aspect, near, far) {
+    let f = 1.0 / Math.tan(fovy / 2), nf;
+    let result = new Float32Array(16);
+    result[0] = f / aspect;
+    result[1] = 0;
+    result[2] = 0;
+    result[3] = 0;
+    result[4] = 0;
+    result[5] = f;
+    result[6] = 0;
+    result[7] = 0;
+    result[8] = 0;
+    result[9] = 0;
+    result[11] = -1;
+    result[12] = 0;
+    result[13] = 0;
+    result[15] = 0;
+    if (far != null && far !== Infinity) {
+        nf = 1 / (near - far);
+        result[10] = (far + near) * nf;
+        result[14] = (2 * far * near) * nf;
+    }
+    else {
+        result[10] = -1;
+        result[14] = -2 * near;
+    }
+    return result;
+}
+exports.perspective = perspective;
+/**
+* Multiplies two mat4s
+*
+* @param  a the first operand
+* @param  b the second operand
+* @returns matrix
+*/
+function multiply(a, b) {
+    let result = new Float32Array(16);
+    let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+    let a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+    let a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+    let a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+    // Cache only the current line of the second matrix
+    let b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+    result[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    result[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    result[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    result[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[4];
+    b1 = b[5];
+    b2 = b[6];
+    b3 = b[7];
+    result[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    result[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    result[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    result[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[8];
+    b1 = b[9];
+    b2 = b[10];
+    b3 = b[11];
+    result[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    result[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    result[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    result[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    b0 = b[12];
+    b1 = b[13];
+    b2 = b[14];
+    b3 = b[15];
+    result[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+    result[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+    result[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+    result[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
+    return result;
+}
+exports.multiply = multiply;
+/**
+ * Translate a mat4 by the given vector
+ *
+ * @param a the matrix to translate
+ * @param v vector to translate by
+ * @returns matrix
+ */
+function translate(a, v) {
+    let result = new Float32Array(16);
+    const x = v[0], y = v[1], z = v[2];
+    const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+    const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+    const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+    result[0] = a00;
+    result[1] = a01;
+    result[2] = a02;
+    result[3] = a03;
+    result[4] = a10;
+    result[5] = a11;
+    result[6] = a12;
+    result[7] = a13;
+    result[8] = a20;
+    result[9] = a21;
+    result[10] = a22;
+    result[11] = a23;
+    result[12] = a00 * x + a10 * y + a20 * z + a[12];
+    result[13] = a01 * x + a11 * y + a21 * z + a[13];
+    result[14] = a02 * x + a12 * y + a22 * z + a[14];
+    result[15] = a03 * x + a13 * y + a23 * z + a[15];
+    return result;
+}
+exports.translate = translate;
+/**
+* Generates a orthogonal projection matrix with the given bounds
+*
+* @param  left Left bound of the frustum
+* @param  right Right bound of the frustum
+* @param  bottom Bottom bound of the frustum
+* @param  top Top bound of the frustum
+* @param  near Near bound of the frustum
+* @param far Far bound of the frustum
+* @return result mat4 frustum matrix
+*/
+function ortho(left, right, bottom, top, near, far) {
+    let result = new Float32Array(16);
+    let lr = 1 / (left - right);
+    let bt = 1 / (bottom - top);
+    let nf = 1 / (near - far);
+    result[0] = -2 * lr;
+    result[1] = 0;
+    result[2] = 0;
+    result[3] = 0;
+    result[4] = 0;
+    result[5] = -2 * bt;
+    result[6] = 0;
+    result[7] = 0;
+    result[8] = 0;
+    result[9] = 0;
+    result[10] = 2 * nf;
+    result[11] = 0;
+    result[12] = (left + right) * lr;
+    result[13] = (top + bottom) * bt;
+    result[14] = (far + near) * nf;
+    result[15] = 1;
+    return result;
+}
+exports.ortho = ortho;
+/**
+* Transforms the vec2 with a mat4
+* 3rd vector component is implicitly '0'
+* 4th vector component is implicitly '1'
+*
+* @param x, y the vector to transform
+* @param  m matrix to transform with
+* @returns newX, newY
+*/
+function mat4_times_vec2(m, x, y) {
+    const newX = m[0] * x + m[4] * y + m[12];
+    const newY = m[1] * x + m[5] * y + m[13];
+    return { x: newX, y: newY };
+}
+exports.mat4_times_vec2 = mat4_times_vec2;
+
+
+/***/ }),
+
+/***/ "./src/webgl/quat.ts":
+/*!***************************!*\
+  !*** ./src/webgl/quat.ts ***!
+  \***************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+//http://glmatrix.net/docs/quat.js.html
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+function identity_quat() {
+    let result = new Float32Array(4);
+    result[3] = 1;
+    return result;
+}
+exports.identity_quat = identity_quat;
+/**
+ * Sets a quat from the given angle and rotation axis,
+ * then returns it.
+ *
+ * @param  axis the axis around which to rotate
+ * @param  rad the angle in radians
+ * @returns  result
+ **/
+function setAxisAngle(axis, rad) {
+    rad = rad * 0.5;
+    let s = Math.sin(rad);
+    let result = new Float32Array([0, 0, 0, 0]);
+    result[0] = s * axis[0];
+    result[1] = s * axis[1];
+    result[2] = s * axis[2];
+    result[3] = Math.cos(rad);
+    return result;
+}
+exports.setAxisAngle = setAxisAngle;
+/**
+ * Multiplies two quaternions
+ *
+ * @param  a the first quaternion operand
+ * @param  b the second quaternion operand
+ * @returns the resulting quaternion
+ */
+function multiply_quats(a, b) {
+    let ax = a[0], ay = a[1], az = a[2], aw = a[3];
+    let bx = b[0], by = b[1], bz = b[2], bw = b[3];
+    let result = new Float32Array([0, 0, 0, 0]);
+    result[0] = ax * bw + aw * bx + ay * bz - az * by;
+    result[1] = ay * bw + aw * by + az * bx - ax * bz;
+    result[2] = az * bw + aw * bz + ax * by - ay * bx;
+    result[3] = aw * bw - ax * bx - ay * by - az * bz;
+    return result;
+}
+exports.multiply_quats = multiply_quats;
+/**
+ * Creates a quaternion from the given euler angle x, y, z.
+ *
+ * @param Angle to rotate around X axis in degrees.
+ * @param Angle to rotate around Y axis in degrees.
+ * @param Angle to rotate around Z axis in degrees.
+ */
+function fromEuler(x, y, z) {
+    let result = new Float32Array([0, 0, 0, 0]);
+    let halfToRad = 0.5 * Math.PI / 180.0;
+    x *= halfToRad;
+    y *= halfToRad;
+    z *= halfToRad;
+    let sx = Math.sin(x);
+    let cx = Math.cos(x);
+    let sy = Math.sin(y);
+    let cy = Math.cos(y);
+    let sz = Math.sin(z);
+    let cz = Math.cos(z);
+    result[0] = sx * cy * cz - cx * sy * sz;
+    result[1] = cx * sy * cz + sx * cy * sz;
+    result[2] = cx * cy * sz - sx * sy * cz;
+    result[3] = cx * cy * cz + sx * sy * sz;
+    return result;
+}
+exports.fromEuler = fromEuler;
 
 
 /***/ }),
@@ -6610,7 +9490,7 @@ exports.WebGLUtils = WebGLUtils;
 if (!window.requestAnimationFrame) {
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
+            //window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame ||
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
@@ -6626,7 +9506,8 @@ if (!window.requestAnimationFrame) {
  * @param {number}  Animation frame request. */
 if (!window.cancelAnimationFrame) {
     window.cancelAnimationFrame = (window.cancelRequestAnimationFrame ||
-        window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame ||
+        //window.webkitCancelAnimationFrame || 
+        window.webkitCancelRequestAnimationFrame ||
         window.mozCancelAnimationFrame || window.mozCancelRequestAnimationFrame ||
         window.msCancelAnimationFrame || window.msCancelRequestAnimationFrame ||
         window.oCancelAnimationFrame || window.oCancelRequestAnimationFrame ||
@@ -6675,19 +9556,35 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
 const CurveSceneView_1 = __webpack_require__(/*! ./views/CurveSceneView */ "./src/views/CurveSceneView.ts");
 const CurveModel_1 = __webpack_require__(/*! ./models/CurveModel */ "./src/models/CurveModel.ts");
-const WireEventListner_1 = __webpack_require__(/*! ./views/WireEventListner */ "./src/views/WireEventListner.ts");
+const WireEventListener_1 = __webpack_require__(/*! ./views/WireEventListener */ "./src/views/WireEventListener.ts");
 const AppCurvesAndSurfaces_1 = __webpack_require__(/*! ./webComponents/AppCurvesAndSurfaces */ "./src/webComponents/AppCurvesAndSurfaces.ts");
+const CurveScene3dView_1 = __webpack_require__(/*! ./views/CurveScene3dView */ "./src/views/CurveScene3dView.ts");
+const Wire3dEventListener_1 = __webpack_require__(/*! ./views/Wire3dEventListener */ "./src/views/Wire3dEventListener.ts");
+const CopyrightYears_1 = __webpack_require__(/*! ./webComponents/CopyrightYears */ "./src/webComponents/CopyrightYears.ts");
+const CurveModel3d_1 = __webpack_require__(/*! ./models/CurveModel3d */ "./src/models/CurveModel3d.ts");
 function main() {
-    let canvas = document.getElementById("webgl");
-    let gl = webgl_utils_1.WebGLUtils().setupWebGL(canvas);
+    let canvas2d = document.getElementById("webgl");
+    let canvas3d = document.getElementById("webgl2");
+    let gl = webgl_utils_1.WebGLUtils().setupWebGL(canvas2d);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
+    let gl2 = webgl_utils_1.WebGLUtils().setupWebGL(canvas3d);
+    if (!gl2) {
+        console.log('Failed to get the rendering context for WebGL');
+        return;
+    }
+    gl2.enable(gl.DEPTH_TEST);
     let curveModel = new CurveModel_1.CurveModel();
-    let curveSceneView = new CurveSceneView_1.CurveSceneView(canvas, gl, curveModel);
+    let curveSceneView = new CurveSceneView_1.CurveSceneView(canvas2d, gl, curveModel);
+    let curveModel3d = new CurveModel3d_1.CurveModel3d();
+    let curve3dSceneView = new CurveScene3dView_1.CurveScene3dView(canvas3d, gl2, curveModel3d);
+    curve3dSceneView.renderFrame();
     window.customElements.define('app-curves-and-surfaces', AppCurvesAndSurfaces_1.AppCurvesAndSurfaces);
-    WireEventListner_1.wireEventListner(canvas, curveSceneView);
+    window.customElements.define('copy-right-years', CopyrightYears_1.CopyrightYears);
+    WireEventListener_1.wireEventListener(canvas2d, curveSceneView);
+    Wire3dEventListener_1.wire3dEventListener(canvas3d, curve3dSceneView);
 }
 exports.main = main;
 main();

@@ -52,7 +52,7 @@ export class OptimizationProblemForTests implements OptimizationProblemInterface
         // (x^2 + y^2)^2 - 2(x^2 - y^2) - 0.5 = 0
         const x = this._x
         const y = this._y
-        return [Math.pow((x*x + y*y), 2)-2*(x*x-y*y) - 0.01]
+        return [Math.pow((x*x + y*y), 2)-2*(x*x-y*y) - 0.5]
     }
 
     get gradient_f() {
@@ -89,7 +89,7 @@ export class OptimizationProblemForTests implements OptimizationProblemInterface
      fStep(deltaX: number[]) {
         const x = this._x + deltaX[0]
         const y = this._y + deltaX[1]
-        return [Math.pow((x*x + y*y), 2)-2*(x*x-y*y) - 0.01]
+        return [Math.pow((x*x + y*y), 2)-2*(x*x-y*y) - 0.5]
      }
  
      f0Step(deltaX: number[]) {

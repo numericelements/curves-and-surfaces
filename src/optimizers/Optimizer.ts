@@ -100,6 +100,7 @@ export class Optimizer {
             console.log("t: " + t)
             console.log("trustRadius: " + trustRadius)
         }
+        //console.log(counter)
     }
 
     optimize_using_line_search(epsilon: number = 10e-6, maxNumSteps: number = 300) {

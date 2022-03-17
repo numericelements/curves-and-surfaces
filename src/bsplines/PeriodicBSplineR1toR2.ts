@@ -1,6 +1,6 @@
-import { BSplineR1toR2} from "./BSplineR1toR2"
 import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
+import { BSplineR1toR2 } from "./BSplineR1toR2"
 import { clampingFindSpan } from "./Piegl_Tiller_NURBS_Book"
 
 

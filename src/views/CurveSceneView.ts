@@ -56,12 +56,15 @@ export class CurveSceneView {
     }
 
     renderFrame() {
+        /*
         let px = 100
         let size = Math.min(window.innerWidth, window.innerHeight) - px
         this.canvas.width = size;
         this.canvas.height = size;
+        */
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-        this.gl.clearColor(0.3, 0.3, 0.3, 1)
+        //this.gl.clearColor(0.3, 0.3, 0.3, 1)
+        this.gl.clearColor(0.27, 0.27, 0.27, 1)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT)
         this.gl.enable(this.gl.BLEND)
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)

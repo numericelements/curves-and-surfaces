@@ -144,5 +144,57 @@ export class SquareMatrix implements SquareMatrixInterface {
         return result;
     }
 
+    multiplyByVector(v: number[]) {
+        if (this.shape[1] !== v.length) {
+            throw new Error("SquareMatrix multiply a vector of incorrect length");
+        }
+        let result = []
+        const n = this.shape[1]
+        for (let i = 0; i < n; i += 1) {
+            let temp = 0;
+            for (let j = 0; j < n; j += 1) {
+                temp += this.get(i, j) * v[j];
+            }
+            result.push(temp);
+        }
+        return result;
+
+    }
+
+
+    /**
+     * Add two matrices
+     * @param that A square or a symmetric matrix
+     * @return a square matrix
+     */
+    addByMatrix(that: SquareMatrixInterface) {
+        if (this.shape[1] !== that.shape[0]) {
+            throw new Error("Size mismatch in matrix addition")
+        }
+        let result = new SquareMatrix(this.shape[1])
+
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            for (let j = 0; j < this.shape[0]; j += 1) {
+                result.set(i, j, this.get(i, j) + that.get(i, j));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Add two matrices
+     * @param that A square or a symmetric matrix
+     * @return a square matrix
+     */
+         mutiplyByConstant(value: number) {
+            let result = new SquareMatrix(this.shape[1])
+            for (let i = 0; i < this.shape[0]; i += 1) {
+                for (let j = 0; j < this.shape[0]; j += 1) {
+                    result.set(i, j, this.get(i, j) * value);
+                }
+            }
+            return result;
+        }
+
 
 }

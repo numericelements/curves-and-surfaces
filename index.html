@@ -10,12 +10,9 @@
     <body>
         <h1 class="text_center">NUMERIC ELEMENTS</h1>
         <h3 class="text_center">Software Development and Research in Applied Mathematics</h3>
-        
-
-
-       
 
         <div class="text_center">
+            <h2>Plane curve</h2>
             <canvas id="webgl" width="600" height="600"> Please use a browser that supports "canvas" </canvas>
         </div>
 
@@ -27,30 +24,25 @@
                 <li id="removeControlPoint" class="menu-option"> remove </li>
             </ul>
         </div>
+        <app-curves-and-surfaces></app-curves-and-surfaces>
 
+        <br>
+        <br>
+
+        <hr class="new1">
+
+        <br>
+        <br>
 
         <div class="text_center">
-            <!-- Rounded switch - curvature extrema -->
-            <center>  <p class="text_control_button"> Curvature extrema </p> 
-              <label class="switch">
-                <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
-                <span class="slider round"></span>
-              </label>
-            </center>
-
-            <p style="margin-bottom:0.5cm;"> </p>
-
-            <!-- Rounded switch - inflexions -->
-            <center>  <p class="text_control_button"> Inflexions </p>
-              <label class="switch">
-                <input type="checkbox" checked id="toggleButtonInflections">
-                <span class="slider round"></span>
-              </label>
-            </center>
+            <h2>Space curve</h2>
+            <canvas id="webgl2" width="1200" height="1200" style="width: 600px; height: 600px;"> Please use a browser that supports "canvas" </canvas>
         </div>
-        
 
-      <app-curves-and-surfaces></app-curves-and-surfaces>
+        <br>
+        <br>
+
+        <copy-right-years></copy-right-years>>
 
       <script src="dist/bundle.js"></script>
 
