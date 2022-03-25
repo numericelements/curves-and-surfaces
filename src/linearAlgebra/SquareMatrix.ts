@@ -186,15 +186,28 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param that A square or a symmetric matrix
      * @return a square matrix
      */
-         mutiplyByConstant(value: number) {
-            let result = new SquareMatrix(this.shape[1])
-            for (let i = 0; i < this.shape[0]; i += 1) {
-                for (let j = 0; j < this.shape[0]; j += 1) {
-                    result.set(i, j, this.get(i, j) * value);
-                }
+    mutiplyByConstant(value: number) {
+        let result = new SquareMatrix(this.shape[1])
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            for (let j = 0; j < this.shape[0]; j += 1) {
+                result.set(i, j, this.get(i, j) * value);
             }
-            return result;
         }
+        return result;
+    }
+
+    toNumberArray() {
+        let result: number[][] = []
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            result.push([])
+            for (let j = 0; j < this.shape[1]; j += 1) {
+                result[i].push(this.get(i, j))
+            }
+        }
+        return result
+    }
+
+
 
 
 }

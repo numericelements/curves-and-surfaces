@@ -1,21 +1,14 @@
-import { BSplineR2toR2, create_BSpline_R2_to_R2 } from "../bsplines/BSplineR2toR2";
-import { BSplineR2toCylCoord } from "../bsplines/BSplineR2toCylCoord";
-import { CylindricalCoordinates } from "../mathVector/CylindricalCoordinates";
-import { BSplineR1toR1 } from "../bsplines/BSplineR1toR1";
-import { IObserver, IObservable } from "../designPatterns/Observer";
-import { BSpline_R2_to_R1, create_BSpline_R2_to_R1 } from "../bsplines/BSplineR2toR1";
 import { BSplineR1toR3 } from "../bsplines/BSplineR1toR3";
+import { IObservable, IObserver } from "../designPatterns/Observer";
 import { Vector3d } from "../mathVector/Vector3d";
 
-
-
-export class CurveModel3d {
+export class CurveModel3d implements IObservable<BSplineR1toR3> {
 
 
     public _spline: BSplineR1toR3
 
     
-    //private camberSurfaceObservers: IObserver<BSplineR2toCylCoord>[] = []
+    private observers: IObserver<BSplineR1toR3>[] = []
 
     constructor() {
         const cp0 = new Vector3d(-0.25, 0, -0.15)
@@ -25,6 +18,19 @@ export class CurveModel3d {
         const cp4 = new Vector3d(0.25, 0, 0.05)
         this._spline = new BSplineR1toR3([ cp0, cp1, cp2, cp3, cp4 ], [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 ])
     }
+    registerObserver(observer: IObserver<BSplineR1toR3>): void {
+        this.observers.push(observer)
+    }
+    
+    removeObserver(observer: IObserver<BSplineR1toR3>): void {
+        this.observers.splice(this.observers.indexOf(observer), 1)
+    }
+
+    notifyObservers(): void {
+        for (let observer of this.observers){
+            observer.update(this._spline.clone())
+        }
+    }
 
     get spline(): BSplineR1toR3 {
         return this._spline.clone()
@@ -32,6 +38,16 @@ export class CurveModel3d {
 
     get isClosed(): boolean {
         return false
+    }
+
+    setControlPointPosition(controlPointIndex: number, x: number, y: number, z: number) {
+        this._spline.setControlPointPosition(controlPointIndex, new Vector3d(x, y, z))
+        this.notifyObservers()
+        /*
+        if (this.activeOptimizer) {
+            this.optimize(controlPointIndex, x, y)
+        }
+        */
     }
 
 }

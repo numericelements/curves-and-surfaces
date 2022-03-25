@@ -5,14 +5,11 @@ export function wireEventListener(canvas: HTMLCanvasElement, curveSceneView: Cur
     hideContextMenu()
     
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
-        var x, y,
-            rect  = canvas.getBoundingClientRect(),
-            ev
-
-        ev = event
-        
-        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2)
-        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2)
+        const rect  = canvas.getBoundingClientRect()
+        const w = parseInt(canvas.style.width, 10)
+        const h = parseInt(canvas.style.height, 10)
+        const x = ((event.clientX - rect.left) - w / 2) / (w / 2) 
+        const y = (h / 2 - (event.clientY - rect.top)) / (h / 2)
         return [x, y]
     }
 

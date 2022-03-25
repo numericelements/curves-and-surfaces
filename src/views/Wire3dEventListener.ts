@@ -2,7 +2,7 @@
 
 import { CurveScene3dView } from "./CurveScene3dView"
 
-export function wire3dEventListener(canvas: HTMLCanvasElement, curveSceneView: CurveScene3dView) {
+export function wire3dEventListener(canvas: HTMLCanvasElement, curveScene3dView: CurveScene3dView) {
     
     /*
     hideContextMenu()
@@ -17,21 +17,21 @@ export function wire3dEventListener(canvas: HTMLCanvasElement, curveSceneView: C
 
 
     canvas.addEventListener('mousedown', (event: MouseEvent) => {
-        curveSceneView.mousedown(event)
+        curveScene3dView.mousedown(event)
         event.preventDefault()
-        curveSceneView.renderFrame()
+        curveScene3dView.renderFrame()
     })
 
     canvas.addEventListener('mousemove', (event: MouseEvent) => {
-        curveSceneView.mousemove(event)
+        curveScene3dView.mousemove(event)
         event.preventDefault()
-        curveSceneView.renderFrame()
+        curveScene3dView.renderFrame()
     })
 
     canvas.addEventListener('mouseup', (event: MouseEvent) => {
-        curveSceneView.mouseup(event)
+        curveScene3dView.mouseup(event)
         event.preventDefault()
-        curveSceneView.renderFrame()
+        curveScene3dView.renderFrame()
     })
 
     /*

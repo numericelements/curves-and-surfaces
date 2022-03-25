@@ -3132,6 +3132,27 @@ exports.OptimizationProblemPeriodicBSplineR1toR2QuasiNewton = OptimizationProble
 
 /***/ }),
 
+/***/ "./src/controllers/CurveScene3dController.ts":
+/*!***************************************************!*\
+  !*** ./src/controllers/CurveScene3dController.ts ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class CurveScene3dController {
+    constructor(curveModel3d) {
+        this.curveModel3d = curveModel3d;
+    }
+    setControlPointPosition(selectedControlPoint, x, y, z) {
+        this.curveModel3d.setControlPointPosition(selectedControlPoint, x, y, z);
+    }
+}
+exports.CurveScene3dController = CurveScene3dController;
+
+
+/***/ }),
+
 /***/ "./src/controllers/CurveSceneController.ts":
 /*!*************************************************!*\
   !*** ./src/controllers/CurveSceneController.ts ***!
@@ -3461,6 +3482,131 @@ function identityMatrix(n) {
     return result;
 }
 exports.identityMatrix = identityMatrix;
+
+
+/***/ }),
+
+/***/ "./src/linearAlgebra/LUSolve.ts":
+/*!**************************************!*\
+  !*** ./src/linearAlgebra/LUSolve.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+// https://rosettacode.org/wiki/Gaussian_elimination#JavaScript
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+// Lower Upper Solver
+function lusolve(matrix, b, update = false) {
+    let A = matrix.toNumberArray();
+    let lu = ludcmp(A, update);
+    if (lu === undefined)
+        return; // Singular Matrix!
+    return lubksb(lu, b, update);
+}
+exports.lusolve = lusolve;
+// Lower Upper Decomposition
+function ludcmp(A, update) {
+    // A is a matrix that we want to decompose into Lower and Upper matrices.
+    let d = true;
+    let n = A.length;
+    let idx = new Array(n); // Output vector with row permutations from partial pivoting
+    let vv = new Array(n); // Scaling information
+    for (let i = 0; i < n; i++) {
+        let max = 0;
+        for (let j = 0; j < n; j++) {
+            let temp = Math.abs(A[i][j]);
+            if (temp > max)
+                max = temp;
+        }
+        if (max == 0)
+            return; // Singular Matrix!
+        vv[i] = 1 / max; // Scaling
+    }
+    if (!update) { // make a copy of A 
+        let Acpy = new Array(n);
+        for (let i = 0; i < n; i++) {
+            let Ai = A[i];
+            let Acpyi = new Array(Ai.length);
+            for (let j = 0; j < Ai.length; j += 1)
+                Acpyi[j] = Ai[j];
+            Acpy[i] = Acpyi;
+        }
+        A = Acpy;
+    }
+    let tiny = 1e-20; // in case pivot element is zero
+    for (let i = 0;; i++) {
+        for (let j = 0; j < i; j++) {
+            let sum = A[j][i];
+            for (let k = 0; k < j; k++)
+                sum -= A[j][k] * A[k][i];
+            A[j][i] = sum;
+        }
+        let jmax = 0;
+        let max = 0;
+        for (let j = i; j < n; j++) {
+            let sum = A[j][i];
+            for (let k = 0; k < i; k++)
+                sum -= A[j][k] * A[k][i];
+            A[j][i] = sum;
+            let temp = vv[j] * Math.abs(sum);
+            if (temp >= max) {
+                max = temp;
+                jmax = j;
+            }
+        }
+        if (i <= jmax) {
+            for (let j = 0; j < n; j++) {
+                let temp = A[jmax][j];
+                A[jmax][j] = A[i][j];
+                A[i][j] = temp;
+            }
+            d = !d;
+            vv[jmax] = vv[i];
+        }
+        idx[i] = jmax;
+        if (i == n - 1)
+            break;
+        let temp = A[i][i];
+        if (temp == 0)
+            A[i][i] = temp = tiny;
+        temp = 1 / temp;
+        for (let j = i + 1; j < n; j++)
+            A[j][i] *= temp;
+    }
+    return { A: A, idx: idx, d: d };
+}
+// Lower Upper Back Substitution
+function lubksb(lu, b, update) {
+    // solves the set of n linear equations A*x = b.
+    // lu is the object containing A, idx and d as determined by the routine ludcmp.
+    let A = lu.A;
+    let idx = lu.idx;
+    let n = idx.length;
+    if (!update) { // make a copy of b
+        let bcpy = new Array(n);
+        for (let i = 0; i < b.length; i += 1)
+            bcpy[i] = b[i];
+        b = bcpy;
+    }
+    for (let ii = -1, i = 0; i < n; i++) {
+        let ix = idx[i];
+        let sum = b[ix];
+        b[ix] = b[i];
+        if (ii > -1)
+            for (let j = ii; j < i; j++)
+                sum -= A[i][j] * b[j];
+        else if (sum)
+            ii = i;
+        b[i] = sum;
+    }
+    for (let i = n - 1; i >= 0; i--) {
+        let sum = b[i];
+        for (let j = i + 1; j < n; j++)
+            sum -= A[i][j] * b[j];
+        b[i] = sum / A[i][i];
+    }
+    return b; // solution vector x
+}
 
 
 /***/ }),
@@ -3909,6 +4055,16 @@ class SquareMatrix {
         }
         return result;
     }
+    toNumberArray() {
+        let result = [];
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            result.push([]);
+            for (let j = 0; j < this.shape[1]; j += 1) {
+                result[i].push(this.get(i, j));
+            }
+        }
+        return result;
+    }
 }
 exports.SquareMatrix = SquareMatrix;
 
@@ -4285,8 +4441,37 @@ class Vector3d {
     crossPoduct(v) {
         return new Vector3d(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
     }
+    axisAngleRotation(axis, angle) {
+        //https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+        const k = axis.normalize();
+        const firstTerm = this.multiply(Math.cos(angle));
+        const secondTerm = k.crossPoduct(this).multiply(Math.sin(angle));
+        const thirdTerm = k.multiply(k.dot(this)).multiply(1 - Math.cos(angle));
+        return firstTerm.add(secondTerm).add(thirdTerm);
+    }
 }
 exports.Vector3d = Vector3d;
+/**
+* @param p0 point
+* @param p1 first point of the line
+* @param p2 second point of the line
+*/
+function pointLineDistance(p0, p1, p2) {
+    // https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+    return ((p0.substract(p1)).crossPoduct(p0.substract(p2))).norm() / p2.substract(p1).norm();
+}
+exports.pointLineDistance = pointLineDistance;
+function linePlaneIntersection(lineP1, lineP2, lookAtOrigin, cameraPosition, objectCenter) {
+    //https://en.wikipedia.org/wiki/Line–plane_intersection
+    const l = lineP2.substract(lineP1);
+    const n = lookAtOrigin.substract(cameraPosition);
+    const nn = n.normalize();
+    const a = nn.dot(objectCenter.substract(cameraPosition));
+    const p0 = nn.multiply(a).add(cameraPosition);
+    const d = (p0.substract(lineP1)).dot(n) / (l.dot(n));
+    return lineP1.add(l.multiply(d));
+}
+exports.linePlaneIntersection = linePlaneIntersection;
 
 
 /***/ }),
@@ -4729,8 +4914,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const BSplineR1toR3_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3 */ "./src/bsplines/BSplineR1toR3.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
 class CurveModel3d {
-    //private camberSurfaceObservers: IObserver<BSplineR2toCylCoord>[] = []
     constructor() {
+        this.observers = [];
         const cp0 = new Vector3d_1.Vector3d(-0.25, 0, -0.15);
         const cp1 = new Vector3d_1.Vector3d(-0.15, 0.15, -0.05);
         const cp2 = new Vector3d_1.Vector3d(0, 0.25, -0.05);
@@ -4738,11 +4923,31 @@ class CurveModel3d {
         const cp4 = new Vector3d_1.Vector3d(0.25, 0, 0.05);
         this._spline = new BSplineR1toR3_1.BSplineR1toR3([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]);
     }
+    registerObserver(observer) {
+        this.observers.push(observer);
+    }
+    removeObserver(observer) {
+        this.observers.splice(this.observers.indexOf(observer), 1);
+    }
+    notifyObservers() {
+        for (let observer of this.observers) {
+            observer.update(this._spline.clone());
+        }
+    }
     get spline() {
         return this._spline.clone();
     }
     get isClosed() {
         return false;
+    }
+    setControlPointPosition(controlPointIndex, x, y, z) {
+        this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x, y, z));
+        this.notifyObservers();
+        /*
+        if (this.activeOptimizer) {
+            this.optimize(controlPointIndex, x, y)
+        }
+        */
     }
 }
 exports.CurveModel3d = CurveModel3d;
@@ -5677,6 +5882,332 @@ function updateLambda_using_equation_7_3_14(lowerBound, upperBound, theta = 0.01
 
 /***/ }),
 
+/***/ "./src/views/AbstractObject3dShadowView.ts":
+/*!*************************************************!*\
+  !*** ./src/views/AbstractObject3dShadowView.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
+const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+class AbstractObject3dShadowView {
+    constructor(object3dShadowShaders, lightDirection) {
+        this.object3dShadowShaders = object3dShadowShaders;
+        this.lightDirection = lightDirection;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint16Array([]);
+        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+    }
+    renderFrame() {
+        let gl = this.object3dShadowShaders.gl, a_Position = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.object3dShadowShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        this.setUniforms();
+        this.object3dShadowShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    initVertexBuffers(gl) {
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        let a_Position = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Normal < 0) {
+            console.log('Failed to get the storage location of a_Normal');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    }
+    updateBuffers() {
+        const gl = this.object3dShadowShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    setUniforms() {
+        const gl = this.object3dShadowShaders.gl;
+        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
+        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
+        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        //const model = identity_mat4()
+        const view = this.viewMatrix();
+        const projection = this.projectionMatrix();
+        const mv = mat4_1.multiply(view, model);
+        const mvp = mat4_1.multiply(projection, mv);
+        const ambientLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "Ambient");
+        const lightColorLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "LightColor");
+        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "ModelViewProjectionMatrix");
+        const normalMatrixLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "NormalMatrix");
+        const lightDirectionLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "LightDirection");
+        const halfVectorLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "LightDirection");
+        const shininessLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "Shininess");
+        const strengthLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "Strength");
+        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
+        gl.uniform3f(lightColorLoc, 1, 1, 1);
+        gl.uniform3f(ambientLoc, 0.5, 0.5, 0.5);
+        const hvX = this.lightDirection[0];
+        const hvY = this.lightDirection[1];
+        const hvZ = this.lightDirection[2] + 1;
+        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
+        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
+        gl.uniform1f(shininessLoc, 50);
+        gl.uniform1f(strengthLoc, 20);
+    }
+    viewMatrix() {
+        const camera_position = new Float32Array([0, 0, 3.3]);
+        const look_at_origin = new Float32Array([0, -0.2, 0]);
+        const head_is_up = new Float32Array([0, 1, 0]);
+        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
+    }
+    projectionMatrix() {
+        const fovy = 20 * Math.PI / 180;
+        const canvas = this.object3dShadowShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+    }
+}
+exports.AbstractObject3dShadowView = AbstractObject3dShadowView;
+
+
+/***/ }),
+
+/***/ "./src/views/AbstractObject3dView.ts":
+/*!*******************************************!*\
+  !*** ./src/views/AbstractObject3dView.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
+const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
+const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
+class AbstractObject3dView {
+    constructor(object3dShaders, lightDirection) {
+        this.object3dShaders = object3dShaders;
+        this.lightDirection = lightDirection;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint16Array([]);
+        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.camera_position = new Float32Array([0, 0, 3.3]);
+        this.look_at_origin = new Float32Array([0, -0.2, 0]);
+        //private look_at_origin = new Float32Array([0, 0, 0])
+        this.head_is_up = new Float32Array([0, 1, 0]);
+        this.fovy = 20 * Math.PI / 180;
+        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+        //this.orientation = setAxisAngle(new Float32Array([1, 0, 0]), 0)
+    }
+    renderFrame() {
+        let gl = this.object3dShaders.gl, a_Position = gl.getAttribLocation(this.object3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.object3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.object3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        gl.useProgram(this.object3dShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        this.setUniforms();
+        this.object3dShaders.renderFrame(this.indices.length);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    initVertexBuffers(gl) {
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        let a_Position = gl.getAttribLocation(this.object3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.object3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.object3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        if (a_Normal < 0) {
+            console.log('Failed to get the storage location of a_Normal');
+            return -1;
+        }
+        if (a_Color < 0) {
+            console.log('Failed to get the storage location of a_Color');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
+        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
+        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.enableVertexAttribArray(a_Normal);
+        gl.enableVertexAttribArray(a_Color);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.indexBuffer = gl.createBuffer();
+        if (!this.indexBuffer) {
+            console.log('Failed to create the index buffer object');
+            return -1;
+        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    }
+    updateBuffers() {
+        const gl = this.object3dShaders.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+    getModelTransformationMatrix() {
+        const model = mat4_1.fromQuat(this.orientation);
+        const m = [model[0], model[4], model[8], model[1], model[5], model[9], model[2], model[6], model[10]];
+        return new SquareMatrix_1.SquareMatrix(3, m);
+    }
+    setUniforms() {
+        const gl = this.object3dShaders.gl;
+        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        const view = this.viewMatrix();
+        const projection = this.projectionMatrix();
+        const mv = mat4_1.multiply(view, model);
+        const mvp = mat4_1.multiply(projection, mv);
+        const ambientLoc = gl.getUniformLocation(this.object3dShaders.program, "Ambient");
+        const lightColorLoc = gl.getUniformLocation(this.object3dShaders.program, "LightColor");
+        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.object3dShaders.program, "ModelViewProjectionMatrix");
+        const normalMatrixLoc = gl.getUniformLocation(this.object3dShaders.program, "NormalMatrix");
+        const lightDirectionLoc = gl.getUniformLocation(this.object3dShaders.program, "LightDirection");
+        const halfVectorLoc = gl.getUniformLocation(this.object3dShaders.program, "LightDirection");
+        const shininessLoc = gl.getUniformLocation(this.object3dShaders.program, "Shininess");
+        const strengthLoc = gl.getUniformLocation(this.object3dShaders.program, "Strength");
+        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
+        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
+        gl.uniform3f(lightColorLoc, 1, 1, 1);
+        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
+        const hvX = this.lightDirection[0];
+        const hvY = this.lightDirection[1];
+        const hvZ = this.lightDirection[2] + 1;
+        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
+        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
+        gl.uniform1f(shininessLoc, 50);
+        gl.uniform1f(strengthLoc, 20);
+    }
+    viewMatrix() {
+        return mat4_1.lookAt(this.camera_position, this.look_at_origin, this.head_is_up);
+    }
+    projectionMatrix() {
+        const canvas = this.object3dShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        return mat4_1.perspective(this.fovy, rect.width / rect.height, 0.01, 20);
+    }
+    pickingLine(ndcX, ndcY) {
+        //https://jsantell.com/model-view-projection/
+        const canvas = this.object3dShaders.gl.canvas;
+        const rect = canvas.getBoundingClientRect();
+        const p1 = new Vector3d_1.Vector3d(this.camera_position[0], this.camera_position[1], this.camera_position[2]);
+        const pOrigin = new Vector3d_1.Vector3d(this.look_at_origin[0], this.look_at_origin[1], this.look_at_origin[2]);
+        const v1 = pOrigin.substract(p1);
+        const v2 = new Vector3d_1.Vector3d(this.head_is_up[0], this.head_is_up[1], this.head_is_up[2]);
+        const v3 = (v1).crossPoduct(v2);
+        const top = v1.axisAngleRotation(v3, this.fovy / 2);
+        const bottom = v1.axisAngleRotation(v3, -this.fovy / 2);
+        const center = top.add(bottom).multiply(0.5);
+        const right = v1.axisAngleRotation(v2, -this.fovy / 2);
+        const v4 = right.substract(center).multiply(ndcX * rect.width / rect.height);
+        const v5 = top.substract(center).multiply(ndcY);
+        const p2 = v4.add(v5).add(center).add(p1);
+        return { p1: p1, p2: p2 };
+    }
+    distanceToCamera(point) {
+        const p1 = this.getCameraPosition();
+        const pOrigin = new Vector3d_1.Vector3d(this.look_at_origin[0], this.look_at_origin[1], this.look_at_origin[2]);
+        const v1 = pOrigin.substract(p1);
+        // returns null if the point is behind the camera
+        if ((point.substract(p1)).dot(v1) < 0) {
+            return null;
+        }
+        return point.substract(p1).norm();
+    }
+    getCameraPosition() {
+        return new Vector3d_1.Vector3d(this.camera_position[0], this.camera_position[1], this.camera_position[2]);
+    }
+    getLookAtOrigin() {
+        return new Vector3d_1.Vector3d(this.look_at_origin[0], this.look_at_origin[1], this.look_at_origin[2]);
+    }
+}
+exports.AbstractObject3dView = AbstractObject3dView;
+
+
+/***/ }),
+
 /***/ "./src/views/ArrayConversion.ts":
 /*!**************************************!*\
   !*** ./src/views/ArrayConversion.ts ***!
@@ -5705,126 +6236,6 @@ exports.toUint16Array = toUint16Array;
 
 /***/ }),
 
-/***/ "./src/views/ControlPoints3dShaders.ts":
-/*!*********************************************!*\
-  !*** ./src/views/ControlPoints3dShaders.ts ***!
-  \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class ControlPoints3dShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec3 a_Normal; \n' +
-            'attribute vec3 a_Color; \n' +
-            'uniform mat4 ModelViewProjectionMatrix; \n' +
-            'uniform mat3 NormalMatrix; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '    normal = normalize(NormalMatrix * a_Normal); \n' +
-            '    color = vec4(a_Color, 1.0); \n' +
-            '    gl_Position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision mediump float; \n' +
-            'uniform vec3 Ambient; \n' +
-            'uniform vec3 LightColor; \n' +
-            'uniform vec3 LightDirection; \n' +
-            'uniform vec3 HalfVector; \n' +
-            'uniform float Shininess; \n' +
-            'uniform float Strength; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
-            '   float specular = abs(dot(normal, HalfVector)); \n' +
-            '   specular = pow(specular, Shininess); \n' +
-            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
-            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
-            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
-            '   gl_FragColor = vec4(rgb, color.a); \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    renderFrame(numberOfIndices) {
-        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
-    }
-}
-exports.ControlPoints3dShaders = ControlPoints3dShaders;
-
-
-/***/ }),
-
-/***/ "./src/views/ControlPoints3dShadowShaders.ts":
-/*!***************************************************!*\
-  !*** ./src/views/ControlPoints3dShadowShaders.ts ***!
-  \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class ControlPoints3dShadowShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec3 a_Normal; \n' +
-            'attribute vec3 a_Color; \n' +
-            'uniform mat4 ModelViewProjectionMatrix; \n' +
-            'uniform mat3 NormalMatrix; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '    normal = normalize(NormalMatrix * a_Normal); \n' +
-            '    color = vec4(a_Color, 1.0); \n' +
-            '    vec4 position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
-            '    gl_Position = vec4(position.x, position.y*0.0 - 1.5, position.z, position.w); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision mediump float; \n' +
-            'uniform vec3 Ambient; \n' +
-            'uniform vec3 LightColor; \n' +
-            'uniform vec3 LightDirection; \n' +
-            'uniform vec3 HalfVector; \n' +
-            'uniform float Shininess; \n' +
-            'uniform float Strength; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
-            '   float specular = abs(dot(normal, HalfVector)); \n' +
-            '   specular = pow(specular, Shininess); \n' +
-            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
-            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
-            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
-            '   gl_FragColor = vec4(rgb, color.a); \n' +
-            '   gl_FragColor = vec4(0.1, 0.1, 0.1, 1); \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    renderFrame(numberOfIndices) {
-        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
-    }
-}
-exports.ControlPoints3dShadowShaders = ControlPoints3dShadowShaders;
-
-
-/***/ }),
-
 /***/ "./src/views/ControlPoints3dShadowView.ts":
 /*!************************************************!*\
   !*** ./src/views/ControlPoints3dShadowView.ts ***!
@@ -5833,47 +6244,19 @@ exports.ControlPoints3dShadowShaders = ControlPoints3dShadowShaders;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
-const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
-const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-class ControlPoints3dShadowView {
-    //private lightDirection = new Float32Array([0, 0, 1])
-    constructor(spline, controlPoints3dShadowShaders, lightDirection) {
+const AbstractObject3dShadowView_1 = __webpack_require__(/*! ./AbstractObject3dShadowView */ "./src/views/AbstractObject3dShadowView.ts");
+const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
+class ControlPoints3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dShadowView {
+    constructor(spline, object3dShadowShaders, lightDirection) {
+        super(object3dShadowShaders, lightDirection);
         this.spline = spline;
-        this.controlPoints3dShadowShaders = controlPoints3dShadowShaders;
-        this.lightDirection = lightDirection;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint16Array([]);
-        this.orientation = new Float32Array([0, 0, 0, 1]);
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.controlPoints3dShadowShaders.gl);
+        const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
         if (check < 0) {
             console.log('Failed to set the positions of the vertices');
         }
-        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
-    }
-    renderFrame() {
-        let gl = this.controlPoints3dShadowShaders.gl, a_Position = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        gl.useProgram(this.controlPoints3dShadowShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        this.setUniforms();
-        this.controlPoints3dShadowShaders.renderFrame(this.indices.length);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
     }
     updateVerticesAndIndices() {
         const radius = 0.015;
@@ -5883,168 +6266,14 @@ class ControlPoints3dShadowView {
         let indices = [];
         let startingIndex = 0;
         for (let cp of this.spline.controlPoints) {
-            let v = this.verticesForOneSphere(cp, radius, sectorCount, stackCount);
-            let i = this.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+            let v = ControlPoints3dView_1.verticesForOneSphere(cp, radius, sectorCount, stackCount, { red: 0.5, green: 0.5, blue: 0.5 });
+            let i = ControlPoints3dView_1.indicesForOneSphere(startingIndex, sectorCount, stackCount);
             vertices = [...vertices, ...v];
             indices = [...indices, ...i];
             startingIndex += v.length / 9;
         }
         this.vertices = ArrayConversion_1.toFloat32Array(vertices);
         this.indices = ArrayConversion_1.toUint16Array(indices);
-    }
-    verticesForOneSphere(center, radius, sectorCount, stackCount) {
-        //http://www.songho.ca/opengl/gl_sphere.html
-        let x, y, z, xy; // vertex position
-        let nx, ny, nz; // vertex normal
-        let sectorAngle, stackAngle;
-        const lengthInv = 1 / radius;
-        const sectorStep = 2 * Math.PI / sectorCount;
-        const stackStep = Math.PI / stackCount;
-        let result = [];
-        for (let i = 0; i <= stackCount; i += 1) {
-            stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
-            xy = radius * Math.cos(stackAngle);
-            z = radius * Math.sin(stackAngle);
-            // add (sectorCout+1) vertices per stack
-            // the first and last vertices have the same position and normal
-            for (let j = 0; j <= sectorCount; j += 1) {
-                sectorAngle = j * sectorStep; // starting for 0 to 2pi
-                // vertex position (x, y, z)
-                x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
-                y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
-                result.push(x + center.x);
-                result.push(y + center.y);
-                result.push(z + center.z);
-                // normalized vertex normal (nx, ny, nz)
-                nx = x * lengthInv;
-                ny = y * lengthInv;
-                nz = z * lengthInv;
-                result.push(nx);
-                result.push(ny);
-                result.push(nz);
-                // Color
-                result.push(0.5);
-                result.push(0.5);
-                result.push(0.5);
-            }
-        }
-        return result;
-    }
-    indicesForOneSphere(startingIndex, sectorCount, stackCount) {
-        let result = [];
-        for (let i = 0; i < stackCount; i += 1) {
-            let k1 = i * (sectorCount + 1); // beginning of current stack
-            let k2 = k1 + sectorCount + 1; // beginning of next stack
-            for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
-                if (i != 0) {
-                    result.push(k1 + startingIndex);
-                    result.push(k2 + startingIndex);
-                    result.push(k1 + 1 + startingIndex);
-                }
-                if (i != (stackCount - 1)) {
-                    result.push(k1 + 1 + startingIndex);
-                    result.push(k2 + startingIndex);
-                    result.push(k2 + 1 + startingIndex);
-                }
-            }
-        }
-        return result;
-    }
-    initVertexBuffers(gl) {
-        this.vertexBuffer = gl.createBuffer();
-        if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
-            return -1;
-        }
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        let a_Position = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-        if (a_Normal < 0) {
-            console.log('Failed to get the storage location of a_Normal');
-            return -1;
-        }
-        if (a_Color < 0) {
-            console.log('Failed to get the storage location of a_Color');
-            return -1;
-        }
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        this.indexBuffer = gl.createBuffer();
-        if (!this.indexBuffer) {
-            console.log('Failed to create the index buffer object');
-            return -1;
-        }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return this.indices.length;
-    }
-    updateBuffers() {
-        const gl = this.controlPoints3dShadowShaders.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    }
-    setUniforms() {
-        const gl = this.controlPoints3dShadowShaders.gl;
-        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
-        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
-        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
-        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
-        //const model = identity_mat4()
-        const view = this.viewMatrix();
-        const projection = this.projectionMatrix();
-        const mv = mat4_1.multiply(view, model);
-        const mvp = mat4_1.multiply(projection, mv);
-        const ambientLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "Ambient");
-        const lightColorLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "LightColor");
-        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "ModelViewProjectionMatrix");
-        const normalMatrixLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "NormalMatrix");
-        const lightDirectionLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "LightDirection");
-        const halfVectorLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "LightDirection");
-        const shininessLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "Shininess");
-        const strengthLoc = gl.getUniformLocation(this.controlPoints3dShadowShaders.program, "Strength");
-        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
-        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
-        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
-        gl.uniform3f(lightColorLoc, 1, 1, 1);
-        gl.uniform3f(ambientLoc, 0.5, 0.5, 0.5);
-        const hvX = this.lightDirection[0];
-        const hvY = this.lightDirection[1];
-        const hvZ = this.lightDirection[2] + 1;
-        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
-        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
-        gl.uniform1f(shininessLoc, 50);
-        gl.uniform1f(strengthLoc, 20);
-    }
-    viewMatrix() {
-        const camera_position = new Float32Array([0, 0, 3.3]);
-        const look_at_origin = new Float32Array([0, -0.2, 0]);
-        const head_is_up = new Float32Array([0, 1, 0]);
-        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
-    }
-    projectionMatrix() {
-        const fovy = 20 * Math.PI / 180;
-        const canvas = this.controlPoints3dShadowShaders.gl.canvas;
-        const rect = canvas.getBoundingClientRect();
-        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
     }
     update(spline) {
         this.spline = spline;
@@ -6065,47 +6294,21 @@ exports.ControlPoints3dShadowView = ControlPoints3dShadowView;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
-const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
-const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-class ControlPoints3dView {
-    //private lightDirection = new Float32Array([0, 0, 1])
-    constructor(spline, controlPoints3dShaders, lightDirection) {
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
+const LUSolve_1 = __webpack_require__(/*! ../linearAlgebra/LUSolve */ "./src/linearAlgebra/LUSolve.ts");
+class ControlPoints3dView extends AbstractObject3dView_1.AbstractObject3dView {
+    constructor(spline, object3dShaders, lightDirection) {
+        super(object3dShaders, lightDirection);
         this.spline = spline;
-        this.controlPoints3dShaders = controlPoints3dShaders;
-        this.lightDirection = lightDirection;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint16Array([]);
-        this.orientation = new Float32Array([0, 0, 0, 1]);
+        this.selectedControlPoint = null;
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.controlPoints3dShaders.gl);
+        const check = this.initVertexBuffers(this.object3dShaders.gl);
         if (check < 0) {
             console.log('Failed to set the positions of the vertices');
         }
-        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
-    }
-    renderFrame() {
-        let gl = this.controlPoints3dShaders.gl, a_Position = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        gl.useProgram(this.controlPoints3dShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        this.setUniforms();
-        this.controlPoints3dShaders.renderFrame(this.indices.length);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
     }
     updateVerticesAndIndices() {
         const radius = 0.015;
@@ -6114,176 +6317,136 @@ class ControlPoints3dView {
         let vertices = [];
         let indices = [];
         let startingIndex = 0;
-        for (let cp of this.spline.controlPoints) {
-            let v = this.verticesForOneSphere(cp, radius, sectorCount, stackCount);
-            let i = this.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+        for (let i = 0; i < this.spline.controlPoints.length; i += 1) {
+            let v;
+            if (i === this.selectedControlPoint) {
+                v = verticesForOneSphere(this.spline.controlPoints[i], radius, sectorCount, stackCount, { red: 0.7, green: 0.7, blue: 0.7 });
+            }
+            else {
+                v = verticesForOneSphere(this.spline.controlPoints[i], radius, sectorCount, stackCount, { red: 0.5, green: 0.5, blue: 0.5 });
+            }
+            let ind = indicesForOneSphere(startingIndex, sectorCount, stackCount);
             vertices = [...vertices, ...v];
-            indices = [...indices, ...i];
+            indices = [...indices, ...ind];
             startingIndex += v.length / 9;
         }
         this.vertices = ArrayConversion_1.toFloat32Array(vertices);
         this.indices = ArrayConversion_1.toUint16Array(indices);
     }
-    verticesForOneSphere(center, radius, sectorCount, stackCount) {
-        //http://www.songho.ca/opengl/gl_sphere.html
-        let x, y, z, xy; // vertex position
-        let nx, ny, nz; // vertex normal
-        let sectorAngle, stackAngle;
-        const lengthInv = 1 / radius;
-        const sectorStep = 2 * Math.PI / sectorCount;
-        const stackStep = Math.PI / stackCount;
-        let result = [];
-        for (let i = 0; i <= stackCount; i += 1) {
-            stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
-            xy = radius * Math.cos(stackAngle);
-            z = radius * Math.sin(stackAngle);
-            // add (sectorCout+1) vertices per stack
-            // the first and last vertices have the same position and normal
-            for (let j = 0; j <= sectorCount; j += 1) {
-                sectorAngle = j * sectorStep; // starting for 0 to 2pi
-                // vertex position (x, y, z)
-                x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
-                y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
-                result.push(x + center.x);
-                result.push(y + center.y);
-                result.push(z + center.z);
-                // normalized vertex normal (nx, ny, nz)
-                nx = x * lengthInv;
-                ny = y * lengthInv;
-                nz = z * lengthInv;
-                result.push(nx);
-                result.push(ny);
-                result.push(nz);
-                // Color
-                result.push(0.5);
-                result.push(0.5);
-                result.push(0.5);
-            }
-        }
-        return result;
-    }
-    indicesForOneSphere(startingIndex, sectorCount, stackCount) {
-        let result = [];
-        for (let i = 0; i < stackCount; i += 1) {
-            let k1 = i * (sectorCount + 1); // beginning of current stack
-            let k2 = k1 + sectorCount + 1; // beginning of next stack
-            for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
-                if (i != 0) {
-                    result.push(k1 + startingIndex);
-                    result.push(k2 + startingIndex);
-                    result.push(k1 + 1 + startingIndex);
-                }
-                if (i != (stackCount - 1)) {
-                    result.push(k1 + 1 + startingIndex);
-                    result.push(k2 + startingIndex);
-                    result.push(k2 + 1 + startingIndex);
-                }
-            }
-        }
-        return result;
-    }
-    initVertexBuffers(gl) {
-        this.vertexBuffer = gl.createBuffer();
-        if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
-            return -1;
-        }
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        let a_Position = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPoints3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-        if (a_Normal < 0) {
-            console.log('Failed to get the storage location of a_Normal');
-            return -1;
-        }
-        if (a_Color < 0) {
-            console.log('Failed to get the storage location of a_Color');
-            return -1;
-        }
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        this.indexBuffer = gl.createBuffer();
-        if (!this.indexBuffer) {
-            console.log('Failed to create the index buffer object');
-            return -1;
-        }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return this.indices.length;
-    }
-    updateBuffers() {
-        const gl = this.controlPoints3dShaders.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    }
-    setUniforms() {
-        const gl = this.controlPoints3dShaders.gl;
-        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
-        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
-        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
-        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
-        const view = this.viewMatrix();
-        const projection = this.projectionMatrix();
-        const mv = mat4_1.multiply(view, model);
-        const mvp = mat4_1.multiply(projection, mv);
-        const ambientLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "Ambient");
-        const lightColorLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "LightColor");
-        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "ModelViewProjectionMatrix");
-        const normalMatrixLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "NormalMatrix");
-        const lightDirectionLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "LightDirection");
-        const halfVectorLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "LightDirection");
-        const shininessLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "Shininess");
-        const strengthLoc = gl.getUniformLocation(this.controlPoints3dShaders.program, "Strength");
-        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
-        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
-        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
-        gl.uniform3f(lightColorLoc, 1, 1, 1);
-        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
-        const hvX = this.lightDirection[0];
-        const hvY = this.lightDirection[1];
-        const hvZ = this.lightDirection[2] + 1;
-        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
-        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
-        gl.uniform1f(shininessLoc, 50);
-        gl.uniform1f(strengthLoc, 20);
-    }
-    viewMatrix() {
-        const camera_position = new Float32Array([0, 0, 3.3]);
-        const look_at_origin = new Float32Array([0, -0.2, 0]);
-        const head_is_up = new Float32Array([0, 1, 0]);
-        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
-    }
-    projectionMatrix() {
-        const fovy = 20 * Math.PI / 180;
-        const canvas = this.controlPoints3dShaders.gl.canvas;
-        const rect = canvas.getBoundingClientRect();
-        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+    updateVerticesIndicesAndBuffers() {
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
     update(spline) {
         this.spline = spline;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
+    controlPointSelection(x, y, deltaSquared = 0.01) {
+        let result = null;
+        let previousDistance = null;
+        const l = this.pickingLine(x, y);
+        for (let i = 0; i < this.spline.controlPoints.length; i += 1) {
+            const m = this.getModelTransformationMatrix();
+            const cp = this.spline.controlPoints[i];
+            const v = m.multiplyByVector([cp.x, cp.y, cp.z]);
+            const p = new Vector3d_1.Vector3d(v[0], v[1], v[2]);
+            if (Vector3d_1.pointLineDistance(p, l.p1, l.p2) < deltaSquared) {
+                let d = this.distanceToCamera(p);
+                if (d !== null) {
+                    if (previousDistance === null || d < previousDistance) {
+                        result = i;
+                        previousDistance = d;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    getSelectedControlPoint() {
+        return this.selectedControlPoint;
+    }
+    setSelected(controlPointIndex) {
+        this.selectedControlPoint = controlPointIndex;
+    }
+    computeNewPosition(ndcX, ndcY) {
+        let result = null;
+        if (this.selectedControlPoint !== null) {
+            const m = this.getModelTransformationMatrix();
+            const cp = this.spline.controlPoints[this.selectedControlPoint];
+            const v = m.multiplyByVector([cp.x, cp.y, cp.z]);
+            const p = new Vector3d_1.Vector3d(v[0], v[1], v[2]);
+            const l = this.pickingLine(ndcX, ndcY);
+            let pp = Vector3d_1.linePlaneIntersection(l.p1, l.p2, this.getLookAtOrigin(), this.getCameraPosition(), p);
+            let point = LUSolve_1.lusolve(m, [pp.x, pp.y, pp.z]);
+            if (point !== undefined) {
+                result = new Vector3d_1.Vector3d(point[0], point[1], point[2]);
+            }
+        }
+        return result;
+    }
 }
 exports.ControlPoints3dView = ControlPoints3dView;
+function verticesForOneSphere(center, radius, sectorCount, stackCount, color) {
+    //http://www.songho.ca/opengl/gl_sphere.html
+    let x, y, z, xy; // vertex position
+    let nx, ny, nz; // vertex normal
+    let sectorAngle, stackAngle;
+    const lengthInv = 1 / radius;
+    const sectorStep = 2 * Math.PI / sectorCount;
+    const stackStep = Math.PI / stackCount;
+    let result = [];
+    for (let i = 0; i <= stackCount; i += 1) {
+        stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
+        xy = radius * Math.cos(stackAngle);
+        z = radius * Math.sin(stackAngle);
+        // add (sectorCout+1) vertices per stack
+        // the first and last vertices have the same position and normal
+        for (let j = 0; j <= sectorCount; j += 1) {
+            sectorAngle = j * sectorStep; // starting for 0 to 2pi
+            // vertex position (x, y, z)
+            x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
+            y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
+            result.push(x + center.x);
+            result.push(y + center.y);
+            result.push(z + center.z);
+            // normalized vertex normal (nx, ny, nz)
+            nx = x * lengthInv;
+            ny = y * lengthInv;
+            nz = z * lengthInv;
+            result.push(nx);
+            result.push(ny);
+            result.push(nz);
+            // Color
+            result.push(color.red);
+            result.push(color.green);
+            result.push(color.blue);
+        }
+    }
+    return result;
+}
+exports.verticesForOneSphere = verticesForOneSphere;
+function indicesForOneSphere(startingIndex, sectorCount, stackCount) {
+    let result = [];
+    for (let i = 0; i < stackCount; i += 1) {
+        let k1 = i * (sectorCount + 1); // beginning of current stack
+        let k2 = k1 + sectorCount + 1; // beginning of next stack
+        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+            if (i != 0) {
+                result.push(k1 + startingIndex);
+                result.push(k2 + startingIndex);
+                result.push(k1 + 1 + startingIndex);
+            }
+            if (i != (stackCount - 1)) {
+                result.push(k1 + 1 + startingIndex);
+                result.push(k2 + startingIndex);
+                result.push(k2 + 1 + startingIndex);
+            }
+        }
+    }
+    return result;
+}
+exports.indicesForOneSphere = indicesForOneSphere;
 
 
 /***/ }),
@@ -6525,126 +6688,6 @@ exports.ControlPointsView = ControlPointsView;
 
 /***/ }),
 
-/***/ "./src/views/ControlPolygon3dShaders.ts":
-/*!**********************************************!*\
-  !*** ./src/views/ControlPolygon3dShaders.ts ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class ControlPolygon3dShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec3 a_Normal; \n' +
-            'attribute vec3 a_Color; \n' +
-            'uniform mat4 ModelViewProjectionMatrix; \n' +
-            'uniform mat3 NormalMatrix; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '    normal = normalize(NormalMatrix * a_Normal); \n' +
-            '    color = vec4(a_Color, 1); \n' +
-            '    gl_Position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision mediump float; \n' +
-            'uniform vec3 Ambient; \n' +
-            'uniform vec3 LightColor; \n' +
-            'uniform vec3 LightDirection; \n' +
-            'uniform vec3 HalfVector; \n' +
-            'uniform float Shininess; \n' +
-            'uniform float Strength; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
-            '   float specular = abs(dot(normal, HalfVector)); \n' +
-            '   specular = pow(specular, Shininess); \n' +
-            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
-            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
-            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
-            '   gl_FragColor = vec4(rgb, color.a); \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    renderFrame(numberOfIndices) {
-        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
-    }
-}
-exports.ControlPolygon3dShaders = ControlPolygon3dShaders;
-
-
-/***/ }),
-
-/***/ "./src/views/ControlPolygon3dShadowShaders.ts":
-/*!****************************************************!*\
-  !*** ./src/views/ControlPolygon3dShadowShaders.ts ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class ControlPolygon3dShadowShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec3 a_Normal; \n' +
-            'attribute vec3 a_Color; \n' +
-            'uniform mat4 ModelViewProjectionMatrix; \n' +
-            'uniform mat3 NormalMatrix; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '    normal = normalize(NormalMatrix * a_Normal); \n' +
-            '    color = vec4(a_Color, 1.0); \n' +
-            '    vec4 position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
-            '    gl_Position = vec4(position.x, position.y*0.0 - 1.5, position.z, position.w); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision mediump float; \n' +
-            'uniform vec3 Ambient; \n' +
-            'uniform vec3 LightColor; \n' +
-            'uniform vec3 LightDirection; \n' +
-            'uniform vec3 HalfVector; \n' +
-            'uniform float Shininess; \n' +
-            'uniform float Strength; \n' +
-            'varying vec3 normal; \n' +
-            'varying vec4 color; \n' +
-            'void main() {\n' +
-            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
-            '   float specular = abs(dot(normal, HalfVector)); \n' +
-            '   specular = pow(specular, Shininess); \n' +
-            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
-            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
-            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
-            '   gl_FragColor = vec4(rgb, color.a); \n' +
-            '   gl_FragColor = vec4(0.1, 0.1, 0.1, 1); \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    renderFrame(numberOfIndices) {
-        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
-    }
-}
-exports.ControlPolygon3dShadowShaders = ControlPolygon3dShadowShaders;
-
-
-/***/ }),
-
 /***/ "./src/views/ControlPolygon3dShadowView.ts":
 /*!*************************************************!*\
   !*** ./src/views/ControlPolygon3dShadowView.ts ***!
@@ -6653,52 +6696,23 @@ exports.ControlPolygon3dShadowShaders = ControlPolygon3dShadowShaders;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
-const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
-const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
-class ControlPolygon3dShadowView {
-    constructor(spline, controlPolygon3dShaders, lightDirection, closed) {
-        this.controlPolygon3dShaders = controlPolygon3dShaders;
-        this.lightDirection = lightDirection;
+const AbstractObject3dShadowView_1 = __webpack_require__(/*! ./AbstractObject3dShadowView */ "./src/views/AbstractObject3dShadowView.ts");
+const ControlPolygon3dView_1 = __webpack_require__(/*! ./ControlPolygon3dView */ "./src/views/ControlPolygon3dView.ts");
+class ControlPolygon3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dShadowView {
+    constructor(spline, object3dShadowShaders, lightDirection, closed) {
+        super(object3dShadowShaders, lightDirection);
         this.closed = closed;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint16Array([]);
-        this.orientation = new Float32Array([0, 0, 0, 1]);
         this.controlPoints = spline.freeControlPoints;
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.controlPolygon3dShaders.gl);
+        const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
         if (check < 0) {
             console.log('Failed to set the positions of the vertices');
         }
-        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
-    }
-    renderFrame() {
-        let gl = this.controlPolygon3dShaders.gl, a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        gl.useProgram(this.controlPolygon3dShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        this.setUniforms();
-        this.controlPolygon3dShaders.renderFrame(this.indices.length);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
     }
     updateVerticesAndIndices() {
         const radius = 0.003;
@@ -6707,195 +6721,14 @@ class ControlPolygon3dShadowView {
         let indices = [];
         let startingIndex = 0;
         for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
-            let v = this.verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
-            let ind = this.indicesForOneCylinder(startingIndex, sectorCount);
+            let v = ControlPolygon3dView_1.verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
+            let ind = ControlPolygon3dView_1.indicesForOneCylinder(startingIndex, sectorCount);
             vertices = [...vertices, ...v];
             indices = [...indices, ...ind];
             startingIndex += v.length / 9;
         }
         this.vertices = ArrayConversion_1.toFloat32Array(vertices);
         this.indices = ArrayConversion_1.toUint16Array(indices);
-    }
-    verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
-        let axisVector = centerTop.substract(centerBottom).normalize();
-        const circleTop = this.orientedCircle(centerTop, radius, axisVector, sectorCount);
-        const circleBottom = this.orientedCircle(centerBottom, radius, axisVector, sectorCount);
-        let result = [];
-        for (let i = 0; i < circleTop.vertices.length; i += 1) {
-            // vertex position (x, y, z)
-            result.push(circleTop.vertices[i].x);
-            result.push(circleTop.vertices[i].y);
-            result.push(circleTop.vertices[i].z);
-            // normalized vertex normal (nx, ny, nz)
-            result.push(circleTop.normals[i].x);
-            result.push(circleTop.normals[i].y);
-            result.push(circleTop.normals[i].z);
-            // Color
-            result.push(0.5);
-            result.push(0.5);
-            result.push(0.5);
-        }
-        for (let i = 0; i < circleBottom.vertices.length; i += 1) {
-            // vertex position (x, y, z)
-            result.push(circleBottom.vertices[i].x);
-            result.push(circleBottom.vertices[i].y);
-            result.push(circleBottom.vertices[i].z);
-            // normalized vertex normal (nx, ny, nz)
-            result.push(circleBottom.normals[i].x);
-            result.push(circleBottom.normals[i].y);
-            result.push(circleBottom.normals[i].z);
-            // Color
-            result.push(0.8);
-            result.push(0.8);
-            result.push(0.8);
-        }
-        return result;
-    }
-    orientedCircle(center, radius, axisVector, sectorCount) {
-        const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
-        const sectorStep = 2 * Math.PI / sectorCount;
-        let vertices = [];
-        let normals = [];
-        if (n > 0) {
-            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
-            for (let j = 0; j <= sectorCount; j += 1) {
-                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
-                // cicle in the plane xy 
-                let x = radius * Math.cos(sectorAngle);
-                let y = radius * Math.sin(sectorAngle);
-                let v = rotationMatrix.multiplyByVector([x, y, 0]);
-                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
-                let nx = Math.cos(sectorAngle);
-                let ny = Math.sin(sectorAngle);
-                let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
-                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
-            }
-        }
-        else {
-            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
-            for (let j = 0; j <= sectorCount; j += 1) {
-                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
-                // cicle in the plane xz 
-                let x = radius * Math.cos(sectorAngle);
-                let z = radius * Math.sin(sectorAngle);
-                let v = rotationMatrix.multiplyByVector([x, 0, z]);
-                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
-                let nx = Math.cos(sectorAngle);
-                let nz = Math.sin(sectorAngle);
-                let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
-                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
-            }
-        }
-        return { vertices: vertices, normals: normals };
-    }
-    indicesForOneCylinder(startingIndex, sectorCount) {
-        let result = [];
-        let k1 = 0; // beginning of current stack
-        let k2 = k1 + sectorCount + 1; // beginning of next stack
-        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
-            result.push(k1 + startingIndex);
-            result.push(k2 + startingIndex);
-            result.push(k1 + 1 + startingIndex);
-            result.push(k1 + 1 + startingIndex);
-            result.push(k2 + startingIndex);
-            result.push(k2 + 1 + startingIndex);
-        }
-        return result;
-    }
-    initVertexBuffers(gl) {
-        this.vertexBuffer = gl.createBuffer();
-        if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
-            return -1;
-        }
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        let a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-        if (a_Normal < 0) {
-            console.log('Failed to get the storage location of a_Normal');
-            return -1;
-        }
-        if (a_Color < 0) {
-            console.log('Failed to get the storage location of a_Color');
-            return -1;
-        }
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        this.indexBuffer = gl.createBuffer();
-        if (!this.indexBuffer) {
-            console.log('Failed to create the index buffer object');
-            return -1;
-        }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return this.indices.length;
-    }
-    updateBuffers() {
-        const gl = this.controlPolygon3dShaders.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    }
-    setUniforms() {
-        const gl = this.controlPolygon3dShaders.gl;
-        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
-        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
-        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
-        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
-        const view = this.viewMatrix();
-        const projection = this.projectionMatrix();
-        const mv = mat4_1.multiply(view, model);
-        const mvp = mat4_1.multiply(projection, mv);
-        const ambientLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Ambient");
-        const lightColorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightColor");
-        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "ModelViewProjectionMatrix");
-        const normalMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "NormalMatrix");
-        const lightDirectionLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
-        const halfVectorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
-        const shininessLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Shininess");
-        const strengthLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Strength");
-        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
-        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
-        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
-        gl.uniform3f(lightColorLoc, 1, 1, 1);
-        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
-        const hvX = this.lightDirection[0];
-        const hvY = this.lightDirection[1];
-        const hvZ = this.lightDirection[2] + 1;
-        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
-        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
-        gl.uniform1f(shininessLoc, 50);
-        gl.uniform1f(strengthLoc, 20);
-    }
-    viewMatrix() {
-        const camera_position = new Float32Array([0, 0, 3.3]);
-        const look_at_origin = new Float32Array([0, -0.2, 0]);
-        const head_is_up = new Float32Array([0, 1, 0]);
-        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
-    }
-    projectionMatrix() {
-        const fovy = 20 * Math.PI / 180;
-        const canvas = this.controlPolygon3dShaders.gl.canvas;
-        const rect = canvas.getBoundingClientRect();
-        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
     }
     update(spline) {
         this.controlPoints = spline.freeControlPoints;
@@ -6919,52 +6752,24 @@ exports.ControlPolygon3dShadowView = ControlPolygon3dShadowView;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
-const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
-const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
 const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
-class ControlPolygon3dView {
-    constructor(spline, controlPolygon3dShaders, lightDirection, closed) {
-        this.controlPolygon3dShaders = controlPolygon3dShaders;
-        this.lightDirection = lightDirection;
+const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
+class ControlPolygon3dView extends AbstractObject3dView_1.AbstractObject3dView {
+    constructor(spline, object3dShaders, lightDirection, closed) {
+        super(object3dShaders, lightDirection);
         this.closed = closed;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint16Array([]);
-        this.orientation = new Float32Array([0, 0, 0, 1]);
         this.controlPoints = spline.freeControlPoints;
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.controlPolygon3dShaders.gl);
+        const check = this.initVertexBuffers(this.object3dShaders.gl);
         if (check < 0) {
             console.log('Failed to set the positions of the vertices');
         }
-        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
-    }
-    renderFrame() {
-        let gl = this.controlPolygon3dShaders.gl, a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        gl.useProgram(this.controlPolygon3dShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        this.setUniforms();
-        this.controlPolygon3dShaders.renderFrame(this.indices.length);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
     }
     updateVerticesAndIndices() {
         const radius = 0.003;
@@ -6973,195 +6778,14 @@ class ControlPolygon3dView {
         let indices = [];
         let startingIndex = 0;
         for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
-            let v = this.verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
-            let ind = this.indicesForOneCylinder(startingIndex, sectorCount);
+            let v = verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
+            let ind = indicesForOneCylinder(startingIndex, sectorCount);
             vertices = [...vertices, ...v];
             indices = [...indices, ...ind];
             startingIndex += v.length / 9;
         }
         this.vertices = ArrayConversion_1.toFloat32Array(vertices);
         this.indices = ArrayConversion_1.toUint16Array(indices);
-    }
-    verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
-        let axisVector = centerTop.substract(centerBottom).normalize();
-        const circleTop = this.orientedCircle(centerTop, radius, axisVector, sectorCount);
-        const circleBottom = this.orientedCircle(centerBottom, radius, axisVector, sectorCount);
-        let result = [];
-        for (let i = 0; i < circleTop.vertices.length; i += 1) {
-            // vertex position (x, y, z)
-            result.push(circleTop.vertices[i].x);
-            result.push(circleTop.vertices[i].y);
-            result.push(circleTop.vertices[i].z);
-            // normalized vertex normal (nx, ny, nz)
-            result.push(circleTop.normals[i].x);
-            result.push(circleTop.normals[i].y);
-            result.push(circleTop.normals[i].z);
-            // Color
-            result.push(0.5);
-            result.push(0.5);
-            result.push(0.5);
-        }
-        for (let i = 0; i < circleBottom.vertices.length; i += 1) {
-            // vertex position (x, y, z)
-            result.push(circleBottom.vertices[i].x);
-            result.push(circleBottom.vertices[i].y);
-            result.push(circleBottom.vertices[i].z);
-            // normalized vertex normal (nx, ny, nz)
-            result.push(circleBottom.normals[i].x);
-            result.push(circleBottom.normals[i].y);
-            result.push(circleBottom.normals[i].z);
-            // Color
-            result.push(0.8);
-            result.push(0.8);
-            result.push(0.8);
-        }
-        return result;
-    }
-    orientedCircle(center, radius, axisVector, sectorCount) {
-        const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
-        const sectorStep = 2 * Math.PI / sectorCount;
-        let vertices = [];
-        let normals = [];
-        if (n > 0) {
-            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
-            for (let j = 0; j <= sectorCount; j += 1) {
-                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
-                // cicle in the plane xy 
-                let x = radius * Math.cos(sectorAngle);
-                let y = radius * Math.sin(sectorAngle);
-                let v = rotationMatrix.multiplyByVector([x, y, 0]);
-                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
-                let nx = Math.cos(sectorAngle);
-                let ny = Math.sin(sectorAngle);
-                let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
-                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
-            }
-        }
-        else {
-            const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
-            for (let j = 0; j <= sectorCount; j += 1) {
-                let sectorAngle = j * sectorStep; // starting for 0 to 2pi
-                // cicle in the plane xz 
-                let x = radius * Math.cos(sectorAngle);
-                let z = radius * Math.sin(sectorAngle);
-                let v = rotationMatrix.multiplyByVector([x, 0, z]);
-                vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
-                let nx = Math.cos(sectorAngle);
-                let nz = Math.sin(sectorAngle);
-                let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
-                normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
-            }
-        }
-        return { vertices: vertices, normals: normals };
-    }
-    indicesForOneCylinder(startingIndex, sectorCount) {
-        let result = [];
-        let k1 = 0; // beginning of current stack
-        let k2 = k1 + sectorCount + 1; // beginning of next stack
-        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
-            result.push(k1 + startingIndex);
-            result.push(k2 + startingIndex);
-            result.push(k1 + 1 + startingIndex);
-            result.push(k1 + 1 + startingIndex);
-            result.push(k2 + startingIndex);
-            result.push(k2 + 1 + startingIndex);
-        }
-        return result;
-    }
-    initVertexBuffers(gl) {
-        this.vertexBuffer = gl.createBuffer();
-        if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
-            return -1;
-        }
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        let a_Position = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.controlPolygon3dShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-        if (a_Normal < 0) {
-            console.log('Failed to get the storage location of a_Normal');
-            return -1;
-        }
-        if (a_Color < 0) {
-            console.log('Failed to get the storage location of a_Color');
-            return -1;
-        }
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 9, 0);
-        gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 3);
-        gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 9, FSIZE * 6);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Normal);
-        gl.enableVertexAttribArray(a_Color);
-        // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        this.indexBuffer = gl.createBuffer();
-        if (!this.indexBuffer) {
-            console.log('Failed to create the index buffer object');
-            return -1;
-        }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        return this.indices.length;
-    }
-    updateBuffers() {
-        const gl = this.controlPolygon3dShaders.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    }
-    setUniforms() {
-        const gl = this.controlPolygon3dShaders.gl;
-        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
-        //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
-        //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
-        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
-        const view = this.viewMatrix();
-        const projection = this.projectionMatrix();
-        const mv = mat4_1.multiply(view, model);
-        const mvp = mat4_1.multiply(projection, mv);
-        const ambientLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Ambient");
-        const lightColorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightColor");
-        const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "ModelViewProjectionMatrix");
-        const normalMatrixLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "NormalMatrix");
-        const lightDirectionLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
-        const halfVectorLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "LightDirection");
-        const shininessLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Shininess");
-        const strengthLoc = gl.getUniformLocation(this.controlPolygon3dShaders.program, "Strength");
-        gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
-        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
-        gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
-        gl.uniform3f(lightColorLoc, 1, 1, 1);
-        gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
-        const hvX = this.lightDirection[0];
-        const hvY = this.lightDirection[1];
-        const hvZ = this.lightDirection[2] + 1;
-        const norm = Math.sqrt(hvX * hvX + hvY * hvY + hvZ * hvZ);
-        gl.uniform3f(halfVectorLoc, hvX / norm, hvY / norm, hvZ / norm);
-        gl.uniform1f(shininessLoc, 50);
-        gl.uniform1f(strengthLoc, 20);
-    }
-    viewMatrix() {
-        const camera_position = new Float32Array([0, 0, 3.3]);
-        const look_at_origin = new Float32Array([0, -0.2, 0]);
-        const head_is_up = new Float32Array([0, 1, 0]);
-        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
-    }
-    projectionMatrix() {
-        const fovy = 20 * Math.PI / 180;
-        const canvas = this.controlPolygon3dShaders.gl.canvas;
-        const rect = canvas.getBoundingClientRect();
-        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
     }
     update(spline) {
         this.controlPoints = spline.freeControlPoints;
@@ -7173,6 +6797,95 @@ class ControlPolygon3dView {
     }
 }
 exports.ControlPolygon3dView = ControlPolygon3dView;
+function verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
+    let axisVector = centerTop.substract(centerBottom).normalize();
+    const circleTop = orientedCircle(centerTop, radius, axisVector, sectorCount);
+    const circleBottom = orientedCircle(centerBottom, radius, axisVector, sectorCount);
+    let result = [];
+    for (let i = 0; i < circleTop.vertices.length; i += 1) {
+        // vertex position (x, y, z)
+        result.push(circleTop.vertices[i].x);
+        result.push(circleTop.vertices[i].y);
+        result.push(circleTop.vertices[i].z);
+        // normalized vertex normal (nx, ny, nz)
+        result.push(circleTop.normals[i].x);
+        result.push(circleTop.normals[i].y);
+        result.push(circleTop.normals[i].z);
+        // Color
+        result.push(0.5);
+        result.push(0.5);
+        result.push(0.5);
+    }
+    for (let i = 0; i < circleBottom.vertices.length; i += 1) {
+        // vertex position (x, y, z)
+        result.push(circleBottom.vertices[i].x);
+        result.push(circleBottom.vertices[i].y);
+        result.push(circleBottom.vertices[i].z);
+        // normalized vertex normal (nx, ny, nz)
+        result.push(circleBottom.normals[i].x);
+        result.push(circleBottom.normals[i].y);
+        result.push(circleBottom.normals[i].z);
+        // Color
+        result.push(0.8);
+        result.push(0.8);
+        result.push(0.8);
+    }
+    return result;
+}
+exports.verticesForOneCylinder = verticesForOneCylinder;
+function orientedCircle(center, radius, axisVector, sectorCount) {
+    const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
+    const sectorStep = 2 * Math.PI / sectorCount;
+    let vertices = [];
+    let normals = [];
+    if (n > 0) {
+        const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
+        for (let j = 0; j <= sectorCount; j += 1) {
+            let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+            // cicle in the plane xy 
+            let x = radius * Math.cos(sectorAngle);
+            let y = radius * Math.sin(sectorAngle);
+            let v = rotationMatrix.multiplyByVector([x, y, 0]);
+            vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+            let nx = Math.cos(sectorAngle);
+            let ny = Math.sin(sectorAngle);
+            let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
+            normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+        }
+    }
+    else {
+        const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
+        for (let j = 0; j <= sectorCount; j += 1) {
+            let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+            // cicle in the plane xz 
+            let x = radius * Math.cos(sectorAngle);
+            let z = radius * Math.sin(sectorAngle);
+            let v = rotationMatrix.multiplyByVector([x, 0, z]);
+            vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+            let nx = Math.cos(sectorAngle);
+            let nz = Math.sin(sectorAngle);
+            let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
+            normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+        }
+    }
+    return { vertices: vertices, normals: normals };
+}
+exports.orientedCircle = orientedCircle;
+function indicesForOneCylinder(startingIndex, sectorCount) {
+    let result = [];
+    let k1 = 0; // beginning of current stack
+    let k2 = k1 + sectorCount + 1; // beginning of next stack
+    for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+        result.push(k1 + startingIndex);
+        result.push(k2 + startingIndex);
+        result.push(k1 + 1 + startingIndex);
+        result.push(k1 + 1 + startingIndex);
+        result.push(k2 + startingIndex);
+        result.push(k2 + 1 + startingIndex);
+    }
+    return result;
+}
+exports.indicesForOneCylinder = indicesForOneCylinder;
 
 
 /***/ }),
@@ -7568,6 +7281,284 @@ exports.CurvatureExtremaView = CurvatureExtremaView;
 
 /***/ }),
 
+/***/ "./src/views/Curve3dShadowView.ts":
+/*!****************************************!*\
+  !*** ./src/views/Curve3dShadowView.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const AbstractObject3dShadowView_1 = __webpack_require__(/*! ./AbstractObject3dShadowView */ "./src/views/AbstractObject3dShadowView.ts");
+const Curve3dView_1 = __webpack_require__(/*! ./Curve3dView */ "./src/views/Curve3dView.ts");
+class Curve3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dShadowView {
+    constructor(spline, object3dShadowShaders, lightDirection, closed) {
+        super(object3dShadowShaders, lightDirection);
+        this.spline = spline;
+        this.closed = closed;
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.005;
+        const sectorCount = 20;
+        const stackCount = 200;
+        let indices = [];
+        let startingIndex = 0;
+        const vertices = this.computeVertices(radius, stackCount, sectorCount);
+        for (let i = 0; i < stackCount - 1; i += 1) {
+            let ind = Curve3dView_1.indicesForOneCylinder(startingIndex, sectorCount);
+            indices = [...indices, ...ind];
+            startingIndex += sectorCount + 1;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    frames(number) {
+        const start = this.spline.knots[this.spline.degree];
+        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        let pointSequenceOnSpline = [];
+        for (let i = 0; i < number; i += 1) {
+            let point = this.spline.evaluate(i / (number - 1) * (end - start) + start);
+            pointSequenceOnSpline.push(point);
+        }
+        const tangentSequenceOnSpline = Curve3dView_1.computeApproximatedTangentsFromPointsSequence(pointSequenceOnSpline);
+        const randomUpVector = Curve3dView_1.computeRandomUpVector(tangentSequenceOnSpline[0]);
+        const upVectorSequenceOnSpline = Curve3dView_1.computeUpVectorSequence(tangentSequenceOnSpline, randomUpVector);
+        return { pointSequence: pointSequenceOnSpline, tangentSequence: tangentSequenceOnSpline, upVectorSequence: upVectorSequenceOnSpline };
+    }
+    computeVertices(radius, stackCount, sectorCount) {
+        let frames = this.frames(stackCount);
+        let result = [];
+        for (let i = 0; i < frames.pointSequence.length; i += 1) {
+            let oe = Curve3dView_1.orientedEllipse(frames.pointSequence[i], frames.tangentSequence[i], frames.upVectorSequence[i], sectorCount, radius, radius);
+            for (let j = 0; j < oe.vertices.length; j += 1) {
+                // vertex position (x, y, z)
+                result.push(oe.vertices[j].x);
+                result.push(oe.vertices[j].y);
+                result.push(oe.vertices[j].z);
+                // normalized vertex normal (nx, ny, nz)
+                result.push(oe.normals[j].x);
+                result.push(oe.normals[j].y);
+                result.push(oe.normals[j].z);
+                // Color
+                result.push(1.0);
+                result.push(0.5);
+                result.push(0.5);
+            }
+        }
+        return result;
+    }
+    update(spline) {
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.Curve3dShadowView = Curve3dShadowView;
+
+
+/***/ }),
+
+/***/ "./src/views/Curve3dView.ts":
+/*!**********************************!*\
+  !*** ./src/views/Curve3dView.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
+const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
+class Curve3dView extends AbstractObject3dView_1.AbstractObject3dView {
+    //private controlPoints: Vector3d[]
+    constructor(spline, object3dShaders, lightDirection, closed) {
+        super(object3dShaders, lightDirection);
+        this.spline = spline;
+        this.closed = closed;
+        this.spline = spline;
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.object3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.005;
+        const sectorCount = 20;
+        const stackCount = 200;
+        let indices = [];
+        let startingIndex = 0;
+        const vertices = this.computeVertices(radius, stackCount, sectorCount);
+        for (let i = 0; i < stackCount - 1; i += 1) {
+            let ind = indicesForOneCylinder(startingIndex, sectorCount);
+            indices = [...indices, ...ind];
+            startingIndex += sectorCount + 1;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    frames(number) {
+        const start = this.spline.knots[this.spline.degree];
+        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        let pointSequenceOnSpline = [];
+        for (let i = 0; i < number; i += 1) {
+            let point = this.spline.evaluate(i / (number - 1) * (end - start) + start);
+            pointSequenceOnSpline.push(point);
+        }
+        const tangentSequenceOnSpline = computeApproximatedTangentsFromPointsSequence(pointSequenceOnSpline);
+        const randomUpVector = computeRandomUpVector(tangentSequenceOnSpline[0]);
+        const upVectorSequenceOnSpline = computeUpVectorSequence(tangentSequenceOnSpline, randomUpVector);
+        return { pointSequence: pointSequenceOnSpline, tangentSequence: tangentSequenceOnSpline, upVectorSequence: upVectorSequenceOnSpline };
+    }
+    computeVertices(radius, stackCount, sectorCount) {
+        let frames = this.frames(stackCount);
+        let result = [];
+        for (let i = 0; i < frames.pointSequence.length; i += 1) {
+            let oe = orientedEllipse(frames.pointSequence[i], frames.tangentSequence[i], frames.upVectorSequence[i], sectorCount, radius, radius);
+            for (let j = 0; j < oe.vertices.length; j += 1) {
+                // vertex position (x, y, z)
+                result.push(oe.vertices[j].x);
+                result.push(oe.vertices[j].y);
+                result.push(oe.vertices[j].z);
+                // normalized vertex normal (nx, ny, nz)
+                result.push(oe.normals[j].x);
+                result.push(oe.normals[j].y);
+                result.push(oe.normals[j].z);
+                // Color
+                result.push(1.0);
+                result.push(0.5);
+                result.push(0.5);
+            }
+        }
+        return result;
+    }
+    update(spline) {
+        this.spline = spline;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.Curve3dView = Curve3dView;
+function computeRandomUpVector(tangentVector) {
+    if (tangentVector.x > tangentVector.y) {
+        return tangentVector.crossPoduct(new Vector3d_1.Vector3d(0, 1, 0)).normalize();
+    }
+    else {
+        return tangentVector.crossPoduct(new Vector3d_1.Vector3d(1, 0, 0)).normalize();
+    }
+}
+exports.computeRandomUpVector = computeRandomUpVector;
+function indicesForOneCylinder(startingIndex, sectorCount) {
+    let result = [];
+    let k1 = 0; // beginning of current stack
+    let k2 = k1 + sectorCount + 1; // beginning of next stack
+    for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+        result.push(k1 + startingIndex);
+        result.push(k2 + startingIndex);
+        result.push(k1 + 1 + startingIndex);
+        result.push(k1 + 1 + startingIndex);
+        result.push(k2 + startingIndex);
+        result.push(k2 + 1 + startingIndex);
+    }
+    return result;
+}
+exports.indicesForOneCylinder = indicesForOneCylinder;
+function computeUpVectorSequence(tangentSequence, firstUpVector) {
+    let result = [];
+    result.push(firstUpVector);
+    for (let i = 0; i < tangentSequence.length - 1; i += 1) {
+        let rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(tangentSequence[i], tangentSequence[i + 1]);
+        let lastUpVector = result[result.length - 1];
+        let newUpVector = rotationMatrix.multiplyByVector([lastUpVector.x, lastUpVector.y, lastUpVector.z]);
+        result.push(new Vector3d_1.Vector3d(newUpVector[0], newUpVector[1], newUpVector[2]).normalize());
+    }
+    return result;
+}
+exports.computeUpVectorSequence = computeUpVectorSequence;
+function orientedEllipse(center, normal, up, sectorCount, semiMinorAxis, semiMajorAxis, miter = new Vector3d_1.Vector3d(1, 0, 0)) {
+    const sectorStep = 2 * Math.PI / sectorCount;
+    let vertices = [];
+    let normals = [];
+    let side = normal.crossPoduct(up).normalize();
+    for (let i = 0; i <= sectorCount; i += 1) {
+        let sectorAngle = i * sectorStep; // starting for 0 to 2pi
+        let v1 = up.multiply(Math.sin(sectorAngle) * semiMinorAxis);
+        let v2 = side.multiply(Math.cos(sectorAngle) * semiMajorAxis);
+        vertices.push(v1.add(v2).add(center));
+    }
+    for (let i = 0; i <= sectorCount; i += 1) {
+        let sectorAngle = i * sectorStep; // starting for 0 to 2pi
+        let v1 = up.multiply(Math.sin(sectorAngle) * semiMinorAxis);
+        let v2 = side.multiply(Math.cos(sectorAngle) * semiMajorAxis);
+        normals.push(v1.add(v2).normalize());
+    }
+    return { vertices: vertices, normals: normals };
+}
+exports.orientedEllipse = orientedEllipse;
+function computeMiterFromPointsSequence(points, radius) {
+    const tolerance = 10e-5;
+    const maxLength = radius * 3;
+    let miters = [];
+    let lengths = [];
+    let normal;
+    for (let i = 1; i < points.length - 1; i += 1) {
+        let tangent = points[i + 1].substract(points[i - 1]).normalize();
+        let v1 = points[i + 1].substract(points[i]);
+        let v2 = points[i + 2].substract(points[i + 1]);
+        let n = v1.crossPoduct(v2);
+        if (n.norm() > tolerance) {
+            normal = n.normalize();
+        }
+        else {
+            normal = computeRandomUpVector(tangent);
+        }
+        miters.push(normal);
+        let l = normal.crossPoduct(v1).norm();
+        if (l > maxLength) {
+            l = maxLength;
+        }
+        if (l > tolerance) {
+            lengths.push(radius / l);
+        }
+        else {
+            lengths.push(radius);
+        }
+    }
+    return { miters: miters, lengths: lengths };
+}
+function computeApproximatedTangentsFromPointsSequence(points) {
+    let result = [];
+    let tangent = (points[1].substract(points[0])).normalize();
+    result.push(tangent);
+    for (let i = 1; i < points.length - 1; i += 1) {
+        tangent = (points[i + 1].substract(points[i - 1])).normalize();
+        result.push(tangent);
+    }
+    tangent = (points[points.length - 1].substract(points[points.length - 2])).normalize();
+    result.push(tangent);
+    return result;
+}
+exports.computeApproximatedTangentsFromPointsSequence = computeApproximatedTangentsFromPointsSequence;
+
+
+/***/ }),
+
 /***/ "./src/views/CurveScene3dView.ts":
 /*!***************************************!*\
   !*** ./src/views/CurveScene3dView.ts ***!
@@ -7577,35 +7568,42 @@ exports.CurvatureExtremaView = CurvatureExtremaView;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
-const ControlPoints3dShaders_1 = __webpack_require__(/*! ./ControlPoints3dShaders */ "./src/views/ControlPoints3dShaders.ts");
-const ControlPoints3dShadowShaders_1 = __webpack_require__(/*! ./ControlPoints3dShadowShaders */ "./src/views/ControlPoints3dShadowShaders.ts");
 const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
 const ControlPoints3dShadowView_1 = __webpack_require__(/*! ./ControlPoints3dShadowView */ "./src/views/ControlPoints3dShadowView.ts");
-const ControlPolygon3dShaders_1 = __webpack_require__(/*! ./ControlPolygon3dShaders */ "./src/views/ControlPolygon3dShaders.ts");
 const ControlPolygon3dView_1 = __webpack_require__(/*! ./ControlPolygon3dView */ "./src/views/ControlPolygon3dView.ts");
-const ControlPolygon3dShadowShaders_1 = __webpack_require__(/*! ./ControlPolygon3dShadowShaders */ "./src/views/ControlPolygon3dShadowShaders.ts");
 const ControlPolygon3dShadowView_1 = __webpack_require__(/*! ./ControlPolygon3dShadowView */ "./src/views/ControlPolygon3dShadowView.ts");
+const Object3dShaders_1 = __webpack_require__(/*! ./Object3dShaders */ "./src/views/Object3dShaders.ts");
+const Curve3dView_1 = __webpack_require__(/*! ./Curve3dView */ "./src/views/Curve3dView.ts");
+const Curve3dShadowView_1 = __webpack_require__(/*! ./Curve3dShadowView */ "./src/views/Curve3dShadowView.ts");
+const Object3dShadowShaders_1 = __webpack_require__(/*! ./Object3dShadowShaders */ "./src/views/Object3dShadowShaders.ts");
+const CurveScene3dController_1 = __webpack_require__(/*! ../controllers/CurveScene3dController */ "./src/controllers/CurveScene3dController.ts");
 var STATE;
 (function (STATE) {
     STATE[STATE["NONE"] = 0] = "NONE";
     STATE[STATE["ROTATE"] = 1] = "ROTATE";
 })(STATE || (STATE = {}));
 class CurveScene3dView {
-    constructor(canvas, gl, curveModel) {
+    constructor(canvas, gl, curve3dModel) {
         this.canvas = canvas;
         this.gl = gl;
+        this.selectedControlPoint = null;
+        this.dragging = false;
         this.lightDirection = [0, 1, 1];
         this.previousMousePosition = { x: 0, y: 0 };
         this.state = STATE.NONE;
-        this.curveModel = curveModel;
-        this.controlPoints3dShaders = new ControlPoints3dShaders_1.ControlPoints3dShaders(this.gl);
-        this.controlPoints3dView = new ControlPoints3dView_1.ControlPoints3dView(curveModel.spline, this.controlPoints3dShaders, this.lightDirection);
-        this.controlPoints3dShadowShaders = new ControlPoints3dShadowShaders_1.ControlPoints3dShadowShaders(this.gl);
-        this.controlPoints3dShadowView = new ControlPoints3dShadowView_1.ControlPoints3dShadowView(curveModel.spline, this.controlPoints3dShadowShaders, this.lightDirection);
-        this.controlPolygon3dShaders = new ControlPolygon3dShaders_1.ControlPolygon3dShaders(this.gl);
-        this.controlPolygon3dView = new ControlPolygon3dView_1.ControlPolygon3dView(curveModel.spline, this.controlPolygon3dShaders, this.lightDirection, false);
-        this.controlPolygon3dShadowShaders = new ControlPolygon3dShadowShaders_1.ControlPolygon3dShadowShaders(this.gl);
-        this.controlPolygon3dShadowView = new ControlPolygon3dShadowView_1.ControlPolygon3dShadowView(curveModel.spline, this.controlPolygon3dShadowShaders, this.lightDirection, false);
+        this.curve3dModel = curve3dModel;
+        this.object3dShaders = new Object3dShaders_1.Object3dShaders(this.gl);
+        this.object3dShadowShaders = new Object3dShadowShaders_1.Object3dShadowShaders(this.gl);
+        this.controlPoints3dView = new ControlPoints3dView_1.ControlPoints3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection);
+        this.controlPoints3dShadowView = new ControlPoints3dShadowView_1.ControlPoints3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection);
+        this.controlPolygon3dView = new ControlPolygon3dView_1.ControlPolygon3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection, false);
+        this.controlPolygon3dShadowView = new ControlPolygon3dShadowView_1.ControlPolygon3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false);
+        this.curve3dView = new Curve3dView_1.Curve3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection, false);
+        this.curve3dShadowView = new Curve3dShadowView_1.Curve3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false);
+        this.curve3dModel.registerObserver(this.controlPoints3dView);
+        this.curve3dModel.registerObserver(this.controlPolygon3dView);
+        this.curve3dModel.registerObserver(this.curve3dView);
+        this.curveScene3dControler = new CurveScene3dController_1.CurveScene3dController(curve3dModel);
     }
     renderFrame() {
         this.gl.enable(this.gl.BLEND);
@@ -7619,48 +7617,60 @@ class CurveScene3dView {
         this.controlPoints3dShadowView.renderFrame();
         this.controlPolygon3dView.renderFrame();
         this.controlPolygon3dShadowView.renderFrame();
+        this.curve3dView.renderFrame();
+        this.curve3dShadowView.renderFrame();
     }
-    mousedown(event) {
-        this.previousMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
-        if (event.button === 0) {
+    mousedown(event, deltaSquared = 0.01) {
+        const ndc = this.mouse_get_NormalizedDeviceCoordinates(event);
+        this.selectedControlPoint = this.controlPoints3dView.controlPointSelection(ndc.x, ndc.y, deltaSquared);
+        this.controlPoints3dView.setSelected(this.selectedControlPoint);
+        this.previousMousePosition = ndc;
+        if (event.button === 0 && this.selectedControlPoint === null) {
             this.state = STATE.ROTATE;
         }
-        //console.log(event.clientX)
-        const ndc = this.mouse_get_NormalizedDeviceCoordinates(event);
+        if (this.selectedControlPoint !== null) {
+            this.dragging = true;
+        }
+        this.controlPoints3dView.updateVerticesIndicesAndBuffers();
     }
     mousemove(event) {
-        const currentMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
-        const deltaMove = {
-            x: currentMousePosition.x - this.previousMousePosition.x,
-            y: currentMousePosition.y - this.previousMousePosition.y
-        };
-        this.previousMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
-        if (this.state === STATE.ROTATE) {
-            const deltaRotationQuaternion = quat_1.fromEuler(-deltaMove.y * 500, deltaMove.x * 500, 0);
-            this.controlPoints3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dView.orientation);
-            this.controlPoints3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dShadowView.orientation);
-            this.controlPolygon3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dView.orientation);
-            this.controlPolygon3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation);
+        if (this.state === STATE.ROTATE || this.dragging === true) {
+            const currentMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
+            const deltaMove = {
+                x: currentMousePosition.x - this.previousMousePosition.x,
+                y: currentMousePosition.y - this.previousMousePosition.y
+            };
+            this.previousMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
+            if (this.state === STATE.ROTATE) {
+                const deltaRotationQuaternion = quat_1.fromEuler(-deltaMove.y * 500, deltaMove.x * 500, 0);
+                this.controlPoints3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dView.orientation);
+                this.controlPoints3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dShadowView.orientation);
+                this.controlPolygon3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dView.orientation);
+                this.controlPolygon3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation);
+                this.curve3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curve3dView.orientation);
+                this.curve3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curve3dShadowView.orientation);
+            }
+            if (this.dragging === true) {
+                const selectedControlPoint = this.controlPoints3dView.getSelectedControlPoint();
+                if (selectedControlPoint != null && this.dragging === true) {
+                    const p = this.controlPoints3dView.computeNewPosition(currentMousePosition.x, currentMousePosition.y);
+                    if (p !== null && this.selectedControlPoint !== null) {
+                        this.curveScene3dControler.setControlPointPosition(this.selectedControlPoint, p.x, p.y, p.z);
+                    }
+                }
+            }
         }
     }
     mouseup(event) {
         this.state = STATE.NONE;
+        this.dragging = false;
     }
     mouse_get_NormalizedDeviceCoordinates(event) {
-        /*
-        const canvas = this.gl.canvas
-        const rect  = canvas.getBoundingClientRect()
-        const ev = event
-        const x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2)
-        const y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2)
-        return {x: x, y: y}
-        */
-        const factor = Math.floor(window.devicePixelRatio);
-        const canvas = this.gl.canvas;
-        const rect = canvas.getBoundingClientRect();
-        const ev = event;
-        const x = ((ev.clientX - rect.left) - canvas.width / 2 / factor) / (canvas.width / 2 / factor);
-        const y = (canvas.height / 2 / factor - (ev.clientY - rect.top)) / (canvas.height / 2 / factor);
+        const rect = this.canvas.getBoundingClientRect();
+        const w = parseInt(this.canvas.style.width, 10);
+        const h = parseInt(this.canvas.style.height, 10);
+        const x = ((event.clientX - rect.left) - w / 2) / (w / 2);
+        const y = (h / 2 - (event.clientY - rect.top)) / (h / 2);
         return { x: x, y: y };
     }
 }
@@ -7716,14 +7726,7 @@ class CurveSceneView {
         this.renderFrame();
     }
     renderFrame() {
-        /*
-        let px = 100
-        let size = Math.min(window.innerWidth, window.innerHeight) - px
-        this.canvas.width = size;
-        this.canvas.height = size;
-        */
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-        //this.gl.clearColor(0.3, 0.3, 0.3, 1)
         this.gl.clearColor(0.27, 0.27, 0.27, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.enable(this.gl.BLEND);
@@ -8140,6 +8143,126 @@ exports.InflectionsView = InflectionsView;
 
 /***/ }),
 
+/***/ "./src/views/Object3dShaders.ts":
+/*!**************************************!*\
+  !*** ./src/views/Object3dShaders.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class Object3dShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec3 a_Normal; \n' +
+            'attribute vec3 a_Color; \n' +
+            'uniform mat4 ModelViewProjectionMatrix; \n' +
+            'uniform mat3 NormalMatrix; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '    normal = normalize(NormalMatrix * a_Normal); \n' +
+            '    color = vec4(a_Color, 1); \n' +
+            '    gl_Position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec3 Ambient; \n' +
+            'uniform vec3 LightColor; \n' +
+            'uniform vec3 LightDirection; \n' +
+            'uniform vec3 HalfVector; \n' +
+            'uniform float Shininess; \n' +
+            'uniform float Strength; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
+            '   float specular = abs(dot(normal, HalfVector)); \n' +
+            '   specular = pow(specular, Shininess); \n' +
+            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
+            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
+            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
+            '   gl_FragColor = vec4(rgb, color.a); \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfIndices) {
+        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
+    }
+}
+exports.Object3dShaders = Object3dShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/Object3dShadowShaders.ts":
+/*!********************************************!*\
+  !*** ./src/views/Object3dShadowShaders.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class Object3dShadowShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec3 a_Normal; \n' +
+            'attribute vec3 a_Color; \n' +
+            'uniform mat4 ModelViewProjectionMatrix; \n' +
+            'uniform mat3 NormalMatrix; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '    normal = normalize(NormalMatrix * a_Normal); \n' +
+            '    color = vec4(a_Color, 1.0); \n' +
+            '    vec4 position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
+            '    gl_Position = vec4(position.x, position.y*0.0 - 1.5, position.z, position.w); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec3 Ambient; \n' +
+            'uniform vec3 LightColor; \n' +
+            'uniform vec3 LightDirection; \n' +
+            'uniform vec3 HalfVector; \n' +
+            'uniform float Shininess; \n' +
+            'uniform float Strength; \n' +
+            'varying vec3 normal; \n' +
+            'varying vec4 color; \n' +
+            'void main() {\n' +
+            '   float diffuse = abs(dot(normal, LightDirection)); \n' +
+            '   float specular = abs(dot(normal, HalfVector)); \n' +
+            '   specular = pow(specular, Shininess); \n' +
+            '   vec3 scatteredLight = Ambient + LightColor*diffuse; \n' +
+            '   vec3 reflectedLight = LightColor*specular*Strength; \n' +
+            '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
+            '   gl_FragColor = vec4(rgb, color.a); \n' +
+            '   gl_FragColor = vec4(0.1, 0.1, 0.1, 1); \n' +
+            '}\n';
+        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfIndices) {
+        this.gl.drawElements(this.gl.TRIANGLES, numberOfIndices, this.gl.UNSIGNED_SHORT, 0);
+    }
+}
+exports.Object3dShadowShaders = Object3dShadowShaders;
+
+
+/***/ }),
+
 /***/ "./src/views/Wire3dEventListener.ts":
 /*!******************************************!*\
   !*** ./src/views/Wire3dEventListener.ts ***!
@@ -8149,7 +8272,7 @@ exports.InflectionsView = InflectionsView;
 
 //import { CurveSceneView } from "./CurveSceneView"
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-function wire3dEventListener(canvas, curveSceneView) {
+function wire3dEventListener(canvas, curveScene3dView) {
     /*
     hideContextMenu()
 
@@ -8161,19 +8284,19 @@ function wire3dEventListener(canvas, curveSceneView) {
     }
     */
     canvas.addEventListener('mousedown', (event) => {
-        curveSceneView.mousedown(event);
+        curveScene3dView.mousedown(event);
         event.preventDefault();
-        curveSceneView.renderFrame();
+        curveScene3dView.renderFrame();
     });
     canvas.addEventListener('mousemove', (event) => {
-        curveSceneView.mousemove(event);
+        curveScene3dView.mousemove(event);
         event.preventDefault();
-        curveSceneView.renderFrame();
+        curveScene3dView.renderFrame();
     });
     canvas.addEventListener('mouseup', (event) => {
-        curveSceneView.mouseup(event);
+        curveScene3dView.mouseup(event);
         event.preventDefault();
-        curveSceneView.renderFrame();
+        curveScene3dView.renderFrame();
     });
     /*
     
@@ -8332,10 +8455,11 @@ function wireEventListener(canvas, curveSceneView) {
     var _a;
     hideContextMenu();
     function mouse_get_NormalizedDeviceCoordinates(event) {
-        var x, y, rect = canvas.getBoundingClientRect(), ev;
-        ev = event;
-        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2);
-        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2);
+        const rect = canvas.getBoundingClientRect();
+        const w = parseInt(canvas.style.width, 10);
+        const h = parseInt(canvas.style.height, 10);
+        const x = ((event.clientX - rect.left) - w / 2) / (w / 2);
+        const y = (h / 2 - (event.clientY - rect.top)) / (h / 2);
         return [x, y];
     }
     function touch_get_NormalizedDeviceCoordinates(event) {
@@ -8537,8 +8661,8 @@ template.innerHTML = `
     <div id="container">
     <p class="text_control_button"> Curve Category: </p>
         <select id="curve-category-selector">
-            <option id= "option1" value="0" selected="selected"> Open planar </option>
-            <option id= "option2" value="1" > Closed planar </option>
+            <option id= "option1" value="0" selected="selected"> Open </option>
+            <option id= "option2" value="1" > Closed </option>
             <!--
             <option id= "option3" value="2" > Alternative open planar </option>
             <option id= "option4" value="3" > Alternative closed planar </option>

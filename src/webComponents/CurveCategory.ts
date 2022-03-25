@@ -15,8 +15,8 @@ template.innerHTML = `
     <div id="container">
     <p class="text_control_button"> Curve Category: </p>
         <select id="curve-category-selector">
-            <option id= "option1" value="0" selected="selected"> Open planar </option>
-            <option id= "option2" value="1" > Closed planar </option>
+            <option id= "option1" value="0" selected="selected"> Open </option>
+            <option id= "option2" value="1" > Closed </option>
             <!--
             <option id= "option3" value="2" > Alternative open planar </option>
             <option id= "option4" value="3" > Alternative closed planar </option>

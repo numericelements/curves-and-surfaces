@@ -15,11 +15,11 @@ import { VectorInterface } from "./VectorInterface"
      }
  
      add(v: Vector3d) {
-         return new Vector3d(this.x+v.x, this.y+v.y, this.z+v.z)
+         return new Vector3d(this.x + v.x, this.y + v.y, this.z + v.z)
      }
  
      multiply(value: number) {
-         return new Vector3d(this.x*value, this.y*value, this.z*value)
+         return new Vector3d(this.x * value, this.y * value, this.z * value)
      }
  
      substract(v: Vector3d) {
@@ -54,8 +54,39 @@ import { VectorInterface } from "./VectorInterface"
      crossPoduct(v: Vector3d) {
         return new Vector3d(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x)
     }
+
+    axisAngleRotation(axis: Vector3d, angle: number) {
+        //https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+        const k = axis.normalize()
+        const firstTerm = this.multiply(Math.cos(angle))
+        const secondTerm = k.crossPoduct(this).multiply(Math.sin(angle))
+        const thirdTerm = k.multiply(k.dot(this)).multiply(1 - Math.cos(angle))
+        return firstTerm.add(secondTerm).add(thirdTerm)
+    }
  
  }
+
+ /**
+ * @param p0 point
+ * @param p1 first point of the line
+ * @param p2 second point of the line
+ */
+export function pointLineDistance(p0: Vector3d, p1: Vector3d, p2: Vector3d) {
+    // https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+    return ((p0.substract(p1)).crossPoduct(p0.substract(p2))).norm() / p2.substract(p1).norm()
+}
+
+
+export function linePlaneIntersection(lineP1: Vector3d, lineP2: Vector3d, lookAtOrigin: Vector3d, cameraPosition: Vector3d, objectCenter: Vector3d) {
+    //https://en.wikipedia.org/wiki/Line–plane_intersection
+    const l = lineP2.substract(lineP1)
+    const n = lookAtOrigin.substract(cameraPosition)
+    const nn = n.normalize()
+    const a = nn.dot(objectCenter.substract(cameraPosition))
+    const p0 = nn.multiply(a).add(cameraPosition)
+    const d = (p0.substract(lineP1)).dot(n) / (l.dot(n))
+    return lineP1.add(l.multiply(d))
+}
  
  
  

@@ -1,7 +1,7 @@
 import { createProgram } from "../webgl/cuon-utils";
 
 
-export class ControlPoints3dShadowShaders {
+export class Object3dShadowShaders {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 

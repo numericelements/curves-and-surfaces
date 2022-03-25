@@ -1,7 +1,7 @@
 import { createProgram } from "../webgl/cuon-utils";
 
 
-export class ControlPoints3dShaders {
+export class Object3dShaders {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 
@@ -14,7 +14,7 @@ export class ControlPoints3dShaders {
         'varying vec4 color; \n' +
         'void main() {\n' +
         '    normal = normalize(NormalMatrix * a_Normal); \n' +
-        '    color = vec4(a_Color, 1.0); \n' +
+        '    color = vec4(a_Color, 1); \n' +
         '    gl_Position = ModelViewProjectionMatrix * vec4(a_Position, 1.0); \n' +
         '}\n';
 
