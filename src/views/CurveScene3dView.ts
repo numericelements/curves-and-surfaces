@@ -50,6 +50,9 @@ export class CurveScene3dView {
         this.curve3dModel.registerObserver(this.controlPoints3dView)
         this.curve3dModel.registerObserver(this.controlPolygon3dView)
         this.curve3dModel.registerObserver(this.curve3dView)
+        this.curve3dModel.registerObserver(this.controlPoints3dShadowView)
+        this.curve3dModel.registerObserver(this.controlPolygon3dShadowView)
+        this.curve3dModel.registerObserver(this.curve3dShadowView)
 
         this.curveScene3dControler = new CurveScene3dController(curve3dModel)
     }

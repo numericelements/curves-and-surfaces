@@ -9,14 +9,9 @@ import { computeApproximatedTangentsFromPointsSequence, computeRandomUpVector, c
 
 export class Curve3dShadowView extends AbstractObject3dShadowView implements IObserver<BSplineR1toR3> {
 
-    private controlPoints: Vector3d[]
 
     constructor(private spline: BSplineR1toR3, object3dShadowShaders: Object3dShadowShaders, lightDirection: number[], private closed: boolean) {
         super(object3dShadowShaders, lightDirection)
-        this.controlPoints = spline.freeControlPoints
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0])
-        }
         this.updateVerticesAndIndices()
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
@@ -86,10 +81,7 @@ export class Curve3dShadowView extends AbstractObject3dShadowView implements IOb
 
     update(spline: BSplineR1toR3) {
 
-        this.controlPoints = spline.freeControlPoints
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0])
-        }
+        this.spline = spline
         this.updateVerticesAndIndices()
         this.updateBuffers()
     }
