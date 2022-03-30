@@ -621,6 +621,13 @@ class AbstractBSplineR1toR3 {
         }
         return result;
     }
+    getControlPointsZ() {
+        let result = [];
+        for (let cp of this._controlPoints) {
+            result.push(cp.z);
+        }
+        return result;
+    }
     getDistinctKnots() {
         let result = [this._knots[0]];
         let temp = result[0];
@@ -1134,6 +1141,97 @@ function create_BSplineR1toR3(controlPoints, knots) {
     return new BSplineR1toR3(newControlPoints, knots);
 }
 exports.create_BSplineR1toR3 = create_BSplineR1toR3;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/BSplineR1toR3DifferentialProperties.ts":
+/*!*************************************************************!*\
+  !*** ./src/bsplines/BSplineR1toR3DifferentialProperties.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
+class BSplineR1toR3DifferentialProperties {
+    constructor(spline) {
+        this._spline = spline.clone();
+        this.derivatives = this.computeDerivatives(this._spline);
+    }
+    bSplineR1toR1Factory(controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    computeDerivatives(spline) {
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        const sz = this.bSplineR1toR1Factory(spline.getControlPointsZ(), spline.knots);
+        const sxu = sx.derivative();
+        const syu = sy.derivative();
+        const szu = sz.derivative();
+        const sxuu = sxu.derivative();
+        const syuu = syu.derivative();
+        const szuu = szu.derivative();
+        const sxuuu = sxuu.derivative();
+        const syuuu = syuu.derivative();
+        const szuuu = szuu.derivative();
+        return {
+            xu: sxu.bernsteinDecomposition(),
+            yu: syu.bernsteinDecomposition(),
+            zu: szu.bernsteinDecomposition(),
+            xuu: sxuu.bernsteinDecomposition(),
+            yuu: syuu.bernsteinDecomposition(),
+            zuu: szuu.bernsteinDecomposition(),
+            xuuu: sxuuu.bernsteinDecomposition(),
+            yuuu: syuuu.bernsteinDecomposition(),
+            zuuu: szuuu.bernsteinDecomposition()
+        };
+    }
+    torsionNumerator() {
+        const s = this.derivatives;
+        const t1 = s.yu.multiply(s.zuu).subtract(s.yuu.multiply(s.zu));
+        const t2 = s.xuu.multiply(s.zu).subtract(s.xu.multiply(s.zuu));
+        const t3 = s.xu.multiply(s.yuu).subtract(s.xuu.multiply(s.yu));
+        const distinctKnots = this._spline.getDistinctKnots();
+        const result = s.xuuu.multiply(t1).add(s.yuuu.multiply(t2).add(s.zuuu.multiply(t3)));
+        return result.splineRecomposition(distinctKnots);
+    }
+    curvatureSquaredDerivativeNumerator() {
+        const s = this.derivatives;
+        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu));
+        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu));
+        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu));
+        const t4 = s.zuuu.multiply(s.yu).subtract(s.yuuu.multiply(s.zu));
+        const t5 = s.xuuu.multiply(s.zu).subtract(s.zuuu.multiply(s.xu));
+        const t6 = s.yuuu.multiply(s.xu).subtract(s.xuuu.multiply(s.yu));
+        const t7 = s.xu.multiply(s.xu).add(s.yu.multiply(s.yu)).add(s.zu.multiply(s.zu));
+        const t8 = s.xu.multiply(s.xuu).add(s.yu.multiply(s.yuu)).add(s.zu.multiply(s.zuu));
+        const t9 = ((t1.multiply(t4)).add(t2.multiply(t5)).add(t3.multiply(t6))).multiply(t7);
+        const t10 = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3))).multiply(t8);
+        const result = t9.subtract(t10.multiplyByScalar(3));
+        const distinctKnots = this._spline.getDistinctKnots();
+        return result.splineRecomposition(distinctKnots);
+    }
+    curvatureDerivativeZeros() {
+        const curvatureDerivativeZeros = this.curvatureSquaredDerivativeNumerator();
+        const zeros = curvatureDerivativeZeros.zeros();
+        let result = [];
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    }
+    torsionZeros() {
+        const torsionNumerator = this.torsionNumerator();
+        const zeros = torsionNumerator.zeros();
+        let result = [];
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    }
+}
+exports.BSplineR1toR3DifferentialProperties = BSplineR1toR3DifferentialProperties;
 
 
 /***/ }),
@@ -7060,6 +7158,65 @@ exports.ControlPolygonView = ControlPolygonView;
 
 /***/ }),
 
+/***/ "./src/views/CurvatureExtrema3dView.ts":
+/*!*********************************************!*\
+  !*** ./src/views/CurvatureExtrema3dView.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
+const BSplineR1toR3DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3DifferentialProperties */ "./src/bsplines/BSplineR1toR3DifferentialProperties.ts");
+const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
+class CurvatureExtrema3dView extends AbstractObject3dView_1.AbstractObject3dView {
+    constructor(spline, object3dShaders, lightDirection) {
+        super(object3dShaders, lightDirection);
+        this.spline = spline;
+        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
+        this.zeros = splineDP.curvatureDerivativeZeros();
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.object3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.012;
+        const sectorCount = 50;
+        const stackCount = 50;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let zero of this.zeros) {
+            let v = ControlPoints3dView_1.verticesForOneSphere(zero, radius, sectorCount, stackCount, { red: 1, green: 0.5, blue: 0.5 });
+            let ind = ControlPoints3dView_1.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...ind];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    updateVerticesIndicesAndBuffers() {
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+    update(spline) {
+        this.spline = spline;
+        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
+        this.zeros = splineDP.curvatureDerivativeZeros();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.CurvatureExtrema3dView = CurvatureExtrema3dView;
+
+
+/***/ }),
+
 /***/ "./src/views/CurvatureExtremaShaders.ts":
 /*!**********************************************!*\
   !*** ./src/views/CurvatureExtremaShaders.ts ***!
@@ -7297,10 +7454,6 @@ class Curve3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dSha
         super(object3dShadowShaders, lightDirection);
         this.spline = spline;
         this.closed = closed;
-        this.controlPoints = spline.freeControlPoints;
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
-        }
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
@@ -7359,10 +7512,7 @@ class Curve3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dSha
         return result;
     }
     update(spline) {
-        this.controlPoints = spline.freeControlPoints;
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
-        }
+        this.spline = spline;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
@@ -7577,6 +7727,8 @@ const Curve3dView_1 = __webpack_require__(/*! ./Curve3dView */ "./src/views/Curv
 const Curve3dShadowView_1 = __webpack_require__(/*! ./Curve3dShadowView */ "./src/views/Curve3dShadowView.ts");
 const Object3dShadowShaders_1 = __webpack_require__(/*! ./Object3dShadowShaders */ "./src/views/Object3dShadowShaders.ts");
 const CurveScene3dController_1 = __webpack_require__(/*! ../controllers/CurveScene3dController */ "./src/controllers/CurveScene3dController.ts");
+const TorsionZerosView_1 = __webpack_require__(/*! ./TorsionZerosView */ "./src/views/TorsionZerosView.ts");
+const CurvatureExtrema3dView_1 = __webpack_require__(/*! ./CurvatureExtrema3dView */ "./src/views/CurvatureExtrema3dView.ts");
 var STATE;
 (function (STATE) {
     STATE[STATE["NONE"] = 0] = "NONE";
@@ -7600,9 +7752,16 @@ class CurveScene3dView {
         this.controlPolygon3dShadowView = new ControlPolygon3dShadowView_1.ControlPolygon3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false);
         this.curve3dView = new Curve3dView_1.Curve3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection, false);
         this.curve3dShadowView = new Curve3dShadowView_1.Curve3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false);
+        this.torsionZerosView = new TorsionZerosView_1.TorsionZerosView(curve3dModel.spline, this.object3dShaders, this.lightDirection);
+        this.curvatureExtrema3dView = new CurvatureExtrema3dView_1.CurvatureExtrema3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection);
         this.curve3dModel.registerObserver(this.controlPoints3dView);
         this.curve3dModel.registerObserver(this.controlPolygon3dView);
         this.curve3dModel.registerObserver(this.curve3dView);
+        this.curve3dModel.registerObserver(this.controlPoints3dShadowView);
+        this.curve3dModel.registerObserver(this.controlPolygon3dShadowView);
+        this.curve3dModel.registerObserver(this.curve3dShadowView);
+        this.curve3dModel.registerObserver(this.torsionZerosView);
+        this.curve3dModel.registerObserver(this.curvatureExtrema3dView);
         this.curveScene3dControler = new CurveScene3dController_1.CurveScene3dController(curve3dModel);
     }
     renderFrame() {
@@ -7619,6 +7778,8 @@ class CurveScene3dView {
         this.controlPolygon3dShadowView.renderFrame();
         this.curve3dView.renderFrame();
         this.curve3dShadowView.renderFrame();
+        this.torsionZerosView.renderFrame();
+        this.curvatureExtrema3dView.renderFrame();
     }
     mousedown(event, deltaSquared = 0.01) {
         const ndc = this.mouse_get_NormalizedDeviceCoordinates(event);
@@ -7649,6 +7810,8 @@ class CurveScene3dView {
                 this.controlPolygon3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation);
                 this.curve3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curve3dView.orientation);
                 this.curve3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curve3dShadowView.orientation);
+                this.torsionZerosView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.torsionZerosView.orientation);
+                this.curvatureExtrema3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curvatureExtrema3dView.orientation);
             }
             if (this.dragging === true) {
                 const selectedControlPoint = this.controlPoints3dView.getSelectedControlPoint();
@@ -8259,6 +8422,65 @@ class Object3dShadowShaders {
     }
 }
 exports.Object3dShadowShaders = Object3dShadowShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/TorsionZerosView.ts":
+/*!***************************************!*\
+  !*** ./src/views/TorsionZerosView.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
+const BSplineR1toR3DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3DifferentialProperties */ "./src/bsplines/BSplineR1toR3DifferentialProperties.ts");
+const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
+class TorsionZerosView extends AbstractObject3dView_1.AbstractObject3dView {
+    constructor(spline, object3dShaders, lightDirection) {
+        super(object3dShaders, lightDirection);
+        this.spline = spline;
+        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
+        this.zeros = splineDP.torsionZeros();
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.object3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.012;
+        const sectorCount = 50;
+        const stackCount = 50;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let zero of this.zeros) {
+            let v = ControlPoints3dView_1.verticesForOneSphere(zero, radius, sectorCount, stackCount, { red: 1, green: 0.75, blue: 0.75 });
+            let ind = ControlPoints3dView_1.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...ind];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
+        this.indices = ArrayConversion_1.toUint16Array(indices);
+    }
+    updateVerticesIndicesAndBuffers() {
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+    update(spline) {
+        this.spline = spline;
+        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
+        this.zeros = splineDP.torsionZeros();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.TorsionZerosView = TorsionZerosView;
 
 
 /***/ }),

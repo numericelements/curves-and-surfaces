@@ -11,6 +11,8 @@ import { Curve3dShadowView } from "./Curve3dShadowView";
 import { Object3dShadowShaders } from "./Object3dShadowShaders";
 import { CurveScene3dController } from "../controllers/CurveScene3dController";
 import { linePlaneIntersection } from "../mathVector/Vector3d";
+import { TorsionZerosView } from "./TorsionZerosView";
+import { CurvatureExtrema3dView } from "./CurvatureExtrema3dView";
 
 enum STATE {NONE, ROTATE}
 
@@ -33,6 +35,9 @@ export class CurveScene3dView {
     private curve3dView: Curve3dView
     private curve3dShadowView: Curve3dShadowView
 
+    private torsionZerosView: TorsionZerosView
+    private curvatureExtrema3dView: CurvatureExtrema3dView
+
     private curveScene3dControler: CurveScene3dController
 
 
@@ -46,6 +51,9 @@ export class CurveScene3dView {
         this.controlPolygon3dShadowView = new ControlPolygon3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false)
         this.curve3dView = new Curve3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection, false)
         this.curve3dShadowView = new Curve3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false)
+        this.torsionZerosView = new TorsionZerosView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
+        this.curvatureExtrema3dView = new CurvatureExtrema3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
+
 
         this.curve3dModel.registerObserver(this.controlPoints3dView)
         this.curve3dModel.registerObserver(this.controlPolygon3dView)
@@ -53,6 +61,8 @@ export class CurveScene3dView {
         this.curve3dModel.registerObserver(this.controlPoints3dShadowView)
         this.curve3dModel.registerObserver(this.controlPolygon3dShadowView)
         this.curve3dModel.registerObserver(this.curve3dShadowView)
+        this.curve3dModel.registerObserver(this.torsionZerosView)
+        this.curve3dModel.registerObserver(this.curvatureExtrema3dView)
 
         this.curveScene3dControler = new CurveScene3dController(curve3dModel)
     }
@@ -71,6 +81,8 @@ export class CurveScene3dView {
         this.controlPolygon3dShadowView.renderFrame()
         this.curve3dView.renderFrame()
         this.curve3dShadowView.renderFrame()
+        this.torsionZerosView.renderFrame()
+        this.curvatureExtrema3dView.renderFrame()
     }
 
     mousedown(event: MouseEvent, deltaSquared: number = 0.01) {
@@ -104,6 +116,8 @@ export class CurveScene3dView {
                 this.controlPolygon3dShadowView.orientation = multiply_quats(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation)
                 this.curve3dView.orientation = multiply_quats(deltaRotationQuaternion, this.curve3dView.orientation)
                 this.curve3dShadowView.orientation = multiply_quats(deltaRotationQuaternion, this.curve3dShadowView.orientation)
+                this.torsionZerosView.orientation = multiply_quats(deltaRotationQuaternion, this.torsionZerosView.orientation)
+                this.curvatureExtrema3dView.orientation = multiply_quats(deltaRotationQuaternion, this.curvatureExtrema3dView.orientation)
             }
             if (this.dragging === true) {
                 const selectedControlPoint = this.controlPoints3dView.getSelectedControlPoint()

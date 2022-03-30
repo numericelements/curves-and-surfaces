@@ -104,6 +104,14 @@ export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Ve
         return result
     }
 
+    getControlPointsZ() {
+        let result: number[] = []
+        for (let cp of this._controlPoints) {
+            result.push(cp.z)
+        }
+        return result
+    }
+
     getDistinctKnots() {
         let result: number[] = [this._knots[0]]
         let temp = result[0]

@@ -4,7 +4,6 @@ import { BSplineR1toR3 } from "../bsplines/BSplineR1toR3";
 import { linePlaneIntersection, pointLineDistance, Vector3d } from "../mathVector/Vector3d";
 import { Object3dShaders } from "./Object3dShaders";
 import { AbstractObject3dView } from "./AbstractObject3dView";
-import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
 import { lusolve } from "../linearAlgebra/LUSolve";
 
 export class ControlPoints3dView extends AbstractObject3dView  implements IObserver<BSplineR1toR3> {
