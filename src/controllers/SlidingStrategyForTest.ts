@@ -3,7 +3,6 @@ import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 import { Vector_2d } from "../mathematics/Vector_2d";
-import { ActiveInflectionLocationControl, ActiveExtremaLocationControl } from "./CurveSceneController"
 import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
 import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"

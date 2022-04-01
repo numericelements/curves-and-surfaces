@@ -31,8 +31,10 @@ import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 export const MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 export const MAX_TRUST_REGION_RADIUS = 100;
 export const CONVERGENCE_THRESHOLD = 10e-8;
-/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
-export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
+
+/* JCL 2020/11/06 Add controls to monitor the location of the curvature extrema and inflection points */
+export enum ActiveExtremaLocationControl {mergeExtrema, none, stopDeforming, extremumLeaving, extremumEntering}
+export enum ActiveInflectionLocationControl {mergeExtremaAndInflection, none, stopDeforming}
 
 export class CurveShapeSpaceNavigator {
 
@@ -69,23 +71,23 @@ export class CurveShapeSpaceNavigator {
     private _controlOfCurvatureExtrema: boolean;
     private _controlOfInflection: boolean;
     private _sliding: boolean;
-    private _controlOfCurveClamping: boolean;
-    private curveControl: CurveControlStrategyInterface;
-    public activeLocationControl: ActiveLocationControl
+    private _curveControl: CurveControlStrategyInterface;
+    public activeExtremaLocationControl: ActiveExtremaLocationControl
+    public activeInflectionLocationControl: ActiveInflectionLocationControl
 
     constructor(curveModeler: CurveModeler) {
         this._controlOfCurvatureExtrema = true;
         this._controlOfInflection = true;
         this._sliding = true;
-        this._controlOfCurveClamping = true;
 
         this._curveModeler = curveModeler;
         this.curveCategory = this.curveModeler.curveCategory;
         this.curveModel = new CurveModel();
 
-        this.activeLocationControl = ActiveLocationControl.firstControlPoint
+        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
         // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-        this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
+        this._curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl)
 
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
@@ -135,6 +137,14 @@ export class CurveShapeSpaceNavigator {
 
     set controlOfInflection(controlOfInflection: boolean) {
         this._controlOfInflection = controlOfInflection;
+    }
+
+    get sliding() {
+        return this._sliding
+    }
+
+    set sliding(sliding: boolean) {
+        this._sliding = sliding
     }
 
     // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
@@ -229,6 +239,10 @@ export class CurveShapeSpaceNavigator {
 
     get curveConstraintProcessor(): CurveConstraintProcessor {
         return this._curveConstraintProcessor;
+    }
+
+    get curveControl() {
+        return this._curveControl;
     }
 
     changeNavigationState(state: NavigationState): void {
@@ -359,7 +373,7 @@ export class CurveShapeSpaceNavigator {
     }
 
     toggleControlOfCurvatureExtrema() {
-        this.curveControl.toggleControlOfCurvatureExtrema()
+        this._curveControl.toggleControlOfCurvatureExtrema()
         this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema
         //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
 
@@ -369,7 +383,7 @@ export class CurveShapeSpaceNavigator {
     }
 
     toggleControlOfInflections() {
-        this.curveControl.toggleControlOfInflections()
+        this._curveControl.toggleControlOfInflections()
         this.controlOfInflection = ! this.controlOfInflection
         //console.log("control of inflections: " + this.controlOfInflection)
 
@@ -384,7 +398,7 @@ export class CurveShapeSpaceNavigator {
                 this._sliding = false
                 //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
                 //console.log("constrol of inflections: " + this.controlOfInflection)
-                this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
+                this._curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl)
             }
             else {
                 this._sliding = true

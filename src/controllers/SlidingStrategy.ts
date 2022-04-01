@@ -3,12 +3,13 @@ import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../models/CurveModel";
 import { Vector_2d } from "../mathematics/Vector_2d";
-import { CurveSceneController, ActiveInflectionLocationControl, ActiveExtremaLocationControl } from "./CurveSceneController"
+import { CurveSceneController } from "./CurveSceneController"
 import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
 import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
-import { ActiveLocationControl } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ActiveExtremaLocationControl, ActiveInflectionLocationControl } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ActiveLocationControl } from "../curveModeler/CurveModeler";
 
 
 
@@ -46,7 +47,9 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
     private curveSceneController: CurveSceneController
     public lastDiffEvent: NeighboringEventsType
 
-    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, curveSceneController: CurveSceneController ) {
+    // constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, curveSceneController: CurveSceneController ) {
+    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean,
+        curveSceneController: CurveSceneController ) {
         this.curveModel = curveModel
         //enum ActiveControl {curvatureExtrema, inflections, both}
         let activeControl : ActiveControl = ActiveControl.both

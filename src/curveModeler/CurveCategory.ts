@@ -1,4 +1,4 @@
-import { CurveModeler } from "../curveModeler/CurveModeler";
+import { ActiveLocationControl, CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ClosedCurveModel2D, OpenCurveModel2D } from "../models/CurveModels2D";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
@@ -7,10 +7,14 @@ import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventState
 import { BSpline_R1_to_R2_degree_Raising } from "../bsplines/BSpline_R1_to_R2_degree_Raising";
 import { SlidingStrategy } from "../controllers/SlidingStrategy";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
+import { CurveModel } from "../newModels/CurveModel";
+import { AbstractCurveModel } from "../newModels/AbstractCurveModel";
+import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 
 export abstract class CurveCategory {
 
     protected curveModeler: CurveModeler;
+    abstract curveModel: AbstractCurveModel;
 
     constructor(curveModeler: CurveModeler) {
         this.curveModeler = curveModeler;
@@ -26,20 +30,22 @@ export abstract class CurveCategory {
 
     abstract setModelerWithClosedPlanarCurve(): void;
 
+    abstract toggleCurveClamping(): void;
+
+    abstract inputSelectDegree(curveDegree: number):void;
+
 }
 
 export class OpenPlanarCurve extends CurveCategory {
 
-    // JCL temporaire: pour assurer la compatibilité avec les classes existantes
-    public curveModel: OpenCurveModel2D;
+    public curveModel: CurveModel;
     public eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
     public eventState: EventStateAtCurveExtremity;
     // public curveEventAtExtremityMayVanish: boolean;
 
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
-        // JCL temporaire: pour assurer la compatibilité avec les classes existantes
-        this.curveModel = new OpenCurveModel2D();
+        this.curveModel = new CurveModel();
         this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities();
         // this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         this.eventState = new EventSlideOutsideCurve(this.eventMgmtAtExtremities);
@@ -50,43 +56,44 @@ export class OpenPlanarCurve extends CurveCategory {
     }
 
     setModelerWithOpenPlanarCurve(): void {
-        let warning = new WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'no curve model to change there.');
+        const warning = new WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'no curve model to change there.');
         warning.logMessageToConsole();
     }
 
     setModelerWithClosedPlanarCurve(): void {
-        let warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'change to closed planar curves.');
+        const warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'change to closed planar curves.');
         warning.logMessageToConsole();
         this.curveModeler.changeCurveCategory(new ClosedPlanarCurve(this.curveModeler));
     }
 
     /* JCL 2020/10/07 Add the curve degree elevation process */
-    inputSelectDegree(curveDegree: number) {
+    inputSelectDegree(curveDegree: number): void {
         if(this.curveModel !== undefined) {
             if(curveDegree > this.curveModel.spline.degree) {
-                let controlPoints = this.curveModel.spline.controlPoints;
-                let knots = this.curveModel.spline.knots;
-                for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                    const aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
-                    const newSpline = aSpline.degreeIncrease();
-                    controlPoints = newSpline.controlPoints;
-                    knots = newSpline.knots;
+                // let controlPoints = this.curveModel.spline.controlPoints;
+                // let knots = this.curveModel.spline.knots;
+                // for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                //     const aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
+                //     const newSpline = aSpline.degreeIncrease();
+                //     controlPoints = newSpline.controlPoints;
+                //     knots = newSpline.knots;
+                // }
+                // this.curveModel.spline.renewCurve(controlPoints, knots);
+                // this.curveModeler.curveShapeSpaceNavigator.curveControl.resetCurve(this.curveModel)
+                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+
+                if(this.curveModeler.activeLocationControl === ActiveLocationControl.both) {
+                    if(this.curveModeler.clampedControlPoints[0] === 0){
+                        this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                    } else this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                 }
-                this.curveModel.spline.renewCurve(controlPoints, knots);
-                // this.curveControl.resetCurve(this.curveModel)
+                else if(this.curveModeler.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                    this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                }
 
-                // if(this.activeLocationControl === ActiveLocationControl.both) {
-                //     if(this.clampedControlPoints[0] === 0){
-                //         this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                //     } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-                // }
-                // else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                //     this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-                // }
-
-                // if (this.sliding) {
+                if (this.curveModeler.curveShapeSpaceNavigator.sliding) {
                 //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-                // }
+                }
                 // else {
                 //     this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
                 // }
@@ -98,18 +105,37 @@ export class OpenPlanarCurve extends CurveCategory {
         }
     }
 
+    /* JCL 2020/09/24 Monitor rigid body movements of the curve in accordance with the button status */
+    toggleCurveClamping() {
+        this.curveModeler.controlOfCurveClamping = !this.curveModeler.controlOfCurveClamping
+        console.log("control of curve clamping: " + this.curveModeler.controlOfCurveClamping)
+        if(this.curveModeler.controlOfCurveClamping) {
+            /* JCL 2020/09/24 Update the location of the clamped control point */
+            // let clampedControlPoint: Vector_2d[] = []
+            // if(this.curveModel !== undefined) {
+            //     clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
+            // } else throw new Error("Unable to clamp a control point. Undefined curve model")
+            // this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
+            this.curveModeler.clampedControlPoints = []
+            this.curveModeler.clampedControlPoints.push(0)
+            this.curveModeler.activeLocationControl = ActiveLocationControl.firstControlPoint
+            // if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
+        } else {
+            this.curveModeler.activeLocationControl = ActiveLocationControl.none
+            this.curveModeler.clampedControlPoints = []
+        }
+        this.curveModel.notifyObservers();
+    } 
+
 }
 
 export class ClosedPlanarCurve extends CurveCategory {
 
-    // JCL temporaire: pour assurer la compatibilité avec les classes existantes
-    public curveModel: ClosedCurveModel2D;
+    public curveModel: ClosedCurveModel;
 
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
-        // JCL temporaire: pour assurer la compatibilité avec les classes existantes
-        this.curveModel = new ClosedCurveModel2D();
-        //this.curveModel = new ClosedPlanarCurve(this.curveModeler);
+        this.curveModel = new ClosedCurveModel();
     }
 
     setCurveCategory(): void {
@@ -117,13 +143,41 @@ export class ClosedPlanarCurve extends CurveCategory {
     }
 
     setModelerWithOpenPlanarCurve(): void {
-        let warning = new WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'change to open planar curves.');
+        const warning = new WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'change to open planar curves.');
         warning.logMessageToConsole();
         this.curveModeler.changeCurveCategory(new OpenPlanarCurve(this.curveModeler));
     }
 
     setModelerWithClosedPlanarCurve(): void {
-        let warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'no curve model to change there.');
+        const warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'no curve model to change there.');
         warning.logMessageToConsole();
+    }
+
+    toggleCurveClamping() {
+        const warning = new WarningLog(this.constructor.name, 'toggleCurveClamping', 'nothing to do there yet.');
+        warning.logMessageToConsole();
+    }
+
+    inputSelectDegree(curveDegree: number): void {
+        if(this.curveModel !== undefined) {
+            if(curveDegree > this.curveModel.spline.degree) {
+                let controlPoints = this.curveModel.spline.controlPoints;
+                let knots = this.curveModel.spline.knots;
+                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                // for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                //     const aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
+                //     const newSpline = aSpline.degreeIncrease();
+                //     controlPoints = newSpline.controlPoints;
+                //     knots = newSpline.knots;
+                // }
+                // this.curveModel.spline.renewCurve(controlPoints, knots);
+                // this.curveControl.resetCurve(this.curveModel)
+
+                this.curveModel.notifyObservers()
+            }
+        } else {
+            const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
+            error.logMessageToConsole();
+        }
     }
 }

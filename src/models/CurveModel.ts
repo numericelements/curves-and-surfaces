@@ -9,7 +9,7 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
 
     public spline: BSpline_R1_to_R2
     //private target: PeriodicBSpline_R1_to_R2
-    private observers: IObserver<BSpline_R1_to_R2_interface>[] = []
+    private _observers: IObserver<BSpline_R1_to_R2_interface>[] = []
 
     //constructor() {
     constructor(existingKnots?: number[], existingControlPoints?: Array<Vector_2d>) {   
@@ -112,13 +112,16 @@ export class CurveModel implements IObservable<BSpline_R1_to_R2_interface> {
         
     }
 
+    get observers() {
+        return this._observers;
+    }
 
     registerObserver(observer: IObserver<BSpline_R1_to_R2_interface>) {
-        this.observers.push(observer)
+        this._observers.push(observer)
     }
 
     removeObserver(observer: IObserver<BSpline_R1_to_R2_interface>) {
-        this.observers.splice(this.observers.indexOf(observer), 1)
+        this._observers.splice(this.observers.indexOf(observer), 1)
     }
 
     notifyObservers() {

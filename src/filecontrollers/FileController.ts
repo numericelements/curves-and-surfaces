@@ -1,9 +1,9 @@
-import { BSpline_R1_to_R2, create_BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2, create_BSplineR1toR2, create_BSplineR1toR2V2d } from "../newBsplines/BSplineR1toR2";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { IObservable, IObserver } from "../designPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { CurveModel } from "../models/CurveModel";
+import { Vector2d } from "../mathVector/Vector2d";
+import { CurveModel } from "../newModels/CurveModel";
 
 export class FileController implements IObservable<CurveModel> {
 
@@ -20,11 +20,11 @@ export class FileController implements IObservable<CurveModel> {
         return this._curveModel;
     }
 
-    registerObserver(observer: IObserver<CurveModel>) {
+    registerObserver(observer: IObserver<CurveModel>): void {
         this.observers.push(observer)
     }
 
-    removeObserver(observer: IObserver<CurveModel>) {
+    removeObserver(observer: IObserver<CurveModel>): void {
         this.observers.splice(this.observers.indexOf(observer), 1)
     }
 
@@ -52,7 +52,7 @@ export class FileController implements IObservable<CurveModel> {
         return undefined;
     }
 
-    loadCurveFromFile(aString: string): BSpline_R1_to_R2;
+    loadCurveFromFile(aString: string): BSplineR1toR2;
     loadCurveFromFile(aString: string): undefined;
     loadCurveFromFile(aString: string): any {
 
@@ -69,14 +69,15 @@ export class FileController implements IObservable<CurveModel> {
         if(typeof(controlPoints) !== "object" || 
             (typeof(controlPoints) === "object" && typeof(controlPoints[0].x) !== "number")) this.inconsistentFileFormatMessage();
 
-        let tempSpline: BSpline_R1_to_R2;
-        tempSpline = create_BSpline_R1_to_R2(controlPoints, knots);
+        let tempSpline: BSplineR1toR2;
+        tempSpline = create_BSplineR1toR2(controlPoints, knots);
         return tempSpline;
     }
 
-    resetCurveContext(knots: number[], controlPoints: Array<Vector_2d>) {
+    resetCurveContext(knots: number[], controlPoints: Array<Vector2d>): void {
+        const newSpline = create_BSplineR1toR2V2d(controlPoints, knots);
         if(this._curveModel !== undefined) {
-            this._curveModel = new CurveModel(knots, controlPoints);
+            this._curveModel.setSpline(newSpline);
             this.notifyObservers();
             this._curveSceneController.curveModel = this._curveModel;
             this._curveSceneController.initCurveSceneView();

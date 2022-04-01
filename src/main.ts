@@ -1,6 +1,6 @@
 import { CurveSceneController } from "./controllers/CurveSceneController"
 import {WebGLUtils} from "./webgl/webgl-utils"
-import { CurveModel } from "./models/CurveModel"
+import { CurveModel } from "./newModels/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
 import { ErrorLog } from "./errorProcessing/ErrorLoging"
 // import { chartEventListener } from "./chartviews/ChartEventListener";
@@ -101,16 +101,12 @@ export function main() {
     iconKnotInsertion = new Image();
 
     const curveModelerEventListener = new CurveModelerEventListener();
-    const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener.curveModel);
+    const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
     const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
-    // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener.curveModel);
+    // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
     const chartEventListener = new ChartEventListener(curveModelerEventListener.curveModel);
     const fileEventListener = new FileEventListener(curveModelerEventListener.curveModel, chartEventListener,
         curveModelerEventListener, shapeSpaceNavigationEventListener, sceneController);
-    // const curveShapeModelerUserInterface = new CurveShapeModelerUserInterface();
-    // const curveModel = curveModelEventListener(curveShapeModelerUserInterface);
-    // const chartSceneController = chartEventListener(sceneController.curveModel);
-    // fileEventListener(sceneController, chartSceneController, curveShapeModelerUserInterface);
 
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
@@ -149,7 +145,7 @@ export function main() {
         sceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
         // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
-        if(!active_clamping) shapeSpaceNavigationEventListener.toggleButtonCurveClamping.click();
+        if(!active_clamping) curveModelerEventListener.toggleButtonCurveClamping.click();
         ev.preventDefault();
     }
 

@@ -4,16 +4,22 @@ import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
-enum CurveType { PLANAR_OPEN, PLANAR_CLOSED }
+/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
+export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
 
 export class CurveModeler{
-    public curveType: CurveType;
     private _curveCategory: CurveCategory;
+    private _controlOfCurveClamping: boolean;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private _clampedControlPoints: number[] = []
+
+    public activeLocationControl: ActiveLocationControl
 
     constructor() {
         this._curveCategory = new OpenPlanarCurve(this);
-        this.curveType = CurveType.PLANAR_OPEN;
+        this._controlOfCurveClamping = true;
+        this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+        this.clampedControlPoints.push(0);
         // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
         // JCL To ensure its correct initialization, it must be called last to ensure a consistent
         // JCL initialization of each context.
@@ -30,6 +36,22 @@ export class CurveModeler{
 
     get curveCategory(): CurveCategory {
         return this._curveCategory;
+    }
+
+    get controlOfCurveClamping(): boolean {
+        return this._controlOfCurveClamping;
+    }
+
+    get clampedControlPoints(): number[] {
+        return this._clampedControlPoints;
+    }
+
+    set clampedControlPoints(clampedControlPoints: number[]) {
+        this._clampedControlPoints = clampedControlPoints;
+    }
+
+    set controlOfCurveClamping(controlOfCurveClamping: boolean) {
+        this._controlOfCurveClamping = controlOfCurveClamping;
     }
 
     inputSelectCurveCategory(crvCategoryID: number) {
@@ -56,4 +78,5 @@ export class CurveModeler{
         // JCL for consistency of the curveShapeSpaceNavigator context wrt curveModeler one
         this.curveShapeSpaceNavigator.curveCategory = this._curveCategory;
     }
+
 }

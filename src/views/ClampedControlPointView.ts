@@ -1,12 +1,9 @@
-import { CurveSceneController } from "../controllers/CurveSceneController";
 import { Vector_2d } from "../mathematics/Vector_2d";
-/*import { BSpline_R1_to_R2_interface } from "../mathematics/BSplineInterfaces";*/
 import {ControlPointsShaders} from "../views/ControlPointsShaders"
-/*import { IObserver } from "../designPatterns/Observer";*/
+import { IObserver } from "../designPatterns/Observer";
+import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
 
-
-/*export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> {*/
-export class ClampedControlPointView {
+export class ClampedControlPointView implements IObserver<BSpline_R1_to_R2_interface>{
 
     private readonly z = 0
     /* JCL 2020/10/23 Currently this member is not used given the double click selection process used to set up clamped points. It could be used
@@ -16,12 +13,18 @@ export class ClampedControlPointView {
     private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
-    /*private controlPoints: Vector_2d[]*/
+    private controlPoints: Vector_2d[]
+    private clampedCPindices: number[] = []
+    private clampedControlPoints: Vector_2d[] = []
 
     /*constructor(private spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {*/
-    constructor(private clampedControlPoints: Vector_2d[], private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
+    constructor(spline: BSpline_R1_to_R2_interface, clampedCPindices: number[], private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
         
-        /*this.controlPoints = spline.visibleControlPoints()*/
+        this.controlPoints = spline.visibleControlPoints();
+        this.clampedCPindices = clampedCPindices;
+        for(let index of this.clampedCPindices) {
+            this.clampedControlPoints.push(this.controlPoints[index]);
+        }
 
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.controlPointsShaders.gl);
@@ -191,16 +194,18 @@ export class ClampedControlPointView {
         return result;
     }
 
-    /*update(spline: BSpline_R1_to_R2_interface) {*/
-    update(controlPoints: Vector_2d[]) {
-        /*this.controlPoints = spline.visibleControlPoints();*/
-        this.clampedControlPoints = controlPoints;
+    update(spline: BSpline_R1_to_R2_interface) {
+        this.controlPoints = spline.visibleControlPoints();
+        this.clampedControlPoints = [];
+        for(let index of this.clampedCPindices) {
+            this.clampedControlPoints.push(this.controlPoints[index]);
+        }
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
 
-    /*reset(message: BSpline_R1_to_R2_interface): void {
-    }*/
+    reset(message: BSpline_R1_to_R2_interface): void {
+    }
 
     updatePoints(points: Vector_2d[]) {
         this.clampedControlPoints = points;
@@ -222,7 +227,6 @@ export class ClampedControlPointView {
     getSelectedControlPoint() {
         return this.clampedControlPoint;
     }
-
 
     setSelected(controlPointIndex: number | null) {
         this.clampedControlPoint = controlPointIndex;

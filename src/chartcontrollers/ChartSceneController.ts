@@ -1,12 +1,12 @@
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ChartDescriptorQueueItem } from "../containers/ChartDescriptorQueueItem";
 import { QueueChartDescriptor, QueueChartController } from "../containers/Queue";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { ChartContentState, ChartWithNoFunction } from "./ChartContentState";
 import { ChartController } from "./ChartController";
 import { NoFunctionSceneController } from "./NoFunctionSceneController";
-import { IObserver } from "../designPatterns/Observer";
-import { CurveModel } from "../models/CurveModel";
+import { IObserver } from "../newDesignPatterns/Observer";
+import { CurveModel } from "../newModels/CurveModel";
 
 export const MAX_NB_CHARTS = 3;
 export const NB_CURVE_POINTS = 100;
@@ -37,7 +37,7 @@ export class ChartSceneController {
     private defaultChartTitles: Array<string>;
     private chartContent: Array<ChartContentState>;
     private _chartControllers: Array<ChartController>;
-    private _curveObservers: Array<IObserver<BSpline_R1_to_R2_interface>>;
+    private _curveObservers: Array<IObserver<BSplineR1toR2Interface>>;
     private _uncheckedChart: string;
     private _curveModel: CurveModel;
 
@@ -73,7 +73,7 @@ export class ChartSceneController {
         this._curveModel = curveModel;
     }
 
-    set curveObserver(curveObservers: Array<IObserver<BSpline_R1_to_R2_interface>>) {
+    set curveObserver(curveObservers: Array<IObserver<BSplineR1toR2Interface>>) {
         this._curveObservers = curveObservers;
     }
 
@@ -125,7 +125,7 @@ export class ChartSceneController {
         this.init();
         this._curveObservers.forEach(element => {
             element.update(this._curveModel.spline);
-            this._curveModel.registerObserver(element);
+            this._curveModel.registerObserver(element, "curve");
         });
     }
 
@@ -287,20 +287,20 @@ export class ChartSceneController {
         }
     }
 
-    addCurveObserver(curveObserver: IObserver<BSpline_R1_to_R2_interface>) {
+    addCurveObserver(curveObserver: IObserver<BSplineR1toR2Interface>) {
         if(this._curveModel !== undefined) {
             curveObserver.update(this._curveModel.spline);
-            this._curveModel.registerObserver(curveObserver);
+            this._curveModel.registerObserver(curveObserver, "curve");
         } else {
             const error = new ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
             error.logMessageToConsole();
         }
     }
 
-    removeCurveObserver(curveObserver: IObserver<BSpline_R1_to_R2_interface>) {
+    removeCurveObserver(curveObserver: IObserver<BSplineR1toR2Interface>) {
         if(this._curveModel !== undefined) {
             curveObserver.update(this._curveModel.spline);
-            this._curveModel.removeObserver(curveObserver);
+            this._curveModel.removeObserver(curveObserver, "curve");
         } else {
             const error = new ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
             error.logMessageToConsole();

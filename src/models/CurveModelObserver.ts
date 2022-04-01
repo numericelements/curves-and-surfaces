@@ -50,8 +50,10 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
             this.listener.curveModel = message;
             this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = message;
             this.listener.curveModeler.curveShapeSpaceNavigator.currentCurve = message.spline;
+            this.listener.curveModeler.clampedControlPoints[0] = 0;
             const degree = message.spline.degree;
             this.listener.updateCurveDegreeSelector(degree);
+            this.listener.resetCurveConstraintControlButton();
         }
     }
 

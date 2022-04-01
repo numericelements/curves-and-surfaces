@@ -1,12 +1,12 @@
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
 import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSceneController";
 import { CurveSceneController } from "../controllers/CurveSceneController";
-import { CurveModeler } from "../curveModeler/CurveModeler";
-import { ActiveLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { CurveModeler, ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { IObserver } from "../designPatterns/Observer";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
-import { CurveModel, DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
+import { DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
+import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelEventListener, CurveModelObserverInShapeSpaceNavigationEventListener } from "../models/CurveModelObserver";
 
 // export abstract class UserInterfaceEventListener {
@@ -359,6 +359,8 @@ export class CurveModelerEventListener {
     private _inputDegree: HTMLSelectElement;
     private _currentCurveDegree: string;
     private _currentCurveCategory: string;
+    private _toggleButtonCurveClamping: HTMLButtonElement;
+    private controlOfCurveClamping: boolean;
 
     public activeLocationControl: ActiveLocationControl
 
@@ -369,11 +371,14 @@ export class CurveModelerEventListener {
         this._currentCurveCategory = "0";
         this._inputCurveCategory = <HTMLSelectElement> document.getElementById("curveCategory");
         this._inputDegree = <HTMLSelectElement> document.getElementById("curveDegree");
+        this._toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping");
 
         // to be used later
         this._curveModeler = new CurveModeler();
         this._curveModel = new CurveModel();
-        this.activeLocationControl = this._curveModeler.curveShapeSpaceNavigator.activeLocationControl
+        // this._curveModeler.curveCategory.curveModel;
+        this.controlOfCurveClamping = true;
+        this.activeLocationControl = this._curveModeler.activeLocationControl;
 
         /* JCL  Add event handlers for curve degree and curve category selection processing */
         this._inputDegree.addEventListener('input', this.inputSelectDegree.bind(this));
@@ -381,6 +386,7 @@ export class CurveModelerEventListener {
 
         this._inputCurveCategory.addEventListener('input', this.inputSelectCurveCategory.bind(this));
         this._inputCurveCategory.addEventListener('click', this.clickCurveCategory.bind(this));
+        this._toggleButtonCurveClamping.addEventListener('click', this.toggleCurveClamping.bind(this));
     }
 
     get currentCurveDegree() {
@@ -411,6 +417,15 @@ export class CurveModelerEventListener {
         this._curveModeler = curveModeler;
     }
 
+    get toggleButtonCurveClamping() {
+        return this._toggleButtonCurveClamping;
+    }
+
+    toggleCurveClamping() {
+        this.controlOfCurveClamping = !this.controlOfCurveClamping;
+        this._curveModeler.curveCategory.toggleCurveClamping();
+    }
+
     clickSelectDegree() {
         console.log("select Degree click");
         this._inputDegree.value = this._currentCurveDegree;
@@ -436,6 +451,7 @@ export class CurveModelerEventListener {
         if(!isNaN(Number(this._inputDegree.value))){
             curveDegree = Number(this._inputDegree.value);
             this._currentCurveDegree = this._inputDegree.value;
+            this.curveModeler.curveCategory.inputSelectDegree(curveDegree);
             if(curveDegree > DEFAULT_CURVE_DEGREE) {
                 for(let i = 1; i < (curveDegree - DEFAULT_CURVE_DEGREE + 1); i += 1) {
                     console.log("select" + optionName + i.toString());
@@ -450,6 +466,12 @@ export class CurveModelerEventListener {
         } else {
             const error = new ErrorLog("curveModelEventListener", "inputSelectDegree", "The selected option cannot be converted into a Number");
             error.logMessageToConsole();
+        }
+    }
+
+    resetCurveConstraintControlButton() {
+        if(!this.controlOfCurveClamping) {
+            this._toggleButtonCurveClamping.click();
         }
     }
 
@@ -486,7 +508,6 @@ export class ShapeSpaceNavigationEventListener {
     private _toggleButtonCurvatureExtrema:  HTMLButtonElement;
     private _toggleButtonInflection: HTMLButtonElement;
     private _toggleButtonSliding: HTMLButtonElement;
-    private _toggleButtonCurveClamping: HTMLButtonElement;
 
     private _currentNavigationMode: string;
     private _inputNavigationMode: HTMLSelectElement;
@@ -495,7 +516,6 @@ export class ShapeSpaceNavigationEventListener {
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
     private sliding: boolean;
-    private controlOfCurveClamping: boolean;
 
     private sceneController: CurveSceneController;
 
@@ -507,7 +527,6 @@ export class ShapeSpaceNavigationEventListener {
         this._toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema");
         this._toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections");
         this._toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding");
-        this._toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping");
     
         /* Get control button IDs for curve shape control*/
         this._currentNavigationMode = "0";
@@ -517,7 +536,6 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.sliding = true;
-        this.controlOfCurveClamping = true;
 
         this._inputNavigationMode.addEventListener('input', this.inputSelectNavigationMode.bind(this));
         this._inputNavigationMode.addEventListener('click', this.clickNavigationMode.bind(this));
@@ -525,7 +543,6 @@ export class ShapeSpaceNavigationEventListener {
         this._toggleButtonCurvatureExtrema.addEventListener('click', this.toggleControlOfCurvatureExtrema.bind(this));
         this._toggleButtonInflection.addEventListener('click', this.toggleControlOfInflections.bind(this));
         this._toggleButtonSliding.addEventListener('click', this.toggleSliding.bind(this));
-        this._toggleButtonCurveClamping.addEventListener('click', this.toggleCurveClamping.bind(this));
     }
 
     get curveShapeSpaceNavigator() {
@@ -544,10 +561,6 @@ export class ShapeSpaceNavigationEventListener {
         return this._toggleButtonSliding;
     }
 
-    get toggleButtonCurveClamping() {
-        return this._toggleButtonCurveClamping;
-    }
-
     toggleControlOfCurvatureExtrema() {
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
         this._curveShapeSpaceNavigator.toggleControlOfCurvatureExtrema();
@@ -561,11 +574,6 @@ export class ShapeSpaceNavigationEventListener {
     toggleSliding() {
         this.sliding = !this.sliding;
         this._curveShapeSpaceNavigator.toggleSliding();
-    }
-
-    toggleCurveClamping() {
-        this.controlOfCurveClamping = !this.controlOfCurveClamping;
-        this.sceneController.toggleCurveClamping();
     }
 
     clickNavigationMode() {
@@ -589,9 +597,6 @@ export class ShapeSpaceNavigationEventListener {
         }
         if(!this.controlOfInflection) {
             this._toggleButtonInflection.click();
-        }
-        if(!this.controlOfCurveClamping) {
-            this._toggleButtonCurveClamping.click();
         }
     }
 

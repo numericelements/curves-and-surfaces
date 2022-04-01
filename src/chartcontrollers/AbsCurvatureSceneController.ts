@@ -1,31 +1,35 @@
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
-import { BSpline_R1_to_R1 } from "../bsplines/BSpline_R1_to_R1";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
-import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
+import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
+import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
+import { Vector2d } from "../mathVector/Vector2d";
 import { ChartController } from "./ChartController";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES, NB_CURVE_POINTS } from "./ChartSceneController";
 import { IObserver } from "../designPatterns/Observer";
+import { type } from "os";
+import { AbstractBSplineR1toR2 } from "../newBsplines/AbstractBSplineR1toR2";
+import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
 
 
-export class AbsCurvatureSceneController implements IObserver<BSpline_R1_to_R2_interface> {
+export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Interface> {
 
 
-    private splineNumerator: BSpline_R1_to_R2
-    private splineDenominator: BSpline_R1_to_R2
-    private readonly POINT_SEQUENCE_SIZE = NB_CURVE_POINTS
+    private splineNumerator: AbstractBSplineR1toR2;
+    private splineDenominator: AbstractBSplineR1toR2;
+    private readonly POINT_SEQUENCE_SIZE = NB_CURVE_POINTS;
 
     constructor(private chartController: ChartController) {
         
-        this.splineNumerator = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
-        this.splineDenominator = new BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve()
+        this.splineNumerator = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.splineDenominator = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
 
 
 
-    update(message: BSpline_R1_to_R2): void {
-        this.splineNumerator = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve()
-        this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve()
+    update(message: BSplineR1toR2): void {
+        this.splineNumerator = new BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve()
+        this.splineDenominator = new BSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve()
+
         let points = this.pointSequenceOnSpline()
 
         this.chartController.dataCleanUp();
@@ -35,9 +39,9 @@ export class AbsCurvatureSceneController implements IObserver<BSpline_R1_to_R2_i
         this.chartController.drawChart();
     }
 
-    reset(message: BSpline_R1_to_R2): void{
-        let points: Vector_2d[] = []
-        let curvePoints: Vector_2d[] = []
+    reset(message: BSplineR1toR2): void{
+        let points: Vector2d[] = []
+        let curvePoints: Vector2d[] = []
         this.chartController.addPolylineDataset(DATASET_NAMES[1], points);
         this.chartController.addCurvePointDataset(CHART_AXES_NAMES[CHART_AXES_NAMES.length - 1], curvePoints, {red: 100, green: 0, blue: 0, alpha: 0.5});
         this.chartController.setChartLabel(CHART_TITLES[CHART_TITLES.length - 1]);
@@ -46,10 +50,10 @@ export class AbsCurvatureSceneController implements IObserver<BSpline_R1_to_R2_i
 
     }
 
-    pointSequenceOnSpline() {
+    pointSequenceOnSpline(): Vector2d[] {
         const start = this.splineNumerator.knots[this.splineNumerator.degree]
         const end = this.splineNumerator.knots[this.splineNumerator.knots.length - this.splineNumerator.degree - 1]
-        let result: Vector_2d[] = [];
+        let result: Vector2d[] = [];
         for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
             let pointNumerator = this.splineNumerator.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
             let pointDenominator = this.splineDenominator.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
@@ -58,7 +62,7 @@ export class AbsCurvatureSceneController implements IObserver<BSpline_R1_to_R2_i
             point.y = Math.abs(point.y);
             result.push(point);
         }
-        return result
+        return result;
     }
     
 }

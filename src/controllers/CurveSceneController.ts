@@ -1,4 +1,4 @@
-import { CurveModel } from "../models/CurveModel"
+import { CurveModel } from "../newModels/CurveModel"
 import { ControlPointsView } from "../views/ControlPointsView";
 import { ControlPointsShaders}  from "../views/ControlPointsShaders"
 import { ControlPolygonShaders } from "../views/ControlPolygonShaders";
@@ -33,25 +33,19 @@ import { NONAME } from "dns";
 
 import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"
 
-import { CurveModeler } from "../curveModeler/CurveModeler";
+import { CurveModeler, ActiveLocationControl } from "../curveModeler/CurveModeler";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { ShapeSpaceConfiguratorWithInflectionsNoSliding, ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator";
 import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 import { CurveControlState, HandleInflectionsAndCurvatureExtremaNoSlidingState, HandleNoDiffEventNoSlidingState } from "./CurveControlState";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { NavigationState, NavigationStrictlyInsideShapeSpace, NavigationThroughSimplerShapeSpaces, NavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
-import { ActiveLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { EventMgmtAtCurveExtremities } from "../curveModeler/EventMgmtAtCurveExtremities";
 import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState } from "./CurveConstraintSelectionState";
+import { CurveModelerEventListener } from "../userInterfaceController/UserInterfaceEventListener";
 
 
-
-// /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
-// export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
-
-/* JCL 2020/11/06 Add controls to monitor the location of the curvature extrema and inflection points */
-export enum ActiveExtremaLocationControl {mergeExtrema, none, stopDeforming, extremumLeaving, extremumEntering}
-export enum ActiveInflectionLocationControl {mergeExtremaAndInflection, none, stopDeforming}
 
 export class CurveSceneController implements SceneControllerInterface {
 
@@ -83,8 +77,7 @@ export class CurveSceneController implements SceneControllerInterface {
     public controlOfInflection: boolean
     public controlOfCurveClamping: boolean
     /* JCL 2020/09/24 Add visualization and selection of clamped control points */
-    private clampedControlPointView: ClampedControlPointView | null = null
-    private clampedControlPoints: number[] = []
+    private clampedControlPointView: ClampedControlPointView
     /* JCL 2020/09/23 Add management of the curve location */
     public activeLocationControl: ActiveLocationControl = ActiveLocationControl.none
 
@@ -101,6 +94,7 @@ export class CurveSceneController implements SceneControllerInterface {
     public lastLostEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: 0}
 
     /* JCL 2021/09/29 Add modeller for new code architecture */
+    private curveModelerEventListener: CurveModelerEventListener;
     public curveModeler: CurveModeler;
     public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
@@ -112,17 +106,17 @@ export class CurveSceneController implements SceneControllerInterface {
     private constraintAtPoint1: boolean;
     private constraintAtPoint2: boolean;
     private curveConstraintSelectionState: CurveConstraintSelectionState;
+    public curveModel: CurveModel
 
     private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = []
     
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext,
-        public curveModel: CurveModel) {
-        // if(!curveModel) {
-        //     this.curveModel = new CurveModel()
-        // } else {
-        //     this.curveModel = curveModel
-        // }
-        this.curveModel = curveModel
+        curveModelerEventListener: CurveModelerEventListener) {
+
+        this.curveModelerEventListener = curveModelerEventListener
+        this.curveModeler = curveModelerEventListener.curveModeler
+        this.curveModel = curveModelerEventListener.curveModel
+        this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
 
         this.controlPointsShaders = new ControlPointsShaders(this.gl);
         this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1)
@@ -145,36 +139,40 @@ export class CurveSceneController implements SceneControllerInterface {
         this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
 
         /* JCL 2020/09/24 Add default clamped control point */
-        let clampedControlPoint: Vector_2d[] = []
-        clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-        this.clampedControlPoints.push(0)
-        this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
-        this.activeLocationControl = ActiveLocationControl.firstControlPoint
+        this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
+        
+        // this.activeLocationControl = ActiveLocationControl.firstControlPoint
+        // this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+        // this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+        this.activeLocationControl = this.curveModeler.activeLocationControl
+        this.activeExtremaLocationControl = this.curveShapeSpaceNavigator.activeExtremaLocationControl
+        this.activeInflectionLocationControl = this.curveShapeSpaceNavigator.activeInflectionLocationControl
 
-        this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-        this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
         this.allowShapeSpaceChange = false
 
-        this.controlOfCurvatureExtrema = true
-        this.controlOfInflection = true
-        this.controlOfCurveClamping = true
-        
+        // this.controlOfCurvatureExtrema = true
+        // this.controlOfInflection = true
+        // this.controlOfCurveClamping = true
+        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.controlOfCurvatureExtrema
+        this.controlOfInflection = this.curveShapeSpaceNavigator.controlOfInflection
+        this.controlOfCurveClamping = this.curveModeler.controlOfCurveClamping
+
         this.registerCurveObservers();
 
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
-        this.clampedControlPointView.update(clampedControlPoint)
+        this.clampedControlPointView.update(this.curveModel.spline)
         this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent)
 
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-        this.sliding = true
+        // this.sliding = true
+        this.sliding = this.curveShapeSpaceNavigator.sliding
 
 
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this.curveEventAtExtremityMayVanish = true;
         this.constraintAtPoint1 = true;
         this.constraintAtPoint2 = false;
-        this.curveModeler = new CurveModeler();
-        this.curveShapeSpaceNavigator = this.curveModeler.curveShapeSpaceNavigator;
+        // this.curveModeler = new CurveModeler();
         this.navigationState = this.curveShapeSpaceNavigator.navigationState;
         this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
         this.shapeSpaceDiffEventsConfigurator = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
@@ -203,24 +201,21 @@ export class CurveSceneController implements SceneControllerInterface {
         this.inflectionsView = new InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
         this.curveKnotsShaders = new CurveKnotsShaders(this.gl);
         this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
-
+        this.curveModeler.clampedControlPoints.push(0);
+        this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0);
+        
         this.registerCurveObservers();
 
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.controlOfCurveClamping = true;
 
-        let clampedControlPoint: Vector_2d[] = [];
-        clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
-        if(this.clampedControlPoints.length !== 0) {
-            while(this.clampedControlPoints.length > 0) {
-                this.clampedControlPoints.pop();
-            }
+        if(this.curveModeler.clampedControlPoints.length !== 0) {
+            this.curveModeler.clampedControlPoints = [];
+            this.curveModeler.clampedControlPoints[0] = 0;
         }
-        this.clampedControlPoints.push(0);
-        this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0);
+
         this.activeLocationControl = ActiveLocationControl.firstControlPoint;
-        this.clampedControlPointView.update(clampedControlPoint);
         this.dragging = false;
         this.selectedControlPoint = null;
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
@@ -235,11 +230,11 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
         this.curveModel.registerObserver(this.inflectionsView);
         this.curveModel.registerObserver(this.curveKnotsView);
+        this.curveModel.registerObserver(this.clampedControlPointView);
 
-        this.curveObservers.forEach(element => {
+        this.curveModel.observers.forEach(element => {
             if(this.curveModel !== undefined) {
                 element.update(this.curveModel.spline)
-                this.curveModel.registerObserver(element)
             } else {
                 const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
                 error.logMessageToConsole();
@@ -276,9 +271,6 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlPointsView.renderFrame()
         this.insertKnotButtonView.renderFrame()
 
-        this.curveObservers.forEach(element => {
-            element.renderFrame()
-        });
         /* JCL 2020/09/24 Add the display of clamped control points */
         if(this.controlOfCurveClamping && this.clampedControlPointView !== null) {
             this.clampedControlPointView.renderFrame()
@@ -331,22 +323,22 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     /* JCL 20202/09/24 Monitor rigid body movements of the curve in accordance with the button status */
-    toggleCurveClamping() {
-        this.controlOfCurveClamping = !this.controlOfCurveClamping
-        console.log("control of curve clamping: " + this.controlOfCurveClamping)
-        if(this.controlOfCurveClamping) {
-            /* JCL 2020/09/24 Update the location of the clamped control point */
-            let clampedControlPoint: Vector_2d[] = []
-            if(this.curveModel !== undefined) {
-                clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-            } else throw new Error("Unable to clamp a control point. Undefined curve model")
-            this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
-            this.clampedControlPoints = []
-            this.clampedControlPoints.push(0)
-            this.activeLocationControl = ActiveLocationControl.firstControlPoint
-            if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
-        } else this.activeLocationControl = ActiveLocationControl.none
-    } 
+    // toggleCurveClamping() {
+    //     this.controlOfCurveClamping = !this.controlOfCurveClamping
+    //     console.log("control of curve clamping: " + this.controlOfCurveClamping)
+    //     if(this.controlOfCurveClamping) {
+    //         /* JCL 2020/09/24 Update the location of the clamped control point */
+    //         let clampedControlPoint: Vector_2d[] = []
+    //         if(this.curveModel !== undefined) {
+    //             clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
+    //         } else throw new Error("Unable to clamp a control point. Undefined curve model")
+    //         this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
+    //         this.clampedControlPoints = []
+    //         this.clampedControlPoints.push(0)
+    //         this.activeLocationControl = ActiveLocationControl.firstControlPoint
+    //         if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
+    //     } else this.activeLocationControl = ActiveLocationControl.none
+    // } 
 
     // toggleControlOfCurvatureExtrema() {
     //     this.curveControl.toggleControlOfCurvatureExtrema()
@@ -445,12 +437,12 @@ export class CurveSceneController implements SceneControllerInterface {
                     this.curveModel.spline.insertKnot(grevilleAbscissae[cp])
                     this.curveControl.resetCurve(this.curveModel)
                     if(this.activeLocationControl === ActiveLocationControl.both) {
-                        if(this.clampedControlPoints[0] === 0) {
-                            this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                        } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                        if(this.curveModeler.clampedControlPoints[0] === 0) {
+                            this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                        } else this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                     }
                     else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                        this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                        this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                     }
 
                     // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
@@ -518,13 +510,13 @@ export class CurveSceneController implements SceneControllerInterface {
                 }
 
                 this.curveModel.notifyObservers()
-                if(this.clampedControlPoints.length > 0) {
-                    let clampedControlPoint: Vector_2d[] = [];
-                    for(let controlP of this.clampedControlPoints) {
-                        clampedControlPoint.push(this.curveModel.spline.controlPoints[controlP])
-                    }
-                    if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
-                }
+                // if(this.curveModeler.clampedControlPoints.length > 0) {
+                //     let clampedControlPoint: Vector_2d[] = [];
+                //     for(let controlP of this.curveModeler.clampedControlPoints) {
+                //         clampedControlPoint.push(this.curveModel.spline.controlPoints[controlP])
+                //     }
+                //     if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
+                // }
                 /*let curvatureEvents: number[] = []
                 let differentialEvents: number[] = []
                 if(this.selectedCurvatureExtrema !== null && this.allowShapeSpaceChange === false) curvatureEvents = this.selectedCurvatureExtrema.slice()
@@ -582,12 +574,12 @@ export class CurveSceneController implements SceneControllerInterface {
                 this.curveControl.resetCurve(this.curveModel)
 
                 if(this.activeLocationControl === ActiveLocationControl.both) {
-                    if(this.clampedControlPoints[0] === 0){
-                        this.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                    } else this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                    if(this.curveModeler.clampedControlPoints[0] === 0){
+                        this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                    } else this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                 }
                 else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                    this.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+                    this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
                 }
 
                 if (this.sliding) {
@@ -621,45 +613,45 @@ export class CurveSceneController implements SceneControllerInterface {
 
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint)
                     if(selectedClampedControlPoint !== null) {
-                        if(this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] === selectedClampedControlPoint) {
+                        if(this.curveModeler.clampedControlPoints.length === 1 && this.curveModeler.clampedControlPoints[0] === selectedClampedControlPoint) {
                             console.log("dlble_click: no cp left")
-                            this.clampedControlPointView = null
-                            this.clampedControlPoints.pop()
+                            // this.clampedControlPointView = null
+                            this.curveModeler.clampedControlPoints.pop()
                             this.activeLocationControl = ActiveLocationControl.none
                             return false
                         }
-                        else if(this.clampedControlPoints.length === 1 && this.clampedControlPoints[0] !== selectedClampedControlPoint 
+                        else if(this.curveModeler.clampedControlPoints.length === 1 && this.curveModeler.clampedControlPoints[0] !== selectedClampedControlPoint 
                             && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
                             console.log("dlble_click: two cp clamped")
-                            this.clampedControlPoints.push(selectedClampedControlPoint)
+                            this.curveModeler.clampedControlPoints.push(selectedClampedControlPoint)
                             let clampedControlPoint: Vector_2d[] = []
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
-                            this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
+                            this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
                             this.activeLocationControl = ActiveLocationControl.both
                             return true
                         }
-                        else if(this.clampedControlPoints.length === 2) {
+                        else if(this.curveModeler.clampedControlPoints.length === 2) {
                             if(selectedClampedControlPoint === 0) {
                                 console.log("dlble_click: last cp left")
-                                if(this.clampedControlPoints[1] === selectedClampedControlPoint) {
-                                    this.clampedControlPoints.pop()
-                                } else this.clampedControlPoints.splice(0, 1)
+                                if(this.curveModeler.clampedControlPoints[1] === selectedClampedControlPoint) {
+                                    this.curveModeler.clampedControlPoints.pop()
+                                } else this.curveModeler.clampedControlPoints.splice(0, 1)
                                 let clampedControlPoint: Vector_2d[] = []
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
-                                this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
+                                this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
                                 this.activeLocationControl = ActiveLocationControl.lastControlPoint
-                                console.log("dble click: clampedControlPoints " + this.clampedControlPoints)
+                                console.log("dble click: clampedControlPoints " + this.curveModeler.clampedControlPoints)
                             } else if(selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
                                 console.log("dlble_click: first cp left")
-                                if(this.clampedControlPoints[1] === selectedClampedControlPoint) {
-                                    this.clampedControlPoints.pop()
-                                } else this.clampedControlPoints.splice(0, 1)
+                                if(this.curveModeler.clampedControlPoints[1] === selectedClampedControlPoint) {
+                                    this.curveModeler.clampedControlPoints.pop()
+                                } else this.curveModeler.clampedControlPoints.splice(0, 1)
                                 let clampedControlPoint: Vector_2d[] = []
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-                                this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
+                                this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
                                 this.activeLocationControl = ActiveLocationControl.firstControlPoint
-                                console.log("dble click: clampedControlPoints " + this.clampedControlPoints)
+                                console.log("dble click: clampedControlPoints " + this.curveModeler.clampedControlPoints)
                             }
                             return true
                         } else return true
