@@ -1,6 +1,5 @@
 import { ActiveLocationControl, CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { ClosedCurveModel2D, OpenCurveModel2D } from "../models/CurveModels2D";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";

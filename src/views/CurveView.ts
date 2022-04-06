@@ -1,20 +1,20 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {CurveShaders} from "../views/CurveShaders"
 import { IObserver } from "../designPatterns/Observer";
 
 
-export class CurveView implements IObserver<BSpline_R1_to_R2_interface> {
+export class CurveView implements IObserver<BSplineR1toR2Interface> {
 
     private readonly POINT_SEQUENCE_SIZE = 1000
     //private readonly z = 0
-    private pointSequenceOnSpline: Vector_2d[] = []
+    private pointSequenceOnSpline: Vector2d[] = []
     //private selectedControlPoint: number | null = null
     private vertexBuffer: WebGLBuffer | null = null
     //private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array(this.POINT_SEQUENCE_SIZE * 6)
 
-    constructor(private spline: BSpline_R1_to_R2_interface, private curveShaders: CurveShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
+    constructor(private spline: BSplineR1toR2Interface, private curveShaders: CurveShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
 
 
         // Write the positions of vertices to a vertex shader
@@ -75,14 +75,14 @@ export class CurveView implements IObserver<BSpline_R1_to_R2_interface> {
 
     }
 
-    update(spline: BSpline_R1_to_R2_interface) {
+    update(spline: BSplineR1toR2Interface) {
         this.spline = spline;
         this.updatePointSequenceOnSpline();
         this.updateVertices();
         this.updateBuffers();
     }
 
-    reset(message: BSpline_R1_to_R2_interface): void {
+    reset(message: BSplineR1toR2Interface): void {
     }
 
     updateBuffers() {

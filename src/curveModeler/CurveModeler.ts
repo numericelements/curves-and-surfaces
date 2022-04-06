@@ -1,5 +1,4 @@
 import { CurveCategory, OpenPlanarCurve } from "../curveModeler/CurveCategory";
-import { CurveModels2D } from "../models/CurveModels2D";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";

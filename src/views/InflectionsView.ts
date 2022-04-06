@@ -1,25 +1,26 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {DifferentialEventShaders} from "./DifferentialEventShaders"
 import { IObserver } from "../designPatterns/Observer";
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
-import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
+import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 
 
-export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
+export class InflectionsView implements IObserver<BSplineR1toR2Interface> {
 
     private readonly z = 0
     private vertexBuffer: WebGLBuffer | null = null
     private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
-    private controlPoints: Vector_2d[]
+    private controlPoints: Vector2d[]
 
-    constructor(spline: BSpline_R1_to_R2_interface, private curvatureExtremaShaders: DifferentialEventShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
+    constructor(spline: BSplineR1toR2Interface, private curvatureExtremaShaders: DifferentialEventShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
         
-        this.controlPoints = spline.visibleControlPoints()
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints()
 
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
@@ -174,9 +175,9 @@ export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
 
 
 
-    update(spline: BSpline_R1_to_R2_interface) {
-        if (spline instanceof BSpline_R1_to_R2) {
-            const splineDP = new BSpline_R1_to_R2_DifferentialProperties(spline)
+    update(spline: BSplineR1toR2Interface) {
+        if (spline instanceof BSplineR1toR2) {
+            const splineDP = new BSplineR1toR2DifferentialProperties(spline)
             this.controlPoints = splineDP.inflections()
             this.updateVerticesAndIndices()
             this.updateBuffers()
@@ -192,7 +193,7 @@ export class InflectionsView implements IObserver<BSpline_R1_to_R2_interface> {
 
     }
 
-    reset(message: BSpline_R1_to_R2_interface): void {
+    reset(message: BSplineR1toR2Interface): void {
     }
 
     /*

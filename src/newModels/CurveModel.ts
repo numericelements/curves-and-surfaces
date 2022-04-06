@@ -66,4 +66,9 @@ export class CurveModel extends AbstractCurveModel {
         this.notifyObservers()
     }
 
+    setControlPoints(controlPoints: Vector2d[]) {
+        this.spline.controlPoints = controlPoints;
+        //this.notifyObservers()
+    }
+
 }

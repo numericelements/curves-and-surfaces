@@ -1,12 +1,12 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders"
 import { IObserver } from "../designPatterns/Observer";
 
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 
-export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
+export class CurveKnotsView implements IObserver<BSplineR1toR2Interface> {
 
     private readonly z = 0
     private vertexBuffer: WebGLBuffer | null = null
@@ -15,9 +15,9 @@ export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
     private indices: Uint8Array = new Uint8Array([])
 
     private knotAbscissae: number[] = []
-    private pointSequenceOnSpline: Vector_2d[] = []
+    private pointSequenceOnSpline: Vector2d[] = []
 
-    constructor(private spline: BSpline_R1_to_R2_interface, private curveKnotsShaders: CurveKnotsShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
+    constructor(private spline: BSplineR1toR2Interface, private curveKnotsShaders: CurveKnotsShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
 
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.curveKnotsShaders.gl);
@@ -28,11 +28,11 @@ export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
     
     
     updatePointAtKnotOnSpline() {
-        let splineTemp = new BSpline_R1_to_R2(this.spline.visibleControlPoints(), this.spline.knots)
-        this.knotAbscissae = splineTemp.distinctKnots()
+        let splineTemp = new BSplineR1toR2(this.spline.controlPoints, this.spline.knots);
+        this.knotAbscissae = splineTemp.getDistinctKnots();
         this.pointSequenceOnSpline = [];
-        for (let i = 0; i < this.knotAbscissae.length; i += 1) {
-            let point = this.spline.evaluate(this.knotAbscissae[i]);
+        for (let kAbsc of this.knotAbscissae) {
+            let point = this.spline.evaluate(kAbsc);
             this.pointSequenceOnSpline.push(point);
         }
     }
@@ -165,14 +165,14 @@ export class CurveKnotsView implements IObserver<BSpline_R1_to_R2_interface> {
         gl.useProgram(null);
     }
 
-    update(spline: BSpline_R1_to_R2_interface) {
+    update(spline: BSplineR1toR2Interface) {
         this.spline = spline
         this.updatePointAtKnotOnSpline();
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
 
-    reset(message: BSpline_R1_to_R2_interface): void {
+    reset(message: BSplineR1toR2Interface): void {
     }
 
     updateBuffers() {

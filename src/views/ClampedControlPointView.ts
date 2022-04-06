@@ -1,9 +1,9 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { Vector2d } from "../mathVector/Vector2d";
 import {ControlPointsShaders} from "../views/ControlPointsShaders"
 import { IObserver } from "../designPatterns/Observer";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 
-export class ClampedControlPointView implements IObserver<BSpline_R1_to_R2_interface>{
+export class ClampedControlPointView implements IObserver<BSplineR1toR2Interface>{
 
     private readonly z = 0
     /* JCL 2020/10/23 Currently this member is not used given the double click selection process used to set up clamped points. It could be used
@@ -13,14 +13,14 @@ export class ClampedControlPointView implements IObserver<BSpline_R1_to_R2_inter
     private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
-    private controlPoints: Vector_2d[]
+    private controlPoints: Vector2d[]
     private clampedCPindices: number[] = []
-    private clampedControlPoints: Vector_2d[] = []
+    private clampedControlPoints: Vector2d[] = []
 
     /*constructor(private spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {*/
-    constructor(spline: BSpline_R1_to_R2_interface, clampedCPindices: number[], private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
+    constructor(spline: BSplineR1toR2Interface, clampedCPindices: number[], private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
         
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
         this.clampedCPindices = clampedCPindices;
         for(let index of this.clampedCPindices) {
             this.clampedControlPoints.push(this.controlPoints[index]);
@@ -181,7 +181,7 @@ export class ClampedControlPointView implements IObserver<BSpline_R1_to_R2_inter
 
 
 
-    controlPointSelection(allCurveControlPoints: Vector_2d[], x: number, y: number, deltaSquared: number = 0.01) {
+    controlPointSelection(allCurveControlPoints: Vector2d[], x: number, y: number, deltaSquared: number = 0.01) {
         //const deltaSquared = 0.01
         //const deltaSquared = 0.001
         let result = null
@@ -194,8 +194,8 @@ export class ClampedControlPointView implements IObserver<BSpline_R1_to_R2_inter
         return result;
     }
 
-    update(spline: BSpline_R1_to_R2_interface) {
-        this.controlPoints = spline.visibleControlPoints();
+    update(spline: BSplineR1toR2Interface) {
+        this.controlPoints = spline.controlPoints;
         this.clampedControlPoints = [];
         for(let index of this.clampedCPindices) {
             this.clampedControlPoints.push(this.controlPoints[index]);
@@ -204,10 +204,10 @@ export class ClampedControlPointView implements IObserver<BSpline_R1_to_R2_inter
         this.updateBuffers();
     }
 
-    reset(message: BSpline_R1_to_R2_interface): void {
+    reset(message: BSplineR1toR2Interface): void {
     }
 
-    updatePoints(points: Vector_2d[]) {
+    updatePoints(points: Vector2d[]) {
         this.clampedControlPoints = points;
         this.updateVerticesAndIndices();
         this.updateBuffers();

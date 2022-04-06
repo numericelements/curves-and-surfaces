@@ -1,8 +1,8 @@
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveModeler } from "../curveModeler/CurveModeler";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { Vector2d } from "../mathVector/Vector2d";
 import { ConstraintType, CurveConstraints } from "./CurveConstraints";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 
@@ -13,10 +13,10 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private curveModeler: CurveModeler;
-    private targetCurve: BSpline_R1_to_R2;
+    private targetCurve: BSplineR1toR2Interface;
     public firstControlPoint: ConstraintType;
     public lastControlPoint: ConstraintType;
-    private _optimizedCurve: BSpline_R1_to_R2;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator, curveConstraints: CurveConstraints){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
@@ -30,7 +30,7 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
         warning.logMessageToConsole();
     }
 
-    get optimizedCurve(): BSpline_R1_to_R2 {
+    get optimizedCurve(): BSplineR1toR2Interface {
         return this._optimizedCurve;
     }
 
@@ -64,11 +64,11 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private curveModeler: CurveModeler;
-    private targetCurve: BSpline_R1_to_R2;
-    private displacementCurrentCurveControlPolygon: Vector_2d[];
+    private targetCurve: BSplineR1toR2Interface;
+    private displacementCurrentCurveControlPolygon: Vector2d[];
     public firstControlPoint: ConstraintType;
     public lastControlPoint: ConstraintType;
-    private _optimizedCurve: BSpline_R1_to_R2;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator, curveConstraints: CurveConstraints){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
@@ -83,7 +83,7 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
         warning.logMessageToConsole();
     }
 
-    get optimizedCurve(): BSpline_R1_to_R2 {
+    get optimizedCurve(): BSplineR1toR2Interface {
         return this._optimizedCurve;
     }
 
@@ -99,9 +99,9 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
         this._optimizedCurve = this.curveConstraints.optimizedCurve;
     }
 
-    relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
+    relocateCurveAfterOptimization(): BSplineR1toR2Interface {
         this.updateCurve();
-        let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
         this.curveShapeSpaceNavigator.curveDisplacement();
         for(let controlP of controlPoints) {
             controlP.x -= this.displacementCurrentCurveControlPolygon[0].x;
@@ -129,11 +129,11 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private curveModeler: CurveModeler;
-    private targetCurve: BSpline_R1_to_R2;
-    private displacementCurrentCurveControlPolygon: Vector_2d[];
+    private targetCurve: BSplineR1toR2Interface;
+    private displacementCurrentCurveControlPolygon: Vector2d[];
     public firstControlPoint: ConstraintType;
     public lastControlPoint: ConstraintType;
-    private _optimizedCurve: BSpline_R1_to_R2;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
@@ -160,9 +160,9 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
         this._optimizedCurve = this.curveConstraints.optimizedCurve;
     }
 
-    relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
+    relocateCurveAfterOptimization(): BSplineR1toR2Interface {
         this.updateCurve();
-        let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
         this.curveShapeSpaceNavigator.curveDisplacement();
         for(let controlP of controlPoints) {
             controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
@@ -190,12 +190,12 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private curveModeler: CurveModeler;
-    private currentCurve: BSpline_R1_to_R2;
-    private targetCurve: BSpline_R1_to_R2;
-    private displacementCurrentCurveControlPolygon: Vector_2d[];
+    private currentCurve: BSplineR1toR2Interface;
+    private targetCurve: BSplineR1toR2Interface;
+    private displacementCurrentCurveControlPolygon: Vector2d[];
     public firstControlPoint: ConstraintType;
     public lastControlPoint: ConstraintType;
-    private _optimizedCurve: BSpline_R1_to_R2;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator){
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
@@ -219,8 +219,8 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
     //     return this._lastControlPoint;
     // }
 
-    relocateCurveAfterOptimization(): BSpline_R1_to_R2 {
-        let controlPoints: Array<Vector_2d> = this._optimizedCurve.controlPoints;
+    relocateCurveAfterOptimization(): BSplineR1toR2Interface {
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
         const nbControlPts = this.displacementCurrentCurveControlPolygon.length;
         this.curveShapeSpaceNavigator.curveDisplacement();
         if(Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < TOL_LOCATION_CURVE_EXTREMITIES) {

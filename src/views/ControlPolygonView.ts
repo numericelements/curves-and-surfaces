@@ -1,10 +1,10 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {ControlPolygonShaders} from "../views/ControlPolygonShaders"
 import { IObserver } from "../designPatterns/Observer";
 
 
-export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface> {
+export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
 
     private readonly z = 0
     private selectedControlPoint: number | null = null
@@ -12,12 +12,13 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
     private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
-    private controlPoints: Vector_2d[]
+    private controlPoints: Vector2d[]
 
-    constructor(spline: BSpline_R1_to_R2_interface, private controlPolygonShaders: ControlPolygonShaders, private closed: boolean = false,
+    constructor(spline: BSplineR1toR2Interface, private controlPolygonShaders: ControlPolygonShaders, private closed: boolean = false,
         private red: number, private green: number, private blue: number, private alpha: number ) {
 
-        this.controlPoints = spline.visibleControlPoints()
+        // this.controlPoints = spline.visibleControlPoints()
+        this.controlPoints = spline.controlPoints;
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }
@@ -141,8 +142,9 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
 
 
 
-    update (message: BSpline_R1_to_R2_interface) {
-        this.controlPoints = message.visibleControlPoints();
+    update (message: BSplineR1toR2Interface) {
+        this.controlPoints = message.controlPoints;
+        // this.controlPoints = message.visibleControlPoints();
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }
@@ -150,7 +152,7 @@ export class ControlPolygonView implements IObserver<BSpline_R1_to_R2_interface>
         this.updateBuffers();
     }
 
-    reset(message: BSpline_R1_to_R2_interface): void {
+    reset(message: BSplineR1toR2Interface): void {
     }
 
     updateBuffers() {

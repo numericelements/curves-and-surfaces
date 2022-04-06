@@ -259,7 +259,55 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     }
 
     
+    zerosPolygonVsFunctionDiffViewer(tolerance: number = 10e-8): number[] {
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        let spline = this.clone();
+        // let spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice())
+        let greville = spline.grevilleAbscissae()
+        let maxError = tolerance * 2
+        let vertexIndex = []
 
+        let cpZeros = spline.controlPolygonNumberOfSignChanges()
+        let result: Array<number> = []
+        let lastInsertedKnot = 0
+
+        while (maxError > tolerance) {
+            let temp = spline.controlPolygonNumberOfSignChanges()
+            if ( cpZeros !== temp ) {
+                result.push(lastInsertedKnot)
+            }
+            cpZeros = temp
+
+            let cpLeft = spline.controlPoints[0]
+            vertexIndex = []
+            let maximum = 0
+            for (let index = 1; index < spline.controlPoints.length; index += 1) {
+                let cpRight = spline.controlPoints[index]
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index)
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index)
+                }
+                cpLeft = cpRight
+            }
+            for (let index of vertexIndex) {
+                let uLeft = greville[index - 1]
+                let uRight = greville[index]
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft
+                }
+                if (uRight - uLeft > tolerance) {
+                    lastInsertedKnot = (uLeft + uRight) / 2
+                    spline.insertKnot(lastInsertedKnot)
+                    greville = spline.grevilleAbscissae()
+                }
+
+            }
+            maxError = maximum
+        }
+        return result
+    }
     
 
 

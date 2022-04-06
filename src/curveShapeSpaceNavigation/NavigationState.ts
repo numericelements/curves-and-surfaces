@@ -5,10 +5,10 @@ import { CurveShapeSpaceNavigator,
         MAX_NB_STEPS_TRUST_REGION_OPTIMIZER } from "./CurveShapeSpaceNavigator";
 import { ComparatorOfSequencesOfDiffEvents } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OpenMode } from "fs";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { CurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { CurveConstraints } from "./CurveConstraints";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { Vector2d } from "../mathVector/Vector2d";
 
 
 export abstract class NavigationState {
@@ -53,8 +53,8 @@ export abstract class NavigationState {
 
 export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
 
-    private currentCurve: BSpline_R1_to_R2;
-    private optimizedCurve: BSpline_R1_to_R2;
+    private currentCurve: BSplineR1toR2;
+    private optimizedCurve: BSplineR1toR2;
     private curveAnalyserCurrentCurve: CurveAnalyzer;
     private curveAnalyserOptimizedCurve: CurveAnalyzer;
 
@@ -77,7 +77,7 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
-        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d(x, y));
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
@@ -95,8 +95,8 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
 
 export class NavigationThroughSimplerShapeSpaces extends NavigationState {
 
-    private currentCurve: BSpline_R1_to_R2;
-    private optimizedCurve: BSpline_R1_to_R2;
+    private currentCurve: BSplineR1toR2;
+    private optimizedCurve: BSplineR1toR2;
     private curveAnalyserCurrentCurve: CurveAnalyzer;
     private curveAnalyserOptimizedCurve: CurveAnalyzer;
 
@@ -119,7 +119,7 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
-        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d(x, y));
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
@@ -154,7 +154,7 @@ export class NavigationStrictlyInsideShapeSpace extends NavigationState {
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
-        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d(x, y));
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();

@@ -1,10 +1,10 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {ControlPointsShaders} from "../views/ControlPointsShaders"
 import { IObserver } from "../designPatterns/Observer";
 
 
-export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> {
+export class ControlPointsView implements IObserver<BSplineR1toR2Interface> {
 
     private readonly z = 0
     private selectedControlPoint: number | null = null
@@ -12,11 +12,12 @@ export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> 
     private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
-    private controlPoints: Vector_2d[]
+    private controlPoints: Vector2d[]
 
-    constructor(spline: BSpline_R1_to_R2_interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
+    constructor(spline: BSplineR1toR2Interface, private controlPointsShaders: ControlPointsShaders, private red: number, private blue: number, private green: number ) {
         
-        this.controlPoints = spline.visibleControlPoints()
+        this.controlPoints = spline.controlPoints
+        // this.controlPoints = spline.visibleControlPoints()
 
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.controlPointsShaders.gl);
@@ -186,16 +187,17 @@ export class ControlPointsView implements IObserver<BSpline_R1_to_R2_interface> 
         return result;
     }
 
-    update(spline: BSpline_R1_to_R2_interface) {
-        this.controlPoints = spline.visibleControlPoints();
+    update(spline: BSplineR1toR2Interface) {
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints();
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
 
-    reset(message: BSpline_R1_to_R2_interface): void {
+    reset(message: BSplineR1toR2Interface): void {
     }
 
-    updatePoints(points: Vector_2d[]) {
+    updatePoints(points: Vector2d[]) {
         this.controlPoints = points;
         this.updateVerticesAndIndices();
         this.updateBuffers();

@@ -1,11 +1,11 @@
 import { OptimizationProblemCtrlParameters } from "../bsplineOptimizationProblems/OptimizationProblemCtrlParameters";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { CurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Optimizer } from "../mathematics/Optimizer";
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { CurveModel } from "../models/CurveModel";
+import { Vector2d } from "../mathVector/Vector2d";
+import { CurveModel } from "../newModels/CurveModel";
 import { ComparatorOfSequencesOfDiffEvents } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { NeighboringEvents } from "../sequenceOfDifferentialEvents/NeighboringEvents";
 import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents";
@@ -13,7 +13,6 @@ import { CurveConstraints } from "./CurveConstraints";
 import { CurveShapeSpaceDescriptor } from "./CurveShapeSpaceDesccriptor";
 import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
 import { CurveModeler } from "../curveModeler/CurveModeler";
-import { CurveModels2D } from "../models/CurveModels2D";
 import { NavigationState, NavigationWithoutShapeSpaceMonitoring, NavigationStrictlyInsideShapeSpace } from "./NavigationState";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint} from "./CurveConstraintStrategy";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
@@ -42,14 +41,14 @@ export class CurveShapeSpaceNavigator {
     public curveCategory: CurveCategory;
     public curveModel: CurveModel;
     private _selectedControlPoint?: number;
-    private _currentCurve: BSpline_R1_to_R2;
-    private currentControlPolygon: Vector_2d[];
-    private displacementSelctdCP: Vector_2d;
+    private _currentCurve: BSplineR1toR2;
+    private currentControlPolygon: Vector2d[];
+    private displacementSelctdCP: Vector2d;
     public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
     public curveAnalyserCurrentCurve: CurveAnalyzer;
-    private _targetCurve: BSpline_R1_to_R2;
-    private _displacementCurrentCurveControlPolygon: Vector_2d[] = [];
-    private _optimizedCurve: BSpline_R1_to_R2;
+    private _targetCurve: BSplineR1toR2;
+    private _displacementCurrentCurveControlPolygon: Vector2d[] = [];
+    private _optimizedCurve: BSplineR1toR2;
     public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     public curveAnalyserOptimizedCurve: CurveAnalyzer;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
@@ -92,10 +91,10 @@ export class CurveShapeSpaceNavigator {
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
-        this.displacementSelctdCP = new Vector_2d(0, 0);
+        this.displacementSelctdCP = new Vector2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
         this._optimizedCurve = this._currentCurve;
-        this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector_2d(0.0, 0.0)))
+        this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
         this._curveConstraints = new CurveConstraints(this);
         this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
@@ -172,7 +171,7 @@ export class CurveShapeSpaceNavigator {
         this._eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
     }
 
-    set optimizedCurve(aBSpline: BSpline_R1_to_R2) {
+    set optimizedCurve(aBSpline: BSplineR1toR2) {
         this._optimizedCurve = aBSpline;
     }
 
@@ -180,7 +179,7 @@ export class CurveShapeSpaceNavigator {
         this._curveConstraintProcessor = curveConstraintProcessor;
     }
 
-    set currentCurve(curve: BSpline_R1_to_R2)  {
+    set currentCurve(curve: BSplineR1toR2)  {
         this._currentCurve = curve;
     }
 
@@ -217,19 +216,19 @@ export class CurveShapeSpaceNavigator {
         return this._eventMgmtAtCurveExtremities;
     }
 
-    get currentCurve(): BSpline_R1_to_R2 {
+    get currentCurve(): BSplineR1toR2 {
         return this._currentCurve;
     }
 
-    get targetCurve(): BSpline_R1_to_R2 {
+    get targetCurve(): BSplineR1toR2 {
         return this._targetCurve;
     }
 
-    get optimizedCurve(): BSpline_R1_to_R2 {
+    get optimizedCurve(): BSplineR1toR2 {
         return this._optimizedCurve;
     }
 
-    get displacementCurrentCurveControlPolygon(): Vector_2d[] {
+    get displacementCurrentCurveControlPolygon(): Vector2d[] {
         return this._displacementCurrentCurveControlPolygon;
     }
 
@@ -277,7 +276,7 @@ export class CurveShapeSpaceNavigator {
     //     this._optimizationProblemParam.updateConstraintBounds = true;
     // }
 
-    updateCurrentCurve(newSelectedControlPoint: number, newDispSelctdCP: Vector_2d): void {
+    updateCurrentCurve(newSelectedControlPoint: number, newDispSelctdCP: Vector2d): void {
         //this.curveModel = newCurve;
         //this._currentCurve = newCurve.spline.clone();
         this.currentControlPolygon = this._currentCurve.controlPoints;
@@ -288,7 +287,7 @@ export class CurveShapeSpaceNavigator {
     setTargetCurve(): void {
         if(this.selectedControlPoint !== undefined) {
             this._targetCurve = this._currentCurve;
-            this._targetCurve.setControlPoint(this.selectedControlPoint, this.displacementSelctdCP);
+            this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.displacementSelctdCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
             error.logMessageToConsole();

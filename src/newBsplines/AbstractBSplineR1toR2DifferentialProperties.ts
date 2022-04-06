@@ -126,4 +126,15 @@ export abstract class AbstractBSplineR1toR2DifferentialProperties {
         return result;
     }
 
+    transitionCurvatureExtrema(_curvatureDerivativeNumerator?: BSplineR1toR1) {
+        if (!_curvatureDerivativeNumerator) {
+            _curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        const zeros = _curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer()
+        let result = []
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z))
+        }
+        return result
+    }
 }

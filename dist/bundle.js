@@ -37556,13 +37556,12 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = exports.OptimizationProblem_BSpline_R1_to_R2 = exports.eventMove = exports.ActiveControl = void 0;
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BernsteinDecomposition_R1_to_R1 */ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
 var DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
 var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
 var SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
 var SlidingStrategy_1 = __webpack_require__(/*! ../controllers/SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ExpensiveComputationResults = /** @class */ (function () {
     function ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4) {
         this.bdsxu = bdsxu;
@@ -37632,13 +37631,19 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         this.Dsuuu = [];
         for (var i = 0; i < n; i += 1) {
             diracControlPoints[i] = 1;
-            var s = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(diracControlPoints.slice(), this.spline.knots.slice());
+            var s = new BSplineR1toR1_1.BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice());
             var su = s.derivative();
             var suu = su.derivative();
             var suuu = suu.derivative();
-            this.Dsu.push(new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(su.bernsteinDecomposition()));
-            this.Dsuu.push(new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(suu.bernsteinDecomposition()));
-            this.Dsuuu.push(new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(suuu.bernsteinDecomposition()));
+            var suBDecomp = su.bernsteinDecomposition();
+            var suuBDecomp = suu.bernsteinDecomposition();
+            var suuuBDecomp = suuu.bernsteinDecomposition();
+            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
+            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
+            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
+            this.Dsu.push(suBDecomp);
+            this.Dsuu.push(suuBDecomp);
+            this.Dsuuu.push(suuuBDecomp);
             diracControlPoints[i] = 0;
         }
         this._gradient_f0 = this.compute_gradient_f0(this.spline);
@@ -37938,7 +37943,14 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function () {
         }
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.expensiveComputation = function (spline) {
-        var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots), sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots), sxu = sx.derivative(), syu = sy.derivative(), sxuu = sxu.derivative(), syuu = syu.derivative(), sxuuu = sxuu.derivative(), syuuu = syuu.derivative(), bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition()), bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition()), bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition()), bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition()), bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition()), bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition()), h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu)), h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu)), h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu)), h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
+        var sx = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsX(), spline.knots), sy = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsY(), spline.knots), sxu = sx.derivative(), syu = sy.derivative(), sxuu = sxu.derivative(), syuu = syu.derivative(), sxuuu = sxuu.derivative(), syuuu = syuu.derivative(), bdsxu = sxu.bernsteinDecomposition(), bdsyu = syu.bernsteinDecomposition(), bdsxuu = sxuu.bernsteinDecomposition(), bdsyuu = syuu.bernsteinDecomposition(), bdsxuuu = sxuuu.bernsteinDecomposition(), bdsyuuu = syuuu.bernsteinDecomposition(), 
+        // bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition()),
+        // bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition()),
+        // bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition()),
+        // bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition()),
+        // bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition()),
+        // bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition()),
+        h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu)), h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu)), h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu)), h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
         return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4);
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
@@ -38411,7 +38423,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics 
         }
         //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
         /* JCL 2020/10/02 modification as alternative to sliding mechanism */
-        if (this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1) * 7) {
+        if (this.spline.degree === 3 && controlPoints.length === (this.spline.getDistinctKnots().length - 1) * 7) {
             var n = Math.trunc(controlPoints.length / 7);
             console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length);
             for (var j = 1; j < n; j += 1) {
@@ -38772,7 +38784,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }
         //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
         /* JCL 2020/10/02 modification as alternative to sliding mechanism */
-        if (this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1) * 7) {
+        if (this.spline.degree === 3 && controlPoints.length === (this.spline.getDistinctKnots().length - 1) * 7) {
             var n = Math.trunc(controlPoints.length / 7);
             console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length);
             for (var j = 1; j < n; j += 1) {
@@ -38839,7 +38851,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                         this.constraintBound[i] = 0;
                     }
                 }
-                var splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.spline);
+                var splineDPoptim = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.spline);
                 var functionBOptim = splineDPoptim.curvatureDerivativeNumerator();
                 var curvatureExtremaLocationsOptim = functionBOptim.zeros();
                 for (var i = 0; i < intermediateKnots.length; i += 1) {
@@ -39399,12 +39411,12 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         var checked = true;
         var inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints;
         if (this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === SlidingStrategy_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
-            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.spline);
+            var splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.spline);
             var functionB = splineDP.curvatureDerivativeNumerator();
             var curvatureExtremaLocations = functionB.zeros();
             var splineCurrent = this.spline.clone();
             this.spline.optimizerStep(deltaX);
-            var splineDPupdated = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.spline);
+            var splineDPupdated = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.spline);
             var functionBupdated = splineDPupdated.curvatureDerivativeNumerator();
             var curvatureExtremaLocationsUpdated = functionBupdated.zeros();
             if (curvatureExtremaLocationsUpdated.length !== curvatureExtremaLocations.length) {
@@ -39473,325 +39485,6 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
     return OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
 }(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors));
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSpline_R1_to_R1.ts":
-/*!******************************************!*\
-  !*** ./src/bsplines/BSpline_R1_to_R1.ts ***!
-  \******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BSpline_R1_to_R1 = void 0;
-var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
-/**
- * A B-Spline function from a one dimensional real space to a one dimensional real space
- */
-var BSpline_R1_to_R1 = /** @class */ (function () {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    function BSpline_R1_to_R1(controlPoints, knots) {
-        if (controlPoints === void 0) { controlPoints = [0]; }
-        if (knots === void 0) { knots = [0, 1]; }
-        this._controlPoints = [];
-        this._knots = [];
-        this._degree = 0;
-        this._controlPoints = controlPoints;
-        this._knots = knots;
-        this._degree = this._knots.length - this._controlPoints.length - 1;
-        if (this._degree < 0) {
-            throw new Error("Negative degree BSpline_R1_to_R1 are not supported");
-        }
-    }
-    Object.defineProperty(BSpline_R1_to_R1.prototype, "controlPoints", {
-        get: function () {
-            return this._controlPoints;
-        },
-        set: function (controlPoints) {
-            this._controlPoints = controlPoints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(BSpline_R1_to_R1.prototype, "knots", {
-        get: function () {
-            return this._knots;
-        },
-        set: function (knots) {
-            this._knots = knots;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(BSpline_R1_to_R1.prototype, "degree", {
-        get: function () {
-            return this._degree;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    BSpline_R1_to_R1.prototype.setControlPoint = function (index, value) {
-        this._controlPoints[index] = value;
-    };
-    /**
-     * B-Spline evaluation
-     * @param u The parameter
-     * @returns the value of the B-Spline at u
-     */
-    BSpline_R1_to_R1.prototype.evaluate = function (u) {
-        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
-        var result = 0;
-        for (var i = 0; i < this.degree + 1; i += 1) {
-            result += basis[i] * this._controlPoints[span - this._degree + i];
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.derivative = function () {
-        var newControlPoints = [];
-        var newKnots = [];
-        for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
-            newControlPoints[i] = (this.controlPoints[i + 1] - (this.controlPoints[i])) * (this.degree / (this.knots[i + this.degree + 1] - this.knots[i + 1]));
-        }
-        newKnots = this.knots.slice(1, this.knots.length - 1);
-        return new BSpline_R1_to_R1(newControlPoints, newKnots);
-    };
-    BSpline_R1_to_R1.prototype.bernsteinDecomposition = function () {
-        // Piegl_Tiller_NURBS_BOOK.ts
-        return Piegl_Tiller_NURBS_Book_3.decomposeFunction(this);
-    };
-    BSpline_R1_to_R1.prototype.distinctKnots = function () {
-        var result = [this.knots[0]];
-        var temp = result[0];
-        for (var i = 1; i < this.knots.length; i += 1) {
-            if (this.knots[i] !== temp) {
-                result.push(this.knots[i]);
-                temp = this.knots[i];
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.zeros = function (tolerance) {
-        if (tolerance === void 0) { tolerance = 10e-8; }
-        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
-        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
-        var greville = spline.grevilleAbscissae();
-        var maxError = tolerance * 2;
-        var vertexIndex = [];
-        while (maxError > tolerance) {
-            var cpLeft = spline.controlPoints[0];
-            vertexIndex = [];
-            var maximum = 0;
-            for (var index = 1; index < spline.controlPoints.length; index += 1) {
-                var cpRight = spline.controlPoints[index];
-                if (cpLeft <= 0 && cpRight > 0) {
-                    vertexIndex.push(index);
-                }
-                if (cpLeft >= 0 && cpRight < 0) {
-                    vertexIndex.push(index);
-                }
-                cpLeft = cpRight;
-            }
-            for (var i = 0; i < vertexIndex.length; i += 1) {
-                var uLeft = greville[vertexIndex[i] - 1];
-                var uRight = greville[vertexIndex[i]];
-                if (uRight - uLeft > maximum) {
-                    maximum = uRight - uLeft;
-                }
-                if (uRight - uLeft > tolerance) {
-                    spline.insertKnot((uLeft + uRight) / 2);
-                    greville = spline.grevilleAbscissae();
-                }
-            }
-            maxError = maximum;
-        }
-        var result = [];
-        for (var i = 0; i < vertexIndex.length; i += 1) {
-            result.push(greville[vertexIndex[i]]);
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.grevilleAbscissae = function () {
-        var result = [];
-        for (var i = 0; i < this.controlPoints.length; i += 1) {
-            var sum = 0;
-            for (var j = i + 1; j < i + this.degree + 1; j += 1) {
-                sum += this.knots[j];
-            }
-            result.push(sum / this.degree);
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.insertKnot = function (u, times) {
-        if (times === void 0) { times = 1; }
-        if (times <= 0) {
-            return;
-        }
-        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree);
-        var multiplicity = 0;
-        var newControlPoints = [];
-        if (u === this.knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        for (var t = 0; t < times; t += 1) {
-            for (var i = 0; i < index - this.degree + 1; i += 1) {
-                newControlPoints[i] = this.controlPoints[i];
-            }
-            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
-                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
-                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
-            }
-            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this.controlPoints[i];
-            }
-            this.knots.splice(index + 1, 0, u);
-            this.controlPoints = newControlPoints.slice();
-        }
-    };
-    BSpline_R1_to_R1.prototype.knotMultiplicity = function (indexFromFindSpan) {
-        var result = 0;
-        var i = 0;
-        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
-        return result;
-    };
-    /**
-     * Return a deep copy of this b-spline
-     */
-    BSpline_R1_to_R1.prototype.clone = function () {
-        return new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
-    };
-    BSpline_R1_to_R1.prototype.clamp = function (u) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
-        var newControlPoints = [];
-        var multiplicity = 0;
-        if (u === this.knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        var times = this.degree - multiplicity + 1;
-        for (var t = 0; t < times; t += 1) {
-            for (var i = 0; i < index - this.degree + 1; i += 1) {
-                newControlPoints[i] = this.controlPoints[i];
-            }
-            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
-                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
-                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
-            }
-            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this.controlPoints[i];
-            }
-            this.knots.splice(index + 1, 0, u);
-            this.controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    };
-    BSpline_R1_to_R1.prototype.controlPolygonNumberOfSignChanges = function () {
-        var result = 0;
-        var greville = this.grevilleAbscissae();
-        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
-            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
-                result += 1;
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.controlPolygonZeros = function () {
-        var result = [];
-        var greville = this.grevilleAbscissae();
-        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
-            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
-                result.push(this.findLineZero(greville[i], this.controlPoints[i], greville[i + 1], this.controlPoints[i + 1]));
-            }
-        }
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.findLineZero = function (x1, y1, x2, y2) {
-        // find the zero of the line y = ax + b
-        var a = (y2 - y1) / (x2 - x1);
-        var b = y1 - a * x1;
-        return -b / a;
-    };
-    BSpline_R1_to_R1.prototype.zerosPolygonVsFunctionDiffViewer = function (tolerance) {
-        if (tolerance === void 0) { tolerance = 10e-8; }
-        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
-        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
-        var greville = spline.grevilleAbscissae();
-        var maxError = tolerance * 2;
-        var vertexIndex = [];
-        var cpZeros = spline.controlPolygonNumberOfSignChanges();
-        var result = [];
-        var lastInsertedKnot = 0;
-        while (maxError > tolerance) {
-            var temp = spline.controlPolygonNumberOfSignChanges();
-            if (cpZeros !== temp) {
-                result.push(lastInsertedKnot);
-            }
-            cpZeros = temp;
-            var cpLeft = spline.controlPoints[0];
-            vertexIndex = [];
-            var maximum = 0;
-            for (var index = 1; index < spline.controlPoints.length; index += 1) {
-                var cpRight = spline.controlPoints[index];
-                if (cpLeft <= 0 && cpRight > 0) {
-                    vertexIndex.push(index);
-                }
-                if (cpLeft >= 0 && cpRight < 0) {
-                    vertexIndex.push(index);
-                }
-                cpLeft = cpRight;
-            }
-            for (var i = 0; i < vertexIndex.length; i += 1) {
-                var uLeft = greville[vertexIndex[i] - 1];
-                var uRight = greville[vertexIndex[i]];
-                if (uRight - uLeft > maximum) {
-                    maximum = uRight - uLeft;
-                }
-                if (uRight - uLeft > tolerance) {
-                    lastInsertedKnot = (uLeft + uRight) / 2;
-                    spline.insertKnot(lastInsertedKnot);
-                    greville = spline.grevilleAbscissae();
-                }
-            }
-            maxError = maximum;
-        }
-        /*
-        let result = []
-        for (let i = 0; i < vertexIndex.length; i += 1) {
-            result.push(greville[vertexIndex[i]])
-        }
-        */
-        return result;
-    };
-    BSpline_R1_to_R1.prototype.curve = function () {
-        var x = this.grevilleAbscissae();
-        var cp = [];
-        for (var i = 0; i < x.length; i += 1) {
-            cp.push(new Vector_2d_1.Vector_2d(x[i], this._controlPoints[i]));
-        }
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cp, this.knots.slice());
-    };
-    return BSpline_R1_to_R1;
-}());
-exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
 
 
 /***/ }),
@@ -40108,401 +39801,6 @@ exports.create_BSpline_R1_to_R2 = create_BSpline_R1_to_R2;
 
 /***/ }),
 
-/***/ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts":
-/*!*****************************************************************!*\
-  !*** ./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts ***!
-  \*****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BSpline_R1_to_R2_DifferentialProperties = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ./BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BernsteinDecomposition_R1_to_R1_1 = __webpack_require__(/*! ./BernsteinDecomposition_R1_to_R1 */ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-var BSpline_R1_to_R2_DifferentialProperties = /** @class */ (function () {
-    function BSpline_R1_to_R2_DifferentialProperties(spline) {
-        this.spline = spline;
-    }
-    BSpline_R1_to_R2_DifferentialProperties.prototype.expensiveComputation = function (spline) {
-        var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots);
-        var sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots);
-        var sxu = sx.derivative();
-        var syu = sy.derivative();
-        var sxuu = sxu.derivative();
-        var syuu = syu.derivative();
-        var sxuuu = sxuu.derivative();
-        var syuuu = syuu.derivative();
-        var bdsxu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition());
-        var bdsyu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition());
-        var bdsxuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition());
-        var bdsyuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition());
-        var bdsxuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition());
-        var bdsyuuu = new BernsteinDecomposition_R1_to_R1_1.BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition());
-        var h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
-        var h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
-        var h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
-        var h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
-        return {
-            h1: h1,
-            h2: h2,
-            h3: h3,
-            h4: h4
-        };
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureNumerator = function () {
-        var e = this.expensiveComputation(this.spline);
-        var distinctKnots = this.spline.distinctKnots();
-        var controlPoints = e.h4.flattenControlPointsArray();
-        var curvatureNumeratorDegree = 2 * this.spline.degree - 3;
-        var knots = [];
-        for (var i = 0; i < distinctKnots.length; i += 1) {
-            for (var j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDenominator = function () {
-        var curve = this.h1();
-        var controlPoints1 = curve.controlPoints;
-        var knots = curve.knots;
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints1, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.h1 = function () {
-        var e = this.expensiveComputation(this.spline);
-        var distinctKnots = this.spline.distinctKnots();
-        var controlPoints = e.h1.flattenControlPointsArray();
-        var h1Degree = 2 * this.spline.degree - 2;
-        var knots = [];
-        for (var i = 0; i < distinctKnots.length; i += 1) {
-            for (var j = 0; j < h1Degree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.inflections = function (curvatureNumerator) {
-        if (!curvatureNumerator) {
-            curvatureNumerator = this.curvatureNumerator();
-        }
-        var zeros = curvatureNumerator.zeros();
-        var result = [];
-        for (var i = 0; i < zeros.length; i += 1) {
-            result.push(this.spline.evaluate(zeros[i]));
-        }
-        return result;
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureDerivativeNumerator = function () {
-        var e = this.expensiveComputation(this.spline);
-        var bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
-        var distinctKnots = this.spline.distinctKnots();
-        var controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
-        var curvatureDerivativeNumeratorDegree = 4 * this.spline.degree - 6;
-        var knots = [];
-        for (var i = 0; i < distinctKnots.length; i += 1) {
-            for (var j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSpline_R1_to_R1_1.BSpline_R1_to_R1(controlPoints, knots);
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
-        if (!curvatureDerivativeNumerator) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        var zeros = curvatureDerivativeNumerator.zeros();
-        var result = [];
-        for (var i = 0; i < zeros.length; i += 1) {
-            result.push(this.spline.evaluate(zeros[i]));
-        }
-        return result;
-    };
-    BSpline_R1_to_R2_DifferentialProperties.prototype.transitionCurvatureExtrema = function (curvatureDerivativeNumerator) {
-        if (!curvatureDerivativeNumerator) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        var zeros = curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer();
-        var result = [];
-        for (var i = 0; i < zeros.length; i += 1) {
-            result.push(this.spline.evaluate(zeros[i]));
-        }
-        return result;
-    };
-    return BSpline_R1_to_R2_DifferentialProperties;
-}());
-exports.BSpline_R1_to_R2_DifferentialProperties = BSpline_R1_to_R2_DifferentialProperties;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts":
-/*!*********************************************************!*\
-  !*** ./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts ***!
-  \*********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BSpline_R1_to_R2_degree_Raising = void 0;
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
-/**
- * A set of B-Spline curves from a one dimensional real space to a two dimensional real space
- * Each B-Spline derives from an input B-Spline as needed to set up the degree elevation algorithm of Prautzsch
- */
-var BSpline_R1_to_R2_degree_Raising = /** @class */ (function () {
-    function BSpline_R1_to_R2_degree_Raising(controlPoints, knots) {
-        this.controlPolygons = [];
-        this.knotVectors = [];
-        this.bSpline = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(controlPoints, knots);
-    }
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
-    BSpline_R1_to_R2_degree_Raising.prototype.degreeIncrease = function () {
-        var degree = this.bSpline.degree;
-        this.generateIntermediateSplinesForDegreeElevation();
-        var splineHigherDegree = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[0], this.knotVectors[0]);
-        if (this.bSpline.knotMultiplicity(this.bSpline.knots[0]) !== this.bSpline.degree + 1 || this.bSpline.knotMultiplicity(this.bSpline.knots[this.bSpline.knots.length - 1]) !== this.bSpline.degree + 1) {
-            for (var i = 1; i <= this.bSpline.degree; i += 1) {
-                var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.controlPolygons[i], this.knotVectors[i]);
-                var j = 0, k = 0;
-                while (j < splineHigherDegree.knots.length) {
-                    if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
-                        splineTemp.insertKnot(splineHigherDegree.knots[j]);
-                    }
-                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
-                        splineHigherDegree.insertKnot(splineTemp.knots[k]);
-                    }
-                    j += 1;
-                    k += 1;
-                }
-                for (var ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
-                    splineHigherDegree.controlPoints[ind] = splineHigherDegree.controlPoints[ind].add(splineTemp.controlPoints[ind]);
-                }
-            }
-            for (var j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
-                splineHigherDegree.controlPoints[j] = splineHigherDegree.controlPoints[j].multiply(1 / (degree + 1));
-            }
-            console.log("degreeIncrease: " + splineHigherDegree.knots);
-        }
-        else
-            throw new Error('incompatible knot vector of the input spline');
-        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
-    };
-    BSpline_R1_to_R2_degree_Raising.prototype.generateIntermediateSplinesForDegreeElevation = function () {
-        for (var i = 0; i <= this.bSpline.degree; i += 1) {
-            var knotVector = this.bSpline.knots.slice();
-            var controlPolygon = this.bSpline.controlPoints.slice();
-            var k = 0;
-            for (var j = i; j < this.bSpline.knots.length; j += this.bSpline.degree + 1) {
-                knotVector.splice((j + k), 0, this.bSpline.knots[j]);
-                if (j < this.bSpline.controlPoints.length) {
-                    var controlPoint = this.bSpline.controlPoints[j];
-                    controlPolygon.splice((j + k), 0, controlPoint);
-                }
-                k += 1;
-            }
-            this.knotVectors.push(knotVector);
-            this.controlPolygons.push(controlPolygon);
-        }
-    };
-    return BSpline_R1_to_R2_degree_Raising;
-}());
-exports.BSpline_R1_to_R2_degree_Raising = BSpline_R1_to_R2_degree_Raising;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BernsteinDecomposition_R1_to_R1.ts":
-/*!*********************************************************!*\
-  !*** ./src/bsplines/BernsteinDecomposition_R1_to_R1.ts ***!
-  \*********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BernsteinDecomposition_R1_to_R1 = void 0;
-var BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/bsplines/BinomialCoefficient.ts");
-/**
-* A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
-*/
-var BernsteinDecomposition_R1_to_R1 = /** @class */ (function () {
-    /**
-     *
-     * @param controlPointsArray An array of array of control points
-     */
-    function BernsteinDecomposition_R1_to_R1(controlPointsArray) {
-        this.controlPointsArray = controlPointsArray;
-    }
-    BernsteinDecomposition_R1_to_R1.prototype.add = function (bd) {
-        var result = [];
-        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] + bd.controlPointsArray[i][j];
-            }
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.subtract = function (bd) {
-        var result = [];
-        for (var i = 0; i < bd.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (var j = 0; j < bd.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] - bd.controlPointsArray[i][j];
-            }
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.multiply = function (bd) {
-        return new BernsteinDecomposition_R1_to_R1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray));
-    };
-    /**
-     *
-     * @param bd: BernsteinDecomposition_R1_to_R1
-     * @param index: Index of the basis function
-     */
-    BernsteinDecomposition_R1_to_R1.prototype.multiplyRange = function (bd, start, lessThan) {
-        var result = [];
-        for (var i = start; i < lessThan; i += 1) {
-            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i]);
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplicationArray = function (f, g) {
-        var result = [];
-        for (var i = 0; i < f.length; i += 1) {
-            result[i] = this.bernsteinMultiplication(f[i], g[i]);
-        }
-        return result;
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.bernsteinMultiplication = function (f, g) {
-        var f_degree = f.length - 1;
-        var g_degree = g.length - 1;
-        var result = [];
-        /*
-        for (let k = 0; k < f_degree + g_degree + 1; k += 1) {
-            let cp = 0;
-            for (let i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
-                let bfu = binomialCoefficient(f_degree, i);
-                let bgu = binomialCoefficient(g_degree, k - i);
-                let bfugu = binomialCoefficient(f_degree + g_degree, k);
-                cp += bfu * bgu / bfugu * f[i] * g[k - i];
-            }
-            result[k] = cp;
-        }
-        */
-        /*
-        BernsteinDecomposition_R1_to_R1.flopsCounter += 1
-        if (BernsteinDecomposition_R1_to_R1.flopsCounter % 1000 === 0) {
-          //console.log("Bernstein Multiplication")
-          //console.log(BernsteinDecomposition_R1_to_R1.flopsCounter)
-        }
-        */
-        for (var k = 0; k < f_degree + g_degree + 1; k += 1) {
-            var cp = 0;
-            for (var i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
-                var bfu = BernsteinDecomposition_R1_to_R1.binomial(f_degree, i);
-                var bgu = BernsteinDecomposition_R1_to_R1.binomial(g_degree, k - i);
-                var bfugu = BernsteinDecomposition_R1_to_R1.binomial(f_degree + g_degree, k);
-                cp += bfu * bgu / bfugu * f[i] * g[k - i];
-            }
-            result[k] = cp;
-        }
-        return result;
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.multiplyByScalar = function (value) {
-        var result = [];
-        for (var i = 0; i < this.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (var j = 0; j < this.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] * value;
-            }
-        }
-        return new BernsteinDecomposition_R1_to_R1(result);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.flattenControlPointsArray = function () {
-        //return this.controlPointsArray.flat();
-        return this.controlPointsArray.reduce(function (acc, val) {
-            return acc.concat(val);
-        }, []);
-    };
-    BernsteinDecomposition_R1_to_R1.prototype.subset = function (start, lessThan) {
-        return new BernsteinDecomposition_R1_to_R1(this.controlPointsArray.slice(start, lessThan));
-    };
-    BernsteinDecomposition_R1_to_R1.binomial = BinomialCoefficient_1.memorizedBinomialCoefficient();
-    BernsteinDecomposition_R1_to_R1.flopsCounter = 0;
-    return BernsteinDecomposition_R1_to_R1;
-}());
-exports.BernsteinDecomposition_R1_to_R1 = BernsteinDecomposition_R1_to_R1;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BinomialCoefficient.ts":
-/*!*********************************************!*\
-  !*** ./src/bsplines/BinomialCoefficient.ts ***!
-  \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.memorizedBinomialCoefficient = exports.binomialCoefficient = void 0;
-function binomialCoefficient(n, k) {
-    var result = 1;
-    if (n < k || k < 0) {
-        return 0;
-    }
-    // take advantage of symmetry
-    if (k > n - k) {
-        k = n - k;
-    }
-    for (var x = n - k + 1; x <= n; x += 1) {
-        result *= x;
-    }
-    for (var x = 1; x <= k; x += 1) {
-        result /= x;
-    }
-    return result;
-}
-exports.binomialCoefficient = binomialCoefficient;
-;
-function memorizedBinomialCoefficient() {
-    var cache = [];
-    return function (n, k) {
-        if (cache[n] !== undefined && cache[n][k] !== undefined) {
-            return cache[n][k];
-        }
-        else {
-            if (cache[n] === undefined) {
-                cache[n] = [];
-            }
-            var result = binomialCoefficient(n, k);
-            cache[n][k] = result;
-            return result;
-        }
-    };
-}
-exports.memorizedBinomialCoefficient = memorizedBinomialCoefficient;
-;
-
-
-/***/ }),
-
 /***/ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts":
 /*!*************************************************!*\
   !*** ./src/bsplines/Piegl_Tiller_NURBS_Book.ts ***!
@@ -40675,19 +39973,33 @@ exports.decomposeFunction = decomposeFunction;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbsCurvatureSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var AbsCurvatureSceneController = /** @class */ (function () {
     function AbsCurvatureSceneController(chartController) {
         this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
-        this.splineNumerator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
-        this.splineDenominator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.splineNumerator = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.splineDenominator = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     AbsCurvatureSceneController.prototype.update = function (message) {
-        this.splineNumerator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
-        this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve();
+        if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.splineNumerator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+            this.splineDenominator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+        }
+        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+            this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
+            error.logMessageToConsole();
+        }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
         this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[3], points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
@@ -41185,7 +40497,7 @@ var ChartSceneController = /** @class */ (function () {
         this.init();
         this._curveObservers.forEach(function (element) {
             element.update(_this._curveModel.spline);
-            _this._curveModel.registerObserver(element);
+            _this._curveModel.registerObserver(element, "curve");
         });
     };
     ChartSceneController.prototype.switchChartState = function (chartTitle, indexCtrlr) {
@@ -41353,7 +40665,7 @@ var ChartSceneController = /** @class */ (function () {
     ChartSceneController.prototype.addCurveObserver = function (curveObserver) {
         if (this._curveModel !== undefined) {
             curveObserver.update(this._curveModel.spline);
-            this._curveModel.registerObserver(curveObserver);
+            this._curveModel.registerObserver(curveObserver, "curve");
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
@@ -41363,7 +40675,7 @@ var ChartSceneController = /** @class */ (function () {
     ChartSceneController.prototype.removeCurveObserver = function (curveObserver) {
         if (this._curveModel !== undefined) {
             curveObserver.update(this._curveModel.spline);
-            this._curveModel.removeObserver(curveObserver);
+            this._curveModel.removeObserver(curveObserver, "curve");
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
@@ -41388,19 +40700,33 @@ exports.ChartSceneController = ChartSceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurvatureSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurvatureSceneController = /** @class */ (function () {
     function CurvatureSceneController(chartController) {
         this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
-        this.splineNumerator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
-        this.splineDenominator = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.splineNumerator = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.splineDenominator = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     CurvatureSceneController.prototype.update = function (message) {
-        this.splineNumerator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
-        this.splineDenominator = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDenominator().curve();
+        if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.splineNumerator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+            this.splineDenominator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+        }
+        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+            this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
+            error.logMessageToConsole();
+        }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
         this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[2], points, { red: 0, green: 200, blue: 0, alpha: 0.5 });
@@ -41448,17 +40774,30 @@ exports.CurvatureSceneController = CurvatureSceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionASceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FunctionASceneController = /** @class */ (function () {
     function FunctionASceneController(chartController) {
         this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
-        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.spline = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     FunctionASceneController.prototype.update = function (message) {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureNumerator().curve();
+        if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.spline = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+        }
+        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.spline = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
+            error.logMessageToConsole();
+        }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
         this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[0], this.spline.controlPoints);
@@ -41505,17 +40844,30 @@ exports.FunctionASceneController = FunctionASceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionBSceneController = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FunctionBSceneController = /** @class */ (function () {
     function FunctionBSceneController(chartController) {
         this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
-        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.spline = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     FunctionBSceneController.prototype.update = function (message) {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.spline = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        }
+        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.spline = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
+            error.logMessageToConsole();
+        }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
         this.chartController.addPolylineDataset(ChartSceneController_1.DATASET_NAMES[0], this.spline.controlPoints);
@@ -41561,17 +40913,30 @@ exports.FunctionBSceneController = FunctionBSceneController;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionBSceneControllerSqrtScaled = void 0;
-var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
+var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
     function FunctionBSceneControllerSqrtScaled(chartController) {
         this.chartController = chartController;
         this.POINT_SEQUENCE_SIZE = ChartSceneController_1.NB_CURVE_POINTS;
-        this.spline = new BSpline_R1_to_R1_1.BSpline_R1_to_R1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.spline = new BSplineR1toR1_1.BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
     }
     FunctionBSceneControllerSqrtScaled.prototype.update = function (message) {
-        this.spline = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.spline = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        }
+        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.spline = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
+            error.logMessageToConsole();
+        }
         var points = this.pointSequenceOnSpline();
         points.forEach(function (element) {
             /* apply a non linear transformation to graphically emphasize the behavior of function B around 0 */
@@ -41625,7 +40990,7 @@ exports.FunctionBSceneControllerSqrtScaled = FunctionBSceneControllerSqrtScaled;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NoFunctionSceneController = void 0;
-var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var NoFunctionSceneController = /** @class */ (function () {
     function NoFunctionSceneController(chartController) {
@@ -41633,7 +40998,7 @@ var NoFunctionSceneController = /** @class */ (function () {
     }
     NoFunctionSceneController.prototype.update = function (message) {
         var points = [];
-        points.push(new Vector_2d_1.Vector_2d(0.0, 0.0));
+        points.push(new Vector2d_1.Vector2d(0.0, 0.0));
         this.chartController.dataCleanUp();
         this.chartController.addCurvePointDataset(ChartSceneController_1.CHART_AXES_NAMES[ChartSceneController_1.CHART_AXES_NAMES.length - 1], points, { red: 0, green: 0, blue: 0, alpha: 0.5 });
         this.chartController.setChartLabel(ChartSceneController_1.CHART_TITLES[ChartSceneController_1.CHART_TITLES.length - 1]);
@@ -42275,12 +41640,12 @@ var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlP
 /* JCL 2020/10/02 Add the visualization of knots */
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
 var CurveKnotsShaders_1 = __webpack_require__(/*! ../views/CurveKnotsShaders */ "./src/views/CurveKnotsShaders.ts");
-var BSpline_R1_to_R2_degree_Raising_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_degree_Raising */ "./src/bsplines/BSpline_R1_to_R2_degree_Raising.ts");
 var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ../views/SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
 var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./src/curveModeler/CurveModeler.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var CurveConstraintSelectionState_1 = __webpack_require__(/*! ./CurveConstraintSelectionState */ "./src/controllers/CurveConstraintSelectionState.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl, curveModelerEventListener) {
         this.canvas = canvas;
@@ -42322,7 +41687,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveKnotsShaders = new CurveKnotsShaders_1.CurveKnotsShaders(this.gl);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
         var selectedEvent = [];
-        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1);
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent, this.differentialEventShaders, 0, 0, 1, 1);
         /* JCL 2020/09/24 Add default clamped control point */
         this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0);
         // this.activeLocationControl = ActiveLocationControl.firstControlPoint
@@ -42341,7 +41706,7 @@ var CurveSceneController = /** @class */ (function () {
         this.registerCurveObservers();
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(this.curveModel.spline);
-        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent);
+        this.selectedDifferentialEventsView.update(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent);
         this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
         // this.sliding = true
         this.sliding = this.curveShapeSpaceNavigator.sliding;
@@ -42392,24 +41757,22 @@ var CurveSceneController = /** @class */ (function () {
         this.sliding = true;
     };
     CurveSceneController.prototype.registerCurveObservers = function () {
-        var _this = this;
-        this.curveModel.registerObserver(this.controlPointsView);
-        this.curveModel.registerObserver(this.controlPolygonView);
-        this.curveModel.registerObserver(this.curveView);
-        this.curveModel.registerObserver(this.curvatureExtremaView);
-        this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
-        this.curveModel.registerObserver(this.inflectionsView);
-        this.curveModel.registerObserver(this.curveKnotsView);
-        this.curveModel.registerObserver(this.clampedControlPointView);
-        this.curveModel.observers.forEach(function (element) {
-            if (_this.curveModel !== undefined) {
-                element.update(_this.curveModel.spline);
-            }
-            else {
-                var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-                error.logMessageToConsole();
-            }
-        });
+        this.curveModel.registerObserver(this.controlPointsView, "control points");
+        this.curveModel.registerObserver(this.controlPolygonView, "control points");
+        this.curveModel.registerObserver(this.curveView, "curve");
+        this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
+        this.curveModel.registerObserver(this.transitionCurvatureExtremaView, "curve");
+        this.curveModel.registerObserver(this.inflectionsView, "curve");
+        this.curveModel.registerObserver(this.curveKnotsView, "curve");
+        this.curveModel.registerObserver(this.clampedControlPointView, "control points");
+        // this.curveModel.observers.forEach(element => {
+        //     if(this.curveModel !== undefined) {
+        //         element.update(this.curveModel.spline)
+        //     } else {
+        //         const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+        //         error.logMessageToConsole();
+        //     }
+        // });
     };
     CurveSceneController.prototype.renderFrame = function () {
         var px = 150;
@@ -42456,13 +41819,13 @@ var CurveSceneController = /** @class */ (function () {
             else
                 differentialEvents = curvatureEvents;
             if (this.activeExtremaLocationControl === CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.extremumLeaving) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
             }
             else if (this.activeExtremaLocationControl === CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.extremumEntering) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
             }
             else if (differentialEvents.length === 0) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
             }
         }
         else
@@ -42473,7 +41836,7 @@ var CurveSceneController = /** @class */ (function () {
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
         if (this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
-            this.curveModel.registerObserver(curveObserver);
+            this.curveModel.registerObserver(curveObserver, "curve");
         }
         else
             throw new Error("Unable to attach a curve observer to the current curve. Undefined curve model");
@@ -42481,7 +41844,7 @@ var CurveSceneController = /** @class */ (function () {
     CurveSceneController.prototype.removeCurveObserver = function (curveObserver) {
         if (this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
-            this.curveModel.removeObserver(curveObserver);
+            this.curveModel.removeObserver(curveObserver, "curve");
         }
         else
             throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model");
@@ -42660,7 +42023,7 @@ var CurveSceneController = /** @class */ (function () {
                 if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                     /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization
                     because it is part of the optimize method (whether sliding is active or not) */
-                    this.curveModel.setControlPoint(selectedControlPoint, x, y);
+                    this.curveModel.setControlPointPosition(selectedControlPoint, x, y);
                 }
                 else if ((this.activeExtremaLocationControl !== CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== CurveShapeSpaceNavigator_1.ActiveInflectionLocationControl.stopDeforming)
                     || this.allowShapeSpaceChange === true) {
@@ -42720,16 +42083,17 @@ var CurveSceneController = /** @class */ (function () {
     CurveSceneController.prototype.inputSelectDegree = function (curveDegree) {
         if (this.curveModel !== undefined) {
             if (curveDegree > this.curveModel.spline.degree) {
-                var controlPoints = this.curveModel.spline.controlPoints;
-                var knots = this.curveModel.spline.knots;
-                for (var i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                    var aSpline = new BSpline_R1_to_R2_degree_Raising_1.BSpline_R1_to_R2_degree_Raising(controlPoints, knots);
-                    var newSpline = aSpline.degreeIncrease();
-                    controlPoints = newSpline.controlPoints;
-                    knots = newSpline.knots;
-                }
-                this.curveModel.spline.renewCurve(controlPoints, knots);
-                this.curveControl.resetCurve(this.curveModel);
+                // let controlPoints = this.curveModel.spline.controlPoints
+                // let knots = this.curveModel.spline.knots
+                // for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                //     let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
+                //     let newSpline = aSpline.degreeIncrease()
+                //     controlPoints = newSpline.controlPoints
+                //     knots = newSpline.knots
+                // }
+                // this.curveModel.spline.renewCurve(controlPoints, knots)
+                // this.curveControl.resetCurve(this.curveModel)
+                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
                 if (this.activeLocationControl === CurveModeler_1.ActiveLocationControl.both) {
                     if (this.curveModeler.clampedControlPoints[0] === 0) {
                         this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
@@ -42939,7 +42303,7 @@ var NoSlidingStrategy = /** @class */ (function () {
         if (this.activeOptimizer === false)
             return;
         var p = this.curveModel.spline.controlPoints[selectedControlPoint];
-        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800);
@@ -42973,7 +42337,7 @@ var NoSlidingStrategy = /** @class */ (function () {
             this.curveModel.setSpline(this.optimizationProblem.spline.clone());
         }
         catch (e) {
-            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y);
+            this.curveModel.setControlPointPosition(selectedControlPoint, p.x, p.y);
             console.log(e);
         }
     };
@@ -42997,7 +42361,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SlidingStrategy = exports.DiffEventType = exports.NeighboringEventsType = void 0;
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../bsplines/Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
 var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./src/curveModeler/CurveModeler.ts");
@@ -43881,7 +43245,7 @@ var SlidingStrategy = /** @class */ (function () {
         var splineInit = this.curveModel.spline.clone();
         //console.log("CP before: ", JSON.parse(JSON.stringify(controlPointsInit)))
         /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
-        var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.curveModel.spline);
+        var splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.curveModel.spline);
         var functionB = splineDP.curvatureDerivativeNumerator();
         var curvatureExtremaLocations = functionB.zeros();
         var inflectionLocations = splineDP.curvatureNumerator().zeros();
@@ -43889,7 +43253,7 @@ var SlidingStrategy = /** @class */ (function () {
         //console.log(" init CP " + JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
         //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
-        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY);
         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
         console.log("zeros " + curvatureExtremaLocations + " CP delta X " + (p.x - this.curveModel.spline.controlPoints[selectedControlPoint].x) + " delta Y " + (p.y - this.curveModel.spline.controlPoints[selectedControlPoint].y) + " signs "
             + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints + " revert " + this.optimizationProblem.revertConstraints);
@@ -43907,7 +43271,7 @@ var SlidingStrategy = /** @class */ (function () {
                 delta.push(inc);
             }
             /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
-            var splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+            var splineDPoptim = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
             var functionBOptim = splineDPoptim.curvatureDerivativeNumerator();
             //console.log("cDeriv ", functionBOptim.controlPoints[0] + " CP loc X " + ndcX + " Y " + ndcY)
             var curvatureExtremaLocationsOptim = functionBOptim.zeros();
@@ -44094,7 +43458,7 @@ var SlidingStrategy = /** @class */ (function () {
                             this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear;
                             this.curveSceneController.activeExtremaLocationControl = CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.extremumEntering;
                         }
-                        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+                        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY);
                         this.optimizationProblem.setTargetSpline(this.curveModel.spline);
                         this.optimizationProblem.updateConstraintBound = true;
                         console.log("start optimize" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
@@ -44105,7 +43469,7 @@ var SlidingStrategy = /** @class */ (function () {
                                 var inc = this.optimizationProblem.spline.controlPoints[i2].substract(this.curveModel.spline.controlPoints[i2]);
                                 delta.push(inc);
                             }
-                            var splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                            var splineDPoptim1 = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
                             var functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator();
                             var curvatureExtremaLocationsOptim1 = functionBOptim1.zeros();
                             console.log("cDeriv1 ", functionBOptim1.controlPoints + " zeros " + curvatureExtremaLocationsOptim1);
@@ -44172,7 +43536,7 @@ var SlidingStrategy = /** @class */ (function () {
                                     //const testfunctionB = splineDP2.curvatureDerivativeNumerator()
                                     this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema);
                                     this.optimizer = this.newOptimizer(this.optimizationProblem);
-                                    this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+                                    this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY);
                                     this.optimizationProblem.setTargetSpline(this.curveModel.spline);
                                     this.optimizationProblem.updateConstraintBound = true;
                                     console.log("start optimize with removal curvature extrema" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
@@ -44183,7 +43547,7 @@ var SlidingStrategy = /** @class */ (function () {
                                         delta.push(inc);
                                     }
                                     this.optimizationProblem.cancelEvent();
-                                    var splineDPoptim2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                    var splineDPoptim2 = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
                                     var functionBOptim2 = splineDPoptim2.curvatureDerivativeNumerator();
                                     var curvatureExtremaLocationsOptim2 = functionBOptim2.zeros();
                                     console.log("cDeriv2 ", functionBOptim2.controlPoints + " zeros " + curvatureExtremaLocationsOptim2);
@@ -44311,7 +43675,7 @@ var SlidingStrategy = /** @class */ (function () {
                                 var ratio = Math.abs(functionBExtremum / (functionBOptimExtremum - functionBExtremum));
                                 var modifiedndcX = controlPointsInit[selectedControlPoint].x + (ndcX - controlPointsInit[selectedControlPoint].x) * ratio;
                                 var modifiedndcY = controlPointsInit[selectedControlPoint].y + (ndcY - controlPointsInit[selectedControlPoint].y) * ratio;
-                                this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY);
+                                this.curveModel.setControlPointPosition(selectedControlPoint, modifiedndcX, modifiedndcY);
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline);
                                 this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations;
                                 this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints;
@@ -44323,7 +43687,7 @@ var SlidingStrategy = /** @class */ (function () {
                                         var inc = this.optimizationProblem.spline.controlPoints[i6].substract(this.curveModel.spline.controlPoints[i6]);
                                         delta.push(inc);
                                     }
-                                    var splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                    var splineDPoptim1 = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
                                     var functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator();
                                     var curvatureExtremaLocationsOptim1 = functionBOptim1.zeros();
                                     this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1;
@@ -44400,7 +43764,7 @@ var SlidingStrategy = /** @class */ (function () {
                                             var inc = this.optimizationProblem.spline.controlPoints[i3].substract(this.curveModel.spline.controlPoints[i3]);
                                             delta.push(inc);
                                         }
-                                        var splineDPoptimCE = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                        var splineDPoptimCE = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
                                         var functionBOptimCE = splineDPoptimCE.curvatureDerivativeNumerator();
                                         var curvatureExtremaLocationsOptimCE = functionBOptimCE.zeros();
                                         if (curvatureExtremaLocationsOptimCE.length === curvatureExtremaLocations.length) {
@@ -44523,7 +43887,7 @@ var SlidingStrategy = /** @class */ (function () {
                                 this.curveModel.setControlPoints(controlPointsInit);
                                 this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i]);
                                 this.optimizer = this.newOptimizer(this.optimizationProblem);
-                                this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY);
+                                this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY);
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline);
                                 this.optimizationProblem.updateConstraintBound = true;
                                 console.log("start optimize 2 extrema appear" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints);
@@ -44534,7 +43898,7 @@ var SlidingStrategy = /** @class */ (function () {
                                         var inc = this.optimizationProblem.spline.controlPoints[i5].substract(this.curveModel.spline.controlPoints[i5]);
                                         delta.push(inc);
                                     }
-                                    var splineDPoptimCEA = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                    var splineDPoptimCEA = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
                                     var functionBOptimCEA = splineDPoptimCEA.curvatureDerivativeNumerator();
                                     var curvatureExtremaLocationsOptimCEA = functionBOptimCEA.zeros();
                                     if (curvatureExtremaLocationsOptimCEA.length === curvatureExtremaLocations.length) {
@@ -44631,7 +43995,7 @@ var SlidingStrategy = /** @class */ (function () {
                                             var inc = this.optimizationProblem.spline.controlPoints[i4].substract(this.curveModel.spline.controlPoints[i4]);
                                             delta.push(inc);
                                         }
-                                        var splineDPoptimCE2 = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline);
+                                        var splineDPoptimCE2 = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline);
                                         var functionBOptimCE2 = splineDPoptimCE2.curvatureDerivativeNumerator();
                                         var curvatureExtremaLocationsOptimCE2 = functionBOptimCE2.zeros();
                                         if (curvatureExtremaLocationsOptimCE2.length === curvatureExtremaLocations.length) {
@@ -45542,14 +44906,14 @@ exports.ExtremumLocationClassifier = ExtremumLocationClassifier;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveDifferentialEventsExtractor = void 0;
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var SequenceOfDifferentialEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts");
 var CurveDifferentialEventsExtractor = /** @class */ (function () {
     function CurveDifferentialEventsExtractor(curveToAnalyze) {
         this.inflectionLocations = [];
         this.curvatureExtremaLocations = [];
         this.curve = curveToAnalyze;
-        this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.curve);
+        this.curveDiffProperties = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.curve);
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
@@ -45576,7 +44940,7 @@ var CurveDifferentialEventsExtractor = /** @class */ (function () {
     };
     CurveDifferentialEventsExtractor.prototype.update = function (curveToAnalyze) {
         this.curve = curveToAnalyze;
-        this.curveDiffProperties = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(this.curve);
+        this.curveDiffProperties = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.curve);
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.extractSeqOfDiffEvents();
@@ -45817,6 +45181,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveConstraints = exports.CurveExtremity = exports.ConstraintType = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
 var ConstraintType;
 (function (ConstraintType) {
     ConstraintType[ConstraintType["none"] = 0] = "none";
@@ -45895,7 +45261,12 @@ var CurveConstraints = /** @class */ (function () {
     };
     CurveConstraints.prototype.processConstraint = function () {
         this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
-        this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
+        if (this._optimizedCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
+        }
+        else if (this._optimizedCurve instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            console.log("periodic Bspline to be processed");
+        }
     };
     CurveConstraints.prototype.updateCurve = function () {
         this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
@@ -45949,8 +45320,8 @@ var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineO
 var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
-var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
-var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
+var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
 var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
@@ -45997,10 +45368,10 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
-        this.displacementSelctdCP = new Vector_2d_1.Vector_2d(0, 0);
+        this.displacementSelctdCP = new Vector2d_1.Vector2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
         this._optimizedCurve = this._currentCurve;
-        this.currentControlPolygon.forEach(function () { return _this.displacementCurrentCurveControlPolygon.push(new Vector_2d_1.Vector_2d(0.0, 0.0)); });
+        this.currentControlPolygon.forEach(function () { return _this.displacementCurrentCurveControlPolygon.push(new Vector2d_1.Vector2d(0.0, 0.0)); });
         this._curveConstraints = new CurveConstraints_1.CurveConstraints(this);
         this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
@@ -46222,7 +45593,7 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     CurveShapeSpaceNavigator.prototype.setTargetCurve = function () {
         if (this.selectedControlPoint !== undefined) {
             this._targetCurve = this._currentCurve;
-            this._targetCurve.setControlPoint(this.selectedControlPoint, this.displacementSelctdCP);
+            this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.displacementSelctdCP);
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
@@ -46367,7 +45738,7 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ./CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
-var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var NavigationState = /** @class */ (function () {
     function NavigationState(curveNavigator) {
         this.curveShapeSpaceNavigator = curveNavigator;
@@ -46417,7 +45788,7 @@ var NavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_super) {
         this.curveConstraints.processConstraint();
     };
     NavigationWithoutShapeSpaceMonitoring.prototype.navigate = function (selectedControlPoint, x, y) {
-        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d_1.Vector_2d(x, y));
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
@@ -46451,7 +45822,7 @@ var NavigationThroughSimplerShapeSpaces = /** @class */ (function (_super) {
         this.curveConstraints.processConstraint();
     };
     NavigationThroughSimplerShapeSpaces.prototype.navigate = function (selectedControlPoint, x, y) {
-        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d_1.Vector_2d(x, y));
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
         this.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
@@ -46484,7 +45855,7 @@ var NavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) {
         this.curveConstraints.processConstraint();
     };
     NavigationStrictlyInsideShapeSpace.prototype.navigate = function (selectedControlPoint, x, y) {
-        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector_2d_1.Vector_2d(x, y));
+        this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
         this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsCurrentCurve = this.curveShapeSpaceNavigator.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveShapeSpaceNavigator.setTargetCurve();
@@ -46866,9 +46237,8 @@ exports.WarningLog = WarningLog;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileController = void 0;
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
 var FileController = /** @class */ (function () {
     function FileController(curveModel, curveSceneController) {
         this.observers = [];
@@ -46925,12 +46295,13 @@ var FileController = /** @class */ (function () {
             (typeof (controlPoints) === "object" && typeof (controlPoints[0].x) !== "number"))
             this.inconsistentFileFormatMessage();
         var tempSpline;
-        tempSpline = BSpline_R1_to_R2_1.create_BSpline_R1_to_R2(controlPoints, knots);
+        tempSpline = BSplineR1toR2_1.create_BSplineR1toR2(controlPoints, knots);
         return tempSpline;
     };
     FileController.prototype.resetCurveContext = function (knots, controlPoints) {
+        var newSpline = BSplineR1toR2_1.create_BSplineR1toR2V2d(controlPoints, knots);
         if (this._curveModel !== undefined) {
-            this._curveModel = new CurveModel_1.CurveModel(knots, controlPoints);
+            this._curveModel.setSpline(newSpline);
             this.notifyObservers();
             this._curveSceneController.curveModel = this._curveModel;
             this._curveSceneController.initCurveSceneView();
@@ -49350,7 +48721,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveModelObserverInShapeSpaceNavigationEventListener = exports.CurveModelObserverInCurveModelEventListener = exports.CurveModelObserverInChartEventListener = void 0;
-var CurveModel_1 = __webpack_require__(/*! ./CurveModel */ "./src/models/CurveModel.ts");
+var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var CurveModelObserver = /** @class */ (function () {
     function CurveModelObserver() {
     }
@@ -49680,6 +49051,53 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         }
         return result;
     };
+    AbstractBSplineR1toR1.prototype.zerosPolygonVsFunctionDiffViewer = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = this.clone();
+        // let spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice())
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        var cpZeros = spline.controlPolygonNumberOfSignChanges();
+        var result = [];
+        var lastInsertedKnot = 0;
+        while (maxError > tolerance) {
+            var temp = spline.controlPolygonNumberOfSignChanges();
+            if (cpZeros !== temp) {
+                result.push(lastInsertedKnot);
+            }
+            cpZeros = temp;
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var _i = 0, vertexIndex_3 = vertexIndex; _i < vertexIndex_3.length; _i++) {
+                var index = vertexIndex_3[_i];
+                var uLeft = greville[index - 1];
+                var uRight = greville[index];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    lastInsertedKnot = (uLeft + uRight) / 2;
+                    spline.insertKnot(lastInsertedKnot);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        return result;
+    };
     return AbstractBSplineR1toR1;
 }());
 exports.AbstractBSplineR1toR1 = AbstractBSplineR1toR1;
@@ -49925,6 +49343,140 @@ exports.deepCopyControlPoints = deepCopyControlPoints;
 
 /***/ }),
 
+/***/ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts":
+/*!************************************************************************!*\
+  !*** ./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts ***!
+  \************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractBSplineR1toR2DifferentialProperties = void 0;
+var BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var AbstractBSplineR1toR2DifferentialProperties = /** @class */ (function () {
+    function AbstractBSplineR1toR2DifferentialProperties(spline) {
+        this._spline = spline.clone();
+    }
+    AbstractBSplineR1toR2DifferentialProperties.prototype.expensiveComputation = function (spline) {
+        var sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        var sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        var sxu = sx.derivative();
+        var syu = sy.derivative();
+        var sxuu = sxu.derivative();
+        var syuu = syu.derivative();
+        var sxuuu = sxuu.derivative();
+        var syuuu = syuu.derivative();
+        var bdsxu = sxu.bernsteinDecomposition();
+        var bdsyu = syu.bernsteinDecomposition();
+        var bdsxuu = sxuu.bernsteinDecomposition();
+        var bdsyuu = syuu.bernsteinDecomposition();
+        var bdsxuuu = sxuuu.bernsteinDecomposition();
+        var bdsyuuu = syuuu.bernsteinDecomposition();
+        var h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
+        var h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
+        var h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
+        var h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
+        return {
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.curvatureNumerator = function () {
+        var e = this.expensiveComputation(this._spline);
+        var distinctKnots = this._spline.getDistinctKnots();
+        var controlPoints = e.h4.flattenControlPointsArray();
+        var curvatureNumeratorDegree = 2 * this._spline.degree - 3;
+        var knots = [];
+        for (var _i = 0, distinctKnots_1 = distinctKnots; _i < distinctKnots_1.length; _i++) {
+            var knot = distinctKnots_1[_i];
+            for (var j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
+                knots.push(knot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.curvatureDenominator = function () {
+        var curve = this.h1();
+        var controlPoints1 = curve.controlPoints;
+        var knots = curve.knots;
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints1, knots);
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.h1 = function () {
+        var e = this.expensiveComputation(this._spline);
+        var distinctKnots = this._spline.getDistinctKnots();
+        var controlPoints = e.h1.flattenControlPointsArray();
+        var h1Degree = 2 * this._spline.degree - 2;
+        var knots = [];
+        for (var _i = 0, distinctKnots_2 = distinctKnots; _i < distinctKnots_2.length; _i++) {
+            var knot = distinctKnots_2[_i];
+            for (var j = 0; j < h1Degree + 1; j += 1) {
+                knots.push(knot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.inflections = function (curvatureNumerator) {
+        if (!curvatureNumerator) {
+            curvatureNumerator = this.curvatureNumerator();
+        }
+        var zeros = curvatureNumerator.zeros();
+        var result = [];
+        for (var _i = 0, zeros_1 = zeros; _i < zeros_1.length; _i++) {
+            var z = zeros_1[_i];
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.curvatureDerivativeNumerator = function () {
+        var e = this.expensiveComputation(this._spline);
+        var bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
+        var distinctKnots = this._spline.getDistinctKnots();
+        var controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
+        var curvatureDerivativeNumeratorDegree = 4 * this._spline.degree - 6;
+        var knots = [];
+        for (var _i = 0, distinctKnots_3 = distinctKnots; _i < distinctKnots_3.length; _i++) {
+            var knot = distinctKnots_3[_i];
+            for (var j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
+                knots.push(knot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.curvatureExtrema = function (_curvatureDerivativeNumerator) {
+        if (!_curvatureDerivativeNumerator) {
+            _curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = _curvatureDerivativeNumerator.zeros();
+        var result = [];
+        for (var _i = 0, zeros_2 = zeros; _i < zeros_2.length; _i++) {
+            var z = zeros_2[_i];
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    };
+    AbstractBSplineR1toR2DifferentialProperties.prototype.transitionCurvatureExtrema = function (_curvatureDerivativeNumerator) {
+        if (!_curvatureDerivativeNumerator) {
+            _curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = _curvatureDerivativeNumerator.zerosPolygonVsFunctionDiffViewer();
+        var result = [];
+        for (var _i = 0, zeros_3 = zeros; _i < zeros_3.length; _i++) {
+            var z = zeros_3[_i];
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    };
+    return AbstractBSplineR1toR2DifferentialProperties;
+}());
+exports.AbstractBSplineR1toR2DifferentialProperties = AbstractBSplineR1toR2DifferentialProperties;
+
+
+/***/ }),
+
 /***/ "./src/newBsplines/BSplineR1toR1.ts":
 /*!******************************************!*\
   !*** ./src/newBsplines/BSplineR1toR1.ts ***!
@@ -50105,12 +49657,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.create_BSplineR1toR2 = exports.BSplineR1toR2 = void 0;
+exports.convertToBsplR1_to_R2 = exports.create_BSplineR1toR2V2d = exports.create_BSplineR1toR2 = exports.BSplineR1toR2 = void 0;
 var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts");
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
 var BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
 var BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
+var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./src/curveModeler/CurveModeler.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
@@ -50308,6 +49862,41 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             CPs: controlPolygons
         };
     };
+    // replaced by getDistinctKnots in AbstractBSplineR1toR2
+    // distinctKnots(): number[] {
+    //     let result = [this.knots[0]];
+    //     let temp = result[0];
+    //     for (let i = 1; i < this.knots.length; i += 1) {
+    //         if (this.knots[i] !== temp) {
+    //             result.push(this.knots[i]);
+    //             temp = this.knots[i];
+    //         }
+    //     }
+    //     return result;
+    // }
+    BSplineR1toR2.prototype.relocateAfterOptimization = function (step, activeLocationControl) {
+        if (activeLocationControl !== CurveModeler_1.ActiveLocationControl.stopDeforming) {
+            var index = 0;
+            // if(activeLocationControl === ActiveLocationControl.firstControlPoint || activeLocationControl === ActiveLocationControl.both)
+            // index = 0 covers the other configurations
+            if (activeLocationControl === CurveModeler_1.ActiveLocationControl.lastControlPoint) {
+                index = this.controlPoints.length - 1;
+            }
+            for (var _i = 0, _a = this.controlPoints; _i < _a.length; _i++) {
+                var ctrlPt = _a[_i];
+                ctrlPt.x -= step[index].x;
+                ctrlPt.y -= step[index].y;
+            }
+            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
+        }
+        else {
+            for (var i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[i].x;
+                this.controlPoints[i].y -= step[i].y;
+            }
+            /*console.log("relocAfterOptim: relocate all ") */
+        }
+    };
     return BSplineR1toR2;
 }(AbstractBSplineR1toR2_1.AbstractBSplineR1toR2));
 exports.BSplineR1toR2 = BSplineR1toR2;
@@ -50320,6 +49909,55 @@ function create_BSplineR1toR2(controlPoints, knots) {
     return new BSplineR1toR2(newControlPoints, knots);
 }
 exports.create_BSplineR1toR2 = create_BSplineR1toR2;
+function create_BSplineR1toR2V2d(controlPoints, knots) {
+    return new BSplineR1toR2(controlPoints, knots);
+}
+exports.create_BSplineR1toR2V2d = create_BSplineR1toR2V2d;
+function convertToBsplR1_to_R2(spline) {
+    return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(spline.controlPoints, spline.knots);
+}
+exports.convertToBsplR1_to_R2 = convertToBsplR1_to_R2;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts":
+/*!****************************************************************!*\
+  !*** ./src/newBsplines/BSplineR1toR2DifferentialProperties.ts ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSplineR1toR2DifferentialProperties = void 0;
+var AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var BSplineR1toR2DifferentialProperties = /** @class */ (function (_super) {
+    __extends(BSplineR1toR2DifferentialProperties, _super);
+    function BSplineR1toR2DifferentialProperties(spline) {
+        return _super.call(this, spline) || this;
+    }
+    BSplineR1toR2DifferentialProperties.prototype.bSplineR1toR1Factory = function (controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    };
+    return BSplineR1toR2DifferentialProperties;
+}(AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties));
+exports.BSplineR1toR2DifferentialProperties = BSplineR1toR2DifferentialProperties;
 
 
 /***/ }),
@@ -50890,6 +50528,65 @@ exports.create_PeriodicBSplineR1toR2 = create_PeriodicBSplineR1toR2;
 
 /***/ }),
 
+/***/ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts":
+/*!************************************************************************!*\
+  !*** ./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts ***!
+  \************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PeriodicBSplineR1toR2DifferentialProperties = void 0;
+var AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
+var PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ./PeriodicBSplineR1toR1 */ "./src/newBsplines/PeriodicBSplineR1toR1.ts");
+var PeriodicBSplineR1toR2DifferentialProperties = /** @class */ (function (_super) {
+    __extends(PeriodicBSplineR1toR2DifferentialProperties, _super);
+    function PeriodicBSplineR1toR2DifferentialProperties(spline) {
+        return _super.call(this, spline) || this;
+    }
+    PeriodicBSplineR1toR2DifferentialProperties.prototype.bSplineR1toR1Factory = function (controlPoints, knots) {
+        return new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(controlPoints, knots);
+    };
+    PeriodicBSplineR1toR2DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = curvatureDerivativeNumerator.zeros(10e-3);
+        var result = [];
+        for (var _i = 0, zeros_1 = zeros; _i < zeros_1.length; _i++) {
+            var z = zeros_1[_i];
+            result.push(this._spline.evaluate(z));
+        }
+        var a = curvatureDerivativeNumerator.controlPoints[0];
+        var b = curvatureDerivativeNumerator.controlPoints[curvatureDerivativeNumerator.controlPoints.length - 1];
+        if (a * b < 0) { // a and b have different sign
+            var u = curvatureDerivativeNumerator.knots[curvatureDerivativeNumerator.knots.length - 1];
+            result.push(this._spline.evaluate(u));
+        }
+        return result;
+    };
+    return PeriodicBSplineR1toR2DifferentialProperties;
+}(AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties));
+exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2DifferentialProperties;
+
+
+/***/ }),
+
 /***/ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts":
 /*!****************************************************!*\
   !*** ./src/newBsplines/Piegl_Tiller_NURBS_Book.ts ***!
@@ -51376,6 +51073,10 @@ var CurveModel = /** @class */ (function (_super) {
         // this.optimizationProblem = new  OptimizationProblemBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
         this.notifyObservers();
+    };
+    CurveModel.prototype.setControlPoints = function (controlPoints) {
+        this.spline.controlPoints = controlPoints;
+        //this.notifyObservers()
     };
     return CurveModel;
 }(AbstractCurveModel_1.AbstractCurveModel));
@@ -53466,6 +53167,7 @@ var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FileController_1 = __webpack_require__(/*! ../filecontrollers/FileController */ "./src/filecontrollers/FileController.ts");
 var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
+var CurveModel_2 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var CurveModelObserver_1 = __webpack_require__(/*! ../models/CurveModelObserver */ "./src/models/CurveModelObserver.ts");
 // export abstract class UserInterfaceEventListener {
 // }
@@ -53781,7 +53483,7 @@ var CurveModelerEventListener = /** @class */ (function () {
         this._toggleButtonCurveClamping = document.getElementById("toggleButtonCurveClamping");
         // to be used later
         this._curveModeler = new CurveModeler_1.CurveModeler();
-        this._curveModel = new CurveModel_1.CurveModel();
+        this._curveModel = new CurveModel_2.CurveModel();
         // this._curveModeler.curveCategory.curveModel;
         this.controlOfCurveClamping = true;
         this.activeLocationControl = this._curveModeler.activeLocationControl;
@@ -54033,7 +53735,7 @@ var ClampedControlPointView = /** @class */ (function () {
         this.indices = new Uint8Array([]);
         this.clampedCPindices = [];
         this.clampedControlPoints = [];
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
         this.clampedCPindices = clampedCPindices;
         for (var _i = 0, _a = this.clampedCPindices; _i < _a.length; _i++) {
             var index = _a[_i];
@@ -54169,7 +53871,7 @@ var ClampedControlPointView = /** @class */ (function () {
         return result;
     };
     ClampedControlPointView.prototype.update = function (spline) {
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
         this.clampedControlPoints = [];
         for (var _i = 0, _a = this.clampedCPindices; _i < _a.length; _i++) {
             var index = _a[_i];
@@ -54458,7 +54160,8 @@ var ControlPointsView = /** @class */ (function () {
         this.indexBuffer = null;
         this.vertices = new Float32Array([]);
         this.indices = new Uint8Array([]);
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints()
         // Write the positions of vertices to a vertex shader
         var check = this.initVertexBuffers(this.controlPointsShaders.gl);
         if (check < 0) {
@@ -54589,7 +54292,8 @@ var ControlPointsView = /** @class */ (function () {
         return result;
     };
     ControlPointsView.prototype.update = function (spline) {
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints();
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
@@ -54694,7 +54398,8 @@ var ControlPolygonView = /** @class */ (function () {
         this.indexBuffer = null;
         this.vertices = new Float32Array([]);
         this.indices = new Uint8Array([]);
-        this.controlPoints = spline.visibleControlPoints();
+        // this.controlPoints = spline.visibleControlPoints()
+        this.controlPoints = spline.controlPoints;
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }
@@ -54787,7 +54492,8 @@ var ControlPolygonView = /** @class */ (function () {
         gl.useProgram(null);
     };
     ControlPolygonView.prototype.update = function (message) {
-        this.controlPoints = message.visibleControlPoints();
+        this.controlPoints = message.controlPoints;
+        // this.controlPoints = message.visibleControlPoints();
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }
@@ -54825,8 +54531,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurvatureExtremaView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var CurvatureExtremaView = /** @class */ (function () {
     function CurvatureExtremaView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -54839,7 +54545,8 @@ var CurvatureExtremaView = /** @class */ (function () {
         this.indexBuffer = null;
         this.vertices = new Float32Array([]);
         this.indices = new Uint8Array([]);
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints()
         // Write the positions of vertices to a vertex shader
         var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
         if (check < 0) {
@@ -54955,8 +54662,8 @@ var CurvatureExtremaView = /** @class */ (function () {
         gl.useProgram(null);
     };
     CurvatureExtremaView.prototype.update = function (spline) {
-        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
-            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
+        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            var splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(spline);
             this.controlPoints = splineDP.curvatureExtrema();
             this.updateVerticesAndIndices();
             this.updateBuffers();
@@ -55037,7 +54744,7 @@ exports.CurveKnotsShaders = CurveKnotsShaders;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveKnotsView = void 0;
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var CurveKnotsView = /** @class */ (function () {
     function CurveKnotsView(spline, curveKnotsShaders, red, green, blue, alpha) {
         this.spline = spline;
@@ -55060,11 +54767,12 @@ var CurveKnotsView = /** @class */ (function () {
         }
     }
     CurveKnotsView.prototype.updatePointAtKnotOnSpline = function () {
-        var splineTemp = new BSpline_R1_to_R2_1.BSpline_R1_to_R2(this.spline.visibleControlPoints(), this.spline.knots);
-        this.knotAbscissae = splineTemp.distinctKnots();
+        var splineTemp = new BSplineR1toR2_1.BSplineR1toR2(this.spline.controlPoints, this.spline.knots);
+        this.knotAbscissae = splineTemp.getDistinctKnots();
         this.pointSequenceOnSpline = [];
-        for (var i = 0; i < this.knotAbscissae.length; i += 1) {
-            var point = this.spline.evaluate(this.knotAbscissae[i]);
+        for (var _i = 0, _a = this.knotAbscissae; _i < _a.length; _i++) {
+            var kAbsc = _a[_i];
+            var point = this.spline.evaluate(kAbsc);
             this.pointSequenceOnSpline.push(point);
         }
     };
@@ -55431,8 +55139,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InflectionsView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var InflectionsView = /** @class */ (function () {
     function InflectionsView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -55445,7 +55153,8 @@ var InflectionsView = /** @class */ (function () {
         this.indexBuffer = null;
         this.vertices = new Float32Array([]);
         this.indices = new Uint8Array([]);
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints()
         // Write the positions of vertices to a vertex shader
         var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
         if (check < 0) {
@@ -55561,8 +55270,8 @@ var InflectionsView = /** @class */ (function () {
         gl.useProgram(null);
     };
     InflectionsView.prototype.update = function (spline) {
-        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
-            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
+        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            var splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(spline);
             this.controlPoints = splineDP.inflections();
             this.updateVerticesAndIndices();
             this.updateBuffers();
@@ -55857,8 +55566,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransitionCurvatureExtremaView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
-var BSpline_R1_to_R2_DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2_DifferentialProperties */ "./src/bsplines/BSpline_R1_to_R2_DifferentialProperties.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var TransitionCurvatureExtremaView = /** @class */ (function () {
     function TransitionCurvatureExtremaView(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -55871,7 +55580,8 @@ var TransitionCurvatureExtremaView = /** @class */ (function () {
         this.indexBuffer = null;
         this.vertices = new Float32Array([]);
         this.indices = new Uint8Array([]);
-        this.controlPoints = spline.visibleControlPoints();
+        this.controlPoints = spline.controlPoints;
+        // this.controlPoints = spline.visibleControlPoints()
         // Write the positions of vertices to a vertex shader
         var check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
         if (check < 0) {
@@ -55987,8 +55697,8 @@ var TransitionCurvatureExtremaView = /** @class */ (function () {
         gl.useProgram(null);
     };
     TransitionCurvatureExtremaView.prototype.update = function (spline) {
-        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
-            var splineDP = new BSpline_R1_to_R2_DifferentialProperties_1.BSpline_R1_to_R2_DifferentialProperties(spline);
+        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            var splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(spline);
             this.controlPoints = splineDP.transitionCurvatureExtrema();
             this.updateVerticesAndIndices();
             this.updateBuffers();

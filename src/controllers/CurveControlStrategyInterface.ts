@@ -1,5 +1,5 @@
 
-import { CurveModel } from "../models/CurveModel";
+import { CurveModel } from "../newModels/CurveModel";
 
 
 export interface CurveControlStrategyInterface  {

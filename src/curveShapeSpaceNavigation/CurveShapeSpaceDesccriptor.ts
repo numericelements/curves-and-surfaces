@@ -1,4 +1,4 @@
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 
 export class CurveShapeSpaceDescriptor {
 
@@ -7,7 +7,7 @@ export class CurveShapeSpaceDescriptor {
     public curvatureExtremumMonitoringAtCurveExtremities: number[] = [];
     public inflectionMonitoringAtCurveExtremities: number[] = [];
 
-    constructor(curveToAnalyze: BSpline_R1_to_R2) {
+    constructor(curveToAnalyze: BSplineR1toR2Interface) {
         // JCL a finaliser avec le nb correct de contraintes
         this.inflectionsTotalNumberOfConstraints = curveToAnalyze.degree;
         this.curvatureExtremaTotalNumberOfConstraints = curveToAnalyze.degree;

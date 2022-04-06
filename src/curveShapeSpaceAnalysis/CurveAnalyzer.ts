@@ -1,6 +1,6 @@
 import { SequenceOfDifferentialEvents } from "../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents"
 import { CurveDifferentialEventsExtractor } from "../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor"
-import { BSpline_R1_to_R2 } from "../../src/bsplines/BSpline_R1_to_R2"
+import { BSplineR1toR2 } from "../../src/newBsplines/BSplineR1toR2"
 import { CurveShapeSpaceDescriptor } from "../../src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor";
 import { ExtremumLocationClassifier,
     ExtremumLocation,
@@ -17,7 +17,7 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
 export class CurveAnalyzer {
 
-    private curve: BSpline_R1_to_R2;
+    private curve: BSplineR1toR2;
     private _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     private _curveCurvatureCntrlPolygon: number[];
     private _curvatureSignChanges: number[];
@@ -33,7 +33,7 @@ export class CurveAnalyzer {
     private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
 
-    constructor(curveToAnalyze: BSpline_R1_to_R2, curveShapeSpaceNavigator: CurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
+    constructor(curveToAnalyze: BSplineR1toR2, curveShapeSpaceNavigator: CurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
         this.curve = curveToAnalyze;

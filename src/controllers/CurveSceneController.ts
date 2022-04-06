@@ -16,16 +16,15 @@ import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./SlidingStrategy";
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
 
 /* JCL 2020/09/24 Add the visualization of clamped control points */
 import { ClampedControlPointView } from "../views/ClampedControlPointView"
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { Vector2d } from "../mathVector/Vector2d";
 /* JCL 2020/10/02 Add the visualization of knots */
 import { CurveKnotsView } from "../views/CurveKnotsView"
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders";
-import { BSpline_R1_to_R2_degree_Raising } from "../bsplines/BSpline_R1_to_R2_degree_Raising";
 
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
@@ -44,6 +43,8 @@ import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveSha
 import { EventMgmtAtCurveExtremities } from "../curveModeler/EventMgmtAtCurveExtremities";
 import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState } from "./CurveConstraintSelectionState";
 import { CurveModelerEventListener } from "../userInterfaceController/UserInterfaceEventListener";
+import { convertToBsplR1_to_R2 } from "../newBsplines/BSplineR1toR2";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
 
 
@@ -87,7 +88,7 @@ export class CurveSceneController implements SceneControllerInterface {
     /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
     public activeExtremaLocationControl: ActiveExtremaLocationControl = ActiveExtremaLocationControl.none
     public activeInflectionLocationControl: ActiveInflectionLocationControl = ActiveInflectionLocationControl.none
-    public stackControlPolygons: Array<Array<Vector_2d>> = []
+    public stackControlPolygons: Array<Array<Vector2d>> = []
     public sizeStackControlPolygons: number = this.stackControlPolygons.length
     public readonly MAX_NB_CONFIGS_CP = 5
     public counterLostEvent: number = 0
@@ -108,7 +109,7 @@ export class CurveSceneController implements SceneControllerInterface {
     private curveConstraintSelectionState: CurveConstraintSelectionState;
     public curveModel: CurveModel
 
-    private curveObservers: Array<IRenderFrameObserver<BSpline_R1_to_R2_interface>> = []
+    private curveObservers: Array<IRenderFrameObserver<BSplineR1toR2Interface>> = []
     
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext,
         curveModelerEventListener: CurveModelerEventListener) {
@@ -136,7 +137,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1)
         
         let selectedEvent: number[]= []
-        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
 
         /* JCL 2020/09/24 Add default clamped control point */
         this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
@@ -161,7 +162,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(this.curveModel.spline)
-        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent)
+        this.selectedDifferentialEventsView.update(convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent)
 
         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
         // this.sliding = true
@@ -223,23 +224,23 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     registerCurveObservers(): void {
-        this.curveModel.registerObserver(this.controlPointsView);
-        this.curveModel.registerObserver(this.controlPolygonView);
-        this.curveModel.registerObserver(this.curveView);
-        this.curveModel.registerObserver(this.curvatureExtremaView);
-        this.curveModel.registerObserver(this.transitionCurvatureExtremaView);
-        this.curveModel.registerObserver(this.inflectionsView);
-        this.curveModel.registerObserver(this.curveKnotsView);
-        this.curveModel.registerObserver(this.clampedControlPointView);
+        this.curveModel.registerObserver(this.controlPointsView, "control points");
+        this.curveModel.registerObserver(this.controlPolygonView, "control points");
+        this.curveModel.registerObserver(this.curveView, "curve");
+        this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
+        this.curveModel.registerObserver(this.transitionCurvatureExtremaView, "curve");
+        this.curveModel.registerObserver(this.inflectionsView, "curve");
+        this.curveModel.registerObserver(this.curveKnotsView, "curve");
+        this.curveModel.registerObserver(this.clampedControlPointView, "control points");
 
-        this.curveModel.observers.forEach(element => {
-            if(this.curveModel !== undefined) {
-                element.update(this.curveModel.spline)
-            } else {
-                const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-                error.logMessageToConsole();
-            }
-        });
+        // this.curveModel.observers.forEach(element => {
+        //     if(this.curveModel !== undefined) {
+        //         element.update(this.curveModel.spline)
+        //     } else {
+        //         const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+        //         error.logMessageToConsole();
+        //     }
+        // });
     }
 
     renderFrame() {
@@ -288,11 +289,11 @@ export class CurveSceneController implements SceneControllerInterface {
             } else differentialEvents = curvatureEvents
 
             if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
             } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
             } else if(differentialEvents.length === 0) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
             }
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
@@ -300,21 +301,22 @@ export class CurveSceneController implements SceneControllerInterface {
 
     }
 
-    addCurveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+    addCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
         if(this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
-            this.curveModel.registerObserver(curveObserver);
+            this.curveModel.registerObserver(curveObserver, "curve");
+            
         } else throw new Error("Unable to attach a curve observer to the current curve. Undefined curve model")
     }
 
-    removeCurveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+    removeCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
         if(this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
-            this.curveModel.removeObserver(curveObserver);
+            this.curveModel.removeObserver(curveObserver, "curve");
         } else throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model")
     }
 
-    resetCurveObserver(curveObserver: IRenderFrameObserver<BSpline_R1_to_R2_interface>) {
+    resetCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
         if(this.curveModel !== undefined) {
             curveObserver.reset(this.curveModel.spline);
             /*this.curveModel.registerObserver(curveObserver);*/
@@ -498,7 +500,7 @@ export class CurveSceneController implements SceneControllerInterface {
                 if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                     /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
                     because it is part of the optimize method (whether sliding is active or not) */
-                    this.curveModel.setControlPoint(selectedControlPoint, x, y)
+                    this.curveModel.setControlPointPosition(selectedControlPoint, x, y)
                 } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
                         || this.allowShapeSpaceChange === true) {
                     /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
@@ -562,16 +564,17 @@ export class CurveSceneController implements SceneControllerInterface {
     inputSelectDegree(curveDegree: number) {
         if(this.curveModel !== undefined) {
             if(curveDegree > this.curveModel.spline.degree) {
-                let controlPoints = this.curveModel.spline.controlPoints
-                let knots = this.curveModel.spline.knots
-                for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                    let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
-                    let newSpline = aSpline.degreeIncrease()
-                    controlPoints = newSpline.controlPoints
-                    knots = newSpline.knots
-                }
-                this.curveModel.spline.renewCurve(controlPoints, knots)
-                this.curveControl.resetCurve(this.curveModel)
+                // let controlPoints = this.curveModel.spline.controlPoints
+                // let knots = this.curveModel.spline.knots
+                // for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
+                //     let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
+                //     let newSpline = aSpline.degreeIncrease()
+                //     controlPoints = newSpline.controlPoints
+                //     knots = newSpline.knots
+                // }
+                // this.curveModel.spline.renewCurve(controlPoints, knots)
+                // this.curveControl.resetCurve(this.curveModel)
+                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree)
 
                 if(this.activeLocationControl === ActiveLocationControl.both) {
                     if(this.curveModeler.clampedControlPoints[0] === 0){
@@ -624,7 +627,7 @@ export class CurveSceneController implements SceneControllerInterface {
                             && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
                             console.log("dlble_click: two cp clamped")
                             this.curveModeler.clampedControlPoints.push(selectedClampedControlPoint)
-                            let clampedControlPoint: Vector_2d[] = []
+                            let clampedControlPoint: Vector2d[] = []
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
                             this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
@@ -637,7 +640,7 @@ export class CurveSceneController implements SceneControllerInterface {
                                 if(this.curveModeler.clampedControlPoints[1] === selectedClampedControlPoint) {
                                     this.curveModeler.clampedControlPoints.pop()
                                 } else this.curveModeler.clampedControlPoints.splice(0, 1)
-                                let clampedControlPoint: Vector_2d[] = []
+                                let clampedControlPoint: Vector2d[] = []
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
                                 this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
                                 this.activeLocationControl = ActiveLocationControl.lastControlPoint
@@ -647,7 +650,7 @@ export class CurveSceneController implements SceneControllerInterface {
                                 if(this.curveModeler.clampedControlPoints[1] === selectedClampedControlPoint) {
                                     this.curveModeler.clampedControlPoints.pop()
                                 } else this.curveModeler.clampedControlPoints.splice(0, 1)
-                                let clampedControlPoint: Vector_2d[] = []
+                                let clampedControlPoint: Vector2d[] = []
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
                                 this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
                                 this.activeLocationControl = ActiveLocationControl.firstControlPoint

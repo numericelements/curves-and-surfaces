@@ -1,10 +1,10 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
-import { CurveModel } from "../models/CurveModel";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { CurveModel } from "../newModels/CurveModel";
+import { Vector2d } from "../mathVector/Vector2d";
 import { CurveSceneController } from "./CurveSceneController"
-import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
+import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
 import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
@@ -834,7 +834,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         //console.log("CP before: ", JSON.parse(JSON.stringify(controlPointsInit)))
 
         /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
-        const splineDP = new BSpline_R1_to_R2_DifferentialProperties(this.curveModel.spline)
+        const splineDP = new BSplineR1toR2DifferentialProperties(this.curveModel.spline)
         const functionB = splineDP.curvatureDerivativeNumerator()
         const curvatureExtremaLocations = functionB.zeros()
         const inflectionLocations = splineDP.curvatureNumerator().zeros()
@@ -843,7 +843,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         //console.log("Event(s): ", JSON.parse(JSON.stringify(sequenceDiffEventsInit)))
 
         /*console.log("optimize: inits0X " + this.curveModel.spline.controlPoints[0].x + " inits0Y " + this.curveModel.spline.controlPoints[0].y + " ndcX " + ndcX + " ndcY " + ndcY )*/
-        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
         console.log("zeros " + curvatureExtremaLocations + " CP delta X " + (p.x - this.curveModel.spline.controlPoints[selectedControlPoint].x) + " delta Y " + (p.y - this.curveModel.spline.controlPoints[selectedControlPoint].y) + " signs " 
             + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints + " revert " + this.optimizationProblem.revertConstraints)
@@ -856,14 +856,14 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
             /*console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)*/
             /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
             //console.log("optimize : " + this.curveSceneController.activeLocationControl)
-            let delta: Vector_2d[] = []
+            let delta: Vector2d[] = []
             for(let i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
                 let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
                 delta.push(inc)
             }
 
             /* JCL 2020/11/06 Set up the sequence of differential events along the current curve*/
-            const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+            const splineDPoptim = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
             const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
             //console.log("cDeriv ", functionBOptim.controlPoints[0] + " CP loc X " + ndcX + " Y " + ndcY)
             const curvatureExtremaLocationsOptim = functionBOptim.zeros()
@@ -1042,7 +1042,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                             this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumEntering
                         }
 
-                        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+                        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
                         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                         this.optimizationProblem.updateConstraintBound = true
                         console.log("start optimize" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
@@ -1053,7 +1053,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 let inc = this.optimizationProblem.spline.controlPoints[i2].substract(this.curveModel.spline.controlPoints[i2])
                                 delta.push(inc)
                             }
-                            const splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                            const splineDPoptim1 = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                             const functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator()
                             const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
                             console.log("cDeriv1 ", functionBOptim1.controlPoints + " zeros " + curvatureExtremaLocationsOptim1)
@@ -1119,7 +1119,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                     this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
                                         activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema)
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
-                                    this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+                                    this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
                                     this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                     this.optimizationProblem.updateConstraintBound = true
                                     console.log("start optimize with removal curvature extrema" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
@@ -1130,7 +1130,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                         delta.push(inc)
                                     }
                                     this.optimizationProblem.cancelEvent()
-                                    const splineDPoptim2 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                    const splineDPoptim2 = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                                     const functionBOptim2 = splineDPoptim2.curvatureDerivativeNumerator()
                                     const curvatureExtremaLocationsOptim2 = functionBOptim2.zeros()
                                     console.log("cDeriv2 ", functionBOptim2.controlPoints + " zeros " + curvatureExtremaLocationsOptim2)
@@ -1248,7 +1248,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 let ratio = Math.abs(functionBExtremum/(functionBOptimExtremum - functionBExtremum))
                                 let modifiedndcX = controlPointsInit[selectedControlPoint].x + (ndcX - controlPointsInit[selectedControlPoint].x) * ratio
                                 let modifiedndcY = controlPointsInit[selectedControlPoint].y + (ndcY - controlPointsInit[selectedControlPoint].y) * ratio
-                                this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
+                                this.curveModel.setControlPointPosition(selectedControlPoint, modifiedndcX, modifiedndcY)
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                 this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
                                 this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
@@ -1260,7 +1260,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                         let inc = this.optimizationProblem.spline.controlPoints[i6].substract(this.curveModel.spline.controlPoints[i6])
                                         delta.push(inc)
                                     }
-                                    const splineDPoptim1 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                    const splineDPoptim1 = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                                     const functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator()
                                     const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
                                     this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1
@@ -1332,7 +1332,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                             let inc = this.optimizationProblem.spline.controlPoints[i3].substract(this.curveModel.spline.controlPoints[i3])
                                             delta.push(inc)
                                         }
-                                        const splineDPoptimCE = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                        const splineDPoptimCE = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                                         const functionBOptimCE = splineDPoptimCE.curvatureDerivativeNumerator()
                                         const curvatureExtremaLocationsOptimCE = functionBOptimCE.zeros()
                                         if(curvatureExtremaLocationsOptimCE.length === curvatureExtremaLocations.length) {
@@ -1446,7 +1446,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                 this.curveModel.setControlPoints(controlPointsInit)
                                 this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                 this.optimizer = this.newOptimizer(this.optimizationProblem)
-                                this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+                                this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                 this.optimizationProblem.updateConstraintBound = true
                                 console.log("start optimize 2 extrema appear" + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
@@ -1457,7 +1457,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                         let inc = this.optimizationProblem.spline.controlPoints[i5].substract(this.curveModel.spline.controlPoints[i5])
                                         delta.push(inc)
                                     }
-                                    const splineDPoptimCEA = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                    const splineDPoptimCEA = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                                     const functionBOptimCEA = splineDPoptimCEA.curvatureDerivativeNumerator()
                                     const curvatureExtremaLocationsOptimCEA = functionBOptimCEA.zeros()
                                     if(curvatureExtremaLocationsOptimCEA.length === curvatureExtremaLocations.length) {
@@ -1547,7 +1547,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
                                             let inc = this.optimizationProblem.spline.controlPoints[i4].substract(this.curveModel.spline.controlPoints[i4])
                                             delta.push(inc)
                                         }
-                                        const splineDPoptimCE2 = new BSpline_R1_to_R2_DifferentialProperties(this.optimizationProblem.spline)
+                                        const splineDPoptimCE2 = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                                         const functionBOptimCE2 = splineDPoptimCE2.curvatureDerivativeNumerator()
                                         const curvatureExtremaLocationsOptimCE2 = functionBOptimCE2.zeros()
                                         if(curvatureExtremaLocationsOptimCE2.length === curvatureExtremaLocations.length) {

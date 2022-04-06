@@ -6,16 +6,16 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { ChartController } from "./ChartController";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES, NB_CURVE_POINTS } from "./ChartSceneController";
 import { IObserver } from "../designPatterns/Observer";
-import { type } from "os";
-import { AbstractBSplineR1toR2 } from "../newBsplines/AbstractBSplineR1toR2";
 import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 
 export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Interface> {
 
 
-    private splineNumerator: AbstractBSplineR1toR2;
-    private splineDenominator: AbstractBSplineR1toR2;
+    private splineNumerator: BSplineR1toR2Interface;
+    private splineDenominator: BSplineR1toR2Interface;
     private readonly POINT_SEQUENCE_SIZE = NB_CURVE_POINTS;
 
     constructor(private chartController: ChartController) {
@@ -26,9 +26,17 @@ export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Inter
 
 
 
-    update(message: BSplineR1toR2): void {
-        this.splineNumerator = new BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve()
-        this.splineDenominator = new BSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve()
+    update(message: BSplineR1toR2Interface): void {
+        if(message instanceof BSplineR1toR2) {
+            this.splineNumerator = new BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+            this.splineDenominator = new BSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+        } else if(message instanceof PeriodicBSplineR1toR2) {
+            this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
+            this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+        } else {
+            const error = new ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
+            error.logMessageToConsole();
+        }
 
         let points = this.pointSequenceOnSpline()
 
@@ -39,9 +47,9 @@ export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Inter
         this.chartController.drawChart();
     }
 
-    reset(message: BSplineR1toR2): void{
-        let points: Vector2d[] = []
-        let curvePoints: Vector2d[] = []
+    reset(message: BSplineR1toR2Interface): void{
+        let points: Vector2d[] = [];
+        let curvePoints: Vector2d[] = [];
         this.chartController.addPolylineDataset(DATASET_NAMES[1], points);
         this.chartController.addCurvePointDataset(CHART_AXES_NAMES[CHART_AXES_NAMES.length - 1], curvePoints, {red: 100, green: 0, blue: 0, alpha: 0.5});
         this.chartController.setChartLabel(CHART_TITLES[CHART_TITLES.length - 1]);
@@ -51,8 +59,8 @@ export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Inter
     }
 
     pointSequenceOnSpline(): Vector2d[] {
-        const start = this.splineNumerator.knots[this.splineNumerator.degree]
-        const end = this.splineNumerator.knots[this.splineNumerator.knots.length - this.splineNumerator.degree - 1]
+        const start = this.splineNumerator.knots[this.splineNumerator.degree];
+        const end = this.splineNumerator.knots[this.splineNumerator.knots.length - this.splineNumerator.degree - 1];
         let result: Vector2d[] = [];
         for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
             let pointNumerator = this.splineNumerator.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);

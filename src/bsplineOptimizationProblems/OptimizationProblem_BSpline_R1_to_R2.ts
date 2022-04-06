@@ -1,30 +1,28 @@
 import { OptimizationProblemInterface } from "../optimizationProblemFacade/OptimizationProblemInterface"
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { zeroVector, containsNaN, sign } from "../linearAlgebra/MathVectorBasicOperations";
-import { BSpline_R1_to_R1 } from "../bsplines/BSpline_R1_to_R1";
-import { BernsteinDecomposition_R1_to_R1 } from "../bsplines/BernsteinDecomposition_R1_to_R1";
+import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
+import { BernsteinDecompositionR1toR1 } from "../newBsplines/BernsteinDecompositionR1toR1";
 import { SymmetricMatrixInterface } from "../linearAlgebra/MatrixInterfaces";
 import { identityMatrix, DiagonalMatrix } from "../linearAlgebra/DiagonalMatrix";
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix";
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
-import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book";
-import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 
 
 class ExpensiveComputationResults {
 
-    constructor(public bdsxu: BernsteinDecomposition_R1_to_R1,
-        public bdsyu: BernsteinDecomposition_R1_to_R1,
-        public bdsxuu: BernsteinDecomposition_R1_to_R1, 
-        public bdsyuu: BernsteinDecomposition_R1_to_R1, 
-        public bdsxuuu: BernsteinDecomposition_R1_to_R1, 
-        public bdsyuuu: BernsteinDecomposition_R1_to_R1, 
-        public h1: BernsteinDecomposition_R1_to_R1, 
-        public h2: BernsteinDecomposition_R1_to_R1, 
-        public h3: BernsteinDecomposition_R1_to_R1, 
-        public h4: BernsteinDecomposition_R1_to_R1) {}
+    constructor(public bdsxu: BernsteinDecompositionR1toR1,
+        public bdsyu: BernsteinDecompositionR1toR1,
+        public bdsxuu: BernsteinDecompositionR1toR1, 
+        public bdsyuu: BernsteinDecompositionR1toR1, 
+        public bdsxuuu: BernsteinDecompositionR1toR1, 
+        public bdsyuuu: BernsteinDecompositionR1toR1, 
+        public h1: BernsteinDecompositionR1toR1, 
+        public h2: BernsteinDecompositionR1toR1, 
+        public h3: BernsteinDecompositionR1toR1, 
+        public h4: BernsteinDecompositionR1toR1) {}
 
 }
 
@@ -42,11 +40,11 @@ const DEVIATION_FROM_KNOT = 0.25
 
 export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
-    public spline: BSpline_R1_to_R2
-    private _target: BSpline_R1_to_R2
-    readonly Dsu: BernsteinDecomposition_R1_to_R1[]
-    readonly Dsuu: BernsteinDecomposition_R1_to_R1[]
-    readonly Dsuuu: BernsteinDecomposition_R1_to_R1[]
+    public spline: BSplineR1toR2
+    private _target: BSplineR1toR2
+    readonly Dsu: BernsteinDecompositionR1toR1[]
+    readonly Dsuu: BernsteinDecompositionR1toR1[]
+    readonly Dsuuu: BernsteinDecompositionR1toR1[]
 
 
     //private curvatureExtremaConstraintsSign: number[] = []
@@ -89,16 +87,16 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
     //private _hessian_f: SymmetricMatrix[] | undefined = undefined
     protected _hessian_f: SymmetricMatrix[] | undefined = undefined
     readonly isComputingHessian: boolean = false
-    private Dh5xx: BernsteinDecomposition_R1_to_R1[][] = []
-    private Dh6_7xy: BernsteinDecomposition_R1_to_R1[][] = []
-    private Dh8_9xx: BernsteinDecomposition_R1_to_R1[][] = []
-    private Dh10_11xy: BernsteinDecomposition_R1_to_R1[][] = []
+    private Dh5xx: BernsteinDecompositionR1toR1[][] = []
+    private Dh6_7xy: BernsteinDecompositionR1toR1[][] = []
+    private Dh8_9xx: BernsteinDecompositionR1toR1[][] = []
+    private Dh10_11xy: BernsteinDecompositionR1toR1[][] = []
 
     //public activeControl: ActiveControl = ActiveControl.both
 
 
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
         this.spline = initial.clone()
         this._target = target.clone()
         const n = this.spline.controlPoints.length
@@ -109,13 +107,19 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         this.Dsuuu = []
         for (let i = 0; i < n; i += 1) {
             diracControlPoints[i] = 1
-            let s = new BSpline_R1_to_R1(diracControlPoints.slice(), this.spline.knots.slice())
+            let s = new BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice())
             let su = s.derivative()
             let suu = su.derivative()
             let suuu = suu.derivative()
-            this.Dsu.push(new BernsteinDecomposition_R1_to_R1(su.bernsteinDecomposition()))
-            this.Dsuu.push(new BernsteinDecomposition_R1_to_R1(suu.bernsteinDecomposition()))
-            this.Dsuuu.push(new BernsteinDecomposition_R1_to_R1(suuu.bernsteinDecomposition()))
+            const suBDecomp = su.bernsteinDecomposition()
+            const suuBDecomp = suu.bernsteinDecomposition()
+            const suuuBDecomp = suuu.bernsteinDecomposition()
+            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
+            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
+            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
+            this.Dsu.push(suBDecomp)
+            this.Dsuu.push(suuBDecomp)
+            this.Dsuuu.push(suuuBDecomp)
             diracControlPoints[i] = 0
         }
 
@@ -154,7 +158,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
 
 
 
-    set targetSpline(spline: BSpline_R1_to_R2) {
+    set targetSpline(spline: BSplineR1toR2) {
         this._target = spline
     }
 
@@ -335,7 +339,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return result
     }
 
-    compute_gradient_f0(spline: BSpline_R1_to_R2) {
+    compute_gradient_f0(spline: BSplineR1toR2) {
         let result: number[] = []
         const n =  spline.controlPoints.length;
         for (let i = 0; i < n; i += 1) {
@@ -357,14 +361,14 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return 0.5 * result;
     }
 
-    curvatureNumerator(h4: BernsteinDecomposition_R1_to_R1) {
+    curvatureNumerator(h4: BernsteinDecompositionR1toR1) {
         return h4.flattenControlPointsArray()
     }
 
-    curvatureDerivativeNumerator(h1: BernsteinDecomposition_R1_to_R1, 
-                h2: BernsteinDecomposition_R1_to_R1, 
-                h3: BernsteinDecomposition_R1_to_R1, 
-                h4: BernsteinDecomposition_R1_to_R1) {
+    curvatureDerivativeNumerator(h1: BernsteinDecompositionR1toR1, 
+                h2: BernsteinDecompositionR1toR1, 
+                h3: BernsteinDecompositionR1toR1, 
+                h4: BernsteinDecompositionR1toR1) {
         const g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3))
         let result = g.flattenControlPointsArray()
         return result
@@ -425,21 +429,27 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
        
     }
 
-    expensiveComputation(spline: BSpline_R1_to_R2) {
-        const sx = new BSpline_R1_to_R1(spline.getControlPointsX(), spline.knots),
-        sy = new BSpline_R1_to_R1(spline.getControlPointsY(), spline.knots),
+    expensiveComputation(spline: BSplineR1toR2) {
+        const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots),
+        sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots),
         sxu = sx.derivative(),
         syu = sy.derivative(),
         sxuu = sxu.derivative(),
         syuu = syu.derivative(),
         sxuuu = sxuu.derivative(),
         syuuu = syuu.derivative(),
-        bdsxu = new BernsteinDecomposition_R1_to_R1(sxu.bernsteinDecomposition()),
-        bdsyu = new BernsteinDecomposition_R1_to_R1(syu.bernsteinDecomposition()),
-        bdsxuu = new BernsteinDecomposition_R1_to_R1(sxuu.bernsteinDecomposition()),
-        bdsyuu = new BernsteinDecomposition_R1_to_R1(syuu.bernsteinDecomposition()),
-        bdsxuuu = new BernsteinDecomposition_R1_to_R1(sxuuu.bernsteinDecomposition()),
-        bdsyuuu = new BernsteinDecomposition_R1_to_R1(syuuu.bernsteinDecomposition()),
+        bdsxu = sxu.bernsteinDecomposition(),
+        bdsyu = syu.bernsteinDecomposition(),
+        bdsxuu = sxuu.bernsteinDecomposition(),
+        bdsyuu = syuu.bernsteinDecomposition(),
+        bdsxuuu = sxuuu.bernsteinDecomposition(),
+        bdsyuuu = syuuu.bernsteinDecomposition(),
+        // bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition()),
+        // bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition()),
+        // bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition()),
+        // bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition()),
+        // bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition()),
+        // bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition()),
         h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu)),
         h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu)),
         h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu)),
@@ -448,16 +458,16 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
        return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4)
     }
 
-    gradient_curvatureDerivativeNumerator( sxu: BernsteinDecomposition_R1_to_R1, 
-                syu: BernsteinDecomposition_R1_to_R1, 
-                sxuu: BernsteinDecomposition_R1_to_R1, 
-                syuu: BernsteinDecomposition_R1_to_R1, 
-                sxuuu: BernsteinDecomposition_R1_to_R1, 
-                syuuu: BernsteinDecomposition_R1_to_R1, 
-                h1: BernsteinDecomposition_R1_to_R1, 
-                h2: BernsteinDecomposition_R1_to_R1, 
-                h3: BernsteinDecomposition_R1_to_R1, 
-                h4: BernsteinDecomposition_R1_to_R1) {
+    gradient_curvatureDerivativeNumerator( sxu: BernsteinDecompositionR1toR1, 
+                syu: BernsteinDecompositionR1toR1, 
+                sxuu: BernsteinDecompositionR1toR1, 
+                syuu: BernsteinDecompositionR1toR1, 
+                sxuuu: BernsteinDecompositionR1toR1, 
+                syuuu: BernsteinDecompositionR1toR1, 
+                h1: BernsteinDecompositionR1toR1, 
+                h2: BernsteinDecompositionR1toR1, 
+                h3: BernsteinDecompositionR1toR1, 
+                h4: BernsteinDecompositionR1toR1) {
 
         let dgx = []
         let dgy = []
@@ -697,16 +707,16 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
 
     }
 
-    compute_hessian_f( sxu: BernsteinDecomposition_R1_to_R1, 
-        syu: BernsteinDecomposition_R1_to_R1, 
-        sxuu: BernsteinDecomposition_R1_to_R1, 
-        syuu: BernsteinDecomposition_R1_to_R1, 
-        sxuuu: BernsteinDecomposition_R1_to_R1, 
-        syuuu: BernsteinDecomposition_R1_to_R1, 
-        h1: BernsteinDecomposition_R1_to_R1, 
-        h2: BernsteinDecomposition_R1_to_R1, 
-        h3: BernsteinDecomposition_R1_to_R1, 
-        h4: BernsteinDecomposition_R1_to_R1,
+    compute_hessian_f( sxu: BernsteinDecompositionR1toR1, 
+        syu: BernsteinDecompositionR1toR1, 
+        sxuu: BernsteinDecompositionR1toR1, 
+        syuu: BernsteinDecompositionR1toR1, 
+        sxuuu: BernsteinDecompositionR1toR1, 
+        syuuu: BernsteinDecompositionR1toR1, 
+        h1: BernsteinDecompositionR1toR1, 
+        h2: BernsteinDecompositionR1toR1, 
+        h3: BernsteinDecompositionR1toR1, 
+        h4: BernsteinDecompositionR1toR1,
         constraintsSign: number[], 
         inactiveConstraints: number[]) {
 
@@ -714,20 +724,20 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         const n = this.spline.controlPoints.length
         let result: SymmetricMatrix[] = []
         
-        let h5x: BernsteinDecomposition_R1_to_R1[] = []
-        let h5y: BernsteinDecomposition_R1_to_R1[] = []         
-        let h6x: BernsteinDecomposition_R1_to_R1[] = []
-        let h6y: BernsteinDecomposition_R1_to_R1[] = []
-        let h7x: BernsteinDecomposition_R1_to_R1[] = []
-        let h7y: BernsteinDecomposition_R1_to_R1[] = []        
-        let h8x: BernsteinDecomposition_R1_to_R1[] = []
-        let h8y: BernsteinDecomposition_R1_to_R1[] = []
-        let h9x: BernsteinDecomposition_R1_to_R1[] = []
-        let h9y: BernsteinDecomposition_R1_to_R1[] = []
-        let h10x: BernsteinDecomposition_R1_to_R1[] = []
-        let h10y: BernsteinDecomposition_R1_to_R1[] = []        
-        let h11x: BernsteinDecomposition_R1_to_R1[] = []
-        let h11y: BernsteinDecomposition_R1_to_R1[] = []
+        let h5x: BernsteinDecompositionR1toR1[] = []
+        let h5y: BernsteinDecompositionR1toR1[] = []         
+        let h6x: BernsteinDecompositionR1toR1[] = []
+        let h6y: BernsteinDecompositionR1toR1[] = []
+        let h7x: BernsteinDecompositionR1toR1[] = []
+        let h7y: BernsteinDecompositionR1toR1[] = []        
+        let h8x: BernsteinDecompositionR1toR1[] = []
+        let h8y: BernsteinDecompositionR1toR1[] = []
+        let h9x: BernsteinDecompositionR1toR1[] = []
+        let h9y: BernsteinDecompositionR1toR1[] = []
+        let h10x: BernsteinDecompositionR1toR1[] = []
+        let h10y: BernsteinDecompositionR1toR1[] = []        
+        let h11x: BernsteinDecompositionR1toR1[] = []
+        let h11y: BernsteinDecompositionR1toR1[] = []
 
         let hessian_gxx: number[][][] = []
         let hessian_gyy: number[][][] = []
@@ -836,7 +846,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return result;
     }
     
-    prepareForHessianComputation(Dsu: BernsteinDecomposition_R1_to_R1[], Dsuu: BernsteinDecomposition_R1_to_R1[], Dsuuu: BernsteinDecomposition_R1_to_R1[]) {
+    prepareForHessianComputation(Dsu: BernsteinDecompositionR1toR1[], Dsuu: BernsteinDecompositionR1toR1[], Dsuuu: BernsteinDecompositionR1toR1[]) {
         const n = this.spline.controlPoints.length
 
         for (let i = 0; i < n; i += 1){
@@ -894,7 +904,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return this.compute_f0(this.compute_gradient_f0(splineTemp))
     }
 
-    setTargetSpline(spline: BSpline_R1_to_R2) {
+    setTargetSpline(spline: BSplineR1toR2) {
         this._target = spline.clone()
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this.gradient_f0)
@@ -908,7 +918,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends 
 
     public weigthingFactors: number[] = []
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2,  public activeControl: ActiveControl = ActiveControl.both) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2,  public activeControl: ActiveControl = ActiveControl.both) {
         super(target, initial, activeControl)
         for (let i = 0; i < this.spline.controlPoints.length * 2; i += 1) {
             this.weigthingFactors.push(1)
@@ -967,7 +977,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends 
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
         super(target, initial, activeControl)
     }
     
@@ -980,7 +990,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inact
 export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
 
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2) {
         super(target, initial)
     }
 
@@ -992,7 +1002,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extend
 /* JCL 2020/10/06 derive a class to process cubics with specific desactivation constraint process at discontinuities of B(u) */
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both) {
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
         super(target, initial, activeControl)
     }
 
@@ -1013,7 +1023,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicate
         }
         //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
         /* JCL 2020/10/02 modification as alternative to sliding mechanism */
-        if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+        if(this.spline.degree === 3 && controlPoints.length === (this.spline.getDistinctKnots().length - 1)*7){
             let n = Math.trunc(controlPoints.length/7);
             console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
             for(let j = 1; j < n ; j += 1) {
@@ -1060,7 +1070,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     public currentCurvatureExtremaControPoints: number[]
     public updateConstraintBound: boolean
 
-    constructor(target: BSpline_R1_to_R2, initial: BSpline_R1_to_R2, public activeControl: ActiveControl = ActiveControl.both, neighboringEvent?: NeighboringEvents,
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both, neighboringEvent?: NeighboringEvents,
         shapeSpaceBoundaryConstraintsCurvExtrema?: number[]) {
         super(target, initial, activeControl)
 
@@ -1350,7 +1360,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
         //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
         /* JCL 2020/10/02 modification as alternative to sliding mechanism */
-        if(this.spline.degree === 3 && controlPoints.length === (this.spline.distinctKnots().length - 1)*7){
+        if(this.spline.degree === 3 && controlPoints.length === (this.spline.getDistinctKnots().length - 1)*7){
             let n = Math.trunc(controlPoints.length/7);
             console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length)
             for(let j = 1; j < n ; j += 1) {
@@ -1416,7 +1426,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                     }
                 }
 
-                const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+                const splineDPoptim = new BSplineR1toR2DifferentialProperties(this.spline)
                 const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
                 const curvatureExtremaLocationsOptim = functionBOptim.zeros()
                 for(let i = 0; i < intermediateKnots.length; i += 1) {
@@ -1955,13 +1965,13 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         let inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints
 
         if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
-            const splineDP = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+            const splineDP = new BSplineR1toR2DifferentialProperties(this.spline)
             const functionB = splineDP.curvatureDerivativeNumerator()
             const curvatureExtremaLocations = functionB.zeros()
             const splineCurrent = this.spline.clone()
 
             this.spline.optimizerStep(deltaX)
-            const splineDPupdated = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+            const splineDPupdated = new BSplineR1toR2DifferentialProperties(this.spline)
             const functionBupdated = splineDPupdated.curvatureDerivativeNumerator()
             const curvatureExtremaLocationsUpdated = functionBupdated.zeros()
             if(curvatureExtremaLocationsUpdated.length !== curvatureExtremaLocations.length) {

@@ -13,8 +13,7 @@
  */
 
 import { CurveModeler } from "../curveModeler/CurveModeler";
-import { CurveModels2D } from "../models/CurveModels2D";
-import {  ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveCategory } from "../curveModeler/CurveCategory";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";

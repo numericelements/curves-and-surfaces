@@ -1,8 +1,10 @@
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveConstraintClampedFirstControlPoint } from "./CurveConstraintStrategy";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
 export enum ConstraintType {none, location, tangent, locationAndTangent}
 
@@ -14,7 +16,7 @@ export class CurveConstraints {
     private _lastControlPoint: ConstraintType;
     private _curveConstraintProcessor: CurveConstraintProcessor;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private _optimizedCurve: BSpline_R1_to_R2;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator, curveConstraintProcessor?: CurveConstraintProcessor) {
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
@@ -38,7 +40,7 @@ export class CurveConstraints {
         this._lastControlPoint = constraintAtLastPoint;
     }
 
-    set optimizedCurve(curve: BSpline_R1_to_R2) {
+    set optimizedCurve(curve: BSplineR1toR2Interface) {
         this._optimizedCurve = curve;
     }
 
@@ -58,7 +60,7 @@ export class CurveConstraints {
         return this._curveShapeSpaceNavigator;
     }
 
-    get optimizedCurve(): BSpline_R1_to_R2 {
+    get optimizedCurve(): BSplineR1toR2Interface {
         return this._optimizedCurve;
     }
 
@@ -70,7 +72,12 @@ export class CurveConstraints {
 
     processConstraint(): void {
         this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
-        this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
+        if(this._optimizedCurve instanceof BSplineR1toR2) {
+            this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
+        } else if(this._optimizedCurve instanceof PeriodicBSplineR1toR2) {
+            console.log("periodic Bspline to be processed")
+        }
+        
     }
 
     updateCurve(): void {

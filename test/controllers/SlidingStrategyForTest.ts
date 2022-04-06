@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { SlidingStrategyForTest, DiffEventType,
     NeighboringEvents, intervalsCurvatureExt, NeighboringEventsType } from "../../src/controllers/SlidingStrategyForTest";
-import { CurveModel } from "../../src/models/CurveModel";
+import { CurveModel } from "../../src/newModels/CurveModel";
 
 describe('SlidingStrategy, indexIntervalMaximalVariation', () => {
 

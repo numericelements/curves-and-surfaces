@@ -1,6 +1,6 @@
 import { BSplineR1toR2, create_BSplineR1toR2, create_BSplineR1toR2V2d } from "../newBsplines/BSplineR1toR2";
 import { CurveSceneController } from "../controllers/CurveSceneController";
-import { IObservable, IObserver } from "../designPatterns/Observer";
+import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { CurveModel } from "../newModels/CurveModel";

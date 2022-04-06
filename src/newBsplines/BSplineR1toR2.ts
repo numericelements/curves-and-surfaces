@@ -3,6 +3,8 @@ import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
+import { ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -244,6 +246,29 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     // }
 
 
+    relocateAfterOptimization(step: Array<Vector2d>, activeLocationControl: ActiveLocationControl) {
+        if(activeLocationControl !== ActiveLocationControl.stopDeforming) {
+            let index = 0
+            // if(activeLocationControl === ActiveLocationControl.firstControlPoint || activeLocationControl === ActiveLocationControl.both)
+            // index = 0 covers the other configurations
+            if(activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                index = this.controlPoints.length - 1
+            }
+
+            for (let ctrlPt of this.controlPoints) {
+                ctrlPt.x -= step[index].x;
+                ctrlPt.y -= step[index].y;
+            }
+            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
+        } else {
+            for (let i = 0; i < this.controlPoints.length; i += 1) {
+                this.controlPoints[i].x -= step[i].x;
+                this.controlPoints[i].y -= step[i].y;
+            }
+            /*console.log("relocAfterOptim: relocate all ") */
+        }
+
+    }
 
 
 }
@@ -259,5 +284,9 @@ export function create_BSplineR1toR2(controlPoints: number[][], knots: number[])
 
 export function create_BSplineR1toR2V2d(controlPoints: Array<Vector2d>, knots: number[]): BSplineR1toR2 {
     return new BSplineR1toR2(controlPoints, knots);
+}
+
+export function convertToBsplR1_to_R2(spline: BSplineR1toR2): BSpline_R1_to_R2 {
+    return new BSpline_R1_to_R2(spline.controlPoints, spline.knots);
 }
 

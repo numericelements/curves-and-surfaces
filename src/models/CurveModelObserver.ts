@@ -1,6 +1,6 @@
-import { IObserver } from "../designPatterns/Observer";
+import { IObserver } from "../newDesignPatterns/Observer";
 import { ChartEventListener, CurveModelerEventListener, ShapeSpaceNavigationEventListener } from "../userInterfaceController/UserInterfaceEventListener";
-import { CurveModel } from "./CurveModel";
+import { CurveModel } from "../newModels/CurveModel";
 
 abstract class CurveModelObserver implements IObserver<CurveModel> {
 

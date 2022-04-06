@@ -1,8 +1,8 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
-import { CurveModel } from "../models/CurveModel";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { CurveModel } from "../newModels/CurveModel";
+import { Vector2d } from "../mathVector/Vector2d";
 import { CurveSceneController } from "./CurveSceneController"
 import { ActiveLocationControl } from "../curveModeler/CurveModeler";
 
@@ -112,14 +112,14 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
         if (this.activeOptimizer === false) return
         
         const p = this.curveModel.spline.controlPoints[selectedControlPoint]
-        this.curveModel.setControlPoint(selectedControlPoint, ndcX, ndcY)
+        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
 
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
             /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
             /*console.log("optimize : " + this.curveSceneController.activeLocationControl)*/
-            let delta: Vector_2d[] = []
+            let delta: Vector2d[] = []
             for(let i = 0; i < this.curveModel.spline.controlPoints.length; i += 1) {
                 let inc = this.optimizationProblem.spline.controlPoints[i].substract(this.curveModel.spline.controlPoints[i])
                 delta.push(inc)
@@ -145,7 +145,7 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
             this.curveModel.setSpline(this.optimizationProblem.spline.clone())
            }
            catch(e) {
-            this.curveModel.setControlPoint(selectedControlPoint, p.x, p.y)
+            this.curveModel.setControlPointPosition(selectedControlPoint, p.x, p.y)
             console.log(e)
            }
 
