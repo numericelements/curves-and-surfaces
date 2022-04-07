@@ -1,4 +1,3 @@
-import { BSplineR1toR3 } from "../bsplines/BSplineR1toR3";
 import { CurveModel3d } from "../models/CurveModel3d";
 import { fromEuler, multiply_quats } from "../webgl/quat";
 import { ControlPoints3dView } from "./ControlPoints3dView";
@@ -10,7 +9,6 @@ import { Curve3dView } from "./Curve3dView";
 import { Curve3dShadowView } from "./Curve3dShadowView";
 import { Object3dShadowShaders } from "./Object3dShadowShaders";
 import { CurveScene3dController } from "../controllers/CurveScene3dController";
-import { linePlaneIntersection } from "../mathVector/Vector3d";
 import { TorsionZerosView } from "./TorsionZerosView";
 import { CurvatureExtrema3dView } from "./CurvatureExtrema3dView";
 
@@ -53,6 +51,7 @@ export class CurveScene3dView {
         this.curve3dShadowView = new Curve3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false)
         this.torsionZerosView = new TorsionZerosView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
         this.curvatureExtrema3dView = new CurvatureExtrema3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
+
 
 
         this.curve3dModel.registerObserver(this.controlPoints3dView)
@@ -143,6 +142,14 @@ export class CurveScene3dView {
         const x = ((event.clientX - rect.left) - w / 2) / (w / 2) 
         const y = (h / 2 - (event.clientY - rect.top)) / (h / 2)
         return {x: x, y: y}
+    }
+
+    toggleControlOfCurvatureExtrema() {
+        this.curve3dModel.toggleActiveControlOfCurvatureExtrema()
+    }
+
+    toggleControlOfTorsionZeros() {
+        this.curve3dModel.toggleActiveControlOfTorsionZeros()
     }
 
 

@@ -37,6 +37,7 @@ export class BSplineR1toR3 extends AbstractBSplineR1toR3 {
         for (let i = 0; i < this._controlPoints.length; i += 1) {
             this._controlPoints[i].x += step[i]
             this._controlPoints[i].y += step[i + this._controlPoints.length]
+            this._controlPoints[i].z += step[i + 2 * this._controlPoints.length]
         }
     }
 

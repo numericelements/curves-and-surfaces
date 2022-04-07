@@ -67,12 +67,28 @@ export function wireEventListener(canvas: HTMLCanvasElement, curveSceneView: Cur
         ev.preventDefault()
     }
 
+    function keyDown(ev: KeyboardEvent) {
+        switch (ev.key) {
+            case "ArrowUp":
+                curveSceneView.upArrow_event()
+                curveSceneView.renderFrame()
+                ev.preventDefault()
+                break;
+            case "ArrowDown":
+                curveSceneView.downArrow_event()
+                curveSceneView.renderFrame()
+                ev.preventDefault()
+                break;
+        }
+    }
+
     canvas.addEventListener('mousedown', mouse_click, false)
     canvas.addEventListener('mousemove', mouse_drag, false)
     canvas.addEventListener('mouseup', mouse_stop_drag, false)
     canvas.addEventListener('touchstart', touch_click, false)
     canvas.addEventListener('touchmove', touch_drag, false)
     canvas.addEventListener('touchend', touch_stop_drag, false)
+    window.addEventListener('keydown', keyDown, false)
 
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {

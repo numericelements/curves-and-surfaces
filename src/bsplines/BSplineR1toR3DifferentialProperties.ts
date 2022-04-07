@@ -21,9 +21,6 @@ export class BSplineR1toR3DifferentialProperties {
 
     bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1Interface {
         return new BSplineR1toR1(controlPoints, knots)
-
-        
-
     }
 
 
@@ -69,6 +66,16 @@ export class BSplineR1toR3DifferentialProperties {
 
     }
 
+    curvatureSquaredNumerator() {
+        const s = this.derivatives
+        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu))
+        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu))
+        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu))
+        const result = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3)))
+        const distinctKnots = this._spline.getDistinctKnots()
+        return result.splineRecomposition(distinctKnots)
+    }
+
     curvatureSquaredDerivativeNumerator() {
         const s = this.derivatives
         const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu))
@@ -89,11 +96,11 @@ export class BSplineR1toR3DifferentialProperties {
     }
 
     curvatureDerivativeZeros() {
-        const curvatureDerivativeZeros = this.curvatureSquaredDerivativeNumerator()
-        const zeros = curvatureDerivativeZeros.zeros()
+        const curvatureDerivative = this.curvatureSquaredDerivativeNumerator()
+        const zeros = curvatureDerivative.zeros()
         let result = []
         for (let z of zeros) {
-            result.push(this._spline.evaluate(z) as Vector3d)
+            result.push(this._spline.evaluate(z))
         }
         return result
 
@@ -104,9 +111,25 @@ export class BSplineR1toR3DifferentialProperties {
         const zeros = torsionNumerator.zeros()
         let result = []
         for (let z of zeros) {
-            result.push(this._spline.evaluate(z) as Vector3d)
+            result.push(this._spline.evaluate(z))
         }
         return result
     }
 
+}
+
+
+export interface Derivatives {
+    x: BernsteinDecompositionR1toR1
+    y: BernsteinDecompositionR1toR1
+    z: BernsteinDecompositionR1toR1
+    xu: BernsteinDecompositionR1toR1
+    yu: BernsteinDecompositionR1toR1
+    zu: BernsteinDecompositionR1toR1
+    xuu: BernsteinDecompositionR1toR1
+    yuu: BernsteinDecompositionR1toR1
+    zuu: BernsteinDecompositionR1toR1
+    xuuu: BernsteinDecompositionR1toR1
+    yuuu: BernsteinDecompositionR1toR1
+    zuuu: BernsteinDecompositionR1toR1
 }

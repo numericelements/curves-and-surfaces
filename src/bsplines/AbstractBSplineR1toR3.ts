@@ -2,12 +2,14 @@ import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS
 import { BSplineR1toRxInterface } from "./BSplineR1toRxInterface"
 import { Vector3d } from "../mathVector/Vector3d"
 import { VectorInterface } from "../mathVector/VectorInterface"
+import { BSplineR1toR3Interface } from "./BSplineR1toR3Interface"
 
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
-export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Vector3d> {
+//export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Vector3d> {
+export abstract class AbstractBSplineR1toR3 implements BSplineR1toR3Interface {
 
     protected _controlPoints: Vector3d[]
     protected _knots: number[]
@@ -68,7 +70,7 @@ export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Ve
      * @param u The parameter
      * @returns the value of the B-Spline at u
      */
-    evaluate(u: number) : VectorInterface {
+    evaluate(u: number) : Vector3d {
         const span = findSpan(u, this._knots, this._degree)
         const basis = basisFunctions(span, u, this._knots, this._degree)
         let result = new Vector3d(0, 0, 0)

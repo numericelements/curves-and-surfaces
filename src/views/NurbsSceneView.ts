@@ -9,16 +9,14 @@ import { CurveView } from "../views/CurveView"
 import { CurvatureExtremaShaders } from "./CurvatureExtremaShaders"
 import { CurvatureExtremaView } from "./CurvatureExtremaView"
 import { InflectionsView } from "../views/InflectionsView"
-import { CurveModel } from "../models/CurveModel"
-import { CurveModelHessian } from "../models/CurveModelHessian"
+//import { CurveModel } from "../models/CurveModel"
 import { ClosedCurveModel } from "../models/ClosedCurveModel"
 import { CurveModelAlternative01 } from "../models/CurveModelAlternative01"
 import { ClosedCurveModelAlternative01 } from "../models/ClosedCurveModelAlternative01"
-import { ClosedCurveModelHessian } from "../models/ClosedCurveModelHessian"
-import { ClosedCurveModelQuasiNewton } from "../models/ClosedCurveModelQuasiNewton"
-import { CurveModelQuasiNewton } from "../models/CurveModelQuasiNewton"
+import { NurbsModel2d } from "../models/NurbsModel2d"
+import { Nurbs2dSceneController } from "../controllers/Nurbs2dSceneController"
 
-export class CurveSceneView {
+export class NurbsSceneView {
 
     private selectedControlPoint: number | null = null
     private dragging: boolean = false
@@ -28,29 +26,29 @@ export class CurveSceneView {
     private controlPointsView: ControlPointsView
     private controlPolygonShaders: ControlPolygonShaders
     private controlPolygonView: ControlPolygonView
-    private curveSceneControler: CurveSceneController
+    private curveSceneControler: Nurbs2dSceneController
     private curvatureExtremaShaders: CurvatureExtremaShaders
     private curvatureExtremaView: CurvatureExtremaView
     private inflectionsView: InflectionsView
 
 
-    constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveModel: CurveModelInterface ) {
+    constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext, private curveModel: NurbsModel2d ) {
         this.curveShaders = new CurveShaders(this.gl)
-        this.curveView = new CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1)
+        this.curveView = new CurveView(this.curveModel.getSplineAdapter(), this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1)
         this.controlPointsShaders = new ControlPointsShaders(this.gl)
-        this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1)
+        this.controlPointsView = new ControlPointsView(this.curveModel.getSplineAdapter(), this.controlPointsShaders, 1, 1, 1)
         this.controlPolygonShaders = new ControlPolygonShaders(this.gl)
-        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, this.curveModel.isClosed, 216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05)
+        this.controlPolygonView = new ControlPolygonView(this.curveModel.getSplineAdapter(), this.controlPolygonShaders, this.curveModel.isClosed, 216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05)
         this.curvatureExtremaShaders = new CurvatureExtremaShaders(this.gl)
-        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1)
-        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1)
+        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.getSplineAdapter(), this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1)
+        this.inflectionsView = new InflectionsView(this.curveModel.getSplineAdapter(), this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1)
 
         this.curveModel.registerObserver(this.controlPointsView, "control points")
         this.curveModel.registerObserver(this.controlPolygonView, "control points")
         this.curveModel.registerObserver(this.curveView, "curve")
         this.curveModel.registerObserver(this.curvatureExtremaView, "curve")
         this.curveModel.registerObserver(this.inflectionsView, "curve")
-        this.curveSceneControler = new CurveSceneController(curveModel)
+        this.curveSceneControler = new Nurbs2dSceneController(curveModel)
         this.renderFrame()
 
     }
@@ -120,9 +118,10 @@ export class CurveSceneView {
     selectCurveCategory(s: string) {
        switch(s) {
             case "0":
-                this.updateCurveModel(new CurveModel())
+                this.updateCurveModel(new NurbsModel2d())
                 //this.updateCurveModel(new CurveModelQuasiNewton())
                 break
+                /*
             case "1":
                 //this.updateCurveModel(new ClosedCurveModelQuasiNewton())
                 this.updateCurveModel(new ClosedCurveModel())
@@ -133,6 +132,7 @@ export class CurveSceneView {
             case "3":
                 this.updateCurveModel(new ClosedCurveModelAlternative01())
                 break
+                */
         }
         //let toggleButtonCurvatureExtrema = <HTMLInputElement> document.getElementById("toggleButtonCurvatureExtrema")
         //let toggleButtonInflection = <HTMLInputElement> document.getElementById("toggleButtonInflections")
@@ -140,14 +140,14 @@ export class CurveSceneView {
         //toggleButtonInflection.checked = true
     }
 
-    updateCurveModel(curveModel: CurveModelInterface) {
+    updateCurveModel(curveModel: NurbsModel2d) {
         this.curveModel = curveModel
         this.curveModel.registerObserver(this.controlPointsView, "control points")
         this.curveModel.registerObserver(this.controlPolygonView, "control points")
         this.curveModel.registerObserver(this.curveView, "curve")
         this.curveModel.registerObserver(this.curvatureExtremaView, "curve")
         this.curveModel.registerObserver(this.inflectionsView, "curve")
-        this.curveSceneControler = new CurveSceneController(curveModel)
+        this.curveSceneControler = new Nurbs2dSceneController(curveModel)
         this.controlPolygonView.isClosed = this.curveModel.isClosed
         this.curveModel.notifyObservers()
         this.renderFrame()

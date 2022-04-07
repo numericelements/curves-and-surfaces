@@ -1,27 +1,30 @@
 import { BSplineR1toR1 } from "../bsplines/BSplineR1toR1"
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix"
-import { AbstractOptimizationProblemBSplineR1toR2, ActiveControl, ExpensiveComputationResults } from "./AbstractOptimizationProblemBSplineR1toR2"
+import { ActiveControl } from "./AbstractOptimizationProblemBSplineR1toR2"
 import { zeroVector } from "../linearAlgebra/MathVectorBasicOperations"
-import { BernsteinDecompositionR1toR1 } from "../bsplines/BernsteinDecompositionR1toR1"
-import { RationalBSplineR1toR2Adapter } from "../bsplines/RationalBSplineR1toR2Adapter"
+import { BernsteinDecompositionR1toR1, determinant2by2 } from "../bsplines/BernsteinDecompositionR1toR1"
+import { AbstractOptimizationProblemRationalBSplineR1toR2 } from "./AbstractOptimizationProblemRationalBSplineR1toR2"
+import { ChenTerms, Derivatives } from "../bsplines/RationalBSplineR1toR2DifferentialProperties"
+import { RationalBSplineR1toR2 } from "../bsplines/RationalBSplineR1toR2"
 
 
 
-export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizationProblemBSplineR1toR2 {
+export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizationProblemRationalBSplineR1toR2 {
     
-    constructor(target: RationalBSplineR1toR2Adapter, initial: RationalBSplineR1toR2Adapter, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
+
+    constructor(target: RationalBSplineR1toR2, initial: RationalBSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
         super(target, initial, activeControl)  
     }
 
-    get spline(): RationalBSplineR1toR2Adapter {
-        return this._spline as RationalBSplineR1toR2Adapter
+    get spline(): RationalBSplineR1toR2 {
+        return this._spline
     }
 
     bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1 {
         return new BSplineR1toR1(controlPoints, knots)
     }
 
-    setTargetSpline(spline: RationalBSplineR1toR2Adapter) {
+    setTargetSpline(spline: RationalBSplineR1toR2) {
         this._target = spline.clone()
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this._gradient_f0)
@@ -31,7 +34,7 @@ export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizati
      * Some contraints are set inactive to allowed the point of inflection or curvature extrema 
      * to slide along the curve. 
      **/ 
-     computeInactiveConstraints(controlPoints: number[]) {  
+    computeInactiveConstraints(controlPoints: number[]) {  
         let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints)
         return this.extractControlPointsClosestToZero(controlPointsSequences)
     }
@@ -80,73 +83,100 @@ export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizati
         return result
     }
 
-    compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
+    compute_curvatureExtremaConstraints_gradient( s: Derivatives, ct: ChenTerms,
             constraintsSign: number[], 
-            inactiveConstraints: number[]) {
-    
-            const sxu = e.bdsxu
-            const sxuu = e.bdsxuu
-            const sxuuu = e.bdsxuuu
-            const syu = e.bdsyu
-            const syuu = e.bdsyuu
-            const syuuu = e.bdsyuuu
-            const h1 = e.h1
-            const h2 = e.h2
-            const h3 = e.h3
-            const h4 = e.h4
-    
+            inactiveConstraints: number[]) {    
     
             let dgx: BernsteinDecompositionR1toR1[] = []
             let dgy: BernsteinDecompositionR1toR1[] = []
+            let dgw: BernsteinDecompositionR1toR1[] = []
+
             const controlPointsLength = this.spline.controlPoints.length
             const totalNumberOfConstraints = constraintsSign.length
             const degree = this.spline.degree
+
+            const D1xD3 = determinant2by2(ct.D1x, ct.D1y, ct.D3x, ct.D3y)
+            const D1xD21 = determinant2by2(ct.D1x, ct.D1y, ct.D21x, ct.D21y)
+            const D1xD2 = determinant2by2(ct.D1x, ct.D1y, ct.D2x, ct.D2y)
+            const D1dotD1 = ct.D1x.multiply(ct.D1x).add(ct.D1y.multiply(ct.D1y))
+            const D1dotD2 = ct.D1x.multiply(ct.D2x).add(ct.D1y.multiply(ct.D2y))
     
     
             for (let i = 0; i < controlPointsLength; i += 1) {
                 let start = Math.max(0, i - degree)
                 let lessThan = Math.min(controlPointsLength - degree, i + 1)
-                let h1_subset = h1.subset(start, lessThan)
-                let h2_subset = h2.subset(start, lessThan)
-                let h3_subset = h3.subset(start, lessThan)
-                let h4_subset = h4.subset(start, lessThan)
-                let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
-                let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
-                let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
-                let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
-                let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-                let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-                let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-                dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+                let dD1 = this.dBasisFunctions_du[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wu, start, lessThan))
+                let dD2 = this.d2BasisFunctions_du2[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuu, start, lessThan))
+                let dD3 = this.d3BasisFunctions_du3[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuuu, start, lessThan))
+                let dD21 = this.d2BasisFunctions_du2[i].multiplyRange(s.wu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.wuu, start, lessThan))
+                let dD1xD3 = dD1.multiplyRange2(ct.D3y, start, lessThan).subtract(dD3.multiplyRange2(ct.D1y, start, lessThan))
+                let dD1xD21 = dD1.multiplyRange2(ct.D21y, start, lessThan).subtract(dD21.multiplyRange2(ct.D1y, start, lessThan))
+                let dD1xD2 = dD1.multiplyRange2(ct.D2y, start, lessThan).subtract(dD2.multiplyRange2(ct.D1y, start, lessThan))
+                let dD1dotD1 = dD1.multiplyRange2(ct.D1x, start, lessThan).multiplyByScalar(2)
+                let dD1dotD2 = dD1.multiplyRange2(ct.D2x, start, lessThan).add(dD2.multiplyRange2(ct.D1x, start, lessThan))
+
+                let t1a = dD1xD3.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan)
+                let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan).multiplyRange2(s.w, start, lessThan)
+                let t1 = t1a.add(t1b)
+                let t2a = dD1xD21.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan)
+                let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan).multiplyRange2(s.w, start, lessThan)
+                let t2 = t2a.add(t2b)
+                let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2)
+                let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2)
+                let t3 = t3a.add(t3b)
+                let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3)
+                let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3)
+                let t4 = t4a.add(t4b)
+                dgx.push(t1.add(t2).add(t3).add(t4))
             }
-    
+
             for (let i = 0; i < controlPointsLength; i += 1) {
                 let start = Math.max(0, i - degree)
                 let lessThan = Math.min(controlPointsLength - degree, i + 1)
-                let h1_subset = h1.subset(start, lessThan)
-                let h2_subset = h2.subset(start, lessThan)
-                let h3_subset = h3.subset(start, lessThan)
-                let h4_subset = h4.subset(start, lessThan)
-                let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
-                let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-                let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
-                let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-                let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-                let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-                let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-                dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+                let dD1 = this.dBasisFunctions_du[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wu, start, lessThan))
+                let dD2 = this.d2BasisFunctions_du2[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuu, start, lessThan))
+                let dD3 = this.d3BasisFunctions_du3[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuuu, start, lessThan))
+                let dD21 = this.d2BasisFunctions_du2[i].multiplyRange(s.wu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.wuu, start, lessThan))
+                let dD1xD3 = dD3.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D3x, start, lessThan))
+                let dD1xD21 = dD21.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D21x, start, lessThan))
+                let dD1xD2 = dD2.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D2x, start, lessThan))
+                let dD1dotD1 = dD1.multiplyRange2(ct.D1y, start, lessThan).multiplyByScalar(2)
+                let dD1dotD2 = dD1.multiplyRange2(ct.D2y, start, lessThan).add(dD2.multiplyRange2(ct.D1y, start, lessThan))
+                
+                let t1a = dD1xD3.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan)
+                let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan).multiplyRange2(s.w, start, lessThan)
+                let t1 = t1a.add(t1b)
+                let t2a = dD1xD21.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan)
+                let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan).multiplyRange2(s.w, start, lessThan)
+                let t2 = t2a.add(t2b)
+                let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2)
+                let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2)
+                let t3 = t3a.add(t3b)
+                let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3)
+                let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3)
+                let t4 = t4a.add(t4b)
+                dgy.push(t1.add(t2).add(t3).add(t4))
+            }
+
+            for (let i = 0; i < controlPointsLength; i += 1) {
+                let start = Math.max(0, i - degree)
+                let lessThan = Math.min(controlPointsLength - degree, i + 1)
+                let t1 = this.basisFunctions[i].multiplyRange(D1xD3, start, lessThan).multiplyRange2(D1dotD1, start, lessThan)
+                let t2 = this.basisFunctions[i].multiplyRange(D1xD21, start, lessThan).multiplyRange2(D1dotD1, start, lessThan)
+                let t3 = this.dBasisFunctions_du[i].multiplyRange(D1xD2, start, lessThan).multiplyRange2(D1dotD1, start, lessThan).multiplyByScalar(2)
+                let t4 = this.basisFunctions[i].multiplyRange(D1xD2, start, lessThan).multiplyRange2(D1dotD2, start, lessThan).multiplyByScalar(-3)
+                dgw.push(t1.add(t2).add(t3).add(t4))
             }
     
-    
-            let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
-    
-    
+            let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength)
+            
             for (let i = 0; i < controlPointsLength; i += 1) {
                 let cpx = dgx[i].flattenControlPointsArray();
                 let cpy = dgy[i].flattenControlPointsArray();
+                let cpw = dgw[i].flattenControlPointsArray();
     
-                let start = Math.max(0, i - degree) * (4 * degree - 5)
-                let lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5)
+                let start = Math.max(0, i - degree) * (9 * degree - 5)
+                let lessThan = Math.min(controlPointsLength - degree, i + 1) * (9 * degree - 5)
     
                 let deltaj = 0
                 for (let inactiveConstraint of inactiveConstraints) {
@@ -161,54 +191,68 @@ export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizati
                     } else {
                         result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j])
                         result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j])
+                        result.set(j - deltaj, 2 * controlPointsLength + i, cpw[j - start] * constraintsSign[j])
                     }
                 }
+                
             }
             return result
+            
         }
 
-    compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
+    compute_inflectionConstraints_gradient( s: Derivatives, constraintsSign: number[], 
         inactiveConstraints: number[]) {
-
-        const sxu = e.bdsxu
-        const sxuu = e.bdsxuu
-        const syu = e.bdsyu
-        const syuu = e.bdsyuu
-
 
         let dgx: BernsteinDecompositionR1toR1[] = []
         let dgy: BernsteinDecompositionR1toR1[] = []
+        let dgw: BernsteinDecompositionR1toR1[] = []
+
         const controlPointsLength = this.spline.controlPoints.length
         const degree = this.spline.degree
 
         for (let i = 0; i < controlPointsLength; i += 1) {
             let start = Math.max(0, i - degree)
             let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h10.add(h11)));
+            let t1 = (this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan))).multiplyRange2(s.w, start, lessThan)
+            let t2 = (this.basisFunctions[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.y, start, lessThan))).multiplyRange2(s.wu, start, lessThan)
+            let t3 = (this.dBasisFunctions_du[i].multiplyRange(s.y, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.yu, start, lessThan))).multiplyRange2(s.wuu, start, lessThan)
+            dgx.push(t1.subtract(t2).subtract(t3))
         }
 
         for (let i = 0; i < controlPointsLength; i += 1) {
             let start = Math.max(0, i - degree)
             let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push(h10.add(h11));
+            let t1 = (this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan))).multiplyRange2(s.w, start, lessThan)
+            let t2 = (this.d2BasisFunctions_du2[i].multiplyRange(s.x, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.xuu, start, lessThan))).multiplyRange2(s.wu, start, lessThan)
+            let t3 = (this.basisFunctions[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.x, start, lessThan))).multiplyRange2(s.wuu, start, lessThan)
+            dgy.push(t1.subtract(t2).subtract(t3))
+        }
+
+        const h1 = determinant2by2(s.xu, s.yu, s.xuu, s.yuu)
+        const h2 = determinant2by2(s.x, s.y, s.xuu, s.yuu)
+        const h3 = determinant2by2(s.xu, s.yu, s.x, s.y)
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1)
+            let t1 = this.basisFunctions[i].multiplyRange(h1, start, lessThan)
+            let t2 = this.dBasisFunctions_du[i].multiplyRange(h2, start, lessThan)
+            let t3 = this.d2BasisFunctions_du2[i].multiplyRange(h3, start, lessThan)
+            dgw.push(t1.subtract(t2).subtract(t3))
         }
 
         const totalNumberOfConstraints = this.inflectionConstraintsSign.length
 
-        let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
+        let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength)
 
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
+            const cpx = dgx[i].flattenControlPointsArray()
+            const cpy = dgy[i].flattenControlPointsArray()
+            const cpw = dgw[i].flattenControlPointsArray()
 
-            let start = Math.max(0, i - degree) * (2 * degree - 2)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2)
+            let start = Math.max(0, i - degree) * (3 * degree - 2)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (3 * degree - 2)
 
             let deltaj = 0
             for (let inactiveConstraint of inactiveConstraints) {
@@ -224,11 +268,12 @@ export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizati
                 } else {
                     result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j])
                     result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j])
+                    result.set(j - deltaj, 2 * controlPointsLength + i, cpw[j - start] * constraintsSign[j])
                 }
             }
         }
 
-        return result;
+        return result
 
 
     }
@@ -237,6 +282,7 @@ export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizati
         const n = this._spline.controlPoints.length
         this._numberOfIndependentVariables = n * 2
         let diracControlPoints = zeroVector(n)
+        this.basisFunctions = []
         this.dBasisFunctions_du = []
         this.d2BasisFunctions_du2 = []
         this.d3BasisFunctions_du3 = []
@@ -246,6 +292,7 @@ export class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizati
             let dBasisFunction_du = basisFunction.derivative()
             let d2BasisFunction_du2 = dBasisFunction_du.derivative()
             let d3BasisFunction_du3 = d2BasisFunction_du2.derivative()
+            this.basisFunctions.push(basisFunction.bernsteinDecomposition())
             this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition())
             this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition())
             this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition())

@@ -3,7 +3,6 @@ template.innerHTML = `
     <rounded-switch-inflections></rounded-switch-inflections>
     <rounded-switch-curvature-extrema></rounded-switch-curvature-extrema>
     <curve-category></curve-category>
-    <copyright-years></copyright-years>
 `
 
 //import { CopyrightYears } from "./CopyrightYears"

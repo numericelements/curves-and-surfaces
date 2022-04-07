@@ -84,7 +84,6 @@ export abstract class AbstractBSplineR1toR2DifferentialProperties {
             result.push(this._spline.evaluate(z))
         }
         return result
-
     }
 
     curvatureDerivativeNumerator() {

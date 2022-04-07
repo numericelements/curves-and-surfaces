@@ -14,6 +14,8 @@ export class Optimizer {
     constructor(protected o: OptimizationProblemInterface ) {
         if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor")
+            console.log(this.o.f)
+            console.log(this.o.gradient_f)
         }
     }
 

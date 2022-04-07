@@ -1,11 +1,20 @@
 import { BSplineR1toR3 } from "../bsplines/BSplineR1toR3";
+import { OptimizationProblemBSplineR1toR3 } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR3";
 import { IObservable, IObserver } from "../designPatterns/Observer";
 import { Vector3d } from "../mathVector/Vector3d";
+import { Optimizer } from "../optimizers/Optimizer";
+
+
+export enum ActiveControl {curvatureExtrema, torsionZeros, both}
 
 export class CurveModel3d implements IObservable<BSplineR1toR3> {
 
 
     public _spline: BSplineR1toR3
+    protected activeOptimizer: boolean = true
+    protected activeControl: ActiveControl = ActiveControl.both
+    protected optimizationProblem: OptimizationProblemBSplineR1toR3
+    protected optimizer: Optimizer | null = null
 
     
     private observers: IObserver<BSplineR1toR3>[] = []
@@ -17,6 +26,9 @@ export class CurveModel3d implements IObservable<BSplineR1toR3> {
         const cp3 = new Vector3d(0.15, 0.15, -0.05)
         const cp4 = new Vector3d(0.25, 0, 0.05)
         this._spline = new BSplineR1toR3([ cp0, cp1, cp2, cp3, cp4 ], [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 ])
+
+        this.optimizationProblem = new  OptimizationProblemBSplineR1toR3(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this.optimizer = new Optimizer(this.optimizationProblem)
     }
     registerObserver(observer: IObserver<BSplineR1toR3>): void {
         this.observers.push(observer)
@@ -43,11 +55,86 @@ export class CurveModel3d implements IObservable<BSplineR1toR3> {
     setControlPointPosition(controlPointIndex: number, x: number, y: number, z: number) {
         this._spline.setControlPointPosition(controlPointIndex, new Vector3d(x, y, z))
         this.notifyObservers()
-        /*
+        
         if (this.activeOptimizer) {
-            this.optimize(controlPointIndex, x, y)
+            this.optimize(controlPointIndex, x, y, z)
         }
-        */
     }
+
+    optimize(selectedControlPoint: number, x: number, y: number, z: number) {
+        if (this.optimizationProblem && this.optimizer) {
+            const p = this.optimizationProblem.spline.freeControlPoints[selectedControlPoint].clone()
+            this._spline.setControlPointPosition(selectedControlPoint, new Vector3d(x, y, z))
+            this.optimizationProblem.setTargetSpline(this._spline)
+            try {
+                this.optimizer.optimize_using_trust_region(10e-6, 1000, 800)
+                if (this.optimizer.success === true) {
+                    this.setSpline(this.optimizationProblem.spline.clone())
+                }
+            }
+            catch(e) {
+                this._spline.setControlPointPosition(selectedControlPoint, new Vector3d(p.x, p.y, p.z))
+                console.log(e)
+            }
+            
+        }
+    }
+
+    setSpline(spline: BSplineR1toR3) {
+        this._spline = spline
+        this.notifyObservers()
+    }
+
+
+        
+    toggleActiveControlOfCurvatureExtrema() {
+        
+        if (!this.activeOptimizer) {
+            this.activeOptimizer = true
+            this.activeControl = ActiveControl.curvatureExtrema
+        }
+        else if (this.activeControl == ActiveControl.both){
+            this.activeControl = ActiveControl.torsionZeros
+        }
+        else if (this.activeControl == ActiveControl.torsionZeros){
+            this.activeControl = ActiveControl.both
+        }
+        else if (this.activeControl == ActiveControl.curvatureExtrema){
+            this.activeOptimizer = false
+        }
+
+        if (this.activeOptimizer){
+            this.setActiveControl()
+        }
+    }
+
+    toggleActiveControlOfTorsionZeros() {
+        if (!this.activeOptimizer) {
+            this.activeOptimizer = true
+            this.activeControl = ActiveControl.torsionZeros
+        }
+        else if (this.activeControl == ActiveControl.both){
+            this.activeControl = ActiveControl.curvatureExtrema
+        }
+        else if (this.activeControl == ActiveControl.curvatureExtrema){
+            this.activeControl = ActiveControl.both
+        }
+        else if (this.activeControl == ActiveControl.torsionZeros){
+            this.activeOptimizer = false
+        }
+
+        if (this.activeOptimizer){
+            this.setActiveControl()
+        }
+    }
+
+    setActiveControl() {
+        this.optimizationProblem = new  OptimizationProblemBSplineR1toR3(this._spline.clone(), this._spline.clone(), this.activeControl)
+        this.optimizer = new Optimizer(this.optimizationProblem)
+        this.notifyObservers()
+    }
+    
+
+    
 
 }

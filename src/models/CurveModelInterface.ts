@@ -21,4 +21,8 @@ export interface CurveModelInterface extends IMultiObservable<BSplineR1toR2Inter
 
     notifyObservers() : void
 
+    increaseControlPointWeight(controlPointIndex: number): void
+
+    decreaseControlPointWeight(controlPointIndex: number): void
+
 }

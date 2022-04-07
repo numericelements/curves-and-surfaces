@@ -44,15 +44,19 @@ export class BernsteinDecompositionR1toR1 {
         return new BernsteinDecompositionR1toR1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray))
     }
 
-    /**
-     * 
-     * @param bd: BernsteinDecomposition_R1_to_R1
-     * @param index: Index of the basis function
-     */
+
     multiplyRange(bd: BernsteinDecompositionR1toR1, start: number, lessThan: number) {
         let result: number[][] = []
         for (let i = start; i < lessThan; i += 1) {
             result[i-start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i])
+        }
+        return new BernsteinDecompositionR1toR1(result)
+    }
+
+    multiplyRange2(bd: BernsteinDecompositionR1toR1, start: number, lessThan: number) {
+        let result: number[][] = []
+        for (let i = start; i < lessThan; i += 1) {
+            result[i-start] = this.bernsteinMultiplication(this.controlPointsArray[i-start], bd.controlPointsArray[i])
         }
         return new BernsteinDecompositionR1toR1(result)
     }
@@ -99,7 +103,17 @@ export class BernsteinDecompositionR1toR1 {
             }
         }
         return new BernsteinDecompositionR1toR1(result)
+    }
 
+    addScalar(value: number) {
+        let result: number[][] = []
+        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
+            result[i] = []
+            for (let j = 0; j < this.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] + value
+            }
+        }
+        return new BernsteinDecompositionR1toR1(result)
     }
 
     flattenControlPointsArray() {
@@ -168,10 +182,14 @@ export function splineRecomposition(bernsteinDecomposiiton: BernsteinDecompositi
     const degree = bernsteinDecomposiiton.getDegree()
     let knots: number[] = []
 
-    for (let i = 0; i < distinctKnots.length; i += 1) {
+    for (let distinctKnot of distinctKnots) {
         for (let j = 0; j < degree + 1; j += 1) {
-            knots.push(distinctKnots[i])
+            knots.push(distinctKnot)
         }
     }
     return new BSplineR1toR1(cp, knots)
+}
+
+export function determinant2by2(ax: BernsteinDecompositionR1toR1, ay: BernsteinDecompositionR1toR1, bx: BernsteinDecompositionR1toR1, by: BernsteinDecompositionR1toR1) {
+    return (ax.multiply(by)).subtract(bx.multiply(ay))
 }

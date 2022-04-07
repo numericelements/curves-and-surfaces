@@ -6,6 +6,8 @@ import { PeriodicBSplineR1toR2DifferentialProperties } from "../bsplines/Periodi
 import { PeriodicBSplineR1toR2 } from "../bsplines/PeriodicBSplineR1toR2";
 import { BSplineR1toR2 } from "../bsplines/BSplineR1toR2";
 import { BSplineR1toR2DifferentialProperties } from "../bsplines/BSplineR1toR2DifferentialProperties";
+import { RationalBSplineR1toR2Adapter } from "../bsplines/RationalBSplineR1toR2Adapter";
+import { RationalBSplineR1toR2DifferentialProperties } from "../bsplines/RationalBSplineR1toR2DifferentialProperties";
 
 
 export class CurvatureExtremaView implements IObserver<BSplineR1toR2Interface> {
@@ -174,6 +176,12 @@ export class CurvatureExtremaView implements IObserver<BSplineR1toR2Interface> {
         }
         if (spline instanceof PeriodicBSplineR1toR2) {
             const splineDP = new PeriodicBSplineR1toR2DifferentialProperties(spline)
+            this.curvatureExtrema = splineDP.curvatureExtrema()
+            this.updateVerticesAndIndices()
+            this.updateBuffers()
+        }
+        if (spline instanceof RationalBSplineR1toR2Adapter) {
+            const splineDP = new RationalBSplineR1toR2DifferentialProperties(spline.getRationalBSplineR1toR2())
             this.curvatureExtrema = splineDP.curvatureExtrema()
             this.updateVerticesAndIndices()
             this.updateBuffers()

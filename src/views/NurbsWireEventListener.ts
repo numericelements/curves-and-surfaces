@@ -1,50 +1,15 @@
-//import { CurveSceneView } from "./CurveSceneView"
+import { NurbsSceneView } from "./NurbsSceneView"
 
-import { CurveScene3dView } from "./CurveScene3dView"
-
-export function wire3dEventListener(canvas: HTMLCanvasElement, curveScene3dView: CurveScene3dView) {
+export function nurbsWireEventListener(canvas: HTMLCanvasElement, curveSceneView: NurbsSceneView) {
     
-    /*
     hideContextMenu()
-
-    function hideContextMenu() {
-        const cm = document.getElementById("contextMenu")
-        if (cm) {
-            cm.style.display = "none"
-        }
-    }
-    */
-
-
-    canvas.addEventListener('mousedown', (event: MouseEvent) => {
-        curveScene3dView.mousedown(event)
-        event.preventDefault()
-        curveScene3dView.renderFrame()
-    })
-
-    canvas.addEventListener('mousemove', (event: MouseEvent) => {
-        curveScene3dView.mousemove(event)
-        event.preventDefault()
-        curveScene3dView.renderFrame()
-    })
-
-    canvas.addEventListener('mouseup', (event: MouseEvent) => {
-        curveScene3dView.mouseup(event)
-        event.preventDefault()
-        curveScene3dView.renderFrame()
-    })
-
-    /*
     
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
-        var x, y,
-            rect  = canvas.getBoundingClientRect(),
-            ev
-
-        ev = event
-        
-        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2)
-        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2)
+        const rect  = canvas.getBoundingClientRect()
+        const w = parseInt(canvas.style.width, 10)
+        const h = parseInt(canvas.style.height, 10)
+        const x = ((event.clientX - rect.left) - w / 2) / (w / 2) 
+        const y = (h / 2 - (event.clientY - rect.top)) / (h / 2)
         return [x, y]
     }
 
@@ -102,12 +67,28 @@ export function wire3dEventListener(canvas: HTMLCanvasElement, curveScene3dView:
         ev.preventDefault()
     }
 
+    function keyDown(ev: KeyboardEvent) {
+        switch (ev.key) {
+            case "ArrowUp":
+                curveSceneView.upArrow_event()
+                curveSceneView.renderFrame()
+                ev.preventDefault()
+                break;
+            case "ArrowDown":
+                curveSceneView.downArrow_event()
+                curveSceneView.renderFrame()
+                ev.preventDefault()
+                break;
+        }
+    }
+
     canvas.addEventListener('mousedown', mouse_click, false)
     canvas.addEventListener('mousemove', mouse_drag, false)
     canvas.addEventListener('mouseup', mouse_stop_drag, false)
     canvas.addEventListener('touchstart', touch_click, false)
     canvas.addEventListener('touchmove', touch_drag, false)
     canvas.addEventListener('touchend', touch_stop_drag, false)
+    window.addEventListener('keydown', keyDown, false)
 
     // Prevent scrolling when touching the canvas
     document.body.addEventListener("touchstart", function (e) {
@@ -126,7 +107,12 @@ export function wire3dEventListener(canvas: HTMLCanvasElement, curveScene3dView:
         }
     }, false)
 
-
+    function hideContextMenu() {
+        const cm = document.getElementById("contextMenu")
+        if (cm) {
+            cm.style.display = "none"
+        }
+    }
 
     function rightClick(e: MouseEvent) {
         e.preventDefault()
@@ -148,10 +134,6 @@ export function wire3dEventListener(canvas: HTMLCanvasElement, curveScene3dView:
     document.getElementById("addControlPoint")?.addEventListener('click', addControlPoint)
 
     canvas.addEventListener('contextmenu', rightClick, false)
-
-
-    let toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema")
-    let toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections")
     
 
     function toggleControlOfCurvatureExtrema() {
@@ -167,26 +149,10 @@ export function wire3dEventListener(canvas: HTMLCanvasElement, curveScene3dView:
         curveSceneView.selectCurveCategory(event.detail.category)
     }
 
-    toggleButtonCurvatureExtrema.addEventListener('click', toggleControlOfCurvatureExtrema)
-    toggleButtonInflection.addEventListener('click', toggleControlOfInflections)
-
     let app = document.getElementsByTagName("app-curves-and-surfaces")[0]
     app.addEventListener("changeCurveCategory", selectCurveCategory)
-    */
-
-    function toggleControlOfCurvatureExtrema3d() {
-        curveScene3dView.toggleControlOfCurvatureExtrema()
-    }
-
-    function toggleControlOfTorsionZeros() {
-        curveScene3dView.toggleControlOfTorsionZeros()
-    }
-
-    let app = document.getElementsByTagName("app-curve-3d")[0]
-    //app.addEventListener("changeCurveCategory", selectCurveCategory)
-    app.addEventListener("toogleControlOverCurvatureExtrema3d", toggleControlOfCurvatureExtrema3d)
-    app.addEventListener("toogleControlOverTorsionZeros", toggleControlOfTorsionZeros)
-
+    app.addEventListener("toogleControlOverCurvatureExtrema", toggleControlOfCurvatureExtrema)
+    app.addEventListener("toogleControlOverInflections", toggleControlOfInflections)
 
 
 
