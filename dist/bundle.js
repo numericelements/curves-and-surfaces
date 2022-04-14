@@ -2,1420 +2,6 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/bsplines/AbstractBSplineR1toR1.ts":
-/*!***********************************************!*\
-  !*** ./src/bsplines/AbstractBSplineR1toR1.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-/**
- * A B-Spline function from a one dimensional real space to a one dimensional real space
- */
-class AbstractBSplineR1toR1 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [0], knots = [0, 1]) {
-        this._controlPoints = [];
-        this._knots = [];
-        this._degree = 0;
-        this._controlPoints = [...controlPoints];
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
-    }
-    computeDegree() {
-        let degree = this._knots.length - this._controlPoints.length - 1;
-        if (degree < 0) {
-            throw new Error("Negative degree BSplineR1toR1 are not supported");
-        }
-        return degree;
-    }
-    get controlPoints() {
-        return [...this._controlPoints];
-    }
-    set controlPoints(controlPoints) {
-        this._controlPoints = [...controlPoints];
-        this._degree = this.computeDegree();
-    }
-    get knots() {
-        return [...this._knots];
-    }
-    set knots(knots) {
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
-    }
-    get degree() {
-        return this._degree;
-    }
-    /**
-     * B-Spline evaluation
-     * @param u The parameter
-     * @returns the value of the B-Spline at u
-     */
-    evaluate(u) {
-        const span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        const basis = Piegl_Tiller_NURBS_Book_1.basisFunctions(span, u, this._knots, this._degree);
-        let result = 0;
-        for (let i = 0; i < this._degree + 1; i += 1) {
-            result += basis[i] * this._controlPoints[span - this._degree + i];
-        }
-        return result;
-    }
-    distinctKnots() {
-        let result = [this._knots[0]];
-        let temp = result[0];
-        for (let i = 1; i < this._knots.length; i += 1) {
-            if (this._knots[i] !== temp) {
-                result.push(this._knots[i]);
-                temp = this._knots[i];
-            }
-        }
-        return result;
-    }
-    zeros(tolerance = 10e-8) {
-        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
-        let spline = this.clone();
-        let greville = [];
-        let maxError = tolerance * 2;
-        let vertexIndex = [];
-        let it = 0;
-        while (maxError > tolerance && it < 10e8) {
-            it += 1;
-            let maximum = 0;
-            let newKnots = [];
-            vertexIndex = findControlPointsFollowingSignChanges(spline);
-            greville = spline.grevilleAbscissae();
-            for (let v of vertexIndex) {
-                let uLeft = greville[v - 1];
-                let uRight = greville[v];
-                if (uRight - uLeft > maximum) {
-                    maximum = uRight - uLeft;
-                }
-                if (uRight - uLeft > tolerance) {
-                    let lineZero = this.robustFindLineZero(uLeft, spline.controlPoints[v - 1], uRight, spline.controlPoints[v]);
-                    newKnots.push(0.05 * (uLeft + uRight) / 2 + 0.95 * lineZero);
-                }
-            }
-            for (let knot of newKnots) {
-                spline.insertKnot(knot);
-            }
-            maxError = maximum;
-        }
-        vertexIndex = findControlPointsFollowingSignChanges(spline);
-        let result = [];
-        for (let v of vertexIndex) {
-            result.push(greville[v]);
-        }
-        return result;
-    }
-    grevilleAbscissae() {
-        let result = [];
-        for (let i = 0; i < this._controlPoints.length; i += 1) {
-            let sum = 0;
-            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
-                sum += this._knots[j];
-            }
-            result.push(sum / this._degree);
-        }
-        return result;
-    }
-    insertKnot(u, times = 1) {
-        if (times <= 0) {
-            return;
-        }
-        let index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        let multiplicity = 0;
-        let newControlPoints = [];
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        for (let t = 0; t < times; t += 1) {
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
-                newControlPoints[i] = this._controlPoints[i];
-            }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
-                newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
-            }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this._controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-        }
-    }
-    knotMultiplicity(indexFromFindSpan) {
-        let result = 0;
-        let i = 0;
-        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
-        return result;
-    }
-    clamp(u) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        let index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this._knots, this._degree);
-        let newControlPoints = [];
-        let multiplicity = 0;
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        const times = this._degree - multiplicity + 1;
-        for (let t = 0; t < times; t += 1) {
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
-                newControlPoints[i] = this._controlPoints[i];
-            }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
-                newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
-            }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this._controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    }
-    controlPolygonNumberOfSignChanges() {
-        let result = 0;
-        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
-            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
-                result += 1;
-            }
-        }
-        return result;
-    }
-    controlPolygonZeros() {
-        let result = [];
-        let greville = this.grevilleAbscissae();
-        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
-            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
-                result.push(this.findLineZero(greville[i], this._controlPoints[i], greville[i + 1], this._controlPoints[i + 1]));
-            }
-        }
-        return result;
-    }
-    findLineZero(x1, y1, x2, y2) {
-        // find the zero of the line y = ax + b
-        let a = (y2 - y1) / (x2 - x1);
-        let b = y1 - a * x1;
-        return -b / a;
-    }
-    robustFindLineZero(x1, y1, x2, y2) {
-        let result = this.findLineZero(x1, y1, x2, y2);
-        if (isNaN(result)) {
-            return x1;
-        }
-        return result;
-    }
-}
-exports.AbstractBSplineR1toR1 = AbstractBSplineR1toR1;
-function findControlPointsFollowingSignChanges(spline) {
-    let cpLeft = spline.controlPoints[0];
-    let vertexIndex = [];
-    for (let index = 1; index < spline.controlPoints.length; index += 1) {
-        let cpRight = spline.controlPoints[index];
-        if (cpLeft <= 0 && cpRight > 0) {
-            vertexIndex.push(index);
-        }
-        if (cpLeft >= 0 && cpRight < 0) {
-            vertexIndex.push(index);
-        }
-        cpLeft = cpRight;
-    }
-    if (spline.controlPoints[spline.controlPoints.length - 1] == 0) {
-        vertexIndex.push(spline.controlPoints.length - 1);
-    }
-    return vertexIndex;
-}
-
-
-/***/ }),
-
-/***/ "./src/bsplines/AbstractBSplineR1toR2.ts":
-/*!***********************************************!*\
-  !*** ./src/bsplines/AbstractBSplineR1toR2.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-class AbstractBSplineR1toR2 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [new Vector2d_1.Vector2d(0, 0)], knots = [0, 1]) {
-        this._controlPoints = deepCopyControlPoints(controlPoints);
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
-    }
-    computeDegree() {
-        let degree = this._knots.length - this._controlPoints.length - 1;
-        if (degree < 0) {
-            throw new Error("Negative degree BSplineR1toR1 are not supported");
-        }
-        return degree;
-    }
-    get controlPoints() {
-        return deepCopyControlPoints(this._controlPoints);
-    }
-    set controlPoints(controlPoints) {
-        this._controlPoints = deepCopyControlPoints(controlPoints);
-    }
-    get knots() {
-        return [...this._knots];
-    }
-    set knots(knots) {
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
-    }
-    get degree() {
-        return this._degree;
-    }
-    getControlPoint(index) {
-        return this._controlPoints[index].clone();
-    }
-    /**
-     * B-Spline evaluation
-     * @param u The parameter
-     * @returns the value of the B-Spline at u
-     */
-    evaluate(u) {
-        const span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        const basis = Piegl_Tiller_NURBS_Book_1.basisFunctions(span, u, this._knots, this._degree);
-        let result = new Vector2d_1.Vector2d(0, 0);
-        for (let i = 0; i < this._degree + 1; i += 1) {
-            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
-            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
-        }
-        return result;
-    }
-    getControlPointsX() {
-        let result = [];
-        for (let cp of this._controlPoints) {
-            result.push(cp.x);
-        }
-        return result;
-    }
-    getControlPointsY() {
-        let result = [];
-        for (let cp of this._controlPoints) {
-            result.push(cp.y);
-        }
-        return result;
-    }
-    getDistinctKnots() {
-        let result = [this._knots[0]];
-        let temp = result[0];
-        for (let i = 1; i < this._knots.length; i += 1) {
-            if (this._knots[i] !== temp) {
-                result.push(this._knots[i]);
-                temp = this._knots[i];
-            }
-        }
-        return result;
-    }
-    moveControlPoint(i, deltaX, deltaY) {
-        if (i < 0 || i >= this._controlPoints.length - this._degree) {
-            throw new Error("Control point indentifier is out of range");
-        }
-        this._controlPoints[i].x += deltaX;
-        this._controlPoints[i].y += deltaY;
-    }
-    setControlPointPosition(index, value) {
-        this._controlPoints[index] = value;
-    }
-    insertKnot(u, times = 1) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        if (times <= 0) {
-            return;
-        }
-        let index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        let multiplicity = 0;
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        for (let t = 0; t < times; t += 1) {
-            let newControlPoints = [];
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
-                newControlPoints[i] = this._controlPoints[i];
-            }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
-                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
-            }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this._controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    }
-    knotMultiplicity(indexFromFindSpan) {
-        let result = 0;
-        let i = 0;
-        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
-        return result;
-    }
-    grevilleAbscissae() {
-        let result = [];
-        for (let i = 0; i < this._controlPoints.length; i += 1) {
-            let sum = 0;
-            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
-                sum += this._knots[j];
-            }
-            result.push(sum / this._degree);
-        }
-        return result;
-    }
-    clamp(u) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        let index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this._knots, this._degree);
-        let newControlPoints = [];
-        let multiplicity = 0;
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        const times = this._degree - multiplicity + 1;
-        for (let t = 0; t < times; t += 1) {
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
-                newControlPoints[i] = this._controlPoints[i];
-            }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
-                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
-            }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this._controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    }
-}
-exports.AbstractBSplineR1toR2 = AbstractBSplineR1toR2;
-function deepCopyControlPoints(controlPoints) {
-    let result = [];
-    for (let cp of controlPoints) {
-        result.push(cp.clone());
-    }
-    return result;
-}
-exports.deepCopyControlPoints = deepCopyControlPoints;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/AbstractBSplineR1toR2DifferentialProperties.ts":
-/*!*********************************************************************!*\
-  !*** ./src/bsplines/AbstractBSplineR1toR2DifferentialProperties.ts ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-class AbstractBSplineR1toR2DifferentialProperties {
-    constructor(spline) {
-        this._spline = spline.clone();
-    }
-    expensiveComputation(spline) {
-        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
-        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
-        const sxu = sx.derivative();
-        const syu = sy.derivative();
-        const sxuu = sxu.derivative();
-        const syuu = syu.derivative();
-        const sxuuu = sxuu.derivative();
-        const syuuu = syuu.derivative();
-        const bdsxu = sxu.bernsteinDecomposition();
-        const bdsyu = syu.bernsteinDecomposition();
-        const bdsxuu = sxuu.bernsteinDecomposition();
-        const bdsyuu = syuu.bernsteinDecomposition();
-        const bdsxuuu = sxuuu.bernsteinDecomposition();
-        const bdsyuuu = syuuu.bernsteinDecomposition();
-        const h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
-        const h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
-        const h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
-        const h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
-        return {
-            h1: h1,
-            h2: h2,
-            h3: h3,
-            h4: h4
-        };
-    }
-    curvatureNumerator() {
-        const e = this.expensiveComputation(this._spline);
-        const distinctKnots = this._spline.getDistinctKnots();
-        const controlPoints = e.h4.flattenControlPointsArray();
-        const curvatureNumeratorDegree = 2 * this._spline.degree - 3;
-        let knots = [];
-        for (let knot of distinctKnots) {
-            for (let j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
-                knots.push(knot);
-            }
-        }
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    h1() {
-        const e = this.expensiveComputation(this._spline);
-        const distinctKnots = this._spline.getDistinctKnots();
-        const controlPoints = e.h1.flattenControlPointsArray();
-        const h1Degree = 2 * this._spline.degree - 2;
-        let knots = [];
-        for (let knot of distinctKnots) {
-            for (let j = 0; j < h1Degree + 1; j += 1) {
-                knots.push(knot);
-            }
-        }
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    inflections(curvatureNumerator) {
-        if (!curvatureNumerator) {
-            curvatureNumerator = this.curvatureNumerator();
-        }
-        const zeros = curvatureNumerator.zeros();
-        let result = [];
-        for (let z of zeros) {
-            result.push(this._spline.evaluate(z));
-        }
-        return result;
-    }
-    curvatureDerivativeNumerator() {
-        const e = this.expensiveComputation(this._spline);
-        const bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
-        const distinctKnots = this._spline.getDistinctKnots();
-        const controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
-        const curvatureDerivativeNumeratorDegree = 4 * this._spline.degree - 6;
-        let knots = [];
-        for (let knot of distinctKnots) {
-            for (let j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
-                knots.push(knot);
-            }
-        }
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    curvatureExtrema(_curvatureDerivativeNumerator) {
-        if (!_curvatureDerivativeNumerator) {
-            _curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        const zeros = _curvatureDerivativeNumerator.zeros();
-        let result = [];
-        for (let z of zeros) {
-            result.push(this._spline.evaluate(z));
-        }
-        return result;
-    }
-}
-exports.AbstractBSplineR1toR2DifferentialProperties = AbstractBSplineR1toR2DifferentialProperties;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/AbstractBSplineR1toR3.ts":
-/*!***********************************************!*\
-  !*** ./src/bsplines/AbstractBSplineR1toR3.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-//export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Vector3d> {
-class AbstractBSplineR1toR3 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
-        this._controlPoints = deepCopyControlPoints(controlPoints);
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
-    }
-    computeDegree() {
-        let degree = this._knots.length - this._controlPoints.length - 1;
-        if (degree < 0) {
-            throw new Error("Negative degree BSplineR1toR1 are not supported");
-        }
-        return degree;
-    }
-    get controlPoints() {
-        return deepCopyControlPoints(this._controlPoints);
-    }
-    set controlPoints(controlPoints) {
-        this._controlPoints = deepCopyControlPoints(controlPoints);
-    }
-    get knots() {
-        return [...this._knots];
-    }
-    set knots(knots) {
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
-    }
-    get degree() {
-        return this._degree;
-    }
-    getControlPoint(index) {
-        return this._controlPoints[index].clone();
-    }
-    /**
-     * B-Spline evaluation
-     * @param u The parameter
-     * @returns the value of the B-Spline at u
-     */
-    evaluate(u) {
-        const span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        const basis = Piegl_Tiller_NURBS_Book_1.basisFunctions(span, u, this._knots, this._degree);
-        let result = new Vector3d_1.Vector3d(0, 0, 0);
-        for (let i = 0; i < this._degree + 1; i += 1) {
-            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
-            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
-            result.z += basis[i] * this._controlPoints[span - this._degree + i].z;
-        }
-        return result;
-    }
-    getControlPointsX() {
-        let result = [];
-        for (let cp of this._controlPoints) {
-            result.push(cp.x);
-        }
-        return result;
-    }
-    getControlPointsY() {
-        let result = [];
-        for (let cp of this._controlPoints) {
-            result.push(cp.y);
-        }
-        return result;
-    }
-    getControlPointsZ() {
-        let result = [];
-        for (let cp of this._controlPoints) {
-            result.push(cp.z);
-        }
-        return result;
-    }
-    getDistinctKnots() {
-        let result = [this._knots[0]];
-        let temp = result[0];
-        for (let i = 1; i < this._knots.length; i += 1) {
-            if (this._knots[i] !== temp) {
-                result.push(this._knots[i]);
-                temp = this._knots[i];
-            }
-        }
-        return result;
-    }
-    moveControlPoint(i, deltaX, deltaY) {
-        if (i < 0 || i >= this._controlPoints.length - this._degree) {
-            throw new Error("Control point indentifier is out of range");
-        }
-        this._controlPoints[i].x += deltaX;
-        this._controlPoints[i].y += deltaY;
-    }
-    setControlPointPosition(index, value) {
-        this._controlPoints[index] = value;
-    }
-    insertKnot(u, times = 1) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        if (times <= 0) {
-            return;
-        }
-        let index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
-        let multiplicity = 0;
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        for (let t = 0; t < times; t += 1) {
-            let newControlPoints = [];
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
-                newControlPoints[i] = this._controlPoints[i];
-            }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
-                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
-            }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this._controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    }
-    knotMultiplicity(indexFromFindSpan) {
-        let result = 0;
-        let i = 0;
-        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
-        return result;
-    }
-    grevilleAbscissae() {
-        let result = [];
-        for (let i = 0; i < this._controlPoints.length; i += 1) {
-            let sum = 0;
-            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
-                sum += this._knots[j];
-            }
-            result.push(sum / this._degree);
-        }
-        return result;
-    }
-    clamp(u) {
-        // Piegl and Tiller, The NURBS book, p: 151
-        let index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this._knots, this._degree);
-        let newControlPoints = [];
-        let multiplicity = 0;
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
-        }
-        const times = this._degree - multiplicity + 1;
-        for (let t = 0; t < times; t += 1) {
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
-                newControlPoints[i] = this._controlPoints[i];
-            }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
-                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
-            }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
-                newControlPoints[i + 1] = this._controlPoints[i];
-            }
-            this._knots.splice(index + 1, 0, u);
-            this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
-            index += 1;
-        }
-    }
-}
-exports.AbstractBSplineR1toR3 = AbstractBSplineR1toR3;
-function deepCopyControlPoints(controlPoints) {
-    let result = [];
-    for (let cp of controlPoints) {
-        result.push(cp.clone());
-    }
-    return result;
-}
-exports.deepCopyControlPoints = deepCopyControlPoints;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSplineR1toR1.ts":
-/*!***************************************!*\
-  !*** ./src/bsplines/BSplineR1toR1.ts ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const AbstractBSplineR1toR1_1 = __webpack_require__(/*! ./AbstractBSplineR1toR1 */ "./src/bsplines/AbstractBSplineR1toR1.ts");
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-/**
- * A B-Spline function from a one dimensional real space to a one dimensional real space
- */
-class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [0], knots = [0, 1]) {
-        super(controlPoints, knots);
-    }
-    bernsteinDecomposition() {
-        // Piegl_Tiller_NURBS_Book.ts
-        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(this));
-    }
-    clone() {
-        return new BSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
-    }
-    derivative() {
-        let newControlPoints = [];
-        let newKnots = [];
-        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
-            newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
-        }
-        newKnots = this._knots.slice(1, this._knots.length - 1);
-        return new BSplineR1toR1(newControlPoints, newKnots);
-    }
-    elevateDegree(times = 1) {
-        const bds = this.bernsteinDecomposition();
-        bds.elevateDegree();
-        const knots = this.distinctKnots();
-        const newSpline = BernsteinDecompositionR1toR1_1.splineRecomposition(bds, knots);
-        for (let i = 0; i < knots.length; i += 1) {
-            let m = this.knotMultiplicity(Piegl_Tiller_NURBS_Book_1.findSpan(knots[i], this.knots, this.degree));
-            for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
-                newSpline.removeKnot(Piegl_Tiller_NURBS_Book_1.findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
-            }
-        }
-        this.controlPoints = newSpline.controlPoints;
-        this.knots = newSpline.knots;
-        this._degree = newSpline.degree;
-    }
-    removeKnot(indexFromFindSpan, tolerance = 10e-5) {
-        //Piegl and Tiller, The NURBS book, p : 185
-        const index = indexFromFindSpan;
-        // end knots are not removed
-        if (index > this._degree && index < this.knots.length - this._degree - 1) {
-            throw new Error("index out of range");
-        }
-        //const double tolerance = 1;
-        const multiplicity = this.knotMultiplicity(index);
-        const last = index - multiplicity;
-        const first = index - this.degree;
-        const offset = first - 1;
-        //std::vector<vectorType> local(2*degree+1);
-        let local = [];
-        local[0] = this.controlPoints[offset];
-        local[last + 1 - offset] = this.controlPoints[last + 1];
-        let i = first;
-        let j = last;
-        let ii = 1;
-        let jj = last - offset;
-        let removable = false;
-        // Compute new control point for one removal step
-        while (j > i) {
-            let alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
-            let alpha_j = (this.knots[index] - this.knots[j]) / (this.knots[j + this.degree + 1] - this.knots[j]);
-            local[ii] = (this.controlPoints[i] - (local[ii - 1] * (1.0 - alpha_i))) / alpha_i;
-            local[jj] = (this.controlPoints[j] - (local[jj + 1] * (alpha_j))) / (1.0 - alpha_j);
-            ++i;
-            ++ii;
-            --j;
-            --jj;
-        }
-        if (j < i) {
-            if ((local[ii - 1] - (local[jj + 1])) <= tolerance) {
-                removable = true;
-            }
-        }
-        else {
-            const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
-            if (((this.controlPoints[i] - ((local[ii + 1] * (alpha_i)))) + (local[ii - 1] * (1.0 - alpha_i))) <= tolerance) {
-                removable = true;
-            }
-        }
-        if (removable == false)
-            return;
-        else {
-            let i = first;
-            let j = last;
-            while (j > i) {
-                this.controlPoints[i] = local[i - offset];
-                this.controlPoints[j] = local[j - offset];
-                ++i;
-                --j;
-            }
-        }
-        this.knots.splice(index, 1);
-        const fout = (2 * index - multiplicity - this.degree) / 2;
-        this._controlPoints.splice(fout, 1);
-    }
-    moveControlPoint(i, delta) {
-        if (i < 0 || i >= this.controlPoints.length) {
-            throw new Error("Control point indentifier is out of range");
-        }
-        this.controlPoints[i] += delta;
-    }
-    curve() {
-        let x = this.grevilleAbscissae();
-        let cp = [];
-        for (let i = 0; i < x.length; i += 1) {
-            cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
-        }
-        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
-    }
-}
-exports.BSplineR1toR1 = BSplineR1toR1;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSplineR1toR2.ts":
-/*!***************************************!*\
-  !*** ./src/bsplines/BSplineR1toR2.ts ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/bsplines/AbstractBSplineR1toR2.ts");
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [new Vector2d_1.Vector2d(0, 0)], knots = [0, 1]) {
-        super(controlPoints, knots);
-    }
-    get freeControlPoints() {
-        return this.controlPoints;
-    }
-    /**
-     * Return a deep copy of this b-spline
-     */
-    clone() {
-        let cloneControlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._controlPoints);
-        return new BSplineR1toR2(cloneControlPoints, this._knots.slice());
-    }
-    optimizerStep(step) {
-        for (let i = 0; i < this._controlPoints.length; i += 1) {
-            this._controlPoints[i].x += step[i];
-            this._controlPoints[i].y += step[i + this._controlPoints.length];
-        }
-    }
-    /**
-     *
-     * @param fromU Parametric position where the section start
-     * @param toU Parametric position where the section end
-     * @retrun the BSpline_R1_to_R2 section
-     */
-    extract(fromU, toU) {
-        let spline = this.clone();
-        spline.clamp(fromU);
-        spline.clamp(toU);
-        const newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(fromU, spline._knots, spline._degree);
-        const newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(toU, spline._knots, spline._degree);
-        let newKnots = [];
-        let newControlPoints = [];
-        for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline._knots[i]);
-        }
-        for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
-            newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
-        }
-        return new BSplineR1toR2(newControlPoints, newKnots);
-    }
-    elevateDegree(times = 1) {
-        const sx = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsX(), this.knots);
-        const sy = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsY(), this.knots);
-        const bdsx = sx.bernsteinDecomposition();
-        const bdsy = sy.bernsteinDecomposition();
-        bdsx.elevateDegree();
-        bdsy.elevateDegree();
-        const knots = this.distinctKnots();
-        const sxNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsx, knots);
-        const syNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsy, knots);
-        let newcp = [];
-        for (let i = 0; i < sxNew.controlPoints.length; i += 1) {
-            newcp.push(new Vector2d_1.Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
-        }
-        let newSpline = new BSplineR1toR2(newcp, sxNew.knots);
-        for (let i = 0; i < knots.length; i += 1) {
-            let m = this.knotMultiplicity(Piegl_Tiller_NURBS_Book_1.findSpan(knots[i], this.knots, this.degree));
-            for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
-                newSpline.removeKnot(Piegl_Tiller_NURBS_Book_1.findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
-            }
-        }
-        this.controlPoints = newSpline.controlPoints;
-        this.knots = newSpline.knots;
-        this._degree = newSpline.degree;
-    }
-    removeKnot(indexFromFindSpan, tolerance = 10e-5) {
-        //Piegl and Tiller, The NURBS book, p : 185
-        const index = indexFromFindSpan;
-        // end knots are not removed
-        if (index > this._degree && index < this.knots.length - this._degree - 1) {
-            throw new Error("index out of range");
-        }
-        //const double tolerance = 1;
-        const multiplicity = this.knotMultiplicity(index);
-        const last = index - multiplicity;
-        const first = index - this.degree;
-        const offset = first - 1;
-        //std::vector<vectorType> local(2*degree+1);
-        let local = [];
-        local[0] = this.controlPoints[offset];
-        local[last + 1 - offset] = this.controlPoints[last + 1];
-        let i = first;
-        let j = last;
-        let ii = 1;
-        let jj = last - offset;
-        let removable = false;
-        // Compute new control point for one removal step
-        while (j > i) {
-            let alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
-            let alpha_j = (this.knots[index] - this.knots[j]) / (this.knots[j + this.degree + 1] - this.knots[j]);
-            local[ii] = (this.controlPoints[i].substract(local[ii - 1].multiply(1.0 - alpha_i))).multiply(1 / alpha_i);
-            local[jj] = (this.controlPoints[j].substract(local[jj + 1].multiply(alpha_j))).multiply(1 / (1.0 - alpha_j));
-            ++i;
-            ++ii;
-            --j;
-            --jj;
-        }
-        if (j < i) {
-            if ((local[ii - 1].substract(local[jj + 1])).norm() <= tolerance) {
-                removable = true;
-            }
-        }
-        else {
-            const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
-            if (((this.controlPoints[i].substract((local[ii + 1].multiply(alpha_i)))).add(local[ii - 1].multiply(1.0 - alpha_i))).norm() <= tolerance) {
-                removable = true;
-            }
-        }
-        if (removable == false)
-            return;
-        else {
-            let i = first;
-            let j = last;
-            while (j > i) {
-                this.controlPoints[i] = local[i - offset];
-                this.controlPoints[j] = local[j - offset];
-                ++i;
-                --j;
-            }
-        }
-        this.knots.splice(index, 1);
-        const fout = (2 * index - multiplicity - this.degree) / 2;
-        this._controlPoints.splice(fout, 1);
-    }
-    distinctKnots() {
-        let result = [this.knots[0]];
-        let temp = result[0];
-        for (let i = 1; i < this.knots.length; i += 1) {
-            if (this.knots[i] !== temp) {
-                result.push(this.knots[i]);
-                temp = this.knots[i];
-            }
-        }
-        return result;
-    }
-}
-exports.BSplineR1toR2 = BSplineR1toR2;
-function create_BSplineR1toR2(controlPoints, knots) {
-    let newControlPoints = [];
-    for (let cp of controlPoints) {
-        newControlPoints.push(new Vector2d_1.Vector2d(cp[0], cp[1]));
-    }
-    return new BSplineR1toR2(newControlPoints, knots);
-}
-exports.create_BSplineR1toR2 = create_BSplineR1toR2;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSplineR1toR2DifferentialProperties.ts":
-/*!*************************************************************!*\
-  !*** ./src/bsplines/BSplineR1toR2DifferentialProperties.ts ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/bsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-class BSplineR1toR2DifferentialProperties extends AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties {
-    constructor(spline) {
-        super(spline);
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-}
-exports.BSplineR1toR2DifferentialProperties = BSplineR1toR2DifferentialProperties;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSplineR1toR3.ts":
-/*!***************************************!*\
-  !*** ./src/bsplines/BSplineR1toR3.ts ***!
-  \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-const AbstractBSplineR1toR3_1 = __webpack_require__(/*! ./AbstractBSplineR1toR3 */ "./src/bsplines/AbstractBSplineR1toR3.ts");
-/**
- * A B-Spline function from a one dimensional real space to a two dimensional real space
- */
-class BSplineR1toR3 extends AbstractBSplineR1toR3_1.AbstractBSplineR1toR3 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
-        super(controlPoints, knots);
-    }
-    get freeControlPoints() {
-        return this.controlPoints;
-    }
-    /**
-     * Return a deep copy of this b-spline
-     */
-    clone() {
-        let cloneControlPoints = AbstractBSplineR1toR3_1.deepCopyControlPoints(this._controlPoints);
-        return new BSplineR1toR3(cloneControlPoints, this._knots.slice());
-    }
-    optimizerStep(step) {
-        for (let i = 0; i < this._controlPoints.length; i += 1) {
-            this._controlPoints[i].x += step[i];
-            this._controlPoints[i].y += step[i + this._controlPoints.length];
-            this._controlPoints[i].z += step[i + 2 * this._controlPoints.length];
-        }
-    }
-    /**
-     *
-     * @param fromU Parametric position where the section start
-     * @param toU Parametric position where the section end
-     * @retrun the BSpline_R1_to_R2 section
-     */
-    extract(fromU, toU) {
-        let spline = this.clone();
-        spline.clamp(fromU);
-        spline.clamp(toU);
-        const newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(fromU, spline._knots, spline._degree);
-        const newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(toU, spline._knots, spline._degree);
-        let newKnots = [];
-        let newControlPoints = [];
-        for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline._knots[i]);
-        }
-        for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
-            newControlPoints.push(new Vector3d_1.Vector3d(spline._controlPoints[i].x, spline._controlPoints[i].y));
-        }
-        return new BSplineR1toR3(newControlPoints, newKnots);
-    }
-}
-exports.BSplineR1toR3 = BSplineR1toR3;
-function create_BSplineR1toR3(controlPoints, knots) {
-    let newControlPoints = [];
-    for (let cp of controlPoints) {
-        newControlPoints.push(new Vector3d_1.Vector3d(cp[0], cp[1], cp[2]));
-    }
-    return new BSplineR1toR3(newControlPoints, knots);
-}
-exports.create_BSplineR1toR3 = create_BSplineR1toR3;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BSplineR1toR3DifferentialProperties.ts":
-/*!*************************************************************!*\
-  !*** ./src/bsplines/BSplineR1toR3DifferentialProperties.ts ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-class BSplineR1toR3DifferentialProperties {
-    constructor(spline) {
-        this._spline = spline.clone();
-        this.derivatives = this.computeDerivatives(this._spline);
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    computeDerivatives(spline) {
-        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
-        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
-        const sz = this.bSplineR1toR1Factory(spline.getControlPointsZ(), spline.knots);
-        const sxu = sx.derivative();
-        const syu = sy.derivative();
-        const szu = sz.derivative();
-        const sxuu = sxu.derivative();
-        const syuu = syu.derivative();
-        const szuu = szu.derivative();
-        const sxuuu = sxuu.derivative();
-        const syuuu = syuu.derivative();
-        const szuuu = szuu.derivative();
-        return {
-            xu: sxu.bernsteinDecomposition(),
-            yu: syu.bernsteinDecomposition(),
-            zu: szu.bernsteinDecomposition(),
-            xuu: sxuu.bernsteinDecomposition(),
-            yuu: syuu.bernsteinDecomposition(),
-            zuu: szuu.bernsteinDecomposition(),
-            xuuu: sxuuu.bernsteinDecomposition(),
-            yuuu: syuuu.bernsteinDecomposition(),
-            zuuu: szuuu.bernsteinDecomposition()
-        };
-    }
-    torsionNumerator() {
-        const s = this.derivatives;
-        const t1 = s.yu.multiply(s.zuu).subtract(s.yuu.multiply(s.zu));
-        const t2 = s.xuu.multiply(s.zu).subtract(s.xu.multiply(s.zuu));
-        const t3 = s.xu.multiply(s.yuu).subtract(s.xuu.multiply(s.yu));
-        const distinctKnots = this._spline.getDistinctKnots();
-        const result = s.xuuu.multiply(t1).add(s.yuuu.multiply(t2).add(s.zuuu.multiply(t3)));
-        return result.splineRecomposition(distinctKnots);
-    }
-    curvatureSquaredNumerator() {
-        const s = this.derivatives;
-        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu));
-        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu));
-        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu));
-        const result = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3)));
-        const distinctKnots = this._spline.getDistinctKnots();
-        return result.splineRecomposition(distinctKnots);
-    }
-    curvatureSquaredDerivativeNumerator() {
-        const s = this.derivatives;
-        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu));
-        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu));
-        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu));
-        const t4 = s.zuuu.multiply(s.yu).subtract(s.yuuu.multiply(s.zu));
-        const t5 = s.xuuu.multiply(s.zu).subtract(s.zuuu.multiply(s.xu));
-        const t6 = s.yuuu.multiply(s.xu).subtract(s.xuuu.multiply(s.yu));
-        const t7 = s.xu.multiply(s.xu).add(s.yu.multiply(s.yu)).add(s.zu.multiply(s.zu));
-        const t8 = s.xu.multiply(s.xuu).add(s.yu.multiply(s.yuu)).add(s.zu.multiply(s.zuu));
-        const t9 = ((t1.multiply(t4)).add(t2.multiply(t5)).add(t3.multiply(t6))).multiply(t7);
-        const t10 = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3))).multiply(t8);
-        const result = t9.subtract(t10.multiplyByScalar(3));
-        const distinctKnots = this._spline.getDistinctKnots();
-        return result.splineRecomposition(distinctKnots);
-    }
-    curvatureDerivativeZeros() {
-        const curvatureDerivative = this.curvatureSquaredDerivativeNumerator();
-        const zeros = curvatureDerivative.zeros();
-        let result = [];
-        for (let z of zeros) {
-            result.push(this._spline.evaluate(z));
-        }
-        return result;
-    }
-    torsionZeros() {
-        const torsionNumerator = this.torsionNumerator();
-        const zeros = torsionNumerator.zeros();
-        let result = [];
-        for (let z of zeros) {
-            result.push(this._spline.evaluate(z));
-        }
-        return result;
-    }
-}
-exports.BSplineR1toR3DifferentialProperties = BSplineR1toR3DifferentialProperties;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/BernsteinDecompositionR1toR1.ts":
-/*!******************************************************!*\
-  !*** ./src/bsplines/BernsteinDecompositionR1toR1.ts ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BinomialCoefficient_1 = __webpack_require__(/*! ./BinomialCoefficient */ "./src/bsplines/BinomialCoefficient.ts");
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-/**
-* A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
-*/
-class BernsteinDecompositionR1toR1 {
-    /**
-     *
-     * @param controlPointsArray An array of array of control points
-     */
-    constructor(controlPointsArray = []) {
-        this.controlPointsArray = controlPointsArray;
-    }
-    add(bd) {
-        let result = [];
-        for (let i = 0; i < bd.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (let j = 0; j < bd.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] + bd.controlPointsArray[i][j];
-            }
-        }
-        return new BernsteinDecompositionR1toR1(result);
-    }
-    subtract(bd) {
-        let result = [];
-        for (let i = 0; i < bd.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (let j = 0; j < bd.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] - bd.controlPointsArray[i][j];
-            }
-        }
-        return new BernsteinDecompositionR1toR1(result);
-    }
-    multiply(bd) {
-        return new BernsteinDecompositionR1toR1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray));
-    }
-    multiplyRange(bd, start, lessThan) {
-        let result = [];
-        for (let i = start; i < lessThan; i += 1) {
-            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i]);
-        }
-        return new BernsteinDecompositionR1toR1(result);
-    }
-    multiplyRange2(bd, start, lessThan) {
-        let result = [];
-        for (let i = start; i < lessThan; i += 1) {
-            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i - start], bd.controlPointsArray[i]);
-        }
-        return new BernsteinDecompositionR1toR1(result);
-    }
-    bernsteinMultiplicationArray(f, g) {
-        let result = [];
-        for (let i = 0; i < f.length; i += 1) {
-            result[i] = this.bernsteinMultiplication(f[i], g[i]);
-        }
-        return result;
-    }
-    bernsteinMultiplication(f, g) {
-        const f_degree = f.length - 1;
-        const g_degree = g.length - 1;
-        let result = [];
-        for (let k = 0; k < f_degree + g_degree + 1; k += 1) {
-            let cp = 0;
-            for (let i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
-                let bfu = BernsteinDecompositionR1toR1.binomial(f_degree, i);
-                let bgu = BernsteinDecompositionR1toR1.binomial(g_degree, k - i);
-                let bfugu = BernsteinDecompositionR1toR1.binomial(f_degree + g_degree, k);
-                cp += bfu * bgu / bfugu * f[i] * g[k - i];
-            }
-            result[k] = cp;
-        }
-        return result;
-    }
-    multiplyByScalar(value) {
-        let result = [];
-        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (let j = 0; j < this.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] * value;
-            }
-        }
-        return new BernsteinDecompositionR1toR1(result);
-    }
-    addScalar(value) {
-        let result = [];
-        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
-            result[i] = [];
-            for (let j = 0; j < this.controlPointsArray[0].length; j += 1) {
-                result[i][j] = this.controlPointsArray[i][j] + value;
-            }
-        }
-        return new BernsteinDecompositionR1toR1(result);
-    }
-    flattenControlPointsArray() {
-        return this.controlPointsArray.reduce(function (acc, val) {
-            return acc.concat(val);
-        }, []);
-    }
-    subset(start, lessThan) {
-        return new BernsteinDecompositionR1toR1(this.controlPointsArray.slice(start, lessThan));
-    }
-    elevateDegree(times = 1) {
-        let newControlPointsArray = [];
-        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
-            newControlPointsArray.push(this.elevateDegreeB(this.controlPointsArray[i], times));
-        }
-        this.controlPointsArray = newControlPointsArray;
-    }
-    elevateDegreeB(controlPoints, times = 1) {
-        const degree = controlPoints.length - 1;
-        let result = [];
-        for (let i = 0; i < controlPoints.length + times; i += 1) {
-            let cp = 0;
-            for (let j = Math.max(0, i - times); j <= Math.min(degree, i); j += 1) {
-                const bc0 = BinomialCoefficient_1.binomialCoefficient(times, i - j);
-                const bc1 = BinomialCoefficient_1.binomialCoefficient(degree, j);
-                const bc2 = BinomialCoefficient_1.binomialCoefficient(degree + times, i);
-                cp += bc0 * bc1 / bc2 * controlPoints[j];
-            }
-            result.push(cp);
-        }
-        return result;
-    }
-    splineRecomposition(distinctKnots) {
-        const cp = this.flattenControlPointsArray();
-        const degree = this.getDegree();
-        let knots = [];
-        for (let i = 0; i < distinctKnots.length; i += 1) {
-            for (let j = 0; j < degree + 1; j += 1) {
-                knots.push(distinctKnots[i]);
-            }
-        }
-        return new BSplineR1toR1_1.BSplineR1toR1(cp, knots);
-    }
-    getDegree() {
-        return this.controlPointsArray[0].length - 1;
-    }
-}
-exports.BernsteinDecompositionR1toR1 = BernsteinDecompositionR1toR1;
-BernsteinDecompositionR1toR1.binomial = BinomialCoefficient_1.memoizedBinomialCoefficient();
-BernsteinDecompositionR1toR1.flopsCounter = 0;
-function splineRecomposition(bernsteinDecomposiiton, distinctKnots) {
-    const cp = bernsteinDecomposiiton.flattenControlPointsArray();
-    const degree = bernsteinDecomposiiton.getDegree();
-    let knots = [];
-    for (let distinctKnot of distinctKnots) {
-        for (let j = 0; j < degree + 1; j += 1) {
-            knots.push(distinctKnot);
-        }
-    }
-    return new BSplineR1toR1_1.BSplineR1toR1(cp, knots);
-}
-exports.splineRecomposition = splineRecomposition;
-function determinant2by2(ax, ay, bx, by) {
-    return (ax.multiply(by)).subtract(bx.multiply(ay));
-}
-exports.determinant2by2 = determinant2by2;
-
-
-/***/ }),
-
 /***/ "./src/bsplines/BinomialCoefficient.ts":
 /*!*********************************************!*\
   !*** ./src/bsplines/BinomialCoefficient.ts ***!
@@ -1424,6 +10,7 @@ exports.determinant2by2 = determinant2by2;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.memoizedBinomialCoefficient = exports.binomialCoefficient = void 0;
 function binomialCoefficient(n, k) {
     let result = 1;
     if (n < k || k < 0) {
@@ -1463,262 +50,6 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 
 /***/ }),
 
-/***/ "./src/bsplines/PeriodicBSplineR1toR1.ts":
-/*!***********************************************!*\
-  !*** ./src/bsplines/PeriodicBSplineR1toR1.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const AbstractBSplineR1toR1_1 = __webpack_require__(/*! ./AbstractBSplineR1toR1 */ "./src/bsplines/AbstractBSplineR1toR1.ts");
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-/**
- * A B-Spline function from a one dimensional real periodic space to a one dimensional real space
- */
-class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
-    constructor(controlPoints = [0], knots = [0, 1]) {
-        super(controlPoints, knots);
-    }
-    bernsteinDecomposition() {
-        const s = this.clone();
-        const degree = this._degree;
-        s.clamp(s.knots[degree]);
-        s.clamp(s.knots[s.knots.length - degree - 1]);
-        const newControlPoints = s.controlPoints.slice(degree, s.controlPoints.length - degree);
-        const newKnots = s.knots.slice(degree, s.knots.length - degree);
-        //return decomposeFunction(new BSplineR1toR1(newControlPoints, newKnots))
-        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(new BSplineR1toR1_1.BSplineR1toR1(newControlPoints, newKnots)));
-    }
-    clone() {
-        return new PeriodicBSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
-    }
-    derivative() {
-        let newControlPoints = [];
-        let newKnots = [];
-        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
-            newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
-        }
-        newKnots = this._knots.slice(1, this._knots.length - 1);
-        return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
-    }
-    curve() {
-        let x = this.grevilleAbscissae();
-        let cp = [];
-        for (let i = 0; i < x.length; i += 1) {
-            cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
-        }
-        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
-    }
-}
-exports.PeriodicBSplineR1toR1 = PeriodicBSplineR1toR1;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/PeriodicBSplineR1toR2.ts":
-/*!***********************************************!*\
-  !*** ./src/bsplines/PeriodicBSplineR1toR2.ts ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/bsplines/AbstractBSplineR1toR2.ts");
-const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
-/**
- * A B-Spline function from a one dimensional real periodic space to a two dimensional real space
- */
-class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
-    constructor(controlPoints = [new Vector2d_1.Vector2d(0, 0)], knots = [0, 1]) {
-        super(controlPoints, knots);
-    }
-    get periodicControlPointsLength() {
-        return this._controlPoints.length - this._degree;
-    }
-    get freeControlPoints() {
-        let periodicControlPoints = [];
-        for (let i = 0; i < this.periodicControlPointsLength; i += 1) {
-            periodicControlPoints.push(this._controlPoints[i].clone());
-        }
-        return periodicControlPoints;
-    }
-    getClampSpline() {
-        const s = this.clone();
-        const degree = this._degree;
-        s.clamp(s.knots[degree]);
-        s.clamp(s.knots[s.knots.length - degree - 1]);
-        const newControlPoints = s.controlPoints.slice(degree, s.controlPoints.length - degree);
-        const newKnots = s.knots.slice(degree, s.knots.length - degree);
-        return new BSplineR1toR2_1.BSplineR1toR2(newControlPoints, newKnots);
-    }
-    /**
-     * Return a deep copy of this b-spline
-     */
-    clone() {
-        let cloneControlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._controlPoints);
-        return new PeriodicBSplineR1toR2(cloneControlPoints, this._knots.slice());
-    }
-    optimizerStep(step) {
-        const n = this.periodicControlPointsLength;
-        for (let i = 0; i < n; i += 1) {
-            this.moveControlPoint(i, step[i], step[i + n]);
-        }
-    }
-    moveControlPoint(i, deltaX, deltaY) {
-        if (i < 0 || i >= this.periodicControlPointsLength) {
-            throw new Error("Control point indentifier is out of range");
-        }
-        super.moveControlPoint(i, deltaX, deltaY);
-        let n = this.periodicControlPointsLength;
-        if (i < this.degree) {
-            super.setControlPointPosition(n + i, this.getControlPoint(i));
-        }
-    }
-    /**
-     *
-     * @param fromU Parametric position where the section start
-     * @param toU Parametric position where the section end
-     * @retrun the BSpline_R1_to_R2 section
-     */
-    extract(fromU, toU) {
-        let spline = this.clone();
-        spline.clamp(fromU);
-        spline.clamp(toU);
-        const newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(fromU, spline._knots, spline._degree);
-        const newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(toU, spline._knots, spline._degree);
-        let newKnots = [];
-        let newControlPoints = [];
-        for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline._knots[i]);
-        }
-        for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
-            newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
-        }
-        return new BSplineR1toR2_1.BSplineR1toR2(newControlPoints, newKnots);
-    }
-    getDistinctKnots() {
-        const result = super.getDistinctKnots();
-        return result.slice(this.degree, result.length - this.degree);
-    }
-    setControlPointPosition(i, value) {
-        if (i < 0 || i >= this.periodicControlPointsLength) {
-            throw new Error("Control point indentifier is out of range");
-        }
-        super.setControlPointPosition(i, value.clone());
-        if (i < this._degree) {
-            const j = this.periodicControlPointsLength + i;
-            super.setControlPointPosition(j, value.clone());
-        }
-    }
-    insertKnot(u) {
-        super.insertKnot(u, 1);
-        if (u < this._knots[2 * this._degree]) {
-            let newKnots = [];
-            let newControlPoints = [];
-            for (let i = 0; i < this._knots.length - 2 * this._degree; i += 1) {
-                newKnots.push(this._knots[i]);
-            }
-            const ui = newKnots[newKnots.length - 1];
-            for (let i = 1; i < 2 * this._degree + 1; i += 1) {
-                newKnots.push(ui + (this._knots[i] - this._knots[0]));
-            }
-            for (let i = 0; i < this._controlPoints.length - this._degree; i += 1) {
-                newControlPoints.push(new Vector2d_1.Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
-            }
-            for (let i = 0; i < this._degree; i += 1) {
-                newControlPoints.push(new Vector2d_1.Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
-            }
-            this._controlPoints = newControlPoints;
-            this._knots = newKnots;
-        }
-        if (u > this._knots[this._knots.length - 1 - 2 * this._degree]) {
-            let newKnots = [];
-            let newControlPoints = [];
-            const periodicIndex = this._knots.length - 1 - 2 * this._degree;
-            const ui = this._knots[periodicIndex];
-            for (let i = 0; i < 2 * this._degree; i += 1) {
-                newKnots.push(this._knots[1] + (this._knots[i + periodicIndex] - ui));
-            }
-            for (let i = 2 * this._degree; i < this._knots.length; i += 1) {
-                newKnots.push(this._knots[i]);
-            }
-            const cpi = this._controlPoints.length - this._degree;
-            for (let i = 0; i < this._degree; i += 1) {
-                newControlPoints.push(new Vector2d_1.Vector2d(this._controlPoints[cpi + i].x, this._controlPoints[cpi + i].y));
-            }
-            for (let i = this._degree; i < this._controlPoints.length; i += 1) {
-                newControlPoints.push(new Vector2d_1.Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
-            }
-            this._controlPoints = newControlPoints;
-            this._knots = newKnots;
-        }
-    }
-}
-exports.PeriodicBSplineR1toR2 = PeriodicBSplineR1toR2;
-function create_PeriodicBSplineR1toR2(controlPoints, knots) {
-    let newControlPoints = [];
-    for (let cp of controlPoints) {
-        newControlPoints.push(new Vector2d_1.Vector2d(cp[0], cp[1]));
-    }
-    return new PeriodicBSplineR1toR2(newControlPoints, knots);
-}
-exports.create_PeriodicBSplineR1toR2 = create_PeriodicBSplineR1toR2;
-
-
-/***/ }),
-
-/***/ "./src/bsplines/PeriodicBSplineR1toR2DifferentialProperties.ts":
-/*!*********************************************************************!*\
-  !*** ./src/bsplines/PeriodicBSplineR1toR2DifferentialProperties.ts ***!
-  \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/bsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
-const PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ./PeriodicBSplineR1toR1 */ "./src/bsplines/PeriodicBSplineR1toR1.ts");
-class PeriodicBSplineR1toR2DifferentialProperties extends AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties {
-    constructor(spline) {
-        super(spline);
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(controlPoints, knots);
-    }
-    curvatureExtrema(curvatureDerivativeNumerator) {
-        if (!curvatureDerivativeNumerator) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        const zeros = curvatureDerivativeNumerator.zeros(10e-3);
-        let result = [];
-        for (let z of zeros) {
-            result.push(this._spline.evaluate(z));
-        }
-        const a = curvatureDerivativeNumerator.controlPoints[0];
-        const b = curvatureDerivativeNumerator.controlPoints[curvatureDerivativeNumerator.controlPoints.length - 1];
-        if (a * b < 0) { // a and b have different sign
-            const u = curvatureDerivativeNumerator.knots[curvatureDerivativeNumerator.knots.length - 1];
-            result.push(this._spline.evaluate(u));
-        }
-        return result;
-    }
-}
-exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2DifferentialProperties;
-
-
-/***/ }),
-
 /***/ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts":
 /*!*************************************************!*\
   !*** ./src/bsplines/Piegl_Tiller_NURBS_Book.ts ***!
@@ -1727,6 +58,7 @@ exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2Diffe
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.decomposeFunction = exports.basisFunctions = exports.clampingFindSpan = exports.findSpan = void 0;
 /**
  * Returns the span index
  * @param u parameter
@@ -1881,18 +213,1176 @@ exports.decomposeFunction = decomposeFunction;
 
 /***/ }),
 
-/***/ "./src/bsplines/RationalBSplineR1toR2.ts":
-/*!***********************************************!*\
-  !*** ./src/bsplines/RationalBSplineR1toR2.ts ***!
-  \***********************************************/
+/***/ "./src/bsplines/R1toR1/BSplineR1toR1.ts":
+/*!**********************************************!*\
+  !*** ./src/bsplines/R1toR1/BSplineR1toR1.ts ***!
+  \**********************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-const BSplineR1toR3_1 = __webpack_require__(/*! ./BSplineR1toR3 */ "./src/bsplines/BSplineR1toR3.ts");
-const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ./RationalBSplineR1toR2Adapter */ "./src/bsplines/RationalBSplineR1toR2Adapter.ts");
+exports.BSplineR1toR1 = void 0;
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const BaseBSplineR1toR1_1 = __webpack_require__(/*! ./BaseBSplineR1toR1 */ "./src/bsplines/R1toR1/BaseBSplineR1toR1.ts");
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a one dimensional real space
+ */
+class BSplineR1toR1 extends BaseBSplineR1toR1_1.BaseBSplineR1toR1 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [0], knots = [0, 1]) {
+        super(controlPoints, knots);
+    }
+    factory(controlPoints = [0], knots = [0, 1]) {
+        return new BSplineR1toR1(controlPoints, knots);
+    }
+    bernsteinDecomposition() {
+        // Piegl_Tiller_NURBS_Book.ts
+        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1((0, Piegl_Tiller_NURBS_Book_1.decomposeFunction)(this));
+    }
+    clone() {
+        return new BSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+    }
+    derivative() {
+        let newControlPoints = [];
+        let newKnots = [];
+        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+            newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
+        }
+        newKnots = this._knots.slice(1, this._knots.length - 1);
+        return new BSplineR1toR1(newControlPoints, newKnots);
+    }
+    elevateDegree() {
+        const bds = this.bernsteinDecomposition();
+        bds.elevateDegree();
+        const knots = this.distinctKnots();
+        const newSpline = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bds, knots);
+        for (let i = 0; i < knots.length; i += 1) {
+            let m = this.knotMultiplicity((0, Piegl_Tiller_NURBS_Book_1.findSpan)(knots[i], this.knots, this.degree));
+            for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
+                newSpline.removeKnot((0, Piegl_Tiller_NURBS_Book_1.findSpan)(newSpline.knots[i], newSpline.knots, newSpline.degree));
+            }
+        }
+        return newSpline;
+    }
+    removeKnot(indexFromFindSpan, tolerance = 10e-5) {
+        //Piegl and Tiller, The NURBS book, p : 185
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        const index = indexFromFindSpan;
+        // end knots are not removed
+        if (index > this._degree && index < this.knots.length - this._degree - 1) {
+            throw new Error("index out of range");
+        }
+        //const double tolerance = 1;
+        const multiplicity = this.knotMultiplicity(index, knots);
+        const last = index - multiplicity;
+        const first = index - this.degree;
+        const offset = first - 1;
+        //std::vector<vectorType> local(2*degree+1);
+        let local = [];
+        local[0] = controlPoints[offset];
+        local[last + 1 - offset] = controlPoints[last + 1];
+        let i = first;
+        let j = last;
+        let ii = 1;
+        let jj = last - offset;
+        let removable = false;
+        // Compute new control point for one removal step
+        while (j > i) {
+            let alpha_i = (knots[index] - knots[i]) / (knots[i + this.degree + 1] - knots[i]);
+            let alpha_j = (knots[index] - knots[j]) / (knots[j + this.degree + 1] - knots[j]);
+            local[ii] = (controlPoints[i] - (local[ii - 1] * (1.0 - alpha_i))) / alpha_i;
+            local[jj] = (controlPoints[j] - (local[jj + 1] * (alpha_j))) / (1.0 - alpha_j);
+            ++i;
+            ++ii;
+            --j;
+            --jj;
+        }
+        if (j < i) {
+            if ((local[ii - 1] - (local[jj + 1])) <= tolerance) {
+                removable = true;
+            }
+        }
+        else {
+            const alpha_i = (knots[index] - knots[i]) / (knots[i + this.degree + 1] - knots[i]);
+            if (((controlPoints[i] - ((local[ii + 1] * (alpha_i)))) + (local[ii - 1] * (1.0 - alpha_i))) <= tolerance) {
+                removable = true;
+            }
+        }
+        if (removable == false)
+            return;
+        else {
+            let i = first;
+            let j = last;
+            while (j > i) {
+                controlPoints[i] = local[i - offset];
+                controlPoints[j] = local[j - offset];
+                ++i;
+                --j;
+            }
+        }
+        this.knots.splice(index, 1);
+        const fout = (2 * index - multiplicity - this.degree) / 2;
+        controlPoints.splice(fout, 1);
+        return new BSplineR1toR1(controlPoints, knots);
+    }
+    moveControlPoint(i, delta) {
+        if (i < 0 || i >= this.controlPoints.length) {
+            throw new Error("Control point indentifier is out of range");
+        }
+        let newControlPoints = this.controlPoints;
+        newControlPoints[i] += delta;
+        return new BSplineR1toR1(newControlPoints, this.knots);
+    }
+}
+exports.BSplineR1toR1 = BSplineR1toR1;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR1/BaseBSplineR1toR1.ts":
+/*!**************************************************!*\
+  !*** ./src/bsplines/R1toR1/BaseBSplineR1toR1.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BaseBSplineR1toR1 = void 0;
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector2d_1 = __webpack_require__(/*! ../../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const BSplineR1toR2_1 = __webpack_require__(/*! ../R1toR2/BSplineR1toR2 */ "./src/bsplines/R1toR2/BSplineR1toR2.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a one dimensional real space
+ */
+class BaseBSplineR1toR1 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [0], knots = [0, 1]) {
+        this._controlPoints = [];
+        this._knots = [];
+        this._degree = 0;
+        this._controlPoints = [...controlPoints];
+        this._knots = [...knots];
+        this._degree = this.computeDegree();
+    }
+    computeDegree() {
+        let degree = this._knots.length - this._controlPoints.length - 1;
+        if (degree < 0) {
+            throw new Error("Negative degree BSplineR1toR1 are not supported");
+        }
+        return degree;
+    }
+    get controlPoints() {
+        return [...this._controlPoints];
+    }
+    get knots() {
+        return [...this._knots];
+    }
+    get degree() {
+        return this._degree;
+    }
+    /**
+     * B-Spline evaluation
+     * @param u the parameter
+     * @returns the value of the B-Spline at u
+     */
+    evaluate(u) {
+        const span = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(u, this.knots, this._degree);
+        const basis = (0, Piegl_Tiller_NURBS_Book_1.basisFunctions)(span, u, this.knots, this._degree);
+        let result = 0;
+        for (let i = 0; i < this._degree + 1; i += 1) {
+            result += basis[i] * this._controlPoints[span - this._degree + i];
+        }
+        return result;
+    }
+    distinctKnots() {
+        let result = [this._knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this._knots.length; i += 1) {
+            if (this._knots[i] !== temp) {
+                result.push(this._knots[i]);
+                temp = this._knots[i];
+            }
+        }
+        return result;
+    }
+    zeros(tolerance = 10e-8) {
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        let spline = this.clone();
+        let greville = [];
+        let maxError = tolerance * 2;
+        let vertexIndex = [];
+        let it = 0;
+        while (maxError > tolerance && it < 10e8) {
+            it += 1;
+            let maximum = 0;
+            let newKnots = [];
+            vertexIndex = findControlPointsFollowingSignChanges(spline);
+            greville = spline.grevilleAbscissae();
+            for (let v of vertexIndex) {
+                let uLeft = greville[v - 1];
+                let uRight = greville[v];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    let lineZero = this.robustFindLineZero(uLeft, spline.controlPoints[v - 1], uRight, spline.controlPoints[v]);
+                    newKnots.push(0.05 * (uLeft + uRight) / 2 + 0.95 * lineZero);
+                }
+            }
+            for (let knot of newKnots) {
+                spline = spline.insertKnot(knot);
+            }
+            maxError = maximum;
+        }
+        vertexIndex = findControlPointsFollowingSignChanges(spline);
+        let result = [];
+        for (let v of vertexIndex) {
+            result.push(greville[v]);
+        }
+        return result;
+    }
+    grevilleAbscissae() {
+        let result = [];
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
+                sum += this._knots[j];
+            }
+            result.push(sum / this._degree);
+        }
+        return result;
+    }
+    insertKnot(u, times = 1) {
+        if (times <= 0) {
+            return this.factory(this.controlPoints, this.knots);
+        }
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        let index = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(u, knots, this._degree);
+        let multiplicity = 0;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index, knots);
+        }
+        for (let t = 0; t < times; t += 1) {
+            let newControlPoints = [];
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - knots[i]) / (knots[i + this._degree] - knots[i]);
+                newControlPoints[i] = controlPoints[i - 1] * (1 - alpha) + controlPoints[i] * alpha;
+            }
+            for (let i = index - multiplicity; i < controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = controlPoints[i];
+            }
+            knots.splice(index + 1, 0, u);
+            controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+        return this.factory(controlPoints, knots);
+    }
+    knotMultiplicity(indexFromFindSpan, knots = this.knots) {
+        let result = 0;
+        let i = 0;
+        while (knots[indexFromFindSpan + i] === knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    }
+    clamp(u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        let index = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(u, this.knots, this._degree);
+        let newControlPoints = [];
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        let multiplicity = 0;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        const times = this._degree - multiplicity + 1;
+        for (let t = 0; t < times; t += 1) {
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - knots[i]) / (knots[i + this._degree] - knots[i]);
+                newControlPoints[i] = controlPoints[i - 1] * (1 - alpha) + controlPoints[i] * alpha;
+            }
+            for (let i = index - multiplicity; i < controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = controlPoints[i];
+            }
+            knots.splice(index + 1, 0, u);
+            controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+        return this.factory(controlPoints, knots);
+    }
+    curve() {
+        let x = this.grevilleAbscissae();
+        let cp = [];
+        for (let i = 0; i < x.length; i += 1) {
+            cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
+        }
+        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
+    }
+    controlPolygonNumberOfSignChanges() {
+        let result = 0;
+        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+    controlPolygonZeros() {
+        let result = [];
+        let greville = this.grevilleAbscissae();
+        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result.push(this.findLineZero(greville[i], this._controlPoints[i], greville[i + 1], this._controlPoints[i + 1]));
+            }
+        }
+        return result;
+    }
+    findLineZero(x1, y1, x2, y2) {
+        // find the zero of the line y = ax + b
+        let a = (y2 - y1) / (x2 - x1);
+        let b = y1 - a * x1;
+        return -b / a;
+    }
+    robustFindLineZero(x1, y1, x2, y2) {
+        let result = this.findLineZero(x1, y1, x2, y2);
+        if (isNaN(result)) {
+            return x1;
+        }
+        return result;
+    }
+}
+exports.BaseBSplineR1toR1 = BaseBSplineR1toR1;
+function findControlPointsFollowingSignChanges(spline) {
+    let cpLeft = spline.controlPoints[0];
+    let vertexIndex = [];
+    for (let index = 1; index < spline.controlPoints.length; index += 1) {
+        let cpRight = spline.controlPoints[index];
+        if (cpLeft <= 0 && cpRight > 0) {
+            vertexIndex.push(index);
+        }
+        if (cpLeft >= 0 && cpRight < 0) {
+            vertexIndex.push(index);
+        }
+        cpLeft = cpRight;
+    }
+    if (spline.controlPoints[spline.controlPoints.length - 1] == 0) {
+        vertexIndex.push(spline.controlPoints.length - 1);
+    }
+    return vertexIndex;
+}
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts":
+/*!*************************************************************!*\
+  !*** ./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.determinant2by2 = exports.splineRecomposition = exports.BernsteinDecompositionR1toR1 = void 0;
+const BinomialCoefficient_1 = __webpack_require__(/*! ../BinomialCoefficient */ "./src/bsplines/BinomialCoefficient.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+/**
+* A Bernstein decomposition of a B-Spline function from a one dimensional real space to a one dimensional real space
+*/
+class BernsteinDecompositionR1toR1 {
+    /**
+     *
+     * @param controlPointsArray An array of array of control points
+     */
+    constructor(controlPointsArray = []) {
+        this.controlPointsArray = controlPointsArray;
+    }
+    add(bd) {
+        let result = [];
+        for (let i = 0; i < bd.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (let j = 0; j < bd.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] + bd.controlPointsArray[i][j];
+            }
+        }
+        return new BernsteinDecompositionR1toR1(result);
+    }
+    subtract(bd) {
+        let result = [];
+        for (let i = 0; i < bd.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (let j = 0; j < bd.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] - bd.controlPointsArray[i][j];
+            }
+        }
+        return new BernsteinDecompositionR1toR1(result);
+    }
+    multiply(bd) {
+        return new BernsteinDecompositionR1toR1(this.bernsteinMultiplicationArray(this.controlPointsArray, bd.controlPointsArray));
+    }
+    multiplyRange(bd, start, lessThan) {
+        let result = [];
+        for (let i = start; i < lessThan; i += 1) {
+            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i], bd.controlPointsArray[i]);
+        }
+        return new BernsteinDecompositionR1toR1(result);
+    }
+    multiplyRange2(bd, start, lessThan) {
+        let result = [];
+        for (let i = start; i < lessThan; i += 1) {
+            result[i - start] = this.bernsteinMultiplication(this.controlPointsArray[i - start], bd.controlPointsArray[i]);
+        }
+        return new BernsteinDecompositionR1toR1(result);
+    }
+    bernsteinMultiplicationArray(f, g) {
+        let result = [];
+        for (let i = 0; i < f.length; i += 1) {
+            result[i] = this.bernsteinMultiplication(f[i], g[i]);
+        }
+        return result;
+    }
+    bernsteinMultiplication(f, g) {
+        const f_degree = f.length - 1;
+        const g_degree = g.length - 1;
+        let result = [];
+        for (let k = 0; k < f_degree + g_degree + 1; k += 1) {
+            let cp = 0;
+            for (let i = Math.max(0, k - g_degree); i < Math.min(f_degree, k) + 1; i += 1) {
+                let bfu = BernsteinDecompositionR1toR1.binomial(f_degree, i);
+                let bgu = BernsteinDecompositionR1toR1.binomial(g_degree, k - i);
+                let bfugu = BernsteinDecompositionR1toR1.binomial(f_degree + g_degree, k);
+                cp += bfu * bgu / bfugu * f[i] * g[k - i];
+            }
+            result[k] = cp;
+        }
+        return result;
+    }
+    multiplyByScalar(value) {
+        let result = [];
+        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (let j = 0; j < this.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] * value;
+            }
+        }
+        return new BernsteinDecompositionR1toR1(result);
+    }
+    addScalar(value) {
+        let result = [];
+        for (let i = 0; i < this.controlPointsArray.length; i += 1) {
+            result[i] = [];
+            for (let j = 0; j < this.controlPointsArray[0].length; j += 1) {
+                result[i][j] = this.controlPointsArray[i][j] + value;
+            }
+        }
+        return new BernsteinDecompositionR1toR1(result);
+    }
+    flattenControlPointsArray() {
+        return this.controlPointsArray.reduce(function (acc, val) {
+            return acc.concat(val);
+        }, []);
+    }
+    subset(start, lessThan) {
+        return new BernsteinDecompositionR1toR1(this.controlPointsArray.slice(start, lessThan));
+    }
+    elevateDegree(times = 1) {
+        let newControlPointsArray = [];
+        for (let cps of this.controlPointsArray) {
+            newControlPointsArray.push(this.elevateDegreeB(cps, times));
+        }
+        this.controlPointsArray = newControlPointsArray;
+    }
+    elevateDegreeB(controlPoints, times = 1) {
+        const degree = controlPoints.length - 1;
+        let result = [];
+        for (let i = 0; i < controlPoints.length + times; i += 1) {
+            let cp = 0;
+            for (let j = Math.max(0, i - times); j <= Math.min(degree, i); j += 1) {
+                const bc0 = (0, BinomialCoefficient_1.binomialCoefficient)(times, i - j);
+                const bc1 = (0, BinomialCoefficient_1.binomialCoefficient)(degree, j);
+                const bc2 = (0, BinomialCoefficient_1.binomialCoefficient)(degree + times, i);
+                cp += bc0 * bc1 / bc2 * controlPoints[j];
+            }
+            result.push(cp);
+        }
+        return result;
+    }
+    splineRecomposition(distinctKnots) {
+        const cp = this.flattenControlPointsArray();
+        const degree = this.getDegree();
+        let knots = [];
+        for (let distinctKnot of distinctKnots) {
+            for (let j = 0; j < degree + 1; j += 1) {
+                knots.push(distinctKnot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(cp, knots);
+    }
+    getDegree() {
+        return this.controlPointsArray[0].length - 1;
+    }
+}
+exports.BernsteinDecompositionR1toR1 = BernsteinDecompositionR1toR1;
+BernsteinDecompositionR1toR1.binomial = (0, BinomialCoefficient_1.memoizedBinomialCoefficient)();
+BernsteinDecompositionR1toR1.flopsCounter = 0;
+function splineRecomposition(bernsteinDecomposiiton, distinctKnots) {
+    const cp = bernsteinDecomposiiton.flattenControlPointsArray();
+    const degree = bernsteinDecomposiiton.getDegree();
+    let knots = [];
+    for (let distinctKnot of distinctKnots) {
+        for (let j = 0; j < degree + 1; j += 1) {
+            knots.push(distinctKnot);
+        }
+    }
+    return new BSplineR1toR1_1.BSplineR1toR1(cp, knots);
+}
+exports.splineRecomposition = splineRecomposition;
+function determinant2by2(ax, ay, bx, by) {
+    return (ax.multiply(by)).subtract(bx.multiply(ay));
+}
+exports.determinant2by2 = determinant2by2;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR2/BSplineR1toR2.ts":
+/*!**********************************************!*\
+  !*** ./src/bsplines/R1toR2/BSplineR1toR2.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.create_BSplineR1toR2 = exports.BSplineR1toR2 = void 0;
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector2d_1 = __webpack_require__(/*! ../../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const BaseBSplineR1toR2_1 = __webpack_require__(/*! ./BaseBSplineR1toR2 */ "./src/bsplines/R1toR2/BaseBSplineR1toR2.ts");
+const BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./BSplineR1toR2DifferentialProperties */ "./src/bsplines/R1toR2/BSplineR1toR2DifferentialProperties.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+class BSplineR1toR2 extends BaseBSplineR1toR2_1.BaseBSplineR1toR2 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [new Vector2d_1.Vector2d(0, 0)], knots = [0, 1]) {
+        super(controlPoints, knots);
+    }
+    factory(controlPoints = [new Vector2d_1.Vector2d(0, 0)], knots = [0, 1]) {
+        return new BSplineR1toR2(controlPoints, knots);
+    }
+    get freeControlPoints() {
+        return this.controlPoints;
+    }
+    /**
+     * Return a deep copy of this b-spline
+     */
+    clone() {
+        let cloneControlPoints = (0, BaseBSplineR1toR2_1.deepCopyControlPoints)(this._controlPoints);
+        return new BSplineR1toR2(cloneControlPoints, this._knots.slice());
+    }
+    optimizerStep(step) {
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            this._controlPoints[i].x += step[i];
+            this._controlPoints[i].y += step[i + this._controlPoints.length];
+        }
+    }
+    /**
+     *
+     * @param fromU Parametric position where the section start
+     * @param toU Parametric position where the section end
+     * @retrun the BSpline_R1_to_R2 section
+     */
+    extract(fromU, toU) {
+        let spline = this.clone();
+        spline = spline.clamp(fromU);
+        spline = spline.clamp(toU);
+        const newFromSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(fromU, spline._knots, spline._degree);
+        const newToSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(toU, spline._knots, spline._degree);
+        let newKnots = [];
+        let newControlPoints = [];
+        for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
+            newKnots.push(spline._knots[i]);
+        }
+        for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
+            newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+        }
+        return new BSplineR1toR2(newControlPoints, newKnots);
+    }
+    elevateDegree() {
+        const s = this.generateIntermediateSplinesForDegreeElevation();
+        let splineHigherDegree = new BSplineR1toR2(s.controlPolygons[0], s.knotVectors[0]);
+        if (this.knotMultiplicity(this._knots[0]) !== this._degree + 1 || this.knotMultiplicity(this.knots[this._knots.length - 1]) !== this._degree + 1) {
+            for (let i = 1; i <= this._degree; i += 1) {
+                let splineTemp = new BSplineR1toR2(s.controlPolygons[i], s.knotVectors[i]);
+                let j = 0;
+                while (j < splineHigherDegree.knots.length) {
+                    if (splineHigherDegree.knots[j] !== splineTemp.knots[j] && splineHigherDegree.knots[j] < splineTemp.knots[j]) {
+                        splineTemp = splineTemp.insertKnot(splineHigherDegree.knots[j]);
+                    }
+                    else if (splineHigherDegree.knots[j] !== splineTemp.knots[j] && splineHigherDegree.knots[j] > splineTemp.knots[j]) {
+                        splineHigherDegree = splineHigherDegree.insertKnot(splineTemp.knots[j]);
+                    }
+                    j += 1;
+                }
+                for (let ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
+                    let cp = splineHigherDegree.controlPoints[ind].add(splineTemp.controlPoints[ind]);
+                    let cps = splineHigherDegree.controlPoints;
+                    cps[ind] = cp;
+                    splineHigherDegree = new BSplineR1toR2(cps, splineHigherDegree.knots);
+                }
+            }
+            for (let j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
+                let cp = splineHigherDegree.controlPoints[j].multiply(1 / (this.degree + 1));
+                let cps = splineHigherDegree.controlPoints;
+                cps[j] = cp;
+                splineHigherDegree = new BSplineR1toR2(cps, splineHigherDegree.knots);
+            }
+        }
+        else
+            throw new Error('incompatible knot vector of the input spline');
+        return new BSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
+    }
+    generateIntermediateSplinesForDegreeElevation() {
+        let knotVectors = [];
+        let controlPolygons = [];
+        for (let i = 0; i <= this.degree; i += 1) {
+            let knotVector = this.knots.slice();
+            let controlPolygon = this.controlPoints.slice();
+            let k = 0;
+            for (let j = i; j < this.knots.length; j += this.degree + 1) {
+                knotVector.splice((j + k), 0, this.knots[j]);
+                if (j < this.controlPoints.length) {
+                    let controlPoint = this.controlPoints[j];
+                    controlPolygon.splice((j + k), 0, controlPoint);
+                }
+                k += 1;
+            }
+            knotVectors.push(knotVector);
+            controlPolygons.push(controlPolygon);
+        }
+        return {
+            knotVectors: knotVectors,
+            controlPolygons: controlPolygons
+        };
+    }
+    /*
+        elevateDegreeWithRemoveKnot() {
+            const sx = new BSplineR1toR1(this.getControlPointsX(), this.knots)
+            const sy = new BSplineR1toR1(this.getControlPointsY(), this.knots)
+            const bdsx = sx.bernsteinDecomposition()
+            const bdsy = sy.bernsteinDecomposition()
+            bdsx.elevateDegree()
+            bdsy.elevateDegree()
+    
+            const knots = this.distinctKnots()
+    
+    
+            const sxNew = splineRecomposition(bdsx, knots)
+            const syNew = splineRecomposition(bdsy, knots)
+    
+            let newcp: Vector2d[] = []
+            for (let i = 0; i < sxNew.controlPoints.length; i += 1) {
+                newcp.push(new Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]))
+            }
+            let newSpline = new BSplineR1toR2(newcp, sxNew.knots)
+    
+            for (let i = 0; i < knots.length; i += 1) {
+                let m = this.knotMultiplicity(findSpan(knots[i], this.knots, this.degree))
+                for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
+                    newSpline.removeKnot(findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree))
+                }
+            }
+    
+            
+            this.controlPoints = newSpline.controlPoints
+            this.knots = newSpline.knots
+            this._degree = newSpline.degree
+            
+            
+            return newSpline
+        }
+    
+        removeKnot(indexFromFindSpan: number, tolerance: number = 10e-5) {
+            //Piegl and Tiller, The NURBS book, p : 185
+        
+            const index = indexFromFindSpan
+    
+            // end knots are not removed
+            if (index > this._degree && index < this.knots.length-this._degree - 1) {
+                throw new Error("index out of range")
+            }
+            
+            //const double tolerance = 1;
+            
+            const multiplicity = this.knotMultiplicity(index);
+            
+            const last = index - multiplicity
+            const first = index -this.degree
+            const offset = first -1;
+            //std::vector<vectorType> local(2*degree+1);
+            let local: Vector2d[] = []
+            local[0] = this.controlPoints[offset];
+            local[last+1-offset] = this.controlPoints[last+1];
+            let i = first;
+            let j = last;
+            let ii = 1;
+            let jj = last - offset;
+            let removable = false;
+            
+            // Compute new control point for one removal step
+            while (j>i){
+                let alpha_i = (this.knots[index] - this.knots[i])/(this.knots[i+this.degree+1]-this.knots[i]);
+                let alpha_j = (this.knots[index] - this.knots[j])/(this.knots[j+this.degree+1] - this.knots[j]);
+                local[ii] = (this._controlPoints[i].subtract(local[ii-1].multiply(1.0-alpha_i))).multiply(1 / alpha_i )
+                local[jj] = (this._controlPoints[j].subtract(local[jj+1].multiply(alpha_j))).multiply(1 / (1.0-alpha_j) )
+                ++i;
+                ++ii;
+                --j;
+                --jj;
+            }
+            
+            if (j < i) {
+                if ((local[ii-1].subtract(local[jj+1])).norm() <= tolerance){
+                    removable = true;
+                }
+            }
+            else {
+                const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i+this.degree+1]-this.knots[i]) ;
+                if ( ((this._controlPoints[i].subtract((local[ii+1].multiply(alpha_i)))).add (local[ii-1].multiply(1.0- alpha_i))).norm() <= tolerance) {
+                    removable = true;
+                }
+            }
+            
+            if (!removable) return;
+            else {
+                let iii = first;
+                let jjj = last;
+                while (jjj > i) {
+                    this._controlPoints[iii] = local[iii-offset];
+                    this._controlPoints[jjj] = local[jjj-offset];
+                    ++iii;
+                    --jjj;
+                }
+            }
+            
+            this.knots.splice(index, 1)
+            
+            const fout = (2*index - multiplicity - this.degree) / 2;
+            this._controlPoints.splice(fout, 1);
+        }
+    
+        */
+    distinctKnots() {
+        let result = [this.knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
+    }
+    getDifferentialProperties() {
+        return new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this);
+    }
+    insertKnot(u, times = 1) {
+        return super.insertKnot(u, times);
+    }
+    clamp(u) {
+        return super.clamp(u);
+    }
+}
+exports.BSplineR1toR2 = BSplineR1toR2;
+function create_BSplineR1toR2(controlPoints, knots) {
+    let newControlPoints = [];
+    for (let cp of controlPoints) {
+        newControlPoints.push(new Vector2d_1.Vector2d(cp[0], cp[1]));
+    }
+    return new BSplineR1toR2(newControlPoints, knots);
+}
+exports.create_BSplineR1toR2 = create_BSplineR1toR2;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR2/BSplineR1toR2DifferentialProperties.ts":
+/*!********************************************************************!*\
+  !*** ./src/bsplines/R1toR2/BSplineR1toR2DifferentialProperties.ts ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BSplineR1toR2DifferentialProperties = void 0;
+const BaseBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./BaseBSplineR1toR2DifferentialProperties */ "./src/bsplines/R1toR2/BaseBSplineR1toR2DifferentialProperties.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ../R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+class BSplineR1toR2DifferentialProperties extends BaseBSplineR1toR2DifferentialProperties_1.BaseBSplineR1toR2DifferentialProperties {
+    constructor(spline) {
+        super(spline);
+    }
+    bSplineR1toR1Factory(controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+}
+exports.BSplineR1toR2DifferentialProperties = BSplineR1toR2DifferentialProperties;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR2/BaseBSplineR1toR2.ts":
+/*!**************************************************!*\
+  !*** ./src/bsplines/R1toR2/BaseBSplineR1toR2.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.deepCopyControlPoints = exports.BaseBSplineR1toR2 = void 0;
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector2d_1 = __webpack_require__(/*! ../../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+class BaseBSplineR1toR2 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [new Vector2d_1.Vector2d(0, 0)], knots = [0, 1]) {
+        this._controlPoints = deepCopyControlPoints(controlPoints);
+        this._knots = [...knots];
+        this._degree = this.computeDegree();
+    }
+    computeDegree() {
+        let degree = this._knots.length - this._controlPoints.length - 1;
+        if (degree < 0) {
+            throw new Error("Negative degree BSplineR1toR1 are not supported");
+        }
+        return degree;
+    }
+    get controlPoints() {
+        return deepCopyControlPoints(this._controlPoints);
+    }
+    get knots() {
+        return [...this._knots];
+    }
+    get degree() {
+        return this._degree;
+    }
+    getControlPoint(index) {
+        return this._controlPoints[index].clone();
+    }
+    /**
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    evaluate(u) {
+        const span = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(u, this._knots, this._degree);
+        const basis = (0, Piegl_Tiller_NURBS_Book_1.basisFunctions)(span, u, this._knots, this._degree);
+        let result = new Vector2d_1.Vector2d(0, 0);
+        for (let i = 0; i < this._degree + 1; i += 1) {
+            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
+            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
+        }
+        return result;
+    }
+    //abstract optimizerStep(step: number[]) : void
+    getControlPointsX() {
+        let result = [];
+        for (let cp of this._controlPoints) {
+            result.push(cp.x);
+        }
+        return result;
+    }
+    getControlPointsY() {
+        let result = [];
+        for (let cp of this._controlPoints) {
+            result.push(cp.y);
+        }
+        return result;
+    }
+    getDistinctKnots() {
+        let result = [this._knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this._knots.length; i += 1) {
+            if (this._knots[i] !== temp) {
+                result.push(this._knots[i]);
+                temp = this._knots[i];
+            }
+        }
+        return result;
+    }
+    moveControlPoint(i, delta) {
+        if (i < 0 || i >= this._controlPoints.length - this._degree) {
+            throw new Error("Control point indentifier is out of range");
+        }
+        let controlPoints = this.controlPoints;
+        controlPoints[i].add(delta);
+        return this.factory(controlPoints, this.knots);
+    }
+    moveControlPoints(delta) {
+        const n = this._controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
+        }
+        let controlPoints = this.controlPoints;
+        for (let i = 0; i < n; i += 1) {
+            controlPoints[i] = controlPoints[i].add(delta[i]);
+        }
+        return this.factory(controlPoints, this._knots);
+    }
+    setControlPointPosition(index, value) {
+        let controlPoints = this.controlPoints;
+        controlPoints[index] = value;
+        return this.factory(controlPoints, this._knots);
+    }
+    insertKnot(u, times = 1) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        if (times <= 0) {
+            return this.factory(this.controlPoints, this.knots);
+        }
+        let index = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(u, this._knots, this._degree);
+        let multiplicity = 0;
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (let t = 0; t < times; t += 1) {
+            let newControlPoints = [];
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - knots[i]) / (knots[i + this._degree] - knots[i]);
+                newControlPoints[i] = (controlPoints[i - 1].multiply(1 - alpha)).add(controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = controlPoints[i];
+            }
+            knots.splice(index + 1, 0, u);
+            controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+        return this.factory(controlPoints, knots);
+    }
+    knotMultiplicity(indexFromFindSpan) {
+        let result = 0;
+        let i = 0;
+        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    }
+    grevilleAbscissae() {
+        let result = [];
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
+                sum += this._knots[j];
+            }
+            result.push(sum / this._degree);
+        }
+        return result;
+    }
+    clamp(u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        let index = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(u, this._knots, this._degree);
+        let newControlPoints = [];
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        let multiplicity = 0;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        const times = this._degree - multiplicity + 1;
+        for (let t = 0; t < times; t += 1) {
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - knots[i]) / (knots[i + this._degree] - knots[i]);
+                newControlPoints[i] = (controlPoints[i - 1].multiply(1 - alpha)).add(controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = controlPoints[i];
+            }
+            knots.splice(index + 1, 0, u);
+            controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+        return this.factory(controlPoints, knots);
+    }
+}
+exports.BaseBSplineR1toR2 = BaseBSplineR1toR2;
+function deepCopyControlPoints(controlPoints) {
+    let result = [];
+    for (let cp of controlPoints) {
+        result.push(cp.clone());
+    }
+    return result;
+}
+exports.deepCopyControlPoints = deepCopyControlPoints;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR2/BaseBSplineR1toR2DifferentialProperties.ts":
+/*!************************************************************************!*\
+  !*** ./src/bsplines/R1toR2/BaseBSplineR1toR2DifferentialProperties.ts ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BaseBSplineR1toR2DifferentialProperties = void 0;
+const BSplineR1toR1_1 = __webpack_require__(/*! ../R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+class BaseBSplineR1toR2DifferentialProperties {
+    constructor(spline) {
+        this._spline = spline.clone();
+    }
+    expensiveComputation(spline) {
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        const sxu = sx.derivative();
+        const syu = sy.derivative();
+        const sxuu = sxu.derivative();
+        const syuu = syu.derivative();
+        const sxuuu = sxuu.derivative();
+        const syuuu = syuu.derivative();
+        const bdsxu = sxu.bernsteinDecomposition();
+        const bdsyu = syu.bernsteinDecomposition();
+        const bdsxuu = sxuu.bernsteinDecomposition();
+        const bdsyuu = syuu.bernsteinDecomposition();
+        const bdsxuuu = sxuuu.bernsteinDecomposition();
+        const bdsyuuu = syuuu.bernsteinDecomposition();
+        const h1 = (bdsxu.multiply(bdsxu)).add((bdsyu.multiply(bdsyu)));
+        const h2 = (bdsxu.multiply(bdsyuuu)).subtract((bdsyu.multiply(bdsxuuu)));
+        const h3 = (bdsxu.multiply(bdsxuu)).add((bdsyu.multiply(bdsyuu)));
+        const h4 = (bdsxu.multiply(bdsyuu)).subtract((bdsyu.multiply(bdsxuu)));
+        return {
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    }
+    curvatureNumerator() {
+        const e = this.expensiveComputation(this._spline);
+        const distinctKnots = this._spline.getDistinctKnots();
+        const controlPoints = e.h4.flattenControlPointsArray();
+        const curvatureNumeratorDegree = 2 * this._spline.degree - 3;
+        let knots = [];
+        for (let knot of distinctKnots) {
+            for (let j = 0; j < curvatureNumeratorDegree + 1; j += 1) {
+                knots.push(knot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    h1() {
+        const e = this.expensiveComputation(this._spline);
+        const distinctKnots = this._spline.getDistinctKnots();
+        const controlPoints = e.h1.flattenControlPointsArray();
+        const h1Degree = 2 * this._spline.degree - 2;
+        let knots = [];
+        for (let knot of distinctKnots) {
+            for (let j = 0; j < h1Degree + 1; j += 1) {
+                knots.push(knot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    inflections(curvatureNumerator) {
+        if (!curvatureNumerator) {
+            curvatureNumerator = this.curvatureNumerator();
+        }
+        const zeros = curvatureNumerator.zeros();
+        let result = [];
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    }
+    curvatureDerivativeNumerator() {
+        const e = this.expensiveComputation(this._spline);
+        const bd_curvatureDerivativeNumerator = (e.h1.multiply(e.h2)).subtract(e.h3.multiply(e.h4).multiplyByScalar(3));
+        const distinctKnots = this._spline.getDistinctKnots();
+        const controlPoints = bd_curvatureDerivativeNumerator.flattenControlPointsArray();
+        const curvatureDerivativeNumeratorDegree = 4 * this._spline.degree - 6;
+        let knots = [];
+        for (let knot of distinctKnots) {
+            for (let j = 0; j < curvatureDerivativeNumeratorDegree + 1; j += 1) {
+                knots.push(knot);
+            }
+        }
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    curvatureExtrema(_curvatureDerivativeNumerator) {
+        if (!_curvatureDerivativeNumerator) {
+            _curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        const zeros = _curvatureDerivativeNumerator.zeros();
+        let result = [];
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z));
+        }
+        return result;
+    }
+}
+exports.BaseBSplineR1toR2DifferentialProperties = BaseBSplineR1toR2DifferentialProperties;
+
+
+/***/ }),
+
+/***/ "./src/bsplines/R1toR2/RationalBSplineR1toR2.ts":
+/*!******************************************************!*\
+  !*** ./src/bsplines/R1toR2/RationalBSplineR1toR2.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.create_RationalBSplineR1toR2 = exports.RationalBSplineR1toR2 = void 0;
+const Vector2d_1 = __webpack_require__(/*! ../../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector3d_1 = __webpack_require__(/*! ../../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const BSplineR1toR3_1 = __webpack_require__(/*! ../R1toR3/BSplineR1toR3 */ "./src/bsplines/R1toR3/BSplineR1toR3.ts");
+const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ./RationalBSplineR1toR2Adapter */ "./src/bsplines/R1toR2/RationalBSplineR1toR2Adapter.ts");
+const RationalBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./RationalBSplineR1toR2DifferentialProperties */ "./src/bsplines/R1toR2/RationalBSplineR1toR2DifferentialProperties.ts");
 class RationalBSplineR1toR2 {
     /**
      * Create a B-Spline
@@ -1905,9 +1395,6 @@ class RationalBSplineR1toR2 {
     get knots() {
         return this.spline.knots;
     }
-    set knots(knots) {
-        this.spline.knots = [...knots];
-    }
     get degree() {
         return this.spline.degree;
     }
@@ -1916,9 +1403,6 @@ class RationalBSplineR1toR2 {
     }
     get freeControlPoints() {
         return this.spline.freeControlPoints;
-    }
-    set controlPoints(controlPoints) {
-        this.spline.controlPoints = controlPoints;
     }
     evaluate(u) {
         let result = this.spline.evaluate(u);
@@ -1935,10 +1419,17 @@ class RationalBSplineR1toR2 {
         return new RationalBSplineR1toR2(this.spline.controlPoints, this.spline.knots);
     }
     insertKnot(u, times = 1) {
-        this.spline.insertKnot(u, times);
+        let s = this.spline.insertKnot(u, times);
+        return new RationalBSplineR1toR2(s.controlPoints, s.knots);
     }
-    optimizerStep(step) {
-        this.spline.optimizerStep(step);
+    /*
+    optimizerStep(step: number[]) {
+        this.spline.optimizerStep(step)
+    }
+    */
+    moveControlPoints(delta) {
+        const s = this.spline.moveControlPoints(delta);
+        return new RationalBSplineR1toR2(s.controlPoints, s.knots);
     }
     extract(fromU, toU) {
         return this.spline.extract(fromU, toU);
@@ -1953,13 +1444,15 @@ class RationalBSplineR1toR2 {
         return this.spline.getControlPointsZ();
     }
     setControlPointPosition(index, value) {
-        this.spline.setControlPointPosition(index, value);
+        const s = this.spline.setControlPointPosition(index, value);
+        return new RationalBSplineR1toR2(s.controlPoints, s.knots);
     }
     setControlPointWeight(controlPointIndex, w) {
         const x = this.controlPoints[controlPointIndex].x;
         const y = this.controlPoints[controlPointIndex].y;
         const z = this.controlPoints[controlPointIndex].z;
-        this.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x * w / z, y * w / z, w));
+        const s = this.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x * w / z, y * w / z, w));
+        return new RationalBSplineR1toR2(s.controlPoints, s.knots);
     }
     getControlPointWeight(controlPointIndex) {
         return this.controlPoints[controlPointIndex].z;
@@ -1989,6 +1482,12 @@ class RationalBSplineR1toR2 {
         }
         return result;
     }
+    elevateDegree() {
+        this.spline.elevateDegree();
+    }
+    getDifferentialProperties() {
+        return new RationalBSplineR1toR2DifferentialProperties_1.RationalBSplineR1toR2DifferentialProperties(this);
+    }
 }
 exports.RationalBSplineR1toR2 = RationalBSplineR1toR2;
 function create_RationalBSplineR1toR2(controlPoints, knots) {
@@ -2003,22 +1502,18 @@ exports.create_RationalBSplineR1toR2 = create_RationalBSplineR1toR2;
 
 /***/ }),
 
-/***/ "./src/bsplines/RationalBSplineR1toR2Adapter.ts":
-/*!******************************************************!*\
-  !*** ./src/bsplines/RationalBSplineR1toR2Adapter.ts ***!
-  \******************************************************/
+/***/ "./src/bsplines/R1toR2/RationalBSplineR1toR2Adapter.ts":
+/*!*************************************************************!*\
+  !*** ./src/bsplines/R1toR2/RationalBSplineR1toR2Adapter.ts ***!
+  \*************************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-const RationalBSplineR1toR2_1 = __webpack_require__(/*! ./RationalBSplineR1toR2 */ "./src/bsplines/RationalBSplineR1toR2.ts");
+exports.RationalBSplineR1toR2Adapter = void 0;
+const Vector3d_1 = __webpack_require__(/*! ../../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const RationalBSplineR1toR2_1 = __webpack_require__(/*! ./RationalBSplineR1toR2 */ "./src/bsplines/R1toR2/RationalBSplineR1toR2.ts");
 class RationalBSplineR1toR2Adapter {
-    /**
-     * Create a B-Spline
-     * @param controlPoints The control points array
-     * @param knots The knot vector
-     */
     constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 1)], knots = [0, 1]) {
         this._spline = new RationalBSplineR1toR2_1.RationalBSplineR1toR2(controlPoints, knots);
     }
@@ -2036,16 +1531,33 @@ class RationalBSplineR1toR2Adapter {
         }
         return result;
     }
-    moveControlPoint(i, deltaX, deltaY) {
+    moveControlPoint(i, delta) {
         if (i < 0 || i >= this._spline.controlPoints.length - this._spline.degree) {
             throw new Error("Control point indentifier is out of range");
         }
-        this._spline.controlPoints[i].x += deltaX;
-        this._spline.controlPoints[i].y += deltaY;
+        const z = this._spline.controlPoints[i].z;
+        let controlPoints = this._spline.controlPoints;
+        controlPoints[i].x += delta.x * z;
+        controlPoints[i].y += delta.y * z;
+        return new RationalBSplineR1toR2Adapter(controlPoints, this.knots);
+    }
+    moveControlPoints(delta) {
+        const n = this._spline.controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
+        }
+        let controlPoints = this._spline.controlPoints;
+        for (let i = 0; i < n; i += 1) {
+            const z = this._spline.controlPoints[i].z;
+            controlPoints[i].x += delta[i].x * z;
+            controlPoints[i].y += delta[i].y * z;
+        }
+        return new RationalBSplineR1toR2Adapter(controlPoints, this.knots);
     }
     setControlPointPosition(index, value) {
         const z = this._spline.controlPoints[index].z;
-        this._spline.setControlPointPosition(index, new Vector3d_1.Vector3d(value.x * z, value.y * z, z));
+        let s = this._spline.setControlPointPosition(index, new Vector3d_1.Vector3d(value.x * z, value.y * z, z));
+        return new RationalBSplineR1toR2Adapter(s.controlPoints, s.knots);
     }
     get degree() {
         return this._spline.degree;
@@ -2065,8 +1577,10 @@ class RationalBSplineR1toR2Adapter {
     evaluate(u) {
         return this._spline.evaluate(u);
     }
-    optimizerStep(step) {
+    /*
+    optimizerStep(step: number[]): void {
     }
+    */
     getRationalBSplineR1toR2() {
         return this._spline.clone();
     }
@@ -2079,22 +1593,26 @@ class RationalBSplineR1toR2Adapter {
     getControlPointWeight(controlPointIndex) {
         return this._spline.controlPoints[controlPointIndex].z;
     }
+    getDifferentialProperties() {
+        return this._spline.getDifferentialProperties();
+    }
 }
 exports.RationalBSplineR1toR2Adapter = RationalBSplineR1toR2Adapter;
 
 
 /***/ }),
 
-/***/ "./src/bsplines/RationalBSplineR1toR2DifferentialProperties.ts":
-/*!*********************************************************************!*\
-  !*** ./src/bsplines/RationalBSplineR1toR2DifferentialProperties.ts ***!
-  \*********************************************************************/
+/***/ "./src/bsplines/R1toR2/RationalBSplineR1toR2DifferentialProperties.ts":
+/*!****************************************************************************!*\
+  !*** ./src/bsplines/R1toR2/RationalBSplineR1toR2DifferentialProperties.ts ***!
+  \****************************************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
+exports.RationalBSplineR1toR2DifferentialProperties = void 0;
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../R1toR1/BernsteinDecompositionR1toR1 */ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ../R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
 class RationalBSplineR1toR2DifferentialProperties {
     constructor(spline) {
         this.spline = spline.clone();
@@ -2151,9 +1669,9 @@ class RationalBSplineR1toR2DifferentialProperties {
     curvatureNumerator() {
         // reference: XIANMING CHEN, COMPLEXITY REDUCTION FOR SYMBOLIC COMPUTATION WITH RATIONAL B-SPLINES
         const s = this.derivatives;
-        const t1 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xu, s.yu, s.xuu, s.yuu).multiply(s.w);
-        const t2 = BernsteinDecompositionR1toR1_1.determinant2by2(s.x, s.y, s.xuu, s.yuu).multiply(s.wu);
-        const t3 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xu, s.yu, s.x, s.y).multiply(s.wuu);
+        const t1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xu, s.yu, s.xuu, s.yuu).multiply(s.w);
+        const t2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.x, s.y, s.xuu, s.yuu).multiply(s.wu);
+        const t3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xu, s.yu, s.x, s.y).multiply(s.wuu);
         const distinctKnots = this.spline.distinctKnots();
         return (t1.subtract(t2).subtract(t3)).splineRecomposition(distinctKnots);
     }
@@ -2172,9 +1690,9 @@ class RationalBSplineR1toR2DifferentialProperties {
         const s = this.derivatives;
         const ct = this.ChenTerms;
         const t0 = (ct.D1x.multiply(ct.D1x)).add(ct.D1y.multiply(ct.D1y));
-        const t1 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D3x, ct.D3y);
-        const t2 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D21x, ct.D21y);
-        const t3 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D2x, ct.D2y);
+        const t1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D3x, ct.D3y);
+        const t2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D21x, ct.D21y);
+        const t3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D2x, ct.D2y);
         const t4 = s.wu.multiplyByScalar(2);
         const t5 = (ct.D1x.multiply(ct.D2x)).add(ct.D1y.multiply(ct.D2y)).multiplyByScalar(3);
         const distinctKnots = this.spline.distinctKnots();
@@ -2197,372 +1715,207 @@ exports.RationalBSplineR1toR2DifferentialProperties = RationalBSplineR1toR2Diffe
 
 /***/ }),
 
-/***/ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts":
-/*!**************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts ***!
-  \**************************************************************************************/
+/***/ "./src/bsplines/R1toR3/BSplineR1toR3.ts":
+/*!**********************************************!*\
+  !*** ./src/bsplines/R1toR3/BSplineR1toR3.ts ***!
+  \**********************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
-class AbstractOptimizationProblemBSplineR1toR2 {
-    constructor(target, initial, activeControl = ActiveControl.curvatureExtrema) {
-        this.activeControl = activeControl;
-        this._hessian_f = undefined;
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        this.inflectionConstraintsSign = [];
-        this._inflectionInactiveConstraints = [];
-        this.curvatureExtremaConstraintsSign = [];
-        this._curvatureExtremaInactiveConstraints = [];
-        this._spline = initial.clone();
-        this._target = target.clone();
-        this.computeBasisFunctionsDerivatives();
-        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
-        const e = this.expensiveComputation(this._spline);
-        const curvatureNumerator = this.curvatureNumerator(e.h4);
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        if (this._f.length !== this._gradient_f.shape[0]) {
-            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor");
+exports.create_BSplineR1toR3 = exports.BSplineR1toR3 = void 0;
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector3d_1 = __webpack_require__(/*! ../../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const BaseBSplineR1toR3_1 = __webpack_require__(/*! ./BaseBSplineR1toR3 */ "./src/bsplines/R1toR3/BaseBSplineR1toR3.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ../R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../R1toR1/BernsteinDecompositionR1toR1 */ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+class BSplineR1toR3 extends BaseBSplineR1toR3_1.BaseBSplineR1toR3 {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
+        super(controlPoints, knots);
+    }
+    factory(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
+        return new BSplineR1toR3(controlPoints, knots);
+    }
+    get freeControlPoints() {
+        return this.controlPoints;
+    }
+    /**
+     * Return a deep copy of this b-spline
+     */
+    clone() {
+        let cloneControlPoints = (0, BaseBSplineR1toR3_1.deepCopyControlPoints)(this._controlPoints);
+        return new BSplineR1toR3(cloneControlPoints, this._knots.slice());
+    }
+    /*
+    optimizerStep(step: number[]) {
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            this._controlPoints[i].x += step[i]
+            this._controlPoints[i].y += step[i + this._controlPoints.length]
+            this._controlPoints[i].z += step[i + 2 * this._controlPoints.length]
         }
     }
-    get inflectionInactiveConstraints() {
-        return this._inflectionInactiveConstraints;
+    */
+    /**
+     *
+     * @param fromU Parametric position where the section start
+     * @param toU Parametric position where the section end
+     * @retrun the BSpline_R1_to_R2 section
+     */
+    extract(fromU, toU) {
+        let spline = this.clone();
+        spline.clamp(fromU);
+        spline.clamp(toU);
+        const newFromSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(fromU, spline._knots, spline._degree);
+        const newToSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(toU, spline._knots, spline._degree);
+        let newKnots = [];
+        let newControlPoints = [];
+        for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
+            newKnots.push(spline._knots[i]);
+        }
+        for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
+            newControlPoints.push(new Vector3d_1.Vector3d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+        }
+        return new BSplineR1toR3(newControlPoints, newKnots);
     }
-    get curvatureExtremaInactiveConstraints() {
-        return this._curvatureExtremaInactiveConstraints;
-    }
-    get numberOfIndependentVariables() {
-        return this._numberOfIndependentVariables;
-    }
-    get f0() {
-        return this._f0;
-    }
-    get gradient_f0() {
-        return this._gradient_f0;
-    }
-    get hessian_f0() {
-        return this._hessian_f0;
-    }
-    get numberOfConstraints() {
-        switch (this.activeControl) {
-            case ActiveControl.both: {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-            }
-            case ActiveControl.curvatureExtrema: {
-                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-            }
-            case ActiveControl.inflections: {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
+    elevateDegree() {
+        const sx = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsX(), this.knots);
+        const sy = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsY(), this.knots);
+        const sz = new BSplineR1toR1_1.BSplineR1toR1(this.getControlPointsZ(), this.knots);
+        const bdsx = sx.bernsteinDecomposition();
+        const bdsy = sy.bernsteinDecomposition();
+        const bdsz = sz.bernsteinDecomposition();
+        bdsx.elevateDegree();
+        bdsy.elevateDegree();
+        bdsz.elevateDegree();
+        const knots = this.distinctKnots();
+        const sxNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsx, knots);
+        const syNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsy, knots);
+        const szNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsz, knots);
+        let newcp = [];
+        for (let i = 0; i < sxNew.controlPoints.length; i += 1) {
+            newcp.push(new Vector3d_1.Vector3d(sxNew.controlPoints[i], syNew.controlPoints[i], szNew.controlPoints[i]));
+        }
+        let newSpline = new BSplineR1toR3(newcp, sxNew.knots);
+        for (let i = 0; i < knots.length; i += 1) {
+            let m = this.knotMultiplicity((0, Piegl_Tiller_NURBS_Book_1.findSpan)(knots[i], this.knots, this.degree));
+            for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
+                newSpline = newSpline.removeKnot((0, Piegl_Tiller_NURBS_Book_1.findSpan)(newSpline.knots[i], newSpline.knots, newSpline.degree));
             }
         }
+        return newSpline;
     }
-    get f() {
-        return this._f;
-    }
-    get gradient_f() {
-        return this._gradient_f;
-    }
-    get hessian_f() {
-        return this._hessian_f;
-    }
-    step(deltaX) {
-        this.spline.optimizerStep(deltaX);
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        const e = this.expensiveComputation(this._spline);
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        const curvatureNumerator = this.curvatureNumerator(e.h4);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-    }
-    fStep(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        let e = this.expensiveComputation(splineTemp);
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        const curvatureNumerator = this.curvatureNumerator(e.h4);
-        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-    }
-    f0Step(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        return this.compute_f0(this.compute_gradient_f0(splineTemp));
-    }
-    expensiveComputation(spline) {
-        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
-        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
-        const sxu = sx.derivative();
-        const syu = sy.derivative();
-        const sxuu = sxu.derivative();
-        const syuu = syu.derivative();
-        const sxuuu = sxuu.derivative();
-        const syuuu = syuu.derivative();
-        const bdsxu = sxu.bernsteinDecomposition();
-        const bdsyu = syu.bernsteinDecomposition();
-        const bdsxuu = sxuu.bernsteinDecomposition();
-        const bdsyuu = syuu.bernsteinDecomposition();
-        const bdsxuuu = sxuuu.bernsteinDecomposition();
-        const bdsyuuu = syuuu.bernsteinDecomposition();
-        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
-        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
-        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
-        const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
-        return {
-            bdsxu: bdsxu,
-            bdsyu: bdsyu,
-            bdsxuu: bdsxuu,
-            bdsyuu: bdsyuu,
-            bdsxuuu: bdsxuuu,
-            bdsyuuu: bdsyuuu,
-            h1: h1,
-            h2: h2,
-            h3: h3,
-            h4: h4
-        };
-    }
-    compute_gradient_f0(spline) {
-        let result = [];
-        const n = spline.freeControlPoints.length;
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x);
+    removeKnot(indexFromFindSpan, tolerance = 10e-5) {
+        //Piegl and Tiller, The NURBS book, p : 185
+        const index = indexFromFindSpan;
+        // end knots are not removed
+        if (index > this._degree && index < this.knots.length - this._degree - 1) {
+            throw new Error("index out of range");
         }
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y);
+        //const double tolerance = 1;
+        const multiplicity = this.knotMultiplicity(index);
+        const last = index - multiplicity;
+        const first = index - this.degree;
+        const offset = first - 1;
+        //std::vector<vectorType> local(2*degree+1);
+        let local = [];
+        local[0] = this.controlPoints[offset];
+        local[last + 1 - offset] = this.controlPoints[last + 1];
+        let i = first;
+        let j = last;
+        let ii = 1;
+        let jj = last - offset;
+        let removable = false;
+        // Compute new control point for one removal step
+        while (j > i) {
+            let alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
+            let alpha_j = (this.knots[index] - this.knots[j]) / (this.knots[j + this.degree + 1] - this.knots[j]);
+            local[ii] = (this.controlPoints[i].substract(local[ii - 1].multiply(1.0 - alpha_i))).multiply(1 / alpha_i);
+            local[jj] = (this.controlPoints[j].substract(local[jj + 1].multiply(alpha_j))).multiply(1 / (1.0 - alpha_j));
+            ++i;
+            ++ii;
+            --j;
+            --jj;
         }
-        return result;
-    }
-    compute_f0(gradient_f0) {
-        let result = 0;
-        const n = gradient_f0.length;
-        for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient_f0[i], 2);
-        }
-        return 0.5 * result;
-    }
-    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
-        let result = [];
-        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
+        if (j < i) {
+            if ((local[ii - 1].substract(local[jj + 1])).norm() <= tolerance) {
+                removable = true;
             }
-            else {
-                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    }
-    compute_inflectionConstraints(curvatureNumerator, constraintsSign, inactiveConstraints) {
-        let result = [];
-        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(curvatureNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    }
-    curvatureNumerator(h4) {
-        return h4.flattenControlPointsArray();
-    }
-    curvatureDerivativeNumerator(h1, h2, h3, h4) {
-        const g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
-        return g.flattenControlPointsArray();
-    }
-    computeConstraintsSign(controlPoints) {
-        let result = [];
-        for (let i = 0, n = controlPoints.length; i < n; i += 1) {
-            if (controlPoints[i] > 0) {
-                result.push(-1);
-            }
-            else {
-                result.push(1);
-            }
-        }
-        return result;
-    }
-    compute_f(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === ActiveControl.both) {
-            const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            return r1.concat(r2);
-        }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
         }
         else {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
-    }
-    compute_gradient_f(e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === ActiveControl.both) {
-            const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
-            const [row_m1, n] = m1.shape;
-            const [row_m2,] = m2.shape;
-            const m = row_m1 + row_m2;
-            let result = new DenseMatrix_1.DenseMatrix(m, n);
-            for (let i = 0; i < row_m1; i += 1) {
-                for (let j = 0; j < n; j += 1) {
-                    result.set(i, j, m1.get(i, j));
-                }
+            const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i + this.degree + 1] - this.knots[i]);
+            if (((this.controlPoints[i].substract((local[ii + 1].multiply(alpha_i)))).add(local[ii - 1].multiply(1.0 - alpha_i))).norm() <= tolerance) {
+                removable = true;
             }
-            for (let i = 0; i < row_m2; i += 1) {
-                for (let j = 0; j < n; j += 1) {
-                    result.set(row_m1 + i, j, m2.get(i, j));
-                }
-            }
-            return result;
         }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
+        if (removable == false)
+            return;
         else {
-            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+            let i = first;
+            let j = last;
+            while (j > i) {
+                this.controlPoints[i] = local[i - offset];
+                this.controlPoints[j] = local[j - offset];
+                ++i;
+                --j;
+            }
         }
+        let knots = this.knots;
+        let controlPoints = this.controlPoints;
+        knots.splice(index, 1);
+        const fout = (2 * index - multiplicity - this.degree) / 2;
+        controlPoints.splice(fout, 1);
+        return new BSplineR1toR3(controlPoints, knots);
+    }
+    distinctKnots() {
+        let result = [this.knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
     }
 }
-exports.AbstractOptimizationProblemBSplineR1toR2 = AbstractOptimizationProblemBSplineR1toR2;
-var ActiveControl;
-(function (ActiveControl) {
-    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
-    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
-    ActiveControl[ActiveControl["both"] = 2] = "both";
-})(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
+exports.BSplineR1toR3 = BSplineR1toR3;
+function create_BSplineR1toR3(controlPoints, knots) {
+    let newControlPoints = [];
+    for (let cp of controlPoints) {
+        newControlPoints.push(new Vector3d_1.Vector3d(cp[0], cp[1], cp[2]));
+    }
+    return new BSplineR1toR3(newControlPoints, knots);
+}
+exports.create_BSplineR1toR3 = create_BSplineR1toR3;
 
 
 /***/ }),
 
-/***/ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR3.ts":
-/*!**************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR3.ts ***!
-  \**************************************************************************************/
+/***/ "./src/bsplines/R1toR3/BSplineR1toR3DifferentialProperties.ts":
+/*!********************************************************************!*\
+  !*** ./src/bsplines/R1toR3/BSplineR1toR3DifferentialProperties.ts ***!
+  \********************************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
-const CurveModel3d_1 = __webpack_require__(/*! ../models/CurveModel3d */ "./src/models/CurveModel3d.ts");
-class AbstractOptimizationProblemBSplineR1toR3 {
-    constructor(target, initial, activeControl = CurveModel3d_1.ActiveControl.curvatureExtrema) {
-        this.activeControl = activeControl;
-        this._hessian_f = undefined;
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        this.torsionConstraintsSign = [];
-        this._torsionZerosInactiveConstraints = [];
-        this.curvatureExtremaConstraintsSign = [];
-        this._curvatureExtremaInactiveConstraints = [];
-        this._spline = initial.clone();
-        this._target = target.clone();
-        this.computeBasisFunctionsDerivatives();
-        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 3;
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
-        const derivatives = this.computeDerivatives(this._spline);
-        const torsionNumerator = this.torsionNumerator(derivatives);
-        const g = this.curvatureSquaredDerivativeNumerator(derivatives);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        this.torsionConstraintsSign = this.computeConstraintsSign(torsionNumerator);
-        this._torsionZerosInactiveConstraints = this.computeInactiveConstraints(torsionNumerator);
-        this._f = this.compute_f(torsionNumerator, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(derivatives, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        if (this._f.length !== this._gradient_f.shape[0]) {
-            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor");
-        }
+exports.BSplineR1toR3DifferentialProperties = void 0;
+const BSplineR1toR1_1 = __webpack_require__(/*! ../R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+class BSplineR1toR3DifferentialProperties {
+    constructor(spline) {
+        this._spline = spline.clone();
+        this.derivatives = this.computeDerivatives(this._spline);
     }
-    get torsionZerosInactiveConstraints() {
-        return this._torsionZerosInactiveConstraints;
-    }
-    get curvatureExtremaInactiveConstraints() {
-        return this._curvatureExtremaInactiveConstraints;
-    }
-    get numberOfIndependentVariables() {
-        return this._numberOfIndependentVariables;
-    }
-    get f0() {
-        return this._f0;
-    }
-    get gradient_f0() {
-        return this._gradient_f0;
-    }
-    get hessian_f0() {
-        return this._hessian_f0;
-    }
-    get numberOfConstraints() {
-        switch (this.activeControl) {
-            case CurveModel3d_1.ActiveControl.both: {
-                return this.torsionConstraintsSign.length - this._torsionZerosInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-            }
-            case CurveModel3d_1.ActiveControl.curvatureExtrema: {
-                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-            }
-            case CurveModel3d_1.ActiveControl.torsionZeros: {
-                return this.torsionConstraintsSign.length - this._torsionZerosInactiveConstraints.length;
-            }
-        }
-    }
-    get f() {
-        return this._f;
-    }
-    get gradient_f() {
-        return this._gradient_f;
-    }
-    get hessian_f() {
-        return this._hessian_f;
-    }
-    step(deltaX) {
-        this.spline.optimizerStep(deltaX);
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        const derivatives = this.computeDerivatives(this._spline);
-        const g = this.curvatureSquaredDerivativeNumerator(derivatives);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        const torsionNumerator = this.torsionNumerator(derivatives);
-        this.torsionConstraintsSign = this.computeConstraintsSign(torsionNumerator);
-        this._torsionZerosInactiveConstraints = this.computeInactiveConstraints(torsionNumerator);
-        this._f = this.compute_f(torsionNumerator, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(derivatives, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-    }
-    fStep(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        const s = this.computeDerivatives(splineTemp);
-        const g = this.curvatureSquaredDerivativeNumerator(s);
-        const torsionNumerator = this.torsionNumerator(s);
-        return this.compute_f(torsionNumerator, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-    }
-    f0Step(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        return this.compute_f0(this.compute_gradient_f0(splineTemp));
+    bSplineR1toR1Factory(controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
     }
     computeDerivatives(spline) {
         const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
@@ -2578,9 +1931,6 @@ class AbstractOptimizationProblemBSplineR1toR3 {
         const syuuu = syuu.derivative();
         const szuuu = szuu.derivative();
         return {
-            x: sx.bernsteinDecomposition(),
-            y: sy.bernsteinDecomposition(),
-            z: sz.bernsteinDecomposition(),
             xu: sxu.bernsteinDecomposition(),
             yu: syu.bernsteinDecomposition(),
             zu: szu.bernsteinDecomposition(),
@@ -2592,62 +1942,26 @@ class AbstractOptimizationProblemBSplineR1toR3 {
             zuuu: szuuu.bernsteinDecomposition()
         };
     }
-    compute_gradient_f0(spline) {
-        let result = [];
-        const n = spline.freeControlPoints.length;
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x);
-        }
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y);
-        }
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].z - this._target.freeControlPoints[i].z);
-        }
-        return result;
+    torsionNumerator() {
+        const s = this.derivatives;
+        const t1 = s.yu.multiply(s.zuu).subtract(s.yuu.multiply(s.zu));
+        const t2 = s.xuu.multiply(s.zu).subtract(s.xu.multiply(s.zuu));
+        const t3 = s.xu.multiply(s.yuu).subtract(s.xuu.multiply(s.yu));
+        const distinctKnots = this._spline.getDistinctKnots();
+        const result = s.xuuu.multiply(t1).add(s.yuuu.multiply(t2).add(s.zuuu.multiply(t3)));
+        return result.splineRecomposition(distinctKnots);
     }
-    compute_f0(gradient_f0) {
-        let result = 0;
-        const n = gradient_f0.length;
-        for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient_f0[i], 2);
-        }
-        return 0.5 * result;
+    curvatureSquaredNumerator() {
+        const s = this.derivatives;
+        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu));
+        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu));
+        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu));
+        const result = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3)));
+        const distinctKnots = this._spline.getDistinctKnots();
+        return result.splineRecomposition(distinctKnots);
     }
-    compute_curvatureExtremaConstraints(curvatureSquaredDerivativeNumerator, constraintsSign, inactiveConstraints) {
-        let result = [];
-        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(curvatureSquaredDerivativeNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    }
-    compute_torsionConstraints(torsionNumerator, constraintsSign, inactiveConstraints) {
-        let result = [];
-        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(torsionNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    }
-    /*
-    curvatureSquaredNumerator(s: Derivatives) {
-        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu))
-        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu))
-        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu))
-        const result = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3)))
-        return result.flattenControlPointsArray()
-    }
-    */
-    curvatureSquaredDerivativeNumerator(s) {
+    curvatureSquaredDerivativeNumerator() {
+        const s = this.derivatives;
         const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu));
         const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu));
         const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu));
@@ -2659,2044 +1973,255 @@ class AbstractOptimizationProblemBSplineR1toR3 {
         const t9 = ((t1.multiply(t4)).add(t2.multiply(t5)).add(t3.multiply(t6))).multiply(t7);
         const t10 = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3))).multiply(t8);
         const result = t9.subtract(t10.multiplyByScalar(3));
-        return result.flattenControlPointsArray();
+        const distinctKnots = this._spline.getDistinctKnots();
+        return result.splineRecomposition(distinctKnots);
     }
-    torsionNumerator(s) {
-        const t1 = s.yu.multiply(s.zuu).subtract(s.yuu.multiply(s.zu));
-        const t2 = s.xuu.multiply(s.zu).subtract(s.xu.multiply(s.zuu));
-        const t3 = s.xu.multiply(s.yuu).subtract(s.xuu.multiply(s.yu));
-        const result = s.xuuu.multiply(t1).add(s.yuuu.multiply(t2).add(s.zuuu.multiply(t3)));
-        //console.log(result.flattenControlPointsArray())
-        //console.log(t1)
-        return result.flattenControlPointsArray();
-    }
-    computeConstraintsSign(controlPoints) {
+    curvatureDerivativeZeros() {
+        const curvatureDerivative = this.curvatureSquaredDerivativeNumerator();
+        const zeros = curvatureDerivative.zeros();
         let result = [];
-        for (let i = 0, n = controlPoints.length; i < n; i += 1) {
-            if (controlPoints[i] > 0) {
-                result.push(-1);
-            }
-            else {
-                result.push(1);
-            }
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z));
         }
         return result;
     }
-    compute_f(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === CurveModel3d_1.ActiveControl.both) {
-            const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            const r2 = this.compute_torsionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            return r1.concat(r2);
+    torsionZeros() {
+        const torsionNumerator = this.torsionNumerator();
+        const zeros = torsionNumerator.zeros();
+        let result = [];
+        for (let z of zeros) {
+            result.push(this._spline.evaluate(z));
         }
-        else if (this.activeControl === CurveModel3d_1.ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
-        else {
-            return this.compute_torsionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
-    }
-    compute_gradient_f(s, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === CurveModel3d_1.ActiveControl.both) {
-            const m1 = this.compute_curvatureExtremaConstraints_gradient(s, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            const m2 = this.compute_zeroTorsionConstraints_gradient(s, inflectionConstraintsSign, inflectionInactiveConstraints);
-            const [row_m1, n] = m1.shape;
-            const [row_m2,] = m2.shape;
-            const m = row_m1 + row_m2;
-            let result = new DenseMatrix_1.DenseMatrix(m, n);
-            for (let i = 0; i < row_m1; i += 1) {
-                for (let j = 0; j < n; j += 1) {
-                    result.set(i, j, m1.get(i, j));
-                }
-            }
-            for (let i = 0; i < row_m2; i += 1) {
-                for (let j = 0; j < n; j += 1) {
-                    result.set(row_m1 + i, j, m2.get(i, j));
-                }
-            }
-            return result;
-        }
-        else if (this.activeControl === CurveModel3d_1.ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints_gradient(s, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
-        else {
-            return this.compute_zeroTorsionConstraints_gradient(s, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
+        return result;
     }
 }
-exports.AbstractOptimizationProblemBSplineR1toR3 = AbstractOptimizationProblemBSplineR1toR3;
+exports.BSplineR1toR3DifferentialProperties = BSplineR1toR3DifferentialProperties;
 
 
 /***/ }),
 
-/***/ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemRationalBSplineR1toR2.ts":
-/*!**********************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/AbstractOptimizationProblemRationalBSplineR1toR2.ts ***!
-  \**********************************************************************************************/
+/***/ "./src/bsplines/R1toR3/BaseBSplineR1toR3.ts":
+/*!**************************************************!*\
+  !*** ./src/bsplines/R1toR3/BaseBSplineR1toR3.ts ***!
+  \**************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../bsplines/BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
-class AbstractOptimizationProblemRationalBSplineR1toR2 {
-    constructor(target, initial, activeControl = ActiveControl.curvatureExtrema) {
-        this.activeControl = activeControl;
-        this._hessian_f = undefined;
-        this.basisFunctions = [];
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        this.inflectionConstraintsSign = [];
-        this._inflectionInactiveConstraints = [];
-        this.curvatureExtremaConstraintsSign = [];
-        this._curvatureExtremaInactiveConstraints = [];
-        this._spline = initial.clone();
-        this._target = target.clone();
-        this.computeBasisFunctionsDerivatives();
-        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 3;
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
-        const derivatives = computeDerivatives(this._spline);
-        const ct = ComputeChenTerms(derivatives);
-        const curvatureNumerator = this.curvatureNumerator(derivatives);
-        const g = this.curvatureDerivativeNumerator(derivatives, ct);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(derivatives, ct, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        if (this._f.length !== this._gradient_f.shape[0]) {
-            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor");
-        }
-    }
-    get inflectionInactiveConstraints() {
-        return this._inflectionInactiveConstraints;
-    }
-    get curvatureExtremaInactiveConstraints() {
-        return this._curvatureExtremaInactiveConstraints;
-    }
-    get numberOfIndependentVariables() {
-        return this._numberOfIndependentVariables;
-    }
-    get f0() {
-        return this._f0;
-    }
-    get gradient_f0() {
-        return this._gradient_f0;
-    }
-    get hessian_f0() {
-        return this._hessian_f0;
-    }
-    get numberOfConstraints() {
-        switch (this.activeControl) {
-            case ActiveControl.both: {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-            }
-            case ActiveControl.curvatureExtrema: {
-                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-            }
-            case ActiveControl.inflections: {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
-            }
-        }
-    }
-    get f() {
-        return this._f;
-    }
-    get gradient_f() {
-        return this._gradient_f;
-    }
-    get hessian_f() {
-        return this._hessian_f;
-    }
-    step(deltaX) {
-        this.spline.optimizerStep(deltaX);
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        const derivatives = computeDerivatives(this._spline);
-        const ct = ComputeChenTerms(derivatives);
-        const g = this.curvatureDerivativeNumerator(derivatives, ct);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        const curvatureNumerator = this.curvatureNumerator(derivatives);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(derivatives, ct, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-    }
-    fStep(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        const derivatives = computeDerivatives(splineTemp);
-        const ct = ComputeChenTerms(derivatives);
-        const g = this.curvatureDerivativeNumerator(derivatives, ct);
-        const curvatureNumerator = this.curvatureNumerator(derivatives);
-        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-    }
-    f0Step(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        return this.compute_f0(this.compute_gradient_f0(splineTemp));
-    }
-    compute_gradient_f0(spline) {
-        let result = [];
-        const n = spline.freeControlPoints.length;
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x);
-        }
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y);
-        }
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.freeControlPoints[i].z - this._target.freeControlPoints[i].z);
-        }
-        return result;
-    }
-    compute_f0(gradient_f0) {
-        let result = 0;
-        const n = gradient_f0.length;
-        for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient_f0[i], 2);
-        }
-        return 0.5 * result;
-    }
-    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
-        let result = [];
-        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    }
-    compute_inflectionConstraints(curvatureNumerator, constraintsSign, inactiveConstraints) {
-        let result = [];
-        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(curvatureNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    }
-    curvatureNumerator(s) {
-        // reference: XIANMING CHEN, COMPLEXITY REDUCTION FOR SYMBOLIC COMPUTATION WITH RATIONAL B-SPLINES
-        const t1 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xu, s.yu, s.xuu, s.yuu).multiply(s.w);
-        const t2 = BernsteinDecompositionR1toR1_1.determinant2by2(s.x, s.y, s.xuu, s.yuu).multiply(s.wu);
-        const t3 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xu, s.yu, s.x, s.y).multiply(s.wuu);
-        return (t1.subtract(t2).subtract(t3)).flattenControlPointsArray();
-    }
-    curvatureDerivativeNumerator(s, ct) {
-        const t0 = (ct.D1x.multiply(ct.D1x)).add(ct.D1y.multiply(ct.D1y));
-        const t1 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D3x, ct.D3y);
-        const t2 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D21x, ct.D21y);
-        const t3 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D2x, ct.D2y);
-        const t4 = s.wu.multiplyByScalar(2);
-        const t5 = (ct.D1x.multiply(ct.D2x)).add(ct.D1y.multiply(ct.D2y)).multiplyByScalar(3);
-        return ((t1.add(t2)).multiply(t0).multiply(s.w)).add(t4.multiply(t3).multiply(t0)).subtract(t5.multiply(t3).multiply(s.w)).flattenControlPointsArray();
-    }
-    computeConstraintsSign(controlPoints) {
-        let result = [];
-        for (let i = 0, n = controlPoints.length; i < n; i += 1) {
-            if (controlPoints[i] > 0) {
-                result.push(-1);
-            }
-            else {
-                result.push(1);
-            }
-        }
-        return result;
-    }
-    compute_f(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === ActiveControl.both) {
-            const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            return r1.concat(r2);
-        }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
-        else {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
-    }
-    compute_gradient_f(d, ct, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === ActiveControl.both) {
-            const m1 = this.compute_curvatureExtremaConstraints_gradient(d, ct, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            const m2 = this.compute_inflectionConstraints_gradient(d, inflectionConstraintsSign, inflectionInactiveConstraints);
-            const [row_m1, n] = m1.shape;
-            const [row_m2,] = m2.shape;
-            const m = row_m1 + row_m2;
-            let result = new DenseMatrix_1.DenseMatrix(m, n);
-            for (let i = 0; i < row_m1; i += 1) {
-                for (let j = 0; j < n; j += 1) {
-                    result.set(i, j, m1.get(i, j));
-                }
-            }
-            for (let i = 0; i < row_m2; i += 1) {
-                for (let j = 0; j < n; j += 1) {
-                    result.set(row_m1 + i, j, m2.get(i, j));
-                }
-            }
-            return result;
-        }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints_gradient(d, ct, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
-        else {
-            return this.compute_inflectionConstraints_gradient(d, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
-    }
-}
-exports.AbstractOptimizationProblemRationalBSplineR1toR2 = AbstractOptimizationProblemRationalBSplineR1toR2;
-var ActiveControl;
-(function (ActiveControl) {
-    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
-    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
-    ActiveControl[ActiveControl["both"] = 2] = "both";
-})(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
-function computeDerivatives(spline) {
-    const sx = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsX(), spline.knots);
-    const sy = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsY(), spline.knots);
-    const sw = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsW(), spline.knots);
-    const sxu = sx.derivative();
-    const syu = sy.derivative();
-    const swu = sw.derivative();
-    const sxuu = sxu.derivative();
-    const syuu = syu.derivative();
-    const swuu = swu.derivative();
-    const sxuuu = sxuu.derivative();
-    const syuuu = syuu.derivative();
-    const swuuu = swuu.derivative();
-    return {
-        x: sx.bernsteinDecomposition(),
-        y: sy.bernsteinDecomposition(),
-        w: sw.bernsteinDecomposition(),
-        xu: sxu.bernsteinDecomposition(),
-        yu: syu.bernsteinDecomposition(),
-        wu: swu.bernsteinDecomposition(),
-        xuu: sxuu.bernsteinDecomposition(),
-        yuu: syuu.bernsteinDecomposition(),
-        wuu: swuu.bernsteinDecomposition(),
-        xuuu: sxuuu.bernsteinDecomposition(),
-        yuuu: syuuu.bernsteinDecomposition(),
-        wuuu: swuuu.bernsteinDecomposition()
-    };
-}
-exports.computeDerivatives = computeDerivatives;
-function ComputeChenTerms(s) {
-    // reference: XIANMING CHEN, COMPLEXITY REDUCTION FOR SYMBOLIC COMPUTATION WITH RATIONAL B-SPLINES
-    return {
-        w: s.w,
-        wu: s.wu,
-        D1x: (s.xu.multiply(s.w)).subtract(s.x.multiply(s.wu)),
-        D1y: (s.yu.multiply(s.w)).subtract(s.y.multiply(s.wu)),
-        D2x: (s.xuu.multiply(s.w)).subtract(s.x.multiply(s.wuu)),
-        D2y: (s.yuu.multiply(s.w)).subtract(s.y.multiply(s.wuu)),
-        D3x: (s.xuuu.multiply(s.w)).subtract(s.x.multiply(s.wuuu)),
-        D3y: (s.yuuu.multiply(s.w)).subtract(s.y.multiply(s.wuuu)),
-        D21x: (s.xuu.multiply(s.wu)).subtract(s.xu.multiply(s.wuu)),
-        D21y: (s.yuu.multiply(s.wu)).subtract(s.yu.multiply(s.wuu))
-    };
-}
-exports.ComputeChenTerms = ComputeChenTerms;
-
-
-/***/ }),
-
-/***/ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2.ts":
-/*!******************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2.ts ***!
-  \******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
-class OptimizationProblemBSplineR1toR2 extends AbstractOptimizationProblemBSplineR1toR2_1.AbstractOptimizationProblemBSplineR1toR2 {
-    constructor(target, initial, activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl);
-        this.activeControl = activeControl;
-    }
-    get spline() {
-        return this._spline;
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    setTargetSpline(spline) {
-        this._target = spline.clone();
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-    }
+exports.deepCopyControlPoints = exports.BaseBSplineR1toR3 = void 0;
+const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+const Vector3d_1 = __webpack_require__(/*! ../../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a two dimensional real space
+ */
+//export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Vector3d> {
+class BaseBSplineR1toR3 {
     /**
-     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
-     * to slide along the curve.
-     **/
-    computeInactiveConstraints(controlPoints) {
-        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
-        return this.extractControlPointsClosestToZero(controlPointsSequences);
-    }
-    extractChangingSignControlPointsSequences(controlPoints) {
-        let result = [];
-        let successiveControlPoints = [];
-        let i = 1;
-        while (i < controlPoints.length) {
-            successiveControlPoints = [];
-            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
-                successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                i += 1;
-                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                    i += 1;
-                }
-                result.push(successiveControlPoints);
-            }
-            i += 1;
-        }
-        return result;
-    }
-    extractControlPointsClosestToZero(polygonSegments) {
-        let result = [];
-        for (let polygonSegment of polygonSegments) {
-            let s = this.removeBiggest(polygonSegment);
-            for (let iv of s) {
-                result.push(iv.index);
-            }
-        }
-        return result;
-    }
-    removeBiggest(controlPointsSequence) {
-        let result = controlPointsSequence.slice();
-        let maxIndex = 0;
-        for (let i = 1; i < controlPointsSequence.length; i += 1) {
-            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
-                maxIndex = i;
-            }
-        }
-        result.splice(maxIndex, 1);
-        return result;
-    }
-    compute_curvatureExtremaConstraints_gradient(e, constraintsSign, inactiveConstraints) {
-        const sxu = e.bdsxu;
-        const sxuu = e.bdsxuu;
-        const sxuuu = e.bdsxuuu;
-        const syu = e.bdsyu;
-        const syuu = e.bdsyuu;
-        const syuuu = e.bdsyuuu;
-        const h1 = e.h1;
-        const h2 = e.h2;
-        const h3 = e.h3;
-        const h4 = e.h4;
-        let dgx = [];
-        let dgy = [];
-        const controlPointsLength = this.spline.controlPoints.length;
-        const totalNumberOfConstraints = constraintsSign.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (4 * degree - 5);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    compute_inflectionConstraints_gradient(e, constraintsSign, inactiveConstraints) {
-        const sxu = e.bdsxu;
-        const sxuu = e.bdsxuu;
-        const syu = e.bdsyu;
-        const syuu = e.bdsyuu;
-        let dgx = [];
-        let dgy = [];
-        const controlPointsLength = this.spline.controlPoints.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h10.add(h11)));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push(h10.add(h11));
-        }
-        const totalNumberOfConstraints = this.inflectionConstraintsSign.length;
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (2 * degree - 2);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    computeBasisFunctionsDerivatives() {
-        const n = this._spline.controlPoints.length;
-        this._numberOfIndependentVariables = n * 2;
-        let diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        for (let i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1;
-            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this._spline.knots.slice());
-            let dBasisFunction_du = basisFunction.derivative();
-            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
-            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
-            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
-            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
-            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
-            diracControlPoints[i] = 0;
-        }
-    }
-}
-exports.OptimizationProblemBSplineR1toR2 = OptimizationProblemBSplineR1toR2;
-
-
-/***/ }),
-
-/***/ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2WithWeigthingFactors.ts":
-/*!**************************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2WithWeigthingFactors.ts ***!
-  \**************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const OptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ./OptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2.ts");
-class OptimizationProblemBSplineR1toR2WithWeigthingFactors extends OptimizationProblemBSplineR1toR2_1.OptimizationProblemBSplineR1toR2 {
-    constructor(target, initial, activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-        super(target, initial);
-        this.activeControl = activeControl;
-        this.weigthingFactors = [];
-        for (let i = 0; i < this.spline.freeControlPoints.length * 2; i += 1) {
-            this.weigthingFactors.push(1);
-        }
-        this.weigthingFactors[0] = 1000;
-        this.weigthingFactors[this.spline.freeControlPoints.length - 1] = 1000;
-        this.weigthingFactors[this.spline.freeControlPoints.length] = 1000;
-        this.weigthingFactors[this.weigthingFactors.length - 1] = 1000;
-    }
-    get f0() {
-        let result = 0;
-        const n = this._gradient_f0.length;
-        for (let i = 0; i < n; i += 1) {
-            result += Math.pow(this._gradient_f0[i], 2) * this.weigthingFactors[i];
-        }
-        return 0.5 * result;
-    }
-    get gradient_f0() {
-        let result = [];
-        const n = this._gradient_f0.length;
-        for (let i = 0; i < n; i += 1) {
-            result.push(this._gradient_f0[i] * this.weigthingFactors[i]);
-        }
-        return result;
-    }
-    get hessian_f0() {
-        const n = this._gradient_f0.length;
-        let result = new DiagonalMatrix_1.DiagonalMatrix(n);
-        for (let i = 0; i < n; i += 1) {
-            result.set(i, i, this.weigthingFactors[i]);
-        }
-        return result;
-    }
-    /**
-     * The objective function value: f0(x + step)
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
      */
-    f0Step(step) {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        const gradient = this.compute_gradient_f0(splineTemp);
-        const n = gradient.length;
-        let result = 0;
-        for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient[i], 2) * this.weigthingFactors[i];
-        }
-        return 0.5 * result;
+    constructor(controlPoints = [new Vector3d_1.Vector3d(0, 0, 0)], knots = [0, 1]) {
+        this._controlPoints = deepCopyControlPoints(controlPoints);
+        this._knots = [...knots];
+        this._degree = this.computeDegree();
     }
-}
-exports.OptimizationProblemBSplineR1toR2WithWeigthingFactors = OptimizationProblemBSplineR1toR2WithWeigthingFactors;
-class OptimizationProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints extends OptimizationProblemBSplineR1toR2WithWeigthingFactors {
-    constructor(target, initial, activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-        super(target, initial);
-        this.activeControl = activeControl;
+    computeDegree() {
+        let degree = this._knots.length - this._controlPoints.length - 1;
+        if (degree < 0) {
+            throw new Error("Negative degree BSplineR1toR1 are not supported");
+        }
+        return degree;
     }
-    computeInactiveConstraints(curvatureDerivativeNumerator) {
-        return [];
+    get controlPoints() {
+        return deepCopyControlPoints(this._controlPoints);
     }
-}
-exports.OptimizationProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints = OptimizationProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints;
-class OptimizationProblemBSplineR1toR2NoInactiveConstraints extends OptimizationProblemBSplineR1toR2_1.OptimizationProblemBSplineR1toR2 {
-    constructor(target, initial) {
-        super(target, initial);
-    }
-    computeInactiveConstraints(curvatureDerivativeNumerator) {
-        return [];
-    }
-}
-exports.OptimizationProblemBSplineR1toR2NoInactiveConstraints = OptimizationProblemBSplineR1toR2NoInactiveConstraints;
-
-
-/***/ }),
-
-/***/ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR3.ts":
-/*!******************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR3.ts ***!
-  \******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../bsplines/BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-const AbstractOptimizationProblemBSplineR1toR3_1 = __webpack_require__(/*! ./AbstractOptimizationProblemBSplineR1toR3 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR3.ts");
-const CurveModel3d_1 = __webpack_require__(/*! ../models/CurveModel3d */ "./src/models/CurveModel3d.ts");
-class OptimizationProblemBSplineR1toR3 extends AbstractOptimizationProblemBSplineR1toR3_1.AbstractOptimizationProblemBSplineR1toR3 {
-    constructor(target, initial, activeControl = CurveModel3d_1.ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl);
-        this.activeControl = activeControl;
-    }
-    get spline() {
-        return this._spline;
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    setTargetSpline(spline) {
-        this._target = spline.clone();
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-    }
-    /**
-     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
-     * to slide along the curve.
-     **/
-    computeInactiveConstraints(controlPoints) {
-        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
-        return this.extractControlPointsClosestToZero(controlPointsSequences);
-    }
-    extractChangingSignControlPointsSequences(controlPoints) {
-        let result = [];
-        let successiveControlPoints = [];
-        let i = 1;
-        while (i < controlPoints.length) {
-            successiveControlPoints = [];
-            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
-                successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                i += 1;
-                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                    i += 1;
-                }
-                result.push(successiveControlPoints);
-            }
-            i += 1;
-        }
-        return result;
-    }
-    extractControlPointsClosestToZero(polygonSegments) {
-        let result = [];
-        for (let polygonSegment of polygonSegments) {
-            let s = this.removeBiggest(polygonSegment);
-            for (let iv of s) {
-                result.push(iv.index);
-            }
-        }
-        return result;
-    }
-    removeBiggest(controlPointsSequence) {
-        let result = controlPointsSequence.slice();
-        let maxIndex = 0;
-        for (let i = 1; i < controlPointsSequence.length; i += 1) {
-            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
-                maxIndex = i;
-            }
-        }
-        result.splice(maxIndex, 1);
-        return result;
-    }
-    compute_curvatureExtremaConstraints_gradient(s, constraintsSign, inactiveConstraints) {
-        let dgx = [];
-        let dgy = [];
-        let dgz = [];
-        const controlPointsLength = this.spline.controlPoints.length;
-        const totalNumberOfConstraints = constraintsSign.length;
-        const degree = this.spline.degree;
-        const d1 = BernsteinDecompositionR1toR1_1.determinant2by2(s.zuu, s.yuu, s.zu, s.yu);
-        const dd1 = BernsteinDecompositionR1toR1_1.determinant2by2(s.zuuu, s.yuuu, s.zu, s.yu);
-        const d2 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xuu, s.zuu, s.xu, s.zu);
-        const dd2 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xuuu, s.zuuu, s.xu, s.zu);
-        const d3 = BernsteinDecompositionR1toR1_1.determinant2by2(s.yuu, s.xuu, s.yu, s.xu);
-        const dd3 = BernsteinDecompositionR1toR1_1.determinant2by2(s.yuuu, s.xuuu, s.yu, s.xu);
-        const l2 = s.xu.multiply(s.xu).add(s.yu.multiply(s.yu)).add(s.zu.multiply(s.zu));
-        const ddd = d1.multiply(dd1).add(d2.multiply(dd2)).add(d3.multiply(dd3));
-        const dl2 = s.xu.multiply(s.xuu).add(s.yu.multiply(s.yuu)).add(s.zu.multiply(s.zuu));
-        const ddd2 = d1.multiply(d1).add(d2.multiply(d2)).add(d3.multiply(d3));
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t2a = this.d2BasisFunctions_du2[i].multiplyRange(s.zu, start, lessThan);
-            let t2b = this.dBasisFunctions_du[i].multiplyRange(s.zuu, start, lessThan);
-            let t2c = this.d3BasisFunctions_du3[i].multiplyRange(s.zu, start, lessThan);
-            let t2d = this.dBasisFunctions_du[i].multiplyRange(s.zuuu, start, lessThan);
-            let t2e = (t2a.subtract(t2b)).multiplyRange2(dd2, start, lessThan);
-            let t2f = (t2c.subtract(t2d)).multiplyRange2(d2, start, lessThan);
-            let t2 = t2e.add(t2f);
-            let t3a = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan);
-            let t3b = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan);
-            let t3c = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan);
-            let t3d = this.d3BasisFunctions_du3[i].multiplyRange(s.yu, start, lessThan);
-            let t3e = (t3a.subtract(t3b)).multiplyRange2(dd3, start, lessThan);
-            let t3f = (t3c.subtract(t3d)).multiplyRange2(d3, start, lessThan);
-            let t3 = t3e.add(t3f);
-            let z1 = (t2.add(t3)).multiplyRange2(l2, start, lessThan);
-            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.xu, start, lessThan).multiplyByScalar(2);
-            let z2 = t4.multiplyRange2(ddd, start, lessThan);
-            let z3a = (t2a.subtract(t2b)).multiplyRange2(d2, start, lessThan);
-            let z3b = (t3a.subtract(t3b)).multiplyRange2(d3, start, lessThan);
-            let z3 = (z3a.add(z3b)).multiplyRange2(dl2, start, lessThan).multiplyByScalar(-6);
-            let z4a = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan);
-            let z4b = this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan);
-            let z4 = (z4a.add(z4b)).multiplyRange2(ddd2, start, lessThan).multiplyByScalar(-3);
-            dgx.push(z1.add(z2).add(z3).add(z4));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1a = this.dBasisFunctions_du[i].multiplyRange(s.zuu, start, lessThan);
-            let t1b = this.d2BasisFunctions_du2[i].multiplyRange(s.zu, start, lessThan);
-            let t1c = this.dBasisFunctions_du[i].multiplyRange(s.zuuu, start, lessThan);
-            let t1d = this.d3BasisFunctions_du3[i].multiplyRange(s.zu, start, lessThan);
-            let t1e = (t1a.subtract(t1b)).multiplyRange2(dd3, start, lessThan);
-            let t1f = (t1c.subtract(t1d)).multiplyRange2(d3, start, lessThan);
-            let t1 = t1e.add(t1f);
-            let t3a = this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan);
-            let t3b = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan);
-            let t3c = this.d3BasisFunctions_du3[i].multiplyRange(s.xu, start, lessThan);
-            let t3d = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan);
-            let t3e = (t3a.subtract(t3b)).multiplyRange2(dd2, start, lessThan);
-            let t3f = (t3c.subtract(t3d)).multiplyRange2(d2, start, lessThan);
-            let t3 = t3e.add(t3f);
-            let z1 = (t1.add(t3)).multiplyRange2(l2, start, lessThan);
-            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yu, start, lessThan).multiplyByScalar(2);
-            let z2 = t4.multiplyRange2(ddd, start, lessThan);
-            let z3a = (t1a.subtract(t1b)).multiplyRange2(d1, start, lessThan);
-            let z3b = (t3a.subtract(t3b)).multiplyRange2(d3, start, lessThan);
-            let z3 = (z3a.add(z3b)).multiplyRange2(dl2, start, lessThan).multiplyByScalar(-6);
-            let z4a = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan);
-            let z4b = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan);
-            let z4 = (z4a.add(z4b)).multiplyRange2(ddd2, start, lessThan).multiplyByScalar(-3);
-            dgy.push(z1.add(z2).add(z3).add(z4));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1a = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan);
-            let t1b = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan);
-            let t1c = this.d3BasisFunctions_du3[i].multiplyRange(s.yu, start, lessThan);
-            let t1d = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan);
-            let t1e = (t1a.subtract(t1b)).multiplyRange2(dd2, start, lessThan);
-            let t1f = (t1c.subtract(t1d)).multiplyRange2(d2, start, lessThan);
-            let t1 = t1e.add(t1f);
-            let t2a = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan);
-            let t2b = this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan);
-            let t2c = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan);
-            let t2d = this.d3BasisFunctions_du3[i].multiplyRange(s.xu, start, lessThan);
-            let t2e = (t2a.subtract(t2b)).multiplyRange2(dd3, start, lessThan);
-            let t2f = (t2c.subtract(t2d)).multiplyRange2(d3, start, lessThan);
-            let t2 = t2e.add(t2f);
-            let z1 = (t1.add(t2)).multiplyRange2(l2, start, lessThan);
-            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yu, start, lessThan).multiplyByScalar(2);
-            let z2 = t4.multiplyRange2(ddd, start, lessThan);
-            let z3a = (t1a.subtract(t1b)).multiplyRange2(d1, start, lessThan);
-            let z3b = (t2a.subtract(t2b)).multiplyRange2(d2, start, lessThan);
-            let z3 = (z3a.add(z3b)).multiplyRange2(dl2, start, lessThan).multiplyByScalar(-6);
-            let z4a = this.dBasisFunctions_du[i].multiplyRange(s.zuu, start, lessThan);
-            let z4b = this.d2BasisFunctions_du2[i].multiplyRange(s.zu, start, lessThan);
-            let z4 = (z4a.add(z4b)).multiplyRange2(ddd2, start, lessThan).multiplyByScalar(-3);
-            dgz.push(z1.add(z2).add(z3).add(z4));
-        }
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let cpz = dgz[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (6 * degree - 8);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (6 * degree - 8);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, 2 * controlPointsLength + i, cpz[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    compute_zeroTorsionConstraints_gradient(s, constraintsSign, inactiveConstraints) {
-        let dgx = [];
-        let dgy = [];
-        let dgz = [];
-        const controlPointsLength = this.spline.controlPoints.length;
-        const degree = this.spline.degree;
-        const d1 = BernsteinDecompositionR1toR1_1.determinant2by2(s.zuu, s.yuu, s.zu, s.yu);
-        const d2 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xuu, s.zuu, s.xu, s.zu);
-        const d3 = BernsteinDecompositionR1toR1_1.determinant2by2(s.yuu, s.xuu, s.yu, s.xu);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = this.d3BasisFunctions_du3[i].multiplyRange(d1, start, lessThan);
-            let t2 = this.d2BasisFunctions_du2[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.zu, start, lessThan);
-            let t3 = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.zuu, start, lessThan);
-            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan).multiplyRange2(s.zuuu, start, lessThan);
-            let t5 = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan).multiplyRange2(s.zuuu, start, lessThan);
-            dgx.push((t1.add(t2).subtract(t3).add(t4).subtract(t5)));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = this.d3BasisFunctions_du3[i].multiplyRange(d2, start, lessThan);
-            let t2 = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.zuu, start, lessThan);
-            let t3 = this.d2BasisFunctions_du2[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.zu, start, lessThan);
-            let t4 = this.d2BasisFunctions_du2[i].multiplyRange(s.zuuu, start, lessThan).multiplyRange2(s.xu, start, lessThan);
-            let t5 = this.dBasisFunctions_du[i].multiplyRange(s.zuuu, start, lessThan).multiplyRange2(s.xuu, start, lessThan);
-            dgy.push((t1.add(t2).subtract(t3).add(t4).subtract(t5)));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = this.d3BasisFunctions_du3[i].multiplyRange(d3, start, lessThan);
-            let t2 = this.d2BasisFunctions_du2[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.yu, start, lessThan);
-            let t3 = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.yuu, start, lessThan);
-            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.xuu, start, lessThan);
-            let t5 = this.d2BasisFunctions_du2[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.xu, start, lessThan);
-            dgz.push((t1.add(t2).subtract(t3).add(t4).subtract(t5)));
-        }
-        const totalNumberOfConstraints = this.torsionConstraintsSign.length;
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let cpz = dgz[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (3 * degree - 5);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (3 * degree - 5);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, 2 * controlPointsLength + i, cpz[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    computeBasisFunctionsDerivatives() {
-        const n = this._spline.controlPoints.length;
-        this._numberOfIndependentVariables = n * 2;
-        let diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        for (let i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1;
-            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this._spline.knots.slice());
-            let dBasisFunction_du = basisFunction.derivative();
-            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
-            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
-            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
-            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
-            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
-            diracControlPoints[i] = 0;
-        }
-    }
-}
-exports.OptimizationProblemBSplineR1toR3 = OptimizationProblemBSplineR1toR3;
-
-
-/***/ }),
-
-/***/ "./src/bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2.ts":
-/*!**************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2.ts ***!
-  \**************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
-const PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR1 */ "./src/bsplines/PeriodicBSplineR1toR1.ts");
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-class OptimizationProblemPeriodicBSplineR1toR2 extends AbstractOptimizationProblemBSplineR1toR2_1.AbstractOptimizationProblemBSplineR1toR2 {
-    constructor(target, initial, activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl);
-        this.activeControl = activeControl;
-    }
-    get spline() {
-        return this._spline;
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(controlPoints, knots);
-    }
-    setTargetSpline(spline) {
-        this._target = spline.clone();
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-    }
-    /**
-     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
-     * to slide along the curve.
-     **/
-    computeInactiveConstraints(controlPoints) {
-        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
-        let result = this.extractControlPointsClosestToZero(controlPointsSequences);
-        const firstCP = controlPoints[0];
-        const lastCP = controlPoints[controlPoints.length - 1];
-        if (firstCP * lastCP <= 0) {
-            if (Math.pow(firstCP, 2) <= Math.pow(lastCP, 2)) {
-                if (result[0] != 0) {
-                    result = [0].concat(result);
-                }
-            }
-            else {
-                if (result[result.length - 1] != controlPoints.length - 1) {
-                    result.push(controlPoints.length - 1);
-                }
-            }
-        }
-        return result;
-    }
-    extractChangingSignControlPointsSequences(controlPoints) {
-        let result = [];
-        let successiveControlPoints = [];
-        let i = 1;
-        while (i < controlPoints.length) {
-            successiveControlPoints = [];
-            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
-                successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                i += 1;
-                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                    i += 1;
-                }
-                result.push(successiveControlPoints);
-            }
-            i += 1;
-        }
-        return result;
-    }
-    extractControlPointsClosestToZero(polygonSegments) {
-        let result = [];
-        for (let polygonSegment of polygonSegments) {
-            let s = this.removeBiggest(polygonSegment);
-            for (let iv of s) {
-                result.push(iv.index);
-            }
-        }
-        return result;
-    }
-    removeBiggest(controlPointsSequence) {
-        let result = controlPointsSequence.slice();
-        let maxIndex = 0;
-        for (let i = 1; i < controlPointsSequence.length; i += 1) {
-            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
-                maxIndex = i;
-            }
-        }
-        result.splice(maxIndex, 1);
-        return result;
-    }
-    compute_curvatureExtremaConstraints_gradient(e, constraintsSign, inactiveConstraints) {
-        const sxu = e.bdsxu;
-        const sxuu = e.bdsxuu;
-        const sxuuu = e.bdsxuuu;
-        const syu = e.bdsyu;
-        const syuu = e.bdsyuu;
-        const syuuu = e.bdsyuuu;
-        const h1 = e.h1;
-        const h2 = e.h2;
-        const h3 = e.h3;
-        const h4 = e.h4;
-        let dgx = [];
-        let dgy = [];
-        const periodicControlPointsLength = this.spline.freeControlPoints.length;
-        const totalNumberOfConstraints = constraintsSign.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            // moved control point : i
-            // periodicControlPointsLength = n - degree (it is necessery to add degree cyclic control points, if we do not count them we have n - degree control points)
-            // Bernstein Decomposition index : [max(0, i - degree), min(n - degree, i + 1)]
-            // N_{j, d} is zero outside [u_{j}, u_{j + d + 1} )
-            // Dsu[j] = (N_{j, d})_u
-            // in terms of the set of Bernstein Decomposition N_{j, d} = 0 outside [max(0, i - d), min(n - d, i + 1)]
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * periodicControlPointsLength);
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (4 * degree - 5);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1) * (4 * degree - 5);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, periodicControlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        //Adding periodic term inside the Matrix
-        // The effect of the first control points over the constraints at the end
-        for (let i = 0; i < degree; i += 1) {
-            // moved control point : i
-            // Bernstein Decomposition index : [max(0, i - degree), min(n - degree, i + 1)]
-            // N_{j, d} is zero outside [u_{j}, u_{j + d + 1} )
-            // Dsu[j] = (N_{j, d})_u
-            // in terms of the set of Bernstein Decomposition N_{j, d} = 0 outside [max(0, i - d), min(n - d, i + 1)]
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = 0; i < degree; i += 1) {
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = periodicControlPointsLength; i < periodicControlPointsLength + degree; i += 1) {
-            // index i : moved control point + periodicControlPointsLength
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = (i - degree) * (4 * degree - 5);
-            let lessThan = (periodicControlPointsLength) * (4 * degree - 5);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i - periodicControlPointsLength, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, i, cpy[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    compute_inflectionConstraints_gradient(e, constraintsSign, inactiveConstraints) {
-        const sxu = e.bdsxu;
-        const sxuu = e.bdsxuu;
-        const syu = e.bdsyu;
-        const syuu = e.bdsyuu;
-        let dgx = [];
-        let dgy = [];
-        const periodicControlPointsLength = this.spline.freeControlPoints.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h10.add(h11)));
-        }
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push(h10.add(h11));
-        }
-        const totalNumberOfConstraints = this.inflectionConstraintsSign.length;
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * periodicControlPointsLength);
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (2 * degree - 2);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1) * (2 * degree - 2);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, periodicControlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        //Adding periodic term inside the Matrix
-        // The effect of the first control points over the constraints at the end
-        for (let i = 0; i < degree; i += 1) {
-            // moved control point : i
-            // Bernstein Decomposition index : [max(0, i - degree), min(n - degree, i + 1)]
-            // N_{j, d} is zero outside [u_{j}, u_{j + d + 1} )
-            // Dsu[j] = (N_{j, d})_u
-            // in terms of the set of Bernstein Decomposition N_{j, d} = 0 outside [max(0, i - d), min(n - d, i + 1)]
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h10.add(h11)));
-        }
-        for (let i = 0; i < degree; i += 1) {
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push(h10.add(h11));
-        }
-        for (let i = periodicControlPointsLength; i < periodicControlPointsLength + degree; i += 1) {
-            // index i : moved control point + periodicControlPointsLength
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (2 * degree - 2);
-            let lessThan = (periodicControlPointsLength) * (2 * degree - 2);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i - periodicControlPointsLength, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, i, cpy[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    computeBasisFunctionsDerivatives() {
-        const n = this.spline.controlPoints.length;
-        const m = this.spline.freeControlPoints.length;
-        this._numberOfIndependentVariables = m * 2;
-        let diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        for (let i = 0; i < m; i += 1) {
-            diracControlPoints[i] = 1;
-            if (i < this.spline.degree) {
-                diracControlPoints[m + i] = 1;
-            }
-            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this.spline.knots.slice());
-            let dBasisFunction_du = basisFunction.derivative();
-            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
-            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
-            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
-            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
-            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
-            diracControlPoints[i] = 0;
-            if (i < this.spline.degree) {
-                diracControlPoints[m + i] = 0;
-            }
-        }
-    }
-}
-exports.OptimizationProblemPeriodicBSplineR1toR2 = OptimizationProblemPeriodicBSplineR1toR2;
-
-
-/***/ }),
-
-/***/ "./src/bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton.ts":
-/*!*************************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton.ts ***!
-  \*************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
-const PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR1 */ "./src/bsplines/PeriodicBSplineR1toR1.ts");
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
-class OptimizationProblemPeriodicBSplineR1toR2QuasiNewton extends AbstractOptimizationProblemBSplineR1toR2_1.AbstractOptimizationProblemBSplineR1toR2 {
-    constructor(target, initial, activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl);
-        this.activeControl = activeControl;
-        this.barrierHessianApproximation = [];
-        this.curvatureExtremaConstraintsHessians = [];
-        this.inflectionConstraintsHessians = [];
-        const totalNumberOfCurvatureExtremaConstraints = this.curvatureExtremaConstraintsSign.length;
-        const totalNumberOfInflectionConstraints = this.inflectionConstraintsSign.length;
-        const totalPossibleNumberOfConstraints = this.curvatureExtremaConstraintsSign.length + this.inflectionConstraintsSign.length;
-        const totalNumberOfActiveConstraints = totalPossibleNumberOfConstraints - this._inflectionInactiveConstraints.length - this._curvatureExtremaInactiveConstraints.length;
-        //this.previousGradient_f = new DenseMatrix(totalPossibleNumberOfConstraints, this.numberOfIndependentVariables)
-        this.previousCurvatureExtremaConstraintsGradient = new DenseMatrix_1.DenseMatrix(this.curvatureExtremaConstraintsSign.length, this.numberOfIndependentVariables);
-        this.currentCurvatureExtremaConstraintsGradient = this.previousCurvatureExtremaConstraintsGradient;
-        this.previousInflectionConstraintsGradient = new DenseMatrix_1.DenseMatrix(this.inflectionConstraintsSign.length, this.numberOfIndependentVariables);
-        this.currentInflectionConstraintsGradient = this.previousInflectionConstraintsGradient;
-        for (let i = 0; i < totalNumberOfActiveConstraints; i += 1) {
-            this.barrierHessianApproximation.push(new SymmetricMatrix_1.SymmetricMatrix(this.gradient_f.shape[1]));
-        }
-        for (let i = 0; i < totalNumberOfCurvatureExtremaConstraints; i += 1) {
-            this.curvatureExtremaConstraintsHessians.push(new SymmetricMatrix_1.SymmetricMatrix(this.gradient_f.shape[1]));
-        }
-        for (let i = 0; i < totalNumberOfInflectionConstraints; i += 1) {
-            this.inflectionConstraintsHessians.push(new SymmetricMatrix_1.SymmetricMatrix(this.gradient_f.shape[1]));
-        }
-    }
-    get spline() {
-        return this._spline;
-    }
-    get hessian_f() {
-        //return undefined
-        return this.barrierHessianApproximation.slice(0, this._f.length);
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(controlPoints, knots);
-    }
-    setTargetSpline(spline) {
-        this._target = spline.clone();
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-    }
-    /**
-     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
-     * to slide along the curve.
-     **/
-    computeInactiveConstraints(controlPoints) {
-        //return [] 
-        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
-        let result = this.extractControlPointsClosestToZero(controlPointsSequences);
-        const firstCP = controlPoints[0];
-        const lastCP = controlPoints[controlPoints.length - 1];
-        if (firstCP * lastCP <= 0) {
-            if (Math.pow(firstCP, 2) <= Math.pow(lastCP, 2)) {
-                if (result[0] != 0) {
-                    result = [0].concat(result);
-                }
-            }
-            else {
-                if (result[result.length - 1] != controlPoints.length - 1) {
-                    result.push(controlPoints.length - 1);
-                }
-            }
-        }
-        return result;
-    }
-    extractChangingSignControlPointsSequences(controlPoints) {
-        let result = [];
-        let successiveControlPoints = [];
-        let i = 1;
-        while (i < controlPoints.length) {
-            successiveControlPoints = [];
-            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
-                successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                i += 1;
-                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                    i += 1;
-                }
-                result.push(successiveControlPoints);
-            }
-            i += 1;
-        }
-        return result;
-    }
-    extractControlPointsClosestToZero(polygonSegments) {
-        let result = [];
-        for (let polygonSegment of polygonSegments) {
-            let s = this.removeBiggest(polygonSegment);
-            for (let iv of s) {
-                result.push(iv.index);
-            }
-        }
-        return result;
-    }
-    removeBiggest(controlPointsSequence) {
-        let result = controlPointsSequence.slice();
-        let maxIndex = 0;
-        for (let i = 1; i < controlPointsSequence.length; i += 1) {
-            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
-                maxIndex = i;
-            }
-        }
-        result.splice(maxIndex, 1);
-        return result;
-    }
-    compute_curvatureExtremaConstraints_gradient_full(e, constraintsSign) {
-        const sxu = e.bdsxu;
-        const sxuu = e.bdsxuu;
-        const sxuuu = e.bdsxuuu;
-        const syu = e.bdsyu;
-        const syuu = e.bdsyuu;
-        const syuuu = e.bdsyuuu;
-        const h1 = e.h1;
-        const h2 = e.h2;
-        const h3 = e.h3;
-        const h4 = e.h4;
-        let dgx = [];
-        let dgy = [];
-        const periodicControlPointsLength = this.spline.freeControlPoints.length;
-        const totalNumberOfConstraints = constraintsSign.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            // moved control point : i
-            // periodicControlPointsLength = n - degree (it is necessery to add degree cyclic control points, if we do not count them we have n - degree control points)
-            // Bernstein Decomposition index : [max(0, i - degree), min(n - degree, i + 1)]
-            // N_{j, d} is zero outside [u_{j}, u_{j + d + 1} )
-            // Dsu[j] = (N_{j, d})_u
-            // in terms of the set of Bernstein Decomposition N_{j, d} = 0 outside [max(0, i - d), min(n - d, i + 1)]
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints, 2 * periodicControlPointsLength);
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (4 * degree - 5);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1) * (4 * degree - 5);
-            for (let j = start; j < lessThan; j += 1) {
-                result.set(j, i, cpx[j - start] * constraintsSign[j]);
-                result.set(j, periodicControlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-            }
-        }
-        //Adding periodic term inside the Matrix
-        // The effect of the first control points over the constraints at the end
-        for (let i = 0; i < degree; i += 1) {
-            // moved control point : i
-            // Bernstein Decomposition index : [max(0, i - degree), min(n - degree, i + 1)]
-            // N_{j, d} is zero outside [u_{j}, u_{j + d + 1} )
-            // Dsu[j] = (N_{j, d})_u
-            // in terms of the set of Bernstein Decomposition N_{j, d} = 0 outside [max(0, i - d), min(n - d, i + 1)]
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = 0; i < degree; i += 1) {
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h1_subset = h1.subset(start, lessThan);
-            let h2_subset = h2.subset(start, lessThan);
-            let h3_subset = h3.subset(start, lessThan);
-            let h4_subset = h4.subset(start, lessThan);
-            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
-            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
-        }
-        for (let i = periodicControlPointsLength; i < periodicControlPointsLength + degree; i += 1) {
-            // index i : moved control point + periodicControlPointsLength
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = (i - degree) * (4 * degree - 5);
-            let lessThan = (periodicControlPointsLength) * (4 * degree - 5);
-            for (let j = start; j < lessThan; j += 1) {
-                result.set(j, i - periodicControlPointsLength, cpx[j - start] * constraintsSign[j]);
-                result.set(j, i, cpy[j - start] * constraintsSign[j]);
-            }
-        }
-        return result;
-    }
-    compute_curvatureExtremaConstraints_gradient(e, constraintsSign, inactiveConstraints) {
-        let result = this.compute_curvatureExtremaConstraints_gradient_full(e, constraintsSign);
-        this.currentCurvatureExtremaConstraintsGradient = result;
-        return result.removeRows(inactiveConstraints);
-    }
-    compute_inflectionConstraints_gradient_full(e, constraintsSign) {
-        const sxu = e.bdsxu;
-        const sxuu = e.bdsxuu;
-        const syu = e.bdsyu;
-        const syuu = e.bdsyuu;
-        let dgx = [];
-        let dgy = [];
-        const periodicControlPointsLength = this.spline.freeControlPoints.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h10.add(h11)));
-        }
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1);
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push(h10.add(h11));
-        }
-        const totalNumberOfConstraints = this.inflectionConstraintsSign.length;
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints, 2 * periodicControlPointsLength);
-        for (let i = 0; i < periodicControlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (2 * degree - 2);
-            let lessThan = Math.min(periodicControlPointsLength, i + 1) * (2 * degree - 2);
-            for (let j = start; j < lessThan; j += 1) {
-                result.set(j, i, cpx[j - start] * constraintsSign[j]);
-                result.set(j, periodicControlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-            }
-        }
-        //Adding periodic term inside the Matrix
-        // The effect of the first control points over the constraints at the end
-        for (let i = 0; i < degree; i += 1) {
-            // moved control point : i
-            // Bernstein Decomposition index : [max(0, i - degree), min(n - degree, i + 1)]
-            // N_{j, d} is zero outside [u_{j}, u_{j + d + 1} )
-            // Dsu[j] = (N_{j, d})_u
-            // in terms of the set of Bernstein Decomposition N_{j, d} = 0 outside [max(0, i - d), min(n - d, i + 1)]
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
-            dgx.push((h10.add(h11)));
-        }
-        for (let i = 0; i < degree; i += 1) {
-            let start = i - degree + periodicControlPointsLength;
-            let lessThan = periodicControlPointsLength;
-            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
-            dgy.push(h10.add(h11));
-        }
-        for (let i = periodicControlPointsLength; i < periodicControlPointsLength + degree; i += 1) {
-            // index i : moved control point + periodicControlPointsLength
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (2 * degree - 2);
-            let lessThan = (periodicControlPointsLength) * (2 * degree - 2);
-            for (let j = start; j < lessThan; j += 1) {
-                result.set(j, i - periodicControlPointsLength, cpx[j - start] * constraintsSign[j]);
-                result.set(j, i, cpy[j - start] * constraintsSign[j]);
-            }
-        }
-        return result;
-    }
-    compute_inflectionConstraints_gradient(e, constraintsSign, inactiveConstraints) {
-        let result = this.compute_inflectionConstraints_gradient_full(e, constraintsSign);
-        this.currentInflectionConstraintsGradient = result;
-        return result.removeRows(inactiveConstraints);
-    }
-    computeBasisFunctionsDerivatives() {
-        const n = this._spline.controlPoints.length;
-        const m = this._spline.freeControlPoints.length;
-        this._numberOfIndependentVariables = m * 2;
-        let diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
-        for (let i = 0; i < m; i += 1) {
-            diracControlPoints[i] = 1;
-            if (i < this.spline.degree) {
-                diracControlPoints[m + i] = 1;
-            }
-            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this.spline.knots.slice());
-            let dBasisFunction_du = basisFunction.derivative();
-            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
-            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
-            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
-            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
-            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
-            diracControlPoints[i] = 0;
-            if (i < this.spline.degree) {
-                diracControlPoints[m + i] = 0;
-            }
-        }
-    }
-    step(deltaX) {
-        this.spline.optimizerStep(deltaX);
-        this._gradient_f0 = this.compute_gradient_f0(this._spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        const e = this.expensiveComputation(this._spline);
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        const curvatureNumerator = this.curvatureNumerator(e.h4);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this.curvatureExtremaConstraintsHessians = this.computeSymmetricRank1Update(deltaX, this.currentCurvatureExtremaConstraintsGradient, this.previousCurvatureExtremaConstraintsGradient, this.curvatureExtremaConstraintsHessians);
-        this.previousCurvatureExtremaConstraintsGradient = this.currentCurvatureExtremaConstraintsGradient;
-        this.inflectionConstraintsHessians = this.computeSymmetricRank1Update(deltaX, this.currentInflectionConstraintsGradient, this.previousInflectionConstraintsGradient, this.inflectionConstraintsHessians);
-        this.previousInflectionConstraintsGradient = this.currentInflectionConstraintsGradient;
-        //this.updateSymmetricRank1(deltaX, this._gradient_f)
-        this.barrierHessianApproximation = MathVectorBasicOperations_1.removeElements(this.inflectionConstraintsHessians, this.inflectionInactiveConstraints).concat(MathVectorBasicOperations_1.removeElements(this.curvatureExtremaConstraintsHessians, this.curvatureExtremaInactiveConstraints));
-    }
-    /**
-     * Update the symmetric matrix hessian with an improvement of rank 1
-     * See: Jorge Nocedal and Stephen J. Wright,
-     * Numerical Optimization, Second Edition, p. 144 (The SR1 Method)
-     */
     /*
-     updateSymmetricRank1(step: number[], f: number[], gradient_f: MatrixInterface) {
-        let m = gradient_f.shape[0] // number of constraints
-        let n = gradient_f.shape[1] // number of free variables
-        let deltaGradient: number[][] = []
-        for (let i = 0; i < m; i += 1) {
-            deltaGradient.push([])
-            for (let j = 0; j < n; j += 1) {
-                deltaGradient[i].push(gradient_f.get(i, j) - this.previousGradient_f.get(i, j))
-            }
-        }
-        for (let i = 0; i < m ; i += 1) {
-            const hessian = this.computeSR1(step, deltaGradient[i], this.barrierHessianApproximation[i])
-            if (hessian) {
-                this.barrierHessianApproximation[i] = hessian
-            }
-            else {
-                //console.log("approximation hessian not defined")
-                this.barrierHessianApproximation[i] = new SymmetricMatrix(n)
-            }
-        }
-        for (let i = 0; i < gradient_f.shape[0]; i += 1) {
-            for (let j = 0; j< gradient_f.shape[1]; j += 1) {
-                this.previousGradient_f.set(i, j, gradient_f.get(i, j))
-            }
-        }
+    set controlPoints(controlPoints: Vector3d[]) {
+        this._controlPoints = deepCopyControlPoints(controlPoints)
     }
     */
-    computeSymmetricRank1Update(step, gradients, previousGradients, previousHessians) {
-        let m = gradients.shape[0]; // number of constraints
-        let n = gradients.shape[1]; // number of free variables
-        let deltaGradient = [];
-        let result = [];
-        for (let i = 0; i < m; i += 1) {
-            deltaGradient.push([]);
-            for (let j = 0; j < n; j += 1) {
-                deltaGradient[i].push(gradients.get(i, j) - previousGradients.get(i, j));
-            }
-        }
-        for (let i = 0; i < m; i += 1) {
-            const hessian = this.computeSR1(step, deltaGradient[i], previousHessians[i]);
-            if (hessian) {
-                result.push(hessian);
-            }
-            else {
-                //console.log("approximation hessian not defined")
-                result.push(new SymmetricMatrix_1.SymmetricMatrix(n));
-            }
-        }
-        return result;
+    get knots() {
+        return [...this._knots];
     }
-    computeSR1(step, deltaGradient, previousHessian, r = 10e-8) {
-        let m = step.length;
-        let result = new SymmetricMatrix_1.SymmetricMatrix(m);
-        let v = [];
-        for (let i = 0; i < m; i += 1) {
-            let c = 0;
-            for (let j = 0; j < m; j += 1) {
-                c += previousHessian.get(i, j) * step[j];
-            }
-            v.push(deltaGradient[i] - c);
-        }
-        const vTs = MathVectorBasicOperations_1.dotProduct(step, v);
-        if (vTs <= r * MathVectorBasicOperations_1.norm(step) * MathVectorBasicOperations_1.norm(v)) {
-            //console.log(vTs)
-            return undefined;
-        }
-        for (let i = 0; i < m; i += 1) {
-            for (let j = 0; j <= i; j += 1) {
-                let h = previousHessian.get(i, j);
-                let vvT = v[i] * v[j];
-                result.set(i, j, h + vvT / vTs);
-                //result.set(i, j, 0)
-            }
-        }
-        return result;
+    /*
+    set knots(knots: number[]) {
+        this._knots = [...knots]
+        this._degree = this.computeDegree()
     }
-}
-exports.OptimizationProblemPeriodicBSplineR1toR2QuasiNewton = OptimizationProblemPeriodicBSplineR1toR2QuasiNewton;
-
-
-/***/ }),
-
-/***/ "./src/bsplinesOptimizationProblems/OptimizationProblemRationalBSplineR1toR2.ts":
-/*!**************************************************************************************!*\
-  !*** ./src/bsplinesOptimizationProblems/OptimizationProblemRationalBSplineR1toR2.ts ***!
-  \**************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR1 */ "./src/bsplines/BSplineR1toR1.ts");
-const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
-const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../bsplines/BernsteinDecompositionR1toR1 */ "./src/bsplines/BernsteinDecompositionR1toR1.ts");
-const AbstractOptimizationProblemRationalBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptimizationProblemRationalBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemRationalBSplineR1toR2.ts");
-class OptimizationProblemRationalBSplineR1toR2 extends AbstractOptimizationProblemRationalBSplineR1toR2_1.AbstractOptimizationProblemRationalBSplineR1toR2 {
-    constructor(target, initial, activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl);
-        this.activeControl = activeControl;
+    */
+    get degree() {
+        return this._degree;
     }
-    get spline() {
-        return this._spline;
-    }
-    bSplineR1toR1Factory(controlPoints, knots) {
-        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
-    }
-    setTargetSpline(spline) {
-        this._target = spline.clone();
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
+    getControlPoint(index) {
+        return this._controlPoints[index].clone();
     }
     /**
-     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
-     * to slide along the curve.
-     **/
-    computeInactiveConstraints(controlPoints) {
-        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
-        return this.extractControlPointsClosestToZero(controlPointsSequences);
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    evaluate(u) {
+        const span = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(u, this._knots, this._degree);
+        const basis = (0, Piegl_Tiller_NURBS_Book_1.basisFunctions)(span, u, this._knots, this._degree);
+        let result = new Vector3d_1.Vector3d(0, 0, 0);
+        for (let i = 0; i < this._degree + 1; i += 1) {
+            result.x += basis[i] * this._controlPoints[span - this._degree + i].x;
+            result.y += basis[i] * this._controlPoints[span - this._degree + i].y;
+            result.z += basis[i] * this._controlPoints[span - this._degree + i].z;
+        }
+        return result;
     }
-    extractChangingSignControlPointsSequences(controlPoints) {
+    getControlPointsX() {
         let result = [];
-        let successiveControlPoints = [];
-        let i = 1;
-        while (i < controlPoints.length) {
-            successiveControlPoints = [];
-            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
-                successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                i += 1;
-                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
-                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
-                    i += 1;
-                }
-                result.push(successiveControlPoints);
-            }
-            i += 1;
+        for (let cp of this._controlPoints) {
+            result.push(cp.x);
         }
         return result;
     }
-    extractControlPointsClosestToZero(polygonSegments) {
+    getControlPointsY() {
         let result = [];
-        for (let polygonSegment of polygonSegments) {
-            let s = this.removeBiggest(polygonSegment);
-            for (let iv of s) {
-                result.push(iv.index);
+        for (let cp of this._controlPoints) {
+            result.push(cp.y);
+        }
+        return result;
+    }
+    getControlPointsZ() {
+        let result = [];
+        for (let cp of this._controlPoints) {
+            result.push(cp.z);
+        }
+        return result;
+    }
+    getDistinctKnots() {
+        let result = [this._knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this._knots.length; i += 1) {
+            if (this._knots[i] !== temp) {
+                result.push(this._knots[i]);
+                temp = this._knots[i];
             }
         }
         return result;
     }
-    removeBiggest(controlPointsSequence) {
-        let result = controlPointsSequence.slice();
-        let maxIndex = 0;
-        for (let i = 1; i < controlPointsSequence.length; i += 1) {
-            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
-                maxIndex = i;
-            }
+    moveControlPoint(i, delta) {
+        if (i < 0 || i >= this._controlPoints.length - this._degree) {
+            throw new Error("Control point indentifier is out of range");
         }
-        result.splice(maxIndex, 1);
-        return result;
+        let controlPoints = this.controlPoints;
+        controlPoints[i].x += delta.x;
+        controlPoints[i].y += delta.y;
+        controlPoints[i].z += delta.z;
+        return this.factory(controlPoints, this._knots);
     }
-    compute_curvatureExtremaConstraints_gradient(s, ct, constraintsSign, inactiveConstraints) {
-        let dgx = [];
-        let dgy = [];
-        let dgw = [];
-        const controlPointsLength = this.spline.controlPoints.length;
-        const totalNumberOfConstraints = constraintsSign.length;
-        const degree = this.spline.degree;
-        const D1xD3 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D3x, ct.D3y);
-        const D1xD21 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D21x, ct.D21y);
-        const D1xD2 = BernsteinDecompositionR1toR1_1.determinant2by2(ct.D1x, ct.D1y, ct.D2x, ct.D2y);
-        const D1dotD1 = ct.D1x.multiply(ct.D1x).add(ct.D1y.multiply(ct.D1y));
-        const D1dotD2 = ct.D1x.multiply(ct.D2x).add(ct.D1y.multiply(ct.D2y));
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let dD1 = this.dBasisFunctions_du[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wu, start, lessThan));
-            let dD2 = this.d2BasisFunctions_du2[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuu, start, lessThan));
-            let dD3 = this.d3BasisFunctions_du3[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuuu, start, lessThan));
-            let dD21 = this.d2BasisFunctions_du2[i].multiplyRange(s.wu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.wuu, start, lessThan));
-            let dD1xD3 = dD1.multiplyRange2(ct.D3y, start, lessThan).subtract(dD3.multiplyRange2(ct.D1y, start, lessThan));
-            let dD1xD21 = dD1.multiplyRange2(ct.D21y, start, lessThan).subtract(dD21.multiplyRange2(ct.D1y, start, lessThan));
-            let dD1xD2 = dD1.multiplyRange2(ct.D2y, start, lessThan).subtract(dD2.multiplyRange2(ct.D1y, start, lessThan));
-            let dD1dotD1 = dD1.multiplyRange2(ct.D1x, start, lessThan).multiplyByScalar(2);
-            let dD1dotD2 = dD1.multiplyRange2(ct.D2x, start, lessThan).add(dD2.multiplyRange2(ct.D1x, start, lessThan));
-            let t1a = dD1xD3.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan);
-            let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan).multiplyRange2(s.w, start, lessThan);
-            let t1 = t1a.add(t1b);
-            let t2a = dD1xD21.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan);
-            let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan).multiplyRange2(s.w, start, lessThan);
-            let t2 = t2a.add(t2b);
-            let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2);
-            let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2);
-            let t3 = t3a.add(t3b);
-            let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3);
-            let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3);
-            let t4 = t4a.add(t4b);
-            dgx.push(t1.add(t2).add(t3).add(t4));
+    moveControlPoints(delta) {
+        const n = this._controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
         }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let dD1 = this.dBasisFunctions_du[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wu, start, lessThan));
-            let dD2 = this.d2BasisFunctions_du2[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuu, start, lessThan));
-            let dD3 = this.d3BasisFunctions_du3[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuuu, start, lessThan));
-            let dD21 = this.d2BasisFunctions_du2[i].multiplyRange(s.wu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.wuu, start, lessThan));
-            let dD1xD3 = dD3.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D3x, start, lessThan));
-            let dD1xD21 = dD21.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D21x, start, lessThan));
-            let dD1xD2 = dD2.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D2x, start, lessThan));
-            let dD1dotD1 = dD1.multiplyRange2(ct.D1y, start, lessThan).multiplyByScalar(2);
-            let dD1dotD2 = dD1.multiplyRange2(ct.D2y, start, lessThan).add(dD2.multiplyRange2(ct.D1y, start, lessThan));
-            let t1a = dD1xD3.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan);
-            let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan).multiplyRange2(s.w, start, lessThan);
-            let t1 = t1a.add(t1b);
-            let t2a = dD1xD21.multiply(D1dotD1).multiplyRange2(s.w, start, lessThan);
-            let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan).multiplyRange2(s.w, start, lessThan);
-            let t2 = t2a.add(t2b);
-            let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2);
-            let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2);
-            let t3 = t3a.add(t3b);
-            let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3);
-            let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3);
-            let t4 = t4a.add(t4b);
-            dgy.push(t1.add(t2).add(t3).add(t4));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = this.basisFunctions[i].multiplyRange(D1xD3, start, lessThan).multiplyRange2(D1dotD1, start, lessThan);
-            let t2 = this.basisFunctions[i].multiplyRange(D1xD21, start, lessThan).multiplyRange2(D1dotD1, start, lessThan);
-            let t3 = this.dBasisFunctions_du[i].multiplyRange(D1xD2, start, lessThan).multiplyRange2(D1dotD1, start, lessThan).multiplyByScalar(2);
-            let t4 = this.basisFunctions[i].multiplyRange(D1xD2, start, lessThan).multiplyRange2(D1dotD2, start, lessThan).multiplyByScalar(-3);
-            dgw.push(t1.add(t2).add(t3).add(t4));
-        }
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let cpx = dgx[i].flattenControlPointsArray();
-            let cpy = dgy[i].flattenControlPointsArray();
-            let cpw = dgw[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (9 * degree - 5);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (9 * degree - 5);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, 2 * controlPointsLength + i, cpw[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    compute_inflectionConstraints_gradient(s, constraintsSign, inactiveConstraints) {
-        let dgx = [];
-        let dgy = [];
-        let dgw = [];
-        const controlPointsLength = this.spline.controlPoints.length;
-        const degree = this.spline.degree;
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = (this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan))).multiplyRange2(s.w, start, lessThan);
-            let t2 = (this.basisFunctions[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.y, start, lessThan))).multiplyRange2(s.wu, start, lessThan);
-            let t3 = (this.dBasisFunctions_du[i].multiplyRange(s.y, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.yu, start, lessThan))).multiplyRange2(s.wuu, start, lessThan);
-            dgx.push(t1.subtract(t2).subtract(t3));
-        }
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = (this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan))).multiplyRange2(s.w, start, lessThan);
-            let t2 = (this.d2BasisFunctions_du2[i].multiplyRange(s.x, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.xuu, start, lessThan))).multiplyRange2(s.wu, start, lessThan);
-            let t3 = (this.basisFunctions[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.x, start, lessThan))).multiplyRange2(s.wuu, start, lessThan);
-            dgy.push(t1.subtract(t2).subtract(t3));
-        }
-        const h1 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xu, s.yu, s.xuu, s.yuu);
-        const h2 = BernsteinDecompositionR1toR1_1.determinant2by2(s.x, s.y, s.xuu, s.yuu);
-        const h3 = BernsteinDecompositionR1toR1_1.determinant2by2(s.xu, s.yu, s.x, s.y);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1);
-            let t1 = this.basisFunctions[i].multiplyRange(h1, start, lessThan);
-            let t2 = this.dBasisFunctions_du[i].multiplyRange(h2, start, lessThan);
-            let t3 = this.d2BasisFunctions_du2[i].multiplyRange(h3, start, lessThan);
-            dgw.push(t1.subtract(t2).subtract(t3));
-        }
-        const totalNumberOfConstraints = this.inflectionConstraintsSign.length;
-        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
-        for (let i = 0; i < controlPointsLength; i += 1) {
-            const cpx = dgx[i].flattenControlPointsArray();
-            const cpy = dgy[i].flattenControlPointsArray();
-            const cpw = dgw[i].flattenControlPointsArray();
-            let start = Math.max(0, i - degree) * (3 * degree - 2);
-            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (3 * degree - 2);
-            let deltaj = 0;
-            for (let inactiveConstraint of inactiveConstraints) {
-                if (inactiveConstraint >= start) {
-                    break;
-                }
-                deltaj += 1;
-            }
-            for (let j = start; j < lessThan; j += 1) {
-                if (j === inactiveConstraints[deltaj]) {
-                    deltaj += 1;
-                }
-                else {
-                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
-                    result.set(j - deltaj, 2 * controlPointsLength + i, cpw[j - start] * constraintsSign[j]);
-                }
-            }
-        }
-        return result;
-    }
-    computeBasisFunctionsDerivatives() {
-        const n = this._spline.controlPoints.length;
-        this._numberOfIndependentVariables = n * 2;
-        let diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
-        this.basisFunctions = [];
-        this.dBasisFunctions_du = [];
-        this.d2BasisFunctions_du2 = [];
-        this.d3BasisFunctions_du3 = [];
+        let controlPoints = this.controlPoints;
         for (let i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1;
-            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this._spline.knots.slice());
-            let dBasisFunction_du = basisFunction.derivative();
-            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
-            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
-            this.basisFunctions.push(basisFunction.bernsteinDecomposition());
-            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
-            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
-            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
-            diracControlPoints[i] = 0;
+            controlPoints[i] = controlPoints[i].add(delta[i]);
+        }
+        return this.factory(controlPoints, this._knots);
+    }
+    setControlPointPosition(index, value) {
+        let controlPoints = this.controlPoints;
+        controlPoints[index] = value;
+        return this.factory(controlPoints, this.knots);
+    }
+    insertKnot(u, times = 1) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        if (times <= 0) {
+            return this.factory(this.controlPoints, this.knots);
+        }
+        let index = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(u, this._knots, this._degree);
+        let multiplicity = 0;
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (let t = 0; t < times; t += 1) {
+            let newControlPoints = [];
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - knots[i]) / (knots[i + this._degree] - knots[i]);
+                newControlPoints[i] = (controlPoints[i - 1].multiply(1 - alpha)).add(controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = controlPoints[i];
+            }
+            knots.splice(index + 1, 0, u);
+            controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+        return this.factory(controlPoints, knots);
+    }
+    knotMultiplicity(indexFromFindSpan) {
+        let result = 0;
+        let i = 0;
+        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    }
+    grevilleAbscissae() {
+        let result = [];
+        for (let i = 0; i < this._controlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
+                sum += this._knots[j];
+            }
+            result.push(sum / this._degree);
+        }
+        return result;
+    }
+    clamp(u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        let index = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(u, this._knots, this._degree);
+        let newControlPoints = [];
+        let controlPoints = this.controlPoints;
+        let knots = this.knots;
+        let multiplicity = 0;
+        if (u === this._knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        const times = this._degree - multiplicity + 1;
+        for (let t = 0; t < times; t += 1) {
+            for (let i = 0; i < index - this._degree + 1; i += 1) {
+                newControlPoints[i] = controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - knots[i]) / (knots[i + this._degree] - knots[i]);
+                newControlPoints[i] = (controlPoints[i - 1].multiply(1 - alpha)).add(controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = controlPoints[i];
+            }
+            knots.splice(index + 1, 0, u);
+            controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
         }
     }
 }
-exports.OptimizationProblemRationalBSplineR1toR2 = OptimizationProblemRationalBSplineR1toR2;
+exports.BaseBSplineR1toR3 = BaseBSplineR1toR3;
+function deepCopyControlPoints(controlPoints) {
+    let result = [];
+    for (let cp of controlPoints) {
+        result.push(cp.clone());
+    }
+    return result;
+}
+exports.deepCopyControlPoints = deepCopyControlPoints;
 
 
 /***/ }),
@@ -4709,6 +2234,7 @@ exports.OptimizationProblemRationalBSplineR1toR2 = OptimizationProblemRationalBS
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CurveScene3dController = void 0;
 class CurveScene3dController {
     constructor(curveModel3d) {
         this.curveModel3d = curveModel3d;
@@ -4722,23 +2248,24 @@ exports.CurveScene3dController = CurveScene3dController;
 
 /***/ }),
 
-/***/ "./src/controllers/CurveSceneController.ts":
-/*!*************************************************!*\
-  !*** ./src/controllers/CurveSceneController.ts ***!
-  \*************************************************/
+/***/ "./src/controllers/RationalCurveScene2dController.ts":
+/*!***********************************************************!*\
+  !*** ./src/controllers/RationalCurveScene2dController.ts ***!
+  \***********************************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-class CurveSceneController {
+exports.RationalCurveScene2dController = void 0;
+class RationalCurveScene2dController {
     constructor(curveModel) {
         this.curveModel = curveModel;
     }
     setControlPointPosition(selectedControlPoint, x, y) {
-        this.curveModel.setControlPointPosition(selectedControlPoint, x, y);
+        this.curveModel.setControlPointPositionXY(selectedControlPoint, x, y);
     }
 }
-exports.CurveSceneController = CurveSceneController;
+exports.RationalCurveScene2dController = RationalCurveScene2dController;
 
 
 /***/ }),
@@ -4751,6 +2278,7 @@ exports.CurveSceneController = CurveSceneController;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CholeskyDecomposition = void 0;
 /**
  * A decomposition of a positive-definite matirx into a product of a lower triangular matrix and its conjugate transpose
  */
@@ -4861,6 +2389,7 @@ exports.CholeskyDecomposition = CholeskyDecomposition;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DenseMatrix = void 0;
 /**
  * A dense matrix
  */
@@ -4978,6 +2507,7 @@ exports.DenseMatrix = DenseMatrix;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.identityMatrix = exports.DiagonalMatrix = void 0;
 /**
  * An identity matrix
  */
@@ -5064,6 +2594,7 @@ exports.identityMatrix = identityMatrix;
 
 // https://rosettacode.org/wiki/Gaussian_elimination#JavaScript
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.lusolve = void 0;
 // Lower Upper Solver
 function lusolve(matrix, b, update = false) {
     let A = matrix.toNumberArray();
@@ -5188,6 +2719,7 @@ function lubksb(lu, b, update) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.removeElements = exports.sign = exports.containsNaN = exports.randomVector = exports.isZeroVector = exports.product_v1_v2t = exports.product_v_vt = exports.zeroVector = exports.norm1 = exports.norm = exports.squaredNorm = exports.addSecondVectorToFirst = exports.addTwoVectors = exports.dotProduct = exports.saxpy2 = exports.saxpy = exports.divideVectorByScalar = exports.multiplyVectorByScalar = void 0;
 const SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
 const DenseMatrix_1 = __webpack_require__(/*! ./DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
 /**
@@ -5449,6 +2981,7 @@ exports.removeElements = removeElements;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SquareMatrix = void 0;
 /**
  * A square matrix
  */
@@ -5648,6 +3181,7 @@ exports.SquareMatrix = SquareMatrix;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SymmetricMatrix = void 0;
 const SquareMatrix_1 = __webpack_require__(/*! ./SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
 const DiagonalMatrix_1 = __webpack_require__(/*! ./DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
 const MathVectorBasicOperations_1 = __webpack_require__(/*! ./MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
@@ -5844,7 +3378,7 @@ class SymmetricMatrix {
         return result;
     }
     containsNaN() {
-        return MathVectorBasicOperations_1.containsNaN(this.data);
+        return (0, MathVectorBasicOperations_1.containsNaN)(this.data);
     }
     getData() {
         return this.data;
@@ -5863,6 +3397,7 @@ exports.SymmetricMatrix = SymmetricMatrix;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.rotationMatrixFromTwoVectors = void 0;
 const SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
 function rotationMatrixFromTwoVectors(unitVector1, unitVector2, tolerance = 10e-5) {
     // https://math.stackexchange.com/questions/180418/calculate-rotation-matrix-to-align-vector-a-to-vector-b-in-3d
@@ -5887,7 +3422,9 @@ exports.rotationMatrixFromTwoVectors = rotationMatrixFromTwoVectors;
 /***/ ((__unused_webpack_module, exports) => {
 
 
+//import { VectorInterface } from "./VectorInterface"
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.scaleY = exports.scaleX = exports.scale = exports.Vector2d = void 0;
 /**
  * A two dimensional vector
  */
@@ -5905,7 +3442,7 @@ class Vector2d {
     multiply(value) {
         return new Vector2d(this.x * value, this.y * value);
     }
-    substract(v) {
+    subtract(v) {
         return new Vector2d(this.x - v.x, this.y - v.y);
     }
     rotate90degrees() {
@@ -5966,7 +3503,9 @@ exports.scaleY = scaleY;
 /***/ ((__unused_webpack_module, exports) => {
 
 
+//import { VectorInterface } from "./VectorInterface"
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.linePlaneIntersection = exports.pointLineDistance = exports.Vector3d = void 0;
 /**
  * A three dimensional vector
  */
@@ -6045,47 +3584,32 @@ exports.linePlaneIntersection = linePlaneIntersection;
 
 /***/ }),
 
-/***/ "./src/models/AbstractCurveModel.ts":
-/*!******************************************!*\
-  !*** ./src/models/AbstractCurveModel.ts ***!
-  \******************************************/
+/***/ "./src/models/BaseCurve2dModel.ts":
+/*!****************************************!*\
+  !*** ./src/models/BaseCurve2dModel.ts ***!
+  \****************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BaseCurve2dModel = void 0;
 const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2Adapter */ "./src/bsplines/RationalBSplineR1toR2Adapter.ts");
-class AbstractCurveModel {
+const BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ../optimizationProblems/BaseOpBSplineR1toR2 */ "./src/optimizationProblems/BaseOpBSplineR1toR2.ts");
+const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ../bsplines/R1toR2/RationalBSplineR1toR2Adapter */ "./src/bsplines/R1toR2/RationalBSplineR1toR2Adapter.ts");
+class BaseCurve2dModel {
     constructor() {
         this.observers = [];
         this.observersCP = [];
-        this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
+        this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         this.activeOptimizer = true;
         this.optimizationProblem = null;
         this.optimizer = null;
     }
-    registerObserver(observer, kind) {
-        switch (kind) {
-            case 'curve':
-                this.observers.push(observer);
-                break;
-            case 'control points':
-                this.observersCP.push(observer);
-                break;
-            default:
-                throw Error("unknown kind");
-        }
+    registerObserver(observer) {
+        this.observers.push(observer);
     }
-    removeObserver(observer, kind) {
-        switch (kind) {
-            case 'curve':
-                this.observers.splice(this.observers.indexOf(observer), 1);
-                break;
-            case 'control points':
-                this.observersCP.splice(this.observersCP.indexOf(observer), 1);
-                break;
-        }
+    removeObserver(observer) {
+        this.observers.splice(this.observers.indexOf(observer), 1);
     }
     notifyObservers() {
         for (let observer of this.observers) {
@@ -6096,7 +3620,7 @@ class AbstractCurveModel {
         }
     }
     setControlPointPosition(controlPointIndex, x, y) {
-        this._spline.setControlPointPosition(controlPointIndex, new Vector2d_1.Vector2d(x, y));
+        this._spline = this._spline.setControlPointPosition(controlPointIndex, new Vector2d_1.Vector2d(x, y));
         this.notifyObservers();
         if (this.activeOptimizer) {
             this.optimize(controlPointIndex, x, y);
@@ -6167,15 +3691,15 @@ class AbstractCurveModel {
     toggleActiveControlOfCurvatureExtrema() {
         if (!this.activeOptimizer) {
             this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.both) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false;
         }
         if (this.activeOptimizer) {
@@ -6185,15 +3709,15 @@ class AbstractCurveModel {
     toggleActiveControlOfInflections() {
         if (!this.activeOptimizer) {
             this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.both) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
             this.activeOptimizer = false;
         }
         if (this.activeOptimizer) {
@@ -6201,52 +3725,37 @@ class AbstractCurveModel {
         }
     }
 }
-exports.AbstractCurveModel = AbstractCurveModel;
+exports.BaseCurve2dModel = BaseCurve2dModel;
 
 
 /***/ }),
 
-/***/ "./src/models/AbstractNurbsModel.ts":
-/*!******************************************!*\
-  !*** ./src/models/AbstractNurbsModel.ts ***!
-  \******************************************/
+/***/ "./src/models/BaseRationalCurve2dModel.ts":
+/*!************************************************!*\
+  !*** ./src/models/BaseRationalCurve2dModel.ts ***!
+  \************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const RationalBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2 */ "./src/bsplines/RationalBSplineR1toR2.ts");
+exports.BaseRationalCurve2dModel = void 0;
+const BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ../optimizationProblems/BaseOpBSplineR1toR2 */ "./src/optimizationProblems/BaseOpBSplineR1toR2.ts");
+const RationalBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/R1toR2/RationalBSplineR1toR2 */ "./src/bsplines/R1toR2/RationalBSplineR1toR2.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-class AbstractNurbsModel {
+class BaseRationalCurve2dModel {
     constructor() {
         this.observers = [];
         this.observersCP = [];
-        this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
+        this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         this.activeOptimizer = true;
         this.optimizationProblem = null;
         this.optimizer = null;
     }
-    registerObserver(observer, kind) {
-        switch (kind) {
-            case 'curve':
-                this.observers.push(observer);
-                break;
-            case 'control points':
-                this.observersCP.push(observer);
-                break;
-            default:
-                throw Error("unknown kind");
-        }
+    registerObserver(observer) {
+        this.observers.push(observer);
     }
-    removeObserver(observer, kind) {
-        switch (kind) {
-            case 'curve':
-                this.observers.splice(this.observers.indexOf(observer), 1);
-                break;
-            case 'control points':
-                this.observersCP.splice(this.observersCP.indexOf(observer), 1);
-                break;
-        }
+    removeObserver(observer) {
+        this.observers.splice(this.observers.indexOf(observer), 1);
     }
     notifyObservers() {
         for (let observer of this.observers) {
@@ -6257,7 +3766,7 @@ class AbstractNurbsModel {
         }
     }
     setControlPointPosition(controlPointIndex, x, y, z) {
-        this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x, y, z));
+        this._spline = this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x, y, z));
         this.notifyObservers();
         if (this.activeOptimizer) {
             this.optimize(controlPointIndex, x, y);
@@ -6265,29 +3774,27 @@ class AbstractNurbsModel {
     }
     setControlPointPositionXY(controlPointIndex, x, y) {
         const cp = this._spline.controlPoints[controlPointIndex];
-        this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x * cp.z, y * cp.z, cp.z));
+        this._spline = this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x * cp.z, y * cp.z, cp.z));
         this.notifyObservers();
         if (this.activeOptimizer) {
             this.optimize(controlPointIndex, x, y);
         }
     }
     setControlPointWeight(controlPointIndex, w) {
-        /*
-            const p = this._spline.controlPoints[controlPointIndex]
-            this._spline.setControlPointPosition(controlPointIndex, new Vector3d(p.x, p.y, w))
-
-            this.notifyObservers()
-            if (this.activeOptimizer) {
-                this.optimize(controlPointIndex, p.x, p.y, w)
-            }
-            */
+        const p = this._spline.controlPoints[controlPointIndex];
+        const s = this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(p.x * w, p.y * w, w));
+        this._spline = new RationalBSplineR1toR2_1.RationalBSplineR1toR2(s.controlPoints, s.knots);
+        this.notifyObservers();
+        if (this.activeOptimizer) {
+            this.optimizeWeight(controlPointIndex, w);
+        }
     }
     increaseControlPointWeight(controlPointIndex) {
         if (this._spline instanceof RationalBSplineR1toR2_1.RationalBSplineR1toR2) {
             const delta = 1.1;
             const w = this._spline.getControlPointWeight(controlPointIndex);
             const newW = w * delta;
-            this._spline.setControlPointWeight(controlPointIndex, newW);
+            this._spline = this._spline.setControlPointWeight(controlPointIndex, newW);
             this.notifyObservers();
             if (this.activeOptimizer) {
                 this.optimizeWeight(controlPointIndex, newW);
@@ -6299,7 +3806,7 @@ class AbstractNurbsModel {
             const delta = 0.9;
             const w = this._spline.getControlPointWeight(controlPointIndex);
             const newW = w * delta;
-            this._spline.setControlPointWeight(controlPointIndex, newW);
+            this._spline = this._spline.setControlPointWeight(controlPointIndex, newW);
             this.notifyObservers();
             if (this.activeOptimizer) {
                 this.optimizeWeight(controlPointIndex, newW);
@@ -6343,7 +3850,7 @@ class AbstractNurbsModel {
             const numberOfStep = 1;
             //const numberOfStep = 1
             for (let i = 1; i <= numberOfStep; i += 1) {
-                let alpha = Math.pow(i / numberOfStep, 3);
+                //let alpha = Math.pow(i / numberOfStep, 3)
                 //this._spline.setControlPointPosition(selectedControlPoint, new Vector3d((1-alpha)*p.x + alpha * ndcX, (1-alpha)*p.y + alpha * ndcY, (1-alpha)*p.z + alpha * ndcY ))
                 this._spline.setControlPointPosition(selectedControlPoint, new Vector3d_1.Vector3d(p.x * w / p.z, p.y * w / p.z, w));
                 this.optimizationProblem.setTargetSpline(this._spline);
@@ -6363,15 +3870,15 @@ class AbstractNurbsModel {
     toggleActiveControlOfCurvatureExtrema() {
         if (!this.activeOptimizer) {
             this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.both) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false;
         }
         if (this.activeOptimizer) {
@@ -6381,15 +3888,15 @@ class AbstractNurbsModel {
     toggleActiveControlOfInflections() {
         if (!this.activeOptimizer) {
             this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.both) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+            this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
+        else if (this.activeControl == BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
             this.activeOptimizer = false;
         }
         if (this.activeOptimizer) {
@@ -6397,258 +3904,26 @@ class AbstractNurbsModel {
         }
     }
 }
-exports.AbstractNurbsModel = AbstractNurbsModel;
+exports.BaseRationalCurve2dModel = BaseRationalCurve2dModel;
 
 
 /***/ }),
 
-/***/ "./src/models/ClosedCurveModel.ts":
-/*!****************************************!*\
-  !*** ./src/models/ClosedCurveModel.ts ***!
-  \****************************************/
+/***/ "./src/models/Curve2dModel.ts":
+/*!************************************!*\
+  !*** ./src/models/Curve2dModel.ts ***!
+  \************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR2 */ "./src/bsplines/PeriodicBSplineR1toR2.ts");
-const OptimizationProblemPeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2.ts");
-const Optimizer_1 = __webpack_require__(/*! ../optimizers/Optimizer */ "./src/optimizers/Optimizer.ts");
-const AbstractCurveModel_1 = __webpack_require__(/*! ./AbstractCurveModel */ "./src/models/AbstractCurveModel.ts");
-class ClosedCurveModel extends AbstractCurveModel_1.AbstractCurveModel {
-    constructor() {
-        super();
-        const px0 = 0, px1 = 0.15, px2 = 0.27, px3 = 0.3;
-        const py0 = 0, py2 = 0.35, py4 = 0.6, py5 = 0.72;
-        const cp = [[-px2, -py2], [-px3, py0], [-px2, py2], [-px1, py4],
-            [px0, py5], [px1, py4], [px2, py2], [px3, py0],
-            [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4],
-            [-px2, -py2], [-px3, py0], [-px2, py2]];
-        let cp1 = [];
-        for (let cpi of cp) {
-            cp1.push([cpi[1], -cpi[0]]);
-        }
-        const knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        this._spline = PeriodicBSplineR1toR2_1.create_PeriodicBSplineR1toR2(cp1, knots);
-        this.optimizationProblem = new OptimizationProblemPeriodicBSplineR1toR2_1.OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-    }
-    get isClosed() {
-        return true;
-    }
-    get spline() {
-        return this._spline.clone();
-    }
-    setSpline(spline) {
-        this._spline = spline;
-        this.notifyObservers();
-    }
-    addControlPoint(controlPointIndex) {
-        let cp = controlPointIndex;
-        if (cp != null) {
-            if (cp === 0) {
-                cp += 1;
-            }
-            if (cp === this._spline.freeControlPoints.length - 1) {
-                cp -= 1;
-            }
-            const grevilleAbscissae = this._spline.grevilleAbscissae();
-            let meanGA = (grevilleAbscissae[cp] + grevilleAbscissae[cp + 1]) / 2;
-            if (meanGA < this._spline.knots[this._spline.degree]) {
-                let index = this._spline.degree;
-                meanGA = (this._spline.knots[index] + this._spline.knots[index + 1]) / 2;
-            }
-            else if (meanGA > this._spline.knots[this._spline.knots.length - this._spline.degree - 1]) {
-                let index = this._spline.knots.length - this._spline.degree - 1;
-                meanGA = (this._spline.knots[index] + this._spline.knots[index - 1]) / 2;
-            }
-            this._spline.insertKnot(meanGA);
-        }
-        this.optimizationProblem = new OptimizationProblemPeriodicBSplineR1toR2_1.OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-        this.notifyObservers();
-    }
-    setActiveControl() {
-        this.optimizationProblem = new OptimizationProblemPeriodicBSplineR1toR2_1.OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-        this.notifyObservers();
-    }
-}
-exports.ClosedCurveModel = ClosedCurveModel;
-
-
-/***/ }),
-
-/***/ "./src/models/ClosedCurveModelAlternative01.ts":
-/*!*****************************************************!*\
-  !*** ./src/models/ClosedCurveModelAlternative01.ts ***!
-  \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Curve2dModel = void 0;
+const BSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/R1toR2/BSplineR1toR2 */ "./src/bsplines/R1toR2/BSplineR1toR2.ts");
 const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const OpBSplineR1toR2_1 = __webpack_require__(/*! ../optimizationProblems/OpBSplineR1toR2 */ "./src/optimizationProblems/OpBSplineR1toR2.ts");
 const Optimizer_1 = __webpack_require__(/*! ../optimizers/Optimizer */ "./src/optimizers/Optimizer.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const AbstractCurveModel_1 = __webpack_require__(/*! ./AbstractCurveModel */ "./src/models/AbstractCurveModel.ts");
-const PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR2 */ "./src/bsplines/PeriodicBSplineR1toR2.ts");
-const OptimizationProblemPeriodicBSplineR1toR2QuasiNewton_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton */ "./src/bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton.ts");
-class ClosedCurveModelAlternative01 extends AbstractCurveModel_1.AbstractCurveModel {
-    constructor() {
-        super();
-        const px0 = 0, px1 = 0.15, px2 = 0.27, px3 = 0.3;
-        const py0 = 0, py2 = 0.35, py4 = 0.6, py5 = 0.72;
-        const cp = [[-px2, -py2], [-px3, py0], [-px2, py2], [-px1, py4],
-            [px0, py5], [px1, py4], [px2, py2], [px3, py0],
-            [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4],
-            [-px2, -py2], [-px3, py0], [-px2, py2]];
-        let cp1 = [];
-        for (let cpi of cp) {
-            cp1.push([cpi[1], -cpi[0]]);
-        }
-        const knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        this._splineTarget = PeriodicBSplineR1toR2_1.create_PeriodicBSplineR1toR2(cp1, knots);
-        this._spline = this._splineTarget.clone();
-        this.optimizationProblem = new OptimizationProblemPeriodicBSplineR1toR2QuasiNewton_1.OptimizationProblemPeriodicBSplineR1toR2QuasiNewton(this._splineTarget.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-    }
-    get spline() {
-        return this._spline.clone();
-    }
-    get isClosed() {
-        return true;
-    }
-    notifyObservers() {
-        for (let observer of this.observers) {
-            observer.update(this._spline.clone());
-        }
-        for (let observer of this.observersCP) {
-            observer.update(this._splineTarget.clone());
-        }
-    }
-    moveControlPoint(controlPointIndex, deltaX, deltaY) {
-        this._splineTarget.moveControlPoint(controlPointIndex, deltaX, deltaY);
-        if (deltaX * deltaX + deltaY * deltaY > 0) {
-            this.notifyObservers();
-        }
-    }
-    setControlPointPosition(controlPointIndex, x, y) {
-        this._splineTarget.setControlPointPosition(controlPointIndex, new Vector2d_1.Vector2d(x, y));
-        if (this.activeOptimizer) {
-            this.optimize(controlPointIndex, x, y);
-        }
-        else {
-            this._spline = this._splineTarget.clone();
-        }
-        this.notifyObservers();
-    }
-    optimize(selectedControlPoint, ndcX, ndcY) {
-        if (this.optimizationProblem && this.optimizer) {
-            const p = this._splineTarget.freeControlPoints[selectedControlPoint].clone();
-            this._splineTarget.setControlPointPosition(selectedControlPoint, new Vector2d_1.Vector2d(ndcX, ndcY));
-            this.optimizationProblem.setTargetSpline(this._splineTarget);
-            try {
-                this.optimizer.optimize_using_trust_region(10e-6, 1000, 800);
-                if (this.optimizer.success === true) {
-                    this.setSpline(this.optimizationProblem.spline.clone());
-                }
-            }
-            catch (e) {
-                this._splineTarget.setControlPointPosition(selectedControlPoint, new Vector2d_1.Vector2d(p.x, p.y));
-                console.log(e);
-            }
-        }
-    }
-    setSpline(spline) {
-        this._spline = spline;
-        this.notifyObservers();
-    }
-    addControlPoint(controlPointIndex) {
-        let cp = controlPointIndex;
-        if (cp != null) {
-            if (cp === 0) {
-                cp += 1;
-            }
-            if (cp === this._spline.freeControlPoints.length - 1) {
-                cp -= 1;
-            }
-            const grevilleAbscissae = this._spline.grevilleAbscissae();
-            let meanGA = (grevilleAbscissae[cp] + grevilleAbscissae[cp + 1]) / 2;
-            if (meanGA < this._spline.knots[this._spline.degree]) {
-                let index = this._spline.degree;
-                meanGA = (this._spline.knots[index] + this._spline.knots[index + 1]) / 2;
-            }
-            else if (meanGA > this._spline.knots[this._spline.knots.length - this._spline.degree - 1]) {
-                let index = this._spline.knots.length - this._spline.degree - 1;
-                meanGA = (this._spline.knots[index] + this._spline.knots[index - 1]) / 2;
-            }
-            this._splineTarget.insertKnot(meanGA);
-            this._spline.insertKnot(meanGA);
-        }
-        this.optimizationProblem = new OptimizationProblemPeriodicBSplineR1toR2QuasiNewton_1.OptimizationProblemPeriodicBSplineR1toR2QuasiNewton(this._splineTarget.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-        this.notifyObservers();
-    }
-    setActiveControl() {
-        this.optimizationProblem = new OptimizationProblemPeriodicBSplineR1toR2QuasiNewton_1.OptimizationProblemPeriodicBSplineR1toR2QuasiNewton(this._splineTarget.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-        this.notifyObservers();
-    }
-    toggleActiveControlOfCurvatureExtrema() {
-        if (!this.activeOptimizer) {
-            this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.activeOptimizer = false;
-        }
-        if (this.activeOptimizer) {
-            this.setActiveControl();
-        }
-    }
-    toggleActiveControlOfInflections() {
-        if (!this.activeOptimizer) {
-            this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
-            this.activeOptimizer = false;
-        }
-        if (this.activeOptimizer) {
-            this.setActiveControl();
-        }
-    }
-}
-exports.ClosedCurveModelAlternative01 = ClosedCurveModelAlternative01;
-
-
-/***/ }),
-
-/***/ "./src/models/CurveModel.ts":
-/*!**********************************!*\
-  !*** ./src/models/CurveModel.ts ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const OptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2.ts");
-const Optimizer_1 = __webpack_require__(/*! ../optimizers/Optimizer */ "./src/optimizers/Optimizer.ts");
-const AbstractCurveModel_1 = __webpack_require__(/*! ./AbstractCurveModel */ "./src/models/AbstractCurveModel.ts");
-class CurveModel extends AbstractCurveModel_1.AbstractCurveModel {
+const BaseCurve2dModel_1 = __webpack_require__(/*! ./BaseCurve2dModel */ "./src/models/BaseCurve2dModel.ts");
+class Curve2dModel extends BaseCurve2dModel_1.BaseCurve2dModel {
     constructor() {
         super();
         /*
@@ -6665,7 +3940,7 @@ class CurveModel extends AbstractCurveModel_1.AbstractCurveModel {
         const cp3 = new Vector2d_1.Vector2d(0.3, 0.5);
         const cp4 = new Vector2d_1.Vector2d(0.5, 0);
         this._spline = new BSplineR1toR2_1.BSplineR1toR2([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]);
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR2_1.OptimizationProblemBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpBSplineR1toR2_1.OpBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
         //this.optimizer = new QuasiNewtonOptimizer(this.optimizationProblem)
     }
@@ -6689,19 +3964,19 @@ class CurveModel extends AbstractCurveModel_1.AbstractCurveModel {
                 cp -= 1;
             }
             const grevilleAbscissae = this._spline.grevilleAbscissae();
-            this._spline.insertKnot(grevilleAbscissae[cp]);
+            this._spline = this._spline.insertKnot(grevilleAbscissae[cp]);
         }
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR2_1.OptimizationProblemBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpBSplineR1toR2_1.OpBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
         this.notifyObservers();
     }
     setActiveControl() {
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR2_1.OptimizationProblemBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpBSplineR1toR2_1.OpBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
         this.notifyObservers();
     }
 }
-exports.CurveModel = CurveModel;
+exports.Curve2dModel = Curve2dModel;
 
 
 /***/ }),
@@ -6714,8 +3989,9 @@ exports.CurveModel = CurveModel;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR3_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3 */ "./src/bsplines/BSplineR1toR3.ts");
-const OptimizationProblemBSplineR1toR3_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR3 */ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR3.ts");
+exports.CurveModel3d = exports.ActiveControl = void 0;
+const BSplineR1toR3_1 = __webpack_require__(/*! ../bsplines/R1toR3/BSplineR1toR3 */ "./src/bsplines/R1toR3/BSplineR1toR3.ts");
+const OpBSplineR1toR3_1 = __webpack_require__(/*! ../optimizationProblems/OpBSplineR1toR3 */ "./src/optimizationProblems/OpBSplineR1toR3.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
 const Optimizer_1 = __webpack_require__(/*! ../optimizers/Optimizer */ "./src/optimizers/Optimizer.ts");
 var ActiveControl;
@@ -6736,7 +4012,7 @@ class CurveModel3d {
         const cp3 = new Vector3d_1.Vector3d(0.15, 0.15, -0.05);
         const cp4 = new Vector3d_1.Vector3d(0.25, 0, 0.05);
         this._spline = new BSplineR1toR3_1.BSplineR1toR3([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]);
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR3_1.OptimizationProblemBSplineR1toR3(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpBSplineR1toR3_1.OpBSplineR1toR3(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
     }
     registerObserver(observer) {
@@ -6757,7 +4033,7 @@ class CurveModel3d {
         return false;
     }
     setControlPointPosition(controlPointIndex, x, y, z) {
-        this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x, y, z));
+        this._spline = this._spline.setControlPointPosition(controlPointIndex, new Vector3d_1.Vector3d(x, y, z));
         this.notifyObservers();
         if (this.activeOptimizer) {
             this.optimize(controlPointIndex, x, y, z);
@@ -6775,7 +4051,7 @@ class CurveModel3d {
                 }
             }
             catch (e) {
-                this._spline.setControlPointPosition(selectedControlPoint, new Vector3d_1.Vector3d(p.x, p.y, p.z));
+                this._spline = this._spline.setControlPointPosition(selectedControlPoint, new Vector3d_1.Vector3d(p.x, p.y, p.z));
                 console.log(e);
             }
         }
@@ -6821,7 +4097,7 @@ class CurveModel3d {
         }
     }
     setActiveControl() {
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR3_1.OptimizationProblemBSplineR1toR3(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpBSplineR1toR3_1.OpBSplineR1toR3(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
         this.notifyObservers();
     }
@@ -6831,163 +4107,22 @@ exports.CurveModel3d = CurveModel3d;
 
 /***/ }),
 
-/***/ "./src/models/CurveModelAlternative01.ts":
-/*!***********************************************!*\
-  !*** ./src/models/CurveModelAlternative01.ts ***!
-  \***********************************************/
+/***/ "./src/models/RationalCurveModel2d.ts":
+/*!********************************************!*\
+  !*** ./src/models/RationalCurveModel2d.ts ***!
+  \********************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const BSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-const OptimizationProblemBSplineR1toR2WithWeigthingFactors_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2WithWeigthingFactors */ "./src/bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2WithWeigthingFactors.ts");
-const Optimizer_1 = __webpack_require__(/*! ../optimizers/Optimizer */ "./src/optimizers/Optimizer.ts");
-const AbstractOptimizationProblemBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2.ts");
-const AbstractCurveModel_1 = __webpack_require__(/*! ./AbstractCurveModel */ "./src/models/AbstractCurveModel.ts");
-class CurveModelAlternative01 extends AbstractCurveModel_1.AbstractCurveModel {
-    constructor() {
-        super();
-        const cp0 = new Vector2d_1.Vector2d(-0.5, 0);
-        const cp1 = new Vector2d_1.Vector2d(-0.1, 0.5);
-        const cp2 = new Vector2d_1.Vector2d(0.1, 0.5);
-        const cp3 = new Vector2d_1.Vector2d(0.5, 0);
-        this._splineTarget = new BSplineR1toR2_1.BSplineR1toR2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1]);
-        this._spline = this._splineTarget.clone();
-        //this.optimizationProblem = new  OptimizationProblemBSplineR1toR2(this._splineTarget.clone(), this._spline.clone(), this.activeControl)
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR2WithWeigthingFactors_1.OptimizationProblemBSplineR1toR2WithWeigthingFactors(this._splineTarget.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-    }
-    get spline() {
-        return this._spline.clone();
-    }
-    get isClosed() {
-        return false;
-    }
-    notifyObservers() {
-        for (let observer of this.observers) {
-            observer.update(this._spline.clone());
-        }
-        for (let observer of this.observersCP) {
-            observer.update(this._splineTarget.clone());
-        }
-    }
-    moveControlPoint(controlPointIndex, deltaX, deltaY) {
-        this._splineTarget.moveControlPoint(controlPointIndex, deltaX, deltaY);
-        if (deltaX * deltaX + deltaY * deltaY > 0) {
-            this.notifyObservers();
-        }
-    }
-    setControlPointPosition(controlPointIndex, x, y) {
-        this._splineTarget.setControlPointPosition(controlPointIndex, new Vector2d_1.Vector2d(x, y));
-        if (this.activeOptimizer) {
-            this.optimize(controlPointIndex, x, y);
-        }
-        else {
-            this._spline = this._splineTarget.clone();
-        }
-        this.notifyObservers();
-    }
-    optimize(selectedControlPoint, ndcX, ndcY) {
-        if (this.optimizationProblem && this.optimizer) {
-            const p = this._splineTarget.freeControlPoints[selectedControlPoint].clone();
-            this._splineTarget.setControlPointPosition(selectedControlPoint, new Vector2d_1.Vector2d(ndcX, ndcY));
-            this.optimizationProblem.setTargetSpline(this._splineTarget);
-            try {
-                this.optimizer.optimize_using_trust_region(10e-6, 1000, 800);
-                if (this.optimizer.success === true) {
-                    this.setSpline(this.optimizationProblem.spline.clone());
-                }
-            }
-            catch (e) {
-                this._splineTarget.setControlPointPosition(selectedControlPoint, new Vector2d_1.Vector2d(p.x, p.y));
-                console.log(e);
-            }
-        }
-    }
-    setSpline(spline) {
-        this._spline = spline;
-        this.notifyObservers();
-    }
-    addControlPoint(controlPointIndex) {
-        let cp = controlPointIndex;
-        if (cp != null) {
-            if (cp === 0) {
-                cp += 1;
-            }
-            if (cp === this._splineTarget.controlPoints.length - 1) {
-                cp -= 1;
-            }
-            const grevilleAbscissae = this._splineTarget.grevilleAbscissae();
-            this._splineTarget.insertKnot(grevilleAbscissae[cp]);
-            this._spline.insertKnot(grevilleAbscissae[cp]);
-        }
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR2WithWeigthingFactors_1.OptimizationProblemBSplineR1toR2WithWeigthingFactors(this._splineTarget.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-        this.notifyObservers();
-    }
-    setActiveControl() {
-        this.optimizationProblem = new OptimizationProblemBSplineR1toR2WithWeigthingFactors_1.OptimizationProblemBSplineR1toR2WithWeigthingFactors(this._splineTarget.clone(), this._spline.clone(), this.activeControl);
-        this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
-        this.notifyObservers();
-    }
-    toggleActiveControlOfCurvatureExtrema() {
-        if (!this.activeOptimizer) {
-            this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.activeOptimizer = false;
-        }
-        if (this.activeOptimizer) {
-            this.setActiveControl();
-        }
-    }
-    toggleActiveControlOfInflections() {
-        if (!this.activeOptimizer) {
-            this.activeOptimizer = true;
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.activeControl = AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.both;
-        }
-        else if (this.activeControl == AbstractOptimizationProblemBSplineR1toR2_1.ActiveControl.inflections) {
-            this.activeOptimizer = false;
-        }
-        if (this.activeOptimizer) {
-            this.setActiveControl();
-        }
-    }
-}
-exports.CurveModelAlternative01 = CurveModelAlternative01;
-
-
-/***/ }),
-
-/***/ "./src/models/NurbsModel2d.ts":
-/*!************************************!*\
-  !*** ./src/models/NurbsModel2d.ts ***!
-  \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const RationalBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2 */ "./src/bsplines/RationalBSplineR1toR2.ts");
-const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2Adapter */ "./src/bsplines/RationalBSplineR1toR2Adapter.ts");
-const OptimizationProblemRationalBSplineR1toR2_1 = __webpack_require__(/*! ../bsplinesOptimizationProblems/OptimizationProblemRationalBSplineR1toR2 */ "./src/bsplinesOptimizationProblems/OptimizationProblemRationalBSplineR1toR2.ts");
+exports.RationalCurveModel2d = void 0;
+const RationalBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/R1toR2/RationalBSplineR1toR2 */ "./src/bsplines/R1toR2/RationalBSplineR1toR2.ts");
+const OpRationalBSplineR1toR2_1 = __webpack_require__(/*! ../optimizationProblems/OpRationalBSplineR1toR2 */ "./src/optimizationProblems/OpRationalBSplineR1toR2.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
 const Optimizer_1 = __webpack_require__(/*! ../optimizers/Optimizer */ "./src/optimizers/Optimizer.ts");
-const AbstractNurbsModel_1 = __webpack_require__(/*! ./AbstractNurbsModel */ "./src/models/AbstractNurbsModel.ts");
-class NurbsModel2d extends AbstractNurbsModel_1.AbstractNurbsModel {
+const BaseRationalCurve2dModel_1 = __webpack_require__(/*! ./BaseRationalCurve2dModel */ "./src/models/BaseRationalCurve2dModel.ts");
+const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ../bsplines/R1toR2/RationalBSplineR1toR2Adapter */ "./src/bsplines/R1toR2/RationalBSplineR1toR2Adapter.ts");
+class RationalCurveModel2d extends BaseRationalCurve2dModel_1.BaseRationalCurve2dModel {
     constructor() {
         super();
         const cp0 = new Vector3d_1.Vector3d(-0.5, 0, 1);
@@ -6996,7 +4131,17 @@ class NurbsModel2d extends AbstractNurbsModel_1.AbstractNurbsModel {
         const cp3 = new Vector3d_1.Vector3d(0.3, 0.5, 1);
         const cp4 = new Vector3d_1.Vector3d(0.5, 0, 1);
         this._spline = new RationalBSplineR1toR2_1.RationalBSplineR1toR2([cp0, cp1, cp2, cp3, cp4], [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]);
-        this.optimizationProblem = new OptimizationProblemRationalBSplineR1toR2_1.OptimizationProblemRationalBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
+        //this._spline.elevateDegree()
+        /*
+        const cp0 = new Vector3d(1, 0, 4)
+        const cp1 = new Vector3d(1, 1, Math.pow(2, 0.5) / 2 * 4)
+        const cp2 = new Vector3d(0, 1, 4)
+        let spline = new RationalBSplineR1toR2([ cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1 ])
+        spline.elevateDegree()
+        spline.elevateDegree()
+        this._spline = spline
+        */
+        this.optimizationProblem = new OpRationalBSplineR1toR2_1.OpRationalBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
     }
     get spline() {
@@ -7018,15 +4163,14 @@ class NurbsModel2d extends AbstractNurbsModel_1.AbstractNurbsModel {
                 cp -= 1;
             }
             const grevilleAbscissae = this._spline.grevilleAbscissae();
-            this._spline.insertKnot(grevilleAbscissae[cp]);
+            this._spline = this._spline.insertKnot(grevilleAbscissae[cp]);
         }
-        console.log(this._spline);
-        this.optimizationProblem = new OptimizationProblemRationalBSplineR1toR2_1.OptimizationProblemRationalBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpRationalBSplineR1toR2_1.OpRationalBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
         this.notifyObservers();
     }
     setActiveControl() {
-        this.optimizationProblem = new OptimizationProblemRationalBSplineR1toR2_1.OptimizationProblemRationalBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
+        this.optimizationProblem = new OpRationalBSplineR1toR2_1.OpRationalBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl);
         this.optimizer = new Optimizer_1.Optimizer(this.optimizationProblem);
         this.notifyObservers();
     }
@@ -7035,7 +4179,1730 @@ class NurbsModel2d extends AbstractNurbsModel_1.AbstractNurbsModel {
         this.notifyObservers();
     }
 }
-exports.NurbsModel2d = NurbsModel2d;
+exports.RationalCurveModel2d = RationalCurveModel2d;
+
+
+/***/ }),
+
+/***/ "./src/optimizationProblems/BaseOpBSplineR1toR2.ts":
+/*!*********************************************************!*\
+  !*** ./src/optimizationProblems/BaseOpBSplineR1toR2.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.convertStepToVector2d = exports.ActiveControl = exports.BaseOpProblemBSplineR1toR2 = void 0;
+const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+class BaseOpProblemBSplineR1toR2 {
+    constructor(target, initial, activeControl = ActiveControl.curvatureExtrema) {
+        this.activeControl = activeControl;
+        this._hessian_f = undefined;
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        this.inflectionConstraintsSign = [];
+        this._inflectionInactiveConstraints = [];
+        this.curvatureExtremaConstraintsSign = [];
+        this._curvatureExtremaInactiveConstraints = [];
+        this._spline = initial.clone();
+        this._target = target.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = (0, DiagonalMatrix_1.identityMatrix)(this._numberOfIndependentVariables);
+        const e = this.expensiveComputation(this._spline);
+        const curvatureNumerator = this.curvatureNumerator(e.h4);
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        if (this._f.length !== this._gradient_f.shape[0]) {
+            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor");
+        }
+    }
+    get inflectionInactiveConstraints() {
+        return this._inflectionInactiveConstraints;
+    }
+    get curvatureExtremaInactiveConstraints() {
+        return this._curvatureExtremaInactiveConstraints;
+    }
+    get numberOfIndependentVariables() {
+        return this._numberOfIndependentVariables;
+    }
+    get f0() {
+        return this._f0;
+    }
+    get gradient_f0() {
+        return this._gradient_f0;
+    }
+    get hessian_f0() {
+        return this._hessian_f0;
+    }
+    get numberOfConstraints() {
+        switch (this.activeControl) {
+            case ActiveControl.both: {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            case ActiveControl.curvatureExtrema: {
+                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            case ActiveControl.inflections: {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
+            }
+        }
+    }
+    get f() {
+        return this._f;
+    }
+    get gradient_f() {
+        return this._gradient_f;
+    }
+    get hessian_f() {
+        return this._hessian_f;
+    }
+    step(deltaX) {
+        this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        const e = this.expensiveComputation(this._spline);
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
+        const curvatureNumerator = this.curvatureNumerator(e.h4);
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    }
+    fStep(step) {
+        let splineTemp = this.spline.clone();
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
+        let e = this.expensiveComputation(splineTemp);
+        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        const curvatureNumerator = this.curvatureNumerator(e.h4);
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    }
+    f0Step(step) {
+        let splineTemp = this.spline.clone();
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
+        return this.compute_f0(this.compute_gradient_f0(splineTemp));
+    }
+    expensiveComputation(spline) {
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        const sxu = sx.derivative();
+        const syu = sy.derivative();
+        const sxuu = sxu.derivative();
+        const syuu = syu.derivative();
+        const sxuuu = sxuu.derivative();
+        const syuuu = syuu.derivative();
+        const bdsxu = sxu.bernsteinDecomposition();
+        const bdsyu = syu.bernsteinDecomposition();
+        const bdsxuu = sxuu.bernsteinDecomposition();
+        const bdsyuu = syuu.bernsteinDecomposition();
+        const bdsxuuu = sxuuu.bernsteinDecomposition();
+        const bdsyuuu = syuuu.bernsteinDecomposition();
+        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
+        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
+        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
+        return {
+            bdsxu: bdsxu,
+            bdsyu: bdsyu,
+            bdsxuu: bdsxuu,
+            bdsyuu: bdsyuu,
+            bdsxuuu: bdsxuuu,
+            bdsyuuu: bdsyuuu,
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    }
+    compute_gradient_f0(spline) {
+        let result = [];
+        const n = spline.freeControlPoints.length;
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x);
+        }
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y);
+        }
+        return result;
+    }
+    compute_f0(gradient_f0) {
+        let result = 0;
+        const n = gradient_f0.length;
+        for (let i = 0; i < n; i += 1) {
+            result += Math.pow(gradient_f0[i], 2);
+        }
+        return 0.5 * result;
+    }
+    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
+        let result = [];
+        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    }
+    compute_inflectionConstraints(curvatureNumerator, constraintsSign, inactiveConstraints) {
+        let result = [];
+        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    }
+    curvatureNumerator(h4) {
+        return h4.flattenControlPointsArray();
+    }
+    curvatureDerivativeNumerator(h1, h2, h3, h4) {
+        const g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
+        return g.flattenControlPointsArray();
+    }
+    computeConstraintsSign(controlPoints) {
+        let result = [];
+        for (let i = 0, n = controlPoints.length; i < n; i += 1) {
+            if (controlPoints[i] > 0) {
+                result.push(-1);
+            }
+            else {
+                result.push(1);
+            }
+        }
+        return result;
+    }
+    compute_f(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === ActiveControl.both) {
+            const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+            return r1.concat(r2);
+        }
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    }
+    compute_gradient_f(e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === ActiveControl.both) {
+            const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+            const [row_m1, n] = m1.shape;
+            const [row_m2,] = m2.shape;
+            const m = row_m1 + row_m2;
+            let result = new DenseMatrix_1.DenseMatrix(m, n);
+            for (let i = 0; i < row_m1; i += 1) {
+                for (let j = 0; j < n; j += 1) {
+                    result.set(i, j, m1.get(i, j));
+                }
+            }
+            for (let i = 0; i < row_m2; i += 1) {
+                for (let j = 0; j < n; j += 1) {
+                    result.set(row_m1 + i, j, m2.get(i, j));
+                }
+            }
+            return result;
+        }
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    }
+}
+exports.BaseOpProblemBSplineR1toR2 = BaseOpProblemBSplineR1toR2;
+var ActiveControl;
+(function (ActiveControl) {
+    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
+    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
+    ActiveControl[ActiveControl["both"] = 2] = "both";
+})(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
+function convertStepToVector2d(step) {
+    let n = step.length / 2;
+    let result = [];
+    for (let i = 0; i < n; i += 1) {
+        result.push(new Vector2d_1.Vector2d(step[i], step[n + i]));
+    }
+    return result;
+}
+exports.convertStepToVector2d = convertStepToVector2d;
+
+
+/***/ }),
+
+/***/ "./src/optimizationProblems/BaseOpBSplineR1toR3.ts":
+/*!*********************************************************!*\
+  !*** ./src/optimizationProblems/BaseOpBSplineR1toR3.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.convertStepToVector3d = exports.BaseOpBSplineR1toR3 = void 0;
+const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const CurveModel3d_1 = __webpack_require__(/*! ../models/CurveModel3d */ "./src/models/CurveModel3d.ts");
+class BaseOpBSplineR1toR3 {
+    constructor(target, initial, activeControl = CurveModel3d_1.ActiveControl.curvatureExtrema) {
+        this.activeControl = activeControl;
+        this._hessian_f = undefined;
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        this.torsionConstraintsSign = [];
+        this._torsionZerosInactiveConstraints = [];
+        this.curvatureExtremaConstraintsSign = [];
+        this._curvatureExtremaInactiveConstraints = [];
+        this._spline = initial.clone();
+        this._target = target.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 3;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = (0, DiagonalMatrix_1.identityMatrix)(this._numberOfIndependentVariables);
+        const derivatives = this.computeDerivatives(this._spline);
+        const torsionNumerator = this.torsionNumerator(derivatives);
+        const g = this.curvatureSquaredDerivativeNumerator(derivatives);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
+        this.torsionConstraintsSign = this.computeConstraintsSign(torsionNumerator);
+        this._torsionZerosInactiveConstraints = this.computeInactiveConstraints(torsionNumerator);
+        this._f = this.compute_f(torsionNumerator, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(derivatives, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        if (this._f.length !== this._gradient_f.shape[0]) {
+            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor");
+        }
+    }
+    get torsionZerosInactiveConstraints() {
+        return this._torsionZerosInactiveConstraints;
+    }
+    get curvatureExtremaInactiveConstraints() {
+        return this._curvatureExtremaInactiveConstraints;
+    }
+    get numberOfIndependentVariables() {
+        return this._numberOfIndependentVariables;
+    }
+    get f0() {
+        return this._f0;
+    }
+    get gradient_f0() {
+        return this._gradient_f0;
+    }
+    get hessian_f0() {
+        return this._hessian_f0;
+    }
+    get numberOfConstraints() {
+        switch (this.activeControl) {
+            case CurveModel3d_1.ActiveControl.both: {
+                return this.torsionConstraintsSign.length - this._torsionZerosInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            case CurveModel3d_1.ActiveControl.curvatureExtrema: {
+                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            case CurveModel3d_1.ActiveControl.torsionZeros: {
+                return this.torsionConstraintsSign.length - this._torsionZerosInactiveConstraints.length;
+            }
+        }
+    }
+    get f() {
+        return this._f;
+    }
+    get gradient_f() {
+        return this._gradient_f;
+    }
+    get hessian_f() {
+        return this._hessian_f;
+    }
+    step(deltaX) {
+        this._spline = this.spline.moveControlPoints(convertStepToVector3d(deltaX));
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        const derivatives = this.computeDerivatives(this._spline);
+        const g = this.curvatureSquaredDerivativeNumerator(derivatives);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
+        const torsionNumerator = this.torsionNumerator(derivatives);
+        this.torsionConstraintsSign = this.computeConstraintsSign(torsionNumerator);
+        this._torsionZerosInactiveConstraints = this.computeInactiveConstraints(torsionNumerator);
+        this._f = this.compute_f(torsionNumerator, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(derivatives, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    }
+    fStep(step) {
+        const splineTemp = this.spline.moveControlPoints(convertStepToVector3d(step));
+        const s = this.computeDerivatives(splineTemp);
+        const g = this.curvatureSquaredDerivativeNumerator(s);
+        const torsionNumerator = this.torsionNumerator(s);
+        return this.compute_f(torsionNumerator, this.torsionConstraintsSign, this._torsionZerosInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    }
+    f0Step(step) {
+        const splineTemp = this.spline.moveControlPoints(convertStepToVector3d(step));
+        return this.compute_f0(this.compute_gradient_f0(splineTemp));
+    }
+    computeDerivatives(spline) {
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        const sz = this.bSplineR1toR1Factory(spline.getControlPointsZ(), spline.knots);
+        const sxu = sx.derivative();
+        const syu = sy.derivative();
+        const szu = sz.derivative();
+        const sxuu = sxu.derivative();
+        const syuu = syu.derivative();
+        const szuu = szu.derivative();
+        const sxuuu = sxuu.derivative();
+        const syuuu = syuu.derivative();
+        const szuuu = szuu.derivative();
+        return {
+            x: sx.bernsteinDecomposition(),
+            y: sy.bernsteinDecomposition(),
+            z: sz.bernsteinDecomposition(),
+            xu: sxu.bernsteinDecomposition(),
+            yu: syu.bernsteinDecomposition(),
+            zu: szu.bernsteinDecomposition(),
+            xuu: sxuu.bernsteinDecomposition(),
+            yuu: syuu.bernsteinDecomposition(),
+            zuu: szuu.bernsteinDecomposition(),
+            xuuu: sxuuu.bernsteinDecomposition(),
+            yuuu: syuuu.bernsteinDecomposition(),
+            zuuu: szuuu.bernsteinDecomposition()
+        };
+    }
+    compute_gradient_f0(spline) {
+        let result = [];
+        const n = spline.freeControlPoints.length;
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x);
+        }
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y);
+        }
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].z - this._target.freeControlPoints[i].z);
+        }
+        return result;
+    }
+    compute_f0(gradient_f0) {
+        let result = 0;
+        const n = gradient_f0.length;
+        for (let i = 0; i < n; i += 1) {
+            result += Math.pow(gradient_f0[i], 2);
+        }
+        return 0.5 * result;
+    }
+    compute_curvatureExtremaConstraints(curvatureSquaredDerivativeNumerator, constraintsSign, inactiveConstraints) {
+        let result = [];
+        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureSquaredDerivativeNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    }
+    compute_torsionConstraints(torsionNumerator, constraintsSign, inactiveConstraints) {
+        let result = [];
+        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(torsionNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    }
+    /*
+    curvatureSquaredNumerator(s: Derivatives) {
+        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu))
+        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu))
+        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu))
+        const result = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3)))
+        return result.flattenControlPointsArray()
+    }
+    */
+    curvatureSquaredDerivativeNumerator(s) {
+        const t1 = s.zuu.multiply(s.yu).subtract(s.yuu.multiply(s.zu));
+        const t2 = s.xuu.multiply(s.zu).subtract(s.zuu.multiply(s.xu));
+        const t3 = s.yuu.multiply(s.xu).subtract(s.xuu.multiply(s.yu));
+        const t4 = s.zuuu.multiply(s.yu).subtract(s.yuuu.multiply(s.zu));
+        const t5 = s.xuuu.multiply(s.zu).subtract(s.zuuu.multiply(s.xu));
+        const t6 = s.yuuu.multiply(s.xu).subtract(s.xuuu.multiply(s.yu));
+        const t7 = s.xu.multiply(s.xu).add(s.yu.multiply(s.yu)).add(s.zu.multiply(s.zu));
+        const t8 = s.xu.multiply(s.xuu).add(s.yu.multiply(s.yuu)).add(s.zu.multiply(s.zuu));
+        const t9 = ((t1.multiply(t4)).add(t2.multiply(t5)).add(t3.multiply(t6))).multiply(t7);
+        const t10 = (t1.multiply(t1).add(t2.multiply(t2)).add(t3.multiply(t3))).multiply(t8);
+        const result = t9.subtract(t10.multiplyByScalar(3));
+        return result.flattenControlPointsArray();
+    }
+    torsionNumerator(s) {
+        const t1 = s.yu.multiply(s.zuu).subtract(s.yuu.multiply(s.zu));
+        const t2 = s.xuu.multiply(s.zu).subtract(s.xu.multiply(s.zuu));
+        const t3 = s.xu.multiply(s.yuu).subtract(s.xuu.multiply(s.yu));
+        const result = s.xuuu.multiply(t1).add(s.yuuu.multiply(t2).add(s.zuuu.multiply(t3)));
+        //console.log(result.flattenControlPointsArray())
+        //console.log(t1)
+        return result.flattenControlPointsArray();
+    }
+    computeConstraintsSign(controlPoints) {
+        let result = [];
+        for (let i = 0, n = controlPoints.length; i < n; i += 1) {
+            if (controlPoints[i] > 0) {
+                result.push(-1);
+            }
+            else {
+                result.push(1);
+            }
+        }
+        return result;
+    }
+    compute_f(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === CurveModel3d_1.ActiveControl.both) {
+            const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const r2 = this.compute_torsionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+            return r1.concat(r2);
+        }
+        else if (this.activeControl === CurveModel3d_1.ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_torsionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    }
+    compute_gradient_f(s, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === CurveModel3d_1.ActiveControl.both) {
+            const m1 = this.compute_curvatureExtremaConstraints_gradient(s, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const m2 = this.compute_zeroTorsionConstraints_gradient(s, inflectionConstraintsSign, inflectionInactiveConstraints);
+            const [row_m1, n] = m1.shape;
+            const [row_m2,] = m2.shape;
+            const m = row_m1 + row_m2;
+            let result = new DenseMatrix_1.DenseMatrix(m, n);
+            for (let i = 0; i < row_m1; i += 1) {
+                for (let j = 0; j < n; j += 1) {
+                    result.set(i, j, m1.get(i, j));
+                }
+            }
+            for (let i = 0; i < row_m2; i += 1) {
+                for (let j = 0; j < n; j += 1) {
+                    result.set(row_m1 + i, j, m2.get(i, j));
+                }
+            }
+            return result;
+        }
+        else if (this.activeControl === CurveModel3d_1.ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(s, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_zeroTorsionConstraints_gradient(s, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    }
+}
+exports.BaseOpBSplineR1toR3 = BaseOpBSplineR1toR3;
+function convertStepToVector3d(step) {
+    let n = step.length / 3;
+    let result = [];
+    for (let i = 0; i < n; i += 1) {
+        result.push(new Vector3d_1.Vector3d(step[i], step[n + i], step[2 * n + i]));
+    }
+    return result;
+}
+exports.convertStepToVector3d = convertStepToVector3d;
+
+
+/***/ }),
+
+/***/ "./src/optimizationProblems/BaseOpRationalBSplineR1toR2.ts":
+/*!*****************************************************************!*\
+  !*** ./src/optimizationProblems/BaseOpRationalBSplineR1toR2.ts ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ComputeChenTerms = exports.computeDerivatives = exports.ActiveControl = exports.BaseOpRationalBSplineR1toR2 = void 0;
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BernsteinDecompositionR1toR1 */ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts");
+const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+const SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
+const BaseOpBSplineR1toR3_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR3 */ "./src/optimizationProblems/BaseOpBSplineR1toR3.ts");
+class BaseOpRationalBSplineR1toR2 {
+    constructor(target, initial, activeControl = ActiveControl.curvatureExtrema) {
+        this.activeControl = activeControl;
+        this._hessian_f = undefined;
+        this.basisFunctions = [];
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        this.inflectionConstraintsSign = [];
+        this._inflectionInactiveConstraints = [];
+        this.curvatureExtremaConstraintsSign = [];
+        this._curvatureExtremaInactiveConstraints = [];
+        this.weightingFactors = [];
+        this._spline = initial.clone();
+        this._target = target.clone();
+        for (let i = 0; i < this._spline.freeControlPoints.length * 3; i += 1) {
+            this.weightingFactors.push(1);
+        }
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 3;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        //this._f0 = this.compute_f0(this._gradient_f0)
+        this._f0 = this.compute_f0(this._spline);
+        //this._hessian_f0 = identityMatrix(this._numberOfIndependentVariables)
+        const derivatives = computeDerivatives(this._spline);
+        const ct = ComputeChenTerms(derivatives);
+        const curvatureNumerator = this.curvatureNumerator(derivatives);
+        const g = this.curvatureDerivativeNumerator(derivatives, ct);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(derivatives, ct, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        if (this._f.length !== this._gradient_f.shape[0]) {
+            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor");
+        }
+    }
+    get inflectionInactiveConstraints() {
+        return this._inflectionInactiveConstraints;
+    }
+    get curvatureExtremaInactiveConstraints() {
+        return this._curvatureExtremaInactiveConstraints;
+    }
+    get numberOfIndependentVariables() {
+        return this._numberOfIndependentVariables;
+    }
+    get f0() {
+        return this._f0;
+    }
+    get gradient_f0() {
+        return this._gradient_f0;
+    }
+    get hessian_f0() {
+        //return this._hessian_f0
+        return this.homogeneous_hessian_f0();
+    }
+    get numberOfConstraints() {
+        switch (this.activeControl) {
+            case ActiveControl.both: {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            case ActiveControl.curvatureExtrema: {
+                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            case ActiveControl.inflections: {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
+            }
+        }
+    }
+    get f() {
+        return this._f;
+    }
+    get gradient_f() {
+        return this._gradient_f;
+    }
+    get hessian_f() {
+        return this._hessian_f;
+    }
+    step(deltaX) {
+        this._spline = this.spline.moveControlPoints((0, BaseOpBSplineR1toR3_1.convertStepToVector3d)(deltaX));
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        //this._f0 = this.compute_f0(this._gradient_f0)
+        this._f0 = this.compute_f0(this._spline);
+        const derivatives = computeDerivatives(this._spline);
+        const ct = ComputeChenTerms(derivatives);
+        const g = this.curvatureDerivativeNumerator(derivatives, ct);
+        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
+        const curvatureNumerator = this.curvatureNumerator(derivatives);
+        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(derivatives, ct, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    }
+    fStep(step) {
+        const splineTemp = this.spline.moveControlPoints((0, BaseOpBSplineR1toR3_1.convertStepToVector3d)(step));
+        const derivatives = computeDerivatives(splineTemp);
+        const ct = ComputeChenTerms(derivatives);
+        const g = this.curvatureDerivativeNumerator(derivatives, ct);
+        const curvatureNumerator = this.curvatureNumerator(derivatives);
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    }
+    f0Step(step) {
+        const splineTemp = this.spline.moveControlPoints((0, BaseOpBSplineR1toR3_1.convertStepToVector3d)(step));
+        //return this.compute_f0(this.compute_gradient_f0(splineTemp))
+        return this.homogeneous_f0(splineTemp);
+    }
+    compute_gradient_f0(spline) {
+        /*
+        let result: number[] = []
+        const n =  spline.freeControlPoints.length
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x)
+        }
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y)
+        }
+        for (let i = 0; i < n; i += 1) {
+            result.push((spline.freeControlPoints[i].z - this._target.freeControlPoints[i].z))
+        }
+        return result
+        */
+        return this.homogeneous_gradient_f0(spline);
+    }
+    homogeneous_f0(spline, factor = 0.1) {
+        let result = 0;
+        const n = spline.freeControlPoints.length;
+        for (let i = 0; i < n; i += 1) {
+            result += 0.5 * Math.pow((spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x / this._target.freeControlPoints[i].z * spline.freeControlPoints[i].z), 2);
+            result += 0.5 * Math.pow((spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y / this._target.freeControlPoints[i].z * spline.freeControlPoints[i].z), 2);
+            result += 0.5 * Math.pow(spline.freeControlPoints[i].z - this._target.freeControlPoints[i].z, 2) * factor;
+        }
+        return result;
+    }
+    homogeneous_gradient_f0(spline, factor = 0.1) {
+        let result = [];
+        const n = spline.freeControlPoints.length;
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x / this._target.freeControlPoints[i].z * spline.freeControlPoints[i].z);
+        }
+        for (let i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y / this._target.freeControlPoints[i].z * spline.freeControlPoints[i].z);
+        }
+        for (let i = 0; i < n; i += 1) {
+            const t1 = (spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x / this._target.freeControlPoints[i].z * spline.freeControlPoints[i].z) * (-this._target.freeControlPoints[i].x / this._target.freeControlPoints[i].z);
+            const t2 = (spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y / this._target.freeControlPoints[i].z * spline.freeControlPoints[i].z) * (-this._target.freeControlPoints[i].y / this._target.freeControlPoints[i].z);
+            const t3 = (spline.freeControlPoints[i].z - this._target.freeControlPoints[i].z) * factor;
+            result.push(t1 + t2 + t3);
+        }
+        return result;
+    }
+    homogeneous_hessian_f0(factor = 0.1) {
+        const startY = this._numberOfIndependentVariables * 1 / 3;
+        const startZ = this._numberOfIndependentVariables * 2 / 3;
+        const end = this._numberOfIndependentVariables;
+        let result = new SymmetricMatrix_1.SymmetricMatrix(this._numberOfIndependentVariables);
+        for (let i = 0; i < this._numberOfIndependentVariables * 2 / 3; i += 1) {
+            result.set(i, i, 1);
+        }
+        for (let i = startZ; i < end; i += 1) {
+            let cp = this._target.freeControlPoints[i - this._numberOfIndependentVariables * 2 / 3];
+            result.set(i, i, Math.pow(cp.x / cp.z, 2) + Math.pow(cp.y / cp.z, 2) + factor);
+        }
+        for (let i = 0; i < startY; i += 1) {
+            result.set(i, i + startZ, -this._target.freeControlPoints[i].x / this._target.freeControlPoints[i].z);
+            result.set(i + startY, i + startZ, -this._target.freeControlPoints[i].y / this._target.freeControlPoints[i].z);
+        }
+        return result;
+    }
+    /*
+        compute_f0(gradient_f0: number[]) {
+            let result = 0
+            const n = gradient_f0.length;
+            for (let i = 0; i < n; i += 1) {
+                result += Math.pow(gradient_f0[i], 2)
+            }
+            return 0.5 * result
+        }
+    */
+    compute_f0(spline) {
+        return this.homogeneous_f0(spline);
+    }
+    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
+        let result = [];
+        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    }
+    compute_inflectionConstraints(curvatureNumerator, constraintsSign, inactiveConstraints) {
+        let result = [];
+        for (let i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    }
+    curvatureNumerator(s) {
+        // reference: XIANMING CHEN, COMPLEXITY REDUCTION FOR SYMBOLIC COMPUTATION WITH RATIONAL B-SPLINES
+        const t1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xu, s.yu, s.xuu, s.yuu).multiply(s.w);
+        const t2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.x, s.y, s.xuu, s.yuu).multiply(s.wu);
+        const t3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xu, s.yu, s.x, s.y).multiply(s.wuu);
+        return (t1.subtract(t2).subtract(t3)).flattenControlPointsArray();
+    }
+    curvatureDerivativeNumerator(s, ct) {
+        const t0 = (ct.D1x.multiply(ct.D1x)).add(ct.D1y.multiply(ct.D1y));
+        const t1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D3x, ct.D3y);
+        const t2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D21x, ct.D21y);
+        const t3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D2x, ct.D2y);
+        const t4 = s.wu.multiplyByScalar(2);
+        const t5 = (ct.D1x.multiply(ct.D2x)).add(ct.D1y.multiply(ct.D2y)).multiplyByScalar(3);
+        return ((t1.add(t2)).multiply(t0).multiply(s.w)).add(t4.multiply(t3).multiply(t0)).subtract(t5.multiply(t3).multiply(s.w)).flattenControlPointsArray();
+    }
+    computeConstraintsSign(controlPoints) {
+        let result = [];
+        for (let i = 0, n = controlPoints.length; i < n; i += 1) {
+            if (controlPoints[i] > 0) {
+                result.push(-1);
+            }
+            else {
+                result.push(1);
+            }
+        }
+        return result;
+    }
+    compute_f(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === ActiveControl.both) {
+            const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+            return r1.concat(r2);
+        }
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    }
+    compute_gradient_f(d, ct, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this.activeControl === ActiveControl.both) {
+            const m1 = this.compute_curvatureExtremaConstraints_gradient(d, ct, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const m2 = this.compute_inflectionConstraints_gradient(d, inflectionConstraintsSign, inflectionInactiveConstraints);
+            const [row_m1, n] = m1.shape;
+            const [row_m2,] = m2.shape;
+            const m = row_m1 + row_m2;
+            let result = new DenseMatrix_1.DenseMatrix(m, n);
+            for (let i = 0; i < row_m1; i += 1) {
+                for (let j = 0; j < n; j += 1) {
+                    result.set(i, j, m1.get(i, j));
+                }
+            }
+            for (let i = 0; i < row_m2; i += 1) {
+                for (let j = 0; j < n; j += 1) {
+                    result.set(row_m1 + i, j, m2.get(i, j));
+                }
+            }
+            return result;
+        }
+        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(d, ct, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else {
+            return this.compute_inflectionConstraints_gradient(d, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+    }
+}
+exports.BaseOpRationalBSplineR1toR2 = BaseOpRationalBSplineR1toR2;
+var ActiveControl;
+(function (ActiveControl) {
+    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
+    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
+    ActiveControl[ActiveControl["both"] = 2] = "both";
+})(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
+function computeDerivatives(spline) {
+    const sx = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsX(), spline.knots);
+    const sy = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsY(), spline.knots);
+    const sw = new BSplineR1toR1_1.BSplineR1toR1(spline.getControlPointsW(), spline.knots);
+    const sxu = sx.derivative();
+    const syu = sy.derivative();
+    const swu = sw.derivative();
+    const sxuu = sxu.derivative();
+    const syuu = syu.derivative();
+    const swuu = swu.derivative();
+    const sxuuu = sxuu.derivative();
+    const syuuu = syuu.derivative();
+    const swuuu = swuu.derivative();
+    return {
+        x: sx.bernsteinDecomposition(),
+        y: sy.bernsteinDecomposition(),
+        w: sw.bernsteinDecomposition(),
+        xu: sxu.bernsteinDecomposition(),
+        yu: syu.bernsteinDecomposition(),
+        wu: swu.bernsteinDecomposition(),
+        xuu: sxuu.bernsteinDecomposition(),
+        yuu: syuu.bernsteinDecomposition(),
+        wuu: swuu.bernsteinDecomposition(),
+        xuuu: sxuuu.bernsteinDecomposition(),
+        yuuu: syuuu.bernsteinDecomposition(),
+        wuuu: swuuu.bernsteinDecomposition()
+    };
+}
+exports.computeDerivatives = computeDerivatives;
+function ComputeChenTerms(s) {
+    // reference: XIANMING CHEN, COMPLEXITY REDUCTION FOR SYMBOLIC COMPUTATION WITH RATIONAL B-SPLINES
+    return {
+        w: s.w,
+        wu: s.wu,
+        D1x: (s.xu.multiply(s.w)).subtract(s.x.multiply(s.wu)),
+        D1y: (s.yu.multiply(s.w)).subtract(s.y.multiply(s.wu)),
+        D2x: (s.xuu.multiply(s.w)).subtract(s.x.multiply(s.wuu)),
+        D2y: (s.yuu.multiply(s.w)).subtract(s.y.multiply(s.wuu)),
+        D3x: (s.xuuu.multiply(s.w)).subtract(s.x.multiply(s.wuuu)),
+        D3y: (s.yuuu.multiply(s.w)).subtract(s.y.multiply(s.wuuu)),
+        D21x: (s.xuu.multiply(s.wu)).subtract(s.xu.multiply(s.wuu)),
+        D21y: (s.yuu.multiply(s.wu)).subtract(s.yu.multiply(s.wuu))
+    };
+}
+exports.ComputeChenTerms = ComputeChenTerms;
+
+
+/***/ }),
+
+/***/ "./src/optimizationProblems/OpBSplineR1toR2.ts":
+/*!*****************************************************!*\
+  !*** ./src/optimizationProblems/OpBSplineR1toR2.ts ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OpBSplineR1toR2 = void 0;
+const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+const BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR2 */ "./src/optimizationProblems/BaseOpBSplineR1toR2.ts");
+const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+class OpBSplineR1toR2 extends BaseOpBSplineR1toR2_1.BaseOpProblemBSplineR1toR2 {
+    constructor(target, initial, activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+        super(target, initial, activeControl);
+        this.activeControl = activeControl;
+    }
+    get spline() {
+        return this._spline;
+    }
+    bSplineR1toR1Factory(controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    setTargetSpline(spline) {
+        this._target = spline.clone();
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+    }
+    /**
+     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
+     * to slide along the curve.
+     **/
+    computeInactiveConstraints(controlPoints) {
+        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
+        return this.extractControlPointsClosestToZero(controlPointsSequences);
+    }
+    extractChangingSignControlPointsSequences(controlPoints) {
+        let result = [];
+        let successiveControlPoints = [];
+        let i = 1;
+        while (i < controlPoints.length) {
+            successiveControlPoints = [];
+            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
+                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
+                successiveControlPoints.push({ index: i, value: controlPoints[i] });
+                i += 1;
+                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
+                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
+                    i += 1;
+                }
+                result.push(successiveControlPoints);
+            }
+            i += 1;
+        }
+        return result;
+    }
+    extractControlPointsClosestToZero(polygonSegments) {
+        let result = [];
+        for (let polygonSegment of polygonSegments) {
+            let s = this.removeBiggest(polygonSegment);
+            for (let iv of s) {
+                result.push(iv.index);
+            }
+        }
+        return result;
+    }
+    removeBiggest(controlPointsSequence) {
+        let result = controlPointsSequence.slice();
+        let maxIndex = 0;
+        for (let i = 1; i < controlPointsSequence.length; i += 1) {
+            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
+                maxIndex = i;
+            }
+        }
+        result.splice(maxIndex, 1);
+        return result;
+    }
+    compute_curvatureExtremaConstraints_gradient(e, constraintsSign, inactiveConstraints) {
+        const sxu = e.bdsxu;
+        const sxuu = e.bdsxuu;
+        const sxuuu = e.bdsxuuu;
+        const syu = e.bdsyu;
+        const syuu = e.bdsyuu;
+        const syuuu = e.bdsyuuu;
+        const h1 = e.h1;
+        const h2 = e.h2;
+        const h3 = e.h3;
+        const h4 = e.h4;
+        let dgx = [];
+        let dgy = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const totalNumberOfConstraints = constraintsSign.length;
+        const degree = this.spline.degree;
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add((((h8.add(h9)).multiply(h4_subset)).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+            let start = Math.max(0, i - degree) * (4 * degree - 5);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5);
+            let deltaj = 0;
+            for (let inactiveConstraint of inactiveConstraints) {
+                if (inactiveConstraint >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    }
+    compute_inflectionConstraints_gradient(e, constraintsSign, inactiveConstraints) {
+        const sxu = e.bdsxu;
+        const sxuu = e.bdsxuu;
+        const syu = e.bdsyu;
+        const syuu = e.bdsyuu;
+        let dgx = [];
+        let dgy = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const degree = this.spline.degree;
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h10.add(h11)));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push(h10.add(h11));
+        }
+        const totalNumberOfConstraints = this.inflectionConstraintsSign.length;
+        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+            let start = Math.max(0, i - degree) * (2 * degree - 2);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2);
+            let deltaj = 0;
+            for (let inactiveConstraint of inactiveConstraints) {
+                if (inactiveConstraint >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    }
+    computeBasisFunctionsDerivatives() {
+        const n = this._spline.controlPoints.length;
+        //??????????
+        this._numberOfIndependentVariables = n * 2;
+        let diracControlPoints = (0, MathVectorBasicOperations_1.zeroVector)(n);
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        for (let i = 0; i < n; i += 1) {
+            diracControlPoints[i] = 1;
+            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this._spline.knots.slice());
+            let dBasisFunction_du = basisFunction.derivative();
+            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
+            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
+            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
+            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
+            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
+            diracControlPoints[i] = 0;
+        }
+    }
+}
+exports.OpBSplineR1toR2 = OpBSplineR1toR2;
+
+
+/***/ }),
+
+/***/ "./src/optimizationProblems/OpBSplineR1toR3.ts":
+/*!*****************************************************!*\
+  !*** ./src/optimizationProblems/OpBSplineR1toR3.ts ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OpBSplineR1toR3 = void 0;
+const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BernsteinDecompositionR1toR1 */ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts");
+const BaseOpBSplineR1toR3_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR3 */ "./src/optimizationProblems/BaseOpBSplineR1toR3.ts");
+const CurveModel3d_1 = __webpack_require__(/*! ../models/CurveModel3d */ "./src/models/CurveModel3d.ts");
+class OpBSplineR1toR3 extends BaseOpBSplineR1toR3_1.BaseOpBSplineR1toR3 {
+    constructor(target, initial, activeControl = CurveModel3d_1.ActiveControl.curvatureExtrema) {
+        super(target, initial, activeControl);
+        this.activeControl = activeControl;
+    }
+    get spline() {
+        return this._spline;
+    }
+    bSplineR1toR1Factory(controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    setTargetSpline(spline) {
+        this._target = spline.clone();
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+    }
+    /**
+     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
+     * to slide along the curve.
+     **/
+    computeInactiveConstraints(controlPoints) {
+        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
+        return this.extractControlPointsClosestToZero(controlPointsSequences);
+    }
+    extractChangingSignControlPointsSequences(controlPoints) {
+        let result = [];
+        let successiveControlPoints = [];
+        let i = 1;
+        while (i < controlPoints.length) {
+            successiveControlPoints = [];
+            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
+                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
+                successiveControlPoints.push({ index: i, value: controlPoints[i] });
+                i += 1;
+                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
+                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
+                    i += 1;
+                }
+                result.push(successiveControlPoints);
+            }
+            i += 1;
+        }
+        return result;
+    }
+    extractControlPointsClosestToZero(polygonSegments) {
+        let result = [];
+        for (let polygonSegment of polygonSegments) {
+            let s = this.removeBiggest(polygonSegment);
+            for (let iv of s) {
+                result.push(iv.index);
+            }
+        }
+        return result;
+    }
+    removeBiggest(controlPointsSequence) {
+        let result = controlPointsSequence.slice();
+        let maxIndex = 0;
+        for (let i = 1; i < controlPointsSequence.length; i += 1) {
+            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
+                maxIndex = i;
+            }
+        }
+        result.splice(maxIndex, 1);
+        return result;
+    }
+    compute_curvatureExtremaConstraints_gradient(s, constraintsSign, inactiveConstraints) {
+        let dgx = [];
+        let dgy = [];
+        let dgz = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const totalNumberOfConstraints = constraintsSign.length;
+        const degree = this.spline.degree;
+        const d1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.zuu, s.yuu, s.zu, s.yu);
+        const dd1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.zuuu, s.yuuu, s.zu, s.yu);
+        const d2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xuu, s.zuu, s.xu, s.zu);
+        const dd2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xuuu, s.zuuu, s.xu, s.zu);
+        const d3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.yuu, s.xuu, s.yu, s.xu);
+        const dd3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.yuuu, s.xuuu, s.yu, s.xu);
+        const l2 = s.xu.multiply(s.xu).add(s.yu.multiply(s.yu)).add(s.zu.multiply(s.zu));
+        const ddd = d1.multiply(dd1).add(d2.multiply(dd2)).add(d3.multiply(dd3));
+        const dl2 = s.xu.multiply(s.xuu).add(s.yu.multiply(s.yuu)).add(s.zu.multiply(s.zuu));
+        const ddd2 = d1.multiply(d1).add(d2.multiply(d2)).add(d3.multiply(d3));
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t2a = this.d2BasisFunctions_du2[i].multiplyRange(s.zu, start, lessThan);
+            let t2b = this.dBasisFunctions_du[i].multiplyRange(s.zuu, start, lessThan);
+            let t2c = this.d3BasisFunctions_du3[i].multiplyRange(s.zu, start, lessThan);
+            let t2d = this.dBasisFunctions_du[i].multiplyRange(s.zuuu, start, lessThan);
+            let t2e = (t2a.subtract(t2b)).multiplyRange2(dd2, start, lessThan);
+            let t2f = (t2c.subtract(t2d)).multiplyRange2(d2, start, lessThan);
+            let t2 = t2e.add(t2f);
+            let t3a = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan);
+            let t3b = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan);
+            let t3c = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan);
+            let t3d = this.d3BasisFunctions_du3[i].multiplyRange(s.yu, start, lessThan);
+            let t3e = (t3a.subtract(t3b)).multiplyRange2(dd3, start, lessThan);
+            let t3f = (t3c.subtract(t3d)).multiplyRange2(d3, start, lessThan);
+            let t3 = t3e.add(t3f);
+            let z1 = (t2.add(t3)).multiplyRange2(l2, start, lessThan);
+            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.xu, start, lessThan).multiplyByScalar(2);
+            let z2 = t4.multiplyRange2(ddd, start, lessThan);
+            let z3a = (t2a.subtract(t2b)).multiplyRange2(d2, start, lessThan);
+            let z3b = (t3a.subtract(t3b)).multiplyRange2(d3, start, lessThan);
+            let z3 = (z3a.add(z3b)).multiplyRange2(dl2, start, lessThan).multiplyByScalar(-6);
+            let z4a = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan);
+            let z4b = this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan);
+            let z4 = (z4a.add(z4b)).multiplyRange2(ddd2, start, lessThan).multiplyByScalar(-3);
+            dgx.push(z1.add(z2).add(z3).add(z4));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1a = this.dBasisFunctions_du[i].multiplyRange(s.zuu, start, lessThan);
+            let t1b = this.d2BasisFunctions_du2[i].multiplyRange(s.zu, start, lessThan);
+            let t1c = this.dBasisFunctions_du[i].multiplyRange(s.zuuu, start, lessThan);
+            let t1d = this.d3BasisFunctions_du3[i].multiplyRange(s.zu, start, lessThan);
+            let t1e = (t1a.subtract(t1b)).multiplyRange2(dd3, start, lessThan);
+            let t1f = (t1c.subtract(t1d)).multiplyRange2(d3, start, lessThan);
+            let t1 = t1e.add(t1f);
+            let t3a = this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan);
+            let t3b = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan);
+            let t3c = this.d3BasisFunctions_du3[i].multiplyRange(s.xu, start, lessThan);
+            let t3d = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan);
+            let t3e = (t3a.subtract(t3b)).multiplyRange2(dd2, start, lessThan);
+            let t3f = (t3c.subtract(t3d)).multiplyRange2(d2, start, lessThan);
+            let t3 = t3e.add(t3f);
+            let z1 = (t1.add(t3)).multiplyRange2(l2, start, lessThan);
+            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yu, start, lessThan).multiplyByScalar(2);
+            let z2 = t4.multiplyRange2(ddd, start, lessThan);
+            let z3a = (t1a.subtract(t1b)).multiplyRange2(d1, start, lessThan);
+            let z3b = (t3a.subtract(t3b)).multiplyRange2(d3, start, lessThan);
+            let z3 = (z3a.add(z3b)).multiplyRange2(dl2, start, lessThan).multiplyByScalar(-6);
+            let z4a = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan);
+            let z4b = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan);
+            let z4 = (z4a.add(z4b)).multiplyRange2(ddd2, start, lessThan).multiplyByScalar(-3);
+            dgy.push(z1.add(z2).add(z3).add(z4));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1a = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan);
+            let t1b = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan);
+            let t1c = this.d3BasisFunctions_du3[i].multiplyRange(s.yu, start, lessThan);
+            let t1d = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan);
+            let t1e = (t1a.subtract(t1b)).multiplyRange2(dd2, start, lessThan);
+            let t1f = (t1c.subtract(t1d)).multiplyRange2(d2, start, lessThan);
+            let t1 = t1e.add(t1f);
+            let t2a = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan);
+            let t2b = this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan);
+            let t2c = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan);
+            let t2d = this.d3BasisFunctions_du3[i].multiplyRange(s.xu, start, lessThan);
+            let t2e = (t2a.subtract(t2b)).multiplyRange2(dd3, start, lessThan);
+            let t2f = (t2c.subtract(t2d)).multiplyRange2(d3, start, lessThan);
+            let t2 = t2e.add(t2f);
+            let z1 = (t1.add(t2)).multiplyRange2(l2, start, lessThan);
+            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yu, start, lessThan).multiplyByScalar(2);
+            let z2 = t4.multiplyRange2(ddd, start, lessThan);
+            let z3a = (t1a.subtract(t1b)).multiplyRange2(d1, start, lessThan);
+            let z3b = (t2a.subtract(t2b)).multiplyRange2(d2, start, lessThan);
+            let z3 = (z3a.add(z3b)).multiplyRange2(dl2, start, lessThan).multiplyByScalar(-6);
+            let z4a = this.dBasisFunctions_du[i].multiplyRange(s.zuu, start, lessThan);
+            let z4b = this.d2BasisFunctions_du2[i].multiplyRange(s.zu, start, lessThan);
+            let z4 = (z4a.add(z4b)).multiplyRange2(ddd2, start, lessThan).multiplyByScalar(-3);
+            dgz.push(z1.add(z2).add(z3).add(z4));
+        }
+        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+            let cpz = dgz[i].flattenControlPointsArray();
+            let start = Math.max(0, i - degree) * (6 * degree - 8);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (6 * degree - 8);
+            let deltaj = 0;
+            for (let inactiveConstraint of inactiveConstraints) {
+                if (inactiveConstraint >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, 2 * controlPointsLength + i, cpz[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    }
+    compute_zeroTorsionConstraints_gradient(s, constraintsSign, inactiveConstraints) {
+        let dgx = [];
+        let dgy = [];
+        let dgz = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const degree = this.spline.degree;
+        const d1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.zuu, s.yuu, s.zu, s.yu);
+        const d2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xuu, s.zuu, s.xu, s.zu);
+        const d3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.yuu, s.xuu, s.yu, s.xu);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1 = this.d3BasisFunctions_du3[i].multiplyRange(d1, start, lessThan);
+            let t2 = this.d2BasisFunctions_du2[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.zu, start, lessThan);
+            let t3 = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.zuu, start, lessThan);
+            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan).multiplyRange2(s.zuuu, start, lessThan);
+            let t5 = this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan).multiplyRange2(s.zuuu, start, lessThan);
+            dgx.push((t1.add(t2).subtract(t3).add(t4).subtract(t5)));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1 = this.d3BasisFunctions_du3[i].multiplyRange(d2, start, lessThan);
+            let t2 = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.zuu, start, lessThan);
+            let t3 = this.d2BasisFunctions_du2[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.zu, start, lessThan);
+            let t4 = this.d2BasisFunctions_du2[i].multiplyRange(s.zuuu, start, lessThan).multiplyRange2(s.xu, start, lessThan);
+            let t5 = this.dBasisFunctions_du[i].multiplyRange(s.zuuu, start, lessThan).multiplyRange2(s.xuu, start, lessThan);
+            dgy.push((t1.add(t2).subtract(t3).add(t4).subtract(t5)));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1 = this.d3BasisFunctions_du3[i].multiplyRange(d3, start, lessThan);
+            let t2 = this.d2BasisFunctions_du2[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.yu, start, lessThan);
+            let t3 = this.dBasisFunctions_du[i].multiplyRange(s.xuuu, start, lessThan).multiplyRange2(s.yuu, start, lessThan);
+            let t4 = this.dBasisFunctions_du[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.xuu, start, lessThan);
+            let t5 = this.d2BasisFunctions_du2[i].multiplyRange(s.yuuu, start, lessThan).multiplyRange2(s.xu, start, lessThan);
+            dgz.push((t1.add(t2).subtract(t3).add(t4).subtract(t5)));
+        }
+        const totalNumberOfConstraints = this.torsionConstraintsSign.length;
+        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+            let cpz = dgz[i].flattenControlPointsArray();
+            let start = Math.max(0, i - degree) * (3 * degree - 5);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (3 * degree - 5);
+            let deltaj = 0;
+            for (let inactiveConstraint of inactiveConstraints) {
+                if (inactiveConstraint >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, 2 * controlPointsLength + i, cpz[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    }
+    computeBasisFunctionsDerivatives() {
+        const n = this._spline.controlPoints.length;
+        this._numberOfIndependentVariables = n * 2;
+        let diracControlPoints = (0, MathVectorBasicOperations_1.zeroVector)(n);
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        for (let i = 0; i < n; i += 1) {
+            diracControlPoints[i] = 1;
+            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this._spline.knots.slice());
+            let dBasisFunction_du = basisFunction.derivative();
+            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
+            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
+            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
+            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
+            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
+            diracControlPoints[i] = 0;
+        }
+    }
+}
+exports.OpBSplineR1toR3 = OpBSplineR1toR3;
+
+
+/***/ }),
+
+/***/ "./src/optimizationProblems/OpRationalBSplineR1toR2.ts":
+/*!*************************************************************!*\
+  !*** ./src/optimizationProblems/OpRationalBSplineR1toR2.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OpRationalBSplineR1toR2 = void 0;
+const BSplineR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BSplineR1toR1 */ "./src/bsplines/R1toR1/BSplineR1toR1.ts");
+const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+const BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR2 */ "./src/optimizationProblems/BaseOpBSplineR1toR2.ts");
+const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../bsplines/R1toR1/BernsteinDecompositionR1toR1 */ "./src/bsplines/R1toR1/BernsteinDecompositionR1toR1.ts");
+const BaseOpRationalBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpRationalBSplineR1toR2 */ "./src/optimizationProblems/BaseOpRationalBSplineR1toR2.ts");
+class OpRationalBSplineR1toR2 extends BaseOpRationalBSplineR1toR2_1.BaseOpRationalBSplineR1toR2 {
+    constructor(target, initial, activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+        super(target, initial, activeControl);
+        this.activeControl = activeControl;
+    }
+    get spline() {
+        return this._spline;
+    }
+    bSplineR1toR1Factory(controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    }
+    setTargetSpline(spline) {
+        this._target = spline.clone();
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        //this._f0 = this.compute_f0(this._gradient_f0)
+        this._f0 = this.compute_f0(this.spline);
+    }
+    /**
+     * Some contraints are set inactive to allowed the point of inflection or curvature extrema
+     * to slide along the curve.
+     **/
+    computeInactiveConstraints(controlPoints) {
+        let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints);
+        return this.extractControlPointsClosestToZero(controlPointsSequences);
+    }
+    extractChangingSignControlPointsSequences(controlPoints) {
+        let result = [];
+        let successiveControlPoints = [];
+        let i = 1;
+        while (i < controlPoints.length) {
+            successiveControlPoints = [];
+            if (controlPoints[i - 1] * controlPoints[i] <= 0) {
+                successiveControlPoints.push({ index: i - 1, value: controlPoints[i - 1] });
+                successiveControlPoints.push({ index: i, value: controlPoints[i] });
+                i += 1;
+                while (controlPoints[i - 1] * controlPoints[i] <= 0) {
+                    successiveControlPoints.push({ index: i, value: controlPoints[i] });
+                    i += 1;
+                }
+                result.push(successiveControlPoints);
+            }
+            i += 1;
+        }
+        return result;
+    }
+    extractControlPointsClosestToZero(polygonSegments) {
+        let result = [];
+        for (let polygonSegment of polygonSegments) {
+            let s = this.removeBiggest(polygonSegment);
+            for (let iv of s) {
+                result.push(iv.index);
+            }
+        }
+        return result;
+    }
+    removeBiggest(controlPointsSequence) {
+        let result = controlPointsSequence.slice();
+        let maxIndex = 0;
+        for (let i = 1; i < controlPointsSequence.length; i += 1) {
+            if (Math.pow(controlPointsSequence[i].value, 2) > Math.pow(controlPointsSequence[maxIndex].value, 2)) {
+                maxIndex = i;
+            }
+        }
+        result.splice(maxIndex, 1);
+        return result;
+    }
+    compute_curvatureExtremaConstraints_gradient(s, ct, constraintsSign, inactiveConstraints) {
+        let dgx = [];
+        let dgy = [];
+        let dgw = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const totalNumberOfConstraints = constraintsSign.length;
+        const degree = this.spline.degree;
+        const D1xD3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D3x, ct.D3y);
+        const D1xD21 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D21x, ct.D21y);
+        const D1xD2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(ct.D1x, ct.D1y, ct.D2x, ct.D2y);
+        const D1dotD1 = ct.D1x.multiply(ct.D1x).add(ct.D1y.multiply(ct.D1y));
+        const D1dotD2 = ct.D1x.multiply(ct.D2x).add(ct.D1y.multiply(ct.D2y));
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            // Can be improved since the same 4 lines occur in the next for loop!
+            let dD1 = this.dBasisFunctions_du[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wu, start, lessThan));
+            let dD2 = this.d2BasisFunctions_du2[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuu, start, lessThan));
+            let dD3 = this.d3BasisFunctions_du3[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuuu, start, lessThan));
+            let dD21 = this.d2BasisFunctions_du2[i].multiplyRange(s.wu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.wuu, start, lessThan));
+            let dD1xD3 = dD1.multiplyRange2(ct.D3y, start, lessThan).subtract(dD3.multiplyRange2(ct.D1y, start, lessThan));
+            let dD1xD21 = dD1.multiplyRange2(ct.D21y, start, lessThan).subtract(dD21.multiplyRange2(ct.D1y, start, lessThan));
+            let dD1xD2 = dD1.multiplyRange2(ct.D2y, start, lessThan).subtract(dD2.multiplyRange2(ct.D1y, start, lessThan));
+            let dD1dotD1 = dD1.multiplyRange2(ct.D1x, start, lessThan).multiplyByScalar(2);
+            let dD1dotD2 = dD1.multiplyRange2(ct.D2x, start, lessThan).add(dD2.multiplyRange2(ct.D1x, start, lessThan));
+            let t1a = dD1xD3.multiplyRange2(D1dotD1, start, lessThan);
+            let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan);
+            let t1 = t1a.add(t1b).multiplyRange2(s.w, start, lessThan);
+            let t2a = dD1xD21.multiplyRange2(D1dotD1, start, lessThan);
+            let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan);
+            let t2 = (t2a.add(t2b)).multiplyRange2(s.w, start, lessThan);
+            let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan);
+            let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan);
+            let t3 = t3a.add(t3b).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2);
+            let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan);
+            let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan);
+            let t4 = t4a.add(t4b).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3);
+            dgx.push(t1.add(t2).add(t3).add(t4));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let dD1 = this.dBasisFunctions_du[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wu, start, lessThan));
+            let dD2 = this.d2BasisFunctions_du2[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuu, start, lessThan));
+            let dD3 = this.d3BasisFunctions_du3[i].multiplyRange(s.w, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.wuuu, start, lessThan));
+            let dD21 = this.d2BasisFunctions_du2[i].multiplyRange(s.wu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.wuu, start, lessThan));
+            let dD1xD3 = dD3.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D3x, start, lessThan));
+            let dD1xD21 = dD21.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D21x, start, lessThan));
+            let dD1xD2 = dD2.multiplyRange2(ct.D1x, start, lessThan).subtract(dD1.multiplyRange2(ct.D2x, start, lessThan));
+            let dD1dotD1 = dD1.multiplyRange2(ct.D1y, start, lessThan).multiplyByScalar(2);
+            let dD1dotD2 = dD1.multiplyRange2(ct.D2y, start, lessThan).add(dD2.multiplyRange2(ct.D1y, start, lessThan));
+            let t1a = dD1xD3.multiplyRange2(D1dotD1, start, lessThan);
+            let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan);
+            let t1 = t1a.add(t1b).multiplyRange2(s.w, start, lessThan);
+            let t2a = dD1xD21.multiplyRange2(D1dotD1, start, lessThan);
+            let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan);
+            let t2 = t2a.add(t2b).multiplyRange2(s.w, start, lessThan);
+            let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan);
+            let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan);
+            let t3 = t3a.add(t3b).multiplyRange2(s.wu, start, lessThan).multiplyByScalar(2);
+            let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan);
+            let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan);
+            let t4 = t4a.add(t4b).multiplyRange2(s.w, start, lessThan).multiplyByScalar(-3);
+            dgy.push(t1.add(t2).add(t3).add(t4));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let dD1x = this.basisFunctions[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.x, start, lessThan));
+            let dD1y = this.basisFunctions[i].multiplyRange(s.yu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.y, start, lessThan));
+            let dD2x = this.basisFunctions[i].multiplyRange(s.xuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.x, start, lessThan));
+            let dD2y = this.basisFunctions[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.y, start, lessThan));
+            let dD3x = this.basisFunctions[i].multiplyRange(s.xuuu, start, lessThan).subtract(this.d3BasisFunctions_du3[i].multiplyRange(s.x, start, lessThan));
+            let dD3y = this.basisFunctions[i].multiplyRange(s.yuuu, start, lessThan).subtract(this.d3BasisFunctions_du3[i].multiplyRange(s.y, start, lessThan));
+            let dD21x = this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan));
+            let dD21y = this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan));
+            let dD1xD3 = dD1x.multiplyRange2(ct.D3y, start, lessThan).subtract(dD1y.multiplyRange2(ct.D3x, start, lessThan)).add(dD3y.multiplyRange2(ct.D1x, start, lessThan).subtract(dD3x.multiplyRange2(ct.D1y, start, lessThan)));
+            let dD1xD21 = dD1x.multiplyRange2(ct.D21y, start, lessThan).subtract(dD1y.multiplyRange2(ct.D21x, start, lessThan)).add(dD21y.multiplyRange2(ct.D1x, start, lessThan).subtract(dD21x.multiplyRange2(ct.D1y, start, lessThan)));
+            let dD1xD2 = dD1x.multiplyRange2(ct.D2y, start, lessThan).subtract(dD1y.multiplyRange2(ct.D2x, start, lessThan)).add(dD2y.multiplyRange2(ct.D1x, start, lessThan).subtract(dD2x.multiplyRange2(ct.D1y, start, lessThan)));
+            let dD1dotD1 = (dD1x.multiplyRange2(ct.D1x, start, lessThan).add(dD1y.multiplyRange2(ct.D1y, start, lessThan)).multiplyByScalar(2));
+            let dD1dotD2 = dD1x.multiplyRange2(ct.D2x, start, lessThan).add(dD2x.multiplyRange2(ct.D1x, start, lessThan)).add(dD1y.multiplyRange2(ct.D2y, start, lessThan).add(dD2y.multiplyRange2(ct.D1y, start, lessThan)));
+            let t1a = dD1xD3.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.w, start, lessThan);
+            let t1b = dD1dotD1.multiplyRange2(D1xD3, start, lessThan).multiplyRange2(s.w, start, lessThan);
+            let t1c = this.basisFunctions[i].multiplyRange(D1xD3, start, lessThan).multiplyRange2(D1dotD1, start, lessThan);
+            let t1 = t1a.add(t1b).add(t1c);
+            let t2a = dD1xD21.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.w, start, lessThan);
+            let t2b = dD1dotD1.multiplyRange2(D1xD21, start, lessThan).multiplyRange2(s.w, start, lessThan);
+            let t2c = this.basisFunctions[i].multiplyRange(D1xD21, start, lessThan).multiplyRange2(D1dotD1, start, lessThan);
+            let t2 = t2a.add(t2b).add(t2c);
+            let t3a = dD1xD2.multiplyRange2(D1dotD1, start, lessThan).multiplyRange2(s.wu, start, lessThan);
+            let t3b = dD1dotD1.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.wu, start, lessThan);
+            let t3c = this.dBasisFunctions_du[i].multiplyRange(D1xD2, start, lessThan).multiplyRange2(D1dotD1, start, lessThan);
+            let t3 = (t3a.add(t3b).add(t3c)).multiplyByScalar(2);
+            let t4a = dD1xD2.multiplyRange2(D1dotD2, start, lessThan).multiplyRange2(s.w, start, lessThan);
+            let t4b = dD1dotD2.multiplyRange2(D1xD2, start, lessThan).multiplyRange2(s.w, start, lessThan);
+            let t4c = this.basisFunctions[i].multiplyRange(D1xD2, start, lessThan).multiplyRange2(D1dotD2, start, lessThan);
+            let t4 = (t4a.add(t4b).add(t4c)).multiplyByScalar(-3);
+            dgw.push(t1.add(t2).add(t3).add(t4));
+        }
+        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+            let cpw = dgw[i].flattenControlPointsArray();
+            let start = Math.max(0, i - degree) * (9 * degree - 5);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (9 * degree - 5);
+            let deltaj = 0;
+            for (let inactiveConstraint of inactiveConstraints) {
+                if (inactiveConstraint >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, 2 * controlPointsLength + i, cpw[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    }
+    compute_inflectionConstraints_gradient(s, constraintsSign, inactiveConstraints) {
+        let dgx = [];
+        let dgy = [];
+        let dgw = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const degree = this.spline.degree;
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1 = (this.dBasisFunctions_du[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.yu, start, lessThan))).multiplyRange2(s.w, start, lessThan);
+            let t2 = (this.basisFunctions[i].multiplyRange(s.yuu, start, lessThan).subtract(this.d2BasisFunctions_du2[i].multiplyRange(s.y, start, lessThan))).multiplyRange2(s.wu, start, lessThan);
+            let t3 = (this.dBasisFunctions_du[i].multiplyRange(s.y, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.yu, start, lessThan))).multiplyRange2(s.wuu, start, lessThan);
+            dgx.push(t1.subtract(t2).subtract(t3));
+        }
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1 = (this.d2BasisFunctions_du2[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.xuu, start, lessThan))).multiplyRange2(s.w, start, lessThan);
+            let t2 = (this.d2BasisFunctions_du2[i].multiplyRange(s.x, start, lessThan).subtract(this.basisFunctions[i].multiplyRange(s.xuu, start, lessThan))).multiplyRange2(s.wu, start, lessThan);
+            let t3 = (this.basisFunctions[i].multiplyRange(s.xu, start, lessThan).subtract(this.dBasisFunctions_du[i].multiplyRange(s.x, start, lessThan))).multiplyRange2(s.wuu, start, lessThan);
+            dgy.push(t1.subtract(t2).subtract(t3));
+        }
+        const h1 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xu, s.yu, s.xuu, s.yuu);
+        const h2 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.x, s.y, s.xuu, s.yuu);
+        const h3 = (0, BernsteinDecompositionR1toR1_1.determinant2by2)(s.xu, s.yu, s.x, s.y);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let t1 = this.basisFunctions[i].multiplyRange(h1, start, lessThan);
+            let t2 = this.dBasisFunctions_du[i].multiplyRange(h2, start, lessThan);
+            let t3 = this.d2BasisFunctions_du2[i].multiplyRange(h3, start, lessThan);
+            dgw.push(t1.subtract(t2).subtract(t3));
+        }
+        const totalNumberOfConstraints = this.inflectionConstraintsSign.length;
+        let result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 3 * controlPointsLength);
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            const cpx = dgx[i].flattenControlPointsArray();
+            const cpy = dgy[i].flattenControlPointsArray();
+            const cpw = dgw[i].flattenControlPointsArray();
+            let start = Math.max(0, i - degree) * (3 * degree - 2);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (3 * degree - 2);
+            let deltaj = 0;
+            for (let inactiveConstraint of inactiveConstraints) {
+                if (inactiveConstraint >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, 2 * controlPointsLength + i, cpw[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    }
+    computeBasisFunctionsDerivatives() {
+        const n = this._spline.controlPoints.length;
+        //???????
+        //this._numberOfIndependentVariables = n * 2
+        let diracControlPoints = (0, MathVectorBasicOperations_1.zeroVector)(n);
+        this.basisFunctions = [];
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        for (let i = 0; i < n; i += 1) {
+            diracControlPoints[i] = 1;
+            let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this._spline.knots.slice());
+            let dBasisFunction_du = basisFunction.derivative();
+            let d2BasisFunction_du2 = dBasisFunction_du.derivative();
+            let d3BasisFunction_du3 = d2BasisFunction_du2.derivative();
+            this.basisFunctions.push(basisFunction.bernsteinDecomposition());
+            this.dBasisFunctions_du.push(dBasisFunction_du.bernsteinDecomposition());
+            this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition());
+            this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition());
+            diracControlPoints[i] = 0;
+        }
+    }
+}
+exports.OpRationalBSplineR1toR2 = OpRationalBSplineR1toR2;
 
 
 /***/ }),
@@ -7048,6 +5915,7 @@ exports.NurbsModel2d = NurbsModel2d;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Optimizer = void 0;
 const TrustRegionSubproblem_1 = __webpack_require__(/*! ./TrustRegionSubproblem */ "./src/optimizers/TrustRegionSubproblem.ts");
 const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
 const SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
@@ -7084,7 +5952,7 @@ class Optimizer {
                     console.log("Problem about f length and gradient_f shape 0 is in the function optimize_using_trust_region");
                 }
                 let b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f);
-                let gradient = MathVectorBasicOperations_1.saxpy2(t, this.o.gradient_f0, b.gradient);
+                let gradient = (0, MathVectorBasicOperations_1.saxpy2)(t, this.o.gradient_f0, b.gradient);
                 let hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t);
                 let trustRegionSubproblem = new TrustRegionSubproblem_1.TrustRegionSubproblem(gradient, hessian);
                 let tr = trustRegionSubproblem.solve(trustRadius);
@@ -7101,7 +5969,7 @@ class Optimizer {
                 }
                 let barrierValueStep = this.barrierValue(fStep);
                 let actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep);
-                let predictedReduction = -MathVectorBasicOperations_1.dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
+                let predictedReduction = -(0, MathVectorBasicOperations_1.dotProduct)(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
                 rho = actualReduction / predictedReduction;
                 if (rho < 0.25) {
                     trustRadius *= 0.25;
@@ -7117,7 +5985,7 @@ class Optimizer {
                     return;
                 }
                 if ((new CholeskyDecomposition_1.CholeskyDecomposition(hessian).success)) {
-                    let newtonDecrementSquared = -MathVectorBasicOperations_1.dotProduct(gradient, tr.step);
+                    let newtonDecrementSquared = -(0, MathVectorBasicOperations_1.dotProduct)(gradient, tr.step);
                     if (newtonDecrementSquared < 0) {
                         throw new Error("newtonDecrementSquared is smaller than zero");
                     }
@@ -7157,11 +6025,11 @@ class Optimizer {
             while (true) {
                 numSteps += 1;
                 const b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f);
-                const gradient = MathVectorBasicOperations_1.saxpy2(t, this.o.gradient_f0, b.gradient);
+                const gradient = (0, MathVectorBasicOperations_1.saxpy2)(t, this.o.gradient_f0, b.gradient);
                 const hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t);
                 const newtonStep = this.computeNewtonStep(gradient, hessian);
                 const stepRatio = this.backtrackingLineSearch(t, newtonStep, this.o.f0, b.value, this.o.gradient_f0, b.gradient);
-                const step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, stepRatio);
+                const step = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(newtonStep, stepRatio);
                 this.o.step(step);
                 if (numSteps > maxNumSteps) {
                     console.log("numSteps > maxNumSteps");
@@ -7179,7 +6047,7 @@ class Optimizer {
         }
     }
     newtonDecrementSquared(newtonStep, t, gradient_f0, barrierGradient) {
-        return -MathVectorBasicOperations_1.dotProduct(MathVectorBasicOperations_1.saxpy2(t, gradient_f0, barrierGradient), newtonStep);
+        return -(0, MathVectorBasicOperations_1.dotProduct)((0, MathVectorBasicOperations_1.saxpy2)(t, gradient_f0, barrierGradient), newtonStep);
     }
     barrierValue(f) {
         let result = 0;
@@ -7190,7 +6058,7 @@ class Optimizer {
         return result;
     }
     barrierGradient(f, gradient_f) {
-        let result = MathVectorBasicOperations_1.zeroVector(gradient_f.shape[1]);
+        let result = (0, MathVectorBasicOperations_1.zeroVector)(gradient_f.shape[1]);
         const n = f.length;
         const m = gradient_f.shape[1];
         if (n !== gradient_f.shape[0]) {
@@ -7249,12 +6117,12 @@ class Optimizer {
         let step = newtonStep.slice();
         while (Math.max(...this.o.fStep(step)) > 0) {
             result *= beta;
-            step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, result);
+            step = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(newtonStep, result);
         }
         while (t * this.o.f0Step(step) + this.barrierValue(this.o.fStep(step)) > t * f0 + barrierValue
-            + alpha * result * MathVectorBasicOperations_1.dotProduct(MathVectorBasicOperations_1.addTwoVectors(MathVectorBasicOperations_1.multiplyVectorByScalar(gradient_f0, t), barrierGradient), newtonStep)) {
+            + alpha * result * (0, MathVectorBasicOperations_1.dotProduct)((0, MathVectorBasicOperations_1.addTwoVectors)((0, MathVectorBasicOperations_1.multiplyVectorByScalar)(gradient_f0, t), barrierGradient), newtonStep)) {
             result *= beta;
-            step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, result);
+            step = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(newtonStep, result);
         }
         return result;
     }
@@ -7263,7 +6131,7 @@ class Optimizer {
         if (choleskyDecomposition.success === false) {
             console.log("choleskyDecomposition failed");
         }
-        return choleskyDecomposition.solve(MathVectorBasicOperations_1.multiplyVectorByScalar(gradient, -1));
+        return choleskyDecomposition.solve((0, MathVectorBasicOperations_1.multiplyVectorByScalar)(gradient, -1));
     }
 }
 exports.Optimizer = Optimizer;
@@ -7279,6 +6147,7 @@ exports.Optimizer = Optimizer;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getBoundariesIntersections = exports.gershgorin_bounds = exports.frobeniusNorm = exports.TrustRegionSubproblem = void 0;
 const SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
 const MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
 const CholeskyDecomposition_1 = __webpack_require__(/*! ../linearAlgebra/CholeskyDecomposition */ "./src/linearAlgebra/CholeskyDecomposition.ts");
@@ -7317,14 +6186,14 @@ class TrustRegionSubproblem {
         this.range = lambdaRange.F;
         this.lambdaPlus = 0;
         this.hardCase = false;
-        this.gNorm = MathVectorBasicOperations_1.norm(this.gradient);
-        if (MathVectorBasicOperations_1.containsNaN(gradient)) {
+        this.gNorm = (0, MathVectorBasicOperations_1.norm)(this.gradient);
+        if ((0, MathVectorBasicOperations_1.containsNaN)(gradient)) {
             throw new Error("The gradient parameter passed to the TrustRegionSubproblem constructor contains NaN");
         }
         if (hessian.containsNaN()) {
             throw new Error("The hessian parameter passed to the TrustRegionSubproblem to constructor contains NaN");
         }
-        this.cauchyPoint = MathVectorBasicOperations_1.zeroVector(this.gradient.length);
+        this.cauchyPoint = (0, MathVectorBasicOperations_1.zeroVector)(this.gradient.length);
     }
     /**
      * Find the nearly exact trust region subproblem minimizer
@@ -7402,8 +6271,8 @@ class TrustRegionSubproblem {
      */
     update_step_and_range(trustRegionRadius, choleskyDecomposition) {
         if (choleskyDecomposition.success) {
-            this.step = choleskyDecomposition.solve(MathVectorBasicOperations_1.multiplyVectorByScalar(this.gradient, -1));
-            this.stepSquaredNorm = MathVectorBasicOperations_1.squaredNorm(this.step);
+            this.step = choleskyDecomposition.solve((0, MathVectorBasicOperations_1.multiplyVectorByScalar)(this.gradient, -1));
+            this.stepSquaredNorm = (0, MathVectorBasicOperations_1.squaredNorm)(this.step);
             this.stepNorm = Math.sqrt(this.stepSquaredNorm);
             if (this.stepNorm < trustRegionRadius) {
                 this.range = lambdaRange.G;
@@ -7438,7 +6307,7 @@ class TrustRegionSubproblem {
         if (this.range === lambdaRange.L || this.range === lambdaRange.G) {
             // Step 3a. Solve Lw = step and set lambdaPlus (algorithm 7.3.1)
             let w = solveLowerTriangular(choleskyDecomposition.g, this.step);
-            let wSquaredNorm = MathVectorBasicOperations_1.squaredNorm(w);
+            let wSquaredNorm = (0, MathVectorBasicOperations_1.squaredNorm)(w);
             this.lambdaPlus = this.lambda.current + (this.stepNorm / trustRegionRadius - 1) * (this.stepSquaredNorm / wSquaredNorm);
             // Step 3b. If lambda in G
             if (this.range === lambdaRange.G) {
@@ -7456,8 +6325,8 @@ class TrustRegionSubproblem {
                 else {
                     t = intersection.tmax;
                 }
-                MathVectorBasicOperations_1.saxpy(t, s_min.vector, this.step);
-                this.stepSquaredNorm = MathVectorBasicOperations_1.squaredNorm(this.step);
+                (0, MathVectorBasicOperations_1.saxpy)(t, s_min.vector, this.step);
+                this.stepSquaredNorm = (0, MathVectorBasicOperations_1.squaredNorm)(this.step);
                 this.stepNorm = Math.sqrt(this.stepSquaredNorm);
             }
         }
@@ -7465,7 +6334,7 @@ class TrustRegionSubproblem {
             // Step 3c. Use the partial factorization to find delta and v such that (H(lambda) + delta e_k e_k^T) v = 0
             let sls = singularLeadingSubmatrix(hessianPlusLambda, choleskyDecomposition.g, choleskyDecomposition.firstNonPositiveDefiniteLeadingSubmatrixSize);
             // Step 3d. Replace lambda.lb by max [ lambda_lb, lambda_current + delta / || v ||^2 ]
-            let vSquaredNorm = MathVectorBasicOperations_1.squaredNorm(sls.vector);
+            let vSquaredNorm = (0, MathVectorBasicOperations_1.squaredNorm)(sls.vector);
             this.lambda.lowerBound = Math.max(this.lambda.lowerBound, this.lambda.current + sls.delta / vSquaredNorm);
         }
     }
@@ -7480,8 +6349,8 @@ class TrustRegionSubproblem {
         // Algorithm 7.3.5, Step 1. If lambda is in F and | ||s(lambda)|| - trustRegionRadius | <= k_easy * trustRegionRadius
         if ((this.range === lambdaRange.L || this.range === lambdaRange.G) && Math.abs(this.stepNorm - trustRegionRadius) <= this.k_easy * trustRegionRadius) {
             // Added test to make sure that the result is better than the Cauchy point
-            let evalResult = MathVectorBasicOperations_1.dotProduct(this.gradient, this.step) + 0.5 * this.hessian.quadraticForm(this.step);
-            let evalCauchy = MathVectorBasicOperations_1.dotProduct(this.gradient, this.cauchyPoint) + 0.5 * this.hessian.quadraticForm(this.cauchyPoint);
+            let evalResult = (0, MathVectorBasicOperations_1.dotProduct)(this.gradient, this.step) + 0.5 * this.hessian.quadraticForm(this.step);
+            let evalCauchy = (0, MathVectorBasicOperations_1.dotProduct)(this.gradient, this.cauchyPoint) + 0.5 * this.hessian.quadraticForm(this.cauchyPoint);
             if (evalResult > evalCauchy) {
                 return false;
             }
@@ -7559,18 +6428,18 @@ class TrustRegionSubproblem {
     computeCauchyPoint(trustRegionRadius) {
         // Bibliographic referece: Numerical Optimizatoin, second edition, Nocedal and Wright, p. 71-72
         const gHg = this.hessian.quadraticForm(this.gradient);
-        const gNorm = MathVectorBasicOperations_1.norm(this.gradient);
+        const gNorm = (0, MathVectorBasicOperations_1.norm)(this.gradient);
         // return a zero step if the gradient is zero
         if (gNorm === 0) {
-            return MathVectorBasicOperations_1.zeroVector(this.gradient.length);
+            return (0, MathVectorBasicOperations_1.zeroVector)(this.gradient.length);
         }
-        let result = MathVectorBasicOperations_1.multiplyVectorByScalar(this.gradient, -trustRegionRadius / gNorm);
+        let result = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(this.gradient, -trustRegionRadius / gNorm);
         if (gHg <= 0) {
             return result;
         }
         let tau = Math.pow(gNorm, 3) / trustRegionRadius / gHg;
         if (tau < 1) {
-            return MathVectorBasicOperations_1.multiplyVectorByScalar(result, tau);
+            return (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(result, tau);
         }
         return result;
     }
@@ -7593,8 +6462,8 @@ class TrustRegionSubproblem {
             hessianInfiniteNorm = Math.max(hessianInfiniteNorm, tempInfiniteNorm);
             minHessianDiagonal = Math.min(minHessianDiagonal, this.hessian.get(i, i));
         }
-        let lowerBound = Math.max(0, Math.max(-minHessianDiagonal, MathVectorBasicOperations_1.norm(this.gradient) / trustRegionRadius - Math.min(gershgorin.upperBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm))));
-        let upperBound = Math.max(0, MathVectorBasicOperations_1.norm(this.gradient) / trustRegionRadius + Math.min(-gershgorin.lowerBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm)));
+        let lowerBound = Math.max(0, Math.max(-minHessianDiagonal, (0, MathVectorBasicOperations_1.norm)(this.gradient) / trustRegionRadius - Math.min(gershgorin.upperBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm))));
+        let upperBound = Math.max(0, (0, MathVectorBasicOperations_1.norm)(this.gradient) / trustRegionRadius + Math.min(-gershgorin.lowerBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm)));
         let lambda_initial;
         if (lowerBound === 0) {
             lambda_initial = 0;
@@ -7625,7 +6494,7 @@ function singularLeadingSubmatrix(A, L, k) {
     let delta = 0;
     let l = new SquareMatrix_1.SquareMatrix(k);
     let v = [];
-    let u = MathVectorBasicOperations_1.zeroVector(k);
+    let u = (0, MathVectorBasicOperations_1.zeroVector)(k);
     for (let j = 0; j < k - 1; j += 1) {
         delta += Math.pow(L.get(k - 1, j), 2);
     }
@@ -7636,7 +6505,7 @@ function singularLeadingSubmatrix(A, L, k) {
         }
         u[i] = L.get(k - 1, i);
     }
-    v = MathVectorBasicOperations_1.zeroVector(A.shape[0]);
+    v = (0, MathVectorBasicOperations_1.zeroVector)(A.shape[0]);
     v[k - 1] = 1;
     if (k !== 1) {
         let vtemp = solveLowerTriangular(l, u);
@@ -7657,8 +6526,8 @@ function estimateSmallestSingularValue(lowerTriangular) {
     // Bibliographic reference :  Golub, G. H., Van Loan, C. F. (2013), "Matrix computations". Forth Edition. JHU press. pp. 140-142.
     // Web reference: https://github.com/scipy/scipy/blob/master/scipy/optimize/_trustregion_exact.py
     const n = lowerTriangular.shape[0];
-    let p = MathVectorBasicOperations_1.zeroVector(n);
-    let y = MathVectorBasicOperations_1.zeroVector(n);
+    let p = (0, MathVectorBasicOperations_1.zeroVector)(n);
+    let y = (0, MathVectorBasicOperations_1.zeroVector)(n);
     let p_plus = [];
     let p_minus = [];
     for (let k = 0; k < n; k += 1) {
@@ -7668,7 +6537,7 @@ function estimateSmallestSingularValue(lowerTriangular) {
             p_plus.push(p[i] + lowerTriangular.get(i, k) * y_plus);
             p_minus.push(p[i] + lowerTriangular.get(i, k) * y_minus);
         }
-        if (Math.abs(y_plus) + MathVectorBasicOperations_1.norm1(p_plus) >= Math.abs(y_minus) + MathVectorBasicOperations_1.norm1(p_minus)) {
+        if (Math.abs(y_plus) + (0, MathVectorBasicOperations_1.norm1)(p_plus) >= Math.abs(y_minus) + (0, MathVectorBasicOperations_1.norm1)(p_minus)) {
             y[k] = y_plus;
             for (let i = k + 1; i < n; i += 1) {
                 p[i] = p_plus[i - k - 1];
@@ -7682,14 +6551,14 @@ function estimateSmallestSingularValue(lowerTriangular) {
         }
     }
     let v = solveUpperTriangular(lowerTriangular, y);
-    let vNorm = MathVectorBasicOperations_1.norm(v);
-    let yNorm = MathVectorBasicOperations_1.norm(y);
+    let vNorm = (0, MathVectorBasicOperations_1.norm)(v);
+    let yNorm = (0, MathVectorBasicOperations_1.norm)(y);
     if (vNorm === 0) {
         throw new Error("divideVectorByScalar division by zero");
     }
     return {
         value: yNorm / vNorm,
-        vector: MathVectorBasicOperations_1.divideVectorByScalar(v, vNorm)
+        vector: (0, MathVectorBasicOperations_1.divideVectorByScalar)(v, vNorm)
     };
 }
 /**
@@ -7799,14 +6668,14 @@ exports.gershgorin_bounds = gershgorin_bounds;
  * @returns The two values of t, sorted from low to high
  */
 function getBoundariesIntersections(z, d, trustRegionRadius) {
-    if (MathVectorBasicOperations_1.isZeroVector(d)) {
+    if ((0, MathVectorBasicOperations_1.isZeroVector)(d)) {
         throw new Error("In getBoundariesInstersections the d vector cannot be the zero vector");
     }
-    const a = MathVectorBasicOperations_1.squaredNorm(d);
-    const b = 2 * MathVectorBasicOperations_1.dotProduct(z, d);
-    const c = MathVectorBasicOperations_1.squaredNorm(z) - trustRegionRadius * trustRegionRadius;
+    const a = (0, MathVectorBasicOperations_1.squaredNorm)(d);
+    const b = 2 * (0, MathVectorBasicOperations_1.dotProduct)(z, d);
+    const c = (0, MathVectorBasicOperations_1.squaredNorm)(z) - trustRegionRadius * trustRegionRadius;
     const sqrtDiscriminant = Math.sqrt(b * b - 4 * a * c);
-    let sign_b = MathVectorBasicOperations_1.sign(b);
+    let sign_b = (0, MathVectorBasicOperations_1.sign)(b);
     if (sign_b === 0) {
         sign_b = 1;
     }
@@ -7827,18 +6696,48 @@ function updateLambda_using_equation_7_3_14(lowerBound, upperBound, theta = 0.01
 
 /***/ }),
 
-/***/ "./src/views/AbstractObject3dShadowView.ts":
-/*!*************************************************!*\
-  !*** ./src/views/AbstractObject3dShadowView.ts ***!
-  \*************************************************/
+/***/ "./src/views/ArrayConversion.ts":
+/*!**************************************!*\
+  !*** ./src/views/ArrayConversion.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toUint16Array = exports.toFloat32Array = void 0;
+function toFloat32Array(v) {
+    let result = new Float32Array(v.length);
+    for (let i = 0; i < v.length; i += 1) {
+        result[i] = v[i];
+    }
+    return result;
+}
+exports.toFloat32Array = toFloat32Array;
+function toUint16Array(v) {
+    let result = new Uint16Array(v.length);
+    for (let i = 0; i < v.length; i += 1) {
+        result[i] = v[i];
+    }
+    return result;
+}
+exports.toUint16Array = toUint16Array;
+
+
+/***/ }),
+
+/***/ "./src/views/BaseObject3dShadowView.ts":
+/*!*********************************************!*\
+  !*** ./src/views/BaseObject3dShadowView.ts ***!
+  \*********************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BaseObject3dShadowView = void 0;
 const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
 const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
 const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
-class AbstractObject3dShadowView {
+class BaseObject3dShadowView {
     constructor(object3dShadowShaders, lightDirection) {
         this.object3dShadowShaders = object3dShadowShaders;
         this.lightDirection = lightDirection;
@@ -7847,7 +6746,7 @@ class AbstractObject3dShadowView {
         this.vertices = new Float32Array([]);
         this.indices = new Uint16Array([]);
         this.orientation = new Float32Array([0, 0, 0, 1]);
-        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+        this.orientation = (0, quat_1.setAxisAngle)(new Float32Array([1, 0, 0]), -Math.PI / 2);
     }
     renderFrame() {
         let gl = this.object3dShadowShaders.gl, a_Position = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Position'), a_Normal = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Normal'), a_Color = gl.getAttribLocation(this.object3dShadowShaders.program, 'a_Color'), FSIZE = this.vertices.BYTES_PER_ELEMENT;
@@ -7922,15 +6821,15 @@ class AbstractObject3dShadowView {
     }
     setUniforms() {
         const gl = this.object3dShadowShaders.gl;
-        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
+        const translate1 = (0, mat4_1.translate)((0, mat4_1.identity_mat4)(), new Float32Array([0, 0, 0]));
         //const translate2 = translate(identity_mat4(), new Float32Array([0, 0, 0]))
         //const model = multiply(translate2, multiply(fromQuat(this.orientation), translate1))
-        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        const model = (0, mat4_1.multiply)((0, mat4_1.fromQuat)(this.orientation), translate1);
         //const model = identity_mat4()
         const view = this.viewMatrix();
         const projection = this.projectionMatrix();
-        const mv = mat4_1.multiply(view, model);
-        const mvp = mat4_1.multiply(projection, mv);
+        const mv = (0, mat4_1.multiply)(view, model);
+        const mvp = (0, mat4_1.multiply)(projection, mv);
         const ambientLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "Ambient");
         const lightColorLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "LightColor");
         const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "ModelViewProjectionMatrix");
@@ -7940,7 +6839,7 @@ class AbstractObject3dShadowView {
         const shininessLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "Shininess");
         const strengthLoc = gl.getUniformLocation(this.object3dShadowShaders.program, "Strength");
         gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
-        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniformMatrix3fv(normalMatrixLoc, false, (0, mat3_1.mat4_to_mat3)(mv));
         gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
         gl.uniform3f(lightColorLoc, 1, 1, 1);
         gl.uniform3f(ambientLoc, 0.5, 0.5, 0.5);
@@ -7956,34 +6855,35 @@ class AbstractObject3dShadowView {
         const camera_position = new Float32Array([0, 0, 3.3]);
         const look_at_origin = new Float32Array([0, -0.2, 0]);
         const head_is_up = new Float32Array([0, 1, 0]);
-        return mat4_1.lookAt(camera_position, look_at_origin, head_is_up);
+        return (0, mat4_1.lookAt)(camera_position, look_at_origin, head_is_up);
     }
     projectionMatrix() {
         const fovy = 20 * Math.PI / 180;
         const canvas = this.object3dShadowShaders.gl.canvas;
         const rect = canvas.getBoundingClientRect();
-        return mat4_1.perspective(fovy, rect.width / rect.height, 0.01, 20);
+        return (0, mat4_1.perspective)(fovy, rect.width / rect.height, 0.01, 20);
     }
 }
-exports.AbstractObject3dShadowView = AbstractObject3dShadowView;
+exports.BaseObject3dShadowView = BaseObject3dShadowView;
 
 
 /***/ }),
 
-/***/ "./src/views/AbstractObject3dView.ts":
-/*!*******************************************!*\
-  !*** ./src/views/AbstractObject3dView.ts ***!
-  \*******************************************/
+/***/ "./src/views/BaseObject3dView.ts":
+/*!***************************************!*\
+  !*** ./src/views/BaseObject3dView.ts ***!
+  \***************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BaseObject3dView = void 0;
 const mat4_1 = __webpack_require__(/*! ../webgl/mat4 */ "./src/webgl/mat4.ts");
 const mat3_1 = __webpack_require__(/*! ../webgl/mat3 */ "./src/webgl/mat3.ts");
 const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
 const SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
-class AbstractObject3dView {
+class BaseObject3dView {
     constructor(object3dShaders, lightDirection) {
         this.object3dShaders = object3dShaders;
         this.lightDirection = lightDirection;
@@ -7997,7 +6897,7 @@ class AbstractObject3dView {
         //private look_at_origin = new Float32Array([0, 0, 0])
         this.head_is_up = new Float32Array([0, 1, 0]);
         this.fovy = 20 * Math.PI / 180;
-        this.orientation = quat_1.setAxisAngle(new Float32Array([1, 0, 0]), -Math.PI / 2);
+        this.orientation = (0, quat_1.setAxisAngle)(new Float32Array([1, 0, 0]), -Math.PI / 2);
         //this.orientation = setAxisAngle(new Float32Array([1, 0, 0]), 0)
     }
     renderFrame() {
@@ -8072,18 +6972,18 @@ class AbstractObject3dView {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
     getModelTransformationMatrix() {
-        const model = mat4_1.fromQuat(this.orientation);
+        const model = (0, mat4_1.fromQuat)(this.orientation);
         const m = [model[0], model[4], model[8], model[1], model[5], model[9], model[2], model[6], model[10]];
         return new SquareMatrix_1.SquareMatrix(3, m);
     }
     setUniforms() {
         const gl = this.object3dShaders.gl;
-        const translate1 = mat4_1.translate(mat4_1.identity_mat4(), new Float32Array([0, 0, 0]));
-        const model = mat4_1.multiply(mat4_1.fromQuat(this.orientation), translate1);
+        const translate1 = (0, mat4_1.translate)((0, mat4_1.identity_mat4)(), new Float32Array([0, 0, 0]));
+        const model = (0, mat4_1.multiply)((0, mat4_1.fromQuat)(this.orientation), translate1);
         const view = this.viewMatrix();
         const projection = this.projectionMatrix();
-        const mv = mat4_1.multiply(view, model);
-        const mvp = mat4_1.multiply(projection, mv);
+        const mv = (0, mat4_1.multiply)(view, model);
+        const mvp = (0, mat4_1.multiply)(projection, mv);
         const ambientLoc = gl.getUniformLocation(this.object3dShaders.program, "Ambient");
         const lightColorLoc = gl.getUniformLocation(this.object3dShaders.program, "LightColor");
         const modelViewProjectionMatrixLoc = gl.getUniformLocation(this.object3dShaders.program, "ModelViewProjectionMatrix");
@@ -8093,7 +6993,7 @@ class AbstractObject3dView {
         const shininessLoc = gl.getUniformLocation(this.object3dShaders.program, "Shininess");
         const strengthLoc = gl.getUniformLocation(this.object3dShaders.program, "Strength");
         gl.uniformMatrix4fv(modelViewProjectionMatrixLoc, false, mvp);
-        gl.uniformMatrix3fv(normalMatrixLoc, false, mat3_1.mat4_to_mat3(mv));
+        gl.uniformMatrix3fv(normalMatrixLoc, false, (0, mat3_1.mat4_to_mat3)(mv));
         gl.uniform3f(lightDirectionLoc, this.lightDirection[0], this.lightDirection[1], this.lightDirection[2]);
         gl.uniform3f(lightColorLoc, 1, 1, 1);
         gl.uniform3f(ambientLoc, 0.1, 0.1, 0.1);
@@ -8106,12 +7006,12 @@ class AbstractObject3dView {
         gl.uniform1f(strengthLoc, 20);
     }
     viewMatrix() {
-        return mat4_1.lookAt(this.camera_position, this.look_at_origin, this.head_is_up);
+        return (0, mat4_1.lookAt)(this.camera_position, this.look_at_origin, this.head_is_up);
     }
     projectionMatrix() {
         const canvas = this.object3dShaders.gl.canvas;
         const rect = canvas.getBoundingClientRect();
-        return mat4_1.perspective(this.fovy, rect.width / rect.height, 0.01, 20);
+        return (0, mat4_1.perspective)(this.fovy, rect.width / rect.height, 0.01, 20);
     }
     pickingLine(ndcX, ndcY) {
         //https://jsantell.com/model-view-projection/
@@ -8148,323 +7048,21 @@ class AbstractObject3dView {
         return new Vector3d_1.Vector3d(this.look_at_origin[0], this.look_at_origin[1], this.look_at_origin[2]);
     }
 }
-exports.AbstractObject3dView = AbstractObject3dView;
+exports.BaseObject3dView = BaseObject3dView;
 
 
 /***/ }),
 
-/***/ "./src/views/ArrayConversion.ts":
-/*!**************************************!*\
-  !*** ./src/views/ArrayConversion.ts ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function toFloat32Array(v) {
-    let result = new Float32Array(v.length);
-    for (let i = 0; i < v.length; i += 1) {
-        result[i] = v[i];
-    }
-    return result;
-}
-exports.toFloat32Array = toFloat32Array;
-function toUint16Array(v) {
-    let result = new Uint16Array(v.length);
-    for (let i = 0; i < v.length; i += 1) {
-        result[i] = v[i];
-    }
-    return result;
-}
-exports.toUint16Array = toUint16Array;
-
-
-/***/ }),
-
-/***/ "./src/views/ControlPoints3dShadowView.ts":
-/*!************************************************!*\
-  !*** ./src/views/ControlPoints3dShadowView.ts ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const AbstractObject3dShadowView_1 = __webpack_require__(/*! ./AbstractObject3dShadowView */ "./src/views/AbstractObject3dShadowView.ts");
-const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
-class ControlPoints3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dShadowView {
-    constructor(spline, object3dShadowShaders, lightDirection) {
-        super(object3dShadowShaders, lightDirection);
-        this.spline = spline;
-        this.updateVerticesAndIndices();
-        // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
-        if (check < 0) {
-            console.log('Failed to set the positions of the vertices');
-        }
-    }
-    updateVerticesAndIndices() {
-        const radius = 0.015;
-        const sectorCount = 50;
-        const stackCount = 50;
-        let vertices = [];
-        let indices = [];
-        let startingIndex = 0;
-        for (let cp of this.spline.controlPoints) {
-            let v = ControlPoints3dView_1.verticesForOneSphere(cp, radius, sectorCount, stackCount, { red: 0.5, green: 0.5, blue: 0.5 });
-            let i = ControlPoints3dView_1.indicesForOneSphere(startingIndex, sectorCount, stackCount);
-            vertices = [...vertices, ...v];
-            indices = [...indices, ...i];
-            startingIndex += v.length / 9;
-        }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
-    }
-    update(spline) {
-        this.spline = spline;
-        this.updateVerticesAndIndices();
-        this.updateBuffers();
-    }
-}
-exports.ControlPoints3dShadowView = ControlPoints3dShadowView;
-
-
-/***/ }),
-
-/***/ "./src/views/ControlPoints3dView.ts":
+/***/ "./src/views/ControlPoints2dView.ts":
 /*!******************************************!*\
-  !*** ./src/views/ControlPoints3dView.ts ***!
+  !*** ./src/views/ControlPoints2dView.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
-const LUSolve_1 = __webpack_require__(/*! ../linearAlgebra/LUSolve */ "./src/linearAlgebra/LUSolve.ts");
-class ControlPoints3dView extends AbstractObject3dView_1.AbstractObject3dView {
-    constructor(spline, object3dShaders, lightDirection) {
-        super(object3dShaders, lightDirection);
-        this.spline = spline;
-        this.selectedControlPoint = null;
-        this.updateVerticesAndIndices();
-        // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.object3dShaders.gl);
-        if (check < 0) {
-            console.log('Failed to set the positions of the vertices');
-        }
-    }
-    updateVerticesAndIndices() {
-        const radius = 0.015;
-        const sectorCount = 50;
-        const stackCount = 50;
-        let vertices = [];
-        let indices = [];
-        let startingIndex = 0;
-        for (let i = 0; i < this.spline.controlPoints.length; i += 1) {
-            let v;
-            if (i === this.selectedControlPoint) {
-                v = verticesForOneSphere(this.spline.controlPoints[i], radius, sectorCount, stackCount, { red: 0.7, green: 0.7, blue: 0.7 });
-            }
-            else {
-                v = verticesForOneSphere(this.spline.controlPoints[i], radius, sectorCount, stackCount, { red: 0.5, green: 0.5, blue: 0.5 });
-            }
-            let ind = indicesForOneSphere(startingIndex, sectorCount, stackCount);
-            vertices = [...vertices, ...v];
-            indices = [...indices, ...ind];
-            startingIndex += v.length / 9;
-        }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
-    }
-    updateVerticesIndicesAndBuffers() {
-        this.updateVerticesAndIndices();
-        this.updateBuffers();
-    }
-    update(spline) {
-        this.spline = spline;
-        this.updateVerticesAndIndices();
-        this.updateBuffers();
-    }
-    controlPointSelection(x, y, deltaSquared = 0.01) {
-        let result = null;
-        let previousDistance = null;
-        const l = this.pickingLine(x, y);
-        for (let i = 0; i < this.spline.controlPoints.length; i += 1) {
-            const m = this.getModelTransformationMatrix();
-            const cp = this.spline.controlPoints[i];
-            const v = m.multiplyByVector([cp.x, cp.y, cp.z]);
-            const p = new Vector3d_1.Vector3d(v[0], v[1], v[2]);
-            if (Vector3d_1.pointLineDistance(p, l.p1, l.p2) < deltaSquared) {
-                let d = this.distanceToCamera(p);
-                if (d !== null) {
-                    if (previousDistance === null || d < previousDistance) {
-                        result = i;
-                        previousDistance = d;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-    getSelectedControlPoint() {
-        return this.selectedControlPoint;
-    }
-    setSelected(controlPointIndex) {
-        this.selectedControlPoint = controlPointIndex;
-    }
-    computeNewPosition(ndcX, ndcY) {
-        let result = null;
-        if (this.selectedControlPoint !== null) {
-            const m = this.getModelTransformationMatrix();
-            const cp = this.spline.controlPoints[this.selectedControlPoint];
-            const v = m.multiplyByVector([cp.x, cp.y, cp.z]);
-            const p = new Vector3d_1.Vector3d(v[0], v[1], v[2]);
-            const l = this.pickingLine(ndcX, ndcY);
-            let pp = Vector3d_1.linePlaneIntersection(l.p1, l.p2, this.getLookAtOrigin(), this.getCameraPosition(), p);
-            let point = LUSolve_1.lusolve(m, [pp.x, pp.y, pp.z]);
-            if (point !== undefined) {
-                result = new Vector3d_1.Vector3d(point[0], point[1], point[2]);
-            }
-        }
-        return result;
-    }
-}
-exports.ControlPoints3dView = ControlPoints3dView;
-function verticesForOneSphere(center, radius, sectorCount, stackCount, color) {
-    //http://www.songho.ca/opengl/gl_sphere.html
-    let x, y, z, xy; // vertex position
-    let nx, ny, nz; // vertex normal
-    let sectorAngle, stackAngle;
-    const lengthInv = 1 / radius;
-    const sectorStep = 2 * Math.PI / sectorCount;
-    const stackStep = Math.PI / stackCount;
-    let result = [];
-    for (let i = 0; i <= stackCount; i += 1) {
-        stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
-        xy = radius * Math.cos(stackAngle);
-        z = radius * Math.sin(stackAngle);
-        // add (sectorCout+1) vertices per stack
-        // the first and last vertices have the same position and normal
-        for (let j = 0; j <= sectorCount; j += 1) {
-            sectorAngle = j * sectorStep; // starting for 0 to 2pi
-            // vertex position (x, y, z)
-            x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
-            y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
-            result.push(x + center.x);
-            result.push(y + center.y);
-            result.push(z + center.z);
-            // normalized vertex normal (nx, ny, nz)
-            nx = x * lengthInv;
-            ny = y * lengthInv;
-            nz = z * lengthInv;
-            result.push(nx);
-            result.push(ny);
-            result.push(nz);
-            // Color
-            result.push(color.red);
-            result.push(color.green);
-            result.push(color.blue);
-        }
-    }
-    return result;
-}
-exports.verticesForOneSphere = verticesForOneSphere;
-function indicesForOneSphere(startingIndex, sectorCount, stackCount) {
-    let result = [];
-    for (let i = 0; i < stackCount; i += 1) {
-        let k1 = i * (sectorCount + 1); // beginning of current stack
-        let k2 = k1 + sectorCount + 1; // beginning of next stack
-        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
-            if (i != 0) {
-                result.push(k1 + startingIndex);
-                result.push(k2 + startingIndex);
-                result.push(k1 + 1 + startingIndex);
-            }
-            if (i != (stackCount - 1)) {
-                result.push(k1 + 1 + startingIndex);
-                result.push(k2 + startingIndex);
-                result.push(k2 + 1 + startingIndex);
-            }
-        }
-    }
-    return result;
-}
-exports.indicesForOneSphere = indicesForOneSphere;
-
-
-/***/ }),
-
-/***/ "./src/views/ControlPointsShaders.ts":
-/*!*******************************************!*\
-  !*** ./src/views/ControlPointsShaders.ts ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class ControlPointsShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec2 a_Texture; \n' +
-            'attribute vec3 a_Color; \n' +
-            'varying vec2 v_Texture; \n' +
-            'varying vec3 v_Color; \n' +
-            'void main() {\n' +
-            '    v_Texture = a_Texture; \n' +
-            '    v_Color = a_Color; \n' +
-            '    gl_Position = vec4(a_Position, 1.0); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision highp float; \n' +
-            '//uniform bool selected; \n' +
-            'varying vec2 v_Texture; \n' +
-            'varying vec3 v_Color; \n' +
-            'void main() {\n' +
-            '     vec4 fColor = vec4(0.1, 0.1, 0.1, 0.0); \n' +
-            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
-            '     vec4 color1 = vec4(v_Color, 0.35); \n' +
-            '     vec4 color2 = vec4(v_Color, 0.9); \n' +
-            '     float delta = 0.1; \n' +
-            '     float alpha1 = smoothstep(0.35-delta, 0.35, dist); \n' +
-            '     float alpha2 = smoothstep(0.65-delta, 0.65, dist); \n' +
-            '     vec4 fColor1 = mix(color1, fColor, alpha1); \n' +
-            '     vec4 fColor2 = mix(color2, fColor, alpha2); \n' +
-            '     gl_FragColor = (fColor1+fColor2)/2.0; \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    renderFrame(numberOfElements, selectedControlPoint) {
-        if (this.program) {
-            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
-            if (selectedControlPoint != -1 && selectedControlPoint !== null) {
-                this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_BYTE, selectedControlPoint * 6);
-            }
-        }
-    }
-}
-exports.ControlPointsShaders = ControlPointsShaders;
-
-
-/***/ }),
-
-/***/ "./src/views/ControlPointsView.ts":
-/*!****************************************!*\
-  !*** ./src/views/ControlPointsView.ts ***!
-  \****************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-class ControlPointsView {
+exports.ControlPoints2dView = void 0;
+class ControlPoints2dView {
     constructor(spline, controlPointsShaders, red, blue, green) {
         this.controlPointsShaders = controlPointsShaders;
         this.red = red;
@@ -8628,30 +7226,27 @@ class ControlPointsView {
         this.selectedControlPoint = controlPointIndex;
     }
 }
-exports.ControlPointsView = ControlPointsView;
+exports.ControlPoints2dView = ControlPoints2dView;
 
 
 /***/ }),
 
-/***/ "./src/views/ControlPolygon3dShadowView.ts":
-/*!*************************************************!*\
-  !*** ./src/views/ControlPolygon3dShadowView.ts ***!
-  \*************************************************/
+/***/ "./src/views/ControlPoints3dShadowView.ts":
+/*!************************************************!*\
+  !*** ./src/views/ControlPoints3dShadowView.ts ***!
+  \************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ControlPoints3dShadowView = void 0;
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const AbstractObject3dShadowView_1 = __webpack_require__(/*! ./AbstractObject3dShadowView */ "./src/views/AbstractObject3dShadowView.ts");
-const ControlPolygon3dView_1 = __webpack_require__(/*! ./ControlPolygon3dView */ "./src/views/ControlPolygon3dView.ts");
-class ControlPolygon3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dShadowView {
-    constructor(spline, object3dShadowShaders, lightDirection, closed) {
+const BaseObject3dShadowView_1 = __webpack_require__(/*! ./BaseObject3dShadowView */ "./src/views/BaseObject3dShadowView.ts");
+const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
+class ControlPoints3dShadowView extends BaseObject3dShadowView_1.BaseObject3dShadowView {
+    constructor(spline, object3dShadowShaders, lightDirection) {
         super(object3dShadowShaders, lightDirection);
-        this.closed = closed;
-        this.controlPoints = spline.freeControlPoints;
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
-        }
+        this.spline = spline;
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
@@ -8660,55 +7255,51 @@ class ControlPolygon3dShadowView extends AbstractObject3dShadowView_1.AbstractOb
         }
     }
     updateVerticesAndIndices() {
-        const radius = 0.003;
-        const sectorCount = 20;
+        const radius = 0.015;
+        const sectorCount = 50;
+        const stackCount = 50;
         let vertices = [];
         let indices = [];
         let startingIndex = 0;
-        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
-            let v = ControlPolygon3dView_1.verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
-            let ind = ControlPolygon3dView_1.indicesForOneCylinder(startingIndex, sectorCount);
+        for (let cp of this.spline.controlPoints) {
+            let v = (0, ControlPoints3dView_1.verticesForOneSphere)(cp, radius, sectorCount, stackCount, { red: 0.5, green: 0.5, blue: 0.5 });
+            let i = (0, ControlPoints3dView_1.indicesForOneSphere)(startingIndex, sectorCount, stackCount);
             vertices = [...vertices, ...v];
-            indices = [...indices, ...ind];
+            indices = [...indices, ...i];
             startingIndex += v.length / 9;
         }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
     }
     update(spline) {
-        this.controlPoints = spline.freeControlPoints;
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
-        }
+        this.spline = spline;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
 }
-exports.ControlPolygon3dShadowView = ControlPolygon3dShadowView;
+exports.ControlPoints3dShadowView = ControlPoints3dShadowView;
 
 
 /***/ }),
 
-/***/ "./src/views/ControlPolygon3dView.ts":
-/*!*******************************************!*\
-  !*** ./src/views/ControlPolygon3dView.ts ***!
-  \*******************************************/
+/***/ "./src/views/ControlPoints3dView.ts":
+/*!******************************************!*\
+  !*** ./src/views/ControlPoints3dView.ts ***!
+  \******************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.indicesForOneSphere = exports.verticesForOneSphere = exports.ControlPoints3dView = void 0;
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
-const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
-const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
-class ControlPolygon3dView extends AbstractObject3dView_1.AbstractObject3dView {
-    constructor(spline, object3dShaders, lightDirection, closed) {
+const BaseObject3dView_1 = __webpack_require__(/*! ./BaseObject3dView */ "./src/views/BaseObject3dView.ts");
+const LUSolve_1 = __webpack_require__(/*! ../linearAlgebra/LUSolve */ "./src/linearAlgebra/LUSolve.ts");
+class ControlPoints3dView extends BaseObject3dView_1.BaseObject3dView {
+    constructor(spline, object3dShaders, lightDirection) {
         super(object3dShaders, lightDirection);
-        this.closed = closed;
-        this.controlPoints = spline.freeControlPoints;
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
-        }
+        this.spline = spline;
+        this.selectedControlPoint = null;
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.object3dShaders.gl);
@@ -8717,134 +7308,218 @@ class ControlPolygon3dView extends AbstractObject3dView_1.AbstractObject3dView {
         }
     }
     updateVerticesAndIndices() {
-        const radius = 0.003;
-        const sectorCount = 20;
+        const radius = 0.015;
+        const sectorCount = 50;
+        const stackCount = 50;
         let vertices = [];
         let indices = [];
         let startingIndex = 0;
-        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
-            let v = verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
-            let ind = indicesForOneCylinder(startingIndex, sectorCount);
+        for (let i = 0; i < this.spline.controlPoints.length; i += 1) {
+            let v;
+            if (i === this.selectedControlPoint) {
+                v = verticesForOneSphere(this.spline.controlPoints[i], radius, sectorCount, stackCount, { red: 0.7, green: 0.7, blue: 0.7 });
+            }
+            else {
+                v = verticesForOneSphere(this.spline.controlPoints[i], radius, sectorCount, stackCount, { red: 0.5, green: 0.5, blue: 0.5 });
+            }
+            let ind = indicesForOneSphere(startingIndex, sectorCount, stackCount);
             vertices = [...vertices, ...v];
             indices = [...indices, ...ind];
             startingIndex += v.length / 9;
         }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
     }
-    update(spline) {
-        this.controlPoints = spline.freeControlPoints;
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
-        }
+    updateVerticesIndicesAndBuffers() {
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
-}
-exports.ControlPolygon3dView = ControlPolygon3dView;
-function verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
-    let axisVector = centerTop.substract(centerBottom).normalize();
-    const circleTop = orientedCircle(centerTop, radius, axisVector, sectorCount);
-    const circleBottom = orientedCircle(centerBottom, radius, axisVector, sectorCount);
-    let result = [];
-    for (let i = 0; i < circleTop.vertices.length; i += 1) {
-        // vertex position (x, y, z)
-        result.push(circleTop.vertices[i].x);
-        result.push(circleTop.vertices[i].y);
-        result.push(circleTop.vertices[i].z);
-        // normalized vertex normal (nx, ny, nz)
-        result.push(circleTop.normals[i].x);
-        result.push(circleTop.normals[i].y);
-        result.push(circleTop.normals[i].z);
-        // Color
-        result.push(0.5);
-        result.push(0.5);
-        result.push(0.5);
+    update(spline) {
+        this.spline = spline;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
-    for (let i = 0; i < circleBottom.vertices.length; i += 1) {
-        // vertex position (x, y, z)
-        result.push(circleBottom.vertices[i].x);
-        result.push(circleBottom.vertices[i].y);
-        result.push(circleBottom.vertices[i].z);
-        // normalized vertex normal (nx, ny, nz)
-        result.push(circleBottom.normals[i].x);
-        result.push(circleBottom.normals[i].y);
-        result.push(circleBottom.normals[i].z);
-        // Color
-        result.push(0.8);
-        result.push(0.8);
-        result.push(0.8);
+    controlPointSelection(x, y, deltaSquared = 0.01) {
+        let result = null;
+        let previousDistance = null;
+        const l = this.pickingLine(x, y);
+        for (let i = 0; i < this.spline.controlPoints.length; i += 1) {
+            const m = this.getModelTransformationMatrix();
+            const cp = this.spline.controlPoints[i];
+            const v = m.multiplyByVector([cp.x, cp.y, cp.z]);
+            const p = new Vector3d_1.Vector3d(v[0], v[1], v[2]);
+            if ((0, Vector3d_1.pointLineDistance)(p, l.p1, l.p2) < deltaSquared) {
+                let d = this.distanceToCamera(p);
+                if (d !== null) {
+                    if (previousDistance === null || d < previousDistance) {
+                        result = i;
+                        previousDistance = d;
+                    }
+                }
+            }
+        }
+        return result;
     }
-    return result;
+    getSelectedControlPoint() {
+        return this.selectedControlPoint;
+    }
+    setSelected(controlPointIndex) {
+        this.selectedControlPoint = controlPointIndex;
+    }
+    computeNewPosition(ndcX, ndcY) {
+        let result = null;
+        if (this.selectedControlPoint !== null) {
+            const m = this.getModelTransformationMatrix();
+            const cp = this.spline.controlPoints[this.selectedControlPoint];
+            const v = m.multiplyByVector([cp.x, cp.y, cp.z]);
+            const p = new Vector3d_1.Vector3d(v[0], v[1], v[2]);
+            const l = this.pickingLine(ndcX, ndcY);
+            let pp = (0, Vector3d_1.linePlaneIntersection)(l.p1, l.p2, this.getLookAtOrigin(), this.getCameraPosition(), p);
+            let point = (0, LUSolve_1.lusolve)(m, [pp.x, pp.y, pp.z]);
+            if (point !== undefined) {
+                result = new Vector3d_1.Vector3d(point[0], point[1], point[2]);
+            }
+        }
+        return result;
+    }
 }
-exports.verticesForOneCylinder = verticesForOneCylinder;
-function orientedCircle(center, radius, axisVector, sectorCount) {
-    const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
+exports.ControlPoints3dView = ControlPoints3dView;
+function verticesForOneSphere(center, radius, sectorCount, stackCount, color) {
+    //http://www.songho.ca/opengl/gl_sphere.html
+    let x, y, z, xy; // vertex position
+    let nx, ny, nz; // vertex normal
+    let sectorAngle, stackAngle;
+    const lengthInv = 1 / radius;
     const sectorStep = 2 * Math.PI / sectorCount;
-    let vertices = [];
-    let normals = [];
-    if (n > 0) {
-        const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
-        for (let j = 0; j <= sectorCount; j += 1) {
-            let sectorAngle = j * sectorStep; // starting for 0 to 2pi
-            // cicle in the plane xy 
-            let x = radius * Math.cos(sectorAngle);
-            let y = radius * Math.sin(sectorAngle);
-            let v = rotationMatrix.multiplyByVector([x, y, 0]);
-            vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
-            let nx = Math.cos(sectorAngle);
-            let ny = Math.sin(sectorAngle);
-            let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
-            normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
-        }
-    }
-    else {
-        const rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
-        for (let j = 0; j <= sectorCount; j += 1) {
-            let sectorAngle = j * sectorStep; // starting for 0 to 2pi
-            // cicle in the plane xz 
-            let x = radius * Math.cos(sectorAngle);
-            let z = radius * Math.sin(sectorAngle);
-            let v = rotationMatrix.multiplyByVector([x, 0, z]);
-            vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
-            let nx = Math.cos(sectorAngle);
-            let nz = Math.sin(sectorAngle);
-            let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
-            normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
-        }
-    }
-    return { vertices: vertices, normals: normals };
-}
-exports.orientedCircle = orientedCircle;
-function indicesForOneCylinder(startingIndex, sectorCount) {
+    const stackStep = Math.PI / stackCount;
     let result = [];
-    let k1 = 0; // beginning of current stack
-    let k2 = k1 + sectorCount + 1; // beginning of next stack
-    for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
-        result.push(k1 + startingIndex);
-        result.push(k2 + startingIndex);
-        result.push(k1 + 1 + startingIndex);
-        result.push(k1 + 1 + startingIndex);
-        result.push(k2 + startingIndex);
-        result.push(k2 + 1 + startingIndex);
+    for (let i = 0; i <= stackCount; i += 1) {
+        stackAngle = Math.PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
+        xy = radius * Math.cos(stackAngle);
+        z = radius * Math.sin(stackAngle);
+        // add (sectorCout+1) vertices per stack
+        // the first and last vertices have the same position and normal
+        for (let j = 0; j <= sectorCount; j += 1) {
+            sectorAngle = j * sectorStep; // starting for 0 to 2pi
+            // vertex position (x, y, z)
+            x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
+            y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
+            result.push(x + center.x);
+            result.push(y + center.y);
+            result.push(z + center.z);
+            // normalized vertex normal (nx, ny, nz)
+            nx = x * lengthInv;
+            ny = y * lengthInv;
+            nz = z * lengthInv;
+            result.push(nx);
+            result.push(ny);
+            result.push(nz);
+            // Color
+            result.push(color.red);
+            result.push(color.green);
+            result.push(color.blue);
+        }
     }
     return result;
 }
-exports.indicesForOneCylinder = indicesForOneCylinder;
+exports.verticesForOneSphere = verticesForOneSphere;
+function indicesForOneSphere(startingIndex, sectorCount, stackCount) {
+    let result = [];
+    for (let i = 0; i < stackCount; i += 1) {
+        let k1 = i * (sectorCount + 1); // beginning of current stack
+        let k2 = k1 + sectorCount + 1; // beginning of next stack
+        for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+            if (i != 0) {
+                result.push(k1 + startingIndex);
+                result.push(k2 + startingIndex);
+                result.push(k1 + 1 + startingIndex);
+            }
+            if (i != (stackCount - 1)) {
+                result.push(k1 + 1 + startingIndex);
+                result.push(k2 + startingIndex);
+                result.push(k2 + 1 + startingIndex);
+            }
+        }
+    }
+    return result;
+}
+exports.indicesForOneSphere = indicesForOneSphere;
 
 
 /***/ }),
 
-/***/ "./src/views/ControlPolygonShaders.ts":
-/*!********************************************!*\
-  !*** ./src/views/ControlPolygonShaders.ts ***!
-  \********************************************/
+/***/ "./src/views/ControlPointsShaders.ts":
+/*!*******************************************!*\
+  !*** ./src/views/ControlPointsShaders.ts ***!
+  \*******************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ControlPointsShaders = void 0;
 const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class ControlPolygonShaders {
+class ControlPointsShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec2 a_Texture; \n' +
+            'attribute vec3 a_Color; \n' +
+            'varying vec2 v_Texture; \n' +
+            'varying vec3 v_Color; \n' +
+            'void main() {\n' +
+            '    v_Texture = a_Texture; \n' +
+            '    v_Color = a_Color; \n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision highp float; \n' +
+            '//uniform bool selected; \n' +
+            'varying vec2 v_Texture; \n' +
+            'varying vec3 v_Color; \n' +
+            'void main() {\n' +
+            '     vec4 fColor = vec4(0.1, 0.1, 0.1, 0.0); \n' +
+            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
+            '     vec4 color1 = vec4(v_Color, 0.35); \n' +
+            '     vec4 color2 = vec4(v_Color, 0.9); \n' +
+            '     float delta = 0.1; \n' +
+            '     float alpha1 = smoothstep(0.35-delta, 0.35, dist); \n' +
+            '     float alpha2 = smoothstep(0.65-delta, 0.65, dist); \n' +
+            '     vec4 fColor1 = mix(color1, fColor, alpha1); \n' +
+            '     vec4 fColor2 = mix(color2, fColor, alpha2); \n' +
+            '     gl_FragColor = (fColor1+fColor2)/2.0; \n' +
+            '}\n';
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfElements, selectedControlPoint) {
+        if (this.program) {
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
+            if (selectedControlPoint != -1 && selectedControlPoint !== null) {
+                this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_BYTE, selectedControlPoint * 6);
+            }
+        }
+    }
+}
+exports.ControlPointsShaders = ControlPointsShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPolygon2dShaders.ts":
+/*!**********************************************!*\
+  !*** ./src/views/ControlPolygon2dShaders.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ControlPolygon2dShaders = void 0;
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class ControlPolygon2dShaders {
     constructor(gl) {
         this.gl = gl;
         // Vertex shader program
@@ -8858,7 +7533,7 @@ class ControlPolygonShaders {
             'void main() {\n' +
             '    gl_FragColor = fColor; \n' +
             '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -8868,20 +7543,21 @@ class ControlPolygonShaders {
         this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
     }
 }
-exports.ControlPolygonShaders = ControlPolygonShaders;
+exports.ControlPolygon2dShaders = ControlPolygon2dShaders;
 
 
 /***/ }),
 
-/***/ "./src/views/ControlPolygonView.ts":
-/*!*****************************************!*\
-  !*** ./src/views/ControlPolygonView.ts ***!
-  \*****************************************/
+/***/ "./src/views/ControlPolygon2dView.ts":
+/*!*******************************************!*\
+  !*** ./src/views/ControlPolygon2dView.ts ***!
+  \*******************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-class ControlPolygonView {
+exports.ControlPolygon2dView = void 0;
+class ControlPolygon2dView {
     constructor(spline, controlPolygonShaders, closed, red, green, blue, alpha) {
         this.controlPolygonShaders = controlPolygonShaders;
         this.closed = closed;
@@ -8913,7 +7589,7 @@ class ControlPolygonView {
         this.vertices = new Float32Array(this.controlPoints.length * 12);
         this.indices = new Uint8Array(this.controlPoints.length * 6);
         for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
-            const normal = this.controlPoints[i + 1].substract(this.controlPoints[i]).normalize().rotate90degrees();
+            const normal = this.controlPoints[i + 1].subtract(this.controlPoints[i]).normalize().rotate90degrees();
             this.vertices[12 * i] = this.controlPoints[i].x - thickness * normal.x;
             this.vertices[12 * i + 1] = this.controlPoints[i].y - thickness * normal.y;
             this.vertices[12 * i + 2] = this.z;
@@ -9000,29 +7676,89 @@ class ControlPolygonView {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 }
-exports.ControlPolygonView = ControlPolygonView;
+exports.ControlPolygon2dView = ControlPolygon2dView;
 
 
 /***/ }),
 
-/***/ "./src/views/CurvatureExtrema3dView.ts":
-/*!*********************************************!*\
-  !*** ./src/views/CurvatureExtrema3dView.ts ***!
-  \*********************************************/
+/***/ "./src/views/ControlPolygon3dShadowView.ts":
+/*!*************************************************!*\
+  !*** ./src/views/ControlPolygon3dShadowView.ts ***!
+  \*************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ControlPolygon3dShadowView = void 0;
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
-const BSplineR1toR3DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3DifferentialProperties */ "./src/bsplines/BSplineR1toR3DifferentialProperties.ts");
-const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
-class CurvatureExtrema3dView extends AbstractObject3dView_1.AbstractObject3dView {
-    constructor(spline, object3dShaders, lightDirection) {
+const BaseObject3dShadowView_1 = __webpack_require__(/*! ./BaseObject3dShadowView */ "./src/views/BaseObject3dShadowView.ts");
+const ControlPolygon3dView_1 = __webpack_require__(/*! ./ControlPolygon3dView */ "./src/views/ControlPolygon3dView.ts");
+class ControlPolygon3dShadowView extends BaseObject3dShadowView_1.BaseObject3dShadowView {
+    constructor(spline, object3dShadowShaders, lightDirection, closed) {
+        super(object3dShadowShaders, lightDirection);
+        this.closed = closed;
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.object3dShadowShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.003;
+        const sectorCount = 20;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
+            let v = (0, ControlPolygon3dView_1.verticesForOneCylinder)(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
+            let ind = (0, ControlPolygon3dView_1.indicesForOneCylinder)(startingIndex, sectorCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...ind];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
+    }
+    update(spline) {
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.ControlPolygon3dShadowView = ControlPolygon3dShadowView;
+
+
+/***/ }),
+
+/***/ "./src/views/ControlPolygon3dView.ts":
+/*!*******************************************!*\
+  !*** ./src/views/ControlPolygon3dView.ts ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.indicesForOneCylinder = exports.orientedCircle = exports.verticesForOneCylinder = exports.ControlPolygon3dView = void 0;
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
+const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
+const BaseObject3dView_1 = __webpack_require__(/*! ./BaseObject3dView */ "./src/views/BaseObject3dView.ts");
+class ControlPolygon3dView extends BaseObject3dView_1.BaseObject3dView {
+    constructor(spline, object3dShaders, lightDirection, closed) {
         super(object3dShaders, lightDirection);
-        this.spline = spline;
-        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
-        this.zeros = splineDP.curvatureDerivativeZeros();
+        this.closed = closed;
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
         this.updateVerticesAndIndices();
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers(this.object3dShaders.gl);
@@ -9031,100 +7767,134 @@ class CurvatureExtrema3dView extends AbstractObject3dView_1.AbstractObject3dView
         }
     }
     updateVerticesAndIndices() {
-        const radius = 0.012;
-        const sectorCount = 50;
-        const stackCount = 50;
+        const radius = 0.003;
+        const sectorCount = 20;
         let vertices = [];
         let indices = [];
         let startingIndex = 0;
-        for (let zero of this.zeros) {
-            let v = ControlPoints3dView_1.verticesForOneSphere(zero, radius, sectorCount, stackCount, { red: 1, green: 0.5, blue: 0.5 });
-            let ind = ControlPoints3dView_1.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
+            let v = verticesForOneCylinder(this.controlPoints[i], this.controlPoints[i + 1], radius, sectorCount);
+            let ind = indicesForOneCylinder(startingIndex, sectorCount);
             vertices = [...vertices, ...v];
             indices = [...indices, ...ind];
             startingIndex += v.length / 9;
         }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
-    }
-    updateVerticesIndicesAndBuffers() {
-        this.updateVerticesAndIndices();
-        this.updateBuffers();
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
     }
     update(spline) {
-        this.spline = spline;
-        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
-        this.zeros = splineDP.curvatureDerivativeZeros();
+        this.controlPoints = spline.freeControlPoints;
+        if (this.closed) {
+            this.controlPoints.push(this.controlPoints[0]);
+        }
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
 }
-exports.CurvatureExtrema3dView = CurvatureExtrema3dView;
-
-
-/***/ }),
-
-/***/ "./src/views/CurvatureExtremaShaders.ts":
-/*!**********************************************!*\
-  !*** ./src/views/CurvatureExtremaShaders.ts ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class CurvatureExtremaShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'attribute vec2 a_Texture; \n' +
-            'varying vec2 v_Texture; \n' +
-            'void main() {\n' +
-            '    v_Texture = a_Texture; \n' +
-            '    gl_Position = vec4(a_Position, 1.0); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision highp float; \n' +
-            'uniform vec4 a_Color; \n' +
-            'varying vec2 v_Texture; \n' +
-            'void main() {\n' +
-            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
-            '     if (dist > 0.5) discard; \n' +
-            '     gl_FragColor = a_Color; \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
+exports.ControlPolygon3dView = ControlPolygon3dView;
+function verticesForOneCylinder(centerTop, centerBottom, radius, sectorCount) {
+    let axisVector = centerTop.substract(centerBottom).normalize();
+    const circleTop = orientedCircle(centerTop, radius, axisVector, sectorCount);
+    const circleBottom = orientedCircle(centerBottom, radius, axisVector, sectorCount);
+    let result = [];
+    for (let i = 0; i < circleTop.vertices.length; i += 1) {
+        // vertex position (x, y, z)
+        result.push(circleTop.vertices[i].x);
+        result.push(circleTop.vertices[i].y);
+        result.push(circleTop.vertices[i].z);
+        // normalized vertex normal (nx, ny, nz)
+        result.push(circleTop.normals[i].x);
+        result.push(circleTop.normals[i].y);
+        result.push(circleTop.normals[i].z);
+        // Color
+        result.push(0.5);
+        result.push(0.5);
+        result.push(0.5);
     }
-    renderFrame(numberOfElements) {
-        if (this.program) {
-            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
-        }
+    for (let i = 0; i < circleBottom.vertices.length; i += 1) {
+        // vertex position (x, y, z)
+        result.push(circleBottom.vertices[i].x);
+        result.push(circleBottom.vertices[i].y);
+        result.push(circleBottom.vertices[i].z);
+        // normalized vertex normal (nx, ny, nz)
+        result.push(circleBottom.normals[i].x);
+        result.push(circleBottom.normals[i].y);
+        result.push(circleBottom.normals[i].z);
+        // Color
+        result.push(0.8);
+        result.push(0.8);
+        result.push(0.8);
     }
+    return result;
 }
-exports.CurvatureExtremaShaders = CurvatureExtremaShaders;
+exports.verticesForOneCylinder = verticesForOneCylinder;
+function orientedCircle(center, radius, axisVector, sectorCount) {
+    const n = axisVector.dot(new Vector3d_1.Vector3d(0, 0, 1));
+    const sectorStep = 2 * Math.PI / sectorCount;
+    let vertices = [];
+    let normals = [];
+    if (n > 0) {
+        const rotationMatrix = (0, RotationMatrix_1.rotationMatrixFromTwoVectors)(new Vector3d_1.Vector3d(0, 0, 1), axisVector);
+        for (let j = 0; j <= sectorCount; j += 1) {
+            let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+            // cicle in the plane xy 
+            let x = radius * Math.cos(sectorAngle);
+            let y = radius * Math.sin(sectorAngle);
+            let v = rotationMatrix.multiplyByVector([x, y, 0]);
+            vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+            let nx = Math.cos(sectorAngle);
+            let ny = Math.sin(sectorAngle);
+            let nv = rotationMatrix.multiplyByVector([nx, ny, 0]);
+            normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+        }
+    }
+    else {
+        const rotationMatrix = (0, RotationMatrix_1.rotationMatrixFromTwoVectors)(new Vector3d_1.Vector3d(0, 1, 0), axisVector);
+        for (let j = 0; j <= sectorCount; j += 1) {
+            let sectorAngle = j * sectorStep; // starting for 0 to 2pi
+            // cicle in the plane xz 
+            let x = radius * Math.cos(sectorAngle);
+            let z = radius * Math.sin(sectorAngle);
+            let v = rotationMatrix.multiplyByVector([x, 0, z]);
+            vertices.push(new Vector3d_1.Vector3d(v[0] + center.x, v[1] + center.y, v[2] + center.z));
+            let nx = Math.cos(sectorAngle);
+            let nz = Math.sin(sectorAngle);
+            let nv = rotationMatrix.multiplyByVector([nx, 0, nz]);
+            normals.push(new Vector3d_1.Vector3d(nv[0], nv[1], nv[2]));
+        }
+    }
+    return { vertices: vertices, normals: normals };
+}
+exports.orientedCircle = orientedCircle;
+function indicesForOneCylinder(startingIndex, sectorCount) {
+    let result = [];
+    let k1 = 0; // beginning of current stack
+    let k2 = k1 + sectorCount + 1; // beginning of next stack
+    for (let j = 0; j < sectorCount; j += 1, k1 += 1, k2 += 1) {
+        result.push(k1 + startingIndex);
+        result.push(k2 + startingIndex);
+        result.push(k1 + 1 + startingIndex);
+        result.push(k1 + 1 + startingIndex);
+        result.push(k2 + startingIndex);
+        result.push(k2 + 1 + startingIndex);
+    }
+    return result;
+}
+exports.indicesForOneCylinder = indicesForOneCylinder;
 
 
 /***/ }),
 
-/***/ "./src/views/CurvatureExtremaView.ts":
-/*!*******************************************!*\
-  !*** ./src/views/CurvatureExtremaView.ts ***!
-  \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ "./src/views/CurvatureExtrema2dView.ts":
+/*!*********************************************!*\
+  !*** ./src/views/CurvatureExtrema2dView.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/bsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
-const PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR2 */ "./src/bsplines/PeriodicBSplineR1toR2.ts");
-const BSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-const BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR2DifferentialProperties */ "./src/bsplines/BSplineR1toR2DifferentialProperties.ts");
-const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2Adapter */ "./src/bsplines/RationalBSplineR1toR2Adapter.ts");
-const RationalBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2DifferentialProperties */ "./src/bsplines/RationalBSplineR1toR2DifferentialProperties.ts");
-class CurvatureExtremaView {
+exports.CurvatureExtrema2dView = void 0;
+class CurvatureExtrema2dView {
     constructor(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
         this.red = red;
@@ -9252,24 +8022,10 @@ class CurvatureExtremaView {
         gl.useProgram(null);
     }
     update(spline) {
-        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-            const splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(spline);
-            this.curvatureExtrema = splineDP.curvatureExtrema();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
-        }
-        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
-            const splineDP = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(spline);
-            this.curvatureExtrema = splineDP.curvatureExtrema();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
-        }
-        if (spline instanceof RationalBSplineR1toR2Adapter_1.RationalBSplineR1toR2Adapter) {
-            const splineDP = new RationalBSplineR1toR2DifferentialProperties_1.RationalBSplineR1toR2DifferentialProperties(spline.getRationalBSplineR1toR2());
-            this.curvatureExtrema = splineDP.curvatureExtrema();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
-        }
+        const splineDP = spline.getDifferentialProperties();
+        this.curvatureExtrema = splineDP.curvatureExtrema();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
     /*
     updatePoints(points: Vector_2d[]) {
@@ -9288,7 +8044,278 @@ class CurvatureExtremaView {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 }
-exports.CurvatureExtremaView = CurvatureExtremaView;
+exports.CurvatureExtrema2dView = CurvatureExtrema2dView;
+
+
+/***/ }),
+
+/***/ "./src/views/CurvatureExtrema3dView.ts":
+/*!*********************************************!*\
+  !*** ./src/views/CurvatureExtrema3dView.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CurvatureExtrema3dView = void 0;
+const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
+const BaseObject3dView_1 = __webpack_require__(/*! ./BaseObject3dView */ "./src/views/BaseObject3dView.ts");
+const BSplineR1toR3DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/R1toR3/BSplineR1toR3DifferentialProperties */ "./src/bsplines/R1toR3/BSplineR1toR3DifferentialProperties.ts");
+const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
+class CurvatureExtrema3dView extends BaseObject3dView_1.BaseObject3dView {
+    constructor(spline, object3dShaders, lightDirection) {
+        super(object3dShaders, lightDirection);
+        this.spline = spline;
+        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
+        this.zeros = splineDP.curvatureDerivativeZeros();
+        this.updateVerticesAndIndices();
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.object3dShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updateVerticesAndIndices() {
+        const radius = 0.012;
+        const sectorCount = 50;
+        const stackCount = 50;
+        let vertices = [];
+        let indices = [];
+        let startingIndex = 0;
+        for (let zero of this.zeros) {
+            let v = (0, ControlPoints3dView_1.verticesForOneSphere)(zero, radius, sectorCount, stackCount, { red: 1, green: 0.5, blue: 0.5 });
+            let ind = (0, ControlPoints3dView_1.indicesForOneSphere)(startingIndex, sectorCount, stackCount);
+            vertices = [...vertices, ...v];
+            indices = [...indices, ...ind];
+            startingIndex += v.length / 9;
+        }
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
+    }
+    updateVerticesIndicesAndBuffers() {
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+    update(spline) {
+        this.spline = spline;
+        const splineDP = new BSplineR1toR3DifferentialProperties_1.BSplineR1toR3DifferentialProperties(spline);
+        this.zeros = splineDP.curvatureDerivativeZeros();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    }
+}
+exports.CurvatureExtrema3dView = CurvatureExtrema3dView;
+
+
+/***/ }),
+
+/***/ "./src/views/CurvatureExtremaShaders.ts":
+/*!**********************************************!*\
+  !*** ./src/views/CurvatureExtremaShaders.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CurvatureExtremaShaders = void 0;
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class CurvatureExtremaShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'attribute vec2 a_Texture; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '    v_Texture = a_Texture; \n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision highp float; \n' +
+            'uniform vec4 a_Color; \n' +
+            'varying vec2 v_Texture; \n' +
+            'void main() {\n' +
+            '     float dist = distance(v_Texture, vec2(0.0, 0.0)); \n' +
+            '     if (dist > 0.5) discard; \n' +
+            '     gl_FragColor = a_Color; \n' +
+            '}\n';
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfElements) {
+        if (this.program) {
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
+        }
+    }
+}
+exports.CurvatureExtremaShaders = CurvatureExtremaShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/Curve2dShaders.ts":
+/*!*************************************!*\
+  !*** ./src/views/Curve2dShaders.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Curve2dShaders = void 0;
+const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
+class Curve2dShaders {
+    constructor(gl) {
+        this.gl = gl;
+        // Vertex shader program
+        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
+            'void main() {\n' +
+            '    gl_Position = vec4(a_Position, 1.0); \n' +
+            '}\n';
+        // Fragment shader program
+        this.FSHADER_SOURCE = 'precision mediump float; \n' +
+            'uniform vec4 fColor; \n' +
+            'void main() {\n' +
+            '    gl_FragColor = fColor; \n' +
+            '}\n';
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        if (!this.program) {
+            console.log('Failed to create program');
+        }
+        this.gl.useProgram(this.program);
+    }
+    renderFrame(numberOfVertices) {
+        this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, numberOfVertices);
+    }
+}
+exports.Curve2dShaders = Curve2dShaders;
+
+
+/***/ }),
+
+/***/ "./src/views/Curve2dView.ts":
+/*!**********************************!*\
+  !*** ./src/views/Curve2dView.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Curve2dView = void 0;
+class Curve2dView {
+    constructor(spline, curveShaders, red, green, blue, alpha) {
+        this.spline = spline;
+        this.curveShaders = curveShaders;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+        this.POINT_SEQUENCE_SIZE = 1000;
+        this.pointSequenceOnSpline = [];
+        this.vertexBuffer = null;
+        this.vertices = new Float32Array(this.POINT_SEQUENCE_SIZE * 6);
+        // Write the positions of vertices to a vertex shader
+        const check = this.initVertexBuffers(this.curveShaders.gl);
+        if (check < 0) {
+            console.log('Failed to set the positions of the vertices');
+        }
+    }
+    updatePointSequenceOnSpline() {
+        const start = this.spline.knots[this.spline.degree];
+        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        this.pointSequenceOnSpline = [];
+        for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
+            let point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            this.pointSequenceOnSpline.push(point);
+        }
+    }
+    updateVertices() {
+        const thickness = 0.005;
+        const maxLength = thickness * 3;
+        let tangent = ((this.pointSequenceOnSpline[1]).subtract(this.pointSequenceOnSpline[0])).normalize(), normal = tangent.rotate90degrees(), miter, length, result = [];
+        result.push(this.pointSequenceOnSpline[0].add(normal.multiply(thickness)));
+        result.push(this.pointSequenceOnSpline[0].subtract(normal.multiply(thickness)));
+        for (let i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
+            normal = (this.pointSequenceOnSpline[i].subtract(this.pointSequenceOnSpline[i - 1])).normalize().rotate90degrees();
+            tangent = (this.pointSequenceOnSpline[i + 1].subtract(this.pointSequenceOnSpline[i - 1])).normalize();
+            miter = tangent.rotate90degrees();
+            length = thickness / (miter.dot(normal));
+            if (length > maxLength) {
+                length = maxLength;
+            }
+            result.push(this.pointSequenceOnSpline[i].add(miter.multiply(length)));
+            result.push(this.pointSequenceOnSpline[i].subtract(miter.multiply(length)));
+        }
+        tangent = this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].subtract(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 2]).normalize();
+        normal = tangent.rotate90degrees();
+        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(thickness)));
+        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].subtract(normal.multiply(thickness)));
+        for (let i = 0; i < result.length; i += 1) {
+            this.vertices[3 * i] = result[i].x;
+            this.vertices[3 * i + 1] = result[i].y;
+            this.vertices[3 * i + 2] = 0.0;
+        }
+    }
+    update(spline) {
+        this.spline = spline;
+        this.updatePointSequenceOnSpline();
+        this.updateVertices();
+        this.updateBuffers();
+    }
+    updateBuffers() {
+        const gl = this.curveShaders.gl;
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+    renderFrame() {
+        const gl = this.curveShaders.gl;
+        const a_Position = gl.getAttribLocation(this.curveShaders.program, 'a_Position');
+        const fColorLocation = gl.getUniformLocation(this.curveShaders.program, "fColor");
+        gl.useProgram(this.curveShaders.program);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        gl.uniform4f(fColorLocation, this.red, this.green, this.blue, this.alpha);
+        this.curveShaders.renderFrame(this.vertices.length / 3);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.useProgram(null);
+    }
+    initVertexBuffers(gl) {
+        const a_Position = gl.getAttribLocation(this.curveShaders.program, 'a_Position');
+        // Create a buffer object
+        this.vertexBuffer = gl.createBuffer();
+        if (!this.vertexBuffer) {
+            console.log('Failed to create the vertex buffer object');
+            return -1;
+        }
+        this.updatePointSequenceOnSpline();
+        this.updateVertices();
+        // Bind the buffer objects to targets
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        if (a_Position < 0) {
+            console.log('Failed to get the storage location of a_Position');
+            return -1;
+        }
+        // Assign the buffer object to a_Position variable
+        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+        // Enable the assignment to a_Position variable
+        gl.enableVertexAttribArray(a_Position);
+        // Unbind the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        return 1;
+    }
+}
+exports.Curve2dView = Curve2dView;
 
 
 /***/ }),
@@ -9301,10 +8328,11 @@ exports.CurvatureExtremaView = CurvatureExtremaView;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Curve3dShadowView = void 0;
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const AbstractObject3dShadowView_1 = __webpack_require__(/*! ./AbstractObject3dShadowView */ "./src/views/AbstractObject3dShadowView.ts");
+const BaseObject3dShadowView_1 = __webpack_require__(/*! ./BaseObject3dShadowView */ "./src/views/BaseObject3dShadowView.ts");
 const Curve3dView_1 = __webpack_require__(/*! ./Curve3dView */ "./src/views/Curve3dView.ts");
-class Curve3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dShadowView {
+class Curve3dShadowView extends BaseObject3dShadowView_1.BaseObject3dShadowView {
     constructor(spline, object3dShadowShaders, lightDirection, closed) {
         super(object3dShadowShaders, lightDirection);
         this.spline = spline;
@@ -9324,12 +8352,12 @@ class Curve3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dSha
         let startingIndex = 0;
         const vertices = this.computeVertices(radius, stackCount, sectorCount);
         for (let i = 0; i < stackCount - 1; i += 1) {
-            let ind = Curve3dView_1.indicesForOneCylinder(startingIndex, sectorCount);
+            let ind = (0, Curve3dView_1.indicesForOneCylinder)(startingIndex, sectorCount);
             indices = [...indices, ...ind];
             startingIndex += sectorCount + 1;
         }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
     }
     frames(number) {
         const start = this.spline.knots[this.spline.degree];
@@ -9339,16 +8367,16 @@ class Curve3dShadowView extends AbstractObject3dShadowView_1.AbstractObject3dSha
             let point = this.spline.evaluate(i / (number - 1) * (end - start) + start);
             pointSequenceOnSpline.push(point);
         }
-        const tangentSequenceOnSpline = Curve3dView_1.computeApproximatedTangentsFromPointsSequence(pointSequenceOnSpline);
-        const randomUpVector = Curve3dView_1.computeRandomUpVector(tangentSequenceOnSpline[0]);
-        const upVectorSequenceOnSpline = Curve3dView_1.computeUpVectorSequence(tangentSequenceOnSpline, randomUpVector);
+        const tangentSequenceOnSpline = (0, Curve3dView_1.computeApproximatedTangentsFromPointsSequence)(pointSequenceOnSpline);
+        const randomUpVector = (0, Curve3dView_1.computeRandomUpVector)(tangentSequenceOnSpline[0]);
+        const upVectorSequenceOnSpline = (0, Curve3dView_1.computeUpVectorSequence)(tangentSequenceOnSpline, randomUpVector);
         return { pointSequence: pointSequenceOnSpline, tangentSequence: tangentSequenceOnSpline, upVectorSequence: upVectorSequenceOnSpline };
     }
     computeVertices(radius, stackCount, sectorCount) {
         let frames = this.frames(stackCount);
         let result = [];
         for (let i = 0; i < frames.pointSequence.length; i += 1) {
-            let oe = Curve3dView_1.orientedEllipse(frames.pointSequence[i], frames.tangentSequence[i], frames.upVectorSequence[i], sectorCount, radius, radius);
+            let oe = (0, Curve3dView_1.orientedEllipse)(frames.pointSequence[i], frames.tangentSequence[i], frames.upVectorSequence[i], sectorCount, radius, radius);
             for (let j = 0; j < oe.vertices.length; j += 1) {
                 // vertex position (x, y, z)
                 result.push(oe.vertices[j].x);
@@ -9385,11 +8413,12 @@ exports.Curve3dShadowView = Curve3dShadowView;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.computeApproximatedTangentsFromPointsSequence = exports.orientedEllipse = exports.computeUpVectorSequence = exports.indicesForOneCylinder = exports.computeRandomUpVector = exports.Curve3dView = void 0;
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
 const Vector3d_1 = __webpack_require__(/*! ../mathVector/Vector3d */ "./src/mathVector/Vector3d.ts");
 const RotationMatrix_1 = __webpack_require__(/*! ../mathVector/RotationMatrix */ "./src/mathVector/RotationMatrix.ts");
-const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
-class Curve3dView extends AbstractObject3dView_1.AbstractObject3dView {
+const BaseObject3dView_1 = __webpack_require__(/*! ./BaseObject3dView */ "./src/views/BaseObject3dView.ts");
+class Curve3dView extends BaseObject3dView_1.BaseObject3dView {
     //private controlPoints: Vector3d[]
     constructor(spline, object3dShaders, lightDirection, closed) {
         super(object3dShaders, lightDirection);
@@ -9415,8 +8444,8 @@ class Curve3dView extends AbstractObject3dView_1.AbstractObject3dView {
             indices = [...indices, ...ind];
             startingIndex += sectorCount + 1;
         }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
     }
     frames(number) {
         const start = this.spline.knots[this.spline.degree];
@@ -9488,7 +8517,7 @@ function computeUpVectorSequence(tangentSequence, firstUpVector) {
     let result = [];
     result.push(firstUpVector);
     for (let i = 0; i < tangentSequence.length - 1; i += 1) {
-        let rotationMatrix = RotationMatrix_1.rotationMatrixFromTwoVectors(tangentSequence[i], tangentSequence[i + 1]);
+        let rotationMatrix = (0, RotationMatrix_1.rotationMatrixFromTwoVectors)(tangentSequence[i], tangentSequence[i + 1]);
         let lastUpVector = result[result.length - 1];
         let newUpVector = rotationMatrix.multiplyByVector([lastUpVector.x, lastUpVector.y, lastUpVector.z]);
         result.push(new Vector3d_1.Vector3d(newUpVector[0], newUpVector[1], newUpVector[2]).normalize());
@@ -9572,6 +8601,7 @@ exports.computeApproximatedTangentsFromPointsSequence = computeApproximatedTange
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CurveScene3dView = void 0;
 const quat_1 = __webpack_require__(/*! ../webgl/quat */ "./src/webgl/quat.ts");
 const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
 const ControlPoints3dShadowView_1 = __webpack_require__(/*! ./ControlPoints3dShadowView */ "./src/views/ControlPoints3dShadowView.ts");
@@ -9582,7 +8612,7 @@ const Curve3dView_1 = __webpack_require__(/*! ./Curve3dView */ "./src/views/Curv
 const Curve3dShadowView_1 = __webpack_require__(/*! ./Curve3dShadowView */ "./src/views/Curve3dShadowView.ts");
 const Object3dShadowShaders_1 = __webpack_require__(/*! ./Object3dShadowShaders */ "./src/views/Object3dShadowShaders.ts");
 const CurveScene3dController_1 = __webpack_require__(/*! ../controllers/CurveScene3dController */ "./src/controllers/CurveScene3dController.ts");
-const TorsionZerosView_1 = __webpack_require__(/*! ./TorsionZerosView */ "./src/views/TorsionZerosView.ts");
+const TorsionZeros3dView_1 = __webpack_require__(/*! ./TorsionZeros3dView */ "./src/views/TorsionZeros3dView.ts");
 const CurvatureExtrema3dView_1 = __webpack_require__(/*! ./CurvatureExtrema3dView */ "./src/views/CurvatureExtrema3dView.ts");
 var STATE;
 (function (STATE) {
@@ -9607,7 +8637,7 @@ class CurveScene3dView {
         this.controlPolygon3dShadowView = new ControlPolygon3dShadowView_1.ControlPolygon3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false);
         this.curve3dView = new Curve3dView_1.Curve3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection, false);
         this.curve3dShadowView = new Curve3dShadowView_1.Curve3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false);
-        this.torsionZerosView = new TorsionZerosView_1.TorsionZerosView(curve3dModel.spline, this.object3dShaders, this.lightDirection);
+        this.torsionZerosView = new TorsionZeros3dView_1.TorsionZeros3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection);
         this.curvatureExtrema3dView = new CurvatureExtrema3dView_1.CurvatureExtrema3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection);
         this.curve3dModel.registerObserver(this.controlPoints3dView);
         this.curve3dModel.registerObserver(this.controlPolygon3dView);
@@ -9658,15 +8688,15 @@ class CurveScene3dView {
             };
             this.previousMousePosition = this.mouse_get_NormalizedDeviceCoordinates(event);
             if (this.state === STATE.ROTATE) {
-                const deltaRotationQuaternion = quat_1.fromEuler(-deltaMove.y * 500, deltaMove.x * 500, 0);
-                this.controlPoints3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dView.orientation);
-                this.controlPoints3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPoints3dShadowView.orientation);
-                this.controlPolygon3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dView.orientation);
-                this.controlPolygon3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation);
-                this.curve3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curve3dView.orientation);
-                this.curve3dShadowView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curve3dShadowView.orientation);
-                this.torsionZerosView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.torsionZerosView.orientation);
-                this.curvatureExtrema3dView.orientation = quat_1.multiply_quats(deltaRotationQuaternion, this.curvatureExtrema3dView.orientation);
+                const deltaRotationQuaternion = (0, quat_1.fromEuler)(-deltaMove.y * 500, deltaMove.x * 500, 0);
+                this.controlPoints3dView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.controlPoints3dView.orientation);
+                this.controlPoints3dShadowView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.controlPoints3dShadowView.orientation);
+                this.controlPolygon3dView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.controlPolygon3dView.orientation);
+                this.controlPolygon3dShadowView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.controlPolygon3dShadowView.orientation);
+                this.curve3dView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.curve3dView.orientation);
+                this.curve3dShadowView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.curve3dShadowView.orientation);
+                this.torsionZerosView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.torsionZerosView.orientation);
+                this.curvatureExtrema3dView.orientation = (0, quat_1.multiply_quats)(deltaRotationQuaternion, this.curvatureExtrema3dView.orientation);
             }
             if (this.dragging === true) {
                 const selectedControlPoint = this.controlPoints3dView.getSelectedControlPoint();
@@ -9703,320 +8733,16 @@ exports.CurveScene3dView = CurveScene3dView;
 
 /***/ }),
 
-/***/ "./src/views/CurveSceneView.ts":
-/*!*************************************!*\
-  !*** ./src/views/CurveSceneView.ts ***!
-  \*************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const CurveSceneController_1 = __webpack_require__(/*! ../controllers/CurveSceneController */ "./src/controllers/CurveSceneController.ts");
-const ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
-const ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
-const ControlPolygonShaders_1 = __webpack_require__(/*! ../views/ControlPolygonShaders */ "./src/views/ControlPolygonShaders.ts");
-const ControlPolygonView_1 = __webpack_require__(/*! ../views/ControlPolygonView */ "./src/views/ControlPolygonView.ts");
-const CurveShaders_1 = __webpack_require__(/*! ../views/CurveShaders */ "./src/views/CurveShaders.ts");
-const CurveView_1 = __webpack_require__(/*! ../views/CurveView */ "./src/views/CurveView.ts");
-const CurvatureExtremaShaders_1 = __webpack_require__(/*! ./CurvatureExtremaShaders */ "./src/views/CurvatureExtremaShaders.ts");
-const CurvatureExtremaView_1 = __webpack_require__(/*! ./CurvatureExtremaView */ "./src/views/CurvatureExtremaView.ts");
-const InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./src/views/InflectionsView.ts");
-const CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
-const ClosedCurveModel_1 = __webpack_require__(/*! ../models/ClosedCurveModel */ "./src/models/ClosedCurveModel.ts");
-const CurveModelAlternative01_1 = __webpack_require__(/*! ../models/CurveModelAlternative01 */ "./src/models/CurveModelAlternative01.ts");
-const ClosedCurveModelAlternative01_1 = __webpack_require__(/*! ../models/ClosedCurveModelAlternative01 */ "./src/models/ClosedCurveModelAlternative01.ts");
-class CurveSceneView {
-    constructor(canvas, gl, curveModel) {
-        this.canvas = canvas;
-        this.gl = gl;
-        this.curveModel = curveModel;
-        this.selectedControlPoint = null;
-        this.dragging = false;
-        this.curveShaders = new CurveShaders_1.CurveShaders(this.gl);
-        this.curveView = new CurveView_1.CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
-        this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
-        this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1);
-        this.controlPolygonShaders = new ControlPolygonShaders_1.ControlPolygonShaders(this.gl);
-        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, this.curveModel.isClosed, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
-        this.curvatureExtremaShaders = new CurvatureExtremaShaders_1.CurvatureExtremaShaders(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1);
-        this.inflectionsView = new InflectionsView_1.InflectionsView(this.curveModel.spline, this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1);
-        this.curveModel.registerObserver(this.controlPointsView, "control points");
-        this.curveModel.registerObserver(this.controlPolygonView, "control points");
-        this.curveModel.registerObserver(this.curveView, "curve");
-        this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
-        this.curveModel.registerObserver(this.inflectionsView, "curve");
-        this.curveSceneControler = new CurveSceneController_1.CurveSceneController(curveModel);
-        this.renderFrame();
-    }
-    renderFrame() {
-        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-        this.gl.clearColor(0.27, 0.27, 0.27, 1);
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-        this.gl.enable(this.gl.BLEND);
-        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-        this.curveView.renderFrame();
-        this.curvatureExtremaView.renderFrame();
-        this.inflectionsView.renderFrame();
-        this.controlPolygonView.renderFrame();
-        this.controlPointsView.renderFrame();
-    }
-    leftMouseDown_event(ndcX, ndcY, deltaSquared = 0.01) {
-        this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
-        this.controlPointsView.setSelected(this.selectedControlPoint);
-        if (this.selectedControlPoint !== null) {
-            this.dragging = true;
-        }
-    }
-    leftMouseDragged_event(ndcX, ndcY) {
-        let x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
-        if (selectedControlPoint != null && this.dragging === true) {
-            this.curveSceneControler.setControlPointPosition(selectedControlPoint, x, y);
-        }
-    }
-    leftMouseUp_event() {
-        this.dragging = false;
-    }
-    upArrow_event() {
-        if (this.selectedControlPoint !== null) {
-            this.curveModel.increaseControlPointWeight(this.selectedControlPoint);
-        }
-    }
-    downArrow_event() {
-        if (this.selectedControlPoint !== null) {
-            this.curveModel.decreaseControlPointWeight(this.selectedControlPoint);
-        }
-    }
-    addControlPoint() {
-        const cp = this.selectedControlPoint;
-        this.selectedControlPoint = null;
-        this.controlPointsView.setSelected(this.selectedControlPoint);
-        this.curveModel.addControlPoint(cp);
-        this.renderFrame();
-    }
-    toggleControlOfCurvatureExtrema() {
-        this.curveModel.toggleActiveControlOfCurvatureExtrema();
-    }
-    toggleControlOfInflections() {
-        this.curveModel.toggleActiveControlOfInflections();
-    }
-    selectCurveCategory(s) {
-        switch (s) {
-            case "0":
-                this.updateCurveModel(new CurveModel_1.CurveModel());
-                //this.updateCurveModel(new CurveModelQuasiNewton())
-                break;
-            case "1":
-                //this.updateCurveModel(new ClosedCurveModelQuasiNewton())
-                this.updateCurveModel(new ClosedCurveModel_1.ClosedCurveModel());
-                break;
-            case "2":
-                this.updateCurveModel(new CurveModelAlternative01_1.CurveModelAlternative01());
-                break;
-            case "3":
-                this.updateCurveModel(new ClosedCurveModelAlternative01_1.ClosedCurveModelAlternative01());
-                break;
-        }
-        //let toggleButtonCurvatureExtrema = <HTMLInputElement> document.getElementById("toggleButtonCurvatureExtrema")
-        //let toggleButtonInflection = <HTMLInputElement> document.getElementById("toggleButtonInflections")
-        //toggleButtonCurvatureExtrema.checked = true
-        //toggleButtonInflection.checked = true
-    }
-    updateCurveModel(curveModel) {
-        this.curveModel = curveModel;
-        this.curveModel.registerObserver(this.controlPointsView, "control points");
-        this.curveModel.registerObserver(this.controlPolygonView, "control points");
-        this.curveModel.registerObserver(this.curveView, "curve");
-        this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
-        this.curveModel.registerObserver(this.inflectionsView, "curve");
-        this.curveSceneControler = new CurveSceneController_1.CurveSceneController(curveModel);
-        this.controlPolygonView.isClosed = this.curveModel.isClosed;
-        this.curveModel.notifyObservers();
-        this.renderFrame();
-    }
-}
-exports.CurveSceneView = CurveSceneView;
-
-
-/***/ }),
-
-/***/ "./src/views/CurveShaders.ts":
-/*!***********************************!*\
-  !*** ./src/views/CurveShaders.ts ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
-class CurveShaders {
-    constructor(gl) {
-        this.gl = gl;
-        // Vertex shader program
-        this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
-            'void main() {\n' +
-            '    gl_Position = vec4(a_Position, 1.0); \n' +
-            '}\n';
-        // Fragment shader program
-        this.FSHADER_SOURCE = 'precision mediump float; \n' +
-            'uniform vec4 fColor; \n' +
-            'void main() {\n' +
-            '    gl_FragColor = fColor; \n' +
-            '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
-        if (!this.program) {
-            console.log('Failed to create program');
-        }
-        this.gl.useProgram(this.program);
-    }
-    renderFrame(numberOfVertices) {
-        this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, numberOfVertices);
-    }
-}
-exports.CurveShaders = CurveShaders;
-
-
-/***/ }),
-
-/***/ "./src/views/CurveView.ts":
-/*!********************************!*\
-  !*** ./src/views/CurveView.ts ***!
-  \********************************/
+/***/ "./src/views/Inflections2dView.ts":
+/*!****************************************!*\
+  !*** ./src/views/Inflections2dView.ts ***!
+  \****************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-class CurveView {
-    constructor(spline, curveShaders, red, green, blue, alpha) {
-        this.spline = spline;
-        this.curveShaders = curveShaders;
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
-        this.alpha = alpha;
-        this.POINT_SEQUENCE_SIZE = 1000;
-        this.pointSequenceOnSpline = [];
-        this.vertexBuffer = null;
-        this.vertices = new Float32Array(this.POINT_SEQUENCE_SIZE * 6);
-        // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.curveShaders.gl);
-        if (check < 0) {
-            console.log('Failed to set the positions of the vertices');
-        }
-    }
-    updatePointSequenceOnSpline() {
-        const start = this.spline.knots[this.spline.degree];
-        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
-        this.pointSequenceOnSpline = [];
-        for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
-            let point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
-            this.pointSequenceOnSpline.push(point);
-        }
-    }
-    updateVertices() {
-        const thickness = 0.005;
-        const maxLength = thickness * 3;
-        let tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize(), normal = tangent.rotate90degrees(), miter, length, result = [];
-        result.push(this.pointSequenceOnSpline[0].add(normal.multiply(thickness)));
-        result.push(this.pointSequenceOnSpline[0].substract(normal.multiply(thickness)));
-        for (let i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
-            normal = (this.pointSequenceOnSpline[i].substract(this.pointSequenceOnSpline[i - 1])).normalize().rotate90degrees();
-            tangent = (this.pointSequenceOnSpline[i + 1].substract(this.pointSequenceOnSpline[i - 1])).normalize();
-            miter = tangent.rotate90degrees();
-            length = thickness / (miter.dot(normal));
-            if (length > maxLength) {
-                length = maxLength;
-            }
-            result.push(this.pointSequenceOnSpline[i].add(miter.multiply(length)));
-            result.push(this.pointSequenceOnSpline[i].substract(miter.multiply(length)));
-        }
-        tangent = this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 2]).normalize();
-        normal = tangent.rotate90degrees();
-        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(thickness)));
-        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(thickness)));
-        for (let i = 0; i < result.length; i += 1) {
-            this.vertices[3 * i] = result[i].x;
-            this.vertices[3 * i + 1] = result[i].y;
-            this.vertices[3 * i + 2] = 0.0;
-        }
-    }
-    update(spline) {
-        this.spline = spline;
-        this.updatePointSequenceOnSpline();
-        this.updateVertices();
-        this.updateBuffers();
-    }
-    updateBuffers() {
-        const gl = this.curveShaders.gl;
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    }
-    renderFrame() {
-        const gl = this.curveShaders.gl;
-        const a_Position = gl.getAttribLocation(this.curveShaders.program, 'a_Position');
-        const fColorLocation = gl.getUniformLocation(this.curveShaders.program, "fColor");
-        gl.useProgram(this.curveShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.uniform4f(fColorLocation, this.red, this.green, this.blue, this.alpha);
-        this.curveShaders.renderFrame(this.vertices.length / 3);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
-    }
-    initVertexBuffers(gl) {
-        const a_Position = gl.getAttribLocation(this.curveShaders.program, 'a_Position');
-        // Create a buffer object
-        this.vertexBuffer = gl.createBuffer();
-        if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
-            return -1;
-        }
-        this.updatePointSequenceOnSpline();
-        this.updateVertices();
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        return 1;
-    }
-}
-exports.CurveView = CurveView;
-
-
-/***/ }),
-
-/***/ "./src/views/InflectionsView.ts":
-/*!**************************************!*\
-  !*** ./src/views/InflectionsView.ts ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/bsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
-const PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/PeriodicBSplineR1toR2 */ "./src/bsplines/PeriodicBSplineR1toR2.ts");
-const BSplineR1toR2_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR2 */ "./src/bsplines/BSplineR1toR2.ts");
-const BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR2DifferentialProperties */ "./src/bsplines/BSplineR1toR2DifferentialProperties.ts");
-const RationalBSplineR1toR2Adapter_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2Adapter */ "./src/bsplines/RationalBSplineR1toR2Adapter.ts");
-const RationalBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/RationalBSplineR1toR2DifferentialProperties */ "./src/bsplines/RationalBSplineR1toR2DifferentialProperties.ts");
-class InflectionsView {
+exports.Inflections2dView = void 0;
+class Inflections2dView {
     constructor(spline, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
         this.red = red;
@@ -10144,24 +8870,10 @@ class InflectionsView {
         gl.useProgram(null);
     }
     update(spline) {
-        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-            const splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(spline);
-            this.controlPoints = splineDP.inflections();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
-        }
-        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
-            const splineDP = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(spline);
-            this.controlPoints = splineDP.inflections();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
-        }
-        if (spline instanceof RationalBSplineR1toR2Adapter_1.RationalBSplineR1toR2Adapter) {
-            const splineDP = new RationalBSplineR1toR2DifferentialProperties_1.RationalBSplineR1toR2DifferentialProperties(spline.getRationalBSplineR1toR2());
-            this.controlPoints = splineDP.inflections();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
-        }
+        const splineDP = spline.getDifferentialProperties();
+        this.controlPoints = splineDP.inflections();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
     /*
     updatePoints(points: Vector_2d[]) {
@@ -10180,7 +8892,7 @@ class InflectionsView {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
 }
-exports.InflectionsView = InflectionsView;
+exports.Inflections2dView = Inflections2dView;
 
 
 /***/ }),
@@ -10193,6 +8905,7 @@ exports.InflectionsView = InflectionsView;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Object3dShaders = void 0;
 const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 class Object3dShaders {
     constructor(gl) {
@@ -10229,7 +8942,7 @@ class Object3dShaders {
             '   vec3 rgb = min(color.rgb*scatteredLight + reflectedLight, vec3(1.0)); \n' +
             '   gl_FragColor = vec4(rgb, color.a); \n' +
             '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -10252,6 +8965,7 @@ exports.Object3dShaders = Object3dShaders;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Object3dShadowShaders = void 0;
 const cuon_utils_1 = __webpack_require__(/*! ../webgl/cuon-utils */ "./src/webgl/cuon-utils.ts");
 class Object3dShadowShaders {
     constructor(gl) {
@@ -10290,7 +9004,7 @@ class Object3dShadowShaders {
             '   gl_FragColor = vec4(rgb, color.a); \n' +
             '   gl_FragColor = vec4(0.1, 0.1, 0.1, 1); \n' +
             '}\n';
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -10305,19 +9019,157 @@ exports.Object3dShadowShaders = Object3dShadowShaders;
 
 /***/ }),
 
-/***/ "./src/views/TorsionZerosView.ts":
-/*!***************************************!*\
-  !*** ./src/views/TorsionZerosView.ts ***!
-  \***************************************/
+/***/ "./src/views/RationalCurveScene2dView.ts":
+/*!***********************************************!*\
+  !*** ./src/views/RationalCurveScene2dView.ts ***!
+  \***********************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RationalCurveScene2dView = void 0;
+const ControlPointsShaders_1 = __webpack_require__(/*! ./ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
+const ControlPoints2dView_1 = __webpack_require__(/*! ./ControlPoints2dView */ "./src/views/ControlPoints2dView.ts");
+const ControlPolygon2dShaders_1 = __webpack_require__(/*! ./ControlPolygon2dShaders */ "./src/views/ControlPolygon2dShaders.ts");
+const ControlPolygon2dView_1 = __webpack_require__(/*! ./ControlPolygon2dView */ "./src/views/ControlPolygon2dView.ts");
+const Curve2dShaders_1 = __webpack_require__(/*! ./Curve2dShaders */ "./src/views/Curve2dShaders.ts");
+const Curve2dView_1 = __webpack_require__(/*! ./Curve2dView */ "./src/views/Curve2dView.ts");
+const CurvatureExtremaShaders_1 = __webpack_require__(/*! ./CurvatureExtremaShaders */ "./src/views/CurvatureExtremaShaders.ts");
+const CurvatureExtrema2dView_1 = __webpack_require__(/*! ./CurvatureExtrema2dView */ "./src/views/CurvatureExtrema2dView.ts");
+const Inflections2dView_1 = __webpack_require__(/*! ./Inflections2dView */ "./src/views/Inflections2dView.ts");
+const RationalCurveModel2d_1 = __webpack_require__(/*! ../models/RationalCurveModel2d */ "./src/models/RationalCurveModel2d.ts");
+const RationalCurveScene2dController_1 = __webpack_require__(/*! ../controllers/RationalCurveScene2dController */ "./src/controllers/RationalCurveScene2dController.ts");
+class RationalCurveScene2dView {
+    constructor(canvas, gl, curveModel) {
+        this.canvas = canvas;
+        this.gl = gl;
+        this.curveModel = curveModel;
+        this.selectedControlPoint = null;
+        this.dragging = false;
+        this.curveShaders = new Curve2dShaders_1.Curve2dShaders(this.gl);
+        this.curveView = new Curve2dView_1.Curve2dView(this.curveModel.getSplineAdapter(), this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+        this.controlPointsShaders = new ControlPointsShaders_1.ControlPointsShaders(this.gl);
+        this.controlPointsView = new ControlPoints2dView_1.ControlPoints2dView(this.curveModel.getSplineAdapter(), this.controlPointsShaders, 1, 1, 1);
+        this.controlPolygonShaders = new ControlPolygon2dShaders_1.ControlPolygon2dShaders(this.gl);
+        this.controlPolygonView = new ControlPolygon2dView_1.ControlPolygon2dView(this.curveModel.getSplineAdapter(), this.controlPolygonShaders, this.curveModel.isClosed, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0, 0.05);
+        this.curvatureExtremaShaders = new CurvatureExtremaShaders_1.CurvatureExtremaShaders(this.gl);
+        this.curvatureExtremaView = new CurvatureExtrema2dView_1.CurvatureExtrema2dView(this.curveModel.getSplineAdapter(), this.curvatureExtremaShaders, 216 / 255, 91 / 255, 95 / 255, 1);
+        this.inflectionsView = new Inflections2dView_1.Inflections2dView(this.curveModel.getSplineAdapter(), this.curvatureExtremaShaders, 216 / 255, 120 / 255, 120 / 255, 1);
+        this.curveModel.registerObserver(this.controlPointsView);
+        this.curveModel.registerObserver(this.controlPolygonView);
+        this.curveModel.registerObserver(this.curveView);
+        this.curveModel.registerObserver(this.curvatureExtremaView);
+        this.curveModel.registerObserver(this.inflectionsView);
+        this.curveSceneControler = new RationalCurveScene2dController_1.RationalCurveScene2dController(curveModel);
+        this.renderFrame();
+    }
+    renderFrame() {
+        this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+        this.gl.clearColor(0.27, 0.27, 0.27, 1);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+        this.curveView.renderFrame();
+        this.curvatureExtremaView.renderFrame();
+        this.inflectionsView.renderFrame();
+        this.controlPolygonView.renderFrame();
+        this.controlPointsView.renderFrame();
+    }
+    leftMouseDown_event(ndcX, ndcY, deltaSquared = 0.01) {
+        this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
+        this.controlPointsView.setSelected(this.selectedControlPoint);
+        if (this.selectedControlPoint !== null) {
+            this.dragging = true;
+        }
+    }
+    leftMouseDragged_event(ndcX, ndcY) {
+        let x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
+        if (selectedControlPoint != null && this.dragging === true) {
+            this.curveSceneControler.setControlPointPosition(selectedControlPoint, x, y);
+        }
+    }
+    leftMouseUp_event() {
+        this.dragging = false;
+    }
+    upArrow_event() {
+        if (this.selectedControlPoint !== null) {
+            this.curveModel.increaseControlPointWeight(this.selectedControlPoint);
+        }
+    }
+    downArrow_event() {
+        if (this.selectedControlPoint !== null) {
+            this.curveModel.decreaseControlPointWeight(this.selectedControlPoint);
+        }
+    }
+    addControlPoint() {
+        const cp = this.selectedControlPoint;
+        this.selectedControlPoint = null;
+        this.controlPointsView.setSelected(this.selectedControlPoint);
+        this.curveModel.addControlPoint(cp);
+        this.renderFrame();
+    }
+    toggleControlOfCurvatureExtrema() {
+        this.curveModel.toggleActiveControlOfCurvatureExtrema();
+    }
+    toggleControlOfInflections() {
+        this.curveModel.toggleActiveControlOfInflections();
+    }
+    selectCurveCategory(s) {
+        switch (s) {
+            case "0":
+                this.updateCurveModel(new RationalCurveModel2d_1.RationalCurveModel2d());
+                //this.updateCurveModel(new CurveModelQuasiNewton())
+                break;
+            /*
+        case "1":
+            //this.updateCurveModel(new ClosedCurveModelQuasiNewton())
+            this.updateCurveModel(new ClosedCurveModel())
+            break
+        case "2":
+            this.updateCurveModel(new CurveModelAlternative01())
+            break
+        case "3":
+            this.updateCurveModel(new ClosedCurveModelAlternative01())
+            break
+            */
+        }
+        //let toggleButtonCurvatureExtrema = <HTMLInputElement> document.getElementById("toggleButtonCurvatureExtrema")
+        //let toggleButtonInflection = <HTMLInputElement> document.getElementById("toggleButtonInflections")
+        //toggleButtonCurvatureExtrema.checked = true
+        //toggleButtonInflection.checked = true
+    }
+    updateCurveModel(curveModel) {
+        this.curveModel = curveModel;
+        this.curveModel.registerObserver(this.controlPointsView);
+        this.curveModel.registerObserver(this.controlPolygonView);
+        this.curveModel.registerObserver(this.curveView);
+        this.curveModel.registerObserver(this.curvatureExtremaView);
+        this.curveModel.registerObserver(this.inflectionsView);
+        this.curveSceneControler = new RationalCurveScene2dController_1.RationalCurveScene2dController(curveModel);
+        this.controlPolygonView.isClosed = this.curveModel.isClosed;
+        this.curveModel.notifyObservers();
+        this.renderFrame();
+    }
+}
+exports.RationalCurveScene2dView = RationalCurveScene2dView;
+
+
+/***/ }),
+
+/***/ "./src/views/TorsionZeros3dView.ts":
+/*!*****************************************!*\
+  !*** ./src/views/TorsionZeros3dView.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TorsionZeros3dView = void 0;
 const ArrayConversion_1 = __webpack_require__(/*! ./ArrayConversion */ "./src/views/ArrayConversion.ts");
-const AbstractObject3dView_1 = __webpack_require__(/*! ./AbstractObject3dView */ "./src/views/AbstractObject3dView.ts");
-const BSplineR1toR3DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/BSplineR1toR3DifferentialProperties */ "./src/bsplines/BSplineR1toR3DifferentialProperties.ts");
+const BaseObject3dView_1 = __webpack_require__(/*! ./BaseObject3dView */ "./src/views/BaseObject3dView.ts");
+const BSplineR1toR3DifferentialProperties_1 = __webpack_require__(/*! ../bsplines/R1toR3/BSplineR1toR3DifferentialProperties */ "./src/bsplines/R1toR3/BSplineR1toR3DifferentialProperties.ts");
 const ControlPoints3dView_1 = __webpack_require__(/*! ./ControlPoints3dView */ "./src/views/ControlPoints3dView.ts");
-class TorsionZerosView extends AbstractObject3dView_1.AbstractObject3dView {
+class TorsionZeros3dView extends BaseObject3dView_1.BaseObject3dView {
     constructor(spline, object3dShaders, lightDirection) {
         super(object3dShaders, lightDirection);
         this.spline = spline;
@@ -10338,14 +9190,14 @@ class TorsionZerosView extends AbstractObject3dView_1.AbstractObject3dView {
         let indices = [];
         let startingIndex = 0;
         for (let zero of this.zeros) {
-            let v = ControlPoints3dView_1.verticesForOneSphere(zero, radius, sectorCount, stackCount, { red: 1, green: 0.75, blue: 0.75 });
-            let ind = ControlPoints3dView_1.indicesForOneSphere(startingIndex, sectorCount, stackCount);
+            let v = (0, ControlPoints3dView_1.verticesForOneSphere)(zero, radius, sectorCount, stackCount, { red: 1, green: 0.75, blue: 0.75 });
+            let ind = (0, ControlPoints3dView_1.indicesForOneSphere)(startingIndex, sectorCount, stackCount);
             vertices = [...vertices, ...v];
             indices = [...indices, ...ind];
             startingIndex += v.length / 9;
         }
-        this.vertices = ArrayConversion_1.toFloat32Array(vertices);
-        this.indices = ArrayConversion_1.toUint16Array(indices);
+        this.vertices = (0, ArrayConversion_1.toFloat32Array)(vertices);
+        this.indices = (0, ArrayConversion_1.toUint16Array)(indices);
     }
     updateVerticesIndicesAndBuffers() {
         this.updateVerticesAndIndices();
@@ -10359,7 +9211,146 @@ class TorsionZerosView extends AbstractObject3dView_1.AbstractObject3dView {
         this.updateBuffers();
     }
 }
-exports.TorsionZerosView = TorsionZerosView;
+exports.TorsionZeros3dView = TorsionZeros3dView;
+
+
+/***/ }),
+
+/***/ "./src/views/Wire2dEventListenerRationalCurve.ts":
+/*!*******************************************************!*\
+  !*** ./src/views/Wire2dEventListenerRationalCurve.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Wire2dEventListenerRationalCurve = void 0;
+function Wire2dEventListenerRationalCurve(canvas, curveSceneView) {
+    var _a;
+    hideContextMenu();
+    function mouse_get_NormalizedDeviceCoordinates(event) {
+        const rect = canvas.getBoundingClientRect();
+        const w = parseInt(canvas.style.width, 10);
+        const h = parseInt(canvas.style.height, 10);
+        const x = ((event.clientX - rect.left) - w / 2) / (w / 2);
+        const y = (h / 2 - (event.clientY - rect.top)) / (h / 2);
+        return [x, y];
+    }
+    function touch_get_NormalizedDeviceCoordinates(event) {
+        var x, y, rect = canvas.getBoundingClientRect(), ev;
+        ev = event.touches[0];
+        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2);
+        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2);
+        return [x, y];
+    }
+    function mouse_click(ev) {
+        hideContextMenu();
+        let c = mouse_get_NormalizedDeviceCoordinates(ev);
+        const mousePrecision = 0.0005;
+        curveSceneView.leftMouseDown_event(c[0], c[1], mousePrecision);
+        curveSceneView.renderFrame();
+        ev.preventDefault();
+    }
+    function mouse_drag(ev) {
+        var c = mouse_get_NormalizedDeviceCoordinates(ev);
+        curveSceneView.leftMouseDragged_event(c[0], c[1]);
+        curveSceneView.renderFrame();
+        ev.preventDefault();
+    }
+    function mouse_stop_drag(ev) {
+        curveSceneView.leftMouseUp_event();
+        ev.preventDefault();
+    }
+    function touch_click(ev) {
+        let c = touch_get_NormalizedDeviceCoordinates(ev);
+        curveSceneView.leftMouseDown_event(c[0], c[1]);
+        curveSceneView.renderFrame();
+        ev.preventDefault();
+    }
+    function touch_drag(ev) {
+        var c = touch_get_NormalizedDeviceCoordinates(ev);
+        curveSceneView.leftMouseDragged_event(c[0], c[1]);
+        curveSceneView.renderFrame();
+        ev.preventDefault();
+    }
+    function touch_stop_drag(ev) {
+        curveSceneView.leftMouseUp_event();
+        ev.preventDefault();
+    }
+    function keyDown(ev) {
+        switch (ev.key) {
+            case "ArrowUp":
+                curveSceneView.upArrow_event();
+                curveSceneView.renderFrame();
+                ev.preventDefault();
+                break;
+            case "ArrowDown":
+                curveSceneView.downArrow_event();
+                curveSceneView.renderFrame();
+                ev.preventDefault();
+                break;
+        }
+    }
+    canvas.addEventListener('mousedown', mouse_click, false);
+    canvas.addEventListener('mousemove', mouse_drag, false);
+    canvas.addEventListener('mouseup', mouse_stop_drag, false);
+    canvas.addEventListener('touchstart', touch_click, false);
+    canvas.addEventListener('touchmove', touch_drag, false);
+    canvas.addEventListener('touchend', touch_stop_drag, false);
+    window.addEventListener('keydown', keyDown, false);
+    // Prevent scrolling when touching the canvas
+    document.body.addEventListener("touchstart", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    document.body.addEventListener("touchend", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    document.body.addEventListener("touchmove", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault();
+        }
+    }, false);
+    function hideContextMenu() {
+        const cm = document.getElementById("contextMenu");
+        if (cm) {
+            cm.style.display = "none";
+        }
+    }
+    function rightClick(e) {
+        e.preventDefault();
+        const cm = document.getElementById("contextMenu");
+        if (cm) {
+            //cm.style.display = "block"
+            cm.style.left = e.pageX + "px";
+            cm.style.top = e.pageY + "px";
+            cm.style.display = "block";
+        }
+    }
+    function addControlPoint() {
+        hideContextMenu();
+        curveSceneView.addControlPoint();
+    }
+    (_a = document.getElementById("addControlPoint")) === null || _a === void 0 ? void 0 : _a.addEventListener('click', addControlPoint);
+    canvas.addEventListener('contextmenu', rightClick, false);
+    function toggleControlOfCurvatureExtrema() {
+        curveSceneView.toggleControlOfCurvatureExtrema();
+    }
+    function toggleControlOfInflections() {
+        curveSceneView.toggleControlOfInflections();
+    }
+    function selectCurveCategory(event) {
+        curveSceneView.selectCurveCategory(event.detail.category);
+    }
+    let app = document.getElementsByTagName("app-curves-and-surfaces")[0];
+    app.addEventListener("changeCurveCategory", selectCurveCategory);
+    app.addEventListener("toogleControlOverCurvatureExtrema", toggleControlOfCurvatureExtrema);
+    app.addEventListener("toogleControlOverInflections", toggleControlOfInflections);
+}
+exports.Wire2dEventListenerRationalCurve = Wire2dEventListenerRationalCurve;
 
 
 /***/ }),
@@ -10373,6 +9364,7 @@ exports.TorsionZerosView = TorsionZerosView;
 
 //import { CurveSceneView } from "./CurveSceneView"
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.wire3dEventListener = void 0;
 function wire3dEventListener(canvas, curveScene3dView) {
     /*
     hideContextMenu()
@@ -10554,144 +9546,6 @@ exports.wire3dEventListener = wire3dEventListener;
 
 /***/ }),
 
-/***/ "./src/views/WireEventListener.ts":
-/*!****************************************!*\
-  !*** ./src/views/WireEventListener.ts ***!
-  \****************************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function wireEventListener(canvas, curveSceneView) {
-    var _a;
-    hideContextMenu();
-    function mouse_get_NormalizedDeviceCoordinates(event) {
-        const rect = canvas.getBoundingClientRect();
-        const w = parseInt(canvas.style.width, 10);
-        const h = parseInt(canvas.style.height, 10);
-        const x = ((event.clientX - rect.left) - w / 2) / (w / 2);
-        const y = (h / 2 - (event.clientY - rect.top)) / (h / 2);
-        return [x, y];
-    }
-    function touch_get_NormalizedDeviceCoordinates(event) {
-        var x, y, rect = canvas.getBoundingClientRect(), ev;
-        ev = event.touches[0];
-        x = ((ev.clientX - rect.left) - canvas.width / 2) / (canvas.width / 2);
-        y = (canvas.height / 2 - (ev.clientY - rect.top)) / (canvas.height / 2);
-        return [x, y];
-    }
-    function mouse_click(ev) {
-        hideContextMenu();
-        let c = mouse_get_NormalizedDeviceCoordinates(ev);
-        const mousePrecision = 0.0005;
-        curveSceneView.leftMouseDown_event(c[0], c[1], mousePrecision);
-        curveSceneView.renderFrame();
-        ev.preventDefault();
-    }
-    function mouse_drag(ev) {
-        var c = mouse_get_NormalizedDeviceCoordinates(ev);
-        curveSceneView.leftMouseDragged_event(c[0], c[1]);
-        curveSceneView.renderFrame();
-        ev.preventDefault();
-    }
-    function mouse_stop_drag(ev) {
-        curveSceneView.leftMouseUp_event();
-        ev.preventDefault();
-    }
-    function touch_click(ev) {
-        let c = touch_get_NormalizedDeviceCoordinates(ev);
-        curveSceneView.leftMouseDown_event(c[0], c[1]);
-        curveSceneView.renderFrame();
-        ev.preventDefault();
-    }
-    function touch_drag(ev) {
-        var c = touch_get_NormalizedDeviceCoordinates(ev);
-        curveSceneView.leftMouseDragged_event(c[0], c[1]);
-        curveSceneView.renderFrame();
-        ev.preventDefault();
-    }
-    function touch_stop_drag(ev) {
-        curveSceneView.leftMouseUp_event();
-        ev.preventDefault();
-    }
-    function keyDown(ev) {
-        switch (ev.key) {
-            case "ArrowUp":
-                curveSceneView.upArrow_event();
-                curveSceneView.renderFrame();
-                ev.preventDefault();
-                break;
-            case "ArrowDown":
-                curveSceneView.downArrow_event();
-                curveSceneView.renderFrame();
-                ev.preventDefault();
-                break;
-        }
-    }
-    canvas.addEventListener('mousedown', mouse_click, false);
-    canvas.addEventListener('mousemove', mouse_drag, false);
-    canvas.addEventListener('mouseup', mouse_stop_drag, false);
-    canvas.addEventListener('touchstart', touch_click, false);
-    canvas.addEventListener('touchmove', touch_drag, false);
-    canvas.addEventListener('touchend', touch_stop_drag, false);
-    window.addEventListener('keydown', keyDown, false);
-    // Prevent scrolling when touching the canvas
-    document.body.addEventListener("touchstart", function (e) {
-        if (e.target === canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchend", function (e) {
-        if (e.target === canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    document.body.addEventListener("touchmove", function (e) {
-        if (e.target === canvas) {
-            e.preventDefault();
-        }
-    }, false);
-    function hideContextMenu() {
-        const cm = document.getElementById("contextMenu");
-        if (cm) {
-            cm.style.display = "none";
-        }
-    }
-    function rightClick(e) {
-        e.preventDefault();
-        const cm = document.getElementById("contextMenu");
-        if (cm) {
-            //cm.style.display = "block"
-            cm.style.left = e.pageX + "px";
-            cm.style.top = e.pageY + "px";
-            cm.style.display = "block";
-        }
-    }
-    function addControlPoint() {
-        hideContextMenu();
-        curveSceneView.addControlPoint();
-    }
-    (_a = document.getElementById("addControlPoint")) === null || _a === void 0 ? void 0 : _a.addEventListener('click', addControlPoint);
-    canvas.addEventListener('contextmenu', rightClick, false);
-    function toggleControlOfCurvatureExtrema() {
-        curveSceneView.toggleControlOfCurvatureExtrema();
-    }
-    function toggleControlOfInflections() {
-        curveSceneView.toggleControlOfInflections();
-    }
-    function selectCurveCategory(event) {
-        curveSceneView.selectCurveCategory(event.detail.category);
-    }
-    let app = document.getElementsByTagName("app-curves-and-surfaces")[0];
-    app.addEventListener("changeCurveCategory", selectCurveCategory);
-    app.addEventListener("toogleControlOverCurvatureExtrema", toggleControlOfCurvatureExtrema);
-    app.addEventListener("toogleControlOverInflections", toggleControlOfInflections);
-}
-exports.wireEventListener = wireEventListener;
-
-
-/***/ }),
-
 /***/ "./src/webComponents/AppCurve3d.ts":
 /*!*****************************************!*\
   !*** ./src/webComponents/AppCurve3d.ts ***!
@@ -10700,6 +9554,7 @@ exports.wireEventListener = wireEventListener;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppCurves3d = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <rounded-switch-torsion-zeros></rounded-switch-torsion-zeros>
@@ -10732,6 +9587,7 @@ exports.AppCurves3d = AppCurves3d;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppCurvesAndSurfaces = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <rounded-switch-inflections></rounded-switch-inflections>
@@ -10766,6 +9622,7 @@ exports.AppCurvesAndSurfaces = AppCurvesAndSurfaces;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CopyrightYears = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -10801,6 +9658,7 @@ exports.CopyrightYears = CopyrightYears;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CurveCategory = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -10863,6 +9721,7 @@ exports.CurveCategory = CurveCategory;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoundedSwitchCurvatureExtrema = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -10985,6 +9844,7 @@ exports.RoundedSwitchCurvatureExtrema = RoundedSwitchCurvatureExtrema;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoundedSwitchCurvatureExtrema3d = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -11107,6 +9967,7 @@ exports.RoundedSwitchCurvatureExtrema3d = RoundedSwitchCurvatureExtrema3d;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoundedSwitchInflections = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -11230,6 +10091,7 @@ exports.RoundedSwitchInflections = RoundedSwitchInflections;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.RoundedSwitchTorsionZeros = void 0;
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -11355,6 +10217,7 @@ exports.RoundedSwitchTorsionZeros = RoundedSwitchTorsionZeros;
 // Reference: cuon-utils.js
 // cuon-utils.js (c) 2012 kanda and matsuda
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createProgram = void 0;
 /**
  * Create the linked program object
  * @param gl GL context
@@ -11434,6 +10297,7 @@ function loadShader(gl, type, source) {
 
 //http://glmatrix.net/docs/mat4.js.html
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.mat4_to_mat3 = void 0;
 /**
  * Copies the upper-left 3x3 values into a mat3.
  *
@@ -11467,6 +10331,7 @@ exports.mat4_to_mat3 = mat4_to_mat3;
 
 //http://glmatrix.net/docs/mat4.js.html
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.mat4_times_vec2 = exports.ortho = exports.translate = exports.multiply = exports.perspective = exports.lookAt = exports.fromQuat = exports.identity_mat4 = void 0;
 function identity_mat4() {
     let result = new Float32Array(16);
     result[0] = 1;
@@ -11770,6 +10635,7 @@ exports.mat4_times_vec2 = mat4_times_vec2;
 
 //http://glmatrix.net/docs/quat.js.html
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.fromEuler = exports.multiply_quats = exports.setAxisAngle = exports.identity_quat = void 0;
 function identity_quat() {
     let result = new Float32Array(4);
     result[3] = 1;
@@ -11881,6 +10747,7 @@ exports.fromEuler = fromEuler;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WebGLUtils = void 0;
 /**
  * @fileoverview This file contains functions every webgl program will need
  * a version of one way or another.
@@ -12079,44 +10946,45 @@ var exports = __webpack_exports__;
   \*********************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.main = void 0;
 const webgl_utils_1 = __webpack_require__(/*! ./webgl/webgl-utils */ "./src/webgl/webgl-utils.ts");
-const CurveSceneView_1 = __webpack_require__(/*! ./views/CurveSceneView */ "./src/views/CurveSceneView.ts");
-const CurveModel_1 = __webpack_require__(/*! ./models/CurveModel */ "./src/models/CurveModel.ts");
-const WireEventListener_1 = __webpack_require__(/*! ./views/WireEventListener */ "./src/views/WireEventListener.ts");
+const Curve2dModel_1 = __webpack_require__(/*! ./models/Curve2dModel */ "./src/models/Curve2dModel.ts");
 const AppCurvesAndSurfaces_1 = __webpack_require__(/*! ./webComponents/AppCurvesAndSurfaces */ "./src/webComponents/AppCurvesAndSurfaces.ts");
 const CurveScene3dView_1 = __webpack_require__(/*! ./views/CurveScene3dView */ "./src/views/CurveScene3dView.ts");
 const Wire3dEventListener_1 = __webpack_require__(/*! ./views/Wire3dEventListener */ "./src/views/Wire3dEventListener.ts");
 const CopyrightYears_1 = __webpack_require__(/*! ./webComponents/CopyrightYears */ "./src/webComponents/CopyrightYears.ts");
 const CurveModel3d_1 = __webpack_require__(/*! ./models/CurveModel3d */ "./src/models/CurveModel3d.ts");
-const NurbsModel2d_1 = __webpack_require__(/*! ./models/NurbsModel2d */ "./src/models/NurbsModel2d.ts");
+const RationalCurveModel2d_1 = __webpack_require__(/*! ./models/RationalCurveModel2d */ "./src/models/RationalCurveModel2d.ts");
+const RationalCurveScene2dView_1 = __webpack_require__(/*! ./views/RationalCurveScene2dView */ "./src/views/RationalCurveScene2dView.ts");
+const Wire2dEventListenerRationalCurve_1 = __webpack_require__(/*! ./views/Wire2dEventListenerRationalCurve */ "./src/views/Wire2dEventListenerRationalCurve.ts");
 const AppCurve3d_1 = __webpack_require__(/*! ./webComponents/AppCurve3d */ "./src/webComponents/AppCurve3d.ts");
 function main() {
     let canvas2d = document.getElementById("webgl");
     let canvas3d = document.getElementById("webgl2");
-    let gl = webgl_utils_1.WebGLUtils().setupWebGL(canvas2d);
+    let gl = (0, webgl_utils_1.WebGLUtils)().setupWebGL(canvas2d);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
-    let gl2 = webgl_utils_1.WebGLUtils().setupWebGL(canvas3d);
+    let gl2 = (0, webgl_utils_1.WebGLUtils)().setupWebGL(canvas3d);
     if (!gl2) {
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
     gl2.enable(gl.DEPTH_TEST);
-    let curveModel = new CurveModel_1.CurveModel();
-    let nurbsModel2d = new NurbsModel2d_1.NurbsModel2d;
-    let curveSceneView = new CurveSceneView_1.CurveSceneView(canvas2d, gl, curveModel);
-    //let curveSceneView = new NurbsSceneView(canvas2d, gl, nurbsModel2d)
+    let curveModel = new Curve2dModel_1.Curve2dModel();
+    let nurbsModel2d = new RationalCurveModel2d_1.RationalCurveModel2d;
+    //let curveSceneView = new CurveSceneView(canvas2d, gl, curveModel)
+    let curveSceneView = new RationalCurveScene2dView_1.RationalCurveScene2dView(canvas2d, gl, nurbsModel2d);
     let curveModel3d = new CurveModel3d_1.CurveModel3d();
     let curve3dSceneView = new CurveScene3dView_1.CurveScene3dView(canvas3d, gl2, curveModel3d);
     curve3dSceneView.renderFrame();
     window.customElements.define('app-curves-and-surfaces', AppCurvesAndSurfaces_1.AppCurvesAndSurfaces);
     window.customElements.define('app-curve-3d', AppCurve3d_1.AppCurves3d);
     window.customElements.define('copy-right-years', CopyrightYears_1.CopyrightYears);
-    WireEventListener_1.wireEventListener(canvas2d, curveSceneView);
-    //nurbsWireEventListener(canvas2d, curveSceneView)
-    Wire3dEventListener_1.wire3dEventListener(canvas3d, curve3dSceneView);
+    //wireEventListener(canvas2d, curveSceneView)
+    (0, Wire2dEventListenerRationalCurve_1.Wire2dEventListenerRationalCurve)(canvas2d, curveSceneView);
+    (0, Wire3dEventListener_1.wire3dEventListener)(canvas3d, curve3dSceneView);
 }
 exports.main = main;
 main();
