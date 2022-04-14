@@ -1,8 +1,8 @@
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix";
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
-import { OptimizationProblemInterface } from "./OptimizationProblemInterface";
+import { IOptimizationProblem } from "./IOptimizationProblem";
 
-export class OptimizationProblemForTests implements OptimizationProblemInterface {
+export class OptimizationProblemForTests implements IOptimizationProblem {
 
 
 
@@ -101,7 +101,7 @@ export class OptimizationProblemForTests implements OptimizationProblemInterface
 
 }
 
-export class ConvexOptimizationProblemForTests implements OptimizationProblemInterface {
+export class ConvexOptimizationProblemForTests implements IOptimizationProblem {
 
 
     constructor(private _x: number, private _y: number, private a: number, private b: number) {
@@ -194,7 +194,7 @@ export class ConvexOptimizationProblemForTests implements OptimizationProblemInt
 
 }
 
-export class ConvexOptimizationProblemForTestsNoConstraintsHessians implements OptimizationProblemInterface {
+export class ConvexOptimizationProblemForTestsNoConstraintsHessians implements IOptimizationProblem {
 
 
     constructor(private _x: number, private _y: number, private a: number, private b: number) {

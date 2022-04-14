@@ -1,10 +1,10 @@
-import { VectorInterface } from "./VectorInterface"
+//import { VectorInterface } from "./VectorInterface"
 
 /**
  * A two dimensional vector
  */
 
-export class Vector2d implements VectorInterface {
+export class Vector2d {
 
     constructor(public x = 0, public y = 0) {
     }
@@ -21,7 +21,7 @@ export class Vector2d implements VectorInterface {
         return new Vector2d(this.x*value, this.y*value)
     }
 
-    substract(v: Vector2d) {
+    subtract(v: Vector2d) {
         return new Vector2d(this.x - v.x, this.y - v.y)
     }
 

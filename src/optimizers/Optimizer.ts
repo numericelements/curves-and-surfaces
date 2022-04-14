@@ -1,7 +1,7 @@
 
 import { TrustRegionSubproblem } from "./TrustRegionSubproblem"
 import { dotProduct, multiplyVectorByScalar, addTwoVectors, saxpy2, zeroVector} from "../linearAlgebra/MathVectorBasicOperations"
-import { OptimizationProblemInterface } from "./OptimizationProblemInterface" 
+import { IOptimizationProblem } from "./IOptimizationProblem" 
 import { SymmetricMatrixInterface, MatrixInterface } from "../linearAlgebra/MatrixInterfaces" 
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix" 
 import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
@@ -11,7 +11,7 @@ export class Optimizer {
 
     public success = false
 
-    constructor(protected o: OptimizationProblemInterface ) {
+    constructor(protected o: IOptimizationProblem ) {
         if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor")
             console.log(this.o.f)

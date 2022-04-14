@@ -1,11 +1,11 @@
 
-import { VectorInterface } from "./VectorInterface"
+//import { VectorInterface } from "./VectorInterface"
 
 /**
  * A three dimensional vector
  */
 
- export class Vector3d implements VectorInterface {
+ export class Vector3d  {
  
      constructor(public x = 0, public y = 0, public z = 0) {
      }

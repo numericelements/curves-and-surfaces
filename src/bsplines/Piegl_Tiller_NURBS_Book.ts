@@ -1,4 +1,4 @@
-import { BSplineR1toR1 } from "./BSplineR1toR1";
+import { BSplineR1toR1 } from "./R1toR1/BSplineR1toR1";
 
 /**
  * Returns the span index
@@ -7,7 +7,7 @@ import { BSplineR1toR1 } from "./BSplineR1toR1";
  * @param degree degree 
  * @returns span index i for which knots[i] ≤ u < knots[i+1] 
  */
-export function findSpan(u: number, knots: Array<number>, degree: number) {
+export function findSpan(u: number, knots: readonly number[], degree: number) {
     // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
     if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
         console.log("u: " + u)
@@ -43,7 +43,7 @@ export function findSpan(u: number, knots: Array<number>, degree: number) {
  * @param degree degree 
  * @returns span index i for which knots[i] ≤ u < knots[i+1] 
  */
-export function clampingFindSpan(u: number, knots: Array<number>, degree: number) {
+export function clampingFindSpan(u: number, knots: readonly number[], degree: number) {
     // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
     if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
         throw new Error("Error: parameter u is outside valid span")
@@ -76,11 +76,11 @@ export function clampingFindSpan(u: number, knots: Array<number>, degree: number
  * @param degree degree 
  * @returns the array of values evaluated at u
  */
-export function basisFunctions(span: number, u: number, knots: number[], degree: number) {
+export function basisFunctions(span: number, u: number, knots: readonly number[], degree: number) {
     // Bibliographic reference : The NURBS BOOK, p.70
-    let result: Array<number> = [1]
-    let left: Array<number> = []
-    let right: Array<number> = []
+    let result: number[] = [1]
+    let left: number[] = []
+    let right: number[] = []
     for (let j = 1; j <= degree; j += 1) {
         left[j] = u - knots[span + 1 - j];
         right[j] = knots[span + j] - u;

@@ -1,13 +1,13 @@
 import { IObserver } from "../designPatterns/Observer";
 import { toFloat32Array, toUint16Array } from "./ArrayConversion";
-import { BSplineR1toR3 } from "../bsplines/BSplineR1toR3";
+import { BSplineR1toR3 } from "../bsplines/R1toR3/BSplineR1toR3";
 import { Vector3d } from "../mathVector/Vector3d";
 import { Object3dShadowShaders } from "./Object3dShadowShaders";
-import { AbstractObject3dShadowView } from "./AbstractObject3dShadowView";
+import { BaseObject3dShadowView } from "./BaseObject3dShadowView";
 import { computeApproximatedTangentsFromPointsSequence, computeRandomUpVector, computeUpVectorSequence, indicesForOneCylinder, orientedEllipse } from "./Curve3dView";
 
 
-export class Curve3dShadowView extends AbstractObject3dShadowView implements IObserver<BSplineR1toR3> {
+export class Curve3dShadowView extends BaseObject3dShadowView implements IObserver<BSplineR1toR3> {
 
 
     constructor(private spline: BSplineR1toR3, object3dShadowShaders: Object3dShadowShaders, lightDirection: number[], private closed: boolean) {

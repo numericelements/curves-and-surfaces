@@ -1,13 +1,13 @@
 import { IObserver } from "../designPatterns/Observer";
 import { toFloat32Array, toUint16Array } from "./ArrayConversion";
-import { BSplineR1toR3 } from "../bsplines/BSplineR1toR3";
+import { BSplineR1toR3 } from "../bsplines/R1toR3/BSplineR1toR3";
 import { Vector3d } from "../mathVector/Vector3d";
 import { Object3dShaders } from "./Object3dShaders";
-import { AbstractObject3dView } from "./AbstractObject3dView";
-import { BSplineR1toR3DifferentialProperties } from "../bsplines/BSplineR1toR3DifferentialProperties";
+import { BaseObject3dView } from "./BaseObject3dView";
+import { BSplineR1toR3DifferentialProperties } from "../bsplines/R1toR3/BSplineR1toR3DifferentialProperties";
 import { indicesForOneSphere, verticesForOneSphere } from "./ControlPoints3dView";
 
-export class CurvatureExtrema3dView extends AbstractObject3dView  implements IObserver<BSplineR1toR3> {
+export class CurvatureExtrema3dView extends BaseObject3dView  implements IObserver<BSplineR1toR3> {
 
 
     private zeros: Vector3d[]

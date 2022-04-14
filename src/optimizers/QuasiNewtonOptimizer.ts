@@ -1,7 +1,7 @@
 
 import { TrustRegionSubproblem } from "./TrustRegionSubproblem"
 import { dotProduct, multiplyVectorByScalar, addTwoVectors, saxpy2, zeroVector, norm} from "../linearAlgebra/MathVectorBasicOperations"
-import { OptimizationProblemInterface } from "./OptimizationProblemInterface" 
+import { IOptimizationProblem } from "./IOptimizationProblem" 
 import { SymmetricMatrixInterface, MatrixInterface } from "../linearAlgebra/MatrixInterfaces" 
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix" 
 import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
@@ -13,7 +13,7 @@ export class QuasiNewtonOptimizer extends Optimizer {
     private barrierHessianApproximation: SymmetricMatrix[] = []
     private previousGradient_f: MatrixInterface
 
-    constructor(o: OptimizationProblemInterface ) {
+    constructor(o: IOptimizationProblem ) {
         super(o)
         const numberOfConstraints = this.o.f.length
         if (this.o.f.length !== this.o.gradient_f.shape[0] ) {

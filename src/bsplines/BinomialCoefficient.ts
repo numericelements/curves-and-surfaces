@@ -1,7 +1,6 @@
 
 
 export function binomialCoefficient(n: number, k: number) {
-
     let result = 1
     if (n < k || k < 0) {
         return 0;
@@ -10,7 +9,6 @@ export function binomialCoefficient(n: number, k: number) {
     if (k > n - k) {
         k = n - k;
     }
-
     for (let x = n - k + 1; x <= n; x += 1) {result *= x; }
     for (let x = 1; x <= k; x += 1) {result /= x; }
     return result;

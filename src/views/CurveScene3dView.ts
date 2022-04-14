@@ -9,7 +9,7 @@ import { Curve3dView } from "./Curve3dView";
 import { Curve3dShadowView } from "./Curve3dShadowView";
 import { Object3dShadowShaders } from "./Object3dShadowShaders";
 import { CurveScene3dController } from "../controllers/CurveScene3dController";
-import { TorsionZerosView } from "./TorsionZerosView";
+import { TorsionZeros3dView } from "./TorsionZeros3dView";
 import { CurvatureExtrema3dView } from "./CurvatureExtrema3dView";
 
 enum STATE {NONE, ROTATE}
@@ -33,7 +33,7 @@ export class CurveScene3dView {
     private curve3dView: Curve3dView
     private curve3dShadowView: Curve3dShadowView
 
-    private torsionZerosView: TorsionZerosView
+    private torsionZerosView: TorsionZeros3dView
     private curvatureExtrema3dView: CurvatureExtrema3dView
 
     private curveScene3dControler: CurveScene3dController
@@ -49,7 +49,7 @@ export class CurveScene3dView {
         this.controlPolygon3dShadowView = new ControlPolygon3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false)
         this.curve3dView = new Curve3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection, false)
         this.curve3dShadowView = new Curve3dShadowView(curve3dModel.spline, this.object3dShadowShaders, this.lightDirection, false)
-        this.torsionZerosView = new TorsionZerosView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
+        this.torsionZerosView = new TorsionZeros3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
         this.curvatureExtrema3dView = new CurvatureExtrema3dView(curve3dModel.spline, this.object3dShaders, this.lightDirection)
 
 
