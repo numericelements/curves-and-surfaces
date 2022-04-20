@@ -1,7 +1,7 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {DifferentialEventShaders} from "./DifferentialEventShaders"
-import { IObserver } from "../designPatterns/Observer";
+import { IObserver } from "../newDesignPatterns/Observer";
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";

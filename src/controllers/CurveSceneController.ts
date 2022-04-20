@@ -17,7 +17,7 @@ import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./Sli
 import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { IRenderFrameObserver } from "../designPatterns/RenderFrameObserver";
+import { IRenderFrameObserver } from "../newDesignPatterns/RenderFrameObserver";
 
 /* JCL 2020/09/24 Add the visualization of clamped control points */
 import { ClampedControlPointView } from "../views/ClampedControlPointView"
@@ -45,6 +45,9 @@ import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2
 import { CurveModelerEventListener } from "../userInterfaceController/UserInterfaceEventListener";
 import { convertToBsplR1_to_R2 } from "../newBsplines/BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
+import { DummyStrategy } from "./DummyStrategy";
+import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 
 
 
@@ -107,7 +110,7 @@ export class CurveSceneController implements SceneControllerInterface {
     private constraintAtPoint1: boolean;
     private constraintAtPoint2: boolean;
     private curveConstraintSelectionState: CurveConstraintSelectionState;
-    public curveModel: CurveModel
+    public curveModel: CurveModelInterface
 
     private curveObservers: Array<IRenderFrameObserver<BSplineR1toR2Interface>> = []
     
@@ -137,7 +140,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1)
         
         let selectedEvent: number[]= []
-        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
 
         /* JCL 2020/09/24 Add default clamped control point */
         this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
@@ -162,9 +165,15 @@ export class CurveSceneController implements SceneControllerInterface {
 
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(this.curveModel.spline)
-        this.selectedDifferentialEventsView.update(convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent)
+        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent)
 
-        this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+        if(this.curveModel instanceof CurveModel) {
+            this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+        } else {
+            const dummyCurveModel = new ClosedCurveModel()
+            this.curveControl = new DummyStrategy(dummyCurveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
+        }
+
         // this.sliding = true
         this.sliding = this.curveShapeSpaceNavigator.sliding
 
@@ -219,7 +228,10 @@ export class CurveSceneController implements SceneControllerInterface {
         this.activeLocationControl = ActiveLocationControl.firstControlPoint;
         this.dragging = false;
         this.selectedControlPoint = null;
-        this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        if(this.curveModel instanceof CurveModel) {
+            this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        }
+
         this.sliding = true;
     }
 
@@ -233,14 +245,26 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.curveKnotsView, "curve");
         this.curveModel.registerObserver(this.clampedControlPointView, "control points");
 
-        // this.curveModel.observers.forEach(element => {
-        //     if(this.curveModel !== undefined) {
-        //         element.update(this.curveModel.spline)
-        //     } else {
-        //         const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-        //         error.logMessageToConsole();
-        //     }
-        // });
+        if(this.curveModel instanceof CurveModel) {
+            this.curveModel.observers.forEach(element => {
+                if(this.curveModel !== undefined) {
+                    element.update(this.curveModel.spline)
+                } else {
+                    const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+                    error.logMessageToConsole();
+                }
+            });
+        } else if(this.curveModel instanceof ClosedCurveModel) {
+            this.curveModel.observers.forEach(element => {
+                if(this.curveModel !== undefined) {
+                    element.update(this.curveModel.spline)
+                } else {
+                    const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+                    error.logMessageToConsole();
+                }
+            });
+        }
+
     }
 
     renderFrame() {
@@ -289,11 +313,11 @@ export class CurveSceneController implements SceneControllerInterface {
             } else differentialEvents = curvatureEvents
 
             if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
             } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
             } else if(differentialEvents.length === 0) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
             }
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
@@ -316,13 +340,13 @@ export class CurveSceneController implements SceneControllerInterface {
         } else throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model")
     }
 
-    resetCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
-        if(this.curveModel !== undefined) {
-            curveObserver.reset(this.curveModel.spline);
-            /*this.curveModel.registerObserver(curveObserver);*/
-        }
-        else throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model")
-    }
+    // resetCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
+    //     if(this.curveModel !== undefined) {
+    //         curveObserver.reset(this.curveModel.spline);
+    //         /*this.curveModel.registerObserver(curveObserver);*/
+    //     }
+    //     else throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model")
+    // }
 
     /* JCL 20202/09/24 Monitor rigid body movements of the curve in accordance with the button status */
     // toggleCurveClamping() {
@@ -429,7 +453,7 @@ export class CurveSceneController implements SceneControllerInterface {
     // }
 
     leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {
-        if(this.curveModel !== undefined) {
+        if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
             if(this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
                 let cp = this.selectedControlPoint
                 if(cp === 0) { cp += 1}
@@ -455,6 +479,7 @@ export class CurveSceneController implements SceneControllerInterface {
                         this.selectedInflection = null
                         this.selectedCurvatureExtrema = null
                         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+                        
                     }
                     else {
                         this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
@@ -562,7 +587,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
     /* JCL 2020/10/07 Add the curve degree elevation process */
     inputSelectDegree(curveDegree: number) {
-        if(this.curveModel !== undefined) {
+        if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
             if(curveDegree > this.curveModel.spline.degree) {
                 // let controlPoints = this.curveModel.spline.controlPoints
                 // let knots = this.curveModel.spline.knots

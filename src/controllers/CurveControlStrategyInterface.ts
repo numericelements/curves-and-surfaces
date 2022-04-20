@@ -1,5 +1,5 @@
 
-import { CurveModel } from "../newModels/CurveModel";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
 
 
 export interface CurveControlStrategyInterface  {
@@ -9,6 +9,6 @@ export interface CurveControlStrategyInterface  {
     toggleSliding(): void
 
     optimize(selectedControlPoint: number, ndcX: number, ndcY: number): void
-    resetCurve(curveModel: CurveModel): void
+    resetCurve(curveModel: CurveModelInterface): void
     
 }

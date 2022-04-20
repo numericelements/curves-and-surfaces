@@ -2,12 +2,12 @@ import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSce
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CurveModeler, ActiveLocationControl } from "../curveModeler/CurveModeler";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { IObserver } from "../designPatterns/Observer";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
 import { DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
 import { CurveModel } from "../newModels/CurveModel";
-import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelEventListener, CurveModelObserverInShapeSpaceNavigationEventListener } from "../models/CurveModelObserver";
+import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelEventListener, CurveModelObserverInFileEventListener, CurveModelObserverInShapeSpaceNavigationEventListener } from "../models/CurveModelObserver";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
 
 // export abstract class UserInterfaceEventListener {
 
@@ -16,7 +16,8 @@ import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelE
 // export class ChartEventListener extends UserInterfaceEventListener {
 export class ChartEventListener {
 
-    private _curveModel: CurveModel;
+    private _curveModel: CurveModelInterface;
+    private curveModeler: CurveModeler;
     private chartRenderingContext:  CanvasRenderingContext2D[] = [];
     private _chartSceneController: ChartSceneController;
     private canvasChart1: HTMLCanvasElement;
@@ -41,10 +42,11 @@ export class ChartEventListener {
 
     // private  static a: ChartEventListener
 
-    constructor(curveModel: CurveModel) {
+    constructor(curveModeler: CurveModeler) {
         // super();
         // ChartEventListener.a = this
-        this._curveModel = curveModel;
+        this._curveModel = curveModeler.curveCategory.curveModel;
+        this.curveModeler = curveModeler;
         this.canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1');
         this.canvasChart2 = <HTMLCanvasElement> document.getElementById('chart2');
         this.canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3');
@@ -66,7 +68,9 @@ export class ChartEventListener {
         this.ctxChart2 = this.canvasChart2.getContext('2d');
         this.ctxChart3 = this.canvasChart3.getContext('2d');
         this.setupChartRenderingContexts();
-        this._chartSceneController = new ChartSceneController(this.chartRenderingContext, this._curveModel);
+        this._chartSceneController = new ChartSceneController(this.chartRenderingContext, this.curveModeler);
+
+        this.curveModeler.registerObserver(new CurveModelObserverInChartEventListener(this));
 
         /* Add event handlers for checkbox processing */
         this.checkBoxFunctionA.addEventListener('click', this.chkboxFunctionA.bind(this));
@@ -83,7 +87,7 @@ export class ChartEventListener {
     get curveModel() {
         return this._curveModel;
     }
-    set curveModel(curveModel:CurveModel) {
+    set curveModel(curveModel:CurveModelInterface) {
         this._curveModel = curveModel;
     }
 
@@ -199,12 +203,10 @@ export class ChartEventListener {
 // export class FileEventListener extends UserInterfaceEventListener {
 export class FileEventListener {
 
-    private curveModel: CurveModel;
+    private _curveModel: CurveModelInterface;
+    private _curveModeler: CurveModeler;
     private fileR: FileReader;
     private fileController: FileController;
-    private chartEventListener: ChartEventListener;
-    private curveModelEventListener: CurveModelerEventListener;
-    private shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener;
     private curveSceneController: CurveSceneController;
     private buttonFileLoad: HTMLButtonElement;
     private buttonFileSave: HTMLButtonElement;
@@ -216,14 +218,10 @@ export class FileEventListener {
 
     private currentFileName: string;
 
-    constructor(curveModel: CurveModel, chartEventListener: ChartEventListener,
-        curveModelEventListener: CurveModelerEventListener, shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener,
-        curveSceneController: CurveSceneController){
+    constructor(curveModelEventListener: CurveModelerEventListener, curveSceneController: CurveSceneController){
         // super();
-        this.curveModel = curveModel;
-        this.chartEventListener = chartEventListener;
-        this.curveModelEventListener = curveModelEventListener;
-        this.shapeSpaceNavigationEventListener = shapeSpaceNavigationEventListener;
+        this._curveModeler = curveModelEventListener.curveModeler;
+        this._curveModel = curveModelEventListener.curveModel;
         this.curveSceneController = curveSceneController;
         
         /* JCL 2020/10/13 Get input IDs for file management purposes */
@@ -236,12 +234,10 @@ export class FileEventListener {
         this.labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension");
 
         this.fileR = new FileReader();
-        this.fileController = new FileController(this.curveModel, this.curveSceneController);
+        this.fileController = new FileController(this.curveModeler, this.curveSceneController);
         this.currentFileName = "";
 
-        this.fileController.registerObserver(new CurveModelObserverInChartEventListener(this.chartEventListener));
-        this.fileController.registerObserver(new CurveModelObserverInCurveModelEventListener(this.curveModelEventListener));
-        this.fileController.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this.shapeSpaceNavigationEventListener));
+        this.curveModeler.registerObserver(new CurveModelObserverInFileEventListener(this));
 
         /* JCL 2020/10/13 Add event handlers for file processing */
         this.buttonFileLoad.addEventListener('click', this.buttonFileLoadCurve.bind(this));
@@ -251,6 +247,18 @@ export class FileEventListener {
         this.inputFileName.addEventListener('input', this.inputCurveFileName.bind(this));
         this.validateInput.addEventListener('click', this.inputButtonValidate.bind(this));
         this.fileR.addEventListener('load', this.processInputFile.bind(this));
+    }
+
+    get curveModel() {
+        return this._curveModel;
+    }
+
+    set curveModel(curveModel: CurveModelInterface) {
+        this._curveModel = curveModel;
+    }
+
+    get curveModeler() {
+        return this._curveModeler;
     }
 
 
@@ -354,7 +362,7 @@ export class FileEventListener {
 export class CurveModelerEventListener {
 
     private _curveModeler: CurveModeler;
-    private _curveModel: CurveModel;
+    private _curveModel: CurveModelInterface;
     private _inputCurveCategory: HTMLSelectElement;
     private _inputDegree: HTMLSelectElement;
     private _currentCurveDegree: string;
@@ -373,12 +381,13 @@ export class CurveModelerEventListener {
         this._inputDegree = <HTMLSelectElement> document.getElementById("curveDegree");
         this._toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping");
 
-        // to be used later
         this._curveModeler = new CurveModeler();
-        this._curveModel = new CurveModel();
-        // this._curveModeler.curveCategory.curveModel;
+        this._curveModel = this._curveModeler.curveCategory.curveModel;
+        // this._curveModeler.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
         this.controlOfCurveClamping = true;
         this.activeLocationControl = this._curveModeler.activeLocationControl;
+
+        this._curveModeler.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
 
         /* JCL  Add event handlers for curve degree and curve category selection processing */
         this._inputDegree.addEventListener('input', this.inputSelectDegree.bind(this));
@@ -405,7 +414,7 @@ export class CurveModelerEventListener {
         return this._curveModel;
     }
 
-    set curveModel(curveModel: CurveModel) {
+    set curveModel(curveModel: CurveModelInterface) {
         this._curveModel = curveModel;
     }
 
@@ -512,6 +521,7 @@ export class ShapeSpaceNavigationEventListener {
     private _currentNavigationMode: string;
     private _inputNavigationMode: HTMLSelectElement;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private curveModeler: CurveModeler;
 
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
@@ -521,6 +531,7 @@ export class ShapeSpaceNavigationEventListener {
 
     constructor(curveModeler: CurveModeler, sceneController: CurveSceneController) {
         // super();
+        this.curveModeler = curveModeler;
         this.sceneController = sceneController;
         this._curveShapeSpaceNavigator = curveModeler.curveShapeSpaceNavigator;
         /* Get control button IDs for curve shape control*/
@@ -536,6 +547,8 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.sliding = true;
+
+        this.curveModeler.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this));
 
         this._inputNavigationMode.addEventListener('input', this.inputSelectNavigationMode.bind(this));
         this._inputNavigationMode.addEventListener('click', this.clickNavigationMode.bind(this));

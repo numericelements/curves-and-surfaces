@@ -3,17 +3,16 @@ import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShap
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
-import { BSpline_R1_to_R2_degree_Raising } from "../bsplines/BSpline_R1_to_R2_degree_Raising";
 import { SlidingStrategy } from "../controllers/SlidingStrategy";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 import { CurveModel } from "../newModels/CurveModel";
-import { AbstractCurveModel } from "../newModels/AbstractCurveModel";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
 
 export abstract class CurveCategory {
 
     protected curveModeler: CurveModeler;
-    abstract curveModel: AbstractCurveModel;
+    abstract curveModel: CurveModelInterface;
 
     constructor(curveModeler: CurveModeler) {
         this.curveModeler = curveModeler;
@@ -45,6 +44,8 @@ export class OpenPlanarCurve extends CurveCategory {
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
         this.curveModel = new CurveModel();
+        this.curveModeler.changeCurveCategory(this);
+        this.curveModeler.notifyObservers();
         this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities();
         // this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         this.eventState = new EventSlideOutsideCurve(this.eventMgmtAtExtremities);
@@ -79,8 +80,9 @@ export class OpenPlanarCurve extends CurveCategory {
                 // }
                 // this.curveModel.spline.renewCurve(controlPoints, knots);
                 // this.curveModeler.curveShapeSpaceNavigator.curveControl.resetCurve(this.curveModel)
-                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
-
+                let spline = this.curveModel.spline;
+                spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                this.curveModel.setSpline(spline);
                 if(this.curveModeler.activeLocationControl === ActiveLocationControl.both) {
                     if(this.curveModeler.clampedControlPoints[0] === 0){
                         this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
@@ -123,7 +125,7 @@ export class OpenPlanarCurve extends CurveCategory {
             this.curveModeler.activeLocationControl = ActiveLocationControl.none
             this.curveModeler.clampedControlPoints = []
         }
-        this.curveModel.notifyObservers();
+        this.curveModeler.notifyObservers();
     } 
 
 }
@@ -135,6 +137,8 @@ export class ClosedPlanarCurve extends CurveCategory {
     constructor(curveModeler: CurveModeler) {
         super(curveModeler);
         this.curveModel = new ClosedCurveModel();
+        this.curveModeler.changeCurveCategory(this);
+        this.curveModeler.notifyObservers();
     }
 
     setCurveCategory(): void {

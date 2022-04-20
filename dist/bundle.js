@@ -94,9 +94,9 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
- * Chart.js v2.9.3
+ * Chart.js v2.9.4
  * https://www.chartjs.org
- * (c) 2019 Chart.js Contributors
+ * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
 (function (global, factory) {
@@ -2197,6 +2197,10 @@ if (typeof window !== 'undefined') {
 
 var chartjsColor = Color;
 
+function isValidKey(key) {
+	return ['__proto__', 'prototype', 'constructor'].indexOf(key) === -1;
+}
+
 /**
  * @namespace Chart.helpers
  */
@@ -2372,7 +2376,7 @@ var helpers = {
 		}
 
 		if (helpers.isObject(source)) {
-			var target = {};
+			var target = Object.create(source);
 			var keys = Object.keys(source);
 			var klen = keys.length;
 			var k = 0;
@@ -2393,6 +2397,12 @@ var helpers = {
 	 * @private
 	 */
 	_merger: function(key, target, source, options) {
+		if (!isValidKey(key)) {
+			// We want to ensure we do not copy prototypes over
+			// as this can pollute global namespaces
+			return;
+		}
+
 		var tval = target[key];
 		var sval = source[key];
 
@@ -2408,6 +2418,12 @@ var helpers = {
 	 * @private
 	 */
 	_mergerIf: function(key, target, source) {
+		if (!isValidKey(key)) {
+			// We want to ensure we do not copy prototypes over
+			// as this can pollute global namespaces
+			return;
+		}
+
 		var tval = target[key];
 		var sval = source[key];
 
@@ -3906,7 +3922,7 @@ helpers$1.extend(DatasetController.prototype, {
 	 */
 	_configure: function() {
 		var me = this;
-		me._config = helpers$1.merge({}, [
+		me._config = helpers$1.merge(Object.create(null), [
 			me.chart.options.datasets[me._type],
 			me.getDataset(),
 		], {
@@ -7176,7 +7192,8 @@ function updateDims(chartArea, params, layout) {
 		chartArea.h = newHeight;
 
 		// return true if chart area changed in layout's direction
-		return layout.horizontal ? newWidth !== chartArea.w : newHeight !== chartArea.h;
+		var sizes = layout.horizontal ? [newWidth, chartArea.w] : [newHeight, chartArea.h];
+		return sizes[0] !== sizes[1] && (!isNaN(sizes[0]) || !isNaN(sizes[1]));
 	}
 }
 
@@ -7480,7 +7497,7 @@ var platform_basic = {
 	}
 };
 
-var platform_dom = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
+var platform_dom = "/*\r\n * DOM element rendering detection\r\n * https://davidwalsh.name/detect-node-insertion\r\n */\r\n@keyframes chartjs-render-animation {\r\n\tfrom { opacity: 0.99; }\r\n\tto { opacity: 1; }\r\n}\r\n\r\n.chartjs-render-monitor {\r\n\tanimation: chartjs-render-animation 0.001s;\r\n}\r\n\r\n/*\r\n * DOM element resizing detection\r\n * https://github.com/marcj/css-element-queries\r\n */\r\n.chartjs-size-monitor,\r\n.chartjs-size-monitor-expand,\r\n.chartjs-size-monitor-shrink {\r\n\tposition: absolute;\r\n\tdirection: ltr;\r\n\tleft: 0;\r\n\ttop: 0;\r\n\tright: 0;\r\n\tbottom: 0;\r\n\toverflow: hidden;\r\n\tpointer-events: none;\r\n\tvisibility: hidden;\r\n\tz-index: -1;\r\n}\r\n\r\n.chartjs-size-monitor-expand > div {\r\n\tposition: absolute;\r\n\twidth: 1000000px;\r\n\theight: 1000000px;\r\n\tleft: 0;\r\n\ttop: 0;\r\n}\r\n\r\n.chartjs-size-monitor-shrink > div {\r\n\tposition: absolute;\r\n\twidth: 200%;\r\n\theight: 200%;\r\n\tleft: 0;\r\n\ttop: 0;\r\n}\r\n";
 
 var platform_dom$1 = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -8188,7 +8205,7 @@ var core_scaleService = {
 	},
 	getScaleDefaults: function(type) {
 		// Return the scale defaults merged with the global settings so that we always use the latest ones
-		return this.defaults.hasOwnProperty(type) ? helpers$1.merge({}, [core_defaults.scale, this.defaults[type]]) : {};
+		return this.defaults.hasOwnProperty(type) ? helpers$1.merge(Object.create(null), [core_defaults.scale, this.defaults[type]]) : {};
 	},
 	updateScaleDefaults: function(type, additions) {
 		var me = this;
@@ -9263,7 +9280,7 @@ core_defaults._set('global', {
  * returns a deep copy of the result, thus doesn't alter inputs.
  */
 function mergeScaleConfig(/* config objects ... */) {
-	return helpers$1.merge({}, [].slice.call(arguments), {
+	return helpers$1.merge(Object.create(null), [].slice.call(arguments), {
 		merger: function(key, target, source, options) {
 			if (key === 'xAxes' || key === 'yAxes') {
 				var slen = source[key].length;
@@ -9303,9 +9320,9 @@ function mergeScaleConfig(/* config objects ... */) {
  * a deep copy of the result, thus doesn't alter inputs.
  */
 function mergeConfig(/* config objects ... */) {
-	return helpers$1.merge({}, [].slice.call(arguments), {
+	return helpers$1.merge(Object.create(null), [].slice.call(arguments), {
 		merger: function(key, target, source, options) {
-			var tval = target[key] || {};
+			var tval = target[key] || Object.create(null);
 			var sval = source[key];
 
 			if (key === 'scales') {
@@ -9322,7 +9339,7 @@ function mergeConfig(/* config objects ... */) {
 }
 
 function initConfig(config) {
-	config = config || {};
+	config = config || Object.create(null);
 
 	// Do NOT use mergeConfig for the data object because this method merges arrays
 	// and so would change references to labels and datasets, preventing data updates.
@@ -11303,6 +11320,8 @@ function computeLabelSizes(ctx, tickFonts, ticks, caches) {
 	var widths = [];
 	var heights = [];
 	var offsets = [];
+	var widestLabelSize = 0;
+	var highestLabelSize = 0;
 	var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel, widest, highest;
 
 	for (i = 0; i < length; ++i) {
@@ -11330,11 +11349,13 @@ function computeLabelSizes(ctx, tickFonts, ticks, caches) {
 		widths.push(width);
 		heights.push(height);
 		offsets.push(lineHeight / 2);
+		widestLabelSize = Math.max(width, widestLabelSize);
+		highestLabelSize = Math.max(height, highestLabelSize);
 	}
 	garbageCollect(caches, length);
 
-	widest = widths.indexOf(Math.max.apply(null, widths));
-	highest = heights.indexOf(Math.max.apply(null, heights));
+	widest = widths.indexOf(widestLabelSize);
+	highest = heights.indexOf(highestLabelSize);
 
 	function valueAt(idx) {
 		return {
@@ -16247,6 +16268,23 @@ return src;
 
 /***/ }),
 
+/***/ "./node_modules/file-saver/dist/FileSaver.min.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/file-saver/dist/FileSaver.min.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(a,b){if(true)!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (b),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else {}})(this,function(){"use strict";function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Deprecated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(a,b,c){var d=new XMLHttpRequest;d.open("GET",a),d.responseType="blob",d.onload=function(){g(d.response,b,c)},d.onerror=function(){console.error("could not download file")},d.send()}function d(a){var b=new XMLHttpRequest;b.open("HEAD",a,!1);try{b.send()}catch(a){}return 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"))}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b)}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof global&&global.global===global?global:void 0,a=f.navigator&&/Macintosh/.test(navigator.userAgent)&&/AppleWebKit/.test(navigator.userAgent)&&!/Safari/.test(navigator.userAgent),g=f.saveAs||("object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype&&!a?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href)},4E4),setTimeout(function(){e(j)},0))}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i)})}}:function(b,d,e,g){if(g=g||open("","_blank"),g&&(g.document.title=g.document.body.innerText="downloading..."),"string"==typeof b)return c(b,d,e);var h="application/octet-stream"===b.type,i=/constructor/i.test(f.HTMLElement)||f.safari,j=/CriOS\/[\d]+/.test(navigator.userAgent);if((j||h&&i||a)&&"undefined"!=typeof FileReader){var k=new FileReader;k.onloadend=function(){var a=k.result;a=j?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),g?g.location.href=a:location=a,g=null},k.readAsDataURL(b)}else{var l=f.URL||f.webkitURL,m=l.createObjectURL(b);g?g.location=m:location.href=m,g=null,setTimeout(function(){l.revokeObjectURL(m)},4E4)}});f.saveAs=g.saveAs=g, true&&(module.exports=g)});
+
+//# sourceMappingURL=FileSaver.min.js.map
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
+
+/***/ }),
+
 /***/ "./node_modules/moment/locale sync recursive ^\\.\\/.*$":
 /*!**************************************************!*\
   !*** ./node_modules/moment/locale sync ^\.\/.*$ ***!
@@ -16280,6 +16318,8 @@ var map = {
 	"./bm": "./node_modules/moment/locale/bm.js",
 	"./bm.js": "./node_modules/moment/locale/bm.js",
 	"./bn": "./node_modules/moment/locale/bn.js",
+	"./bn-bd": "./node_modules/moment/locale/bn-bd.js",
+	"./bn-bd.js": "./node_modules/moment/locale/bn-bd.js",
 	"./bn.js": "./node_modules/moment/locale/bn.js",
 	"./bo": "./node_modules/moment/locale/bo.js",
 	"./bo.js": "./node_modules/moment/locale/bo.js",
@@ -16328,6 +16368,8 @@ var map = {
 	"./es": "./node_modules/moment/locale/es.js",
 	"./es-do": "./node_modules/moment/locale/es-do.js",
 	"./es-do.js": "./node_modules/moment/locale/es-do.js",
+	"./es-mx": "./node_modules/moment/locale/es-mx.js",
+	"./es-mx.js": "./node_modules/moment/locale/es-mx.js",
 	"./es-us": "./node_modules/moment/locale/es-us.js",
 	"./es-us.js": "./node_modules/moment/locale/es-us.js",
 	"./es.js": "./node_modules/moment/locale/es.js",
@@ -16834,9 +16876,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر'.split(
             '_'
         ),
-        monthsShort: 'يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر'.split(
-            '_'
-        ),
+        monthsShort:
+            'يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر'.split(
+                '_'
+            ),
         weekdays: 'الأحد_الإتنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت'.split('_'),
         weekdaysShort: 'احد_اتنين_ثلاثاء_اربعاء_خميس_جمعة_سبت'.split('_'),
         weekdaysMin: 'ح_ن_ث_ر_خ_ج_س'.split('_'),
@@ -16894,7 +16937,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 /***/ (function(module, exports, __webpack_require__) {
 
 //! moment.js locale configuration
-//! locale : Arabic (Lybia) [ar-ly]
+//! locale : Arabic (Libya) [ar-ly]
 //! author : Ali Hmer: https://github.com/kikoanis
 
 ;(function (global, factory) {
@@ -16905,16 +16948,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '1',
-            '2': '2',
-            '3': '3',
-            '4': '4',
-            '5': '5',
-            '6': '6',
-            '7': '7',
-            '8': '8',
-            '9': '9',
-            '0': '0',
+            1: '1',
+            2: '2',
+            3: '3',
+            4: '4',
+            5: '5',
+            6: '6',
+            7: '7',
+            8: '8',
+            9: '9',
+            0: '0',
         },
         pluralForm = function (n) {
             return n === 0
@@ -17100,9 +17143,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر'.split(
             '_'
         ),
-        monthsShort: 'يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر'.split(
-            '_'
-        ),
+        monthsShort:
+            'يناير_فبراير_مارس_أبريل_ماي_يونيو_يوليوز_غشت_شتنبر_أكتوبر_نونبر_دجنبر'.split(
+                '_'
+            ),
         weekdays: 'الأحد_الإثنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت'.split('_'),
         weekdaysShort: 'احد_اثنين_ثلاثاء_اربعاء_خميس_جمعة_سبت'.split('_'),
         weekdaysMin: 'ح_ن_ث_ر_خ_ج_س'.split('_'),
@@ -17140,8 +17184,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             yy: '%d سنوات',
         },
         week: {
-            dow: 6, // Saturday is the first day of the week.
-            doy: 12, // The week that contains Jan 12th is the first week of the year.
+            dow: 1, // Monday is the first day of the week.
+            doy: 4, // The week that contains Jan 4th is the first week of the year.
         },
     });
 
@@ -17171,16 +17215,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '١',
-            '2': '٢',
-            '3': '٣',
-            '4': '٤',
-            '5': '٥',
-            '6': '٦',
-            '7': '٧',
-            '8': '٨',
-            '9': '٩',
-            '0': '٠',
+            1: '١',
+            2: '٢',
+            3: '٣',
+            4: '٤',
+            5: '٥',
+            6: '٦',
+            7: '٧',
+            8: '٨',
+            9: '٩',
+            0: '٠',
         },
         numberMap = {
             '١': '1',
@@ -17199,9 +17243,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
             '_'
         ),
-        monthsShort: 'يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
-            '_'
-        ),
+        monthsShort:
+            'يناير_فبراير_مارس_أبريل_مايو_يونيو_يوليو_أغسطس_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
+                '_'
+            ),
         weekdays: 'الأحد_الإثنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت'.split('_'),
         weekdaysShort: 'أحد_إثنين_ثلاثاء_أربعاء_خميس_جمعة_سبت'.split('_'),
         weekdaysMin: 'ح_ن_ث_ر_خ_ج_س'.split('_'),
@@ -17298,9 +17343,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'جانفي_فيفري_مارس_أفريل_ماي_جوان_جويلية_أوت_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
             '_'
         ),
-        monthsShort: 'جانفي_فيفري_مارس_أفريل_ماي_جوان_جويلية_أوت_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
-            '_'
-        ),
+        monthsShort:
+            'جانفي_فيفري_مارس_أفريل_ماي_جوان_جويلية_أوت_سبتمبر_أكتوبر_نوفمبر_ديسمبر'.split(
+                '_'
+            ),
         weekdays: 'الأحد_الإثنين_الثلاثاء_الأربعاء_الخميس_الجمعة_السبت'.split('_'),
         weekdaysShort: 'أحد_إثنين_ثلاثاء_أربعاء_خميس_جمعة_سبت'.split('_'),
         weekdaysMin: 'ح_ن_ث_ر_خ_ج_س'.split('_'),
@@ -17371,16 +17417,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '١',
-            '2': '٢',
-            '3': '٣',
-            '4': '٤',
-            '5': '٥',
-            '6': '٦',
-            '7': '٧',
-            '8': '٨',
-            '9': '٩',
-            '0': '٠',
+            1: '١',
+            2: '٢',
+            3: '٣',
+            4: '٤',
+            5: '٥',
+            6: '٦',
+            7: '٧',
+            8: '٨',
+            9: '٩',
+            0: '٠',
         },
         numberMap = {
             '١': '1',
@@ -17603,9 +17649,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'yan_fev_mar_apr_may_iyn_iyl_avq_sen_okt_noy_dek'.split('_'),
-        weekdays: 'Bazar_Bazar ertəsi_Çərşənbə axşamı_Çərşənbə_Cümə axşamı_Cümə_Şənbə'.split(
-            '_'
-        ),
+        weekdays:
+            'Bazar_Bazar ertəsi_Çərşənbə axşamı_Çərşənbə_Cümə axşamı_Cümə_Şənbə'.split(
+                '_'
+            ),
         weekdaysShort: 'Baz_BzE_ÇAx_Çər_CAx_Cüm_Şən'.split('_'),
         weekdaysMin: 'Bz_BE_ÇA_Çə_CA_Cü_Şə'.split('_'),
         weekdaysParseExact: true,
@@ -17628,7 +17675,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         relativeTime: {
             future: '%s sonra',
             past: '%s əvvəl',
-            s: 'birneçə saniyə',
+            s: 'bir neçə saniyə',
             ss: '%d saniyə',
             m: 'bir dəqiqə',
             mm: '%d dəqiqə',
@@ -17731,20 +17778,21 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'студзеня_лютага_сакавіка_красавіка_траўня_чэрвеня_ліпеня_жніўня_верасня_кастрычніка_лістапада_снежня'.split(
                 '_'
             ),
-            standalone: 'студзень_люты_сакавік_красавік_травень_чэрвень_ліпень_жнівень_верасень_кастрычнік_лістапад_снежань'.split(
-                '_'
-            ),
+            standalone:
+                'студзень_люты_сакавік_красавік_травень_чэрвень_ліпень_жнівень_верасень_кастрычнік_лістапад_снежань'.split(
+                    '_'
+                ),
         },
-        monthsShort: 'студ_лют_сак_крас_трав_чэрв_ліп_жнів_вер_каст_ліст_снеж'.split(
-            '_'
-        ),
+        monthsShort:
+            'студ_лют_сак_крас_трав_чэрв_ліп_жнів_вер_каст_ліст_снеж'.split('_'),
         weekdays: {
             format: 'нядзелю_панядзелак_аўторак_сераду_чацвер_пятніцу_суботу'.split(
                 '_'
             ),
-            standalone: 'нядзеля_панядзелак_аўторак_серада_чацвер_пятніца_субота'.split(
-                '_'
-            ),
+            standalone:
+                'нядзеля_панядзелак_аўторак_серада_чацвер_пятніца_субота'.split(
+                    '_'
+                ),
             isFormat: /\[ ?[Ууў] ?(?:мінулую|наступную)? ?\] ?dddd/,
         },
         weekdaysShort: 'нд_пн_ат_ср_чц_пт_сб'.split('_'),
@@ -17908,6 +17956,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d часа',
             d: 'ден',
             dd: '%d дена',
+            w: 'седмица',
+            ww: '%d седмици',
             M: 'месец',
             MM: '%d месеца',
             y: 'година',
@@ -18017,6 +18067,155 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
 /***/ }),
 
+/***/ "./node_modules/moment/locale/bn-bd.js":
+/*!*********************************************!*\
+  !*** ./node_modules/moment/locale/bn-bd.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+//! moment.js locale configuration
+//! locale : Bengali (Bangladesh) [bn-bd]
+//! author : Asraf Hossain Patoary : https://github.com/ashwoolford
+
+;(function (global, factory) {
+    true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
+   undefined
+}(this, (function (moment) { 'use strict';
+
+    //! moment.js locale configuration
+
+    var symbolMap = {
+            1: '১',
+            2: '২',
+            3: '৩',
+            4: '৪',
+            5: '৫',
+            6: '৬',
+            7: '৭',
+            8: '৮',
+            9: '৯',
+            0: '০',
+        },
+        numberMap = {
+            '১': '1',
+            '২': '2',
+            '৩': '3',
+            '৪': '4',
+            '৫': '5',
+            '৬': '6',
+            '৭': '7',
+            '৮': '8',
+            '৯': '9',
+            '০': '0',
+        };
+
+    var bnBd = moment.defineLocale('bn-bd', {
+        months: 'জানুয়ারি_ফেব্রুয়ারি_মার্চ_এপ্রিল_মে_জুন_জুলাই_আগস্ট_সেপ্টেম্বর_অক্টোবর_নভেম্বর_ডিসেম্বর'.split(
+            '_'
+        ),
+        monthsShort:
+            'জানু_ফেব্রু_মার্চ_এপ্রিল_মে_জুন_জুলাই_আগস্ট_সেপ্ট_অক্টো_নভে_ডিসে'.split(
+                '_'
+            ),
+        weekdays: 'রবিবার_সোমবার_মঙ্গলবার_বুধবার_বৃহস্পতিবার_শুক্রবার_শনিবার'.split(
+            '_'
+        ),
+        weekdaysShort: 'রবি_সোম_মঙ্গল_বুধ_বৃহস্পতি_শুক্র_শনি'.split('_'),
+        weekdaysMin: 'রবি_সোম_মঙ্গল_বুধ_বৃহ_শুক্র_শনি'.split('_'),
+        longDateFormat: {
+            LT: 'A h:mm সময়',
+            LTS: 'A h:mm:ss সময়',
+            L: 'DD/MM/YYYY',
+            LL: 'D MMMM YYYY',
+            LLL: 'D MMMM YYYY, A h:mm সময়',
+            LLLL: 'dddd, D MMMM YYYY, A h:mm সময়',
+        },
+        calendar: {
+            sameDay: '[আজ] LT',
+            nextDay: '[আগামীকাল] LT',
+            nextWeek: 'dddd, LT',
+            lastDay: '[গতকাল] LT',
+            lastWeek: '[গত] dddd, LT',
+            sameElse: 'L',
+        },
+        relativeTime: {
+            future: '%s পরে',
+            past: '%s আগে',
+            s: 'কয়েক সেকেন্ড',
+            ss: '%d সেকেন্ড',
+            m: 'এক মিনিট',
+            mm: '%d মিনিট',
+            h: 'এক ঘন্টা',
+            hh: '%d ঘন্টা',
+            d: 'এক দিন',
+            dd: '%d দিন',
+            M: 'এক মাস',
+            MM: '%d মাস',
+            y: 'এক বছর',
+            yy: '%d বছর',
+        },
+        preparse: function (string) {
+            return string.replace(/[১২৩৪৫৬৭৮৯০]/g, function (match) {
+                return numberMap[match];
+            });
+        },
+        postformat: function (string) {
+            return string.replace(/\d/g, function (match) {
+                return symbolMap[match];
+            });
+        },
+
+        meridiemParse: /রাত|ভোর|সকাল|দুপুর|বিকাল|সন্ধ্যা|রাত/,
+        meridiemHour: function (hour, meridiem) {
+            if (hour === 12) {
+                hour = 0;
+            }
+            if (meridiem === 'রাত') {
+                return hour < 4 ? hour : hour + 12;
+            } else if (meridiem === 'ভোর') {
+                return hour;
+            } else if (meridiem === 'সকাল') {
+                return hour;
+            } else if (meridiem === 'দুপুর') {
+                return hour >= 3 ? hour : hour + 12;
+            } else if (meridiem === 'বিকাল') {
+                return hour + 12;
+            } else if (meridiem === 'সন্ধ্যা') {
+                return hour + 12;
+            }
+        },
+
+        meridiem: function (hour, minute, isLower) {
+            if (hour < 4) {
+                return 'রাত';
+            } else if (hour < 6) {
+                return 'ভোর';
+            } else if (hour < 12) {
+                return 'সকাল';
+            } else if (hour < 15) {
+                return 'দুপুর';
+            } else if (hour < 18) {
+                return 'বিকাল';
+            } else if (hour < 20) {
+                return 'সন্ধ্যা';
+            } else {
+                return 'রাত';
+            }
+        },
+        week: {
+            dow: 0, // Sunday is the first day of the week.
+            doy: 6, // The week that contains Jan 6th is the first week of the year.
+        },
+    });
+
+    return bnBd;
+
+})));
+
+
+/***/ }),
+
 /***/ "./node_modules/moment/locale/bn.js":
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/bn.js ***!
@@ -18036,16 +18235,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '১',
-            '2': '২',
-            '3': '৩',
-            '4': '৪',
-            '5': '৫',
-            '6': '৬',
-            '7': '৭',
-            '8': '৮',
-            '9': '৯',
-            '0': '০',
+            1: '১',
+            2: '২',
+            3: '৩',
+            4: '৪',
+            5: '৫',
+            6: '৬',
+            7: '৭',
+            8: '৮',
+            9: '৯',
+            0: '০',
         },
         numberMap = {
             '১': '1',
@@ -18064,9 +18263,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'জানুয়ারি_ফেব্রুয়ারি_মার্চ_এপ্রিল_মে_জুন_জুলাই_আগস্ট_সেপ্টেম্বর_অক্টোবর_নভেম্বর_ডিসেম্বর'.split(
             '_'
         ),
-        monthsShort: 'জানু_ফেব্রু_মার্চ_এপ্রিল_মে_জুন_জুলাই_আগস্ট_সেপ্ট_অক্টো_নভে_ডিসে'.split(
-            '_'
-        ),
+        monthsShort:
+            'জানু_ফেব্রু_মার্চ_এপ্রিল_মে_জুন_জুলাই_আগস্ট_সেপ্ট_অক্টো_নভে_ডিসে'.split(
+                '_'
+            ),
         weekdays: 'রবিবার_সোমবার_মঙ্গলবার_বুধবার_বৃহস্পতিবার_শুক্রবার_শনিবার'.split(
             '_'
         ),
@@ -18174,16 +18374,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '༡',
-            '2': '༢',
-            '3': '༣',
-            '4': '༤',
-            '5': '༥',
-            '6': '༦',
-            '7': '༧',
-            '8': '༨',
-            '9': '༩',
-            '0': '༠',
+            1: '༡',
+            2: '༢',
+            3: '༣',
+            4: '༤',
+            5: '༥',
+            6: '༦',
+            7: '༧',
+            8: '༨',
+            9: '༩',
+            0: '༠',
         },
         numberMap = {
             '༡': '1',
@@ -18202,14 +18402,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ཟླ་བ་དང་པོ_ཟླ་བ་གཉིས་པ_ཟླ་བ་གསུམ་པ_ཟླ་བ་བཞི་པ_ཟླ་བ་ལྔ་པ_ཟླ་བ་དྲུག་པ_ཟླ་བ་བདུན་པ_ཟླ་བ་བརྒྱད་པ_ཟླ་བ་དགུ་པ_ཟླ་བ་བཅུ་པ_ཟླ་བ་བཅུ་གཅིག་པ_ཟླ་བ་བཅུ་གཉིས་པ'.split(
             '_'
         ),
-        monthsShort: 'ཟླ་1_ཟླ་2_ཟླ་3_ཟླ་4_ཟླ་5_ཟླ་6_ཟླ་7_ཟླ་8_ཟླ་9_ཟླ་10_ཟླ་11_ཟླ་12'.split(
-            '_'
-        ),
+        monthsShort:
+            'ཟླ་1_ཟླ་2_ཟླ་3_ཟླ་4_ཟླ་5_ཟླ་6_ཟླ་7_ཟླ་8_ཟླ་9_ཟླ་10_ཟླ་11_ཟླ་12'.split(
+                '_'
+            ),
         monthsShortRegex: /^(ཟླ་\d{1,2})/,
         monthsParseExact: true,
-        weekdays: 'གཟའ་ཉི་མ་_གཟའ་ཟླ་བ་_གཟའ་མིག་དམར་_གཟའ་ལྷག་པ་_གཟའ་ཕུར་བུ_གཟའ་པ་སངས་_གཟའ་སྤེན་པ་'.split(
-            '_'
-        ),
+        weekdays:
+            'གཟའ་ཉི་མ་_གཟའ་ཟླ་བ་_གཟའ་མིག་དམར་_གཟའ་ལྷག་པ་_གཟའ་ཕུར་བུ_གཟའ་པ་སངས་_གཟའ་སྤེན་པ་'.split(
+                '_'
+            ),
         weekdaysShort: 'ཉི་མ་_ཟླ་བ་_མིག་དམར་_ལྷག་པ་_ཕུར་བུ_པ་སངས་_སྤེན་པ་'.split(
             '_'
         ),
@@ -18373,9 +18575,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             /^du/i,
             /^ker/i,
         ],
-        monthsRegex = /^(genver|c[ʼ\']hwevrer|meurzh|ebrel|mae|mezheven|gouere|eost|gwengolo|here|du|kerzu|gen|c[ʼ\']hwe|meu|ebr|mae|eve|gou|eos|gwe|her|du|ker)/i,
-        monthsStrictRegex = /^(genver|c[ʼ\']hwevrer|meurzh|ebrel|mae|mezheven|gouere|eost|gwengolo|here|du|kerzu)/i,
-        monthsShortStrictRegex = /^(gen|c[ʼ\']hwe|meu|ebr|mae|eve|gou|eos|gwe|her|du|ker)/i,
+        monthsRegex =
+            /^(genver|c[ʼ\']hwevrer|meurzh|ebrel|mae|mezheven|gouere|eost|gwengolo|here|du|kerzu|gen|c[ʼ\']hwe|meu|ebr|mae|eve|gou|eos|gwe|her|du|ker)/i,
+        monthsStrictRegex =
+            /^(genver|c[ʼ\']hwevrer|meurzh|ebrel|mae|mezheven|gouere|eost|gwengolo|here|du|kerzu)/i,
+        monthsShortStrictRegex =
+            /^(gen|c[ʼ\']hwe|meu|ebr|mae|eve|gou|eos|gwe|her|du|ker)/i,
         fullWeekdaysParse = [
             /^sul/i,
             /^lun/i,
@@ -18567,9 +18772,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'januar_februar_mart_april_maj_juni_juli_august_septembar_oktobar_novembar_decembar'.split(
             '_'
         ),
-        monthsShort: 'jan._feb._mar._apr._maj._jun._jul._aug._sep._okt._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._mar._apr._maj._jun._jul._aug._sep._okt._nov._dec.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'nedjelja_ponedjeljak_utorak_srijeda_četvrtak_petak_subota'.split(
             '_'
@@ -18671,21 +18877,24 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     var ca = moment.defineLocale('ca', {
         months: {
-            standalone: 'gener_febrer_març_abril_maig_juny_juliol_agost_setembre_octubre_novembre_desembre'.split(
-                '_'
-            ),
+            standalone:
+                'gener_febrer_març_abril_maig_juny_juliol_agost_setembre_octubre_novembre_desembre'.split(
+                    '_'
+                ),
             format: "de gener_de febrer_de març_d'abril_de maig_de juny_de juliol_d'agost_de setembre_d'octubre_de novembre_de desembre".split(
                 '_'
             ),
             isFormat: /D[oD]?(\s)+MMMM/,
         },
-        monthsShort: 'gen._febr._març_abr._maig_juny_jul._ag._set._oct._nov._des.'.split(
-            '_'
-        ),
+        monthsShort:
+            'gen._febr._març_abr._maig_juny_jul._ag._set._oct._nov._des.'.split(
+                '_'
+            ),
         monthsParseExact: true,
-        weekdays: 'diumenge_dilluns_dimarts_dimecres_dijous_divendres_dissabte'.split(
-            '_'
-        ),
+        weekdays:
+            'diumenge_dilluns_dimarts_dimecres_dijous_divendres_dissabte'.split(
+                '_'
+            ),
         weekdaysShort: 'dg._dl._dt._dc._dj._dv._ds.'.split('_'),
         weekdaysMin: 'dg_dl_dt_dc_dj_dv_ds'.split('_'),
         weekdaysParseExact: true,
@@ -18786,9 +18995,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var months = 'leden_únor_březen_duben_květen_červen_červenec_srpen_září_říjen_listopad_prosinec'.split(
-            '_'
-        ),
+    var months = {
+            format: 'leden_únor_březen_duben_květen_červen_červenec_srpen_září_říjen_listopad_prosinec'.split(
+                '_'
+            ),
+            standalone:
+                'ledna_února_března_dubna_května_června_července_srpna_září_října_listopadu_prosince'.split(
+                    '_'
+                ),
+        },
         monthsShort = 'led_úno_bře_dub_kvě_čvn_čvc_srp_zář_říj_lis_pro'.split('_'),
         monthsParse = [
             /^led/i,
@@ -18806,7 +19021,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         ],
         // NOTE: 'červen' is substring of 'červenec'; therefore 'červenec' must precede 'červen' in the regex to be fully matched.
         // Otherwise parser matches '1. červenec' as '1. červen' + 'ec'.
-        monthsRegex = /^(leden|únor|březen|duben|květen|červenec|července|červen|června|srpen|září|říjen|listopad|prosinec|led|úno|bře|dub|kvě|čvn|čvc|srp|zář|říj|lis|pro)/i;
+        monthsRegex =
+            /^(leden|únor|březen|duben|květen|červenec|července|červen|června|srpen|září|říjen|listopad|prosinec|led|úno|bře|dub|kvě|čvn|čvc|srp|zář|říj|lis|pro)/i;
 
     function plural(n) {
         return n > 1 && n < 5 && ~~(n / 10) !== 1;
@@ -18872,8 +19088,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         monthsShortRegex: monthsRegex,
         // NOTE: 'červen' is substring of 'červenec'; therefore 'červenec' must precede 'červen' in the regex to be fully matched.
         // Otherwise parser matches '1. červenec' as '1. červen' + 'ec'.
-        monthsStrictRegex: /^(leden|ledna|února|únor|březen|března|duben|dubna|květen|května|červenec|července|červen|června|srpen|srpna|září|říjen|října|listopadu|listopad|prosinec|prosince)/i,
-        monthsShortStrictRegex: /^(led|úno|bře|dub|kvě|čvn|čvc|srp|zář|říj|lis|pro)/i,
+        monthsStrictRegex:
+            /^(leden|ledna|února|únor|březen|března|duben|dubna|květen|května|červenec|července|červen|června|srpen|srpna|září|říjen|října|listopadu|listopad|prosinec|prosince)/i,
+        monthsShortStrictRegex:
+            /^(led|úno|bře|dub|kvě|čvn|čvc|srp|zář|říj|lis|pro)/i,
         monthsParse: monthsParse,
         longMonthsParse: monthsParse,
         shortMonthsParse: monthsParse,
@@ -18982,9 +19200,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'кӑр_нар_пуш_ака_май_ҫӗр_утӑ_ҫур_авн_юпа_чӳк_раш'.split('_'),
-        weekdays: 'вырсарникун_тунтикун_ытларикун_юнкун_кӗҫнерникун_эрнекун_шӑматкун'.split(
-            '_'
-        ),
+        weekdays:
+            'вырсарникун_тунтикун_ытларикун_юнкун_кӗҫнерникун_эрнекун_шӑматкун'.split(
+                '_'
+            ),
         weekdaysShort: 'выр_тун_ытл_юн_кӗҫ_эрн_шӑм'.split('_'),
         weekdaysMin: 'вр_тн_ыт_юн_кҫ_эр_шм'.split('_'),
         longDateFormat: {
@@ -19067,9 +19286,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         monthsShort: 'Ion_Chwe_Maw_Ebr_Mai_Meh_Gor_Aws_Med_Hyd_Tach_Rhag'.split(
             '_'
         ),
-        weekdays: 'Dydd Sul_Dydd Llun_Dydd Mawrth_Dydd Mercher_Dydd Iau_Dydd Gwener_Dydd Sadwrn'.split(
-            '_'
-        ),
+        weekdays:
+            'Dydd Sul_Dydd Llun_Dydd Mawrth_Dydd Mercher_Dydd Iau_Dydd Gwener_Dydd Sadwrn'.split(
+                '_'
+            ),
         weekdaysShort: 'Sul_Llun_Maw_Mer_Iau_Gwe_Sad'.split('_'),
         weekdaysMin: 'Su_Ll_Ma_Me_Ia_Gw_Sa'.split('_'),
         weekdaysParseExact: true,
@@ -19271,13 +19491,13 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'Jänner_Februar_März_April_Mai_Juni_Juli_August_September_Oktober_November_Dezember'.split(
             '_'
         ),
-        monthsShort: 'Jän._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split(
-            '_'
-        ),
+        monthsShort:
+            'Jän._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split('_'),
         monthsParseExact: true,
-        weekdays: 'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split(
-            '_'
-        ),
+        weekdays:
+            'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split(
+                '_'
+            ),
         weekdaysShort: 'So._Mo._Di._Mi._Do._Fr._Sa.'.split('_'),
         weekdaysMin: 'So_Mo_Di_Mi_Do_Fr_Sa'.split('_'),
         weekdaysParseExact: true,
@@ -19367,13 +19587,13 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'Januar_Februar_März_April_Mai_Juni_Juli_August_September_Oktober_November_Dezember'.split(
             '_'
         ),
-        monthsShort: 'Jan._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split(
-            '_'
-        ),
+        monthsShort:
+            'Jan._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split('_'),
         monthsParseExact: true,
-        weekdays: 'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split(
-            '_'
-        ),
+        weekdays:
+            'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split(
+                '_'
+            ),
         weekdaysShort: 'So_Mo_Di_Mi_Do_Fr_Sa'.split('_'),
         weekdaysMin: 'So_Mo_Di_Mi_Do_Fr_Sa'.split('_'),
         weekdaysParseExact: true,
@@ -19465,13 +19685,13 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'Januar_Februar_März_April_Mai_Juni_Juli_August_September_Oktober_November_Dezember'.split(
             '_'
         ),
-        monthsShort: 'Jan._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split(
-            '_'
-        ),
+        monthsShort:
+            'Jan._Feb._März_Apr._Mai_Juni_Juli_Aug._Sep._Okt._Nov._Dez.'.split('_'),
         monthsParseExact: true,
-        weekdays: 'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split(
-            '_'
-        ),
+        weekdays:
+            'Sonntag_Montag_Dienstag_Mittwoch_Donnerstag_Freitag_Samstag'.split(
+                '_'
+            ),
         weekdaysShort: 'So._Mo._Di._Mi._Do._Fr._Sa.'.split('_'),
         weekdaysMin: 'So_Mo_Di_Mi_Do_Fr_Sa'.split('_'),
         weekdaysParseExact: true,
@@ -19660,12 +19880,14 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     }
 
     var el = moment.defineLocale('el', {
-        monthsNominativeEl: 'Ιανουάριος_Φεβρουάριος_Μάρτιος_Απρίλιος_Μάιος_Ιούνιος_Ιούλιος_Αύγουστος_Σεπτέμβριος_Οκτώβριος_Νοέμβριος_Δεκέμβριος'.split(
-            '_'
-        ),
-        monthsGenitiveEl: 'Ιανουαρίου_Φεβρουαρίου_Μαρτίου_Απριλίου_Μαΐου_Ιουνίου_Ιουλίου_Αυγούστου_Σεπτεμβρίου_Οκτωβρίου_Νοεμβρίου_Δεκεμβρίου'.split(
-            '_'
-        ),
+        monthsNominativeEl:
+            'Ιανουάριος_Φεβρουάριος_Μάρτιος_Απρίλιος_Μάιος_Ιούνιος_Ιούλιος_Αύγουστος_Σεπτέμβριος_Οκτώβριος_Νοέμβριος_Δεκέμβριος'.split(
+                '_'
+            ),
+        monthsGenitiveEl:
+            'Ιανουαρίου_Φεβρουαρίου_Μαρτίου_Απριλίου_Μαΐου_Ιουνίου_Ιουλίου_Αυγούστου_Σεπτεμβρίου_Οκτωβρίου_Νοεμβρίου_Δεκεμβρίου'.split(
+                '_'
+            ),
         months: function (momentToFormat, format) {
             if (!momentToFormat) {
                 return this._monthsNominativeEl;
@@ -20559,9 +20781,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsShortDot = 'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
-            '_'
-        ),
+    var monthsShortDot =
+            'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
+                '_'
+            ),
         monthsShort = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_'),
         monthsParse = [
             /^ene/i,
@@ -20577,7 +20800,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             /^nov/i,
             /^dic/i,
         ],
-        monthsRegex = /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
+        monthsRegex =
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
 
     var esDo = moment.defineLocale('es-do', {
         months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split(
@@ -20594,8 +20818,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         },
         monthsRegex: monthsRegex,
         monthsShortRegex: monthsRegex,
-        monthsStrictRegex: /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
-        monthsShortStrictRegex: /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
+        monthsStrictRegex:
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
+        monthsShortStrictRegex:
+            /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
         monthsParse: monthsParse,
         longMonthsParse: monthsParse,
         shortMonthsParse: monthsParse,
@@ -20644,6 +20870,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d horas',
             d: 'un día',
             dd: '%d días',
+            w: 'una semana',
+            ww: '%d semanas',
             M: 'un mes',
             MM: '%d meses',
             y: 'un año',
@@ -20664,17 +20892,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
 /***/ }),
 
-/***/ "./node_modules/moment/locale/es-us.js":
+/***/ "./node_modules/moment/locale/es-mx.js":
 /*!*********************************************!*\
-  !*** ./node_modules/moment/locale/es-us.js ***!
+  !*** ./node_modules/moment/locale/es-mx.js ***!
   \*********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 //! moment.js locale configuration
-//! locale : Spanish (United States) [es-us]
-//! author : bustta : https://github.com/bustta
-//! author : chrisrodz : https://github.com/chrisrodz
+//! locale : Spanish (Mexico) [es-mx]
+//! author : JC Franco : https://github.com/jcfranco
 
 ;(function (global, factory) {
     true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
@@ -20683,9 +20910,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsShortDot = 'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
-            '_'
-        ),
+    var monthsShortDot =
+            'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
+                '_'
+            ),
         monthsShort = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_'),
         monthsParse = [
             /^ene/i,
@@ -20701,9 +20929,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             /^nov/i,
             /^dic/i,
         ],
-        monthsRegex = /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
+        monthsRegex =
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
 
-    var esUs = moment.defineLocale('es-us', {
+    var esMx = moment.defineLocale('es-mx', {
         months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split(
             '_'
         ),
@@ -20718,131 +20947,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         },
         monthsRegex: monthsRegex,
         monthsShortRegex: monthsRegex,
-        monthsStrictRegex: /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
-        monthsShortStrictRegex: /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
-        monthsParse: monthsParse,
-        longMonthsParse: monthsParse,
-        shortMonthsParse: monthsParse,
-        weekdays: 'domingo_lunes_martes_miércoles_jueves_viernes_sábado'.split('_'),
-        weekdaysShort: 'dom._lun._mar._mié._jue._vie._sáb.'.split('_'),
-        weekdaysMin: 'do_lu_ma_mi_ju_vi_sá'.split('_'),
-        weekdaysParseExact: true,
-        longDateFormat: {
-            LT: 'h:mm A',
-            LTS: 'h:mm:ss A',
-            L: 'MM/DD/YYYY',
-            LL: 'D [de] MMMM [de] YYYY',
-            LLL: 'D [de] MMMM [de] YYYY h:mm A',
-            LLLL: 'dddd, D [de] MMMM [de] YYYY h:mm A',
-        },
-        calendar: {
-            sameDay: function () {
-                return '[hoy a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
-            },
-            nextDay: function () {
-                return '[mañana a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
-            },
-            nextWeek: function () {
-                return 'dddd [a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
-            },
-            lastDay: function () {
-                return '[ayer a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
-            },
-            lastWeek: function () {
-                return (
-                    '[el] dddd [pasado a la' +
-                    (this.hours() !== 1 ? 's' : '') +
-                    '] LT'
-                );
-            },
-            sameElse: 'L',
-        },
-        relativeTime: {
-            future: 'en %s',
-            past: 'hace %s',
-            s: 'unos segundos',
-            ss: '%d segundos',
-            m: 'un minuto',
-            mm: '%d minutos',
-            h: 'una hora',
-            hh: '%d horas',
-            d: 'un día',
-            dd: '%d días',
-            M: 'un mes',
-            MM: '%d meses',
-            y: 'un año',
-            yy: '%d años',
-        },
-        dayOfMonthOrdinalParse: /\d{1,2}º/,
-        ordinal: '%dº',
-        week: {
-            dow: 0, // Sunday is the first day of the week.
-            doy: 6, // The week that contains Jan 6th is the first week of the year.
-        },
-    });
-
-    return esUs;
-
-})));
-
-
-/***/ }),
-
-/***/ "./node_modules/moment/locale/es.js":
-/*!******************************************!*\
-  !*** ./node_modules/moment/locale/es.js ***!
-  \******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-//! moment.js locale configuration
-//! locale : Spanish [es]
-//! author : Julio Napurí : https://github.com/julionc
-
-;(function (global, factory) {
-    true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
-   undefined
-}(this, (function (moment) { 'use strict';
-
-    //! moment.js locale configuration
-
-    var monthsShortDot = 'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
-            '_'
-        ),
-        monthsShort = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_'),
-        monthsParse = [
-            /^ene/i,
-            /^feb/i,
-            /^mar/i,
-            /^abr/i,
-            /^may/i,
-            /^jun/i,
-            /^jul/i,
-            /^ago/i,
-            /^sep/i,
-            /^oct/i,
-            /^nov/i,
-            /^dic/i,
-        ],
-        monthsRegex = /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
-
-    var es = moment.defineLocale('es', {
-        months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split(
-            '_'
-        ),
-        monthsShort: function (m, format) {
-            if (!m) {
-                return monthsShortDot;
-            } else if (/-MMM-/.test(format)) {
-                return monthsShort[m.month()];
-            } else {
-                return monthsShortDot[m.month()];
-            }
-        },
-        monthsRegex: monthsRegex,
-        monthsShortRegex: monthsRegex,
-        monthsStrictRegex: /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
-        monthsShortStrictRegex: /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
+        monthsStrictRegex:
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
+        monthsShortStrictRegex:
+            /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
         monthsParse: monthsParse,
         longMonthsParse: monthsParse,
         shortMonthsParse: monthsParse,
@@ -20891,6 +20999,268 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d horas',
             d: 'un día',
             dd: '%d días',
+            w: 'una semana',
+            ww: '%d semanas',
+            M: 'un mes',
+            MM: '%d meses',
+            y: 'un año',
+            yy: '%d años',
+        },
+        dayOfMonthOrdinalParse: /\d{1,2}º/,
+        ordinal: '%dº',
+        week: {
+            dow: 0, // Sunday is the first day of the week.
+            doy: 4, // The week that contains Jan 4th is the first week of the year.
+        },
+        invalidDate: 'Fecha inválida',
+    });
+
+    return esMx;
+
+})));
+
+
+/***/ }),
+
+/***/ "./node_modules/moment/locale/es-us.js":
+/*!*********************************************!*\
+  !*** ./node_modules/moment/locale/es-us.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+//! moment.js locale configuration
+//! locale : Spanish (United States) [es-us]
+//! author : bustta : https://github.com/bustta
+//! author : chrisrodz : https://github.com/chrisrodz
+
+;(function (global, factory) {
+    true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
+   undefined
+}(this, (function (moment) { 'use strict';
+
+    //! moment.js locale configuration
+
+    var monthsShortDot =
+            'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
+                '_'
+            ),
+        monthsShort = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_'),
+        monthsParse = [
+            /^ene/i,
+            /^feb/i,
+            /^mar/i,
+            /^abr/i,
+            /^may/i,
+            /^jun/i,
+            /^jul/i,
+            /^ago/i,
+            /^sep/i,
+            /^oct/i,
+            /^nov/i,
+            /^dic/i,
+        ],
+        monthsRegex =
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
+
+    var esUs = moment.defineLocale('es-us', {
+        months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split(
+            '_'
+        ),
+        monthsShort: function (m, format) {
+            if (!m) {
+                return monthsShortDot;
+            } else if (/-MMM-/.test(format)) {
+                return monthsShort[m.month()];
+            } else {
+                return monthsShortDot[m.month()];
+            }
+        },
+        monthsRegex: monthsRegex,
+        monthsShortRegex: monthsRegex,
+        monthsStrictRegex:
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
+        monthsShortStrictRegex:
+            /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
+        monthsParse: monthsParse,
+        longMonthsParse: monthsParse,
+        shortMonthsParse: monthsParse,
+        weekdays: 'domingo_lunes_martes_miércoles_jueves_viernes_sábado'.split('_'),
+        weekdaysShort: 'dom._lun._mar._mié._jue._vie._sáb.'.split('_'),
+        weekdaysMin: 'do_lu_ma_mi_ju_vi_sá'.split('_'),
+        weekdaysParseExact: true,
+        longDateFormat: {
+            LT: 'h:mm A',
+            LTS: 'h:mm:ss A',
+            L: 'MM/DD/YYYY',
+            LL: 'D [de] MMMM [de] YYYY',
+            LLL: 'D [de] MMMM [de] YYYY h:mm A',
+            LLLL: 'dddd, D [de] MMMM [de] YYYY h:mm A',
+        },
+        calendar: {
+            sameDay: function () {
+                return '[hoy a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            nextDay: function () {
+                return '[mañana a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            nextWeek: function () {
+                return 'dddd [a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            lastDay: function () {
+                return '[ayer a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            lastWeek: function () {
+                return (
+                    '[el] dddd [pasado a la' +
+                    (this.hours() !== 1 ? 's' : '') +
+                    '] LT'
+                );
+            },
+            sameElse: 'L',
+        },
+        relativeTime: {
+            future: 'en %s',
+            past: 'hace %s',
+            s: 'unos segundos',
+            ss: '%d segundos',
+            m: 'un minuto',
+            mm: '%d minutos',
+            h: 'una hora',
+            hh: '%d horas',
+            d: 'un día',
+            dd: '%d días',
+            w: 'una semana',
+            ww: '%d semanas',
+            M: 'un mes',
+            MM: '%d meses',
+            y: 'un año',
+            yy: '%d años',
+        },
+        dayOfMonthOrdinalParse: /\d{1,2}º/,
+        ordinal: '%dº',
+        week: {
+            dow: 0, // Sunday is the first day of the week.
+            doy: 6, // The week that contains Jan 6th is the first week of the year.
+        },
+    });
+
+    return esUs;
+
+})));
+
+
+/***/ }),
+
+/***/ "./node_modules/moment/locale/es.js":
+/*!******************************************!*\
+  !*** ./node_modules/moment/locale/es.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+//! moment.js locale configuration
+//! locale : Spanish [es]
+//! author : Julio Napurí : https://github.com/julionc
+
+;(function (global, factory) {
+    true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
+   undefined
+}(this, (function (moment) { 'use strict';
+
+    //! moment.js locale configuration
+
+    var monthsShortDot =
+            'ene._feb._mar._abr._may._jun._jul._ago._sep._oct._nov._dic.'.split(
+                '_'
+            ),
+        monthsShort = 'ene_feb_mar_abr_may_jun_jul_ago_sep_oct_nov_dic'.split('_'),
+        monthsParse = [
+            /^ene/i,
+            /^feb/i,
+            /^mar/i,
+            /^abr/i,
+            /^may/i,
+            /^jun/i,
+            /^jul/i,
+            /^ago/i,
+            /^sep/i,
+            /^oct/i,
+            /^nov/i,
+            /^dic/i,
+        ],
+        monthsRegex =
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i;
+
+    var es = moment.defineLocale('es', {
+        months: 'enero_febrero_marzo_abril_mayo_junio_julio_agosto_septiembre_octubre_noviembre_diciembre'.split(
+            '_'
+        ),
+        monthsShort: function (m, format) {
+            if (!m) {
+                return monthsShortDot;
+            } else if (/-MMM-/.test(format)) {
+                return monthsShort[m.month()];
+            } else {
+                return monthsShortDot[m.month()];
+            }
+        },
+        monthsRegex: monthsRegex,
+        monthsShortRegex: monthsRegex,
+        monthsStrictRegex:
+            /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i,
+        monthsShortStrictRegex:
+            /^(ene\.?|feb\.?|mar\.?|abr\.?|may\.?|jun\.?|jul\.?|ago\.?|sep\.?|oct\.?|nov\.?|dic\.?)/i,
+        monthsParse: monthsParse,
+        longMonthsParse: monthsParse,
+        shortMonthsParse: monthsParse,
+        weekdays: 'domingo_lunes_martes_miércoles_jueves_viernes_sábado'.split('_'),
+        weekdaysShort: 'dom._lun._mar._mié._jue._vie._sáb.'.split('_'),
+        weekdaysMin: 'do_lu_ma_mi_ju_vi_sá'.split('_'),
+        weekdaysParseExact: true,
+        longDateFormat: {
+            LT: 'H:mm',
+            LTS: 'H:mm:ss',
+            L: 'DD/MM/YYYY',
+            LL: 'D [de] MMMM [de] YYYY',
+            LLL: 'D [de] MMMM [de] YYYY H:mm',
+            LLLL: 'dddd, D [de] MMMM [de] YYYY H:mm',
+        },
+        calendar: {
+            sameDay: function () {
+                return '[hoy a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            nextDay: function () {
+                return '[mañana a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            nextWeek: function () {
+                return 'dddd [a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            lastDay: function () {
+                return '[ayer a la' + (this.hours() !== 1 ? 's' : '') + '] LT';
+            },
+            lastWeek: function () {
+                return (
+                    '[el] dddd [pasado a la' +
+                    (this.hours() !== 1 ? 's' : '') +
+                    '] LT'
+                );
+            },
+            sameElse: 'L',
+        },
+        relativeTime: {
+            future: 'en %s',
+            past: 'hace %s',
+            s: 'unos segundos',
+            ss: '%d segundos',
+            m: 'un minuto',
+            mm: '%d minutos',
+            h: 'una hora',
+            hh: '%d horas',
+            d: 'un día',
+            dd: '%d días',
+            w: 'una semana',
+            ww: '%d semanas',
             M: 'un mes',
             MM: '%d meses',
             y: 'un año',
@@ -20902,7 +21272,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             dow: 1, // Monday is the first day of the week.
             doy: 4, // The week that contains Jan 4th is the first week of the year.
         },
-        invalidDate: 'Fecha invalida',
+        invalidDate: 'Fecha inválida',
     });
 
     return es;
@@ -20955,12 +21325,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'jaanuar_veebruar_märts_aprill_mai_juuni_juuli_august_september_oktoober_november_detsember'.split(
             '_'
         ),
-        monthsShort: 'jaan_veebr_märts_apr_mai_juuni_juuli_aug_sept_okt_nov_dets'.split(
-            '_'
-        ),
-        weekdays: 'pühapäev_esmaspäev_teisipäev_kolmapäev_neljapäev_reede_laupäev'.split(
-            '_'
-        ),
+        monthsShort:
+            'jaan_veebr_märts_apr_mai_juuni_juuli_aug_sept_okt_nov_dets'.split('_'),
+        weekdays:
+            'pühapäev_esmaspäev_teisipäev_kolmapäev_neljapäev_reede_laupäev'.split(
+                '_'
+            ),
         weekdaysShort: 'P_E_T_K_N_R_L'.split('_'),
         weekdaysMin: 'P_E_T_K_N_R_L'.split('_'),
         longDateFormat: {
@@ -21032,13 +21402,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'urtarrila_otsaila_martxoa_apirila_maiatza_ekaina_uztaila_abuztua_iraila_urria_azaroa_abendua'.split(
             '_'
         ),
-        monthsShort: 'urt._ots._mar._api._mai._eka._uzt._abu._ira._urr._aza._abe.'.split(
-            '_'
-        ),
+        monthsShort:
+            'urt._ots._mar._api._mai._eka._uzt._abu._ira._urr._aza._abe.'.split(
+                '_'
+            ),
         monthsParseExact: true,
-        weekdays: 'igandea_astelehena_asteartea_asteazkena_osteguna_ostirala_larunbata'.split(
-            '_'
-        ),
+        weekdays:
+            'igandea_astelehena_asteartea_asteazkena_osteguna_ostirala_larunbata'.split(
+                '_'
+            ),
         weekdaysShort: 'ig._al._ar._az._og._ol._lr.'.split('_'),
         weekdaysMin: 'ig_al_ar_az_og_ol_lr'.split('_'),
         weekdaysParseExact: true,
@@ -21112,16 +21484,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '۱',
-            '2': '۲',
-            '3': '۳',
-            '4': '۴',
-            '5': '۵',
-            '6': '۶',
-            '7': '۷',
-            '8': '۸',
-            '9': '۹',
-            '0': '۰',
+            1: '۱',
+            2: '۲',
+            3: '۳',
+            4: '۴',
+            5: '۵',
+            6: '۶',
+            7: '۷',
+            8: '۸',
+            9: '۹',
+            0: '۰',
         },
         numberMap = {
             '۱': '1',
@@ -21140,15 +21512,18 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر'.split(
             '_'
         ),
-        monthsShort: 'ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر'.split(
-            '_'
-        ),
-        weekdays: 'یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_جمعه_شنبه'.split(
-            '_'
-        ),
-        weekdaysShort: 'یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_جمعه_شنبه'.split(
-            '_'
-        ),
+        monthsShort:
+            'ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر'.split(
+                '_'
+            ),
+        weekdays:
+            'یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_جمعه_شنبه'.split(
+                '_'
+            ),
+        weekdaysShort:
+            'یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_جمعه_شنبه'.split(
+                '_'
+            ),
         weekdaysMin: 'ی_د_س_چ_پ_ج_ش'.split('_'),
         weekdaysParseExact: true,
         longDateFormat: {
@@ -21241,9 +21616,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var numbersPast = 'nolla yksi kaksi kolme neljä viisi kuusi seitsemän kahdeksan yhdeksän'.split(
-            ' '
-        ),
+    var numbersPast =
+            'nolla yksi kaksi kolme neljä viisi kuusi seitsemän kahdeksan yhdeksän'.split(
+                ' '
+            ),
         numbersFuture = [
             'nolla',
             'yhden',
@@ -21305,12 +21681,14 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'tammikuu_helmikuu_maaliskuu_huhtikuu_toukokuu_kesäkuu_heinäkuu_elokuu_syyskuu_lokakuu_marraskuu_joulukuu'.split(
             '_'
         ),
-        monthsShort: 'tammi_helmi_maalis_huhti_touko_kesä_heinä_elo_syys_loka_marras_joulu'.split(
-            '_'
-        ),
-        weekdays: 'sunnuntai_maanantai_tiistai_keskiviikko_torstai_perjantai_lauantai'.split(
-            '_'
-        ),
+        monthsShort:
+            'tammi_helmi_maalis_huhti_touko_kesä_heinä_elo_syys_loka_marras_joulu'.split(
+                '_'
+            ),
+        weekdays:
+            'sunnuntai_maanantai_tiistai_keskiviikko_torstai_perjantai_lauantai'.split(
+                '_'
+            ),
         weekdaysShort: 'su_ma_ti_ke_to_pe_la'.split('_'),
         weekdaysMin: 'su_ma_ti_ke_to_pe_la'.split('_'),
         longDateFormat: {
@@ -21466,9 +21844,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_'),
-        weekdays: 'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split(
-            '_'
-        ),
+        weekdays:
+            'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split(
+                '_'
+            ),
         weekdaysShort: 'sun_mán_týs_mik_hós_frí_ley'.split('_'),
         weekdaysMin: 'su_má_tý_mi_hó_fr_le'.split('_'),
         longDateFormat: {
@@ -21540,9 +21919,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split(
             '_'
         ),
-        monthsShort: 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split(
-            '_'
-        ),
+        monthsShort:
+            'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
         weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
@@ -21629,9 +22009,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split(
             '_'
         ),
-        monthsShort: 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split(
-            '_'
-        ),
+        monthsShort:
+            'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'dimanche_lundi_mardi_mercredi_jeudi_vendredi_samedi'.split('_'),
         weekdaysShort: 'dim._lun._mar._mer._jeu._ven._sam.'.split('_'),
@@ -21718,9 +22099,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsStrictRegex = /^(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i,
-        monthsShortStrictRegex = /(janv\.?|févr\.?|mars|avr\.?|mai|juin|juil\.?|août|sept\.?|oct\.?|nov\.?|déc\.?)/i,
-        monthsRegex = /(janv\.?|févr\.?|mars|avr\.?|mai|juin|juil\.?|août|sept\.?|oct\.?|nov\.?|déc\.?|janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i,
+    var monthsStrictRegex =
+            /^(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i,
+        monthsShortStrictRegex =
+            /(janv\.?|févr\.?|mars|avr\.?|mai|juin|juil\.?|août|sept\.?|oct\.?|nov\.?|déc\.?)/i,
+        monthsRegex =
+            /(janv\.?|févr\.?|mars|avr\.?|mai|juin|juil\.?|août|sept\.?|oct\.?|nov\.?|déc\.?|janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)/i,
         monthsParse = [
             /^janv/i,
             /^févr/i,
@@ -21740,9 +22124,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'janvier_février_mars_avril_mai_juin_juillet_août_septembre_octobre_novembre_décembre'.split(
             '_'
         ),
-        monthsShort: 'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split(
-            '_'
-        ),
+        monthsShort:
+            'janv._févr._mars_avr._mai_juin_juil._août_sept._oct._nov._déc.'.split(
+                '_'
+            ),
         monthsRegex: monthsRegex,
         monthsShortRegex: monthsRegex,
         monthsStrictRegex: monthsStrictRegex,
@@ -21781,6 +22166,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d heures',
             d: 'un jour',
             dd: '%d jours',
+            w: 'une semaine',
+            ww: '%d semaines',
             M: 'un mois',
             MM: '%d mois',
             y: 'un an',
@@ -21840,12 +22227,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsShortWithDots = 'jan._feb._mrt._apr._mai_jun._jul._aug._sep._okt._nov._des.'.split(
-            '_'
-        ),
-        monthsShortWithoutDots = 'jan_feb_mrt_apr_mai_jun_jul_aug_sep_okt_nov_des'.split(
-            '_'
-        );
+    var monthsShortWithDots =
+            'jan._feb._mrt._apr._mai_jun._jul._aug._sep._okt._nov._des.'.split('_'),
+        monthsShortWithoutDots =
+            'jan_feb_mrt_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_');
 
     var fy = moment.defineLocale('fy', {
         months: 'jannewaris_febrewaris_maart_april_maaie_juny_july_augustus_septimber_oktober_novimber_desimber'.split(
@@ -22171,9 +22556,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'xaneiro_febreiro_marzo_abril_maio_xuño_xullo_agosto_setembro_outubro_novembro_decembro'.split(
             '_'
         ),
-        monthsShort: 'xan._feb._mar._abr._mai._xuñ._xul._ago._set._out._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'xan._feb._mar._abr._mai._xuñ._xul._ago._set._out._nov._dec.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'domingo_luns_martes_mércores_xoves_venres_sábado'.split('_'),
         weekdaysShort: 'dom._lun._mar._mér._xov._ven._sáb.'.split('_'),
@@ -22281,17 +22667,19 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     var gomDeva = moment.defineLocale('gom-deva', {
         months: {
-            standalone: 'जानेवारी_फेब्रुवारी_मार्च_एप्रील_मे_जून_जुलय_ऑगस्ट_सप्टेंबर_ऑक्टोबर_नोव्हेंबर_डिसेंबर'.split(
-                '_'
-            ),
+            standalone:
+                'जानेवारी_फेब्रुवारी_मार्च_एप्रील_मे_जून_जुलय_ऑगस्ट_सप्टेंबर_ऑक्टोबर_नोव्हेंबर_डिसेंबर'.split(
+                    '_'
+                ),
             format: 'जानेवारीच्या_फेब्रुवारीच्या_मार्चाच्या_एप्रीलाच्या_मेयाच्या_जूनाच्या_जुलयाच्या_ऑगस्टाच्या_सप्टेंबराच्या_ऑक्टोबराच्या_नोव्हेंबराच्या_डिसेंबराच्या'.split(
                 '_'
             ),
             isFormat: /MMMM(\s)+D[oD]?/,
         },
-        monthsShort: 'जाने._फेब्रु._मार्च_एप्री._मे_जून_जुल._ऑग._सप्टें._ऑक्टो._नोव्हें._डिसें.'.split(
-            '_'
-        ),
+        monthsShort:
+            'जाने._फेब्रु._मार्च_एप्री._मे_जून_जुल._ऑग._सप्टें._ऑक्टो._नोव्हें._डिसें.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'आयतार_सोमार_मंगळार_बुधवार_बिरेस्तार_सुक्रार_शेनवार'.split('_'),
         weekdaysShort: 'आयत._सोम._मंगळ._बुध._ब्रेस्त._सुक्र._शेन.'.split('_'),
@@ -22347,8 +22735,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             }
         },
         week: {
-            dow: 1, // Monday is the first day of the week.
-            doy: 4, // The week that contains Jan 4th is the first week of the year.
+            dow: 0, // Sunday is the first day of the week
+            doy: 3, // The week that contains Jan 4th is the first week of the year (7 + 0 - 4)
         },
         meridiemParse: /राती|सकाळीं|दनपारां|सांजे/,
         meridiemHour: function (hour, meridiem) {
@@ -22425,17 +22813,17 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     var gomLatn = moment.defineLocale('gom-latn', {
         months: {
-            standalone: 'Janer_Febrer_Mars_Abril_Mai_Jun_Julai_Agost_Setembr_Otubr_Novembr_Dezembr'.split(
-                '_'
-            ),
+            standalone:
+                'Janer_Febrer_Mars_Abril_Mai_Jun_Julai_Agost_Setembr_Otubr_Novembr_Dezembr'.split(
+                    '_'
+                ),
             format: 'Janerachea_Febrerachea_Marsachea_Abrilachea_Maiachea_Junachea_Julaiachea_Agostachea_Setembrachea_Otubrachea_Novembrachea_Dezembrachea'.split(
                 '_'
             ),
             isFormat: /MMMM(\s)+D[oD]?/,
         },
-        monthsShort: 'Jan._Feb._Mars_Abr._Mai_Jun_Jul._Ago._Set._Otu._Nov._Dez.'.split(
-            '_'
-        ),
+        monthsShort:
+            'Jan._Feb._Mars_Abr._Mai_Jun_Jul._Ago._Set._Otu._Nov._Dez.'.split('_'),
         monthsParseExact: true,
         weekdays: "Aitar_Somar_Mongllar_Budhvar_Birestar_Sukrar_Son'var".split('_'),
         weekdaysShort: 'Ait._Som._Mon._Bud._Bre._Suk._Son.'.split('_'),
@@ -22491,8 +22879,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             }
         },
         week: {
-            dow: 1, // Monday is the first day of the week.
-            doy: 4, // The week that contains Jan 4th is the first week of the year.
+            dow: 0, // Sunday is the first day of the week
+            doy: 3, // The week that contains Jan 4th is the first week of the year (7 + 0 - 4)
         },
         meridiemParse: /rati|sokallim|donparam|sanje/,
         meridiemHour: function (hour, meridiem) {
@@ -22550,16 +22938,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '૧',
-            '2': '૨',
-            '3': '૩',
-            '4': '૪',
-            '5': '૫',
-            '6': '૬',
-            '7': '૭',
-            '8': '૮',
-            '9': '૯',
-            '0': '૦',
+            1: '૧',
+            2: '૨',
+            3: '૩',
+            4: '૪',
+            5: '૫',
+            6: '૬',
+            7: '૭',
+            8: '૮',
+            9: '૯',
+            0: '૦',
         },
         numberMap = {
             '૧': '1',
@@ -22578,9 +22966,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'જાન્યુઆરી_ફેબ્રુઆરી_માર્ચ_એપ્રિલ_મે_જૂન_જુલાઈ_ઑગસ્ટ_સપ્ટેમ્બર_ઑક્ટ્બર_નવેમ્બર_ડિસેમ્બર'.split(
             '_'
         ),
-        monthsShort: 'જાન્યુ._ફેબ્રુ._માર્ચ_એપ્રિ._મે_જૂન_જુલા._ઑગ._સપ્ટે._ઑક્ટ્._નવે._ડિસે.'.split(
-            '_'
-        ),
+        monthsShort:
+            'જાન્યુ._ફેબ્રુ._માર્ચ_એપ્રિ._મે_જૂન_જુલા._ઑગ._સપ્ટે._ઑક્ટ્._નવે._ડિસે.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'રવિવાર_સોમવાર_મંગળવાર_બુધ્વાર_ગુરુવાર_શુક્રવાર_શનિવાર'.split(
             '_'
@@ -22696,9 +23085,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ינואר_פברואר_מרץ_אפריל_מאי_יוני_יולי_אוגוסט_ספטמבר_אוקטובר_נובמבר_דצמבר'.split(
             '_'
         ),
-        monthsShort: 'ינו׳_פבר׳_מרץ_אפר׳_מאי_יוני_יולי_אוג׳_ספט׳_אוק׳_נוב׳_דצמ׳'.split(
-            '_'
-        ),
+        monthsShort:
+            'ינו׳_פבר׳_מרץ_אפר׳_מאי_יוני_יולי_אוג׳_ספט׳_אוק׳_נוב׳_דצמ׳'.split('_'),
         weekdays: 'ראשון_שני_שלישי_רביעי_חמישי_שישי_שבת'.split('_'),
         weekdaysShort: 'א׳_ב׳_ג׳_ד׳_ה׳_ו׳_ש׳'.split('_'),
         weekdaysMin: 'א_ב_ג_ד_ה_ו_ש'.split('_'),
@@ -22760,7 +23148,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 return number + ' שנים';
             },
         },
-        meridiemParse: /אחה"צ|לפנה"צ|אחרי הצהריים|לפני הצהריים|לפנות בוקר|בבוקר|בערב/i,
+        meridiemParse:
+            /אחה"צ|לפנה"צ|אחרי הצהריים|לפני הצהריים|לפנות בוקר|בבוקר|בערב/i,
         isPM: function (input) {
             return /^(אחה"צ|אחרי הצהריים|בערב)$/.test(input);
         },
@@ -22805,16 +23194,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '१',
-            '2': '२',
-            '3': '३',
-            '4': '४',
-            '5': '५',
-            '6': '६',
-            '7': '७',
-            '8': '८',
-            '9': '९',
-            '0': '०',
+            1: '१',
+            2: '२',
+            3: '३',
+            4: '४',
+            5: '५',
+            6: '६',
+            7: '७',
+            8: '८',
+            9: '९',
+            0: '०',
         },
         numberMap = {
             '१': '1',
@@ -22827,16 +23216,48 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '८': '8',
             '९': '9',
             '०': '0',
-        };
+        },
+        monthsParse = [
+            /^जन/i,
+            /^फ़र|फर/i,
+            /^मार्च/i,
+            /^अप्रै/i,
+            /^मई/i,
+            /^जून/i,
+            /^जुल/i,
+            /^अग/i,
+            /^सितं|सित/i,
+            /^अक्टू/i,
+            /^नव|नवं/i,
+            /^दिसं|दिस/i,
+        ],
+        shortMonthsParse = [
+            /^जन/i,
+            /^फ़र/i,
+            /^मार्च/i,
+            /^अप्रै/i,
+            /^मई/i,
+            /^जून/i,
+            /^जुल/i,
+            /^अग/i,
+            /^सित/i,
+            /^अक्टू/i,
+            /^नव/i,
+            /^दिस/i,
+        ];
 
     var hi = moment.defineLocale('hi', {
-        months: 'जनवरी_फ़रवरी_मार्च_अप्रैल_मई_जून_जुलाई_अगस्त_सितम्बर_अक्टूबर_नवम्बर_दिसम्बर'.split(
-            '_'
-        ),
-        monthsShort: 'जन._फ़र._मार्च_अप्रै._मई_जून_जुल._अग._सित._अक्टू._नव._दिस.'.split(
-            '_'
-        ),
-        monthsParseExact: true,
+        months: {
+            format: 'जनवरी_फ़रवरी_मार्च_अप्रैल_मई_जून_जुलाई_अगस्त_सितम्बर_अक्टूबर_नवम्बर_दिसम्बर'.split(
+                '_'
+            ),
+            standalone:
+                'जनवरी_फरवरी_मार्च_अप्रैल_मई_जून_जुलाई_अगस्त_सितंबर_अक्टूबर_नवंबर_दिसंबर'.split(
+                    '_'
+                ),
+        },
+        monthsShort:
+            'जन._फ़र._मार्च_अप्रै._मई_जून_जुल._अग._सित._अक्टू._नव._दिस.'.split('_'),
         weekdays: 'रविवार_सोमवार_मंगलवार_बुधवार_गुरूवार_शुक्रवार_शनिवार'.split('_'),
         weekdaysShort: 'रवि_सोम_मंगल_बुध_गुरू_शुक्र_शनि'.split('_'),
         weekdaysMin: 'र_सो_मं_बु_गु_शु_श'.split('_'),
@@ -22848,6 +23269,23 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             LLL: 'D MMMM YYYY, A h:mm बजे',
             LLLL: 'dddd, D MMMM YYYY, A h:mm बजे',
         },
+
+        monthsParse: monthsParse,
+        longMonthsParse: monthsParse,
+        shortMonthsParse: shortMonthsParse,
+
+        monthsRegex:
+            /^(जनवरी|जन\.?|फ़रवरी|फरवरी|फ़र\.?|मार्च?|अप्रैल|अप्रै\.?|मई?|जून?|जुलाई|जुल\.?|अगस्त|अग\.?|सितम्बर|सितंबर|सित\.?|अक्टूबर|अक्टू\.?|नवम्बर|नवंबर|नव\.?|दिसम्बर|दिसंबर|दिस\.?)/i,
+
+        monthsShortRegex:
+            /^(जनवरी|जन\.?|फ़रवरी|फरवरी|फ़र\.?|मार्च?|अप्रैल|अप्रै\.?|मई?|जून?|जुलाई|जुल\.?|अगस्त|अग\.?|सितम्बर|सितंबर|सित\.?|अक्टूबर|अक्टू\.?|नवम्बर|नवंबर|नव\.?|दिसम्बर|दिसंबर|दिस\.?)/i,
+
+        monthsStrictRegex:
+            /^(जनवरी?|फ़रवरी|फरवरी?|मार्च?|अप्रैल?|मई?|जून?|जुलाई?|अगस्त?|सितम्बर|सितंबर|सित?\.?|अक्टूबर|अक्टू\.?|नवम्बर|नवंबर?|दिसम्बर|दिसंबर?)/i,
+
+        monthsShortStrictRegex:
+            /^(जन\.?|फ़र\.?|मार्च?|अप्रै\.?|मई?|जून?|जुल\.?|अग\.?|सित\.?|अक्टू\.?|नव\.?|दिस\.?)/i,
+
         calendar: {
             sameDay: '[आज] LT',
             nextDay: '[कल] LT',
@@ -23010,13 +23448,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'siječnja_veljače_ožujka_travnja_svibnja_lipnja_srpnja_kolovoza_rujna_listopada_studenoga_prosinca'.split(
                 '_'
             ),
-            standalone: 'siječanj_veljača_ožujak_travanj_svibanj_lipanj_srpanj_kolovoz_rujan_listopad_studeni_prosinac'.split(
+            standalone:
+                'siječanj_veljača_ožujak_travanj_svibanj_lipanj_srpanj_kolovoz_rujan_listopad_studeni_prosinac'.split(
+                    '_'
+                ),
+        },
+        monthsShort:
+            'sij._velj._ožu._tra._svi._lip._srp._kol._ruj._lis._stu._pro.'.split(
                 '_'
             ),
-        },
-        monthsShort: 'sij._velj._ožu._tra._svi._lip._srp._kol._ruj._lis._stu._pro.'.split(
-            '_'
-        ),
         monthsParseExact: true,
         weekdays: 'nedjelja_ponedjeljak_utorak_srijeda_četvrtak_petak_subota'.split(
             '_'
@@ -23109,6 +23549,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 //! moment.js locale configuration
 //! locale : Hungarian [hu]
 //! author : Adam Brunner : https://github.com/adambrunner
+//! author : Peter Viszt  : https://github.com/passatgt
 
 ;(function (global, factory) {
     true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
@@ -23117,9 +23558,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var weekEndings = 'vasárnap hétfőn kedden szerdán csütörtökön pénteken szombaton'.split(
-        ' '
-    );
+    var weekEndings =
+        'vasárnap hétfőn kedden szerdán csütörtökön pénteken szombaton'.split(' ');
     function translate(number, withoutSuffix, key, isFuture) {
         var num = number;
         switch (key) {
@@ -23167,9 +23607,11 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'január_február_március_április_május_június_július_augusztus_szeptember_október_november_december'.split(
             '_'
         ),
-        monthsShort: 'jan_feb_márc_ápr_máj_jún_júl_aug_szept_okt_nov_dec'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._márc._ápr._máj._jún._júl._aug._szept._okt._nov._dec.'.split(
+                '_'
+            ),
+        monthsParseExact: true,
         weekdays: 'vasárnap_hétfő_kedd_szerda_csütörtök_péntek_szombat'.split('_'),
         weekdaysShort: 'vas_hét_kedd_sze_csüt_pén_szo'.split('_'),
         weekdaysMin: 'v_h_k_sze_cs_p_szo'.split('_'),
@@ -23258,14 +23700,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'հունվարի_փետրվարի_մարտի_ապրիլի_մայիսի_հունիսի_հուլիսի_օգոստոսի_սեպտեմբերի_հոկտեմբերի_նոյեմբերի_դեկտեմբերի'.split(
                 '_'
             ),
-            standalone: 'հունվար_փետրվար_մարտ_ապրիլ_մայիս_հունիս_հուլիս_օգոստոս_սեպտեմբեր_հոկտեմբեր_նոյեմբեր_դեկտեմբեր'.split(
-                '_'
-            ),
+            standalone:
+                'հունվար_փետրվար_մարտ_ապրիլ_մայիս_հունիս_հուլիս_օգոստոս_սեպտեմբեր_հոկտեմբեր_նոյեմբեր_դեկտեմբեր'.split(
+                    '_'
+                ),
         },
         monthsShort: 'հնվ_փտր_մրտ_ապր_մյս_հնս_հլս_օգս_սպտ_հկտ_նմբ_դկտ'.split('_'),
-        weekdays: 'կիրակի_երկուշաբթի_երեքշաբթի_չորեքշաբթի_հինգշաբթի_ուրբաթ_շաբաթ'.split(
-            '_'
-        ),
+        weekdays:
+            'կիրակի_երկուշաբթի_երեքշաբթի_չորեքշաբթի_հինգշաբթի_ուրբաթ_շաբաթ'.split(
+                '_'
+            ),
         weekdaysShort: 'կրկ_երկ_երք_չրք_հնգ_ուրբ_շբթ'.split('_'),
         weekdaysMin: 'կրկ_երկ_երք_չրք_հնգ_ուրբ_շբթ'.split('_'),
         longDateFormat: {
@@ -23550,9 +23994,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'jan_feb_mar_apr_maí_jún_júl_ágú_sep_okt_nóv_des'.split('_'),
-        weekdays: 'sunnudagur_mánudagur_þriðjudagur_miðvikudagur_fimmtudagur_föstudagur_laugardagur'.split(
-            '_'
-        ),
+        weekdays:
+            'sunnudagur_mánudagur_þriðjudagur_miðvikudagur_fimmtudagur_föstudagur_laugardagur'.split(
+                '_'
+            ),
         weekdaysShort: 'sun_mán_þri_mið_fim_fös_lau'.split('_'),
         weekdaysMin: 'Su_Má_Þr_Mi_Fi_Fö_La'.split('_'),
         longDateFormat: {
@@ -23790,6 +24235,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d ore',
             d: 'un giorno',
             dd: '%d giorni',
+            w: 'una settimana',
+            ww: '%d settimane',
             M: 'un mese',
             MM: '%d mesi',
             y: 'un anno',
@@ -24098,9 +24545,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         ),
         monthsShort: 'იან_თებ_მარ_აპრ_მაი_ივნ_ივლ_აგვ_სექ_ოქტ_ნოე_დეკ'.split('_'),
         weekdays: {
-            standalone: 'კვირა_ორშაბათი_სამშაბათი_ოთხშაბათი_ხუთშაბათი_პარასკევი_შაბათი'.split(
-                '_'
-            ),
+            standalone:
+                'კვირა_ორშაბათი_სამშაბათი_ოთხშაბათი_ხუთშაბათი_პარასკევი_შაბათი'.split(
+                    '_'
+                ),
             format: 'კვირას_ორშაბათს_სამშაბათს_ოთხშაბათს_ხუთშაბათს_პარასკევს_შაბათს'.split(
                 '_'
             ),
@@ -24126,13 +24574,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         },
         relativeTime: {
             future: function (s) {
-                return s.replace(/(წამ|წუთ|საათ|წელ|დღ|თვ)(ი|ე)/, function (
-                    $0,
-                    $1,
-                    $2
-                ) {
-                    return $2 === 'ი' ? $1 + 'ში' : $1 + $2 + 'ში';
-                });
+                return s.replace(
+                    /(წამ|წუთ|საათ|წელ|დღ|თვ)(ი|ე)/,
+                    function ($0, $1, $2) {
+                        return $2 === 'ი' ? $1 + 'ში' : $1 + $2 + 'ში';
+                    }
+                );
             },
             past: function (s) {
                 if (/(წამი|წუთი|საათი|დღე|თვე)/.test(s)) {
@@ -24307,16 +24754,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '១',
-            '2': '២',
-            '3': '៣',
-            '4': '៤',
-            '5': '៥',
-            '6': '៦',
-            '7': '៧',
-            '8': '៨',
-            '9': '៩',
-            '0': '០',
+            1: '១',
+            2: '២',
+            3: '៣',
+            4: '៤',
+            5: '៥',
+            6: '៦',
+            7: '៧',
+            8: '៨',
+            9: '៩',
+            0: '០',
         },
         numberMap = {
             '១': '1',
@@ -24335,9 +24782,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'មករា_កុម្ភៈ_មីនា_មេសា_ឧសភា_មិថុនា_កក្កដា_សីហា_កញ្ញា_តុលា_វិច្ឆិកា_ធ្នូ'.split(
             '_'
         ),
-        monthsShort: 'មករា_កុម្ភៈ_មីនា_មេសា_ឧសភា_មិថុនា_កក្កដា_សីហា_កញ្ញា_តុលា_វិច្ឆិកា_ធ្នូ'.split(
-            '_'
-        ),
+        monthsShort:
+            'មករា_កុម្ភៈ_មីនា_មេសា_ឧសភា_មិថុនា_កក្កដា_សីហា_កញ្ញា_តុលា_វិច្ឆិកា_ធ្នូ'.split(
+                '_'
+            ),
         weekdays: 'អាទិត្យ_ច័ន្ទ_អង្គារ_ពុធ_ព្រហស្បតិ៍_សុក្រ_សៅរ៍'.split('_'),
         weekdaysShort: 'អា_ច_អ_ព_ព្រ_សុ_ស'.split('_'),
         weekdaysMin: 'អា_ច_អ_ព_ព្រ_សុ_ស'.split('_'),
@@ -24429,16 +24877,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '೧',
-            '2': '೨',
-            '3': '೩',
-            '4': '೪',
-            '5': '೫',
-            '6': '೬',
-            '7': '೭',
-            '8': '೮',
-            '9': '೯',
-            '0': '೦',
+            1: '೧',
+            2: '೨',
+            3: '೩',
+            4: '೪',
+            5: '೫',
+            6: '೬',
+            7: '೭',
+            8: '೮',
+            9: '೯',
+            0: '೦',
         },
         numberMap = {
             '೧': '1',
@@ -24457,9 +24905,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ಜನವರಿ_ಫೆಬ್ರವರಿ_ಮಾರ್ಚ್_ಏಪ್ರಿಲ್_ಮೇ_ಜೂನ್_ಜುಲೈ_ಆಗಸ್ಟ್_ಸೆಪ್ಟೆಂಬರ್_ಅಕ್ಟೋಬರ್_ನವೆಂಬರ್_ಡಿಸೆಂಬರ್'.split(
             '_'
         ),
-        monthsShort: 'ಜನ_ಫೆಬ್ರ_ಮಾರ್ಚ್_ಏಪ್ರಿಲ್_ಮೇ_ಜೂನ್_ಜುಲೈ_ಆಗಸ್ಟ್_ಸೆಪ್ಟೆಂ_ಅಕ್ಟೋ_ನವೆಂ_ಡಿಸೆಂ'.split(
-            '_'
-        ),
+        monthsShort:
+            'ಜನ_ಫೆಬ್ರ_ಮಾರ್ಚ್_ಏಪ್ರಿಲ್_ಮೇ_ಜೂನ್_ಜುಲೈ_ಆಗಸ್ಟ್_ಸೆಪ್ಟೆಂ_ಅಕ್ಟೋ_ನವೆಂ_ಡಿಸೆಂ'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'ಭಾನುವಾರ_ಸೋಮವಾರ_ಮಂಗಳವಾರ_ಬುಧವಾರ_ಗುರುವಾರ_ಶುಕ್ರವಾರ_ಶನಿವಾರ'.split(
             '_'
@@ -24667,16 +25116,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '١',
-            '2': '٢',
-            '3': '٣',
-            '4': '٤',
-            '5': '٥',
-            '6': '٦',
-            '7': '٧',
-            '8': '٨',
-            '9': '٩',
-            '0': '٠',
+            1: '١',
+            2: '٢',
+            3: '٣',
+            4: '٤',
+            5: '٥',
+            6: '٦',
+            7: '٧',
+            8: '٨',
+            9: '٩',
+            0: '٠',
         },
         numberMap = {
             '١': '1',
@@ -24708,12 +25157,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     var ku = moment.defineLocale('ku', {
         months: months,
         monthsShort: months,
-        weekdays: 'یه‌كشه‌ممه‌_دووشه‌ممه‌_سێشه‌ممه‌_چوارشه‌ممه‌_پێنجشه‌ممه‌_هه‌ینی_شه‌ممه‌'.split(
-            '_'
-        ),
-        weekdaysShort: 'یه‌كشه‌م_دووشه‌م_سێشه‌م_چوارشه‌م_پێنجشه‌م_هه‌ینی_شه‌ممه‌'.split(
-            '_'
-        ),
+        weekdays:
+            'یه‌كشه‌ممه‌_دووشه‌ممه‌_سێشه‌ممه‌_چوارشه‌ممه‌_پێنجشه‌ممه‌_هه‌ینی_شه‌ممه‌'.split(
+                '_'
+            ),
+        weekdaysShort:
+            'یه‌كشه‌م_دووشه‌م_سێشه‌م_چوارشه‌م_پێنجشه‌م_هه‌ینی_شه‌ممه‌'.split('_'),
         weekdaysMin: 'ی_د_س_چ_پ_ه_ش'.split('_'),
         weekdaysParseExact: true,
         longDateFormat: {
@@ -24979,13 +25428,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'Januar_Februar_Mäerz_Abrëll_Mee_Juni_Juli_August_September_Oktober_November_Dezember'.split(
             '_'
         ),
-        monthsShort: 'Jan._Febr._Mrz._Abr._Mee_Jun._Jul._Aug._Sept._Okt._Nov._Dez.'.split(
-            '_'
-        ),
+        monthsShort:
+            'Jan._Febr._Mrz._Abr._Mee_Jun._Jul._Aug._Sept._Okt._Nov._Dez.'.split(
+                '_'
+            ),
         monthsParseExact: true,
-        weekdays: 'Sonndeg_Méindeg_Dënschdeg_Mëttwoch_Donneschdeg_Freideg_Samschdeg'.split(
-            '_'
-        ),
+        weekdays:
+            'Sonndeg_Méindeg_Dënschdeg_Mëttwoch_Donneschdeg_Freideg_Samschdeg'.split(
+                '_'
+            ),
         weekdaysShort: 'So._Mé._Dë._Më._Do._Fr._Sa.'.split('_'),
         weekdaysMin: 'So_Mé_Dë_Më_Do_Fr_Sa'.split('_'),
         weekdaysParseExact: true,
@@ -25067,9 +25518,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ມັງກອນ_ກຸມພາ_ມີນາ_ເມສາ_ພຶດສະພາ_ມິຖຸນາ_ກໍລະກົດ_ສິງຫາ_ກັນຍາ_ຕຸລາ_ພະຈິກ_ທັນວາ'.split(
             '_'
         ),
-        monthsShort: 'ມັງກອນ_ກຸມພາ_ມີນາ_ເມສາ_ພຶດສະພາ_ມິຖຸນາ_ກໍລະກົດ_ສິງຫາ_ກັນຍາ_ຕຸລາ_ພະຈິກ_ທັນວາ'.split(
-            '_'
-        ),
+        monthsShort:
+            'ມັງກອນ_ກຸມພາ_ມີນາ_ເມສາ_ພຶດສະພາ_ມິຖຸນາ_ກໍລະກົດ_ສິງຫາ_ກັນຍາ_ຕຸລາ_ພະຈິກ_ທັນວາ'.split(
+                '_'
+            ),
         weekdays: 'ອາທິດ_ຈັນ_ອັງຄານ_ພຸດ_ພະຫັດ_ສຸກ_ເສົາ'.split('_'),
         weekdaysShort: 'ທິດ_ຈັນ_ອັງຄານ_ພຸດ_ພະຫັດ_ສຸກ_ເສົາ'.split('_'),
         weekdaysMin: 'ທ_ຈ_ອຄ_ພ_ພຫ_ສກ_ສ'.split('_'),
@@ -25202,9 +25654,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'sausio_vasario_kovo_balandžio_gegužės_birželio_liepos_rugpjūčio_rugsėjo_spalio_lapkričio_gruodžio'.split(
                 '_'
             ),
-            standalone: 'sausis_vasaris_kovas_balandis_gegužė_birželis_liepa_rugpjūtis_rugsėjis_spalis_lapkritis_gruodis'.split(
-                '_'
-            ),
+            standalone:
+                'sausis_vasaris_kovas_balandis_gegužė_birželis_liepa_rugpjūtis_rugsėjis_spalis_lapkritis_gruodis'.split(
+                    '_'
+                ),
             isFormat: /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?|MMMM?(\[[^\[\]]*\]|\s)+D[oD]?/,
         },
         monthsShort: 'sau_vas_kov_bal_geg_bir_lie_rgp_rgs_spa_lap_grd'.split('_'),
@@ -25212,9 +25665,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'sekmadienį_pirmadienį_antradienį_trečiadienį_ketvirtadienį_penktadienį_šeštadienį'.split(
                 '_'
             ),
-            standalone: 'sekmadienis_pirmadienis_antradienis_trečiadienis_ketvirtadienis_penktadienis_šeštadienis'.split(
-                '_'
-            ),
+            standalone:
+                'sekmadienis_pirmadienis_antradienis_trečiadienis_ketvirtadienis_penktadienis_šeštadienis'.split(
+                    '_'
+                ),
             isFormat: /dddd HH:mm/,
         },
         weekdaysShort: 'Sek_Pir_Ant_Tre_Ket_Pen_Šeš'.split('_'),
@@ -25333,9 +25787,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'jan_feb_mar_apr_mai_jūn_jūl_aug_sep_okt_nov_dec'.split('_'),
-        weekdays: 'svētdiena_pirmdiena_otrdiena_trešdiena_ceturtdiena_piektdiena_sestdiena'.split(
-            '_'
-        ),
+        weekdays:
+            'svētdiena_pirmdiena_otrdiena_trešdiena_ceturtdiena_piektdiena_sestdiena'.split(
+                '_'
+            ),
         weekdaysShort: 'Sv_P_O_T_C_Pk_S'.split('_'),
         weekdaysMin: 'Sv_P_O_T_C_Pk_S'.split('_'),
         weekdaysParseExact: true,
@@ -25441,9 +25896,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'januar_februar_mart_april_maj_jun_jul_avgust_septembar_oktobar_novembar_decembar'.split(
             '_'
         ),
-        monthsShort: 'jan._feb._mar._apr._maj_jun_jul_avg._sep._okt._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._mar._apr._maj_jun_jul_avg._sep._okt._nov._dec.'.split('_'),
         monthsParseExact: true,
         weekdays: 'nedjelja_ponedjeljak_utorak_srijeda_četvrtak_petak_subota'.split(
             '_'
@@ -25546,9 +26000,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'Kohi-tāte_Hui-tanguru_Poutū-te-rangi_Paenga-whāwhā_Haratua_Pipiri_Hōngoingoi_Here-turi-kōkā_Mahuru_Whiringa-ā-nuku_Whiringa-ā-rangi_Hakihea'.split(
             '_'
         ),
-        monthsShort: 'Kohi_Hui_Pou_Pae_Hara_Pipi_Hōngoi_Here_Mahu_Whi-nu_Whi-ra_Haki'.split(
-            '_'
-        ),
+        monthsShort:
+            'Kohi_Hui_Pou_Pae_Hara_Pipi_Hōngoi_Here_Mahu_Whi-nu_Whi-ra_Haki'.split(
+                '_'
+            ),
         monthsRegex: /(?:['a-z\u0101\u014D\u016B]+\-?){1,3}/i,
         monthsStrictRegex: /(?:['a-z\u0101\u014D\u016B]+\-?){1,3}/i,
         monthsShortRegex: /(?:['a-z\u0101\u014D\u016B]+\-?){1,3}/i,
@@ -25731,13 +26186,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ജനുവരി_ഫെബ്രുവരി_മാർച്ച്_ഏപ്രിൽ_മേയ്_ജൂൺ_ജൂലൈ_ഓഗസ്റ്റ്_സെപ്റ്റംബർ_ഒക്ടോബർ_നവംബർ_ഡിസംബർ'.split(
             '_'
         ),
-        monthsShort: 'ജനു._ഫെബ്രു._മാർ._ഏപ്രി._മേയ്_ജൂൺ_ജൂലൈ._ഓഗ._സെപ്റ്റ._ഒക്ടോ._നവം._ഡിസം.'.split(
-            '_'
-        ),
+        monthsShort:
+            'ജനു._ഫെബ്രു._മാർ._ഏപ്രി._മേയ്_ജൂൺ_ജൂലൈ._ഓഗ._സെപ്റ്റ._ഒക്ടോ._നവം._ഡിസം.'.split(
+                '_'
+            ),
         monthsParseExact: true,
-        weekdays: 'ഞായറാഴ്ച_തിങ്കളാഴ്ച_ചൊവ്വാഴ്ച_ബുധനാഴ്ച_വ്യാഴാഴ്ച_വെള്ളിയാഴ്ച_ശനിയാഴ്ച'.split(
-            '_'
-        ),
+        weekdays:
+            'ഞായറാഴ്ച_തിങ്കളാഴ്ച_ചൊവ്വാഴ്ച_ബുധനാഴ്ച_വ്യാഴാഴ്ച_വെള്ളിയാഴ്ച_ശനിയാഴ്ച'.split(
+                '_'
+            ),
         weekdaysShort: 'ഞായർ_തിങ്കൾ_ചൊവ്വ_ബുധൻ_വ്യാഴം_വെള്ളി_ശനി'.split('_'),
         weekdaysMin: 'ഞാ_തി_ചൊ_ബു_വ്യാ_വെ_ശ'.split('_'),
         longDateFormat: {
@@ -25857,9 +26314,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'Нэгдүгээр сар_Хоёрдугаар сар_Гуравдугаар сар_Дөрөвдүгээр сар_Тавдугаар сар_Зургадугаар сар_Долдугаар сар_Наймдугаар сар_Есдүгээр сар_Аравдугаар сар_Арван нэгдүгээр сар_Арван хоёрдугаар сар'.split(
             '_'
         ),
-        monthsShort: '1 сар_2 сар_3 сар_4 сар_5 сар_6 сар_7 сар_8 сар_9 сар_10 сар_11 сар_12 сар'.split(
-            '_'
-        ),
+        monthsShort:
+            '1 сар_2 сар_3 сар_4 сар_5 сар_6 сар_7 сар_8 сар_9 сар_10 сар_11 сар_12 сар'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'Ням_Даваа_Мягмар_Лхагва_Пүрэв_Баасан_Бямба'.split('_'),
         weekdaysShort: 'Ням_Дав_Мяг_Лха_Пүр_Баа_Бям'.split('_'),
@@ -25948,16 +26406,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '१',
-            '2': '२',
-            '3': '३',
-            '4': '४',
-            '5': '५',
-            '6': '६',
-            '7': '७',
-            '8': '८',
-            '9': '९',
-            '0': '०',
+            1: '१',
+            2: '२',
+            3: '३',
+            4: '४',
+            5: '५',
+            6: '६',
+            7: '७',
+            8: '८',
+            9: '९',
+            0: '०',
         },
         numberMap = {
             '१': '1',
@@ -26060,9 +26518,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'जानेवारी_फेब्रुवारी_मार्च_एप्रिल_मे_जून_जुलै_ऑगस्ट_सप्टेंबर_ऑक्टोबर_नोव्हेंबर_डिसेंबर'.split(
             '_'
         ),
-        monthsShort: 'जाने._फेब्रु._मार्च._एप्रि._मे._जून._जुलै._ऑग._सप्टें._ऑक्टो._नोव्हें._डिसें.'.split(
-            '_'
-        ),
+        monthsShort:
+            'जाने._फेब्रु._मार्च._एप्रि._मे._जून._जुलै._ऑग._सप्टें._ऑक्टो._नोव्हें._डिसें.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'रविवार_सोमवार_मंगळवार_बुधवार_गुरूवार_शुक्रवार_शनिवार'.split('_'),
         weekdaysShort: 'रवि_सोम_मंगळ_बुध_गुरू_शुक्र_शनि'.split('_'),
@@ -26364,9 +26823,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'Jan_Fra_Mar_Apr_Mej_Ġun_Lul_Aww_Set_Ott_Nov_Diċ'.split('_'),
-        weekdays: 'Il-Ħadd_It-Tnejn_It-Tlieta_L-Erbgħa_Il-Ħamis_Il-Ġimgħa_Is-Sibt'.split(
-            '_'
-        ),
+        weekdays:
+            'Il-Ħadd_It-Tnejn_It-Tlieta_L-Erbgħa_Il-Ħamis_Il-Ġimgħa_Is-Sibt'.split(
+                '_'
+            ),
         weekdaysShort: 'Ħad_Tne_Tli_Erb_Ħam_Ġim_Sib'.split('_'),
         weekdaysMin: 'Ħa_Tn_Tl_Er_Ħa_Ġi_Si'.split('_'),
         longDateFormat: {
@@ -26437,16 +26897,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '၁',
-            '2': '၂',
-            '3': '၃',
-            '4': '၄',
-            '5': '၅',
-            '6': '၆',
-            '7': '၇',
-            '8': '၈',
-            '9': '၉',
-            '0': '၀',
+            1: '၁',
+            2: '၂',
+            3: '၃',
+            4: '၄',
+            5: '၅',
+            6: '၆',
+            7: '၇',
+            8: '၈',
+            9: '၉',
+            0: '၀',
         },
         numberMap = {
             '၁': '1',
@@ -26551,9 +27011,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'januar_februar_mars_april_mai_juni_juli_august_september_oktober_november_desember'.split(
             '_'
         ),
-        monthsShort: 'jan._feb._mars_apr._mai_juni_juli_aug._sep._okt._nov._des.'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._mars_apr._mai_juni_juli_aug._sep._okt._nov._des.'.split('_'),
         monthsParseExact: true,
         weekdays: 'søndag_mandag_tirsdag_onsdag_torsdag_fredag_lørdag'.split('_'),
         weekdaysShort: 'sø._ma._ti._on._to._fr._lø.'.split('_'),
@@ -26586,6 +27045,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d timer',
             d: 'en dag',
             dd: '%d dager',
+            w: 'en uke',
+            ww: '%d uker',
             M: 'en måned',
             MM: '%d måneder',
             y: 'ett år',
@@ -26625,16 +27086,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '१',
-            '2': '२',
-            '3': '३',
-            '4': '४',
-            '5': '५',
-            '6': '६',
-            '7': '७',
-            '8': '८',
-            '9': '९',
-            '0': '०',
+            1: '१',
+            2: '२',
+            3: '३',
+            4: '४',
+            5: '५',
+            6: '६',
+            7: '७',
+            8: '८',
+            9: '९',
+            0: '०',
         },
         numberMap = {
             '१': '1',
@@ -26653,9 +27114,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'जनवरी_फेब्रुवरी_मार्च_अप्रिल_मई_जुन_जुलाई_अगष्ट_सेप्टेम्बर_अक्टोबर_नोभेम्बर_डिसेम्बर'.split(
             '_'
         ),
-        monthsShort: 'जन._फेब्रु._मार्च_अप्रि._मई_जुन_जुलाई._अग._सेप्ट._अक्टो._नोभे._डिसे.'.split(
-            '_'
-        ),
+        monthsShort:
+            'जन._फेब्रु._मार्च_अप्रि._मई_जुन_जुलाई._अग._सेप्ट._अक्टो._नोभे._डिसे.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'आइतबार_सोमबार_मङ्गलबार_बुधबार_बिहिबार_शुक्रबार_शनिबार'.split(
             '_'
@@ -26765,12 +27227,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsShortWithDots = 'jan._feb._mrt._apr._mei_jun._jul._aug._sep._okt._nov._dec.'.split(
-            '_'
-        ),
-        monthsShortWithoutDots = 'jan_feb_mrt_apr_mei_jun_jul_aug_sep_okt_nov_dec'.split(
-            '_'
-        ),
+    var monthsShortWithDots =
+            'jan._feb._mrt._apr._mei_jun._jul._aug._sep._okt._nov._dec.'.split('_'),
+        monthsShortWithoutDots =
+            'jan_feb_mrt_apr_mei_jun_jul_aug_sep_okt_nov_dec'.split('_'),
         monthsParse = [
             /^jan/i,
             /^feb/i,
@@ -26785,7 +27245,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             /^nov/i,
             /^dec/i,
         ],
-        monthsRegex = /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december|jan\.?|feb\.?|mrt\.?|apr\.?|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i;
+        monthsRegex =
+            /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december|jan\.?|feb\.?|mrt\.?|apr\.?|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i;
 
     var nlBe = moment.defineLocale('nl-be', {
         months: 'januari_februari_maart_april_mei_juni_juli_augustus_september_oktober_november_december'.split(
@@ -26803,16 +27264,17 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
         monthsRegex: monthsRegex,
         monthsShortRegex: monthsRegex,
-        monthsStrictRegex: /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december)/i,
-        monthsShortStrictRegex: /^(jan\.?|feb\.?|mrt\.?|apr\.?|mei|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i,
+        monthsStrictRegex:
+            /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december)/i,
+        monthsShortStrictRegex:
+            /^(jan\.?|feb\.?|mrt\.?|apr\.?|mei|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i,
 
         monthsParse: monthsParse,
         longMonthsParse: monthsParse,
         shortMonthsParse: monthsParse,
 
-        weekdays: 'zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag'.split(
-            '_'
-        ),
+        weekdays:
+            'zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag'.split('_'),
         weekdaysShort: 'zo._ma._di._wo._do._vr._za.'.split('_'),
         weekdaysMin: 'zo_ma_di_wo_do_vr_za'.split('_'),
         weekdaysParseExact: true,
@@ -26887,12 +27349,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsShortWithDots = 'jan._feb._mrt._apr._mei_jun._jul._aug._sep._okt._nov._dec.'.split(
-            '_'
-        ),
-        monthsShortWithoutDots = 'jan_feb_mrt_apr_mei_jun_jul_aug_sep_okt_nov_dec'.split(
-            '_'
-        ),
+    var monthsShortWithDots =
+            'jan._feb._mrt._apr._mei_jun._jul._aug._sep._okt._nov._dec.'.split('_'),
+        monthsShortWithoutDots =
+            'jan_feb_mrt_apr_mei_jun_jul_aug_sep_okt_nov_dec'.split('_'),
         monthsParse = [
             /^jan/i,
             /^feb/i,
@@ -26907,7 +27367,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             /^nov/i,
             /^dec/i,
         ],
-        monthsRegex = /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december|jan\.?|feb\.?|mrt\.?|apr\.?|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i;
+        monthsRegex =
+            /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december|jan\.?|feb\.?|mrt\.?|apr\.?|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i;
 
     var nl = moment.defineLocale('nl', {
         months: 'januari_februari_maart_april_mei_juni_juli_augustus_september_oktober_november_december'.split(
@@ -26925,16 +27386,17 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
         monthsRegex: monthsRegex,
         monthsShortRegex: monthsRegex,
-        monthsStrictRegex: /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december)/i,
-        monthsShortStrictRegex: /^(jan\.?|feb\.?|mrt\.?|apr\.?|mei|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i,
+        monthsStrictRegex:
+            /^(januari|februari|maart|april|mei|ju[nl]i|augustus|september|oktober|november|december)/i,
+        monthsShortStrictRegex:
+            /^(jan\.?|feb\.?|mrt\.?|apr\.?|mei|ju[nl]\.?|aug\.?|sep\.?|okt\.?|nov\.?|dec\.?)/i,
 
         monthsParse: monthsParse,
         longMonthsParse: monthsParse,
         shortMonthsParse: monthsParse,
 
-        weekdays: 'zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag'.split(
-            '_'
-        ),
+        weekdays:
+            'zondag_maandag_dinsdag_woensdag_donderdag_vrijdag_zaterdag'.split('_'),
         weekdaysShort: 'zo._ma._di._wo._do._vr._za.'.split('_'),
         weekdaysMin: 'zo_ma_di_wo_do_vr_za'.split('_'),
         weekdaysParseExact: true,
@@ -26965,6 +27427,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d uur',
             d: 'één dag',
             dd: '%d dagen',
+            w: 'één week',
+            ww: '%d weken',
             M: 'één maand',
             MM: '%d maanden',
             y: 'één jaar',
@@ -27013,9 +27477,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'januar_februar_mars_april_mai_juni_juli_august_september_oktober_november_desember'.split(
             '_'
         ),
-        monthsShort: 'jan._feb._mars_apr._mai_juni_juli_aug._sep._okt._nov._des.'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._mars_apr._mai_juni_juli_aug._sep._okt._nov._des.'.split('_'),
         monthsParseExact: true,
         weekdays: 'sundag_måndag_tysdag_onsdag_torsdag_fredag_laurdag'.split('_'),
         weekdaysShort: 'su._må._ty._on._to._fr._lau.'.split('_'),
@@ -27048,6 +27511,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d timar',
             d: 'ein dag',
             dd: '%d dagar',
+            w: 'ei veke',
+            ww: '%d veker',
             M: 'ein månad',
             MM: '%d månader',
             y: 'eit år',
@@ -27088,17 +27553,19 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     var ocLnc = moment.defineLocale('oc-lnc', {
         months: {
-            standalone: 'genièr_febrièr_març_abril_mai_junh_julhet_agost_setembre_octòbre_novembre_decembre'.split(
-                '_'
-            ),
+            standalone:
+                'genièr_febrièr_març_abril_mai_junh_julhet_agost_setembre_octòbre_novembre_decembre'.split(
+                    '_'
+                ),
             format: "de genièr_de febrièr_de març_d'abril_de mai_de junh_de julhet_d'agost_de setembre_d'octòbre_de novembre_de decembre".split(
                 '_'
             ),
             isFormat: /D[oD]?(\s)+MMMM/,
         },
-        monthsShort: 'gen._febr._març_abr._mai_junh_julh._ago._set._oct._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'gen._febr._març_abr._mai_junh_julh._ago._set._oct._nov._dec.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'dimenge_diluns_dimars_dimècres_dijòus_divendres_dissabte'.split(
             '_'
@@ -27190,16 +27657,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '੧',
-            '2': '੨',
-            '3': '੩',
-            '4': '੪',
-            '5': '੫',
-            '6': '੬',
-            '7': '੭',
-            '8': '੮',
-            '9': '੯',
-            '0': '੦',
+            1: '੧',
+            2: '੨',
+            3: '੩',
+            4: '੪',
+            5: '੫',
+            6: '੬',
+            7: '੭',
+            8: '੮',
+            9: '੯',
+            0: '੦',
         },
         numberMap = {
             '੧': '1',
@@ -27219,9 +27686,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ਜਨਵਰੀ_ਫ਼ਰਵਰੀ_ਮਾਰਚ_ਅਪ੍ਰੈਲ_ਮਈ_ਜੂਨ_ਜੁਲਾਈ_ਅਗਸਤ_ਸਤੰਬਰ_ਅਕਤੂਬਰ_ਨਵੰਬਰ_ਦਸੰਬਰ'.split(
             '_'
         ),
-        monthsShort: 'ਜਨਵਰੀ_ਫ਼ਰਵਰੀ_ਮਾਰਚ_ਅਪ੍ਰੈਲ_ਮਈ_ਜੂਨ_ਜੁਲਾਈ_ਅਗਸਤ_ਸਤੰਬਰ_ਅਕਤੂਬਰ_ਨਵੰਬਰ_ਦਸੰਬਰ'.split(
-            '_'
-        ),
+        monthsShort:
+            'ਜਨਵਰੀ_ਫ਼ਰਵਰੀ_ਮਾਰਚ_ਅਪ੍ਰੈਲ_ਮਈ_ਜੂਨ_ਜੁਲਾਈ_ਅਗਸਤ_ਸਤੰਬਰ_ਅਕਤੂਬਰ_ਨਵੰਬਰ_ਦਸੰਬਰ'.split(
+                '_'
+            ),
         weekdays: 'ਐਤਵਾਰ_ਸੋਮਵਾਰ_ਮੰਗਲਵਾਰ_ਬੁਧਵਾਰ_ਵੀਰਵਾਰ_ਸ਼ੁੱਕਰਵਾਰ_ਸ਼ਨੀਚਰਵਾਰ'.split(
             '_'
         ),
@@ -27330,12 +27798,28 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var monthsNominative = 'styczeń_luty_marzec_kwiecień_maj_czerwiec_lipiec_sierpień_wrzesień_październik_listopad_grudzień'.split(
-            '_'
-        ),
-        monthsSubjective = 'stycznia_lutego_marca_kwietnia_maja_czerwca_lipca_sierpnia_września_października_listopada_grudnia'.split(
-            '_'
-        );
+    var monthsNominative =
+            'styczeń_luty_marzec_kwiecień_maj_czerwiec_lipiec_sierpień_wrzesień_październik_listopad_grudzień'.split(
+                '_'
+            ),
+        monthsSubjective =
+            'stycznia_lutego_marca_kwietnia_maja_czerwca_lipca_sierpnia_września_października_listopada_grudnia'.split(
+                '_'
+            ),
+        monthsParse = [
+            /^sty/i,
+            /^lut/i,
+            /^mar/i,
+            /^kwi/i,
+            /^maj/i,
+            /^cze/i,
+            /^lip/i,
+            /^sie/i,
+            /^wrz/i,
+            /^paź/i,
+            /^lis/i,
+            /^gru/i,
+        ];
     function plural(n) {
         return n % 10 < 5 && n % 10 > 1 && ~~(n / 10) % 10 !== 1;
     }
@@ -27352,6 +27836,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 return withoutSuffix ? 'godzina' : 'godzinę';
             case 'hh':
                 return result + (plural(number) ? 'godziny' : 'godzin');
+            case 'ww':
+                return result + (plural(number) ? 'tygodnie' : 'tygodni');
             case 'MM':
                 return result + (plural(number) ? 'miesiące' : 'miesięcy');
             case 'yy':
@@ -27363,17 +27849,6 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: function (momentToFormat, format) {
             if (!momentToFormat) {
                 return monthsNominative;
-            } else if (format === '') {
-                // Hack: if format empty we know this is used to generate
-                // RegExp by moment. Give then back both valid forms of months
-                // in RegExp ready format.
-                return (
-                    '(' +
-                    monthsSubjective[momentToFormat.month()] +
-                    '|' +
-                    monthsNominative[momentToFormat.month()] +
-                    ')'
-                );
             } else if (/D MMMM/.test(format)) {
                 return monthsSubjective[momentToFormat.month()];
             } else {
@@ -27381,9 +27856,11 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             }
         },
         monthsShort: 'sty_lut_mar_kwi_maj_cze_lip_sie_wrz_paź_lis_gru'.split('_'),
-        weekdays: 'niedziela_poniedziałek_wtorek_środa_czwartek_piątek_sobota'.split(
-            '_'
-        ),
+        monthsParse: monthsParse,
+        longMonthsParse: monthsParse,
+        shortMonthsParse: monthsParse,
+        weekdays:
+            'niedziela_poniedziałek_wtorek_środa_czwartek_piątek_sobota'.split('_'),
         weekdaysShort: 'ndz_pon_wt_śr_czw_pt_sob'.split('_'),
         weekdaysMin: 'Nd_Pn_Wt_Śr_Cz_Pt_So'.split('_'),
         longDateFormat: {
@@ -27441,6 +27918,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: translate,
             d: '1 dzień',
             dd: '%d dni',
+            w: 'tydzień',
+            ww: translate,
             M: 'miesiąc',
             MM: translate,
             y: 'rok',
@@ -27484,9 +27963,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'jan_fev_mar_abr_mai_jun_jul_ago_set_out_nov_dez'.split('_'),
-        weekdays: 'domingo_segunda-feira_terça-feira_quarta-feira_quinta-feira_sexta-feira_sábado'.split(
-            '_'
-        ),
+        weekdays:
+            'domingo_segunda-feira_terça-feira_quarta-feira_quinta-feira_sexta-feira_sábado'.split(
+                '_'
+            ),
         weekdaysShort: 'dom_seg_ter_qua_qui_sex_sáb'.split('_'),
         weekdaysMin: 'do_2ª_3ª_4ª_5ª_6ª_sá'.split('_'),
         weekdaysParseExact: true,
@@ -27528,6 +28008,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         },
         dayOfMonthOrdinalParse: /\d{1,2}º/,
         ordinal: '%dº',
+        invalidDate: 'Data inválida',
     });
 
     return ptBr;
@@ -27560,9 +28041,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'jan_fev_mar_abr_mai_jun_jul_ago_set_out_nov_dez'.split('_'),
-        weekdays: 'Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado'.split(
-            '_'
-        ),
+        weekdays:
+            'Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado'.split(
+                '_'
+            ),
         weekdaysShort: 'Dom_Seg_Ter_Qua_Qui_Sex_Sáb'.split('_'),
         weekdaysMin: 'Do_2ª_3ª_4ª_5ª_6ª_Sá'.split('_'),
         weekdaysParseExact: true,
@@ -27597,6 +28079,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d horas',
             d: 'um dia',
             dd: '%d dias',
+            w: 'uma semana',
+            ww: '%d semanas',
             M: 'um mês',
             MM: '%d meses',
             y: 'um ano',
@@ -27643,6 +28127,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 mm: 'minute',
                 hh: 'ore',
                 dd: 'zile',
+                ww: 'săptămâni',
                 MM: 'luni',
                 yy: 'ani',
             },
@@ -27657,9 +28142,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ianuarie_februarie_martie_aprilie_mai_iunie_iulie_august_septembrie_octombrie_noiembrie_decembrie'.split(
             '_'
         ),
-        monthsShort: 'ian._feb._mart._apr._mai_iun._iul._aug._sept._oct._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'ian._feb._mart._apr._mai_iun._iul._aug._sept._oct._nov._dec.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'duminică_luni_marți_miercuri_joi_vineri_sâmbătă'.split('_'),
         weekdaysShort: 'Dum_Lun_Mar_Mie_Joi_Vin_Sâm'.split('_'),
@@ -27691,6 +28177,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: relativeTimeWithPlural,
             d: 'o zi',
             dd: relativeTimeWithPlural,
+            w: 'o săptămână',
+            ww: relativeTimeWithPlural,
             M: 'o lună',
             MM: relativeTimeWithPlural,
             y: 'un an',
@@ -27743,6 +28231,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             mm: withoutSuffix ? 'минута_минуты_минут' : 'минуту_минуты_минут',
             hh: 'час_часа_часов',
             dd: 'день_дня_дней',
+            ww: 'неделя_недели_недель',
             MM: 'месяц_месяца_месяцев',
             yy: 'год_года_лет',
         };
@@ -27775,23 +28264,26 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'января_февраля_марта_апреля_мая_июня_июля_августа_сентября_октября_ноября_декабря'.split(
                 '_'
             ),
-            standalone: 'январь_февраль_март_апрель_май_июнь_июль_август_сентябрь_октябрь_ноябрь_декабрь'.split(
-                '_'
-            ),
+            standalone:
+                'январь_февраль_март_апрель_май_июнь_июль_август_сентябрь_октябрь_ноябрь_декабрь'.split(
+                    '_'
+                ),
         },
         monthsShort: {
             // по CLDR именно "июл." и "июн.", но какой смысл менять букву на точку?
             format: 'янв._февр._мар._апр._мая_июня_июля_авг._сент._окт._нояб._дек.'.split(
                 '_'
             ),
-            standalone: 'янв._февр._март_апр._май_июнь_июль_авг._сент._окт._нояб._дек.'.split(
-                '_'
-            ),
+            standalone:
+                'янв._февр._март_апр._май_июнь_июль_авг._сент._окт._нояб._дек.'.split(
+                    '_'
+                ),
         },
         weekdays: {
-            standalone: 'воскресенье_понедельник_вторник_среда_четверг_пятница_суббота'.split(
-                '_'
-            ),
+            standalone:
+                'воскресенье_понедельник_вторник_среда_четверг_пятница_суббота'.split(
+                    '_'
+                ),
             format: 'воскресенье_понедельник_вторник_среду_четверг_пятницу_субботу'.split(
                 '_'
             ),
@@ -27804,16 +28296,20 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         shortMonthsParse: monthsParse,
 
         // полные названия с падежами, по три буквы, для некоторых, по 4 буквы, сокращения с точкой и без точки
-        monthsRegex: /^(январ[ья]|янв\.?|феврал[ья]|февр?\.?|марта?|мар\.?|апрел[ья]|апр\.?|ма[йя]|июн[ья]|июн\.?|июл[ья]|июл\.?|августа?|авг\.?|сентябр[ья]|сент?\.?|октябр[ья]|окт\.?|ноябр[ья]|нояб?\.?|декабр[ья]|дек\.?)/i,
+        monthsRegex:
+            /^(январ[ья]|янв\.?|феврал[ья]|февр?\.?|марта?|мар\.?|апрел[ья]|апр\.?|ма[йя]|июн[ья]|июн\.?|июл[ья]|июл\.?|августа?|авг\.?|сентябр[ья]|сент?\.?|октябр[ья]|окт\.?|ноябр[ья]|нояб?\.?|декабр[ья]|дек\.?)/i,
 
         // копия предыдущего
-        monthsShortRegex: /^(январ[ья]|янв\.?|феврал[ья]|февр?\.?|марта?|мар\.?|апрел[ья]|апр\.?|ма[йя]|июн[ья]|июн\.?|июл[ья]|июл\.?|августа?|авг\.?|сентябр[ья]|сент?\.?|октябр[ья]|окт\.?|ноябр[ья]|нояб?\.?|декабр[ья]|дек\.?)/i,
+        monthsShortRegex:
+            /^(январ[ья]|янв\.?|феврал[ья]|февр?\.?|марта?|мар\.?|апрел[ья]|апр\.?|ма[йя]|июн[ья]|июн\.?|июл[ья]|июл\.?|августа?|авг\.?|сентябр[ья]|сент?\.?|октябр[ья]|окт\.?|ноябр[ья]|нояб?\.?|декабр[ья]|дек\.?)/i,
 
         // полные названия с падежами
-        monthsStrictRegex: /^(январ[яь]|феврал[яь]|марта?|апрел[яь]|ма[яй]|июн[яь]|июл[яь]|августа?|сентябр[яь]|октябр[яь]|ноябр[яь]|декабр[яь])/i,
+        monthsStrictRegex:
+            /^(январ[яь]|феврал[яь]|марта?|апрел[яь]|ма[яй]|июн[яь]|июл[яь]|августа?|сентябр[яь]|октябр[яь]|ноябр[яь]|декабр[яь])/i,
 
         // Выражение, которое соответствует только сокращённым формам
-        monthsShortStrictRegex: /^(янв\.|февр?\.|мар[т.]|апр\.|ма[яй]|июн[ья.]|июл[ья.]|авг\.|сент?\.|окт\.|нояб?\.|дек\.)/i,
+        monthsShortStrictRegex:
+            /^(янв\.|февр?\.|мар[т.]|апр\.|ма[яй]|июн[ья.]|июл[ья.]|авг\.|сент?\.|окт\.|нояб?\.|дек\.)/i,
         longDateFormat: {
             LT: 'H:mm',
             LTS: 'H:mm:ss',
@@ -27883,6 +28379,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: relativeTimeWithPlural,
             d: 'день',
             dd: relativeTimeWithPlural,
+            w: 'неделя',
+            ww: relativeTimeWithPlural,
             M: 'месяц',
             MM: relativeTimeWithPlural,
             y: 'год',
@@ -28055,12 +28553,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ođđajagemánnu_guovvamánnu_njukčamánnu_cuoŋománnu_miessemánnu_geassemánnu_suoidnemánnu_borgemánnu_čakčamánnu_golggotmánnu_skábmamánnu_juovlamánnu'.split(
             '_'
         ),
-        monthsShort: 'ođđj_guov_njuk_cuo_mies_geas_suoi_borg_čakč_golg_skáb_juov'.split(
-            '_'
-        ),
-        weekdays: 'sotnabeaivi_vuossárga_maŋŋebárga_gaskavahkku_duorastat_bearjadat_lávvardat'.split(
-            '_'
-        ),
+        monthsShort:
+            'ođđj_guov_njuk_cuo_mies_geas_suoi_borg_čakč_golg_skáb_juov'.split('_'),
+        weekdays:
+            'sotnabeaivi_vuossárga_maŋŋebárga_gaskavahkku_duorastat_bearjadat_lávvardat'.split(
+                '_'
+            ),
         weekdaysShort: 'sotn_vuos_maŋ_gask_duor_bear_láv'.split('_'),
         weekdaysMin: 's_v_m_g_d_b_L'.split('_'),
         longDateFormat: {
@@ -28136,9 +28634,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         monthsShort: 'ජන_පෙබ_මාර්_අප්_මැයි_ජූනි_ජූලි_අගෝ_සැප්_ඔක්_නොවැ_දෙසැ'.split(
             '_'
         ),
-        weekdays: 'ඉරිදා_සඳුදා_අඟහරුවාදා_බදාදා_බ්‍රහස්පතින්දා_සිකුරාදා_සෙනසුරාදා'.split(
-            '_'
-        ),
+        weekdays:
+            'ඉරිදා_සඳුදා_අඟහරුවාදා_බදාදා_බ්‍රහස්පතින්දා_සිකුරාදා_සෙනසුරාදා'.split(
+                '_'
+            ),
         weekdaysShort: 'ඉරි_සඳු_අඟ_බදා_බ්‍රහ_සිකු_සෙන'.split('_'),
         weekdaysMin: 'ඉ_ස_අ_බ_බ්‍ර_සි_සෙ'.split('_'),
         weekdaysParseExact: true,
@@ -28217,9 +28716,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js locale configuration
 
-    var months = 'január_február_marec_apríl_máj_jún_júl_august_september_október_november_december'.split(
-            '_'
-        ),
+    var months =
+            'január_február_marec_apríl_máj_jún_júl_august_september_október_november_december'.split(
+                '_'
+            ),
         monthsShort = 'jan_feb_mar_apr_máj_jún_júl_aug_sep_okt_nov_dec'.split('_');
     function plural(n) {
         return n > 1 && n < 5;
@@ -28468,9 +28968,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'januar_februar_marec_april_maj_junij_julij_avgust_september_oktober_november_december'.split(
             '_'
         ),
-        monthsShort: 'jan._feb._mar._apr._maj._jun._jul._avg._sep._okt._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._mar._apr._maj._jun._jul._avg._sep._okt._nov._dec.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'nedelja_ponedeljek_torek_sreda_četrtek_petek_sobota'.split('_'),
         weekdaysShort: 'ned._pon._tor._sre._čet._pet._sob.'.split('_'),
@@ -28647,6 +29148,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 //! moment.js locale configuration
 //! locale : Serbian Cyrillic [sr-cyrl]
 //! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
+//! author : Stefan Crnjaković <stefan@hotmail.rs> : https://github.com/crnjakovic
 
 ;(function (global, factory) {
     true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
@@ -28659,32 +29161,43 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         words: {
             //Different grammatical cases
             ss: ['секунда', 'секунде', 'секунди'],
-            m: ['један минут', 'једне минуте'],
-            mm: ['минут', 'минуте', 'минута'],
+            m: ['један минут', 'једног минута'],
+            mm: ['минут', 'минута', 'минута'],
             h: ['један сат', 'једног сата'],
             hh: ['сат', 'сата', 'сати'],
+            d: ['један дан', 'једног дана'],
             dd: ['дан', 'дана', 'дана'],
+            M: ['један месец', 'једног месеца'],
             MM: ['месец', 'месеца', 'месеци'],
-            yy: ['година', 'године', 'година'],
+            y: ['једну годину', 'једне године'],
+            yy: ['годину', 'године', 'година'],
         },
         correctGrammaticalCase: function (number, wordKey) {
-            return number === 1
-                ? wordKey[0]
-                : number >= 2 && number <= 4
-                ? wordKey[1]
-                : wordKey[2];
-        },
-        translate: function (number, withoutSuffix, key) {
-            var wordKey = translator.words[key];
-            if (key.length === 1) {
-                return withoutSuffix ? wordKey[0] : wordKey[1];
-            } else {
-                return (
-                    number +
-                    ' ' +
-                    translator.correctGrammaticalCase(number, wordKey)
-                );
+            if (
+                number % 10 >= 1 &&
+                number % 10 <= 4 &&
+                (number % 100 < 10 || number % 100 >= 20)
+            ) {
+                return number % 10 === 1 ? wordKey[0] : wordKey[1];
             }
+            return wordKey[2];
+        },
+        translate: function (number, withoutSuffix, key, isFuture) {
+            var wordKey = translator.words[key];
+
+            if (key.length === 1) {
+                // Nominativ
+                if (key === 'y' && withoutSuffix) return 'једна година';
+                return isFuture || withoutSuffix ? wordKey[0] : wordKey[1];
+            }
+
+            const word = translator.correctGrammaticalCase(number, wordKey);
+            // Nominativ
+            if (key === 'yy' && withoutSuffix && word === 'годину') {
+                return number + ' година';
+            }
+
+            return number + ' ' + word;
         },
     };
 
@@ -28692,9 +29205,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'јануар_фебруар_март_април_мај_јун_јул_август_септембар_октобар_новембар_децембар'.split(
             '_'
         ),
-        monthsShort: 'јан._феб._мар._апр._мај_јун_јул_авг._сеп._окт._нов._дец.'.split(
-            '_'
-        ),
+        monthsShort:
+            'јан._феб._мар._апр._мај_јун_јул_авг._сеп._окт._нов._дец.'.split('_'),
         monthsParseExact: true,
         weekdays: 'недеља_понедељак_уторак_среда_четвртак_петак_субота'.split('_'),
         weekdaysShort: 'нед._пон._уто._сре._чет._пет._суб.'.split('_'),
@@ -28703,10 +29215,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         longDateFormat: {
             LT: 'H:mm',
             LTS: 'H:mm:ss',
-            L: 'DD.MM.YYYY',
-            LL: 'D. MMMM YYYY',
-            LLL: 'D. MMMM YYYY H:mm',
-            LLLL: 'dddd, D. MMMM YYYY H:mm',
+            L: 'D. M. YYYY.',
+            LL: 'D. MMMM YYYY.',
+            LLL: 'D. MMMM YYYY. H:mm',
+            LLLL: 'dddd, D. MMMM YYYY. H:mm',
         },
         calendar: {
             sameDay: '[данас у] LT',
@@ -28750,18 +29262,18 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             mm: translator.translate,
             h: translator.translate,
             hh: translator.translate,
-            d: 'дан',
+            d: translator.translate,
             dd: translator.translate,
-            M: 'месец',
+            M: translator.translate,
             MM: translator.translate,
-            y: 'годину',
+            y: translator.translate,
             yy: translator.translate,
         },
         dayOfMonthOrdinalParse: /\d{1,2}\./,
         ordinal: '%d.',
         week: {
             dow: 1, // Monday is the first day of the week.
-            doy: 7, // The week that contains Jan 7th is the first week of the year.
+            doy: 7, // The week that contains Jan 1st is the first week of the year.
         },
     });
 
@@ -28782,6 +29294,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 //! moment.js locale configuration
 //! locale : Serbian [sr]
 //! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
+//! author : Stefan Crnjaković <stefan@hotmail.rs> : https://github.com/crnjakovic
 
 ;(function (global, factory) {
     true ? factory(__webpack_require__(/*! ../moment */ "./node_modules/moment/moment.js")) :
@@ -28794,32 +29307,43 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         words: {
             //Different grammatical cases
             ss: ['sekunda', 'sekunde', 'sekundi'],
-            m: ['jedan minut', 'jedne minute'],
-            mm: ['minut', 'minute', 'minuta'],
+            m: ['jedan minut', 'jednog minuta'],
+            mm: ['minut', 'minuta', 'minuta'],
             h: ['jedan sat', 'jednog sata'],
             hh: ['sat', 'sata', 'sati'],
+            d: ['jedan dan', 'jednog dana'],
             dd: ['dan', 'dana', 'dana'],
+            M: ['jedan mesec', 'jednog meseca'],
             MM: ['mesec', 'meseca', 'meseci'],
-            yy: ['godina', 'godine', 'godina'],
+            y: ['jednu godinu', 'jedne godine'],
+            yy: ['godinu', 'godine', 'godina'],
         },
         correctGrammaticalCase: function (number, wordKey) {
-            return number === 1
-                ? wordKey[0]
-                : number >= 2 && number <= 4
-                ? wordKey[1]
-                : wordKey[2];
-        },
-        translate: function (number, withoutSuffix, key) {
-            var wordKey = translator.words[key];
-            if (key.length === 1) {
-                return withoutSuffix ? wordKey[0] : wordKey[1];
-            } else {
-                return (
-                    number +
-                    ' ' +
-                    translator.correctGrammaticalCase(number, wordKey)
-                );
+            if (
+                number % 10 >= 1 &&
+                number % 10 <= 4 &&
+                (number % 100 < 10 || number % 100 >= 20)
+            ) {
+                return number % 10 === 1 ? wordKey[0] : wordKey[1];
             }
+            return wordKey[2];
+        },
+        translate: function (number, withoutSuffix, key, isFuture) {
+            var wordKey = translator.words[key];
+
+            if (key.length === 1) {
+                // Nominativ
+                if (key === 'y' && withoutSuffix) return 'jedna godina';
+                return isFuture || withoutSuffix ? wordKey[0] : wordKey[1];
+            }
+
+            const word = translator.correctGrammaticalCase(number, wordKey);
+            // Nominativ
+            if (key === 'yy' && withoutSuffix && word === 'godinu') {
+                return number + ' godina';
+            }
+
+            return number + ' ' + word;
         },
     };
 
@@ -28827,9 +29351,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'januar_februar_mart_april_maj_jun_jul_avgust_septembar_oktobar_novembar_decembar'.split(
             '_'
         ),
-        monthsShort: 'jan._feb._mar._apr._maj_jun_jul_avg._sep._okt._nov._dec.'.split(
-            '_'
-        ),
+        monthsShort:
+            'jan._feb._mar._apr._maj_jun_jul_avg._sep._okt._nov._dec.'.split('_'),
         monthsParseExact: true,
         weekdays: 'nedelja_ponedeljak_utorak_sreda_četvrtak_petak_subota'.split(
             '_'
@@ -28840,10 +29363,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         longDateFormat: {
             LT: 'H:mm',
             LTS: 'H:mm:ss',
-            L: 'DD.MM.YYYY',
-            LL: 'D. MMMM YYYY',
-            LLL: 'D. MMMM YYYY H:mm',
-            LLLL: 'dddd, D. MMMM YYYY H:mm',
+            L: 'D. M. YYYY.',
+            LL: 'D. MMMM YYYY.',
+            LLL: 'D. MMMM YYYY. H:mm',
+            LLLL: 'dddd, D. MMMM YYYY. H:mm',
         },
         calendar: {
             sameDay: '[danas u] LT',
@@ -28887,11 +29410,11 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             mm: translator.translate,
             h: translator.translate,
             hh: translator.translate,
-            d: 'dan',
+            d: translator.translate,
             dd: translator.translate,
-            M: 'mesec',
+            M: translator.translate,
             MM: translator.translate,
-            y: 'godinu',
+            y: translator.translate,
             yy: translator.translate,
         },
         dayOfMonthOrdinalParse: /\d{1,2}\./,
@@ -28932,9 +29455,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'Bhi_Ina_Inu_Mab_Ink_Inh_Kho_Igc_Iny_Imp_Lwe_Igo'.split('_'),
-        weekdays: 'Lisontfo_Umsombuluko_Lesibili_Lesitsatfu_Lesine_Lesihlanu_Umgcibelo'.split(
-            '_'
-        ),
+        weekdays:
+            'Lisontfo_Umsombuluko_Lesibili_Lesitsatfu_Lesine_Lesihlanu_Umgcibelo'.split(
+                '_'
+            ),
         weekdaysShort: 'Lis_Umb_Lsb_Les_Lsi_Lsh_Umg'.split('_'),
         weekdaysMin: 'Li_Us_Lb_Lt_Ls_Lh_Ug'.split('_'),
         weekdaysParseExact: true,
@@ -29123,9 +29647,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'Jan_Feb_Mac_Apr_Mei_Jun_Jul_Ago_Sep_Okt_Nov_Des'.split('_'),
-        weekdays: 'Jumapili_Jumatatu_Jumanne_Jumatano_Alhamisi_Ijumaa_Jumamosi'.split(
-            '_'
-        ),
+        weekdays:
+            'Jumapili_Jumatatu_Jumanne_Jumatano_Alhamisi_Ijumaa_Jumamosi'.split(
+                '_'
+            ),
         weekdaysShort: 'Jpl_Jtat_Jnne_Jtan_Alh_Ijm_Jmos'.split('_'),
         weekdaysMin: 'J2_J3_J4_J5_Al_Ij_J1'.split('_'),
         weekdaysParseExact: true,
@@ -29193,16 +29718,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     //! moment.js locale configuration
 
     var symbolMap = {
-            '1': '௧',
-            '2': '௨',
-            '3': '௩',
-            '4': '௪',
-            '5': '௫',
-            '6': '௬',
-            '7': '௭',
-            '8': '௮',
-            '9': '௯',
-            '0': '௦',
+            1: '௧',
+            2: '௨',
+            3: '௩',
+            4: '௪',
+            5: '௫',
+            6: '௬',
+            7: '௭',
+            8: '௮',
+            9: '௯',
+            0: '௦',
         },
         numberMap = {
             '௧': '1',
@@ -29221,12 +29746,14 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ஜனவரி_பிப்ரவரி_மார்ச்_ஏப்ரல்_மே_ஜூன்_ஜூலை_ஆகஸ்ட்_செப்டெம்பர்_அக்டோபர்_நவம்பர்_டிசம்பர்'.split(
             '_'
         ),
-        monthsShort: 'ஜனவரி_பிப்ரவரி_மார்ச்_ஏப்ரல்_மே_ஜூன்_ஜூலை_ஆகஸ்ட்_செப்டெம்பர்_அக்டோபர்_நவம்பர்_டிசம்பர்'.split(
-            '_'
-        ),
-        weekdays: 'ஞாயிற்றுக்கிழமை_திங்கட்கிழமை_செவ்வாய்கிழமை_புதன்கிழமை_வியாழக்கிழமை_வெள்ளிக்கிழமை_சனிக்கிழமை'.split(
-            '_'
-        ),
+        monthsShort:
+            'ஜனவரி_பிப்ரவரி_மார்ச்_ஏப்ரல்_மே_ஜூன்_ஜூலை_ஆகஸ்ட்_செப்டெம்பர்_அக்டோபர்_நவம்பர்_டிசம்பர்'.split(
+                '_'
+            ),
+        weekdays:
+            'ஞாயிற்றுக்கிழமை_திங்கட்கிழமை_செவ்வாய்கிழமை_புதன்கிழமை_வியாழக்கிழமை_வெள்ளிக்கிழமை_சனிக்கிழமை'.split(
+                '_'
+            ),
         weekdaysShort: 'ஞாயிறு_திங்கள்_செவ்வாய்_புதன்_வியாழன்_வெள்ளி_சனி'.split(
             '_'
         ),
@@ -29345,13 +29872,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'జనవరి_ఫిబ్రవరి_మార్చి_ఏప్రిల్_మే_జూన్_జులై_ఆగస్టు_సెప్టెంబర్_అక్టోబర్_నవంబర్_డిసెంబర్'.split(
             '_'
         ),
-        monthsShort: 'జన._ఫిబ్ర._మార్చి_ఏప్రి._మే_జూన్_జులై_ఆగ._సెప్._అక్టో._నవ._డిసె.'.split(
-            '_'
-        ),
+        monthsShort:
+            'జన._ఫిబ్ర._మార్చి_ఏప్రి._మే_జూన్_జులై_ఆగ._సెప్._అక్టో._నవ._డిసె.'.split(
+                '_'
+            ),
         monthsParseExact: true,
-        weekdays: 'ఆదివారం_సోమవారం_మంగళవారం_బుధవారం_గురువారం_శుక్రవారం_శనివారం'.split(
-            '_'
-        ),
+        weekdays:
+            'ఆదివారం_సోమవారం_మంగళవారం_బుధవారం_గురువారం_శుక్రవారం_శనివారం'.split(
+                '_'
+            ),
         weekdaysShort: 'ఆది_సోమ_మంగళ_బుధ_గురు_శుక్ర_శని'.split('_'),
         weekdaysMin: 'ఆ_సో_మం_బు_గు_శు_శ'.split('_'),
         longDateFormat: {
@@ -29561,9 +30090,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     };
 
     var tg = moment.defineLocale('tg', {
-        months: 'январ_феврал_март_апрел_май_июн_июл_август_сентябр_октябр_ноябр_декабр'.split(
-            '_'
-        ),
+        months: {
+            format: 'январи_феврали_марти_апрели_майи_июни_июли_августи_сентябри_октябри_ноябри_декабри'.split(
+                '_'
+            ),
+            standalone:
+                'январ_феврал_март_апрел_май_июн_июл_август_сентябр_октябр_ноябр_декабр'.split(
+                    '_'
+                ),
+        },
         monthsShort: 'янв_фев_мар_апр_май_июн_июл_авг_сен_окт_ноя_дек'.split('_'),
         weekdays: 'якшанбе_душанбе_сешанбе_чоршанбе_панҷшанбе_ҷумъа_шанбе'.split(
             '_'
@@ -29573,14 +30108,14 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         longDateFormat: {
             LT: 'HH:mm',
             LTS: 'HH:mm:ss',
-            L: 'DD/MM/YYYY',
+            L: 'DD.MM.YYYY',
             LL: 'D MMMM YYYY',
             LLL: 'D MMMM YYYY HH:mm',
             LLLL: 'dddd, D MMMM YYYY HH:mm',
         },
         calendar: {
             sameDay: '[Имрӯз соати] LT',
-            nextDay: '[Пагоҳ соати] LT',
+            nextDay: '[Фардо соати] LT',
             lastDay: '[Дирӯз соати] LT',
             nextWeek: 'dddd[и] [ҳафтаи оянда соати] LT',
             lastWeek: 'dddd[и] [ҳафтаи гузашта соати] LT',
@@ -29670,9 +30205,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'มกราคม_กุมภาพันธ์_มีนาคม_เมษายน_พฤษภาคม_มิถุนายน_กรกฎาคม_สิงหาคม_กันยายน_ตุลาคม_พฤศจิกายน_ธันวาคม'.split(
             '_'
         ),
-        monthsShort: 'ม.ค._ก.พ._มี.ค._เม.ย._พ.ค._มิ.ย._ก.ค._ส.ค._ก.ย._ต.ค._พ.ย._ธ.ค.'.split(
-            '_'
-        ),
+        monthsShort:
+            'ม.ค._ก.พ._มี.ค._เม.ย._พ.ค._มิ.ย._ก.ค._ส.ค._ก.ย._ต.ค._พ.ย._ธ.ค.'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'อาทิตย์_จันทร์_อังคาร_พุธ_พฤหัสบดี_ศุกร์_เสาร์'.split('_'),
         weekdaysShort: 'อาทิตย์_จันทร์_อังคาร_พุธ_พฤหัส_ศุกร์_เสาร์'.split('_'), // yes, three characters difference
@@ -29716,6 +30252,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d ชั่วโมง',
             d: '1 วัน',
             dd: '%d วัน',
+            w: '1 สัปดาห์',
+            ww: '%d สัปดาห์',
             M: '1 เดือน',
             MM: '%d เดือน',
             y: '1 ปี',
@@ -29738,7 +30276,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 /***/ (function(module, exports, __webpack_require__) {
 
 //! moment.js locale configuration
-//! locale : Turkmen [trk]
+//! locale : Turkmen [tk]
 //! author : Atamyrat Abdyrahmanov : https://github.com/atamyratabdy
 
 ;(function (global, factory) {
@@ -30003,19 +30541,18 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'tera’ jar wa’_tera’ jar cha’_tera’ jar wej_tera’ jar loS_tera’ jar vagh_tera’ jar jav_tera’ jar Soch_tera’ jar chorgh_tera’ jar Hut_tera’ jar wa’maH_tera’ jar wa’maH wa’_tera’ jar wa’maH cha’'.split(
             '_'
         ),
-        monthsShort: 'jar wa’_jar cha’_jar wej_jar loS_jar vagh_jar jav_jar Soch_jar chorgh_jar Hut_jar wa’maH_jar wa’maH wa’_jar wa’maH cha’'.split(
-            '_'
-        ),
+        monthsShort:
+            'jar wa’_jar cha’_jar wej_jar loS_jar vagh_jar jav_jar Soch_jar chorgh_jar Hut_jar wa’maH_jar wa’maH wa’_jar wa’maH cha’'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'lojmItjaj_DaSjaj_povjaj_ghItlhjaj_loghjaj_buqjaj_ghInjaj'.split(
             '_'
         ),
-        weekdaysShort: 'lojmItjaj_DaSjaj_povjaj_ghItlhjaj_loghjaj_buqjaj_ghInjaj'.split(
-            '_'
-        ),
-        weekdaysMin: 'lojmItjaj_DaSjaj_povjaj_ghItlhjaj_loghjaj_buqjaj_ghInjaj'.split(
-            '_'
-        ),
+        weekdaysShort:
+            'lojmItjaj_DaSjaj_povjaj_ghItlhjaj_loghjaj_buqjaj_ghInjaj'.split('_'),
+        weekdaysMin:
+            'lojmItjaj_DaSjaj_povjaj_ghItlhjaj_loghjaj_buqjaj_ghInjaj'.split('_'),
         longDateFormat: {
             LT: 'HH:mm',
             LTS: 'HH:mm:ss',
@@ -30111,7 +30648,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         weekdays: 'Pazar_Pazartesi_Salı_Çarşamba_Perşembe_Cuma_Cumartesi'.split(
             '_'
         ),
-        weekdaysShort: 'Paz_Pts_Sal_Çar_Per_Cum_Cts'.split('_'),
+        weekdaysShort: 'Paz_Pzt_Sal_Çar_Per_Cum_Cmt'.split('_'),
         weekdaysMin: 'Pz_Pt_Sa_Ça_Pe_Cu_Ct'.split('_'),
         meridiem: function (hours, minutes, isLower) {
             if (hours < 12) {
@@ -30151,6 +30688,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d saat',
             d: 'bir gün',
             dd: '%d gün',
+            w: 'bir hafta',
+            ww: '%d hafta',
             M: 'bir ay',
             MM: '%d ay',
             y: 'bir yıl',
@@ -30318,9 +30857,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'innayr_brˤayrˤ_marˤsˤ_ibrir_mayyw_ywnyw_ywlywz_ɣwšt_šwtanbir_ktˤwbrˤ_nwwanbir_dwjnbir'.split(
             '_'
         ),
-        monthsShort: 'innayr_brˤayrˤ_marˤsˤ_ibrir_mayyw_ywnyw_ywlywz_ɣwšt_šwtanbir_ktˤwbrˤ_nwwanbir_dwjnbir'.split(
-            '_'
-        ),
+        monthsShort:
+            'innayr_brˤayrˤ_marˤsˤ_ibrir_mayyw_ywnyw_ywlywz_ɣwšt_šwtanbir_ktˤwbrˤ_nwwanbir_dwjnbir'.split(
+                '_'
+            ),
         weekdays: 'asamas_aynas_asinas_akras_akwas_asimwas_asiḍyas'.split('_'),
         weekdaysShort: 'asamas_aynas_asinas_akras_akwas_asimwas_asiḍyas'.split('_'),
         weekdaysMin: 'asamas_aynas_asinas_akras_akwas_asimwas_asiḍyas'.split('_'),
@@ -30391,9 +30931,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'ⵉⵏⵏⴰⵢⵔ_ⴱⵕⴰⵢⵕ_ⵎⴰⵕⵚ_ⵉⴱⵔⵉⵔ_ⵎⴰⵢⵢⵓ_ⵢⵓⵏⵢⵓ_ⵢⵓⵍⵢⵓⵣ_ⵖⵓⵛⵜ_ⵛⵓⵜⴰⵏⴱⵉⵔ_ⴽⵟⵓⴱⵕ_ⵏⵓⵡⴰⵏⴱⵉⵔ_ⴷⵓⵊⵏⴱⵉⵔ'.split(
             '_'
         ),
-        monthsShort: 'ⵉⵏⵏⴰⵢⵔ_ⴱⵕⴰⵢⵕ_ⵎⴰⵕⵚ_ⵉⴱⵔⵉⵔ_ⵎⴰⵢⵢⵓ_ⵢⵓⵏⵢⵓ_ⵢⵓⵍⵢⵓⵣ_ⵖⵓⵛⵜ_ⵛⵓⵜⴰⵏⴱⵉⵔ_ⴽⵟⵓⴱⵕ_ⵏⵓⵡⴰⵏⴱⵉⵔ_ⴷⵓⵊⵏⴱⵉⵔ'.split(
-            '_'
-        ),
+        monthsShort:
+            'ⵉⵏⵏⴰⵢⵔ_ⴱⵕⴰⵢⵕ_ⵎⴰⵕⵚ_ⵉⴱⵔⵉⵔ_ⵎⴰⵢⵢⵓ_ⵢⵓⵏⵢⵓ_ⵢⵓⵍⵢⵓⵣ_ⵖⵓⵛⵜ_ⵛⵓⵜⴰⵏⴱⵉⵔ_ⴽⵟⵓⴱⵕ_ⵏⵓⵡⴰⵏⴱⵉⵔ_ⴷⵓⵊⵏⴱⵉⵔ'.split(
+                '_'
+            ),
         weekdays: 'ⴰⵙⴰⵎⴰⵙ_ⴰⵢⵏⴰⵙ_ⴰⵙⵉⵏⴰⵙ_ⴰⴽⵔⴰⵙ_ⴰⴽⵡⴰⵙ_ⴰⵙⵉⵎⵡⴰⵙ_ⴰⵙⵉⴹⵢⴰⵙ'.split('_'),
         weekdaysShort: 'ⴰⵙⴰⵎⴰⵙ_ⴰⵢⵏⴰⵙ_ⴰⵙⵉⵏⴰⵙ_ⴰⴽⵔⴰⵙ_ⴰⴽⵡⴰⵙ_ⴰⵙⵉⵎⵡⴰⵙ_ⴰⵙⵉⴹⵢⴰⵙ'.split('_'),
         weekdaysMin: 'ⴰⵙⴰⵎⴰⵙ_ⴰⵢⵏⴰⵙ_ⴰⵙⵉⵏⴰⵙ_ⴰⴽⵔⴰⵙ_ⴰⴽⵡⴰⵙ_ⴰⵙⵉⵎⵡⴰⵙ_ⴰⵙⵉⴹⵢⴰⵙ'.split('_'),
@@ -30449,7 +30990,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-//! moment.js language configuration
+//! moment.js locale configuration
 //! locale : Uyghur (China) [ug-cn]
 //! author: boyaq : https://github.com/boyaq
 
@@ -30458,15 +30999,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
    undefined
 }(this, (function (moment) { 'use strict';
 
-    //! moment.js language configuration
+    //! moment.js locale configuration
 
     var ugCn = moment.defineLocale('ug-cn', {
         months: 'يانۋار_فېۋرال_مارت_ئاپرېل_ماي_ئىيۇن_ئىيۇل_ئاۋغۇست_سېنتەبىر_ئۆكتەبىر_نويابىر_دېكابىر'.split(
             '_'
         ),
-        monthsShort: 'يانۋار_فېۋرال_مارت_ئاپرېل_ماي_ئىيۇن_ئىيۇل_ئاۋغۇست_سېنتەبىر_ئۆكتەبىر_نويابىر_دېكابىر'.split(
-            '_'
-        ),
+        monthsShort:
+            'يانۋار_فېۋرال_مارت_ئاپرېل_ماي_ئىيۇن_ئىيۇل_ئاۋغۇست_سېنتەبىر_ئۆكتەبىر_نويابىر_دېكابىر'.split(
+                '_'
+            ),
         weekdays: 'يەكشەنبە_دۈشەنبە_سەيشەنبە_چارشەنبە_پەيشەنبە_جۈمە_شەنبە'.split(
             '_'
         ),
@@ -30618,15 +31160,18 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     }
     function weekdaysCaseReplace(m, format) {
         var weekdays = {
-                nominative: 'неділя_понеділок_вівторок_середа_четвер_п’ятниця_субота'.split(
-                    '_'
-                ),
-                accusative: 'неділю_понеділок_вівторок_середу_четвер_п’ятницю_суботу'.split(
-                    '_'
-                ),
-                genitive: 'неділі_понеділка_вівторка_середи_четверга_п’ятниці_суботи'.split(
-                    '_'
-                ),
+                nominative:
+                    'неділя_понеділок_вівторок_середа_четвер_п’ятниця_субота'.split(
+                        '_'
+                    ),
+                accusative:
+                    'неділю_понеділок_вівторок_середу_четвер_п’ятницю_суботу'.split(
+                        '_'
+                    ),
+                genitive:
+                    'неділі_понеділка_вівторка_середи_четверга_п’ятниці_суботи'.split(
+                        '_'
+                    ),
             },
             nounCase;
 
@@ -30657,9 +31202,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             format: 'січня_лютого_березня_квітня_травня_червня_липня_серпня_вересня_жовтня_листопада_грудня'.split(
                 '_'
             ),
-            standalone: 'січень_лютий_березень_квітень_травень_червень_липень_серпень_вересень_жовтень_листопад_грудень'.split(
-                '_'
-            ),
+            standalone:
+                'січень_лютий_березень_квітень_травень_червень_липень_серпень_вересень_жовтень_листопад_грудень'.split(
+                    '_'
+                ),
         },
         monthsShort: 'січ_лют_бер_квіт_трав_черв_лип_серп_вер_жовт_лист_груд'.split(
             '_'
@@ -30880,9 +31426,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             '_'
         ),
         monthsShort: 'Yan_Fev_Mar_Apr_May_Iyun_Iyul_Avg_Sen_Okt_Noy_Dek'.split('_'),
-        weekdays: 'Yakshanba_Dushanba_Seshanba_Chorshanba_Payshanba_Juma_Shanba'.split(
-            '_'
-        ),
+        weekdays:
+            'Yakshanba_Dushanba_Seshanba_Chorshanba_Payshanba_Juma_Shanba'.split(
+                '_'
+            ),
         weekdaysShort: 'Yak_Dush_Sesh_Chor_Pay_Jum_Shan'.split('_'),
         weekdaysMin: 'Ya_Du_Se_Cho_Pa_Ju_Sha'.split('_'),
         longDateFormat: {
@@ -31024,9 +31571,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'tháng 1_tháng 2_tháng 3_tháng 4_tháng 5_tháng 6_tháng 7_tháng 8_tháng 9_tháng 10_tháng 11_tháng 12'.split(
             '_'
         ),
-        monthsShort: 'Thg 01_Thg 02_Thg 03_Thg 04_Thg 05_Thg 06_Thg 07_Thg 08_Thg 09_Thg 10_Thg 11_Thg 12'.split(
-            '_'
-        ),
+        monthsShort:
+            'Thg 01_Thg 02_Thg 03_Thg 04_Thg 05_Thg 06_Thg 07_Thg 08_Thg 09_Thg 10_Thg 11_Thg 12'.split(
+                '_'
+            ),
         monthsParseExact: true,
         weekdays: 'chủ nhật_thứ hai_thứ ba_thứ tư_thứ năm_thứ sáu_thứ bảy'.split(
             '_'
@@ -31076,6 +31624,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d giờ',
             d: 'một ngày',
             dd: '%d ngày',
+            w: 'một tuần',
+            ww: '%d tuần',
             M: 'một tháng',
             MM: '%d tháng',
             y: 'một năm',
@@ -31120,13 +31670,15 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         months: 'J~áñúá~rý_F~ébrú~árý_~Márc~h_Áp~ríl_~Máý_~Júñé~_Júl~ý_Áú~gúst~_Sép~témb~ér_Ó~ctób~ér_Ñ~óvém~bér_~Décé~mbér'.split(
             '_'
         ),
-        monthsShort: 'J~áñ_~Féb_~Már_~Ápr_~Máý_~Júñ_~Júl_~Áúg_~Sép_~Óct_~Ñóv_~Déc'.split(
-            '_'
-        ),
+        monthsShort:
+            'J~áñ_~Féb_~Már_~Ápr_~Máý_~Júñ_~Júl_~Áúg_~Sép_~Óct_~Ñóv_~Déc'.split(
+                '_'
+            ),
         monthsParseExact: true,
-        weekdays: 'S~úñdá~ý_Mó~ñdáý~_Túé~sdáý~_Wéd~ñésd~áý_T~húrs~dáý_~Fríd~áý_S~átúr~dáý'.split(
-            '_'
-        ),
+        weekdays:
+            'S~úñdá~ý_Mó~ñdáý~_Túé~sdáý~_Wéd~ñésd~áý_T~húrs~dáý_~Fríd~áý_S~átúr~dáý'.split(
+                '_'
+            ),
         weekdaysShort: 'S~úñ_~Móñ_~Túé_~Wéd_~Thú_~Frí_~Sát'.split('_'),
         weekdaysMin: 'S~ú_Mó~_Tú_~Wé_T~h_Fr~_Sá'.split('_'),
         weekdaysParseExact: true,
@@ -31381,6 +31933,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             hh: '%d 小时',
             d: '1 天',
             dd: '%d 天',
+            w: '1 周',
+            ww: '%d 周',
             M: '1 个月',
             MM: '%d 个月',
             y: '1 年',
@@ -31768,7 +32322,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var require;//! moment.js
-//! version : 2.27.0
+//! version : 2.29.2
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -31844,8 +32398,9 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     function map(arr, fn) {
         var res = [],
-            i;
-        for (i = 0; i < arr.length; ++i) {
+            i,
+            arrLen = arr.length;
+        for (i = 0; i < arrLen; ++i) {
             res.push(fn(arr[i], i));
         }
         return res;
@@ -31974,7 +32529,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         updateInProgress = false;
 
     function copyConfig(to, from) {
-        var i, prop, val;
+        var i,
+            prop,
+            val,
+            momentPropertiesLen = momentProperties.length;
 
         if (!isUndefined(from._isAMomentObject)) {
             to._isAMomentObject = from._isAMomentObject;
@@ -32007,8 +32565,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             to._locale = from._locale;
         }
 
-        if (momentProperties.length > 0) {
-            for (i = 0; i < momentProperties.length; i++) {
+        if (momentPropertiesLen > 0) {
+            for (i = 0; i < momentPropertiesLen; i++) {
                 prop = momentProperties[i];
                 val = from[prop];
                 if (!isUndefined(val)) {
@@ -32063,8 +32621,9 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 var args = [],
                     arg,
                     i,
-                    key;
-                for (i = 0; i < arguments.length; i++) {
+                    key,
+                    argLen = arguments.length;
+                for (i = 0; i < argLen; i++) {
                     arg = '';
                     if (typeof arguments[i] === 'object') {
                         arg += '\n[' + i + '] ';
@@ -32214,7 +32773,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         );
     }
 
-    var formattingTokens = /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,
+    var formattingTokens =
+            /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,
         localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
         formatFunctions = {},
         formatTokenFunctions = {};
@@ -32518,8 +33078,9 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         if (typeof units === 'object') {
             units = normalizeObjectUnits(units);
             var prioritized = getPrioritizedUnits(units),
-                i;
-            for (i = 0; i < prioritized.length; i++) {
+                i,
+                prioritizedLen = prioritized.length;
+            for (i = 0; i < prioritizedLen; i++) {
                 this[prioritized[i].unit](units[prioritized[i].unit]);
             }
         } else {
@@ -32549,7 +33110,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         matchTimestamp = /[+-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
         // any word (or two) characters or numbers including two/three word month in arabic.
         // includes scottish gaelic two word and hyphenated months
-        matchWord = /[0-9]{0,256}['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFF07\uFF10-\uFFEF]{1,256}|[\u0600-\u06FF\/]{1,256}(\s*?[\u0600-\u06FF]{1,256}){1,2}/i,
+        matchWord =
+            /[0-9]{0,256}['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFF07\uFF10-\uFFEF]{1,256}|[\u0600-\u06FF\/]{1,256}(\s*?[\u0600-\u06FF]{1,256}){1,2}/i,
         regexes;
 
     regexes = {};
@@ -32575,15 +33137,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         return regexEscape(
             s
                 .replace('\\', '')
-                .replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (
-                    matched,
-                    p1,
-                    p2,
-                    p3,
-                    p4
-                ) {
-                    return p1 || p2 || p3 || p4;
-                })
+                .replace(
+                    /\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g,
+                    function (matched, p1, p2, p3, p4) {
+                        return p1 || p2 || p3 || p4;
+                    }
+                )
         );
     }
 
@@ -32595,7 +33154,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     function addParseToken(token, callback) {
         var i,
-            func = callback;
+            func = callback,
+            tokenLen;
         if (typeof token === 'string') {
             token = [token];
         }
@@ -32604,7 +33164,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 array[callback] = toInt(input);
             };
         }
-        for (i = 0; i < token.length; i++) {
+        tokenLen = token.length;
+        for (i = 0; i < tokenLen; i++) {
             tokens[token[i]] = func;
         }
     }
@@ -32715,12 +33276,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     // LOCALES
 
-    var defaultLocaleMonths = 'January_February_March_April_May_June_July_August_September_October_November_December'.split(
-            '_'
-        ),
-        defaultLocaleMonthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split(
-            '_'
-        ),
+    var defaultLocaleMonths =
+            'January_February_March_April_May_June_July_August_September_October_November_December'.split(
+                '_'
+            ),
+        defaultLocaleMonthsShort =
+            'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
         MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?/,
         defaultMonthsShortRegex = matchWord,
         defaultMonthsRegex = matchWord;
@@ -33162,14 +33723,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     addRegexToken('W', match1to2);
     addRegexToken('WW', match1to2, match2);
 
-    addWeekParseToken(['w', 'ww', 'W', 'WW'], function (
-        input,
-        week,
-        config,
-        token
-    ) {
-        week[token.substr(0, 1)] = toInt(input);
-    });
+    addWeekParseToken(
+        ['w', 'ww', 'W', 'WW'],
+        function (input, week, config, token) {
+            week[token.substr(0, 1)] = toInt(input);
+        }
+    );
 
     // HELPERS
 
@@ -33294,9 +33853,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         return ws.slice(n, 7).concat(ws.slice(0, n));
     }
 
-    var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split(
-            '_'
-        ),
+    var defaultLocaleWeekdays =
+            'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
         defaultLocaleWeekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
         defaultLocaleWeekdaysMin = 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
         defaultWeekdaysRegex = matchWord,
@@ -33844,6 +34402,11 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         return globalLocale;
     }
 
+    function isLocaleNameSane(name) {
+        // Prevent names that look like filesystem paths, i.e contain '/' or '\'
+        return name.match('^[^/\\\\]*$') != null;
+    }
+
     function loadLocale(name) {
         var oldLocale = null,
             aliasedRequire;
@@ -33852,7 +34415,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             locales[name] === undefined &&
             typeof module !== 'undefined' &&
             module &&
-            module.exports
+            module.exports &&
+            isLocaleNameSane(name)
         ) {
             try {
                 oldLocale = globalLocale._abbr;
@@ -34069,8 +34633,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     // iso 8601 regex
     // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
-    var extendedIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
-        basicIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d|))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+    var extendedIsoRegex =
+            /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+        basicIsoRegex =
+            /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d|))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
         tzRegex = /Z|[+-]\d\d(?::?\d\d)?/,
         isoDates = [
             ['YYYYYY-MM-DD', /[+-]\d{6}-\d\d-\d\d/],
@@ -34101,7 +34667,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         ],
         aspNetJsonRegex = /^\/?Date\((-?\d+)/i,
         // RFC 2822 regex: For details see https://tools.ietf.org/html/rfc2822#section-3.3
-        rfc2822 = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|([+-]\d{4}))$/,
+        rfc2822 =
+            /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|([+-]\d{4}))$/,
         obsOffsets = {
             UT: 0,
             GMT: 0,
@@ -34124,12 +34691,13 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             allowTime,
             dateFormat,
             timeFormat,
-            tzFormat;
+            tzFormat,
+            isoDatesLen = isoDates.length,
+            isoTimesLen = isoTimes.length;
 
         if (match) {
             getParsingFlags(config).iso = true;
-
-            for (i = 0, l = isoDates.length; i < l; i++) {
+            for (i = 0, l = isoDatesLen; i < l; i++) {
                 if (isoDates[i][1].exec(match[1])) {
                     dateFormat = isoDates[i][0];
                     allowTime = isoDates[i][2] !== false;
@@ -34141,7 +34709,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 return;
             }
             if (match[3]) {
-                for (i = 0, l = isoTimes.length; i < l; i++) {
+                for (i = 0, l = isoTimesLen; i < l; i++) {
                     if (isoTimes[i][1].exec(match[3])) {
                         // match[2] should be 'T' or space
                         timeFormat = (match[2] || ' ') + isoTimes[i][0];
@@ -34308,8 +34876,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     hooks.createFromInputFallback = deprecate(
         'value provided is not in a recognized RFC2822 or ISO format. moment construction falls back to js Date(), ' +
             'which is not reliable across all browsers and versions. Non RFC2822/ISO date formats are ' +
-            'discouraged and will be removed in an upcoming major release. Please refer to ' +
-            'http://momentjs.com/guides/#/warnings/js-date/ for more info.',
+            'discouraged. Please refer to http://momentjs.com/guides/#/warnings/js-date/ for more info.',
         function (config) {
             config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
         }
@@ -34522,12 +35089,13 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             skipped,
             stringLength = string.length,
             totalParsedInputLength = 0,
-            era;
+            era,
+            tokenLen;
 
         tokens =
             expandFormat(config._f, config._locale).match(formattingTokens) || [];
-
-        for (i = 0; i < tokens.length; i++) {
+        tokenLen = tokens.length;
+        for (i = 0; i < tokenLen; i++) {
             token = tokens[i];
             parsedInput = (string.match(getParseRegexForToken(token, config)) ||
                 [])[0];
@@ -34622,15 +35190,16 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             i,
             currentScore,
             validFormatFound,
-            bestFormatIsValid = false;
+            bestFormatIsValid = false,
+            configfLen = config._f.length;
 
-        if (config._f.length === 0) {
+        if (configfLen === 0) {
             getParsingFlags(config).invalidFormat = true;
             config._d = new Date(NaN);
             return;
         }
 
-        for (i = 0; i < config._f.length; i++) {
+        for (i = 0; i < configfLen; i++) {
             currentScore = 0;
             validFormatFound = false;
             tempConfig = copyConfig({}, config);
@@ -34871,7 +35440,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     function isDurationValid(m) {
         var key,
             unitHasDecimal = false,
-            i;
+            i,
+            orderLen = ordering.length;
         for (key in m) {
             if (
                 hasOwnProp(m, key) &&
@@ -34884,7 +35454,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             }
         }
 
-        for (i = 0; i < ordering.length; ++i) {
+        for (i = 0; i < orderLen; ++i) {
             if (m[ordering[i]]) {
                 if (unitHasDecimal) {
                     return false; // only allow non-integers for smallest unit
@@ -35209,7 +35779,8 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
         // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
         // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
         // and further modified to allow for strings containing both week and day
-        isoRegex = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
+        isoRegex =
+            /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
 
     function createDuration(input, key) {
         var duration = input,
@@ -35430,9 +36001,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
                 'ms',
             ],
             i,
-            property;
+            property,
+            propertyLen = properties.length;
 
-        for (i = 0; i < properties.length; i += 1) {
+        for (i = 0; i < propertyLen; i += 1) {
             property = properties[i];
             propertyTest = propertyTest || hasOwnProp(input, property);
         }
@@ -35494,7 +36066,10 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     function calendar$1(time, formats) {
         // Support for single parameter, formats only overload to the calendar function
         if (arguments.length === 1) {
-            if (isMomentInput(arguments[0])) {
+            if (!arguments[0]) {
+                time = undefined;
+                formats = undefined;
+            } else if (isMomentInput(arguments[0])) {
                 time = arguments[0];
                 formats = undefined;
             } else if (isCalendarSpec(arguments[0])) {
@@ -36052,19 +36627,17 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     addRegexToken('NNNN', matchEraName);
     addRegexToken('NNNNN', matchEraNarrow);
 
-    addParseToken(['N', 'NN', 'NNN', 'NNNN', 'NNNNN'], function (
-        input,
-        array,
-        config,
-        token
-    ) {
-        var era = config._locale.erasParse(input, token, config._strict);
-        if (era) {
-            getParsingFlags(config).era = era;
-        } else {
-            getParsingFlags(config).invalidEra = input;
+    addParseToken(
+        ['N', 'NN', 'NNN', 'NNNN', 'NNNNN'],
+        function (input, array, config, token) {
+            var era = config._locale.erasParse(input, token, config._strict);
+            if (era) {
+                getParsingFlags(config).era = era;
+            } else {
+                getParsingFlags(config).invalidEra = input;
+            }
         }
-    });
+    );
 
     addRegexToken('y', matchUnsigned);
     addRegexToken('yy', matchUnsigned);
@@ -36172,7 +36745,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             eras = this.localeData().eras();
         for (i = 0, l = eras.length; i < l; ++i) {
             // truncate time
-            val = this.startOf('day').valueOf();
+            val = this.clone().startOf('day').valueOf();
 
             if (eras[i].since <= val && val <= eras[i].until) {
                 return eras[i].name;
@@ -36192,7 +36765,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             eras = this.localeData().eras();
         for (i = 0, l = eras.length; i < l; ++i) {
             // truncate time
-            val = this.startOf('day').valueOf();
+            val = this.clone().startOf('day').valueOf();
 
             if (eras[i].since <= val && val <= eras[i].until) {
                 return eras[i].narrow;
@@ -36212,7 +36785,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             eras = this.localeData().eras();
         for (i = 0, l = eras.length; i < l; ++i) {
             // truncate time
-            val = this.startOf('day').valueOf();
+            val = this.clone().startOf('day').valueOf();
 
             if (eras[i].since <= val && val <= eras[i].until) {
                 return eras[i].abbr;
@@ -36235,7 +36808,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
             dir = eras[i].since <= eras[i].until ? +1 : -1;
 
             // truncate time
-            val = this.startOf('day').valueOf();
+            val = this.clone().startOf('day').valueOf();
 
             if (
                 (eras[i].since <= val && val <= eras[i].until) ||
@@ -36356,14 +36929,12 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
     addRegexToken('GGGGG', match1to6, match6);
     addRegexToken('ggggg', match1to6, match6);
 
-    addWeekParseToken(['gggg', 'ggggg', 'GGGG', 'GGGGG'], function (
-        input,
-        week,
-        config,
-        token
-    ) {
-        week[token.substr(0, 2)] = toInt(input);
-    });
+    addWeekParseToken(
+        ['gggg', 'ggggg', 'GGGG', 'GGGGG'],
+        function (input, week, config, token) {
+            week[token.substr(0, 2)] = toInt(input);
+        }
+    );
 
     addWeekParseToken(['gg', 'GG'], function (input, week, config, token) {
         week[token] = hooks.parseTwoDigitYear(input);
@@ -37386,7 +37957,7 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
     //! moment.js
 
-    hooks.version = '2.27.0';
+    hooks.version = '2.29.2';
 
     setHookCallback(createLocal);
 
@@ -37436,6 +38007,37 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 })));
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/module.js */ "./node_modules/webpack/buildin/module.js")(module)))
+
+/***/ }),
+
+/***/ "./node_modules/webpack/buildin/global.js":
+/*!***********************************!*\
+  !*** (webpack)/buildin/global.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || new Function("return this")();
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
 
 /***/ }),
 
@@ -40403,9 +41005,10 @@ exports.CHART_X_AXIS_NAME = "u parameter";
 exports.DATASET_NAMES = ["Control Polygon", "tbd"];
 exports.CHART_AXIS_SCALE = ["linear", "logarithmic"];
 var ChartSceneController = /** @class */ (function () {
-    function ChartSceneController(chartRenderingContext, curveModel) {
+    function ChartSceneController(chartRenderingContext, curveModeler) {
         this.chartRenderingContext = chartRenderingContext;
-        this._curveModel = curveModel;
+        this.curveModeler = curveModeler;
+        this._curveModel = curveModeler.curveCategory.curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -40681,6 +41284,19 @@ var ChartSceneController = /** @class */ (function () {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
             error.logMessageToConsole();
         }
+    };
+    ChartSceneController.prototype.update = function () {
+        this._curveModel = this.curveModeler.curveCategory.curveModel;
+        this._uncheckedChart = "";
+        this._curveObservers = [];
+        this._chartControllers = [];
+        this.chartContent = [];
+        this.freeChartsQueue = new Queue_1.QueueChartController(exports.MAX_NB_CHARTS);
+        this.chartsDescriptorsQueue = new Queue_1.QueueChartDescriptor(exports.MAX_NB_CHARTS);
+        this.defaultChartTitles = [];
+        this.generateDefaultChartNames();
+        this.init();
+        console.log("need to update chartSceneController");
     };
     return ChartSceneController;
 }());
@@ -41620,6 +42236,7 @@ exports.HandleNoDiffEventSlidingState = HandleNoDiffEventSlidingState;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveSceneController = void 0;
+var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var ControlPointsView_1 = __webpack_require__(/*! ../views/ControlPointsView */ "./src/views/ControlPointsView.ts");
 var ControlPointsShaders_1 = __webpack_require__(/*! ../views/ControlPointsShaders */ "./src/views/ControlPointsShaders.ts");
 var ControlPolygonShaders_1 = __webpack_require__(/*! ../views/ControlPolygonShaders */ "./src/views/ControlPolygonShaders.ts");
@@ -41645,7 +42262,8 @@ var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var CurveConstraintSelectionState_1 = __webpack_require__(/*! ./CurveConstraintSelectionState */ "./src/controllers/CurveConstraintSelectionState.ts");
-var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var DummyStrategy_1 = __webpack_require__(/*! ./DummyStrategy */ "./src/controllers/DummyStrategy.ts");
+var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl, curveModelerEventListener) {
         this.canvas = canvas;
@@ -41687,7 +42305,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveKnotsShaders = new CurveKnotsShaders_1.CurveKnotsShaders(this.gl);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
         var selectedEvent = [];
-        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent, this.differentialEventShaders, 0, 0, 1, 1);
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1);
         /* JCL 2020/09/24 Add default clamped control point */
         this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.curveModel.spline, this.curveModeler.clampedControlPoints, this.controlPointsShaders, 0, 1, 0);
         // this.activeLocationControl = ActiveLocationControl.firstControlPoint
@@ -41706,8 +42324,14 @@ var CurveSceneController = /** @class */ (function () {
         this.registerCurveObservers();
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(this.curveModel.spline);
-        this.selectedDifferentialEventsView.update(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), selectedEvent);
-        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent);
+        if (this.curveModel instanceof CurveModel_1.CurveModel) {
+            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        }
+        else {
+            var dummyCurveModel = new ClosedCurveModel_1.ClosedCurveModel();
+            this.curveControl = new DummyStrategy_1.DummyStrategy(dummyCurveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
+        }
         // this.sliding = true
         this.sliding = this.curveShapeSpaceNavigator.sliding;
         /* JCL 2021/09/29 Add modeller for new code architecture */
@@ -41753,10 +42377,13 @@ var CurveSceneController = /** @class */ (function () {
         this.activeLocationControl = CurveModeler_1.ActiveLocationControl.firstControlPoint;
         this.dragging = false;
         this.selectedControlPoint = null;
-        this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        if (this.curveModel instanceof CurveModel_1.CurveModel) {
+            this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        }
         this.sliding = true;
     };
     CurveSceneController.prototype.registerCurveObservers = function () {
+        var _this = this;
         this.curveModel.registerObserver(this.controlPointsView, "control points");
         this.curveModel.registerObserver(this.controlPolygonView, "control points");
         this.curveModel.registerObserver(this.curveView, "curve");
@@ -41765,14 +42392,28 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.inflectionsView, "curve");
         this.curveModel.registerObserver(this.curveKnotsView, "curve");
         this.curveModel.registerObserver(this.clampedControlPointView, "control points");
-        // this.curveModel.observers.forEach(element => {
-        //     if(this.curveModel !== undefined) {
-        //         element.update(this.curveModel.spline)
-        //     } else {
-        //         const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-        //         error.logMessageToConsole();
-        //     }
-        // });
+        if (this.curveModel instanceof CurveModel_1.CurveModel) {
+            this.curveModel.observers.forEach(function (element) {
+                if (_this.curveModel !== undefined) {
+                    element.update(_this.curveModel.spline);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+                    error.logMessageToConsole();
+                }
+            });
+        }
+        else if (this.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            this.curveModel.observers.forEach(function (element) {
+                if (_this.curveModel !== undefined) {
+                    element.update(_this.curveModel.spline);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+                    error.logMessageToConsole();
+                }
+            });
+        }
     };
     CurveSceneController.prototype.renderFrame = function () {
         var px = 150;
@@ -41819,13 +42460,13 @@ var CurveSceneController = /** @class */ (function () {
             else
                 differentialEvents = curvatureEvents;
             if (this.activeExtremaLocationControl === CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.extremumLeaving) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1);
             }
             else if (this.activeExtremaLocationControl === CurveShapeSpaceNavigator_1.ActiveExtremaLocationControl.extremumEntering) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
             }
             else if (differentialEvents.length === 0) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(BSplineR1toR2_1.convertToBsplR1_to_R2(this.curveModel.spline), differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1);
             }
         }
         else
@@ -41849,14 +42490,13 @@ var CurveSceneController = /** @class */ (function () {
         else
             throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model");
     };
-    CurveSceneController.prototype.resetCurveObserver = function (curveObserver) {
-        if (this.curveModel !== undefined) {
-            curveObserver.reset(this.curveModel.spline);
-            /*this.curveModel.registerObserver(curveObserver);*/
-        }
-        else
-            throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model");
-    };
+    // resetCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
+    //     if(this.curveModel !== undefined) {
+    //         curveObserver.reset(this.curveModel.spline);
+    //         /*this.curveModel.registerObserver(curveObserver);*/
+    //     }
+    //     else throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model")
+    // }
     /* JCL 20202/09/24 Monitor rigid body movements of the curve in accordance with the button status */
     // toggleCurveClamping() {
     //     this.controlOfCurveClamping = !this.controlOfCurveClamping
@@ -41950,7 +42590,7 @@ var CurveSceneController = /** @class */ (function () {
     // }
     CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = 0.01; }
-        if (this.curveModel !== undefined) {
+        if (this.curveModel !== undefined && this.curveModel instanceof CurveModel_1.CurveModel) {
             if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
                 var cp = this.selectedControlPoint;
                 if (cp === 0) {
@@ -42081,7 +42721,7 @@ var CurveSceneController = /** @class */ (function () {
     };
     /* JCL 2020/10/07 Add the curve degree elevation process */
     CurveSceneController.prototype.inputSelectDegree = function (curveDegree) {
-        if (this.curveModel !== undefined) {
+        if (this.curveModel !== undefined && this.curveModel instanceof CurveModel_1.CurveModel) {
             if (curveDegree > this.curveModel.spline.degree) {
                 // let controlPoints = this.curveModel.spline.controlPoints
                 // let knots = this.curveModel.spline.knots
@@ -42201,6 +42841,122 @@ var CurveSceneController = /** @class */ (function () {
     return CurveSceneController;
 }());
 exports.CurveSceneController = CurveSceneController;
+
+
+/***/ }),
+
+/***/ "./src/controllers/DummyStrategy.ts":
+/*!******************************************!*\
+  !*** ./src/controllers/DummyStrategy.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DummyStrategy = void 0;
+var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
+var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
+var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
+var DummyStrategy = /** @class */ (function () {
+    function DummyStrategy(curveModel, controlOfInflection, controlOfCurvatureExtrema, activeLocationControl) {
+        this.activeOptimizer = true;
+        var activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both;
+        /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
+        this.activeLocationControl = activeLocationControl;
+        if (!controlOfCurvatureExtrema) {
+            activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections;
+        }
+        else if (!controlOfInflection) {
+            activeControl = OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema;
+        }
+        if (!controlOfInflection && !controlOfCurvatureExtrema) {
+            this.activeOptimizer = false;
+            //console.log("activeOptimizer in NoSlidingStrategy: " + this.activeOptimizer)
+        }
+        this.curveModel = curveModel;
+        this.dummyCurveModel = new CurveModel_1.CurveModel();
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), activeControl);
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    }
+    DummyStrategy.prototype.setWeightingFactor = function (optimizationProblem) {
+        optimizationProblem.weigthingFactors[0] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length - 1] = 10;
+        optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length * 2 - 1] = 10;
+    };
+    DummyStrategy.prototype.newOptimizer = function (optimizationProblem) {
+        this.setWeightingFactor(optimizationProblem);
+        return new Optimizer_1.Optimizer(optimizationProblem);
+    };
+    DummyStrategy.prototype.resetCurve = function (curveModel) {
+        this.curveModel = curveModel;
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone());
+        this.optimizer = this.newOptimizer(this.optimizationProblem);
+    };
+    DummyStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over curvature extrema");
+        }
+    };
+    DummyStrategy.prototype.toggleControlOfInflections = function () {
+        if (this.activeOptimizer === false) {
+            this.activeOptimizer = true;
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.inflections) {
+            this.activeOptimizer = false;
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else if (this.optimizationProblem.activeControl === OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.curvatureExtrema) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), OptimizationProblem_BSpline_R1_to_R2_1.ActiveControl.both);
+            this.optimizer = this.newOptimizer(this.optimizationProblem);
+        }
+        else {
+            console.log("Error in logic of toggle control over inflections");
+        }
+    };
+    DummyStrategy.prototype.toggleSliding = function () {
+        throw new Error("Method not implemented.");
+    };
+    DummyStrategy.prototype.optimize = function (selectedControlPoint, ndcX, ndcY) {
+        if (this.activeOptimizer === false)
+            return;
+        var p = this.curveModel.spline.controlPoints[selectedControlPoint];
+        this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY);
+        this.optimizationProblem.setTargetSpline(this.dummyCurveModel.spline);
+        try {
+            this.curveModel.setSpline(this.curveModel.spline);
+        }
+        catch (e) {
+            this.curveModel.setControlPointPosition(selectedControlPoint, p.x, p.y);
+            console.log(e);
+        }
+    };
+    return DummyStrategy;
+}());
+exports.DummyStrategy = DummyStrategy;
 
 
 /***/ }),
@@ -44105,6 +44861,8 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
     function OpenPlanarCurve(curveModeler) {
         var _this = _super.call(this, curveModeler) || this;
         _this.curveModel = new CurveModel_1.CurveModel();
+        _this.curveModeler.changeCurveCategory(_this);
+        _this.curveModeler.notifyObservers();
         _this.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities();
         // this.curveEventAtExtremityMayVanish = this.curveModeler.curveSceneController.curveEventAtExtremityMayVanish;
         _this.eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(_this.eventMgmtAtExtremities);
@@ -44136,7 +44894,9 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
                 // }
                 // this.curveModel.spline.renewCurve(controlPoints, knots);
                 // this.curveModeler.curveShapeSpaceNavigator.curveControl.resetCurve(this.curveModel)
-                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                var spline = this.curveModel.spline;
+                spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                this.curveModel.setSpline(spline);
                 if (this.curveModeler.activeLocationControl === CurveModeler_1.ActiveLocationControl.both) {
                     if (this.curveModeler.clampedControlPoints[0] === 0) {
                         this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
@@ -44181,7 +44941,7 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
             this.curveModeler.activeLocationControl = CurveModeler_1.ActiveLocationControl.none;
             this.curveModeler.clampedControlPoints = [];
         }
-        this.curveModel.notifyObservers();
+        this.curveModeler.notifyObservers();
     };
     return OpenPlanarCurve;
 }(CurveCategory));
@@ -44191,6 +44951,8 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
     function ClosedPlanarCurve(curveModeler) {
         var _this = _super.call(this, curveModeler) || this;
         _this.curveModel = new ClosedCurveModel_1.ClosedCurveModel();
+        _this.curveModeler.changeCurveCategory(_this);
+        _this.curveModeler.notifyObservers();
         return _this;
     }
     ClosedPlanarCurve.prototype.setCurveCategory = function () {
@@ -44264,6 +45026,7 @@ var ActiveLocationControl;
 var CurveModeler = /** @class */ (function () {
     function CurveModeler() {
         this._clampedControlPoints = [];
+        this.observers = [];
         this._curveCategory = new CurveCategory_1.OpenPlanarCurve(this);
         this._controlOfCurveClamping = true;
         this.activeLocationControl = ActiveLocationControl.firstControlPoint;
@@ -44332,6 +45095,20 @@ var CurveModeler = /** @class */ (function () {
         // this._curveCategory = this.curveModeler.curveCategory;
         // JCL for consistency of the curveShapeSpaceNavigator context wrt curveModeler one
         this.curveShapeSpaceNavigator.curveCategory = this._curveCategory;
+    };
+    CurveModeler.prototype.registerObserver = function (observer) {
+        this.observers.push(observer);
+        console.log("CurveModeler: registerObs: " + observer.constructor.name);
+    };
+    CurveModeler.prototype.removeObserver = function (observer) {
+        this.observers.splice(this.observers.indexOf(observer), 1);
+    };
+    CurveModeler.prototype.notifyObservers = function () {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var observer = _a[_i];
+            console.log("CurveModeler: update: " + observer.constructor.name);
+            observer.update(this._curveCategory.curveModel);
+        }
     };
     return CurveModeler;
 }());
@@ -44451,6 +45228,7 @@ exports.EventSlideOutsideCurve = EventSlideOutsideCurve;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveAnalyzer = void 0;
 var curveDifferentialEventsExtractor_1 = __webpack_require__(/*! ../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor */ "./src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../../src/newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var ExtremumLocationClassifiier_1 = __webpack_require__(/*! ./ExtremumLocationClassifiier */ "./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveAnalyzer = /** @class */ (function () {
@@ -44580,7 +45358,12 @@ var CurveAnalyzer = /** @class */ (function () {
         this._slidingEventsAtExtremities.getCurvatureDerivCrtlPtsClosestToZero(this);
     };
     CurveAnalyzer.prototype.update = function () {
-        this.curve = this.curveShapeSpaceNavigator.currentCurve;
+        if (this.curveShapeSpaceNavigator.currentCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.curve = this.curveShapeSpaceNavigator.currentCurve;
+        }
+        else {
+            console.log("cannot analyze Periodic BSplines yet");
+        }
         var diffEventsExtractor = new curveDifferentialEventsExtractor_1.CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
@@ -45321,7 +46104,6 @@ var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAn
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
-var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
 var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
@@ -45333,6 +46115,11 @@ var ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties_1 = __webpack_requir
 var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ../curveModeler/EventMgmtAtCurveExtremities */ "./src/curveModeler/EventMgmtAtCurveExtremities.ts");
 var CurveControlState_1 = __webpack_require__(/*! ../controllers/CurveControlState */ "./src/controllers/CurveControlState.ts");
 var NoSlidingStrategy_1 = __webpack_require__(/*! ../controllers/NoSlidingStrategy */ "./src/controllers/NoSlidingStrategy.ts");
+var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
+var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
+var DummyStrategy_1 = __webpack_require__(/*! ../controllers/DummyStrategy */ "./src/controllers/DummyStrategy.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
 exports.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 exports.MAX_TRUST_REGION_RADIUS = 100;
 exports.CONVERGENCE_THRESHOLD = 10e-8;
@@ -45360,11 +46147,19 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         this._sliding = true;
         this._curveModeler = curveModeler;
         this.curveCategory = this.curveModeler.curveCategory;
-        this.curveModel = new CurveModel_1.CurveModel();
+        this.curveModel = this.curveModeler.curveCategory.curveModel;
         this.activeExtremaLocationControl = ActiveExtremaLocationControl.none;
         this.activeInflectionLocationControl = ActiveInflectionLocationControl.none;
         // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-        this._curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+        if (this.curveModel instanceof CurveModel_1.CurveModel) {
+            this._curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+        }
+        else if (this.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            this._curveControl = new DummyStrategy_1.DummyStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+        }
+        else {
+            this._curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(new CurveModel_1.CurveModel(), this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+        }
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
@@ -45384,13 +46179,31 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         // JCL as well as the CurveShapeSpaceDescriptor
         this.navigationState = new NavigationState_1.NavigationWithoutShapeSpaceMonitoring(this);
         // JCL requires the setting of the navigationState
-        this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(this.currentCurve, this, this.slidingEventsAtExtremities);
+        if (this.currentCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(this.currentCurve, this, this.slidingEventsAtExtremities);
+        }
+        else {
+            var dummyCurveModel = new CurveModel_1.CurveModel();
+            this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(dummyCurveModel.spline, this, this.slidingEventsAtExtremities);
+        }
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
-        this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(this._optimizedCurve, this, this.slidingEventsAtExtremities);
+        if (this._optimizedCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(this._optimizedCurve, this, this.slidingEventsAtExtremities);
+        }
+        else {
+            var dummyCurveModel = new CurveModel_1.CurveModel();
+            this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(dummyCurveModel.spline, this, this.slidingEventsAtExtremities);
+        }
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents_1.NeighboringEvents();
         //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
+        if (this.currentCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
+        }
+        else {
+            var dummyCurveModel = new CurveModel_1.CurveModel();
+            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(dummyCurveModel.spline, dummyCurveModel.spline);
+        }
         this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters_1.OptimizationProblemCtrlParameters();
         this.changeNavigationState(new NavigationState_1.NavigationWithoutShapeSpaceMonitoring(this));
@@ -45600,7 +46413,12 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
             error.logMessageToConsole();
         }
         if (this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
-            this.optimizationProblem.setTargetSpline(this.targetCurve);
+            if (this.targetCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+                this.optimizationProblem.setTargetSpline(this.targetCurve);
+            }
+            else if (this.targetCurve instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+                console.log("setTargetCurve: to do ");
+            }
         }
     };
     // updateOptimizerStatus(): void {
@@ -45689,7 +46507,12 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
                 this._sliding = false;
                 //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
                 //console.log("constrol of inflections: " + this.controlOfInflection)
-                this._curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+                if (this.curveModel instanceof CurveModel_1.CurveModel) {
+                    this._curveControl = new NoSlidingStrategy_1.NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+                }
+                else if (this.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
+                    this._curveControl = new DummyStrategy_1.DummyStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._curveModeler.activeLocationControl);
+                }
             }
             else {
                 this._sliding = true;
@@ -45739,6 +46562,8 @@ var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ./CurveShapeSpaceNaviga
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
+var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var NavigationState = /** @class */ (function () {
     function NavigationState(curveNavigator) {
         this.curveShapeSpaceNavigator = curveNavigator;
@@ -45776,8 +46601,22 @@ var NavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_super) {
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.currentCurve = _this.curveShapeSpaceNavigator.currentCurve;
         _this.optimizedCurve = _this.currentCurve;
-        _this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.currentCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
-        _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.optimizedCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        if (_this.currentCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            _this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.currentCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        else {
+            console.log(" use a dummy curve in place of Periodic BSpline");
+            var dummyCurve = new CurveModel_1.CurveModel();
+            _this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(dummyCurve.spline, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        if (_this.optimizedCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.optimizedCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        else {
+            console.log(" use a dummy curve in place of Periodic BSpline");
+            var dummyCurve = new CurveModel_1.CurveModel();
+            _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(dummyCurve.spline, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
         return _this;
     }
     NavigationWithoutShapeSpaceMonitoring.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
@@ -45810,8 +46649,22 @@ var NavigationThroughSimplerShapeSpaces = /** @class */ (function (_super) {
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.currentCurve = _this.curveShapeSpaceNavigator.currentCurve;
         _this.optimizedCurve = _this.curveShapeSpaceNavigator.optimizedCurve;
-        _this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.currentCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
-        _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.optimizedCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        if (_this.currentCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            _this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.currentCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        else {
+            console.log(" use a dummy curve in place of Periodic BSpline");
+            var dummyCurve = new CurveModel_1.CurveModel();
+            _this.curveAnalyserCurrentCurve = new CurveAnalyzer_1.CurveAnalyzer(dummyCurve.spline, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        if (_this.optimizedCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(_this.optimizedCurve, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        else {
+            console.log(" use a dummy curve in place of Periodic BSpline");
+            var dummyCurve = new CurveModel_1.CurveModel();
+            _this.curveAnalyserOptimizedCurve = new CurveAnalyzer_1.CurveAnalyzer(dummyCurve.spline, _this.curveShapeSpaceNavigator, _this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
         return _this;
     }
     NavigationThroughSimplerShapeSpaces.prototype.setNavigationThroughSimplerShapeSpaces = function () {
@@ -46239,10 +47092,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileController = void 0;
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+var file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
 var FileController = /** @class */ (function () {
-    function FileController(curveModel, curveSceneController) {
-        this.observers = [];
-        this._curveModel = curveModel;
+    function FileController(curveModeler, curveSceneController) {
+        this.curveModeler = curveModeler;
+        this._curveModel = curveModeler.curveCategory.curveModel;
         this._curveSceneController = curveSceneController;
     }
     Object.defineProperty(FileController.prototype, "curveModel", {
@@ -46252,23 +47107,11 @@ var FileController = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    FileController.prototype.registerObserver = function (observer) {
-        this.observers.push(observer);
-    };
-    FileController.prototype.removeObserver = function (observer) {
-        this.observers.splice(this.observers.indexOf(observer), 1);
-    };
-    FileController.prototype.notifyObservers = function () {
-        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
-            var observer = _a[_i];
-            observer.update(this._curveModel);
-        }
-    };
     /* JCL 2020/10/13 Add curve serialization to file */
     FileController.prototype.saveCurveToFile = function (currentFileName) {
         if (this._curveModel !== undefined) {
             var curveBlob = new Blob([JSON.stringify(this._curveModel.spline.knots) + JSON.stringify(this._curveModel.spline.controlPoints)], { type: "application/json", });
-            saveAs(curveBlob, currentFileName);
+            file_saver_1.saveAs(curveBlob, currentFileName);
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "saveCurveToFile", "Cannot save the current curve to a file. Undefined curve model.");
@@ -46294,15 +47137,19 @@ var FileController = /** @class */ (function () {
         if (typeof (controlPoints) !== "object" ||
             (typeof (controlPoints) === "object" && typeof (controlPoints[0].x) !== "number"))
             this.inconsistentFileFormatMessage();
-        var tempSpline;
-        tempSpline = BSplineR1toR2_1.create_BSplineR1toR2(controlPoints, knots);
-        return tempSpline;
+        var CPs = [];
+        for (var _i = 0, controlPoints_1 = controlPoints; _i < controlPoints_1.length; _i++) {
+            var cp = controlPoints_1[_i];
+            CPs.push(new Vector2d_1.Vector2d(cp.x, cp.y));
+        }
+        var tmpSpline = BSplineR1toR2_1.create_BSplineR1toR2V2d(CPs, knots);
+        return tmpSpline;
     };
     FileController.prototype.resetCurveContext = function (knots, controlPoints) {
         var newSpline = BSplineR1toR2_1.create_BSplineR1toR2V2d(controlPoints, knots);
         if (this._curveModel !== undefined) {
             this._curveModel.setSpline(newSpline);
-            this.notifyObservers();
+            this.curveModeler.notifyObservers();
             this._curveSceneController.curveModel = this._curveModel;
             this._curveSceneController.initCurveSceneView();
         }
@@ -47357,8 +48204,8 @@ function main() {
     var sceneController = new CurveSceneController_1.CurveSceneController(canvas, gl, curveModelerEventListener);
     var shapeSpaceNavigationEventListener = new UserInterfaceEventListener_1.ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
     // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
-    var chartEventListener = new UserInterfaceEventListener_1.ChartEventListener(curveModelerEventListener.curveModel);
-    var fileEventListener = new UserInterfaceEventListener_1.FileEventListener(curveModelerEventListener.curveModel, chartEventListener, curveModelerEventListener, shapeSpaceNavigationEventListener, sceneController);
+    var chartEventListener = new UserInterfaceEventListener_1.ChartEventListener(curveModelerEventListener.curveModeler);
+    var fileEventListener = new UserInterfaceEventListener_1.FileEventListener(curveModelerEventListener, sceneController);
     function mouse_get_NormalizedDeviceCoordinates(event) {
         var x, y, rect = canvas.getBoundingClientRect(), ev;
         ev = event;
@@ -48720,8 +49567,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveModelObserverInShapeSpaceNavigationEventListener = exports.CurveModelObserverInCurveModelEventListener = exports.CurveModelObserverInChartEventListener = void 0;
+exports.CurveModelObserverInFileEventListener = exports.CurveModelObserverInShapeSpaceNavigationEventListener = exports.CurveModelObserverInCurveModelEventListener = exports.CurveModelObserverInChartEventListener = void 0;
 var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
+var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var CurveModelObserver = /** @class */ (function () {
     function CurveModelObserver() {
     }
@@ -48735,15 +49583,33 @@ var CurveModelObserverInChartEventListener = /** @class */ (function (_super) {
         return _this;
     }
     CurveModelObserverInChartEventListener.prototype.update = function (message) {
-        if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
-            this.listener.curveModel = message;
-            this.listener.resetChartContext();
+        if (message instanceof CurveModel_1.CurveModel) {
+            if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                this.listener.curveModel = message;
+                this.listener.resetChartContext();
+            }
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                console.log("something to do there with ClosedCurveModel");
+                this.listener.curveModel = message;
+                this.listener.resetChartContext();
+            }
         }
     };
     CurveModelObserverInChartEventListener.prototype.reset = function (message) {
-        var curveModel = new CurveModel_1.CurveModel();
-        if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
-            this.listener.curveModel = curveModel;
+        if (message instanceof CurveModel_1.CurveModel) {
+            var curveModel = new CurveModel_1.CurveModel();
+            if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                this.listener.curveModel = curveModel;
+            }
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            var curveModel = new ClosedCurveModel_1.ClosedCurveModel();
+            if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                console.log("something to do there with ClosedCurveModel in ChartEventListener");
+                // this.listener.curveModel = curveModel;
+            }
         }
     };
     return CurveModelObserverInChartEventListener;
@@ -48757,7 +49623,18 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
         return _this;
     }
     CurveModelObserverInCurveModelEventListener.prototype.update = function (message) {
-        if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+        if (message instanceof CurveModel_1.CurveModel) {
+            if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                this.listener.curveModel = message;
+                this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = message;
+                this.listener.curveModeler.curveShapeSpaceNavigator.currentCurve = message.spline;
+                this.listener.curveModeler.clampedControlPoints[0] = 0;
+                var degree = message.spline.degree;
+                this.listener.updateCurveDegreeSelector(degree);
+                this.listener.resetCurveConstraintControlButton();
+            }
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
             this.listener.curveModel = message;
             this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = message;
             this.listener.curveModeler.curveShapeSpaceNavigator.currentCurve = message.spline;
@@ -48765,13 +49642,19 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
             var degree = message.spline.degree;
             this.listener.updateCurveDegreeSelector(degree);
             this.listener.resetCurveConstraintControlButton();
+            console.log("something to do there with ClosedCurveModel in CurveModelEventListener");
         }
     };
     CurveModelObserverInCurveModelEventListener.prototype.reset = function (message) {
-        var curveModel = new CurveModel_1.CurveModel();
-        if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
-            this.listener.curveModel = curveModel;
-            this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = curveModel;
+        if (message instanceof CurveModel_1.CurveModel) {
+            var curveModel = new CurveModel_1.CurveModel();
+            if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                this.listener.curveModel = curveModel;
+                this.listener.curveModeler.curveShapeSpaceNavigator.curveModel = curveModel;
+            }
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            console.log("something to do there with ClosedCurveModel in CurveModelEventListener");
         }
     };
     return CurveModelObserverInCurveModelEventListener;
@@ -48785,22 +49668,66 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
         return _this;
     }
     CurveModelObserverInShapeSpaceNavigationEventListener.prototype.update = function (message) {
-        var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
-        if (curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel')) {
-            this.listener.curveShapeSpaceNavigator.curveModel = message;
-            this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
-            this.listener.resetCurveShapeControlButtons();
+        if (message instanceof CurveModel_1.CurveModel) {
+            var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+            if (curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel')) {
+                this.listener.curveShapeSpaceNavigator.curveModel = message;
+                this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
+                this.listener.resetCurveShapeControlButtons();
+            }
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+            if (curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel')) {
+                this.listener.curveShapeSpaceNavigator.curveModel = message;
+                this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
+                this.listener.resetCurveShapeControlButtons();
+            }
+            console.log("something to do there with ClosedCurveModel in ShapeSpaceNavigationEventListener");
         }
     };
     CurveModelObserverInShapeSpaceNavigationEventListener.prototype.reset = function (message) {
-        var curveModel = new CurveModel_1.CurveModel();
-        if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
-            this.listener.curveShapeSpaceNavigator.curveModel = curveModel;
+        if (message instanceof CurveModel_1.CurveModel) {
+            var curveModel = new CurveModel_1.CurveModel();
+            if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
+                this.listener.curveShapeSpaceNavigator.curveModel = curveModel;
+            }
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            console.log("something to do there with ClosedCurveModel in ShapeSpaceNavigationEventListener");
         }
     };
     return CurveModelObserverInShapeSpaceNavigationEventListener;
 }(CurveModelObserver));
 exports.CurveModelObserverInShapeSpaceNavigationEventListener = CurveModelObserverInShapeSpaceNavigationEventListener;
+var CurveModelObserverInFileEventListener = /** @class */ (function (_super) {
+    __extends(CurveModelObserverInFileEventListener, _super);
+    function CurveModelObserverInFileEventListener(listener) {
+        var _this = _super.call(this) || this;
+        _this.listener = listener;
+        return _this;
+    }
+    CurveModelObserverInFileEventListener.prototype.update = function (message) {
+        if (message instanceof CurveModel_1.CurveModel) {
+            this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
+            console.log("something to do there with CurveModel in FileEventListener");
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            console.log("something to do there with ClosedCurveModel in FileEventListener");
+        }
+    };
+    CurveModelObserverInFileEventListener.prototype.reset = function (message) {
+        if (message instanceof CurveModel_1.CurveModel) {
+            var curveModel = new CurveModel_1.CurveModel();
+            console.log("something to do there with CurveModel in FileEventListener");
+        }
+        else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            console.log("something to do there with ClosedCurveModel in FileEventListener");
+        }
+    };
+    return CurveModelObserverInFileEventListener;
+}(CurveModelObserver));
+exports.CurveModelObserverInFileEventListener = CurveModelObserverInFileEventListener;
 
 
 /***/ }),
@@ -50768,7 +51695,7 @@ var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVe
 // import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
 var AbstractCurveModel = /** @class */ (function () {
     function AbstractCurveModel() {
-        this.observers = [];
+        this._observers = [];
         this.observersCP = [];
         // protected activeControl: ActiveControl = ActiveControl.both;
         this.activeOptimizer = true;
@@ -50834,13 +51761,22 @@ var AbstractCurveModel = /** @class */ (function () {
         //     }
         // }
     }
+    Object.defineProperty(AbstractCurveModel.prototype, "observers", {
+        get: function () {
+            return this._observers;
+        },
+        enumerable: false,
+        configurable: true
+    });
     AbstractCurveModel.prototype.registerObserver = function (observer, kind) {
         switch (kind) {
             case 'curve':
                 this.observers.push(observer);
+                console.log("CurveModel: registerObs as curve: " + observer.constructor.name);
                 break;
             case 'control points':
                 this.observersCP.push(observer);
+                console.log("CurveModel: registerObs as CP: " + observer.constructor.name);
                 break;
             default:
                 throw Error("unknown kind");
@@ -50859,10 +51795,12 @@ var AbstractCurveModel = /** @class */ (function () {
     AbstractCurveModel.prototype.notifyObservers = function () {
         for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
             var observer = _a[_i];
+            console.log("CurveModel: update as curve: " + observer.constructor.name);
             observer.update(this._spline.clone());
         }
         for (var _b = 0, _c = this.observersCP; _b < _c.length; _b++) {
             var observer = _c[_b];
+            console.log("CurveModel: update as CP: " + observer.constructor.name);
             observer.update(this._spline.clone());
         }
     };
@@ -50926,9 +51864,10 @@ var ClosedCurveModel = /** @class */ (function (_super) {
         }
         var knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         _this._spline = PeriodicBSplineR1toR2_1.create_PeriodicBSplineR1toR2(cp1, knots);
-        return _this;
         // this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
+        console.log("end constructor ClosedCurveModel");
+        return _this;
     }
     Object.defineProperty(ClosedCurveModel.prototype, "isClosed", {
         get: function () {
@@ -50978,6 +51917,10 @@ var ClosedCurveModel = /** @class */ (function (_super) {
         // this.optimizer = new Optimizer(this.optimizationProblem)
         this.notifyObservers();
     };
+    ClosedCurveModel.prototype.setControlPoints = function (controlPoints) {
+        this.spline.controlPoints = controlPoints;
+        //this.notifyObservers()
+    };
     return ClosedCurveModel;
 }(AbstractCurveModel_1.AbstractCurveModel));
 exports.ClosedCurveModel = ClosedCurveModel;
@@ -51024,7 +51967,6 @@ var CurveModel = /** @class */ (function (_super) {
         var cp2 = new Vector2d_1.Vector2d(0.25, -0.2);
         var cp3 = new Vector2d_1.Vector2d(0.5, 0.3);
         _this._spline = new BSplineR1toR2_1.BSplineR1toR2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1]);
-        return _this;
         // const cp0 = new Vector2d(-0.5, 0)
         // const cp1 = new Vector2d(-0.3, 0.5)
         // const cp2 = new Vector2d(0, 0.7)
@@ -51034,6 +51976,8 @@ var CurveModel = /** @class */ (function (_super) {
         // this.optimizationProblem = new  OptimizationProblemBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
         //this.optimizer = new QuasiNewtonOptimizer(this.optimizationProblem)
+        console.log("end constructor CurveModel.");
+        return _this;
     }
     Object.defineProperty(CurveModel.prototype, "spline", {
         get: function () {
@@ -53167,18 +54111,18 @@ var CurveModeler_1 = __webpack_require__(/*! ../curveModeler/CurveModeler */ "./
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FileController_1 = __webpack_require__(/*! ../filecontrollers/FileController */ "./src/filecontrollers/FileController.ts");
 var CurveModel_1 = __webpack_require__(/*! ../models/CurveModel */ "./src/models/CurveModel.ts");
-var CurveModel_2 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var CurveModelObserver_1 = __webpack_require__(/*! ../models/CurveModelObserver */ "./src/models/CurveModelObserver.ts");
 // export abstract class UserInterfaceEventListener {
 // }
 // export class ChartEventListener extends UserInterfaceEventListener {
 var ChartEventListener = /** @class */ (function () {
     // private  static a: ChartEventListener
-    function ChartEventListener(curveModel) {
+    function ChartEventListener(curveModeler) {
         this.chartRenderingContext = [];
         // super();
         // ChartEventListener.a = this
-        this._curveModel = curveModel;
+        this._curveModel = curveModeler.curveCategory.curveModel;
+        this.curveModeler = curveModeler;
         this.canvasChart1 = document.getElementById('chart1');
         this.canvasChart2 = document.getElementById('chart2');
         this.canvasChart3 = document.getElementById('chart3');
@@ -53197,7 +54141,8 @@ var ChartEventListener = /** @class */ (function () {
         this.ctxChart2 = this.canvasChart2.getContext('2d');
         this.ctxChart3 = this.canvasChart3.getContext('2d');
         this.setupChartRenderingContexts();
-        this._chartSceneController = new ChartSceneController_1.ChartSceneController(this.chartRenderingContext, this._curveModel);
+        this._chartSceneController = new ChartSceneController_1.ChartSceneController(this.chartRenderingContext, this.curveModeler);
+        this.curveModeler.registerObserver(new CurveModelObserver_1.CurveModelObserverInChartEventListener(this));
         /* Add event handlers for checkbox processing */
         this.checkBoxFunctionA.addEventListener('click', this.chkboxFunctionA.bind(this));
         this.checkBoxFunctionB.addEventListener('click', this.chkboxFunctionB.bind(this));
@@ -53345,12 +54290,10 @@ var ChartEventListener = /** @class */ (function () {
 exports.ChartEventListener = ChartEventListener;
 // export class FileEventListener extends UserInterfaceEventListener {
 var FileEventListener = /** @class */ (function () {
-    function FileEventListener(curveModel, chartEventListener, curveModelEventListener, shapeSpaceNavigationEventListener, curveSceneController) {
+    function FileEventListener(curveModelEventListener, curveSceneController) {
         // super();
-        this.curveModel = curveModel;
-        this.chartEventListener = chartEventListener;
-        this.curveModelEventListener = curveModelEventListener;
-        this.shapeSpaceNavigationEventListener = shapeSpaceNavigationEventListener;
+        this._curveModeler = curveModelEventListener.curveModeler;
+        this._curveModel = curveModelEventListener.curveModel;
         this.curveSceneController = curveSceneController;
         /* JCL 2020/10/13 Get input IDs for file management purposes */
         this.buttonFileLoad = document.getElementById("buttonFileLoad");
@@ -53361,11 +54304,9 @@ var FileEventListener = /** @class */ (function () {
         this.validateInput = document.getElementById("validateInput");
         this.labelFileExtension = document.getElementById("labelFileExtension");
         this.fileR = new FileReader();
-        this.fileController = new FileController_1.FileController(this.curveModel, this.curveSceneController);
+        this.fileController = new FileController_1.FileController(this.curveModeler, this.curveSceneController);
         this.currentFileName = "";
-        this.fileController.registerObserver(new CurveModelObserver_1.CurveModelObserverInChartEventListener(this.chartEventListener));
-        this.fileController.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveModelEventListener(this.curveModelEventListener));
-        this.fileController.registerObserver(new CurveModelObserver_1.CurveModelObserverInShapeSpaceNavigationEventListener(this.shapeSpaceNavigationEventListener));
+        this.curveModeler.registerObserver(new CurveModelObserver_1.CurveModelObserverInFileEventListener(this));
         /* JCL 2020/10/13 Add event handlers for file processing */
         this.buttonFileLoad.addEventListener('click', this.buttonFileLoadCurve.bind(this));
         this.buttonFileSave.addEventListener('click', this.buttonFileSaveCurve.bind(this));
@@ -53375,6 +54316,23 @@ var FileEventListener = /** @class */ (function () {
         this.validateInput.addEventListener('click', this.inputButtonValidate.bind(this));
         this.fileR.addEventListener('load', this.processInputFile.bind(this));
     }
+    Object.defineProperty(FileEventListener.prototype, "curveModel", {
+        get: function () {
+            return this._curveModel;
+        },
+        set: function (curveModel) {
+            this._curveModel = curveModel;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(FileEventListener.prototype, "curveModeler", {
+        get: function () {
+            return this._curveModeler;
+        },
+        enumerable: false,
+        configurable: true
+    });
     FileEventListener.prototype.buttonFileLoadCurve = function (ev) {
         if (this.inputFileLoad !== null)
             this.inputFileLoad.click();
@@ -53481,12 +54439,12 @@ var CurveModelerEventListener = /** @class */ (function () {
         this._inputCurveCategory = document.getElementById("curveCategory");
         this._inputDegree = document.getElementById("curveDegree");
         this._toggleButtonCurveClamping = document.getElementById("toggleButtonCurveClamping");
-        // to be used later
         this._curveModeler = new CurveModeler_1.CurveModeler();
-        this._curveModel = new CurveModel_2.CurveModel();
-        // this._curveModeler.curveCategory.curveModel;
+        this._curveModel = this._curveModeler.curveCategory.curveModel;
+        // this._curveModeler.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
         this.controlOfCurveClamping = true;
         this.activeLocationControl = this._curveModeler.activeLocationControl;
+        this._curveModeler.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveModelEventListener(this));
         /* JCL  Add event handlers for curve degree and curve category selection processing */
         this._inputDegree.addEventListener('input', this.inputSelectDegree.bind(this));
         this._inputDegree.addEventListener('click', this.clickSelectDegree.bind(this));
@@ -53621,6 +54579,7 @@ exports.CurveModelerEventListener = CurveModelerEventListener;
 var ShapeSpaceNavigationEventListener = /** @class */ (function () {
     function ShapeSpaceNavigationEventListener(curveModeler, sceneController) {
         // super();
+        this.curveModeler = curveModeler;
         this.sceneController = sceneController;
         this._curveShapeSpaceNavigator = curveModeler.curveShapeSpaceNavigator;
         /* Get control button IDs for curve shape control*/
@@ -53633,6 +54592,7 @@ var ShapeSpaceNavigationEventListener = /** @class */ (function () {
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.sliding = true;
+        this.curveModeler.registerObserver(new CurveModelObserver_1.CurveModelObserverInShapeSpaceNavigationEventListener(this));
         this._inputNavigationMode.addEventListener('input', this.inputSelectNavigationMode.bind(this));
         this._inputNavigationMode.addEventListener('click', this.clickNavigationMode.bind(this));
         this._toggleButtonCurvatureExtrema.addEventListener('click', this.toggleControlOfCurvatureExtrema.bind(this));
@@ -55392,7 +56352,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelectedDifferentialEventsView = void 0;
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-var BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var SelectedDifferentialEventsView = /** @class */ (function () {
     function SelectedDifferentialEventsView(spline, pointLoc, curvatureExtremaShaders, red, green, blue, alpha) {
         this.curvatureExtremaShaders = curvatureExtremaShaders;
@@ -55406,8 +56366,9 @@ var SelectedDifferentialEventsView = /** @class */ (function () {
         this.vertices = new Float32Array([]);
         this.indices = new Uint8Array([]);
         var points = [];
-        for (var i = 0; i < pointLoc.length; i += 1) {
-            points.push(spline.evaluate(pointLoc[i]));
+        for (var _i = 0, pointLoc_1 = pointLoc; _i < pointLoc_1.length; _i++) {
+            var pt = pointLoc_1[_i];
+            points.push(spline.evaluate(pt));
         }
         this.curvatureExtremumLocation = points.slice();
         // Write the positions of vertices to a vertex shader
@@ -55525,7 +56486,7 @@ var SelectedDifferentialEventsView = /** @class */ (function () {
         gl.useProgram(null);
     };
     SelectedDifferentialEventsView.prototype.update = function (spline, pointLoc) {
-        if (spline instanceof BSpline_R1_to_R2_1.BSpline_R1_to_R2) {
+        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
             var points = [];
             for (var i = 0; i < this.curvatureExtremumLocation.length; i += 1) {
                 points.push(spline.evaluate(pointLoc[i]));

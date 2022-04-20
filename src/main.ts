@@ -104,9 +104,8 @@ export function main() {
     const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
     const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
     // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
-    const chartEventListener = new ChartEventListener(curveModelerEventListener.curveModel);
-    const fileEventListener = new FileEventListener(curveModelerEventListener.curveModel, chartEventListener,
-        curveModelerEventListener, shapeSpaceNavigationEventListener, sceneController);
+    const chartEventListener = new ChartEventListener(curveModelerEventListener.curveModeler);
+    const fileEventListener = new FileEventListener(curveModelerEventListener, sceneController);
 
 
     function mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {

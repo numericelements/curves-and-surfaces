@@ -1,5 +1,5 @@
 import { Chart } from "chart.js";
-import { Vector_2d } from "../mathematics/Vector_2d";
+import { Vector2d } from "../mathVector/Vector2d";
 import { CHART_AXIS_SCALE, CHART_X_AXIS_NAME, DATASET_NAMES } from "./ChartSceneController";
 
 export class ChartController {
@@ -65,7 +65,7 @@ export class ChartController {
 
     }
 
-    addPolylineDataset(datasetLabel: string, dataPoints: Vector_2d[]): void {
+    addPolylineDataset(datasetLabel: string, dataPoints: Vector2d[]): void {
         this.datasetPolylineLabel = datasetLabel;
 
         this.dataCP = [];
@@ -74,7 +74,7 @@ export class ChartController {
         });
     }
 
-    addCurvePointDataset(datasetLabel: string, curvePoints:  Vector_2d[], color: {red: number, green: number, blue: number, alpha: number}): void {
+    addCurvePointDataset(datasetLabel: string, curvePoints:  Vector2d[], color: {red: number, green: number, blue: number, alpha: number}): void {
         this.datasetCurveLabel = datasetLabel;
 
         let curveColor: string = 'rgba(';

@@ -1,3 +1,4 @@
+import { Vector2d } from "../mathVector/Vector2d";
 import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2"
 // import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
 // import { Optimizer } from "../optimizers/Optimizer"
@@ -30,7 +31,7 @@ export class ClosedCurveModel extends AbstractCurveModel {
         // this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
 
-       
+       console.log("end constructor ClosedCurveModel")
     }
 
     get isClosed(): boolean {
@@ -74,5 +75,8 @@ export class ClosedCurveModel extends AbstractCurveModel {
         this.notifyObservers()
     }
     
-
+    setControlPoints(controlPoints: Vector2d[]) {
+        this.spline.controlPoints = controlPoints;
+        //this.notifyObservers()
+    }
 }

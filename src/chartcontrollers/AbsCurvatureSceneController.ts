@@ -5,7 +5,7 @@ import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR
 import { Vector2d } from "../mathVector/Vector2d";
 import { ChartController } from "./ChartController";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES, NB_CURVE_POINTS } from "./ChartSceneController";
-import { IObserver } from "../designPatterns/Observer";
+import { IObserver } from "../newDesignPatterns/Observer";
 import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";

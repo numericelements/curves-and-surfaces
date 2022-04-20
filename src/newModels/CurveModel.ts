@@ -30,7 +30,7 @@ export class CurveModel extends AbstractCurveModel {
         // this.optimizationProblem = new  OptimizationProblemBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
         //this.optimizer = new QuasiNewtonOptimizer(this.optimizationProblem)
-
+        console.log("end constructor CurveModel.")
     }
 
     get spline(): BSplineR1toR2 {

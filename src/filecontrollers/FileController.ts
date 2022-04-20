@@ -3,35 +3,25 @@ import { CurveSceneController } from "../controllers/CurveSceneController";
 import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
-import { CurveModel } from "../newModels/CurveModel";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
+import { saveAs } from "file-saver";
+import { CurveModeler } from "../curveModeler/CurveModeler";
 
-export class FileController implements IObservable<CurveModel> {
+export class FileController {
+// export class FileController implements IObservable<CurveModelInterface> {
 
-    private _curveModel: CurveModel;
+    private _curveModel: CurveModelInterface;
     private _curveSceneController: CurveSceneController;
-    private observers: IObserver<CurveModel>[] = [];
+    private curveModeler: CurveModeler;
 
-    constructor(curveModel: CurveModel, curveSceneController: CurveSceneController) {
-        this._curveModel = curveModel;
+    constructor(curveModeler: CurveModeler, curveSceneController: CurveSceneController) {
+        this.curveModeler = curveModeler;
+        this._curveModel = curveModeler.curveCategory.curveModel;
         this._curveSceneController = curveSceneController;
     }
 
     get curveModel() {
         return this._curveModel;
-    }
-
-    registerObserver(observer: IObserver<CurveModel>): void {
-        this.observers.push(observer)
-    }
-
-    removeObserver(observer: IObserver<CurveModel>): void {
-        this.observers.splice(this.observers.indexOf(observer), 1)
-    }
-
-    notifyObservers() {
-        for (let observer of this.observers) {
-            observer.update(this._curveModel);
-        }
     }
 
     /* JCL 2020/10/13 Add curve serialization to file */
@@ -69,16 +59,19 @@ export class FileController implements IObservable<CurveModel> {
         if(typeof(controlPoints) !== "object" || 
             (typeof(controlPoints) === "object" && typeof(controlPoints[0].x) !== "number")) this.inconsistentFileFormatMessage();
 
-        let tempSpline: BSplineR1toR2;
-        tempSpline = create_BSplineR1toR2(controlPoints, knots);
-        return tempSpline;
+        let CPs: Array<Vector2d> = [];
+        for(let cp of controlPoints) {
+            CPs.push(new Vector2d(cp.x, cp.y));
+        }
+        const tmpSpline = create_BSplineR1toR2V2d(CPs, knots);
+        return tmpSpline;
     }
 
     resetCurveContext(knots: number[], controlPoints: Array<Vector2d>): void {
         const newSpline = create_BSplineR1toR2V2d(controlPoints, knots);
         if(this._curveModel !== undefined) {
             this._curveModel.setSpline(newSpline);
-            this.notifyObservers();
+            this.curveModeler.notifyObservers();
             this._curveSceneController.curveModel = this._curveModel;
             this._curveSceneController.initCurveSceneView();
         } else {

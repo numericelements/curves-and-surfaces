@@ -3,6 +3,7 @@ import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface"
 import { IObserver } from "../newDesignPatterns/Observer"
 import { Vector2d } from "../mathVector/Vector2d"
 import { CurveModelInterface, KindOfObservers } from "./CurveModelInterface"
+import { CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 // import { Optimizer } from "../optimizers/Optimizer"
 // import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
 
@@ -11,7 +12,7 @@ import { CurveModelInterface, KindOfObservers } from "./CurveModelInterface"
 export abstract class AbstractCurveModel implements CurveModelInterface {
 
     protected abstract _spline : BSplineR1toR2Interface;
-    protected observers: IObserver<BSplineR1toR2Interface>[] = [];
+    protected _observers: IObserver<BSplineR1toR2Interface>[] = [];
     protected observersCP: IObserver<BSplineR1toR2Interface>[] = [];
     // protected activeControl: ActiveControl = ActiveControl.both;
     protected activeOptimizer: boolean = true;
@@ -26,13 +27,19 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
     abstract addControlPoint(controlPointIndex: number | null): void;
     abstract setActiveControl(): void;
 
+    get observers() {
+        return this._observers;
+    }    
+
     registerObserver(observer: IObserver<BSplineR1toR2Interface>, kind: KindOfObservers): void {
         switch(kind) {
             case 'curve':
                 this.observers.push(observer);
+                console.log("CurveModel: registerObs as curve: " + observer.constructor.name)
                 break;
             case 'control points':
                 this.observersCP.push(observer);
+                console.log("CurveModel: registerObs as CP: " + observer.constructor.name)
                 break;
             default:
                 throw Error("unknown kind");
@@ -54,9 +61,11 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
 
     notifyObservers(): void {
         for (let observer of this.observers){
+            console.log("CurveModel: update as curve: " + observer.constructor.name)
             observer.update(this._spline.clone());
         }
         for (let observer of this.observersCP){
+            console.log("CurveModel: update as CP: " + observer.constructor.name)
             observer.update(this._spline.clone());
         }
     }

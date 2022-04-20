@@ -1,7 +1,7 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {ControlPointsShaders} from "../views/ControlPointsShaders"
-import { IObserver } from "../designPatterns/Observer";
+import { IObserver } from "../newDesignPatterns/Observer";
 
 
 export class ControlPointsView implements IObserver<BSplineR1toR2Interface> {

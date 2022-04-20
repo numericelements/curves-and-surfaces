@@ -133,7 +133,11 @@ export class CurveAnalyzer {
     }
 
     update(): void {
-        this.curve = this.curveShapeSpaceNavigator.currentCurve;
+        if(this.curveShapeSpaceNavigator.currentCurve instanceof BSplineR1toR2) {
+            this.curve = this.curveShapeSpaceNavigator.currentCurve;
+        } else {
+            console.log("cannot analyze Periodic BSplines yet")
+        }
         const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;

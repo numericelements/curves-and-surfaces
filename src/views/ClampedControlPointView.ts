@@ -1,6 +1,6 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import {ControlPointsShaders} from "../views/ControlPointsShaders"
-import { IObserver } from "../designPatterns/Observer";
+import { IObserver } from "../newDesignPatterns/Observer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 
 export class ClampedControlPointView implements IObserver<BSplineR1toR2Interface>{

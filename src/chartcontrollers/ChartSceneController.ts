@@ -6,7 +6,8 @@ import { ChartContentState, ChartWithNoFunction } from "./ChartContentState";
 import { ChartController } from "./ChartController";
 import { NoFunctionSceneController } from "./NoFunctionSceneController";
 import { IObserver } from "../newDesignPatterns/Observer";
-import { CurveModel } from "../newModels/CurveModel";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
+import { CurveModeler } from "../curveModeler/CurveModeler";
 
 export const MAX_NB_CHARTS = 3;
 export const NB_CURVE_POINTS = 100;
@@ -29,7 +30,7 @@ export const DATASET_NAMES = ["Control Polygon", "tbd"];
 export const CHART_AXIS_SCALE = ["linear", "logarithmic"]
 
 
-export class ChartSceneController {
+export class ChartSceneController implements IObserver<CurveModelInterface> {
 
     private chartRenderingContext: Array<CanvasRenderingContext2D>;
     private freeChartsQueue: QueueChartController;
@@ -39,11 +40,13 @@ export class ChartSceneController {
     private _chartControllers: Array<ChartController>;
     private _curveObservers: Array<IObserver<BSplineR1toR2Interface>>;
     private _uncheckedChart: string;
-    private _curveModel: CurveModel;
+    private _curveModel: CurveModelInterface;
+    private curveModeler: CurveModeler;
 
-    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveModel: CurveModel) {
+    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveModeler: CurveModeler) {
         this.chartRenderingContext = chartRenderingContext;
-        this._curveModel = curveModel;
+        this.curveModeler = curveModeler;
+        this._curveModel = curveModeler.curveCategory.curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -54,7 +57,6 @@ export class ChartSceneController {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
-
     }
 
     get curveObservers() {
@@ -69,7 +71,7 @@ export class ChartSceneController {
         return this._uncheckedChart;
     }
 
-    set curveModel(curveModel: CurveModel) {
+    set curveModel(curveModel: CurveModelInterface) {
         this._curveModel = curveModel;
     }
 
@@ -111,7 +113,7 @@ export class ChartSceneController {
         }
     }
 
-    restart(curveModel: CurveModel): void {
+    restart(curveModel: CurveModelInterface): void {
         this._curveModel = curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
@@ -305,6 +307,20 @@ export class ChartSceneController {
             const error = new ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
             error.logMessageToConsole();
         }
+    }
+
+    update(): void {
+        this._curveModel = this.curveModeler.curveCategory.curveModel;
+        this._uncheckedChart = "";
+        this._curveObservers = [];
+        this._chartControllers = [];
+        this.chartContent = [];
+        this.freeChartsQueue = new QueueChartController(MAX_NB_CHARTS);
+        this.chartsDescriptorsQueue = new QueueChartDescriptor(MAX_NB_CHARTS);
+        this.defaultChartTitles = [];
+        this.generateDefaultChartNames();
+        this.init();
+        console.log("need to update chartSceneController")
     }
 
 }

@@ -2,15 +2,18 @@ import { CurveCategory, OpenPlanarCurve } from "../curveModeler/CurveCategory";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { IObservable, IObserver } from "../newDesignPatterns/Observer";
+import { CurveModelInterface } from "../newModels/CurveModelInterface";
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
 
-export class CurveModeler{
+export class CurveModeler implements IObservable<CurveModelInterface> {
     private _curveCategory: CurveCategory;
     private _controlOfCurveClamping: boolean;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private _clampedControlPoints: number[] = []
+    private observers: IObserver<CurveModelInterface>[] = [];
 
     public activeLocationControl: ActiveLocationControl
 
@@ -78,4 +81,19 @@ export class CurveModeler{
         this.curveShapeSpaceNavigator.curveCategory = this._curveCategory;
     }
 
+    registerObserver(observer: IObserver<CurveModelInterface>): void {
+        this.observers.push(observer)
+        console.log("CurveModeler: registerObs: " + observer.constructor.name)
+    }
+
+    removeObserver(observer: IObserver<CurveModelInterface>): void {
+        this.observers.splice(this.observers.indexOf(observer), 1)
+    }
+
+    notifyObservers() {
+        for (let observer of this.observers) {
+            console.log("CurveModeler: update: " + observer.constructor.name)
+            observer.update(this._curveCategory.curveModel);
+        }
+    }
 }

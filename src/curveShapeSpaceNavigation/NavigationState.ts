@@ -5,10 +5,12 @@ import { CurveShapeSpaceNavigator,
         MAX_NB_STEPS_TRUST_REGION_OPTIMIZER } from "./CurveShapeSpaceNavigator";
 import { ComparatorOfSequencesOfDiffEvents } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OpenMode } from "fs";
-import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { CurveConstraints } from "./CurveConstraints";
 import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
+import { CurveModel } from "../newModels/CurveModel";
 
 
 export abstract class NavigationState {
@@ -53,8 +55,8 @@ export abstract class NavigationState {
 
 export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
 
-    private currentCurve: BSplineR1toR2;
-    private optimizedCurve: BSplineR1toR2;
+    private currentCurve: BSplineR1toR2Interface;
+    private optimizedCurve: BSplineR1toR2Interface;
     private curveAnalyserCurrentCurve: CurveAnalyzer;
     private curveAnalyserOptimizedCurve: CurveAnalyzer;
 
@@ -63,8 +65,21 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
         this.optimizedCurve = this.currentCurve;
-        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
-        this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        if(this.currentCurve  instanceof BSplineR1toR2) {
+            this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        } else {
+            console.log(" use a dummy curve in place of Periodic BSpline")
+            const dummyCurve = new CurveModel()
+            this.curveAnalyserCurrentCurve = new CurveAnalyzer(dummyCurve.spline, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        if(this.optimizedCurve  instanceof BSplineR1toR2) {
+            this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        } else {
+            console.log(" use a dummy curve in place of Periodic BSpline")
+            const dummyCurve = new CurveModel()
+            this.curveAnalyserOptimizedCurve = new CurveAnalyzer(dummyCurve.spline, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
@@ -95,8 +110,8 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
 
 export class NavigationThroughSimplerShapeSpaces extends NavigationState {
 
-    private currentCurve: BSplineR1toR2;
-    private optimizedCurve: BSplineR1toR2;
+    private currentCurve: BSplineR1toR2Interface;
+    private optimizedCurve: BSplineR1toR2Interface;
     private curveAnalyserCurrentCurve: CurveAnalyzer;
     private curveAnalyserOptimizedCurve: CurveAnalyzer;
 
@@ -105,8 +120,21 @@ export class NavigationThroughSimplerShapeSpaces extends NavigationState {
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
         this.optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
-        this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
-        this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        if(this.currentCurve  instanceof BSplineR1toR2) {
+            this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        } else {
+            console.log(" use a dummy curve in place of Periodic BSpline")
+            const dummyCurve = new CurveModel()
+            this.curveAnalyserCurrentCurve = new CurveAnalyzer(dummyCurve.spline, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
+        if(this.optimizedCurve  instanceof BSplineR1toR2) {
+            this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        } else {
+            console.log(" use a dummy curve in place of Periodic BSpline")
+            const dummyCurve = new CurveModel()
+            this.curveAnalyserOptimizedCurve = new CurveAnalyzer(dummyCurve.spline, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+
+        }
     }
 
     setNavigationThroughSimplerShapeSpaces(): void {

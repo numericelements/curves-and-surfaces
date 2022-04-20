@@ -1,10 +1,10 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_interface } from "../bsplines/BSplineInterfaces";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {DifferentialEventShaders} from "./DifferentialEventShaders"
 import { IObserver } from "../designPatterns/Observer";
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 
 export class SelectedDifferentialEventsView {
@@ -14,13 +14,13 @@ export class SelectedDifferentialEventsView {
     private indexBuffer: WebGLBuffer | null = null
     private vertices: Float32Array = new Float32Array([])
     private indices: Uint8Array = new Uint8Array([])
-    private curvatureExtremumLocation: Vector_2d[]
+    private curvatureExtremumLocation: Vector2d[]
 
-    constructor(spline: BSpline_R1_to_R2_interface, pointLoc: number[], private curvatureExtremaShaders: DifferentialEventShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
+    constructor(spline: BSplineR1toR2Interface, pointLoc: number[], private curvatureExtremaShaders: DifferentialEventShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
         
-        let points: Array<Vector_2d> = []
-        for(let i = 0; i < pointLoc.length; i += 1) {
-            points.push(spline.evaluate(pointLoc[i]))
+        let points: Array<Vector2d> = []
+        for(let pt of pointLoc) {
+            points.push(spline.evaluate(pt))
         }
         this.curvatureExtremumLocation = points.slice()
         
@@ -170,9 +170,9 @@ export class SelectedDifferentialEventsView {
 
 
 
-    update(spline: BSpline_R1_to_R2_interface, pointLoc: number[]) {
-        if (spline instanceof BSpline_R1_to_R2) {
-            let points: Array<Vector_2d> = []
+    update(spline: BSplineR1toR2Interface, pointLoc: number[]) {
+        if (spline instanceof BSplineR1toR2) {
+            let points: Array<Vector2d> = []
             for(let i = 0; i < this.curvatureExtremumLocation.length; i += 1) {
                 points.push(spline.evaluate(pointLoc[i]))
             }

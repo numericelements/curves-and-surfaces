@@ -282,7 +282,7 @@ export function create_BSplineR1toR2(controlPoints: number[][], knots: number[])
     return new BSplineR1toR2(newControlPoints, knots);
 }
 
-export function create_BSplineR1toR2V2d(controlPoints: Array<Vector2d>, knots: number[]): BSplineR1toR2 {
+export function create_BSplineR1toR2V2d(controlPoints: Vector2d[], knots: number[]): BSplineR1toR2 {
     return new BSplineR1toR2(controlPoints, knots);
 }
 
