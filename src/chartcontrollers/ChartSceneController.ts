@@ -127,7 +127,6 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
         this.init();
         this._curveObservers.forEach(element => {
             element.update(this._curveModel.spline);
-            this._curveModel.registerObserver(element, "curve");
         });
     }
 

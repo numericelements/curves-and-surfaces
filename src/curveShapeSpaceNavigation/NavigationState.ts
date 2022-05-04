@@ -11,6 +11,7 @@ import { CurveConstraints } from "./CurveConstraints";
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { CurveModel } from "../newModels/CurveModel";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
 
 export abstract class NavigationState {
@@ -65,7 +66,7 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
         this.optimizedCurve = this.currentCurve;
-        if(this.currentCurve  instanceof BSplineR1toR2) {
+        if(this.currentCurve instanceof BSplineR1toR2) {
             this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         } else {
             console.log(" use a dummy curve in place of Periodic BSpline")
@@ -83,6 +84,15 @@ export class NavigationWithoutShapeSpaceMonitoring extends NavigationState {
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
+        if(this.curveShapeSpaceNavigator.currentCurve instanceof PeriodicBSplineR1toR2 && this.currentCurve instanceof BSplineR1toR2) {
+            this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
+            this.optimizedCurve = this.currentCurve;
+        } else if (this.curveShapeSpaceNavigator.currentCurve instanceof BSplineR1toR2 && this.currentCurve instanceof PeriodicBSplineR1toR2) {
+            this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
+            this.optimizedCurve = this.currentCurve;
+            // this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+            // this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        }
         let warning = new WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
         warning.logMessageToConsole();
     }

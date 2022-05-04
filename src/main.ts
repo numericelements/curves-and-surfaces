@@ -3,10 +3,6 @@ import {WebGLUtils} from "./webgl/webgl-utils"
 import { CurveModel } from "./newModels/CurveModel"
 import { createProgram } from "./webgl/cuon-utils";
 import { ErrorLog } from "./errorProcessing/ErrorLoging"
-// import { chartEventListener } from "./chartviews/ChartEventListener";
-// import { fileEventListener } from "./filecontrollers/FileEventListener";
-// import { CurveShapeModelerUserInterface } from "./userInterfaceController/CurveShapeModelerUserInterface";
-// import { curveModelEventListener } from "./curveModeler/CurveModelEventListener";
 import { ChartEventListener, CurveModelerEventListener, FileEventListener, ShapeSpaceNavigationEventListener } from "./userInterfaceController/UserInterfaceEventListener";
 
 export function main() {
@@ -103,7 +99,6 @@ export function main() {
     const curveModelerEventListener = new CurveModelerEventListener();
     const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
     const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
-    // const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
     const chartEventListener = new ChartEventListener(curveModelerEventListener.curveModeler);
     const fileEventListener = new FileEventListener(curveModelerEventListener, sceneController);
 
@@ -190,40 +185,6 @@ export function main() {
         if(keyName === "Shift") sceneController.shiftKeyUp()
     }
 
-    // function inputSelectDegree() {
-    //     console.log("select:  " + curveShapeModelerUserInterface.inputDegree.value);
-    //     let optionName = "option"
-    //     let curveDegree: number;
-    //     if(!isNaN(Number(curveShapeModelerUserInterface.inputDegree.value))){
-    //         curveDegree = Number(curveShapeModelerUserInterface.inputDegree.value);
-    //         curveShapeModelerUserInterface.currentCurveDegree = curveShapeModelerUserInterface.inputDegree.value;
-    //         sceneController.inputSelectDegree(curveDegree);
-    //         if(curveDegree > 3) {
-    //             for(let i = 1; i < (curveDegree - 2); i += 1) {
-    //                 console.log("select" + optionName + i.toString());
-    //                 let option = <HTMLOptionElement> document.getElementById(optionName + i.toString());
-    //                 if(option !== null) option.setAttribute("disabled", "");
-    //                 else throw new Error('No id found to identify an Option in the Selector');
-    //             }
-    //         }
-    //     } else {
-    //           throw new Error('The selected option cannot be converted into a Number');
-    //     }
-    // }
-
-    // function inputSelectNavigationMode() {
-    //     console.log("select" + curveShapeModelerUserInterface.inputNavigationMode.value);
-    //     let navigationMode: number;
-    //     navigationMode = Number(curveShapeModelerUserInterface.inputNavigationMode.value);
-    //     curveShapeModelerUserInterface.currentNavigationMode = curveShapeModelerUserInterface.inputNavigationMode.value;
-    //     sceneController.inputSelectNavigationProcess(navigationMode);
-    // }
-
-    // function clickNavigationMode() {
-    //     console.log("select Navigation click");
-    //     curveShapeModelerUserInterface.inputNavigationMode.value = curveShapeModelerUserInterface.currentNavigationMode;
-    // }
-
     function processInputTexture() {
         textureInfo.width = iconKnotInsertion.width;
         textureInfo.height = iconKnotInsertion.height;
@@ -305,9 +266,6 @@ export function main() {
     canvas.addEventListener('dblclick', mouse_double_click, false);
 
     /* JCL 2020/10/07 Add event handlers for curve degree selection processing */
-
-    // curveShapeModelerUserInterface.inputNavigationMode.addEventListener('input', inputSelectNavigationMode);
-    // curveShapeModelerUserInterface.inputNavigationMode.addEventListener('click', clickNavigationMode);
 
     iconKnotInsertion.addEventListener('load', processInputTexture);
 

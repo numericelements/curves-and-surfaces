@@ -48,6 +48,7 @@ import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { DummyStrategy } from "./DummyStrategy";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
+import { CurveModelObserverInCurveSceneController } from "../models/CurveModelObserver";
 
 
 
@@ -162,6 +163,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlOfCurveClamping = this.curveModeler.controlOfCurveClamping
 
         this.registerCurveObservers();
+        this.curveModeler.registerObserver(new CurveModelObserverInCurveSceneController(this));
 
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this.clampedControlPointView.update(this.curveModel.spline)
@@ -242,7 +244,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
         this.curveModel.registerObserver(this.transitionCurvatureExtremaView, "curve");
         this.curveModel.registerObserver(this.inflectionsView, "curve");
-        this.curveModel.registerObserver(this.curveKnotsView, "curve");
+        this.curveModel.registerObserver(this.curveKnotsView, "control points");
         this.curveModel.registerObserver(this.clampedControlPointView, "control points");
 
         if(this.curveModel instanceof CurveModel) {
@@ -348,43 +350,6 @@ export class CurveSceneController implements SceneControllerInterface {
     //     else throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model")
     // }
 
-    /* JCL 20202/09/24 Monitor rigid body movements of the curve in accordance with the button status */
-    // toggleCurveClamping() {
-    //     this.controlOfCurveClamping = !this.controlOfCurveClamping
-    //     console.log("control of curve clamping: " + this.controlOfCurveClamping)
-    //     if(this.controlOfCurveClamping) {
-    //         /* JCL 2020/09/24 Update the location of the clamped control point */
-    //         let clampedControlPoint: Vector_2d[] = []
-    //         if(this.curveModel !== undefined) {
-    //             clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-    //         } else throw new Error("Unable to clamp a control point. Undefined curve model")
-    //         this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
-    //         this.clampedControlPoints = []
-    //         this.clampedControlPoints.push(0)
-    //         this.activeLocationControl = ActiveLocationControl.firstControlPoint
-    //         if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
-    //     } else this.activeLocationControl = ActiveLocationControl.none
-    // } 
-
-    // toggleControlOfCurvatureExtrema() {
-    //     this.curveControl.toggleControlOfCurvatureExtrema()
-    //     this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema
-    //     //console.log("control of curvature extrema: " + this.controlOfCurvatureExtrema)
-
-    //     /* JCL 2021/12/02 Add control state for new code architecture */
-    //     /* JCL 2021/12/02 controlOfCurvatureExtrema can be used to characterize the control state and set it appropriately when changing the navigation mode */
-    //     this.curveControlState.handleCurvatureExtrema();
-    // }
-
-    // toggleControlOfInflections() {
-    //     this.curveControl.toggleControlOfInflections()
-    //     this.controlOfInflection = ! this.controlOfInflection
-    //     //console.log("control of inflections: " + this.controlOfInflection)
-
-    //     /* JCL 2021/12/02 Add control state for new code architecture */
-    //     /* JCL 2021/12/02 controlOfInflection can be used to characterize the control state and set it appropriately when changing the navigation mode */
-    //     this.curveControlState.handleInflections();
-    // }
 
     // /* JCL test code debut */
     // transitionTo(curveControlState: CurveControlState): void {
@@ -453,14 +418,15 @@ export class CurveSceneController implements SceneControllerInterface {
     // }
 
     leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {
-        if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
+        // if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
+        if(this.curveModel !== undefined) {
             if(this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
                 let cp = this.selectedControlPoint
                 if(cp === 0) { cp += 1}
                 if(cp === this.curveModel.spline.controlPoints.length -1) { cp -= 1} 
                 const grevilleAbscissae = this.curveModel.spline.grevilleAbscissae()
                 if(cp != null) {
-                    this.curveModel.spline.insertKnot(grevilleAbscissae[cp])
+                    this.curveModel.spline.insertKnot(grevilleAbscissae[cp], 1)
                     this.curveControl.resetCurve(this.curveModel)
                     if(this.activeLocationControl === ActiveLocationControl.both) {
                         if(this.curveModeler.clampedControlPoints[0] === 0) {
@@ -473,34 +439,37 @@ export class CurveSceneController implements SceneControllerInterface {
 
                     // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                     // JCL the curveControl must be set in accordance with the current status of controls
+                    if(this.curveModel instanceof CurveModel) {
+                        if(this.sliding) {
+                            this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
+                            this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+                            this.selectedInflection = null
+                            this.selectedCurvatureExtrema = null
+                            this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+                        }
+                        else {
+                            this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
+                        }
+                    }
+                    this.curveModel.notifyObservers()
+                }
+            }
+            
+            if(this.curveModel instanceof CurveModel) {
+                if(this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
+                    /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
                     if(this.sliding) {
                         this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
                         this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
                         this.selectedInflection = null
                         this.selectedCurvatureExtrema = null
                         this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-                        
                     }
                     else {
                         this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
                     }
                     this.curveModel.notifyObservers()
                 }
-            }
-            
-            if(this.activeLocationControl === ActiveLocationControl.both && this.selectedControlPoint === null) {
-                /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
-                if(this.sliding) {
-                    this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-                    this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
-                    this.selectedInflection = null
-                    this.selectedCurvatureExtrema = null
-                    this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-                }
-                else {
-                    this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
-                }
-                this.curveModel.notifyObservers()
             }
             this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
             this.controlPointsView.setSelected(this.selectedControlPoint);

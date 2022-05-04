@@ -19,6 +19,12 @@ export interface BSplineR1toR2Interface {
     getControlPointsX(): number[];
 
     getControlPointsY(): number[];
+    
+    getDistinctKnots(): number[];
+
+    grevilleAbscissae(): number[];
+
+    insertKnot(u: number, times: number): void
 
     moveControlPoint(i: number, deltaX: number, deltaY: number): void;
 

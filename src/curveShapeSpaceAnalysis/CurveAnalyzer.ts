@@ -1,5 +1,5 @@
 import { SequenceOfDifferentialEvents } from "../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents"
-import { CurveDifferentialEventsExtractor } from "../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor"
+import { AbstractCurveDifferentialEventsExtractor, ClosedCurveDifferentialEventsExtractor, OpenCurveDifferentialEventsExtractor } from "../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor"
 import { BSplineR1toR2 } from "../../src/newBsplines/BSplineR1toR2"
 import { CurveShapeSpaceDescriptor } from "../../src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor";
 import { ExtremumLocationClassifier,
@@ -14,6 +14,9 @@ import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../b
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
+import { CurveDifferentialEventsExtractorInterface } from "./CurveDifferentialEventsExtractorInterface";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
 export class CurveAnalyzer {
 
@@ -42,7 +45,7 @@ export class CurveAnalyzer {
         this.navigationState = curveShapeSpaceNavigator.navigationState;
         this._shapeSpaceDescriptor = curveShapeSpaceNavigator.shapeSpaceDescriptor;
         this._shapeSpaceDiffEventsConfigurator = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
-        const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
+        const diffEventsExtractor = new OpenCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curvatureCrtlPtsClosestToZero = [];
         this._curveCurvatureCntrlPolygon = [];
@@ -138,7 +141,7 @@ export class CurveAnalyzer {
         } else {
             console.log("cannot analyze Periodic BSplines yet")
         }
-        const diffEventsExtractor = new CurveDifferentialEventsExtractor(this.curve);
+        const diffEventsExtractor = new OpenCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
         this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);

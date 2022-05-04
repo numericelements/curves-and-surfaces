@@ -3,6 +3,8 @@ import { ChartEventListener, CurveModelerEventListener, FileEventListener, Shape
 import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
+import { CurveSceneController } from "../controllers/CurveSceneController";
+import { NavigationState, NavigationStrictlyInsideShapeSpace, NavigationThroughSimplerShapeSpaces, NavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 
 abstract class CurveModelObserver implements IObserver<CurveModel> {
 
@@ -30,7 +32,6 @@ export class CurveModelObserverInChartEventListener extends CurveModelObserver {
         } else if(message instanceof ClosedCurveModel) {
             if(this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
             {
-                console.log("something to do there with ClosedCurveModel");
                 this.listener.curveModel = message;
                 this.listener.resetChartContext();
             }
@@ -49,8 +50,7 @@ export class CurveModelObserverInChartEventListener extends CurveModelObserver {
             const curveModel = new ClosedCurveModel();
             if(curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
             {
-                console.log("something to do there with ClosedCurveModel in ChartEventListener")
-                // this.listener.curveModel = curveModel;
+                this.listener.curveModel = curveModel;
             }
         }
     }
@@ -107,30 +107,39 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
 export class CurveModelObserverInShapeSpaceNavigationEventListener extends CurveModelObserver {
 
     private listener: ShapeSpaceNavigationEventListener;
+    private navigationState: NavigationState;
 
     constructor(listener: ShapeSpaceNavigationEventListener) {
         super();
         this.listener = listener;
+        this.navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
     }
 
     update(message: CurveModelInterface): void {
-        if(message instanceof CurveModel) {
-            const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
-            if(curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel'))
-            {
-                this.listener.curveShapeSpaceNavigator.curveModel = message;
-                this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
-                this.listener.resetCurveShapeControlButtons();
-            }
-        } else if(message instanceof ClosedCurveModel) {
-            const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
-            if(curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel'))
-            {
-                this.listener.curveShapeSpaceNavigator.curveModel = message;
-                this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
-                this.listener.resetCurveShapeControlButtons();
-            }
-            console.log("something to do there with ClosedCurveModel in ShapeSpaceNavigationEventListener")
+        const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+        if(curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel'))
+        {
+            this.listener.curveShapeSpaceNavigator.curveModel = message;
+            this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
+            this.updateNavigationState();
+            this.updateCurveModelMaintainNavigationState();
+            this.listener.resetCurveShapeControlButtons();
+        }
+    }
+
+    updateNavigationState(): void {
+        this.navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
+    }
+
+    updateCurveModelMaintainNavigationState() {
+        if(this.navigationState instanceof NavigationWithoutShapeSpaceMonitoring) {
+            this.listener.curveShapeSpaceNavigator.navigationState.setNavigationWithoutShapeSpaceMonitoring();
+        }
+        else if(this.navigationState instanceof NavigationThroughSimplerShapeSpaces) {
+            this.listener.curveShapeSpaceNavigator.navigationState.setNavigationThroughSimplerShapeSpaces();
+        }
+        else if(this.navigationState instanceof NavigationStrictlyInsideShapeSpace) {
+            this.listener.curveShapeSpaceNavigator.navigationState.setNavigationStrictlyInsideShapeSpace();
         }
     }
 
@@ -161,6 +170,7 @@ export class CurveModelObserverInFileEventListener extends CurveModelObserver {
             this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
             console.log("something to do there with CurveModel in FileEventListener")
         } else if(message instanceof ClosedCurveModel) {
+            this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
             console.log("something to do there with ClosedCurveModel in FileEventListener")
         }
     }
@@ -172,5 +182,31 @@ export class CurveModelObserverInFileEventListener extends CurveModelObserver {
         } else if(message instanceof ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in FileEventListener")
         }
+    }
+}
+
+export class CurveModelObserverInCurveSceneController extends CurveModelObserver {
+
+    private listener: CurveSceneController;
+
+    constructor(listener: CurveSceneController) {
+        super();
+        this.listener = listener;
+    }
+
+    update(message: CurveModelInterface): void {
+        if(message instanceof CurveModel) {
+            this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
+            this.listener.initCurveSceneView();
+            this.listener.renderFrame();
+        } else if(message instanceof ClosedCurveModel) {
+            this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
+            this.listener.initCurveSceneView();
+            this.listener.renderFrame();
+        }
+    }
+
+    reset(message: CurveModelInterface): void {
+        
     }
 }

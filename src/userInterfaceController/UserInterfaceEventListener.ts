@@ -540,7 +540,7 @@ export class ShapeSpaceNavigationEventListener {
         this._toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding");
     
         /* Get control button IDs for curve shape control*/
-        this._currentNavigationMode = "0";
+        this._currentNavigationMode = "2";
         this._inputNavigationMode = <HTMLSelectElement> document.getElementById("navigationMode");
 
 

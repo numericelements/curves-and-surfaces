@@ -16,4 +16,6 @@ export interface BSplineR1toR1Interface {
 
     bernsteinDecomposition(): BernsteinDecompositionR1toR1;
 
+    zeros(): number[];
+
 }

@@ -1,6 +1,7 @@
 import { Vector2d } from "../mathVector/Vector2d"
 import { Vector3d } from "../mathVector/Vector3d"
 import { BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
+import { findSpan } from "./Piegl_Tiller_NURBS_Book";
 import { RationalBSplineR1toR2 } from "./RationalBSplineR1toR2"
 
 
@@ -30,6 +31,76 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
             result.push(cp.y);
         }
         return result;
+    }
+
+    getDistinctKnots(): number[] {
+        let result: number[] = [this.rationalBSplineR1toR2.knots[0]];
+        let temp = result[0];
+        for (let i = 1; i < this.rationalBSplineR1toR2.knots.length; i += 1) {
+            if (this.rationalBSplineR1toR2.knots[i] !== temp) {
+                result.push(this.rationalBSplineR1toR2.knots[i]);
+                temp = this.rationalBSplineR1toR2.knots[i];
+            }
+        }
+        return result;
+    }
+
+    grevilleAbscissae(): number[] {
+        let result = [];
+        for (let i = 0; i < this.rationalBSplineR1toR2.controlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + 1; j < i + this.rationalBSplineR1toR2.degree + 1; j += 1) {
+                sum += this.rationalBSplineR1toR2.knots[j];
+            }
+            result.push(sum / this.rationalBSplineR1toR2.degree);
+        }
+        return result;
+    }
+
+    knotMultiplicity(indexFromFindSpan: number): number {
+        let result: number = 0;
+        let i = 0;
+        while (this.rationalBSplineR1toR2.knots[indexFromFindSpan + i] === this.rationalBSplineR1toR2.knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    insertKnot(u: number, times: number = 1): void {
+        // Piegl and Tiller, The NURBS book, p: 151
+        if (times <= 0) {
+            return;
+        }
+        
+        let index = findSpan(u, this.rationalBSplineR1toR2.knots, this.rationalBSplineR1toR2.degree);
+        let multiplicity = 0;
+
+        if (u === this.rationalBSplineR1toR2.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+
+        for (let t = 0; t < times; t += 1) {
+            let newControlPoints = [];
+            for (let i = 0; i < index - this.rationalBSplineR1toR2.degree + 1; i += 1) {
+                newControlPoints[i] = this.rationalBSplineR1toR2.controlPoints[i];
+            }
+            for (let i = index - this.rationalBSplineR1toR2.degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - this.rationalBSplineR1toR2.knots[i]) / (this.rationalBSplineR1toR2.knots[i + this.rationalBSplineR1toR2.degree] - this.rationalBSplineR1toR2.knots[i]);
+                newControlPoints[i] = (this.rationalBSplineR1toR2.controlPoints[i - 1].multiply(1 - alpha)).add(this.rationalBSplineR1toR2.controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < this.rationalBSplineR1toR2.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.rationalBSplineR1toR2.controlPoints[i];
+            }
+            this.rationalBSplineR1toR2.knots.splice(index + 1, 0, u);
+            this.rationalBSplineR1toR2.controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+
     }
 
     moveControlPoint(i: number, deltaX: number, deltaY: number): void {

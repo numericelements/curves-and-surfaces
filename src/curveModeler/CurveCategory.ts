@@ -83,23 +83,23 @@ export class OpenPlanarCurve extends CurveCategory {
                 let spline = this.curveModel.spline;
                 spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
                 this.curveModel.setSpline(spline);
-                if(this.curveModeler.activeLocationControl === ActiveLocationControl.both) {
-                    if(this.curveModeler.clampedControlPoints[0] === 0){
-                        this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                    } else this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-                }
-                else if(this.curveModeler.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                    this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-                }
-
-                if (this.curveModeler.curveShapeSpaceNavigator.sliding) {
-                //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-                }
-                // else {
-                //     this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-                // }
-                this.curveModel.notifyObservers()
             }
+            if(this.curveModeler.activeLocationControl === ActiveLocationControl.both) {
+                if(this.curveModeler.clampedControlPoints[0] === 0){
+                    this.curveModeler.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+                } else this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            }
+            else if(this.curveModeler.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                this.curveModeler.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            }
+
+            if (this.curveModeler.curveShapeSpaceNavigator.sliding) {
+            //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            }
+            // else {
+            //     this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            // }
+            this.curveModel.notifyObservers()
         } else {
             const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
             error.logMessageToConsole();
@@ -157,7 +157,13 @@ export class ClosedPlanarCurve extends CurveCategory {
     }
 
     toggleCurveClamping() {
-        const warning = new WarningLog(this.constructor.name, 'toggleCurveClamping', 'nothing to do there yet.');
+        this.curveModeler.controlOfCurveClamping = !this.curveModeler.controlOfCurveClamping;
+        console.log("control of curve clamping: " + this.curveModeler.controlOfCurveClamping);
+        this.curveModeler.clampedControlPoints = [];
+        this.curveModeler.clampedControlPoints.push(0);
+        this.curveModeler.activeLocationControl = ActiveLocationControl.firstControlPoint;
+        this.curveModeler.notifyObservers();
+        const warning = new WarningLog(this.constructor.name, 'toggleCurveClamping', 'clamp first control point.');
         warning.logMessageToConsole();
     }
 
@@ -175,9 +181,8 @@ export class ClosedPlanarCurve extends CurveCategory {
                 // }
                 // this.curveModel.spline.renewCurve(controlPoints, knots);
                 // this.curveControl.resetCurve(this.curveModel)
-
-                this.curveModel.notifyObservers()
             }
+            this.curveModel.notifyObservers();
         } else {
             const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
             error.logMessageToConsole();

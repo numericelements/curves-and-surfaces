@@ -3,8 +3,6 @@ import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveKnotsShaders } from "../views/CurveKnotsShaders"
 import { IObserver } from "../newDesignPatterns/Observer";
 
-import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-
 
 export class CurveKnotsView implements IObserver<BSplineR1toR2Interface> {
 
@@ -28,7 +26,7 @@ export class CurveKnotsView implements IObserver<BSplineR1toR2Interface> {
     
     
     updatePointAtKnotOnSpline() {
-        let splineTemp = new BSplineR1toR2(this.spline.controlPoints, this.spline.knots);
+        let splineTemp = this.spline.clone();
         this.knotAbscissae = splineTemp.getDistinctKnots();
         this.pointSequenceOnSpline = [];
         for (let kAbsc of this.knotAbscissae) {
