@@ -12,9 +12,9 @@
  * to be taken into account by the optimizer
  */
 
-import { CurveModeler } from "../curveModeler/CurveModeler";
+import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
-import { CurveCategory } from "../curveModeler/CurveCategory";
+import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 
@@ -29,10 +29,10 @@ export class ShapeSpaceDiffEventsStructure {
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
 
-    constructor(curveModeler: CurveModeler, shapeSpaceConfigurator: ShapeSpaceDiffEventsConfigurator, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
+    constructor(shapeNavigableCurve: ShapeNavigableCurve, shapeSpaceConfigurator: ShapeSpaceDiffEventsConfigurator, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
-        this._curveCategory = curveModeler.curveCategory;
+        this._curveCategory = shapeNavigableCurve.curveCategory;
         this._shapeSpaceDiffEventsConfigurator = shapeSpaceConfigurator;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._activeNavigationWithOptimizer = false;

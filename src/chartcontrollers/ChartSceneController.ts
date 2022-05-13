@@ -7,7 +7,7 @@ import { ChartController } from "./ChartController";
 import { NoFunctionSceneController } from "./NoFunctionSceneController";
 import { IObserver } from "../newDesignPatterns/Observer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
-import { CurveModeler } from "../curveModeler/CurveModeler";
+import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 export const MAX_NB_CHARTS = 3;
 export const NB_CURVE_POINTS = 100;
@@ -41,9 +41,9 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
     private _curveObservers: Array<IObserver<BSplineR1toR2Interface>>;
     private _uncheckedChart: string;
     private _curveModel: CurveModelInterface;
-    private curveModeler: CurveModeler;
+    private curveModeler: ShapeNavigableCurve;
 
-    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveModeler: CurveModeler) {
+    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveModeler: ShapeNavigableCurve) {
         this.chartRenderingContext = chartRenderingContext;
         this.curveModeler = curveModeler;
         this._curveModel = curveModeler.curveCategory.curveModel;

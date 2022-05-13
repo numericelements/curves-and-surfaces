@@ -3,7 +3,7 @@ import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_
 import { Optimizer } from "../mathematics/Optimizer";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { Vector2d } from "../mathVector/Vector2d";
-import { ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveModel } from "../newModels/CurveModel";
 
 

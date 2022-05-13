@@ -1,6 +1,6 @@
 import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure"; 
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
-import { CurveCategory } from "../curveModeler/CurveCategory";
+import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 

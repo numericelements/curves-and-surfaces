@@ -4,7 +4,7 @@ import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../newModels/CurveModel";
 import { Vector2d } from "../mathVector/Vector2d";
 import { CurveSceneController } from "./CurveSceneController"
-import { ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 
 export class NoSlidingStrategy implements CurveControlStrategyInterface {

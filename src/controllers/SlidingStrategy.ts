@@ -9,7 +9,7 @@ import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
 import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 
 

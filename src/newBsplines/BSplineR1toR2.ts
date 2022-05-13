@@ -3,7 +3,7 @@ import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
-import { ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
 
 /**

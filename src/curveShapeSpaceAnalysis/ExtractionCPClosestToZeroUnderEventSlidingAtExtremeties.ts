@@ -1,10 +1,10 @@
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
-import { CurveAnalyzer } from "./CurveAnalyzer";
+import { AbstractCurveAnalyzer } from "./CurveAnalyzer";
 
 
 export class CurveAnalyzerEventsSlidingOutOfInterval implements SlidingEventsAtExtremities {
 
-    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i]);
@@ -14,7 +14,7 @@ export class CurveAnalyzerEventsSlidingOutOfInterval implements SlidingEventsAtE
         }
     }
 
-    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.push(curveAnalyzer.curvatureDerivativeSignChanges[i]);
@@ -28,7 +28,7 @@ export class CurveAnalyzerEventsSlidingOutOfInterval implements SlidingEventsAtE
 
 export class CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval implements SlidingEventsAtExtremities {
 
-    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureSignChanges[i] > 0 && curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) {
@@ -43,7 +43,7 @@ export class CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval implements Sliding
         }
     }
 
-    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureDerivativeSignChanges[i] > 0 && curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) {
@@ -62,7 +62,7 @@ export class CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval implements Sliding
 
 export class CurveAnalyzerEventsNotSlidingOnTheRightOfInterval implements SlidingEventsAtExtremities {
 
-    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureSignChanges[i] === (curveAnalyzer.curveCurvatureCntrlPolygon.length - 2) && curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) {
@@ -77,7 +77,7 @@ export class CurveAnalyzerEventsNotSlidingOnTheRightOfInterval implements Slidin
         }
     }
 
-    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureDerivativeSignChanges[i] === (curveAnalyzer.curveCurvatureDerivativeCntrlPolygon.length - 2) && curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) {
@@ -97,7 +97,7 @@ export class CurveAnalyzerEventsNotSlidingOnTheRightOfInterval implements Slidin
 
 export class CurveAnalyzerEventsNotSlidingOfInterval implements SlidingEventsAtExtremities {
 
-    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureSignChanges[i] > 0 && curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) {
@@ -117,7 +117,7 @@ export class CurveAnalyzerEventsNotSlidingOfInterval implements SlidingEventsAtE
         }
     }
 
-    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: CurveAnalyzer): void {
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer: AbstractCurveAnalyzer): void {
         for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if(curveAnalyzer.curvatureDerivativeSignChanges[i] > 0 && curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) {

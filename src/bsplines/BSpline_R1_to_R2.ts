@@ -2,7 +2,7 @@ import { findSpan, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book"
 import { basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { Vector_2d } from "../mathematics/Vector_2d"
 import { BSpline_R1_to_R2_interface } from "./BSplineInterfaces";
-import { ActiveLocationControl } from "../curveModeler/CurveModeler";
+import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 
 /**

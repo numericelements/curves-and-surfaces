@@ -5,16 +5,16 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { saveAs } from "file-saver";
-import { CurveModeler } from "../curveModeler/CurveModeler";
+import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 export class FileController {
 // export class FileController implements IObservable<CurveModelInterface> {
 
     private _curveModel: CurveModelInterface;
     private _curveSceneController: CurveSceneController;
-    private curveModeler: CurveModeler;
+    private curveModeler: ShapeNavigableCurve;
 
-    constructor(curveModeler: CurveModeler, curveSceneController: CurveSceneController) {
+    constructor(curveModeler: ShapeNavigableCurve, curveSceneController: CurveSceneController) {
         this.curveModeler = curveModeler;
         this._curveModel = curveModeler.curveCategory.curveModel;
         this._curveSceneController = curveSceneController;

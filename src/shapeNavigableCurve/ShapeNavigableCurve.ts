@@ -1,6 +1,6 @@
-import { CurveCategory, OpenPlanarCurve } from "../curveModeler/CurveCategory";
+import { CurveCategory, OpenPlanarCurve } from "./CurveCategory";
 import { CurveSceneController } from "../controllers/CurveSceneController";
-import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { CurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
@@ -8,10 +8,10 @@ import { CurveModelInterface } from "../newModels/CurveModelInterface";
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming}
 
-export class CurveModeler implements IObservable<CurveModelInterface> {
+export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
     private _curveCategory: CurveCategory;
     private _controlOfCurveClamping: boolean;
-    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    // private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private _clampedControlPoints: number[] = []
     private observers: IObserver<CurveModelInterface>[] = [];
 
@@ -25,16 +25,17 @@ export class CurveModeler implements IObservable<CurveModelInterface> {
         // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
         // JCL To ensure its correct initialization, it must be called last to ensure a consistent
         // JCL initialization of each context.
-        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this);
+        // this._curveShapeSpaceNavigator = this._curveCategory.curveShapeSpaceNavigator;
+
     }
 
     changeCurveCategory(category: CurveCategory): void {
         this._curveCategory = category;
     }
 
-    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
-        return this._curveShapeSpaceNavigator;
-    }
+    // get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
+    //     return this._curveShapeSpaceNavigator;
+    // }
 
     get curveCategory(): CurveCategory {
         return this._curveCategory;
@@ -62,11 +63,11 @@ export class CurveModeler implements IObservable<CurveModelInterface> {
 
         switch(crvCategoryID) {
             case 0: {
-                this.curveCategory.setModelerWithOpenPlanarCurve();
+                this.curveCategory.setNavigableCurveWithOpenPlanarCurve();
                 break;
             }
             case 1: {
-                this.curveCategory.setModelerWithClosedPlanarCurve();
+                this.curveCategory.setNavigableCurveWithClosedPlanarCurve();
                 break;
             }
             default: {
@@ -75,15 +76,11 @@ export class CurveModeler implements IObservable<CurveModelInterface> {
                 break;
             }
         }
-        // JCL for consistency with the curveModeler context
-        // this._curveCategory = this.curveModeler.curveCategory;
-        // JCL for consistency of the curveShapeSpaceNavigator context wrt curveModeler one
-        this.curveShapeSpaceNavigator.curveCategory = this._curveCategory;
     }
 
     registerObserver(observer: IObserver<CurveModelInterface>): void {
         this.observers.push(observer)
-        console.log("CurveModeler: registerObs: " + observer.constructor.name)
+        console.log("ShapeNavigableCurve: registerObs: " + observer.constructor.name)
     }
 
     removeObserver(observer: IObserver<CurveModelInterface>): void {
@@ -92,7 +89,7 @@ export class CurveModeler implements IObservable<CurveModelInterface> {
 
     notifyObservers() {
         for (let observer of this.observers) {
-            console.log("CurveModeler: update: " + observer.constructor.name)
+            console.log("ShapeNavigableCurve: update: " + observer.constructor.name)
             observer.update(this._curveCategory.curveModel);
         }
     }

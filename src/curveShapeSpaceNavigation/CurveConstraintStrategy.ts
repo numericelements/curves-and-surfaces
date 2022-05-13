@@ -1,5 +1,5 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { CurveModeler } from "../curveModeler/CurveModeler";
+import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
@@ -12,7 +12,7 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
 
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private curveModeler: CurveModeler;
+    private shapeNavigableCurve: ShapeNavigableCurve;
     private targetCurve: BSplineR1toR2Interface;
     public firstControlPoint: ConstraintType;
     public lastControlPoint: ConstraintType;
@@ -23,7 +23,7 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
         this.curveConstraints = curveConstraints;
         this.firstControlPoint = ConstraintType.none;
         this.lastControlPoint = ConstraintType.none;
-        this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
+        this.shapeNavigableCurve = this.curveShapeSpaceNavigator.shapeNavigableCurve;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for no CP clamped.");
@@ -63,7 +63,7 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
 
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private curveModeler: CurveModeler;
+    private curveModeler: ShapeNavigableCurve;
     private targetCurve: BSplineR1toR2Interface;
     private displacementCurrentCurveControlPolygon: Vector2d[];
     public firstControlPoint: ConstraintType;
@@ -75,7 +75,7 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
         this.curveConstraints = curveConstraints;
         this.firstControlPoint = ConstraintType.location;
         this.lastControlPoint = ConstraintType.none;
-        this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
+        this.curveModeler = this.curveShapeSpaceNavigator.shapeNavigableCurve;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;
         this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
@@ -128,7 +128,7 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
 
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private curveModeler: CurveModeler;
+    private curveModeler: ShapeNavigableCurve;
     private targetCurve: BSplineR1toR2Interface;
     private displacementCurrentCurveControlPolygon: Vector2d[];
     public firstControlPoint: ConstraintType;
@@ -140,7 +140,7 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
         this.firstControlPoint = ConstraintType.none;
         this.lastControlPoint = ConstraintType.location;
-        this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
+        this.curveModeler = this.curveShapeSpaceNavigator.shapeNavigableCurve;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;
         this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
@@ -189,7 +189,7 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
 
     private curveConstraints: CurveConstraints;
     private curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private curveModeler: CurveModeler;
+    private curveModeler: ShapeNavigableCurve;
     private currentCurve: BSplineR1toR2Interface;
     private targetCurve: BSplineR1toR2Interface;
     private displacementCurrentCurveControlPolygon: Vector2d[];
@@ -202,7 +202,7 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
         this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
         this.firstControlPoint = ConstraintType.location;
         this.lastControlPoint = ConstraintType.location;
-        this.curveModeler = this.curveShapeSpaceNavigator.curveModeler;
+        this.curveModeler = this.curveShapeSpaceNavigator.shapeNavigableCurve;
         this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
         this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
         this._optimizedCurve = this.targetCurve;

@@ -98,8 +98,8 @@ export function main() {
 
     const curveModelerEventListener = new CurveModelerEventListener();
     const sceneController = new CurveSceneController(canvas, gl, curveModelerEventListener);
-    const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelerEventListener.curveModeler, sceneController);
-    const chartEventListener = new ChartEventListener(curveModelerEventListener.curveModeler);
+    const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelerEventListener.shapeNavigableCurve, sceneController);
+    const chartEventListener = new ChartEventListener(curveModelerEventListener.shapeNavigableCurve);
     const fileEventListener = new FileEventListener(curveModelerEventListener, sceneController);
 
 
