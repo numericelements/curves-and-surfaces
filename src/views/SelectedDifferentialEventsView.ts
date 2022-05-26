@@ -1,6 +1,6 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import {DifferentialEventShaders} from "./DifferentialEventShaders"
+import {RoundDotSolidShader} from "../2DgraphicsItems/RoundDotSolidShader"
 import { IObserver } from "../designPatterns/Observer";
 //import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
 //import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
@@ -9,15 +9,19 @@ import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 export class SelectedDifferentialEventsView {
 
-    private readonly z = 0
-    private vertexBuffer: WebGLBuffer | null = null
-    private indexBuffer: WebGLBuffer | null = null
-    private vertices: Float32Array = new Float32Array([])
-    private indices: Uint8Array = new Uint8Array([])
-    private curvatureExtremumLocation: Vector2d[]
+    private readonly Z = 0;
+    private readonly roundDotSolidShader: RoundDotSolidShader;
+    private readonly gl: WebGLRenderingContext;
+    private vertexBuffer: WebGLBuffer | null = null;
+    private indexBuffer: WebGLBuffer | null = null;
+    private vertices: Float32Array = new Float32Array([]);
+    private indices: Uint8Array = new Uint8Array([]);
+    private curvatureExtremumLocation: Vector2d[];
 
-    constructor(spline: BSplineR1toR2Interface, pointLoc: number[], private curvatureExtremaShaders: DifferentialEventShaders, private red: number, private green: number, private blue: number,  private alpha: number) {
+    constructor(spline: BSplineR1toR2Interface, pointLoc: number[], gl: WebGLRenderingContext, private red: number, private green: number, private blue: number,  private alpha: number) {
         
+        this.gl = gl;
+        this.roundDotSolidShader = new RoundDotSolidShader(this.gl);
         let points: Array<Vector2d> = []
         for(let pt of pointLoc) {
             points.push(spline.evaluate(pt))
@@ -25,7 +29,7 @@ export class SelectedDifferentialEventsView {
         this.curvatureExtremumLocation = points.slice()
         
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.curvatureExtremaShaders.gl);
+        const check = this.initVertexBuffers(this.gl);
         if (check < 0) {
             console.log('Failed to set the positions of the vertices');
         }
@@ -43,7 +47,7 @@ export class SelectedDifferentialEventsView {
             let y = this.curvatureExtremumLocation[i].y;
             this.vertices[32 * i] = x - size;
             this.vertices[32 * i + 1] = y - size;
-            this.vertices[32 * i + 2] = this.z;
+            this.vertices[32 * i + 2] = this.Z;
             this.vertices[32 * i + 3] = -1;
             this.vertices[32 * i + 4] = -1;
             this.vertices[32 * i + 5] = this.red;
@@ -52,7 +56,7 @@ export class SelectedDifferentialEventsView {
 
             this.vertices[32 * i + 8] = x + size;
             this.vertices[32 * i + 9] = y - size;
-            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 10] = this.Z;
             this.vertices[32 * i + 11] = 1;
             this.vertices[32 * i + 12] = -1;
             this.vertices[32 * i + 13] = this.red;
@@ -61,7 +65,7 @@ export class SelectedDifferentialEventsView {
 
             this.vertices[32 * i + 16] = x + size;
             this.vertices[32 * i + 17] = y + size;
-            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 18] = this.Z;
             this.vertices[32 * i + 19] = 1;
             this.vertices[32 * i + 20] = 1;
             this.vertices[32 * i + 21] = this.red;
@@ -70,7 +74,7 @@ export class SelectedDifferentialEventsView {
 
             this.vertices[32 * i + 24] = x - size;
             this.vertices[32 * i + 25] = y + size;
-            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 26] = this.Z;
             this.vertices[32 * i + 27] = -1;
             this.vertices[32 * i + 28] = 1;
             this.vertices[32 * i + 29] = this.red;
@@ -101,8 +105,8 @@ export class SelectedDifferentialEventsView {
         // Write date into the buffer object
         gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
 
-        let a_Position = gl.getAttribLocation(<DifferentialEventShaders> this.curvatureExtremaShaders.program, 'a_Position'),
-            a_Texture = gl.getAttribLocation(<DifferentialEventShaders>this.curvatureExtremaShaders.program, 'a_Texture'),
+        let a_Position = gl.getAttribLocation(<RoundDotSolidShader> this.roundDotSolidShader.program, 'a_Position'),
+            a_Texture = gl.getAttribLocation(<RoundDotSolidShader>this.roundDotSolidShader.program, 'a_Texture'),
             //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
             FSIZE = this.vertices.BYTES_PER_ELEMENT;
 
@@ -142,14 +146,14 @@ export class SelectedDifferentialEventsView {
     }
 
     renderFrame() {
-        let gl = this.curvatureExtremaShaders.gl,
-            a_Position = gl.getAttribLocation(<DifferentialEventShaders>this.curvatureExtremaShaders.program, 'a_Position'),
-            a_Texture = gl.getAttribLocation(<DifferentialEventShaders>this.curvatureExtremaShaders.program, 'a_Texture'),
+        let gl = this.gl,
+            a_Position = gl.getAttribLocation(<RoundDotSolidShader>this.roundDotSolidShader.program, 'a_Position'),
+            a_Texture = gl.getAttribLocation(<RoundDotSolidShader>this.roundDotSolidShader.program, 'a_Texture'),
             //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
             FSIZE = this.vertices.BYTES_PER_ELEMENT,
-            a_ColorLocation = gl.getUniformLocation(<WebGLProgram>this.curvatureExtremaShaders.program, "a_Color");
+            a_ColorLocation = gl.getUniformLocation(<WebGLProgram>this.roundDotSolidShader.program, "a_Color");
 
-        gl.useProgram(this.curvatureExtremaShaders.program);
+        gl.useProgram(this.roundDotSolidShader.program);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         // Assign the buffer object to a_Position variable
@@ -161,7 +165,7 @@ export class SelectedDifferentialEventsView {
 
         gl.uniform4f(a_ColorLocation, this.red, this.green, this.blue, this.alpha);
 
-        this.curvatureExtremaShaders.renderFrame(this.indices.length);
+        this.roundDotSolidShader.renderFrame(this.indices.length);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -187,7 +191,7 @@ export class SelectedDifferentialEventsView {
 
 
     updateBuffers() {
-        var gl = this.curvatureExtremaShaders.gl;
+        var gl = this.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -195,8 +199,6 @@ export class SelectedDifferentialEventsView {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
     }
-
 
 }

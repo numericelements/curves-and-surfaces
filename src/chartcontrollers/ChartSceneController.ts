@@ -32,7 +32,7 @@ export const CHART_AXIS_SCALE = ["linear", "logarithmic"]
 
 export class ChartSceneController implements IObserver<CurveModelInterface> {
 
-    private chartRenderingContext: Array<CanvasRenderingContext2D>;
+    private readonly chartRenderingContext: Array<CanvasRenderingContext2D>;
     private freeChartsQueue: QueueChartController;
     private chartsDescriptorsQueue: QueueChartDescriptor;
     private defaultChartTitles: Array<string>;
@@ -41,12 +41,12 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
     private _curveObservers: Array<IObserver<BSplineR1toR2Interface>>;
     private _uncheckedChart: string;
     private _curveModel: CurveModelInterface;
-    private curveModeler: ShapeNavigableCurve;
+    private readonly shapeNavigableCurve: ShapeNavigableCurve;
 
-    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, curveModeler: ShapeNavigableCurve) {
+    constructor(chartRenderingContext: Array<CanvasRenderingContext2D>, shapeNavigableCurve: ShapeNavigableCurve) {
         this.chartRenderingContext = chartRenderingContext;
-        this.curveModeler = curveModeler;
-        this._curveModel = curveModeler.curveCategory.curveModel;
+        this.shapeNavigableCurve = shapeNavigableCurve;
+        this._curveModel = shapeNavigableCurve.curveCategory.curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this.checkRenderingContext();
@@ -309,7 +309,7 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
     }
 
     update(): void {
-        this._curveModel = this.curveModeler.curveCategory.curveModel;
+        this._curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
         this._chartControllers = [];

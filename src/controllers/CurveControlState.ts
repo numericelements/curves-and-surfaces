@@ -7,15 +7,15 @@ import { ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding,
     ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding, 
     ShapeSpaceConfiguratorWithCurvatureExtremaSliding,
     ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding} from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator"
-import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { AbstractCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 export abstract class CurveControlState {
 
-    protected curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    protected curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
     // protected curveSceneController: CurveSceneController;
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         this.curveShapeSpaceNavigator = context;
         // if(this.curveShapeSpaceNavigator !== undefined) {
         //     this.curveShapeSpaceNavigator = this.curveSceneController.curveShapeSpaceNavigator;
@@ -27,7 +27,7 @@ export abstract class CurveControlState {
         // }
     }
 
-    setContext(context: CurveShapeSpaceNavigator) {
+    setContext(context: AbstractCurveShapeSpaceNavigator) {
         this.curveShapeSpaceNavigator = context;
     }
 
@@ -45,7 +45,7 @@ export abstract class CurveControlState {
 
 export class HandleInflectionsNoSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsNoSliding(this.curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory));
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -70,7 +70,7 @@ export class HandleInflectionsNoSlidingState extends CurveControlState {
 
 export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding());
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -94,7 +94,7 @@ export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
 
 export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding());
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -118,7 +118,7 @@ export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveCon
 
 export class HandleNoDiffEventNoSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding());
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -142,7 +142,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
 
 export class HandleInflectionsSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsSliding(this.curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory));
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -167,7 +167,7 @@ export class HandleInflectionsSlidingState extends CurveControlState {
 
 export class HandleCurvatureExtremaSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithCurvatureExtremaSliding());
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -192,7 +192,7 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
 
 export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding());
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();
@@ -217,7 +217,7 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
 
 export class HandleNoDiffEventSlidingState extends CurveControlState {
 
-    constructor(context: CurveShapeSpaceNavigator) {
+    constructor(context: AbstractCurveShapeSpaceNavigator) {
         super(context)
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.changeShapSpaceStructure(new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding());
         this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.monitorCurveShape();

@@ -1,6 +1,6 @@
 import { CurveCategory, OpenPlanarCurve } from "./CurveCategory";
 import { CurveSceneController } from "../controllers/CurveSceneController";
-import { CurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { AbstractCurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";

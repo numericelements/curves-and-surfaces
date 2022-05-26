@@ -5,14 +5,14 @@ import { IObserver } from "../newDesignPatterns/Observer";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
-export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
+export class HighlightedControlPolygonView implements IObserver<BSplineR1toR2Interface> {
 
     private readonly Z = 0;
     private readonly THICKNESS = 0.003;
-    private readonly RED_COLOR = 216 / 255;
-    private readonly GREEN_COLOR = 216 / 255;
-    private readonly BLUE_COLOR = 216 / 255;
-    private readonly ALPHA = 0.05;
+    private readonly RED_COLOR = 0;
+    private readonly GREEN_COLOR = 0;
+    private readonly BLUE_COLOR = 0.9;
+    private readonly ALPHA = 1;
     private readonly lineSegmentShader: LineSegmentShader;
     private readonly gl: WebGLRenderingContext;
     private vertexBuffer: WebGLBuffer | null = null;

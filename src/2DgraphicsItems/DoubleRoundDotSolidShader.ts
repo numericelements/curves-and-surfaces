@@ -2,7 +2,7 @@ import { createProgram } from "../webgl/cuon-utils";
 
 
 
-export class TransitionDifferentialEventShaders {
+export class DoubleRoundDotSolidShader {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 
@@ -25,10 +25,12 @@ export class TransitionDifferentialEventShaders {
         '     gl_FragColor = a_Color; \n' +
         '}\n';
 
-    public program: WebGLProgram | null
+    public program: WebGLProgram | null;
+    private readonly gl: WebGLRenderingContext;
 
 
-    constructor(public gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext) {
+        this.gl = gl;
         this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE)
         if (!this.program) {
             console.log('Failed to create program');
@@ -36,11 +38,10 @@ export class TransitionDifferentialEventShaders {
         this.gl.useProgram(this.program);
     }
 
-    renderFrame(numberOfElements: number) {
+    renderFrame(numberOfElements: number): void {
         if(this.program) {
             this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
         }
-
     }
 }
 

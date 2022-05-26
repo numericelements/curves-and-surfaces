@@ -1,6 +1,6 @@
 import { createProgram } from "../webgl/cuon-utils";
 
-export class ControlPolygonShaders {
+export class LineSegmentShader {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 
@@ -23,9 +23,11 @@ export class ControlPolygonShaders {
         //   closed curve       '     gl_FragColor = vec4(190.0/255.0, 190.0/255.0, 190.0/255.0, 0.95); \n' +
 
 
-   public program: WebGLProgram | null
+   public program: WebGLProgram | null;
+   private readonly gl: WebGLRenderingContext;
 
-    constructor(public gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext) {
+        this.gl = gl;
         this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE)
         if (!this.program) {
             console.log('Failed to create program');
@@ -36,6 +38,5 @@ export class ControlPolygonShaders {
     renderFrame(numberOfElements: number) {
         this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
     }
-
 
 };

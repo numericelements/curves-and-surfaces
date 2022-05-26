@@ -6,7 +6,7 @@ import { ExtremumLocationClassifier,
     ExtremumLocation,
     INITIAL_INDEX } from "./ExtremumLocationClassifiier";
 import { NavigationState } from "../curveShapeSpaceNavigation/NavigationState";
-import { ClosedCurveShapeSpaceNavigator, CurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ClosedCurveShapeSpaceNavigator, AbstractCurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
@@ -19,7 +19,7 @@ import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 export abstract class AbstractCurveAnalyzer {
 
     protected curve: BSplineR1toR2Interface;
-    protected curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    protected curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
     protected _curvatureSignChanges: number[];
     protected _curveCurvatureCntrlPolygon: number[];
     protected _curveCurvatureDerivativeCntrlPolygon: number[];
@@ -27,7 +27,7 @@ export abstract class AbstractCurveAnalyzer {
     protected _curvatureDerivCrtlPtsClosestToZero: number[];
     protected _curvatureDerivativeSignChanges:  number[];
 
-    constructor(curveToAnalyze: BSplineR1toR2Interface, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
+    constructor(curveToAnalyze: BSplineR1toR2Interface, curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator) {
         this.curve = curveToAnalyze;
         this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._curveCurvatureCntrlPolygon = [];

@@ -1,33 +1,47 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import {CurveShaders} from "../views/CurveShaders"
+import { PolylineShader } from "../2DgraphicsItems/PolylineShader"
 import { IObserver } from "../newDesignPatterns/Observer";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
 export class CurveView implements IObserver<BSplineR1toR2Interface> {
 
-    private readonly POINT_SEQUENCE_SIZE = 1000
+    private readonly POINT_SEQUENCE_SIZE = 1000;
+    private readonly THICKNESS = 0.005;
+    private readonly RED_COLOR = 216 / 255;
+    private readonly GREEN_COLOR = 91 / 255;
+    private readonly BLUE_COLOR = 95 / 255;
+    private readonly ALPHA = 1;
     //private readonly z = 0
+    private readonly polylineShader: PolylineShader;
+    private readonly gl: WebGLRenderingContext;
     private pointSequenceOnSpline: Vector2d[] = []
     //private selectedControlPoint: number | null = null
     private vertexBuffer: WebGLBuffer | null = null
     //private indexBuffer: WebGLBuffer | null = null
-    private vertices: Float32Array = new Float32Array(this.POINT_SEQUENCE_SIZE * 6)
+    private vertices: Float32Array = new Float32Array(this.POINT_SEQUENCE_SIZE * 6);
+    private a_Position: number;
+    private fColorLocation: WebGLUniformLocation | null;
 
-    constructor(private spline: BSplineR1toR2Interface, private curveShaders: CurveShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
+    constructor(private spline: BSplineR1toR2Interface, gl: WebGLRenderingContext) {
 
-
+        this.gl = gl;
+        this.polylineShader = new PolylineShader(this.gl);
+        this.a_Position = -1;
+        this.fColorLocation = -1;
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.curveShaders.gl);
+
+        const check = this.initVertexBuffers();
         if (check < 0) {
-            console.log('Failed to set the positions of the vertices');
+            const warning = new WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
+            warning.logMessageToConsole();
         }
     }     
     
-    
-    updatePointSequenceOnSpline() {
-        const start = this.spline.knots[this.spline.degree]
-        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1]
+    updatePointSequenceOnSpline(): void {
+        const start = this.spline.knots[this.spline.degree];
+        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
         this.pointSequenceOnSpline = [];
         for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
             let point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
@@ -35,26 +49,22 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
         }
     }
 
-
-    updateVertices() {
-        const thickness = 0.005
-        //const thickness = 0.004
-        //const thickness = 0.008
-        const maxLength = thickness * 3
-        let tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize(),
-            normal = tangent.rotate90degrees(),
-            miter,
+    updateVertices(): void {
+        const maxLength = this.THICKNESS * 3;
+        let tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize();
+        let normal = tangent.rotate90degrees();
+        let miter,
             length,
             result = [];
 
-        result.push(this.pointSequenceOnSpline[0].add(normal.multiply(thickness)));
-        result.push(this.pointSequenceOnSpline[0].substract(normal.multiply(thickness)));
+        result.push(this.pointSequenceOnSpline[0].add(normal.multiply(this.THICKNESS)));
+        result.push(this.pointSequenceOnSpline[0].substract(normal.multiply(this.THICKNESS)));
 
         for (let i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
             normal = (this.pointSequenceOnSpline[i].substract(this.pointSequenceOnSpline[i - 1])).normalize().rotate90degrees();
             tangent = (this.pointSequenceOnSpline[i + 1].substract(this.pointSequenceOnSpline[i - 1])).normalize();
             miter = tangent.rotate90degrees();
-            length = thickness / (miter.dot(normal));
+            length = this.THICKNESS / (miter.dot(normal));
             if (length > maxLength) {length = maxLength; }
             result.push(this.pointSequenceOnSpline[i].add(miter.multiply(length)));
             result.push(this.pointSequenceOnSpline[i].substract(miter.multiply(length)));
@@ -62,92 +72,83 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
 
         tangent = this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 2]).normalize();
         normal = tangent.rotate90degrees();
-        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(thickness)));
-        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(thickness)));
-
-
+        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(this.THICKNESS)));
+        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(this.THICKNESS)));
 
         for (let i = 0; i < result.length; i += 1) {
             this.vertices[3 * i] = result[i].x;
             this.vertices[3 * i + 1] = result[i].y;
             this.vertices[3 * i + 2] = 0.0;
         }
-
     }
 
-    update(spline: BSplineR1toR2Interface) {
+    update(spline: BSplineR1toR2Interface): void {
         this.spline = spline;
         this.updatePointSequenceOnSpline();
         this.updateVertices();
         this.updateBuffers();
     }
 
+    initAttribLocation(): void {
+        this.a_Position = this.gl.getAttribLocation(<PolylineShader>this.polylineShader.program, 'a_Position');
+        this.fColorLocation = this.gl.getUniformLocation(<PolylineShader>this.polylineShader.program, "fColor");
+
+        if (this.a_Position < 0) {
+            const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            warning.logMessageToConsole();
+        }
+    }
+
+    assignVertexAttrib(): void {
+        // Assign the buffer object to a_Position variable
+        this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, 0, 0);
+        // Enable the assignment to a_Position variable
+        this.gl.enableVertexAttribArray(this.a_Position);
+    }
+
     reset(message: BSplineR1toR2Interface): void {
     }
 
-    updateBuffers() {
-        const gl = this.curveShaders.gl;
-        // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
+    updateBuffers(): void {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
-    renderFrame() {
+    renderFrame(): void {
+        this.initAttribLocation();
+        this.gl.useProgram(this.polylineShader.program);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
 
-        const gl = this.curveShaders.gl
-        const a_Position = gl.getAttribLocation(<CurveShaders>this.curveShaders.program, 'a_Position')
-        const fColorLocation = gl.getUniformLocation(<CurveShaders>this.curveShaders.program, "fColor")
-        gl.useProgram(this.curveShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
+        this.assignVertexAttrib();
+        this.gl.uniform4f(this.fColorLocation, this.RED_COLOR, this.GREEN_COLOR, this.BLUE_COLOR, this.ALPHA);
+        this.polylineShader.renderFrame(this.vertices.length / 3);
 
-        gl.uniform4f(fColorLocation, this.red, this.green, this.blue, this.alpha);
-
-        this.curveShaders.renderFrame(this.vertices.length / 3);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.useProgram(null);
     }
 
-    initVertexBuffers(gl: WebGLRenderingContext) {
-        const  a_Position = gl.getAttribLocation(<CurveShaders>this.curveShaders.program, 'a_Position')
-
+    initVertexBuffers(): number {
         // Create a buffer object
-        this.vertexBuffer = gl.createBuffer();
+        this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
+            const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            warning.logMessageToConsole();
             return -1;
         }
 
         this.updatePointSequenceOnSpline();
         this.updateVertices();
         // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
 
-
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
-
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-
+        this.initAttribLocation();
+        this.assignVertexAttrib();
         // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
         return 1
     }

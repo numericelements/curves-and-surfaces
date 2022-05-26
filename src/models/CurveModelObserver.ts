@@ -1,5 +1,5 @@
 import { IObserver } from "../newDesignPatterns/Observer";
-import { ChartEventListener, CurveModelerEventListener, FileEventListener, ShapeSpaceNavigationEventListener } from "../userInterfaceController/UserInterfaceEventListener";
+import { ChartEventListener, CurveModelDefinitionEventListener, FileEventListener, ShapeSpaceNavigationEventListener } from "../userInterfaceController/UserInterfaceEventListener";
 import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
@@ -58,9 +58,9 @@ export class CurveModelObserverInChartEventListener extends CurveModelObserver {
 
 export class CurveModelObserverInCurveModelEventListener extends CurveModelObserver {
 
-    private listener: CurveModelerEventListener;
+    private listener: CurveModelDefinitionEventListener;
 
-    constructor(listener: CurveModelerEventListener) {
+    constructor(listener: CurveModelDefinitionEventListener) {
         super();
         this.listener = listener;
     }
@@ -170,10 +170,10 @@ export class CurveModelObserverInFileEventListener extends CurveModelObserver {
 
     update(message: CurveModelInterface): void {
         if(message instanceof CurveModel) {
-            this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
+            this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
             console.log("something to do there with CurveModel in FileEventListener")
         } else if(message instanceof ClosedCurveModel) {
-            this.listener.curveModel = this.listener.curveModeler.curveCategory.curveModel;
+            this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
             console.log("something to do there with ClosedCurveModel in FileEventListener")
         }
     }

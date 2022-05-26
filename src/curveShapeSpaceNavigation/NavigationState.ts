@@ -1,5 +1,5 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { CurveShapeSpaceNavigator,
+import { AbstractCurveShapeSpaceNavigator,
         CONVERGENCE_THRESHOLD,
         MAX_TRUST_REGION_RADIUS,
         MAX_NB_STEPS_TRUST_REGION_OPTIMIZER, 
@@ -17,7 +17,7 @@ import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
 export abstract class NavigationState {
 
-    abstract setCurveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): void;
+    abstract setCurveShapeSpaceNavigator(curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator): void;
 
     abstract navigate(selectedControlPoint: number, x: number, y: number): void;
 

@@ -1,33 +1,38 @@
 import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSceneController";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { ShapeNavigableCurve, ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { AbstractCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
 import { DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
-import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelEventListener, CurveModelObserverInFileEventListener, CurveModelObserverInShapeSpaceNavigationEventListener } from "../models/CurveModelObserver";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
+import { WebGLUtils } from "../webgl/webgl-utils";
+import { createProgram } from "../webgl/cuon-utils";
 
-// export abstract class UserInterfaceEventListener {
+export abstract class UserInterfaceEventListener {
+    protected abstract shapeNavigableCurve?: ShapeNavigableCurve;
+    protected abstract chartSceneController?: ChartSceneController;
+    protected abstract fileController?: FileController;
 
-// }
+}
 
-// export class ChartEventListener extends UserInterfaceEventListener {
-export class ChartEventListener {
+export class ChartEventListener extends UserInterfaceEventListener {
+// export class ChartEventListener {
 
+    protected fileController?: FileController;
+    protected shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
-    private curveModeler: ShapeNavigableCurve;
-    private chartRenderingContext:  CanvasRenderingContext2D[] = [];
+    private readonly chartRenderingContext:  CanvasRenderingContext2D[] = [];
     private _chartSceneController: ChartSceneController;
-    private canvasChart1: HTMLCanvasElement;
-    private canvasChart2: HTMLCanvasElement;
-    private canvasChart3: HTMLCanvasElement;
-    private checkBoxFunctionA: HTMLButtonElement;
-    private checkBoxFunctionB: HTMLButtonElement;
-    private checkBoxFunctionBsqrtScaled: HTMLButtonElement;
-    private checkBoxCurvature: HTMLButtonElement;
-    private checkBoxAbsCurvature: HTMLButtonElement;
+    private readonly canvasChart1: HTMLCanvasElement;
+    private readonly canvasChart2: HTMLCanvasElement;
+    private readonly canvasChart3: HTMLCanvasElement;
+    private readonly checkBoxFunctionA: HTMLButtonElement;
+    private readonly checkBoxFunctionB: HTMLButtonElement;
+    private readonly checkBoxFunctionBsqrtScaled: HTMLButtonElement;
+    private readonly checkBoxCurvature: HTMLButtonElement;
+    private readonly checkBoxAbsCurvature: HTMLButtonElement;
 
     private chartFunctionA: boolean;
     private chartFunctionB: boolean;
@@ -36,17 +41,17 @@ export class ChartEventListener {
     private chartFunctionBsqrtScaled: boolean;
     private noAddChart: boolean;
 
-    private ctxChart1: CanvasRenderingContext2D | null;
-    private ctxChart2: CanvasRenderingContext2D | null;
-    private ctxChart3: CanvasRenderingContext2D | null;
+    private readonly ctxChart1: CanvasRenderingContext2D | null;
+    private readonly ctxChart2: CanvasRenderingContext2D | null;
+    private readonly ctxChart3: CanvasRenderingContext2D | null;
 
     // private  static a: ChartEventListener
 
-    constructor(curveModeler: ShapeNavigableCurve) {
-        // super();
+    constructor(shapeNavigableCurve: ShapeNavigableCurve) {
+        super();
         // ChartEventListener.a = this
-        this._curveModel = curveModeler.curveCategory.curveModel;
-        this.curveModeler = curveModeler;
+        this._curveModel = shapeNavigableCurve.curveCategory.curveModel;
+        this.shapeNavigableCurve = shapeNavigableCurve;
         this.canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1');
         this.canvasChart2 = <HTMLCanvasElement> document.getElementById('chart2');
         this.canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3');
@@ -68,9 +73,9 @@ export class ChartEventListener {
         this.ctxChart2 = this.canvasChart2.getContext('2d');
         this.ctxChart3 = this.canvasChart3.getContext('2d');
         this.setupChartRenderingContexts();
-        this._chartSceneController = new ChartSceneController(this.chartRenderingContext, this.curveModeler);
+        this._chartSceneController = new ChartSceneController(this.chartRenderingContext, this.shapeNavigableCurve);
 
-        this.curveModeler.registerObserver(new CurveModelObserverInChartEventListener(this));
+        this.shapeNavigableCurve.registerObserver(new CurveModelObserverInChartEventListener(this));
 
         /* Add event handlers for checkbox processing */
         this.checkBoxFunctionA.addEventListener('click', this.chkboxFunctionA.bind(this));
@@ -87,6 +92,7 @@ export class ChartEventListener {
     get curveModel() {
         return this._curveModel;
     }
+
     set curveModel(curveModel:CurveModelInterface) {
         this._curveModel = curveModel;
     }
@@ -200,27 +206,28 @@ export class ChartEventListener {
     }
 }
 
-// export class FileEventListener extends UserInterfaceEventListener {
-export class FileEventListener {
+export class FileEventListener extends UserInterfaceEventListener {
+// export class FileEventListener {
 
+    protected chartSceneController?: ChartSceneController;
+    private _shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
-    private _curveModeler: ShapeNavigableCurve;
-    private fileR: FileReader;
-    private fileController: FileController;
+    private readonly fileR: FileReader;
+    private _fileController: FileController;
     private curveSceneController: CurveSceneController;
-    private buttonFileLoad: HTMLButtonElement;
-    private buttonFileSave: HTMLButtonElement;
-    private inputFileLoad: HTMLInputElement;
-    private inputFileSave: HTMLInputElement;
-    private inputFileName: HTMLInputElement;
-    private validateInput: HTMLButtonElement;
-    private labelFileExtension: HTMLLabelElement;
+    private readonly buttonFileLoad: HTMLButtonElement;
+    private readonly buttonFileSave: HTMLButtonElement;
+    private readonly inputFileLoad: HTMLInputElement;
+    private readonly inputFileSave: HTMLInputElement;
+    private readonly inputFileName: HTMLInputElement;
+    private readonly validateInput: HTMLButtonElement;
+    private readonly labelFileExtension: HTMLLabelElement;
 
     private currentFileName: string;
 
-    constructor(curveModelEventListener: CurveModelerEventListener, curveSceneController: CurveSceneController){
-        // super();
-        this._curveModeler = curveModelEventListener.shapeNavigableCurve;
+    constructor(curveModelEventListener: CurveModelDefinitionEventListener, curveSceneController: CurveSceneController){
+        super();
+        this._shapeNavigableCurve = curveModelEventListener.shapeNavigableCurve;
         this._curveModel = curveModelEventListener.curveModel;
         this.curveSceneController = curveSceneController;
         
@@ -234,10 +241,10 @@ export class FileEventListener {
         this.labelFileExtension = <HTMLLabelElement> document.getElementById("labelFileExtension");
 
         this.fileR = new FileReader();
-        this.fileController = new FileController(this.curveModeler, this.curveSceneController);
+        this._fileController = new FileController(this.shapeNavigableCurve, this.curveSceneController);
         this.currentFileName = "";
 
-        this.curveModeler.registerObserver(new CurveModelObserverInFileEventListener(this));
+        this.shapeNavigableCurve.registerObserver(new CurveModelObserverInFileEventListener(this));
 
         /* JCL 2020/10/13 Add event handlers for file processing */
         this.buttonFileLoad.addEventListener('click', this.buttonFileLoadCurve.bind(this));
@@ -249,6 +256,9 @@ export class FileEventListener {
         this.fileR.addEventListener('load', this.processInputFile.bind(this));
     }
 
+    get fileController() {
+        return this._fileController;
+    }
     get curveModel() {
         return this._curveModel;
     }
@@ -257,8 +267,8 @@ export class FileEventListener {
         this._curveModel = curveModel;
     }
 
-    get curveModeler() {
-        return this._curveModeler;
+    get shapeNavigableCurve() {
+        return this._shapeNavigableCurve;
     }
 
 
@@ -272,7 +282,7 @@ export class FileEventListener {
             this.labelFileExtension.style.display = "inline";
             this.validateInput.style.display = "inline";
         } else {
-            this.fileController.saveCurveToFile(this.currentFileName);
+            this._fileController.saveCurveToFile(this.currentFileName);
         }
         ev.preventDefault();
     }
@@ -313,7 +323,7 @@ export class FileEventListener {
         this.inputFileName.style.display = "none";
         this.labelFileExtension.style.display = "none";
         this.validateInput.style.display = "none";
-        this.fileController.saveCurveToFile(this.currentFileName);
+        this._fileController.saveCurveToFile(this.currentFileName);
     }
 
     getFileContent(ev: ProgressEvent): void {
@@ -340,11 +350,11 @@ export class FileEventListener {
 
     processInputFile(ev: ProgressEvent) {
         this.getFileContent(ev);
-        const aSpline = this.fileController.loadCurveFromFile(this.currentFileName);
+        const aSpline = this._fileController.loadCurveFromFile(this.currentFileName);
 
         if(typeof(aSpline) !== "undefined") {
-            this.fileController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
-            this.curveModel = this.fileController.curveModel;
+            this._fileController.resetCurveContext(aSpline.knots, aSpline.controlPoints);
+            this.curveModel = this._fileController.curveModel;
             if(this.curveModel === undefined) {
                 const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
                 error.logMessageToConsole();
@@ -358,22 +368,24 @@ export class FileEventListener {
 
 }
 
-// export class CurveModelerEventListener extends UserInterfaceEventListener {
-export class CurveModelerEventListener {
+export class CurveModelDefinitionEventListener extends UserInterfaceEventListener {
+// export class CurveModelDefinitionEventListener {
 
-    private _curveModeler: ShapeNavigableCurve;
+    protected chartSceneController?: ChartSceneController;
+    protected fileController?: FileController;
+    private _shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
-    private _inputCurveCategory: HTMLSelectElement;
-    private _inputDegree: HTMLSelectElement;
+    private readonly _inputCurveCategory: HTMLSelectElement;
+    private readonly _inputDegree: HTMLSelectElement;
     private _currentCurveDegree: string;
     private _currentCurveCategory: string;
-    private _toggleButtonCurveClamping: HTMLButtonElement;
+    private readonly _toggleButtonCurveClamping: HTMLButtonElement;
     private controlOfCurveClamping: boolean;
 
     public activeLocationControl: ActiveLocationControl
 
     constructor() {
-        // super();
+        super();
         /* Get selector ID for curve category and degree*/
         this._currentCurveDegree = "3";
         this._currentCurveCategory = "0";
@@ -381,13 +393,13 @@ export class CurveModelerEventListener {
         this._inputDegree = <HTMLSelectElement> document.getElementById("curveDegree");
         this._toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping");
 
-        this._curveModeler = new ShapeNavigableCurve();
-        this._curveModel = this._curveModeler.curveCategory.curveModel;
+        this._shapeNavigableCurve = new ShapeNavigableCurve();
+        this._curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
         // this._curveModeler.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
         this.controlOfCurveClamping = true;
-        this.activeLocationControl = this._curveModeler.activeLocationControl;
+        this.activeLocationControl = this._shapeNavigableCurve.activeLocationControl;
 
-        this._curveModeler.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
+        this._shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
 
         /* JCL  Add event handlers for curve degree and curve category selection processing */
         this._inputDegree.addEventListener('input', this.inputSelectDegree.bind(this));
@@ -419,11 +431,11 @@ export class CurveModelerEventListener {
     }
 
     get shapeNavigableCurve() {
-        return this._curveModeler;
+        return this._shapeNavigableCurve;
     }
 
-    set shapeNavigableCurve(curveModeler: ShapeNavigableCurve) {
-        this._curveModeler = curveModeler;
+    set shapeNavigableCurve(shapeNavigableCurve: ShapeNavigableCurve) {
+        this._shapeNavigableCurve = shapeNavigableCurve;
     }
 
     get toggleButtonCurveClamping() {
@@ -432,7 +444,7 @@ export class CurveModelerEventListener {
 
     toggleCurveClamping() {
         this.controlOfCurveClamping = !this.controlOfCurveClamping;
-        this._curveModeler.curveCategory.toggleCurveClamping();
+        this._shapeNavigableCurve.curveCategory.toggleCurveClamping();
     }
 
     clickSelectDegree() {
@@ -514,14 +526,14 @@ export class CurveModelerEventListener {
 // export class ShapeSpaceNavigationEventListener extends UserInterfaceEventListener {
 export class ShapeSpaceNavigationEventListener {
 
-    private _toggleButtonCurvatureExtrema:  HTMLButtonElement;
-    private _toggleButtonInflection: HTMLButtonElement;
-    private _toggleButtonSliding: HTMLButtonElement;
+    private readonly _toggleButtonCurvatureExtrema:  HTMLButtonElement;
+    private readonly _toggleButtonInflection: HTMLButtonElement;
+    private readonly _toggleButtonSliding: HTMLButtonElement;
 
     private _currentNavigationMode: string;
-    private _inputNavigationMode: HTMLSelectElement;
-    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    private curveModeler: ShapeNavigableCurve;
+    private readonly _inputNavigationMode: HTMLSelectElement;
+    private readonly _curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
+    private readonly shapeNavigableCurve: ShapeNavigableCurve;
 
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
@@ -531,7 +543,7 @@ export class ShapeSpaceNavigationEventListener {
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve, sceneController: CurveSceneController) {
         // super();
-        this.curveModeler = shapeNavigableCurve;
+        this.shapeNavigableCurve = shapeNavigableCurve;
         this.sceneController = sceneController;
         this._curveShapeSpaceNavigator = shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator;
         /* Get control button IDs for curve shape control*/
@@ -548,7 +560,7 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfInflection = true;
         this.sliding = true;
 
-        this.curveModeler.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this));
+        this.shapeNavigableCurve.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this));
 
         this._inputNavigationMode.addEventListener('input', this.inputSelectNavigationMode.bind(this));
         this._inputNavigationMode.addEventListener('click', this.clickNavigationMode.bind(this));
@@ -613,4 +625,285 @@ export class ShapeSpaceNavigationEventListener {
         }
     }
 
+}
+
+export class CurveSceneEventListener {
+
+    private readonly canvas: HTMLCanvasElement;
+    private readonly gl: WebGLRenderingContext;
+    private curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
+    private _curveSceneController: CurveSceneController;
+
+    // private readonly iconKnotInsertion: HTMLImageElement;
+    // private readonly textureInfo: {width: number, height: number, texture: WebGLTexture|null};
+
+    constructor(curveModelDefinitionEventListener: CurveModelDefinitionEventListener) {
+        this.canvas = <HTMLCanvasElement> document.getElementById("webgl");
+        this.gl = WebGLUtils().setupWebGL(this.canvas);
+
+        this.curveModelDefinitionEventListener = curveModelDefinitionEventListener;
+        this._curveSceneController = new CurveSceneController(this.canvas, this.gl, this.curveModelDefinitionEventListener);
+        
+        this.stuffThatCouldBeUsedToLoadAnImageAndProcessTextures();
+
+        this.canvas.addEventListener('mousedown', this.mouse_click.bind(this), false);
+        this.canvas.addEventListener('dblclick', this.mouse_double_click.bind(this), false);
+        this.canvas.addEventListener('mousemove', this.mouse_drag.bind(this), false);
+        this.canvas.addEventListener('mouseup', this.mouse_stop_drag.bind(this), false);
+        this.canvas.addEventListener('touchstart', this.touch_click.bind(this), false);
+        this.canvas.addEventListener('touchmove', this.touch_drag.bind(this), false);
+        this.canvas.addEventListener('touchmove', this.touch_stop_drag.bind(this), false);
+
+        document.body.addEventListener('keydown', this.keyDown.bind(this));
+        document.body.addEventListener('keyup', this.keyUp.bind(this));
+
+        // Prevent scrolling when touching the canvas with a tablet device
+        document.body.addEventListener("touchstart", (e) => {
+            if (e.target === this.canvas) {
+                e.preventDefault();
+            }}, false);
+        document.body.addEventListener("touchend", (e) => {
+            if (e.target === this.canvas) {
+            e.preventDefault();
+            }}, false);
+        document.body.addEventListener("touchmove", (e) => {
+            if (e.target === this.canvas) {
+                e.preventDefault();
+            }}, false);
+
+        if (!this.gl) {
+            const error = new ErrorLog(this.constructor.name, "CurveSceneEventListener", "Failed to get the rendering context for WebGL. Stop program.");
+            error.logMessageToConsole();
+            return;
+        }
+    }
+
+    get curveSceneController() {
+        return this._curveSceneController;
+    }
+
+    mouse_get_NormalizedDeviceCoordinates(event: MouseEvent) {
+        const rect  = this.canvas.getBoundingClientRect();
+        let x, y;
+        x = ((event.clientX - rect.left) - this.canvas.width / 2) / (this.canvas.width / 2);
+        y = (this.canvas.height / 2 - (event.clientY - rect.top)) / (this.canvas.height / 2);
+        return [x, y];
+    }
+
+    touch_get_NormalizedDeviceCoordinates(event: TouchEvent) {
+        const rect  = this.canvas.getBoundingClientRect();
+        let x, y;
+        const ev = event.touches[0];
+        x = ((ev.clientX - rect.left) - this.canvas.width / 2) / (this.canvas.width / 2);
+        y = (this.canvas.height / 2 - (ev.clientY - rect.top)) / (this.canvas.height / 2);
+        return [x, y];
+    }
+
+    mouse_click(ev: MouseEvent) {
+        const c = this.mouse_get_NormalizedDeviceCoordinates(ev);
+        this._curveSceneController.leftMouseDown_event(c[0], c[1], 0.0005);
+        this._curveSceneController.renderFrame();
+        ev.preventDefault();
+    }
+
+    mouse_double_click(ev: MouseEvent) {
+        const c = this.mouse_get_NormalizedDeviceCoordinates(ev);
+        let active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1], 0.0005);
+        this._curveSceneController.renderFrame();
+        console.log("mouse_double_click: " + active_clamping);
+        // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
+        if(!active_clamping) this.curveModelDefinitionEventListener.toggleButtonCurveClamping.click();
+        ev.preventDefault();
+    }
+
+    mouse_drag(ev: MouseEvent) {
+        const c = this.mouse_get_NormalizedDeviceCoordinates(ev);
+        this._curveSceneController.leftMouseDragged_event(c[0], c[1]);
+        this._curveSceneController.renderFrame();
+        ev.preventDefault();
+    }
+
+    mouse_stop_drag(ev: MouseEvent) {
+        this._curveSceneController.leftMouseUp_event();
+        ev.preventDefault();
+    }
+
+    touch_click(ev: TouchEvent) {
+        const c = this.touch_get_NormalizedDeviceCoordinates(ev);
+        this._curveSceneController.leftMouseDown_event(c[0], c[1]);
+        this._curveSceneController.renderFrame();
+        ev.preventDefault();
+    }
+
+    touch_drag(ev: TouchEvent) {
+        const c = this.touch_get_NormalizedDeviceCoordinates(ev);
+        this._curveSceneController.leftMouseDragged_event(c[0], c[1]);
+        this._curveSceneController.renderFrame();
+        ev.preventDefault();
+    }
+
+    touch_stop_drag(ev: TouchEvent) {
+        this._curveSceneController.leftMouseUp_event();
+        ev.preventDefault();
+    }
+
+    keyDown(ev: KeyboardEvent) {
+        const keyName = ev.key;
+        if(keyName === "Shift") this._curveSceneController.shiftKeyDown();
+    }
+
+    keyUp(ev: KeyboardEvent) {
+        const keyName = ev.key;
+        if(keyName === "Shift") this._curveSceneController.shiftKeyUp();
+    }
+
+    // All methods hereunder are a basis for tests to be able to load texture from a file and use it as background of the canvas
+    processInputTexture() {
+        // this.textureInfo.width = this.iconKnotInsertion.width;
+        // this.textureInfo.height = this.iconKnotInsertion.height;
+        // this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureInfo.texture);
+        // this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.iconKnotInsertion);
+    }
+
+    stuffThatCouldBeUsedToLoadAnImageAndProcessTextures() {
+        let VSHADER_SOURCE = 
+        'attribute vec4 a_position;\n' +
+        'attribute vec2 a_texcoord;\n' +
+        'uniform mat4 u_matrix;\n' +
+        'varying vec2 v_texcoord;\n' +
+        'void main() {\n' +
+        '   gl_Position = u_matrix * a_position;\n' +
+        '   v_texcoord = a_texcoord;\n' +
+        '}\n';
+    
+        let  FSHADER_SOURCE = 
+        'precision mediump float;\n' +
+        'varying vec2 v_texcoord;\n' +
+        'uniform sampler2D u_texture;\n' +
+        'void main() {\n' +
+        '   gl_FragColor = texture2D(u_texture, v_texcoord);\n' +
+        '}\n';
+        let program = createProgram(this.gl, VSHADER_SOURCE, FSHADER_SOURCE);
+        if (!program) {
+            console.log('Failed to create program');
+        } else {
+            //gl.useProgram(program);
+            let positionLocation = this.gl.getAttribLocation(program, "a_position");
+            let texcoordLocation =  this.gl.getAttribLocation(program, "a_texcoord");
+            // lookup uniforms
+            let matrixLocation =  this.gl.getUniformLocation(program, "u_matrix");
+            let textureLocation =  this.gl.getUniformLocation(program, "u_texture");
+        }
+
+        // Create a buffer.
+        let positionBuffer =  this.gl.createBuffer();
+        this.gl.bindBuffer( this.gl.ARRAY_BUFFER, positionBuffer);
+    
+        // Put a unit quad in the buffer
+        let positions = [
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 0,
+        0, 1,
+        1, 1,
+        ];
+        this.gl.bufferData( this.gl.ARRAY_BUFFER, new Float32Array(positions),  this.gl.STATIC_DRAW);
+    
+        // Create a buffer for texture coords
+        let texcoordBuffer =  this.gl.createBuffer();
+        this.gl.bindBuffer( this.gl.ARRAY_BUFFER, texcoordBuffer);
+    
+        // Put texcoords in the buffer
+        let texcoords = [
+        0, 0,
+        0, 1,
+        1, 0,
+        1, 0,
+        0, 1,
+        1, 1,
+        ];
+        this.gl.bufferData( this.gl.ARRAY_BUFFER, new Float32Array(texcoords),  this.gl.STATIC_DRAW);
+        const tex = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
+        // Fill the texture with a 1x1 blue pixel.
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
+                        new Uint8Array([0, 0, 255, 255]));
+    
+        // let's assume all images are not a power of 2
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+        // this.textureInfo = {
+        //     width: 1,   // we don't know the size until it loads
+        //     height: 1,
+        //     texture: tex,
+        // };
+        // this.iconKnotInsertion = new Image();
+
+        // this.iconKnotInsertion.addEventListener('load', this.processInputTexture.bind(this));
+    }
+
+    loadImageAndCreateTextureInfo(url: string) {
+        let tex = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
+        // Fill the texture with a 1x1 blue pixel.
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
+                      new Uint8Array([0, 0, 255, 255]));
+    
+        // let's assume all images are not a power of 2
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    
+        let textureInfo = {
+          width: 1,   // we don't know the size until it loads
+          height: 1,
+          texture: tex,
+        };
+        let img = new Image();
+        img.addEventListener('load', () => {
+          textureInfo.width = img.width;
+          textureInfo.height = img.height;
+    
+          this.gl.bindTexture(this.gl.TEXTURE_2D, textureInfo.texture);
+          this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, img);
+        });
+        img.src = url;
+        return textureInfo;
+    }
+
+    drawImage(tex: any, texWidth: number, texHeight: number, dstX: number, dstY: number) {
+        this.gl.bindTexture(this.gl.TEXTURE_2D, tex);
+
+        // // Tell WebGL to use our shader program pair
+        // this.gl.useProgram(program);
+
+        // // Setup the attributes to pull data from our buffers
+        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer);
+        // this.gl.enableVertexAttribArray(positionLocation);
+        // this.gl.vertexAttribPointer(positionLocation, 2, this.gl.FLOAT, false, 0, 0);
+        // this.gl.bindBuffer(this.gl.ARRAY_BUFFER, texcoordBuffer);
+        // this.gl.enableVertexAttribArray(texcoordLocation);
+        // this.gl.vertexAttribPointer(texcoordLocation, 2, this.gl.FLOAT, false, 0, 0);
+
+        // // this matrix will convert from pixels to clip space
+        // /*var matrix = m4.orthographic(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
+
+        // // this matrix will translate our quad to dstX, dstY
+        // matrix = m4.translate(matrix, dstX, dstY, 0);
+
+        // // this matrix will scale our 1 unit quad
+        // // from 1 unit to texWidth, texHeight units
+        // matrix = m4.scale(matrix, texWidth, texHeight, 1);
+
+        // // Set the matrix.
+        // gl.uniformMatrix4fv(matrixLocation, false, matrix);*/
+
+        // // Tell the shader to get the texture from texture unit 0
+        // this.gl.uniform1i(textureLocation, 0);
+
+        // draw the quad (2 triangles, 6 vertices)
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    }
 }

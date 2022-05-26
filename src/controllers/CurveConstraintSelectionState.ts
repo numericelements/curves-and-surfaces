@@ -1,7 +1,7 @@
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveConstraints } from "../curveShapeSpaceNavigation/CurveConstraints";
 import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedFirstControlPoint, CurveConstraintClampedLastControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
-import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { AbstractCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveSceneController } from "./CurveSceneController";
 
@@ -9,7 +9,7 @@ export abstract class CurveConstraintSelectionState {
 
     protected curveSceneController: CurveSceneController;
     protected curveModeler: ShapeNavigableCurve;
-    protected curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    protected curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
     protected curveConstraints: CurveConstraints;
 
     constructor(context: CurveSceneController) {

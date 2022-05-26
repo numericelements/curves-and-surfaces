@@ -10,9 +10,9 @@ import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve"
 export class FileController {
 // export class FileController implements IObservable<CurveModelInterface> {
 
-    private _curveModel: CurveModelInterface;
-    private _curveSceneController: CurveSceneController;
-    private curveModeler: ShapeNavigableCurve;
+    private readonly _curveModel: CurveModelInterface;
+    private readonly _curveSceneController: CurveSceneController;
+    private readonly curveModeler: ShapeNavigableCurve;
 
     constructor(curveModeler: ShapeNavigableCurve, curveSceneController: CurveSceneController) {
         this.curveModeler = curveModeler;

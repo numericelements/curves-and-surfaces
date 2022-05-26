@@ -2,7 +2,7 @@ import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveConstraintClampedFirstControlPoint } from "./CurveConstraintStrategy";
-import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
+import { AbstractCurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
@@ -15,10 +15,10 @@ export class CurveConstraints {
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
     private _curveConstraintProcessor: CurveConstraintProcessor;
-    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private _curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
     private _optimizedCurve: BSplineR1toR2Interface;
 
-    constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator, curveConstraintProcessor?: CurveConstraintProcessor) {
+    constructor(curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator, curveConstraintProcessor?: CurveConstraintProcessor) {
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
         if(!curveConstraintProcessor) {
@@ -56,7 +56,7 @@ export class CurveConstraints {
         return this._curveConstraintProcessor;
     }
 
-    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
+    get curveShapeSpaceNavigator(): AbstractCurveShapeSpaceNavigator {
         return this._curveShapeSpaceNavigator;
     }
 

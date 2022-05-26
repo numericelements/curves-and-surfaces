@@ -16,7 +16,7 @@ import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve"
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
+import { AbstractCurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 
 export class ShapeSpaceDiffEventsStructure {
 
@@ -26,10 +26,10 @@ export class ShapeSpaceDiffEventsStructure {
     private _slidingDifferentialEvents: boolean;
     private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     private _curveCategory: CurveCategory;
-    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private _curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
 
 
-    constructor(shapeNavigableCurve: ShapeNavigableCurve, shapeSpaceConfigurator: ShapeSpaceDiffEventsConfigurator, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
+    constructor(shapeNavigableCurve: ShapeNavigableCurve, shapeSpaceConfigurator: ShapeSpaceDiffEventsConfigurator, curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator) {
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
         this._curveCategory = shapeNavigableCurve.curveCategory;

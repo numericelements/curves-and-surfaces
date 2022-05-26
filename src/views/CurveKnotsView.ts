@@ -1,84 +1,99 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { CurveKnotsShaders } from "../views/CurveKnotsShaders"
+import { SquareDotSolidShader } from "../2DgraphicsItems/SquareDotSolidShader"
 import { IObserver } from "../newDesignPatterns/Observer";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
 export class CurveKnotsView implements IObserver<BSplineR1toR2Interface> {
 
-    private readonly z = 0
-    private vertexBuffer: WebGLBuffer | null = null
-    private indexBuffer: WebGLBuffer | null = null
-    private vertices: Float32Array = new Float32Array([])
-    private indices: Uint8Array = new Uint8Array([])
+    private readonly Z = 0;
+    private readonly DOT_SIZE = 0.01;
+    private readonly RED_COLOR = 1.0;
+    private readonly GREEN_COLOR = 0.0;
+    private readonly BLUE_COLOR = 0.0;
+    private readonly ALPHA = 1;
+    private readonly squareDotSolidShader: SquareDotSolidShader;
+    private readonly gl: WebGLRenderingContext;
+    private vertexBuffer: WebGLBuffer | null = null;
+    private indexBuffer: WebGLBuffer | null = null;
+    private vertices: Float32Array = new Float32Array([]);
+    private indices: Uint8Array = new Uint8Array([]);
+    private knotAbscissae: number[] = [];
+    private pointSequenceOnSpline: Vector2d[] = [];
+    private a_Position: number;
+    private fColor: WebGLUniformLocation | null;
+    private FSIZE: number;
 
-    private knotAbscissae: number[] = []
-    private pointSequenceOnSpline: Vector2d[] = []
+    constructor(private spline: BSplineR1toR2Interface, gl: WebGLRenderingContext) {
 
-    constructor(private spline: BSplineR1toR2Interface, private curveKnotsShaders: CurveKnotsShaders, private red: number, private green: number, private blue: number, private alpha: number ) {
+        this.gl = gl;
+        this.squareDotSolidShader = new SquareDotSolidShader(this.gl);
+        this.a_Position = -1;
+        this.fColor = -1;
+        this.FSIZE = 0;
 
         // Write the positions of vertices to a vertex shader
-        const check = this.initVertexBuffers(this.curveKnotsShaders.gl);
+        const check = this.initVertexBuffers();
         if (check < 0) {
-            console.log('Failed to set the positions of the vertices');
+            const warning = new WarningLog(this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
+            warning.logMessageToConsole();
         }
     }     
     
     
-    updatePointAtKnotOnSpline() {
-        let splineTemp = this.spline.clone();
+    updatePointAtKnotOnSpline(): void {
+        const splineTemp = this.spline.clone();
         this.knotAbscissae = splineTemp.getDistinctKnots();
         this.pointSequenceOnSpline = [];
         for (let kAbsc of this.knotAbscissae) {
-            let point = this.spline.evaluate(kAbsc);
+            const point = this.spline.evaluate(kAbsc);
             this.pointSequenceOnSpline.push(point);
         }
     }
 
-    updateVerticesAndIndices() {
-        const size = 0.01
-
+    updateVerticesAndIndices(): void {
         this.vertices = new Float32Array(this.knotAbscissae.length * 32);
         this.indices = new Uint8Array(this.knotAbscissae.length * 6);
 
         for (let i = 0; i < this.knotAbscissae.length; i += 1) {
-            let x = this.pointSequenceOnSpline[i].x;
-            let y = this.pointSequenceOnSpline[i].y;
-            this.vertices[32 * i] = x - size;
-            this.vertices[32 * i + 1] = y - size;
-            this.vertices[32 * i + 2] = this.z;
+            const x = this.pointSequenceOnSpline[i].x;
+            const y = this.pointSequenceOnSpline[i].y;
+            this.vertices[32 * i] = x - this.DOT_SIZE;
+            this.vertices[32 * i + 1] = y - this.DOT_SIZE;
+            this.vertices[32 * i + 2] = this.Z;
             this.vertices[32 * i + 3] = -1;
             this.vertices[32 * i + 4] = -1;
-            this.vertices[32 * i + 5] = this.red;
-            this.vertices[32 * i + 6] = this.green;
-            this.vertices[32 * i + 7] = this.blue;
+            this.vertices[32 * i + 5] = this.RED_COLOR;
+            this.vertices[32 * i + 6] = this.GREEN_COLOR;
+            this.vertices[32 * i + 7] = this.BLUE_COLOR;
 
-            this.vertices[32 * i + 8] = x + size;
-            this.vertices[32 * i + 9] = y - size;
-            this.vertices[32 * i + 10] = this.z;
+            this.vertices[32 * i + 8] = x + this.DOT_SIZE;
+            this.vertices[32 * i + 9] = y - this.DOT_SIZE;
+            this.vertices[32 * i + 10] = this.Z;
             this.vertices[32 * i + 11] = 1;
             this.vertices[32 * i + 12] = -1;
-            this.vertices[32 * i + 13] = this.red;
-            this.vertices[32 * i + 14] = this.green;
-            this.vertices[32 * i + 15] = this.blue;
+            this.vertices[32 * i + 13] = this.RED_COLOR;
+            this.vertices[32 * i + 14] = this.GREEN_COLOR;
+            this.vertices[32 * i + 15] = this.BLUE_COLOR;
 
-            this.vertices[32 * i + 16] = x + size;
-            this.vertices[32 * i + 17] = y + size;
-            this.vertices[32 * i + 18] = this.z;
+            this.vertices[32 * i + 16] = x + this.DOT_SIZE;
+            this.vertices[32 * i + 17] = y + this.DOT_SIZE;
+            this.vertices[32 * i + 18] = this.Z;
             this.vertices[32 * i + 19] = 1;
             this.vertices[32 * i + 20] = 1;
-            this.vertices[32 * i + 21] = this.red;
-            this.vertices[32 * i + 22] = this.green;
-            this.vertices[32 * i + 23] = this.blue;
+            this.vertices[32 * i + 21] = this.RED_COLOR;
+            this.vertices[32 * i + 22] = this.GREEN_COLOR;
+            this.vertices[32 * i + 23] = this.BLUE_COLOR;
 
-            this.vertices[32 * i + 24] = x - size;
-            this.vertices[32 * i + 25] = y + size;
-            this.vertices[32 * i + 26] = this.z;
+            this.vertices[32 * i + 24] = x - this.DOT_SIZE;
+            this.vertices[32 * i + 25] = y + this.DOT_SIZE;
+            this.vertices[32 * i + 26] = this.Z;
             this.vertices[32 * i + 27] = -1;
             this.vertices[32 * i + 28] = 1;
-            this.vertices[32 * i + 29] = this.red;
-            this.vertices[32 * i + 30] = this.green;
-            this.vertices[32 * i + 31] = this.blue;
+            this.vertices[32 * i + 29] = this.RED_COLOR;
+            this.vertices[32 * i + 30] = this.GREEN_COLOR;
+            this.vertices[32 * i + 31] = this.BLUE_COLOR;
 
             this.indices[6 * i] = 4 * i;
             this.indices[6 * i + 1] = 4 * i + 1;
@@ -89,81 +104,76 @@ export class CurveKnotsView implements IObserver<BSplineR1toR2Interface> {
         }
     }
 
+    initAttribLocation(): void {
+        this.a_Position = this.gl.getAttribLocation(<SquareDotSolidShader> this.squareDotSolidShader.program, 'a_Position');
+        this.fColor = this.gl.getUniformLocation(<SquareDotSolidShader>this.squareDotSolidShader.program, 'fColor');
+        this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
 
-    initVertexBuffers(gl: WebGLRenderingContext) {
+        if (this.a_Position < 0) {
+            const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            warning.logMessageToConsole();
+        }
+    }
+
+    assignVertexAttrib(): void {
+        // Assign the buffer object to a_Position variable
+        this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, this.FSIZE * 8, 0);
+        // Enable the assignment to a_Position variable
+        this.gl.enableVertexAttribArray(this.a_Position);
+    }
+    
+    initVertexBuffers(): number {
 
         this.updatePointAtKnotOnSpline();
         this.updateVerticesAndIndices();
 
         // Create a buffer object
-        this.vertexBuffer = gl.createBuffer();
+        this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
+            const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            warning.logMessageToConsole();
             return -1;
         }
         // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
 
-        const a_Position = gl.getAttribLocation(<CurveKnotsShaders> this.curveKnotsShaders.program, 'a_Position');
-        const fColor = gl.getUniformLocation(<CurveKnotsShaders>this.curveKnotsShaders.program, 'fColor');
-        let FSIZE = this.vertices.BYTES_PER_ELEMENT;
-
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-
-
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
-
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-
+        this.initAttribLocation();
+        this.assignVertexAttrib();
         // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
-
-        this.indexBuffer = gl.createBuffer();
+        this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
-            console.log('Failed to create the index buffer object');
+            const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
+            warning.logMessageToConsole();
             return -1;
         }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
 
         return this.indices.length;
     }
 
-    renderFrame() {
-        
-        let gl = this.curveKnotsShaders.gl,
-            a_Position = gl.getAttribLocation(<CurveKnotsShaders>this.curveKnotsShaders.program, 'a_Position'),
-            fColor = gl.getUniformLocation(<CurveKnotsShaders>this.curveKnotsShaders.program, 'fColor'),
-            FSIZE = this.vertices.BYTES_PER_ELEMENT;
+    renderFrame(): void {
+        this.initAttribLocation();
+        this.gl.useProgram(this.squareDotSolidShader.program);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-        gl.useProgram(this.curveKnotsShaders.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.uniform4f(fColor, this.red, this.green, this.blue, this.alpha);
+        this.assignVertexAttrib();
+        this.gl.uniform4f(this.fColor, this.RED_COLOR, this.GREEN_COLOR, this.BLUE_COLOR, this.ALPHA);
+        this.squareDotSolidShader.renderFrame(this.indices.length);
 
-        this.curveKnotsShaders.renderFrame(this.indices.length);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.useProgram(null);
     }
 
-    update(spline: BSplineR1toR2Interface) {
+    update(spline: BSplineR1toR2Interface): void {
         this.spline = spline
         this.updatePointAtKnotOnSpline();
         this.updateVerticesAndIndices();
@@ -173,15 +183,14 @@ export class CurveKnotsView implements IObserver<BSplineR1toR2Interface> {
     reset(message: BSplineR1toR2Interface): void {
     }
 
-    updateBuffers() {
-        var gl = this.curveKnotsShaders.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    updateBuffers(): void {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
 }

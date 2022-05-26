@@ -40,7 +40,7 @@ export const CONVERGENCE_THRESHOLD = 10e-8;
 export enum ActiveExtremaLocationControl {mergeExtrema, none, stopDeforming, extremumLeaving, extremumEntering}
 export enum ActiveInflectionLocationControl {mergeExtremaAndInflection, none, stopDeforming}
 
-export abstract class CurveShapeSpaceNavigator {
+export abstract class AbstractCurveShapeSpaceNavigator {
 
     protected _shapeNavigableCurve: ShapeNavigableCurve;
     protected _curveModel: CurveModelInterface;
@@ -48,6 +48,9 @@ export abstract class CurveShapeSpaceNavigator {
     abstract navigationState: NavigationState;
     abstract activeExtremaLocationControl: ActiveExtremaLocationControl
     abstract activeInflectionLocationControl: ActiveInflectionLocationControl
+    // protected abstract navigationState: NavigationState;
+    // protected abstract activeExtremaLocationControl: ActiveExtremaLocationControl
+    // protected abstract activeInflectionLocationControl: ActiveInflectionLocationControl
     abstract shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     abstract shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
 
@@ -97,7 +100,7 @@ export abstract class CurveShapeSpaceNavigator {
     abstract get displacementCurrentCurveControlPolygon(): Vector2d[];
 }
 
-export class OpenCurveShapeSpaceNavigator extends CurveShapeSpaceNavigator{
+export class OpenCurveShapeSpaceNavigator extends AbstractCurveShapeSpaceNavigator{
 
     protected _shapeNavigableCurve: ShapeNavigableCurve;
     public curveCategory: CurveCategory;
@@ -122,6 +125,7 @@ export class OpenCurveShapeSpaceNavigator extends CurveShapeSpaceNavigator{
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
 
     public navigationState: NavigationState;
+    // protected navigationState: NavigationState;
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     private _curveConstraintProcessor: CurveConstraintProcessor;
@@ -481,7 +485,7 @@ export class OpenCurveShapeSpaceNavigator extends CurveShapeSpaceNavigator{
     
 }
 
-export class ClosedCurveShapeSpaceNavigator extends CurveShapeSpaceNavigator{
+export class ClosedCurveShapeSpaceNavigator extends AbstractCurveShapeSpaceNavigator{
 
     public curveModel: ClosedCurveModel;
     private _selectedControlPoint?: number;

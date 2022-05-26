@@ -1,7 +1,6 @@
 import { createProgram } from "../webgl/cuon-utils";
 
-
-export class ControlPointsShaders {
+export class RoundDotTwoLevelsTransparencyShader {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 
@@ -49,20 +48,19 @@ export class ControlPointsShaders {
         '     gl_FragColor = (fColor1+fColor2)/2.0; \n' +
         */
 
-    public program: WebGLProgram | null
+    public program: WebGLProgram | null;
+    private readonly gl: WebGLRenderingContext;
 
-
-    constructor(public gl: WebGLRenderingContext) {
-        this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE)
+    constructor(gl: WebGLRenderingContext) {
+        this.gl = gl;
+        this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
         this.gl.useProgram(this.program);
     }
 
-    renderFrame(numberOfElements: number, selectedControlPoint: number | null) {
-        //const False = 0
-        //const True = 1
+    renderFrame(numberOfElements: number, selectedControlPoint: number | null): void {
 
         if(this.program) {
             //this.gl.uniform1i(this.gl.getUniformLocation(this.program, "selected"), False);
@@ -72,7 +70,6 @@ export class ControlPointsShaders {
                 this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_BYTE, selectedControlPoint * 6);
             }
         }
-
     }
 }
 

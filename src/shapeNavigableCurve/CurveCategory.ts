@@ -1,5 +1,5 @@
 import { ActiveLocationControl, ShapeNavigableCurve } from "./ShapeNavigableCurve";
-import { ClosedCurveShapeSpaceNavigator, CurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ClosedCurveShapeSpaceNavigator, AbstractCurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
@@ -13,7 +13,7 @@ export abstract class CurveCategory {
 
     protected _shapeNavigableCurve: ShapeNavigableCurve;
     abstract curveModel: CurveModelInterface;
-    abstract curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    abstract curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve) {
         this._shapeNavigableCurve = shapeNavigableCurve;

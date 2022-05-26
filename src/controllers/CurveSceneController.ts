@@ -1,15 +1,10 @@
 import { CurveModel } from "../newModels/CurveModel"
 import { ControlPointsView } from "../views/ControlPointsView";
-import { ControlPointsShaders}  from "../views/ControlPointsShaders"
-import { ControlPolygonShaders } from "../views/ControlPolygonShaders";
 import { ControlPolygonView } from "../views/ControlPolygonView";
-import { CurveShaders } from "../views/CurveShaders";
 import { CurveView } from "../views/CurveView";
 import { SceneControllerInterface } from "./SceneControllerInterface";
 import { InsertKnotButtonShaders } from "../views/InsertKnotButtonShaders";
 import { ClickButtonView } from "../views/ClickButtonView";
-import { DifferentialEventShaders } from "../views/DifferentialEventShaders";
-import { TransitionDifferentialEventShaders } from "../views/TransitionDifferentialEventShaders";
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
@@ -24,14 +19,12 @@ import { ClampedControlPointView } from "../views/ClampedControlPointView"
 import { Vector2d } from "../mathVector/Vector2d";
 /* JCL 2020/10/02 Add the visualization of knots */
 import { CurveKnotsView } from "../views/CurveKnotsView"
-import { CurveKnotsShaders } from "../views/CurveKnotsShaders";
 
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
 import { NONAME } from "dns";
 
 import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"
-
 import { ShapeNavigableCurve, ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { ShapeSpaceConfiguratorWithInflectionsNoSliding, ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator";
@@ -39,18 +32,25 @@ import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/Shap
 import { CurveControlState, HandleInflectionsAndCurvatureExtremaNoSlidingState, HandleNoDiffEventNoSlidingState } from "./CurveControlState";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { NavigationState } from "../curveShapeSpaceNavigation/NavigationState";
-import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, AbstractCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
 import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState } from "./CurveConstraintSelectionState";
-import { CurveModelerEventListener } from "../userInterfaceController/UserInterfaceEventListener";
+import { CurveModelDefinitionEventListener } from "../userInterfaceController/UserInterfaceEventListener";
 import { convertToBsplR1_to_R2 } from "../newBsplines/BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { DummyStrategy } from "./DummyStrategy";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModelObserverInCurveSceneController } from "../models/CurveModelObserver";
+import { HighlightedControlPolygonView } from "../views/HighlightedControlPolygonView";
 
-
+// Margin expressed in pixel size
+const MARGIN_WINDOW_CANVAS = 150;
+// Window background color setting
+const BACKGROUND_RED_COLOR = 0.3;
+const BACKGROUND_GREEN_COLOR = 0.3;
+const BACKGROUND_BLUE_COLOR = 0.3;
+const BACKGROUND_ALPHA = 1.0;
 
 export class CurveSceneController implements SceneControllerInterface {
 
@@ -61,17 +61,13 @@ export class CurveSceneController implements SceneControllerInterface {
     private selectedDifferentialEventsView: SelectedDifferentialEventsView
     /* JCL 2020/10/18 Moved CurveModel to public */
     //public curveModel: CurveModel
-    private controlPointsShaders: ControlPointsShaders
     private controlPointsView: ControlPointsView
-    private controlPolygonShaders: ControlPolygonShaders
     private controlPolygonView: ControlPolygonView
-    private curveShaders: CurveShaders
+    private highlightedControlPolygonView: HighlightedControlPolygonView;
     private curveView: CurveView
     private insertKnotButtonShaders: InsertKnotButtonShaders
     private insertKnotButtonView: ClickButtonView
     private dragging: boolean = false
-    private differentialEventShaders: DifferentialEventShaders
-    private transitionDifferentialEventShaders: TransitionDifferentialEventShaders
     private curvatureExtremaView: CurvatureExtremaView
     private transitionCurvatureExtremaView: TransitionCurvatureExtremaView
     private inflectionsView: InflectionsView
@@ -88,7 +84,6 @@ export class CurveSceneController implements SceneControllerInterface {
 
     /* JCL 2020/10/02 Add the visualization of knots */
     private curveKnotsView: CurveKnotsView
-    private curveKnotsShaders: CurveKnotsShaders
     /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
     public activeExtremaLocationControl: ActiveExtremaLocationControl = ActiveExtremaLocationControl.none
     public activeInflectionLocationControl: ActiveInflectionLocationControl = ActiveInflectionLocationControl.none
@@ -99,13 +94,13 @@ export class CurveSceneController implements SceneControllerInterface {
     public lastLostEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: 0}
 
     /* JCL 2021/09/29 Add modeller for new code architecture */
-    private curveModelerEventListener: CurveModelerEventListener;
+    private curveModelerEventListener: CurveModelDefinitionEventListener;
     public shapeNavigableCurve: ShapeNavigableCurve;
     public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     // private curveControlState: CurveControlState;
     private navigationState: NavigationState;
-    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    public curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
     public curveEventAtExtremityMayVanish: boolean;
     // public eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private constraintAtPoint1: boolean;
@@ -116,48 +111,37 @@ export class CurveSceneController implements SceneControllerInterface {
     private curveObservers: Array<IRenderFrameObserver<BSplineR1toR2Interface>> = []
     
     constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext,
-        curveModelerEventListener: CurveModelerEventListener) {
+        curveModelDefinitionEventListener: CurveModelDefinitionEventListener) {
 
-        this.curveModelerEventListener = curveModelerEventListener
-        this.shapeNavigableCurve = curveModelerEventListener.shapeNavigableCurve
-        this.curveModel = curveModelerEventListener.curveModel
+        this.curveModelerEventListener = curveModelDefinitionEventListener
+        this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve
+        this.curveModel = curveModelDefinitionEventListener.curveModel
         this.curveShapeSpaceNavigator = this.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator;
 
-        this.controlPointsShaders = new ControlPointsShaders(this.gl);
-        this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1)
-        this.controlPolygonShaders = new ControlPolygonShaders(this.gl)
-        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05)
-        /*this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 1.0, 1) */
-        this.curveShaders = new CurveShaders(this.gl)
-        this.curveView = new CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1)
+        this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.gl);
+        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
+        this.curveView = new CurveView(this.curveModel.spline, this.gl);
         this.insertKnotButtonShaders = new InsertKnotButtonShaders(this.gl)
         this.insertKnotButtonView = new ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders)
-        this.differentialEventShaders = new DifferentialEventShaders(this.gl)
-        this.transitionDifferentialEventShaders = new TransitionDifferentialEventShaders(this.gl)
-        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1)
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1)
-        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1)
-        this.curveKnotsShaders = new CurveKnotsShaders(this.gl)
-        this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1)
+        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.gl);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.curveModel.spline, this.gl);
+        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.gl);
+        this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.gl);
         
         let selectedEvent: number[]= []
-        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.differentialEventShaders, 0, 0, 1, 1)
+        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1)
 
         /* JCL 2020/09/24 Add default clamped control point */
-        this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
-        
-        // this.activeLocationControl = ActiveLocationControl.firstControlPoint
-        // this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-        // this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+        this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.gl)
+        // temporaire
+        this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
+
         this.activeLocationControl = this.shapeNavigableCurve.activeLocationControl
         this.activeExtremaLocationControl = this.curveShapeSpaceNavigator.activeExtremaLocationControl
         this.activeInflectionLocationControl = this.curveShapeSpaceNavigator.activeInflectionLocationControl
 
         this.allowShapeSpaceChange = false
 
-        // this.controlOfCurvatureExtrema = true
-        // this.controlOfInflection = true
-        // this.controlOfCurveClamping = true
         this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.controlOfCurvatureExtrema
         this.controlOfInflection = this.curveShapeSpaceNavigator.controlOfInflection
         this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping
@@ -176,9 +160,7 @@ export class CurveSceneController implements SceneControllerInterface {
             this.curveControl = new DummyStrategy(dummyCurveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
         }
 
-        // this.sliding = true
         this.sliding = this.curveShapeSpaceNavigator.sliding
-
 
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this.curveEventAtExtremityMayVanish = true;
@@ -198,23 +180,17 @@ export class CurveSceneController implements SceneControllerInterface {
 
 
     initCurveSceneView(): void {
-        this.controlPointsShaders = new ControlPointsShaders(this.gl);
-        this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.controlPointsShaders, 1, 1, 1);
-        this.controlPolygonShaders = new ControlPolygonShaders(this.gl);
-        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05);
+        this.controlPointsView = new ControlPointsView(this.curveModel.spline, this.gl);
+        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.insertKnotButtonShaders = new InsertKnotButtonShaders(this.gl);
         this.insertKnotButtonView = new ClickButtonView(-0.8, 0.8, this.insertKnotButtonShaders);
-        this.curveShaders = new CurveShaders(this.gl);
-        this.curveView = new CurveView(this.curveModel.spline, this.curveShaders, 216 / 255, 91 / 255, 95 / 255, 1);
-        this.differentialEventShaders = new DifferentialEventShaders(this.gl);
-        this.transitionDifferentialEventShaders = new TransitionDifferentialEventShaders(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.curveModel.spline, this.transitionDifferentialEventShaders, 216 / 255, 91 / 255, 95 / 255, 1);
-        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.differentialEventShaders, 216 / 255, 120 / 255, 120 / 255, 1);
-        this.curveKnotsShaders = new CurveKnotsShaders(this.gl);
-        this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.curveKnotsShaders, 1, 0, 0, 1);
+        this.curveView = new CurveView(this.curveModel.spline, this.gl);
+        this.curvatureExtremaView = new CurvatureExtremaView(this.curveModel.spline, this.gl);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.curveModel.spline, this.gl);
+        this.inflectionsView = new InflectionsView(this.curveModel.spline, this.gl);
+        this.curveKnotsView = new CurveKnotsView(this.curveModel.spline, this.gl);
         this.shapeNavigableCurve.clampedControlPoints.push(0);
-        this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.controlPointsShaders, 0, 1, 0);
+        this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.gl);
         
         this.registerCurveObservers();
 
@@ -269,16 +245,18 @@ export class CurveSceneController implements SceneControllerInterface {
 
     }
 
-    renderFrame() {
-        let px = 150
-        let size = Math.min(window.innerWidth, window.innerHeight) - px;
+    setupWindowBackground(): void {
+        const size = Math.min(window.innerWidth, window.innerHeight) - MARGIN_WINDOW_CANVAS;
         this.canvas.width = size;
         this.canvas.height = size;
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height); 
-        this.gl.clearColor(0.3, 0.3, 0.3, 1)
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT)
+        this.gl.clearColor(BACKGROUND_RED_COLOR, BACKGROUND_GREEN_COLOR, BACKGROUND_BLUE_COLOR, BACKGROUND_ALPHA);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    }
+    renderFrame(): void {
+        this.setupWindowBackground();
         this.curveView.renderFrame()
         this.curvatureExtremaView.renderFrame()
         this.transitionCurvatureExtremaView.renderFrame()
@@ -288,9 +266,9 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveKnotsView.renderFrame()
         if(this.curveModel !== undefined) {
             if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-                this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 0, 0, 0.9, 1)
+                this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl, false);
             } else {
-                this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.controlPolygonShaders, false, 216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05)
+                this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
             }
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
@@ -315,11 +293,11 @@ export class CurveSceneController implements SceneControllerInterface {
             } else differentialEvents = curvatureEvents
 
             if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 0, 1.0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 0, 1.0, 1)
             } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
             } else if(differentialEvents.length === 0) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.differentialEventShaders, 0, 1.0, 0, 1)
+                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
             }
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
@@ -342,52 +320,9 @@ export class CurveSceneController implements SceneControllerInterface {
         } else throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model")
     }
 
-    // resetCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
-    //     if(this.curveModel !== undefined) {
-    //         curveObserver.reset(this.curveModel.spline);
-    //         /*this.curveModel.registerObserver(curveObserver);*/
-    //     }
-    //     else throw new Error("Unable to reset a curve observer to the current curve. Undefined curve model")
-    // }
-
-
-    // /* JCL test code debut */
-    // transitionTo(curveControlState: CurveControlState): void {
-    //     this.curveControlState = curveControlState;
-    //     this.curveControlState.setContext(this);
-    // }
-
     curveConstraintTransitionTo(curveConstraintSelectionState: CurveConstraintSelectionState): void {
         this.curveConstraintSelectionState = curveConstraintSelectionState;
         this.curveConstraintSelectionState.setContext(this);
-    }
-
-    inputSelectNavigationProcess(navigationID: number) {
-        let warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
-        warning.logMessageToConsole();
-
-        switch(navigationID) {
-            case 0: {
-                this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
-                break;
-            }
-            case 1: {
-                this.navigationState.setNavigationThroughSimplerShapeSpaces();
-                break;
-            }
-            case 2: {
-                this.navigationState.setNavigationStrictlyInsideShapeSpace();
-                break;
-            }
-            default: {
-                let error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
-                error.logMessageToConsole();
-                break;
-            }
-        }
-        // JCL 2021/12/07 temporary setting to keep consistency between curvescenecontroller context and curveShapeSpaceNavigator context
-        // JCL 2021/12/07 should be removed when the curveScenceController context would be decomposed into (UI and graphics) and the curveShapeSpaceNavigator context on the other side
-        this.navigationState = this.curveShapeSpaceNavigator.navigationState;
     }
 
     toggleControlCurveEventsAtExtremities() {
@@ -395,27 +330,6 @@ export class CurveSceneController implements SceneControllerInterface {
         // this.eventMgmtAtCurveExtremities.processEventAtCurveExtremity();
     }
 
-    /* JCL fin test code */
-
-    // toggleSliding() {
-    //     if(this.curveModel !== undefined) {
-    //         if(this.sliding) {
-    //             this.sliding = false
-    //             //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
-    //             //console.log("constrol of inflections: " + this.controlOfInflection)
-    //             this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-    //         }
-    //         else {
-    //             this.sliding = true
-    //             //console.log("constrol of curvature extrema: " + this.controlOfCurvatureExtrema)
-    //             //console.log("constrol of inflections: " + this.controlOfInflection)
-    //             this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-    //         }
-    //     } else throw new Error("Unable to slide curvature extrema and/or inflexion points. Undefined curve model")
-    
-    //     /* JCL 2021/10/12 Add curveControlState for new code architecture */
-    //     this.curveControlState.handleSliding();
-    // }
 
     leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {
         // if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
@@ -426,7 +340,10 @@ export class CurveSceneController implements SceneControllerInterface {
                 if(cp === this.curveModel.spline.controlPoints.length -1) { cp -= 1} 
                 const grevilleAbscissae = this.curveModel.spline.grevilleAbscissae()
                 if(cp != null) {
-                    this.curveModel.spline.insertKnot(grevilleAbscissae[cp], 1)
+                    const spline = this.curveModel.spline;
+                    spline.insertKnot(grevilleAbscissae[cp], 1)
+                    this.curveModel.setSpline(spline);
+                    // this.curveModel.spline.insertKnot(grevilleAbscissae[cp], 1)
                     this.curveControl.resetCurve(this.curveModel)
                     if(this.activeLocationControl === ActiveLocationControl.both) {
                         if(this.shapeNavigableCurve.clampedControlPoints[0] === 0) {
@@ -554,42 +471,6 @@ export class CurveSceneController implements SceneControllerInterface {
         // message.logMessageToConsole();
     }
 
-    /* JCL 2020/10/07 Add the curve degree elevation process */
-    inputSelectDegree(curveDegree: number) {
-        if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
-            if(curveDegree > this.curveModel.spline.degree) {
-                // let controlPoints = this.curveModel.spline.controlPoints
-                // let knots = this.curveModel.spline.knots
-                // for(let i = 0; i < (curveDegree - this.curveModel.spline.degree); i += 1) {
-                //     let aSpline = new BSpline_R1_to_R2_degree_Raising(controlPoints, knots)
-                //     let newSpline = aSpline.degreeIncrease()
-                //     controlPoints = newSpline.controlPoints
-                //     knots = newSpline.knots
-                // }
-                // this.curveModel.spline.renewCurve(controlPoints, knots)
-                // this.curveControl.resetCurve(this.curveModel)
-                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree)
-
-                if(this.activeLocationControl === ActiveLocationControl.both) {
-                    if(this.shapeNavigableCurve.clampedControlPoints[0] === 0){
-                        this.shapeNavigableCurve.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                    } else this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-                }
-                else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                    this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-                }
-
-                if (this.sliding) {
-                    this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-                }
-                else {
-                    this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
-                }
-                this.curveModel.notifyObservers()
-            }
-        } else throw new Error("Unable to assign a new degree to the curve. Undefined curve model")
-    }
-
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
     dbleClick_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01): boolean {
         if(this.curveModel !== undefined) {
@@ -624,7 +505,7 @@ export class CurveSceneController implements SceneControllerInterface {
                             let clampedControlPoint: Vector2d[] = []
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
                             clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
-                            this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
+                            this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.gl)
                             this.activeLocationControl = ActiveLocationControl.both
                             return true
                         }
@@ -636,7 +517,7 @@ export class CurveSceneController implements SceneControllerInterface {
                                 } else this.shapeNavigableCurve.clampedControlPoints.splice(0, 1)
                                 let clampedControlPoint: Vector2d[] = []
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
-                                this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
+                                this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.gl)
                                 this.activeLocationControl = ActiveLocationControl.lastControlPoint
                                 console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints)
                             } else if(selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
@@ -646,7 +527,7 @@ export class CurveSceneController implements SceneControllerInterface {
                                 } else this.shapeNavigableCurve.clampedControlPoints.splice(0, 1)
                                 let clampedControlPoint: Vector2d[] = []
                                 clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-                                this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.controlPointsShaders, 0, 1, 0)
+                                this.clampedControlPointView = new ClampedControlPointView(this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints, this.gl)
                                 this.activeLocationControl = ActiveLocationControl.firstControlPoint
                                 console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints)
                             }
