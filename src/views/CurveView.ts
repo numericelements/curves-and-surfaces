@@ -13,21 +13,21 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
     private readonly GREEN_COLOR = 91 / 255;
     private readonly BLUE_COLOR = 95 / 255;
     private readonly ALPHA = 1;
-    //private readonly z = 0
+    private readonly Z = 0;
     private readonly polylineShader: PolylineShader;
     private readonly gl: WebGLRenderingContext;
-    private pointSequenceOnSpline: Vector2d[] = []
-    //private selectedControlPoint: number | null = null
-    private vertexBuffer: WebGLBuffer | null = null
-    //private indexBuffer: WebGLBuffer | null = null
+    private spline: BSplineR1toR2Interface;
+    private pointSequenceOnSpline: Vector2d[] = [];
+    private vertexBuffer: WebGLBuffer | null = null;
     private vertices: Float32Array = new Float32Array(this.POINT_SEQUENCE_SIZE * 6);
     private a_Position: number;
     private fColorLocation: WebGLUniformLocation | null;
 
-    constructor(private spline: BSplineR1toR2Interface, gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface) {
 
         this.gl = gl;
         this.polylineShader = new PolylineShader(this.gl);
+        this.spline = spline;
         this.a_Position = -1;
         this.fColorLocation = -1;
         // Write the positions of vertices to a vertex shader
@@ -53,12 +53,11 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
         const maxLength = this.THICKNESS * 3;
         let tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize();
         let normal = tangent.rotate90degrees();
-        let miter,
-            length,
-            result = [];
+        let miter,length;
+        let triangleStripVertices = [];
 
-        result.push(this.pointSequenceOnSpline[0].add(normal.multiply(this.THICKNESS)));
-        result.push(this.pointSequenceOnSpline[0].substract(normal.multiply(this.THICKNESS)));
+        triangleStripVertices.push(this.pointSequenceOnSpline[0].add(normal.multiply(this.THICKNESS)));
+        triangleStripVertices.push(this.pointSequenceOnSpline[0].substract(normal.multiply(this.THICKNESS)));
 
         for (let i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
             normal = (this.pointSequenceOnSpline[i].substract(this.pointSequenceOnSpline[i - 1])).normalize().rotate90degrees();
@@ -66,19 +65,19 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
             miter = tangent.rotate90degrees();
             length = this.THICKNESS / (miter.dot(normal));
             if (length > maxLength) {length = maxLength; }
-            result.push(this.pointSequenceOnSpline[i].add(miter.multiply(length)));
-            result.push(this.pointSequenceOnSpline[i].substract(miter.multiply(length)));
+            triangleStripVertices.push(this.pointSequenceOnSpline[i].add(miter.multiply(length)));
+            triangleStripVertices.push(this.pointSequenceOnSpline[i].substract(miter.multiply(length)));
         }
 
         tangent = this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 2]).normalize();
         normal = tangent.rotate90degrees();
-        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(this.THICKNESS)));
-        result.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(this.THICKNESS)));
+        triangleStripVertices.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(this.THICKNESS)));
+        triangleStripVertices.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(this.THICKNESS)));
 
-        for (let i = 0; i < result.length; i += 1) {
-            this.vertices[3 * i] = result[i].x;
-            this.vertices[3 * i + 1] = result[i].y;
-            this.vertices[3 * i + 2] = 0.0;
+        for (let i = 0; i < triangleStripVertices.length; i += 1) {
+            this.vertices[3 * i] = triangleStripVertices[i].x;
+            this.vertices[3 * i + 1] = triangleStripVertices[i].y;
+            this.vertices[3 * i + 2] = this.Z;
         }
     }
 
@@ -106,7 +105,7 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
         this.gl.enableVertexAttribArray(this.a_Position);
     }
 
-    reset(message: BSplineR1toR2Interface): void {
+    reset(spline: BSplineR1toR2Interface): void {
     }
 
     updateBuffers(): void {
@@ -149,11 +148,8 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
         this.assignVertexAttrib();
         // Unbind the buffer object
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
         return 1
     }
-
-
 }
 
 

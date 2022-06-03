@@ -1,3 +1,4 @@
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d"
 import { Vector3d } from "../mathVector/Vector3d"
 import { BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
@@ -141,6 +142,12 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
 
     optimizerStep(step: number[]): void {
         
+    }
+
+    elevateDegree(times: number): void {
+        // JCL method to be implemented
+        const error = new ErrorLog(this.constructor.name, "elevateDegree", "method not yet implemented !");
+        error.logMessageToConsole();
     }
 
 }

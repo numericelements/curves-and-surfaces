@@ -8,7 +8,7 @@ import { AbstractCurveShapeSpaceNavigator,
 import { ComparatorOfSequencesOfDiffEvents } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { OpenMode } from "fs";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { ClosedCurveAnalyzer, OpenCurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
+import { ClosedCurveAnalyzer, OpenCurveAnalyzer, OPenCurveDummyAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { CurveConstraints } from "./CurveConstraints";
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
@@ -81,8 +81,8 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
         this.optimizedCurve = this.currentCurve;
-        this.curveAnalyserCurrentCurve = new OpenCurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
-        this.curveAnalyserOptimizedCurve = new OpenCurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        this.curveAnalyserCurrentCurve = new OPenCurveDummyAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
+        this.curveAnalyserOptimizedCurve = new OPenCurveDummyAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         
     }
 

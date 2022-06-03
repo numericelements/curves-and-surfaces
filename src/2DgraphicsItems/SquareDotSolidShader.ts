@@ -25,7 +25,7 @@ export class SquareDotSolidShader {
 
     constructor(gl: WebGLRenderingContext) {
         this.gl = gl;
-        this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE)
+        this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }

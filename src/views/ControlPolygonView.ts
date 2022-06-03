@@ -42,7 +42,6 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         }
     }      
 
-
     updateVerticesAndIndices(): void {
         this.vertices = new Float32Array(this.controlPoints.length * 12);
         this.indices = new Uint8Array(this.controlPoints.length * 6);
@@ -136,10 +135,8 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         this.gl.useProgram(null);
     }
 
-
-
-    update(message: BSplineR1toR2Interface): void {
-        this.controlPoints = message.controlPoints;
+    update(spline: BSplineR1toR2Interface): void {
+        this.controlPoints = spline.controlPoints;
         // this.controlPoints = message.visibleControlPoints();
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
@@ -148,7 +145,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         this.updateBuffers();
     }
 
-    reset(message: BSplineR1toR2Interface): void {
+    reset(spline: BSplineR1toR2Interface): void {
     }
 
     updateBuffers(): void {

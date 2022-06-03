@@ -81,6 +81,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
      */
     abstract clone() : AbstractBSplineR1toR2;
 
+    abstract elevateDegree(): void;
 
     abstract optimizerStep(step: number[]) : void;
 

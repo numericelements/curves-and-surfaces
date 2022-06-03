@@ -1,6 +1,6 @@
 import { createProgram } from "../webgl/cuon-utils";
 
-export class InsertKnotButtonShaders {
+export class InsertKnotButtonDialogShader {
 
     // Vertex shader program
     private readonly VSHADER_SOURCE = 
@@ -41,10 +41,12 @@ export class InsertKnotButtonShaders {
     '     gl_FragColor = vec4(v_Color, 1.0); } \n' +
     '}\n';
 
-   public program: WebGLProgram | null
+   public program: WebGLProgram | null;
+   private readonly gl: WebGLRenderingContext;
 
-    constructor(public gl: WebGLRenderingContext) {
-        this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE)
+    constructor(gl: WebGLRenderingContext) {
+        this.gl = gl;
+        this.program = createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -53,11 +55,9 @@ export class InsertKnotButtonShaders {
 
     renderFrame(numberOfElements: number) {
         if(this.program) {
-            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0)
+            this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
         }
     }
-
-
 };
 
 

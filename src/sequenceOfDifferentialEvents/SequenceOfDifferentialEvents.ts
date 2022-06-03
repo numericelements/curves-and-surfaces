@@ -1,7 +1,7 @@
 import { DifferentialEvent, InflectionEvent, CurvatureExtremumEvent } from "./DifferentialEvent";
 import { SequenceOfIntervals } from "./SequenceOfIntervals";
 import { ModifiedCurvatureEvents } from "./ModifiedDifferentialEvents";
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
 /* named constants */
 import { ORDER_INFLECTION, ORDER_CURVATURE_EXTREMUM } from "./DifferentialEvent";
@@ -174,7 +174,10 @@ export class SequenceOfDifferentialEvents {
         if(j < inflections.length) {
             throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections.");
         } else if(this._sequence.length !== curvatureExtrema.length + inflections.length) {
-            throw new Error("Inconsistent length of sequence of differential events.");
+            // throw new Error("Inconsistent length of sequence of differential events.");
+            // JCL temporary modification
+            const warning = new WarningLog(this.constructor.name, "insertEvents", "Inconsistent length of sequence of differential events.");
+            warning.logMessageToConsole();
         }
         this.checkSequenceConsistency();
         this._indicesOfInflections = this.generateIndicesInflection();

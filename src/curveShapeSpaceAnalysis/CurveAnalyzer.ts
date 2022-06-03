@@ -1,5 +1,5 @@
 import { SequenceOfDifferentialEvents } from "../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents"
-import { ClosedCurveDifferentialEventsExtractor, OpenCurveDifferentialEventsExtractor } from "../../src/curveShapeSpaceAnalysis/curveDifferentialEventsExtractor"
+import { OpenCurveDifferentialEventsExtractor } from "./OpenCurveDifferentialEventsExtractor"
 import { BSplineR1toR2 } from "../../src/newBsplines/BSplineR1toR2"
 import { CurveShapeSpaceDescriptor } from "../../src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor";
 import { ExtremumLocationClassifier,
@@ -13,8 +13,10 @@ import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceCo
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { CurveDifferentialEventsExtractorInterface } from "./CurveDifferentialEventsExtractorInterface";
+import { CurveDifferentialEventsSequenceExtractorInterface } from "./CurveDifferentialEventsSequenceExtractorInterface";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { ClosedCurveDifferentialEventsExtractor } from "./ClosedCurveDifferentialEventsExtractor";
+import { OpenCurveDifferentialEventsExtractorWithoutSequence } from "./OpenCurveDifferentialEventsExtractorWithoutSequence";
 
 export abstract class AbstractCurveAnalyzer {
 
@@ -132,14 +134,14 @@ export abstract class AbstractCurveAnalyzer {
 export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
 
     protected curve: BSplineR1toR2;
-    private _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
+    protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     protected _curveCurvatureCntrlPolygon: number[];
     protected _curvatureSignChanges: number[];
-    private globalExtremumOffAxisCurvaturePoly: ExtremumLocation;
+    protected globalExtremumOffAxisCurvaturePoly: ExtremumLocation;
     protected _curvatureCrtlPtsClosestToZero: number[];
     protected _curveCurvatureDerivativeCntrlPolygon: number[];
     protected _curvatureDerivativeSignChanges:  number[];
-    private globalExtremumOffAxisCurvatureDerivPoly: ExtremumLocation;
+    protected globalExtremumOffAxisCurvatureDerivPoly: ExtremumLocation;
     protected _curvatureDerivCrtlPtsClosestToZero: number[];
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private navigationState: NavigationState;
@@ -233,6 +235,24 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
     }
 
+}
+
+export class OPenCurveDummyAnalyzer extends OpenCurveAnalyzer {
+    constructor(curveToAnalyze: BSplineR1toR2, curveShapeSpaceNavigator: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
+        super(curveToAnalyze, curveShapeSpaceNavigator, slidingEventsAtExtremities);
+        const diffEventsExtractor = new OpenCurveDifferentialEventsExtractorWithoutSequence(this.curve);
+        this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
+    }
+
+    update(): void {
+        this.curve = this.curveShapeSpaceNavigator.currentCurve;
+        const diffEventsExtractor = new OpenCurveDifferentialEventsExtractorWithoutSequence(this.curve);
+        this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
+        this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
+        this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
+        this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
+        this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+    }
 }
 
 export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {

@@ -10,6 +10,7 @@ import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
 
@@ -182,7 +183,10 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         if(j < inflections.length) {
             throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections")
         } else if(result.length !== curvatureExtrema.length + inflections.length) {
-            throw new Error("Inconsistent length of sequence of differential events")
+            // throw new Error("Inconsistent length of sequence of differential events")
+            // JCL temporay modif
+            const warning = new WarningLog(this.constructor.name, "generateSequenceDifferentialEvents", "Inconsistent length of sequence of differential events");
+            warning.logMessageToConsole();
         }
         return result
     }

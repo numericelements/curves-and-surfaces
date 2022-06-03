@@ -15,4 +15,8 @@ export interface BSplineR1toR2DifferentialPropertiesInterface {
 
     curvatureDerivativeNumerator(): BSplineR1toR1Interface;
 
+    inflections(): Vector2d[];
+
+    curvatureExtrema(): Vector2d[];
+
 }

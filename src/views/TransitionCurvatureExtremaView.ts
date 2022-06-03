@@ -7,33 +7,36 @@ import { IObserver } from "../newDesignPatterns/Observer";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { AbstractPointView } from "./AbstractPointView";
+import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface";
 
 
-export class TransitionCurvatureExtremaView implements IObserver<BSplineR1toR2Interface> {
+export class TransitionCurvatureExtremaView extends AbstractPointView implements IObserver<BSplineR1toR2Interface> {
 
-    private readonly Z = 0;
-    private readonly DOT_SIZE = 0.03;
-    private readonly RED_COLOR = 216 / 255;
-    private readonly GREEN_COLOR = 91 / 255;
-    private readonly BLUE_COLOR = 95 / 255;
-    private readonly ALPHA = 1;
+    protected readonly Z = 0;
+    protected readonly DOT_SIZE = 0.03;
+    protected readonly RED_COLOR = 216 / 255;
+    protected readonly GREEN_COLOR = 91 / 255;
+    protected readonly BLUE_COLOR = 95 / 255;
+    protected readonly ALPHA = 1;
     private readonly doubleRoundDotSolidShader: DoubleRoundDotSolidShader;
-    private readonly gl: WebGLRenderingContext;
-    private vertexBuffer: WebGLBuffer | null = null;
-    private indexBuffer: WebGLBuffer | null = null;
-    private vertices: Float32Array = new Float32Array([]);
-    private indices: Uint8Array = new Uint8Array([]);
-    private controlPoints: Vector2d[];
+    protected vertexBuffer: WebGLBuffer | null = null;
+    protected indexBuffer: WebGLBuffer | null = null;
+    protected vertices: Float32Array = new Float32Array([]);
+    protected indices: Uint8Array = new Uint8Array([]);
+    protected pointSequenceToDisplay: Vector2d[];
     private a_Position: number;
     private a_Texture: number;
     private a_ColorLocation: WebGLUniformLocation | null;
     private FSIZE: number;
+    private curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface;
 
-    constructor(spline: BSplineR1toR2Interface, gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext, curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface) {
         
-        this.gl = gl;
+        super(gl);
         this.doubleRoundDotSolidShader = new DoubleRoundDotSolidShader(this.gl);
-        this.controlPoints = spline.controlPoints;
+        this.curveModelDifferentialEvents = curveModelDifferentialEvents;
+        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.transientCurvatureExtremaLocationsEuclideanSpace;
         this.a_Position = -1;
         this.a_Texture = -1;
         this.a_ColorLocation = -1;
@@ -46,17 +49,17 @@ export class TransitionCurvatureExtremaView implements IObserver<BSplineR1toR2In
             const warning = new WarningLog(this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
             warning.logMessageToConsole();
         }
-
-        this.update(spline);
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
 
     updateVerticesAndIndices(): void {
-        this.vertices = new Float32Array(this.controlPoints.length * 32);
-        this.indices = new Uint8Array(this.controlPoints.length * 6);
+        this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
+        this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
 
-        for (let i = 0; i < this.controlPoints.length; i += 1) {
-            const x = this.controlPoints[i].x;
-            const y = this.controlPoints[i].y;
+        for (let i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
+            const x = this.pointSequenceToDisplay[i].x;
+            const y = this.pointSequenceToDisplay[i].y;
             this.vertices[32 * i] = x - this.DOT_SIZE;
             this.vertices[32 * i + 1] = y - this.DOT_SIZE;
             this.vertices[32 * i + 2] = this.Z;
@@ -178,26 +181,12 @@ export class TransitionCurvatureExtremaView implements IObserver<BSplineR1toR2In
     }
 
     update(spline: BSplineR1toR2Interface): void {
-        if (spline instanceof BSplineR1toR2) {
-            const splineDP = new BSplineR1toR2DifferentialProperties(spline)
-            this.controlPoints = splineDP.transitionCurvatureExtrema()
-            this.updateVerticesAndIndices()
-            this.updateBuffers()
-        }
-
+        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.transientCurvatureExtremaLocationsEuclideanSpace;
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
 
-    reset(message: BSplineR1toR2Interface): void {
-    }
-
-    updateBuffers(): void {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    reset(spline: BSplineR1toR2Interface): void {
     }
 
 }

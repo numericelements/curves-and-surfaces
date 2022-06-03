@@ -3,33 +3,33 @@ import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { RoundDotTwoLevelsTransparencyShader } from "../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader"
 import { IObserver } from "../newDesignPatterns/Observer";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { AbstractPointView } from "./AbstractPointView";
 
 
-export class ControlPointsView implements IObserver<BSplineR1toR2Interface> {
+export class ControlPointsView extends AbstractPointView implements IObserver<BSplineR1toR2Interface> {
 
-    private readonly Z = 0;
-    private readonly DOT_SIZE = 0.03;
-    private readonly RED_COLOR = 1.0;
-    private readonly GREEN_COLOR = 1.0;
-    private readonly BLUE_COLOR = 1.0;
+    protected readonly Z = 0;
+    protected readonly DOT_SIZE = 0.03;
+    protected readonly RED_COLOR = 1.0;
+    protected readonly GREEN_COLOR = 1.0;
+    protected readonly BLUE_COLOR = 1.0;
     private readonly roundDotTwoLevelsTransparencyShader: RoundDotTwoLevelsTransparencyShader;
-    private readonly gl: WebGLRenderingContext;
     private selectedControlPoint: number | null = null;
-    private vertexBuffer: WebGLBuffer | null = null;
-    private indexBuffer: WebGLBuffer | null = null;
-    private vertices: Float32Array = new Float32Array([]);
-    private indices: Uint8Array = new Uint8Array([]);
-    private controlPoints: Vector2d[];
+    protected vertexBuffer: WebGLBuffer | null = null;
+    protected indexBuffer: WebGLBuffer | null = null;
+    protected vertices: Float32Array = new Float32Array([]);
+    protected indices: Uint8Array = new Uint8Array([]);
+    protected pointSequenceToDisplay: Vector2d[];
     private a_Position: number;
     private a_Texture: number;
     private a_Color: number;
     private FSIZE: number;
 
-    constructor(spline: BSplineR1toR2Interface, gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface) {
         
-        this.gl = gl;
+        super(gl);
         this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader(this.gl);
-        this.controlPoints = spline.controlPoints;
+        this.pointSequenceToDisplay = spline.controlPoints;
         // this.controlPoints = spline.visibleControlPoints()
         this.a_Position = -1;
         this.a_Texture = -1;
@@ -42,58 +42,8 @@ export class ControlPointsView implements IObserver<BSplineR1toR2Interface> {
             const warning = new WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices');
             warning.logMessageToConsole();
         }
-    }
-
-    updateVerticesAndIndices(): void {
-        this.vertices = new Float32Array(this.controlPoints.length * 32);
-        this.indices = new Uint8Array(this.controlPoints.length * 6);
-
-        for (let i = 0; i < this.controlPoints.length; i += 1) {
-            const x = this.controlPoints[i].x;
-            const y = this.controlPoints[i].y;
-            this.vertices[32 * i] = x - this.DOT_SIZE;
-            this.vertices[32 * i + 1] = y - this.DOT_SIZE;
-            this.vertices[32 * i + 2] = this.Z;
-            this.vertices[32 * i + 3] = -1;
-            this.vertices[32 * i + 4] = -1;
-            this.vertices[32 * i + 5] = this.RED_COLOR;
-            this.vertices[32 * i + 6] = this.GREEN_COLOR;
-            this.vertices[32 * i + 7] = this.BLUE_COLOR;
-
-            this.vertices[32 * i + 8] = x + this.DOT_SIZE;
-            this.vertices[32 * i + 9] = y - this.DOT_SIZE;
-            this.vertices[32 * i + 10] = this.Z;
-            this.vertices[32 * i + 11] = 1;
-            this.vertices[32 * i + 12] = -1;
-            this.vertices[32 * i + 13] = this.RED_COLOR;
-            this.vertices[32 * i + 14] = this.GREEN_COLOR;
-            this.vertices[32 * i + 15] = this.BLUE_COLOR;
-
-            this.vertices[32 * i + 16] = x + this.DOT_SIZE;
-            this.vertices[32 * i + 17] = y + this.DOT_SIZE;
-            this.vertices[32 * i + 18] = this.Z;
-            this.vertices[32 * i + 19] = 1;
-            this.vertices[32 * i + 20] = 1;
-            this.vertices[32 * i + 21] = this.RED_COLOR;
-            this.vertices[32 * i + 22] = this.GREEN_COLOR;
-            this.vertices[32 * i + 23] = this.BLUE_COLOR;
-
-            this.vertices[32 * i + 24] = x - this.DOT_SIZE;
-            this.vertices[32 * i + 25] = y + this.DOT_SIZE;
-            this.vertices[32 * i + 26] = this.Z;
-            this.vertices[32 * i + 27] = -1;
-            this.vertices[32 * i + 28] = 1;
-            this.vertices[32 * i + 29] = this.RED_COLOR;
-            this.vertices[32 * i + 30] = this.GREEN_COLOR;
-            this.vertices[32 * i + 31] = this.BLUE_COLOR;
-
-            this.indices[6 * i] = 4 * i;
-            this.indices[6 * i + 1] = 4 * i + 1;
-            this.indices[6 * i + 2] = 4 * i + 2;
-            this.indices[6 * i + 3] = 4 * i;
-            this.indices[6 * i + 4] = 4 * i + 2;
-            this.indices[6 * i + 5] = 4 * i + 3;
-        }
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
     }
 
     initAttribLocation(): void {
@@ -179,38 +129,22 @@ export class ControlPointsView implements IObserver<BSplineR1toR2Interface> {
 
     controlPointSelection(x: number, y: number, deltaSquared: number = 0.01): number | null {
         let result = null;
-        for (let i = 0; i < this.controlPoints.length; i += 1) {
-            if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
+        for (let i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
+            if (Math.pow(x - this.pointSequenceToDisplay[i].x, 2) + Math.pow(y - this.pointSequenceToDisplay[i].y, 2) < deltaSquared) {
                 return i;
             }
         }
         return result;
     }
 
+    reset(spline: BSplineR1toR2Interface): void {
+    }
+
     update(spline: BSplineR1toR2Interface): void {
-        this.controlPoints = spline.controlPoints;
+        this.pointSequenceToDisplay = spline.controlPoints;
         // this.controlPoints = spline.visibleControlPoints();
         this.updateVerticesAndIndices();
         this.updateBuffers();
-    }
-
-    reset(message: BSplineR1toR2Interface): void {
-    }
-
-    updatePoints(points: Vector2d[]): void {
-        this.controlPoints = points;
-        this.updateVerticesAndIndices();
-        this.updateBuffers();
-    }
-
-    updateBuffers(): void {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
     getSelectedControlPoint(): number | null {

@@ -30,4 +30,6 @@ export interface BSplineR1toR2Interface {
 
     setControlPointPosition(index: number, value: Vector2d): void;
 
+    elevateDegree(times: number): void;
+
 }

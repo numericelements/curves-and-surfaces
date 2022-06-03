@@ -1,3 +1,4 @@
+import { BSplineR1toR2DifferentialPropertiesInterface } from "../newBsplines/BSplineR1toR2DifferentialPropertiesInterface";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {  IMultiObservable } from "../newDesignPatterns/Observer";
 
