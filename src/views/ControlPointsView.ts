@@ -1,12 +1,11 @@
-import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { RoundDotTwoLevelsTransparencyShader } from "../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader"
 import { IObserver } from "../newDesignPatterns/Observer";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { AbstractPointView } from "./AbstractPointView";
+import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
 
 
-export class ControlPointsView extends AbstractPointView implements IObserver<BSplineR1toR2Interface> {
+export class ControlPointsView extends AbstractMouseSelectablePointView implements IObserver<BSplineR1toR2Interface> {
 
     protected readonly Z = 0;
     protected readonly DOT_SIZE = 0.03;
@@ -14,12 +13,6 @@ export class ControlPointsView extends AbstractPointView implements IObserver<BS
     protected readonly GREEN_COLOR = 1.0;
     protected readonly BLUE_COLOR = 1.0;
     private readonly roundDotTwoLevelsTransparencyShader: RoundDotTwoLevelsTransparencyShader;
-    private selectedControlPoint: number | null = null;
-    protected vertexBuffer: WebGLBuffer | null = null;
-    protected indexBuffer: WebGLBuffer | null = null;
-    protected vertices: Float32Array = new Float32Array([]);
-    protected indices: Uint8Array = new Uint8Array([]);
-    protected pointSequenceToDisplay: Vector2d[];
     private a_Position: number;
     private a_Texture: number;
     private a_Color: number;
@@ -27,10 +20,9 @@ export class ControlPointsView extends AbstractPointView implements IObserver<BS
 
     constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface) {
         
-        super(gl);
+        super(gl, spline);
         this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader(this.gl);
         this.pointSequenceToDisplay = spline.controlPoints;
-        // this.controlPoints = spline.visibleControlPoints()
         this.a_Position = -1;
         this.a_Texture = -1;
         this.a_Color = -1;
@@ -120,21 +112,11 @@ export class ControlPointsView extends AbstractPointView implements IObserver<BS
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.assignVertexAttrib();
-        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedControlPoint);
+        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedPointIndex);
 
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
-    }
-
-    controlPointSelection(x: number, y: number, deltaSquared: number = 0.01): number | null {
-        let result = null;
-        for (let i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
-            if (Math.pow(x - this.pointSequenceToDisplay[i].x, 2) + Math.pow(y - this.pointSequenceToDisplay[i].y, 2) < deltaSquared) {
-                return i;
-            }
-        }
-        return result;
     }
 
     reset(spline: BSplineR1toR2Interface): void {
@@ -147,12 +129,8 @@ export class ControlPointsView extends AbstractPointView implements IObserver<BS
         this.updateBuffers();
     }
 
-    getSelectedControlPoint(): number | null {
-        return this.selectedControlPoint;
-    }
-
     setSelected(controlPointIndex: number | null): void {
-        this.selectedControlPoint = controlPointIndex;
+        this.selectedPointIndex = controlPointIndex;
     }
 
 }

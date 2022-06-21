@@ -701,14 +701,14 @@ export class CurveSceneEventListener {
 
     mouse_click(ev: MouseEvent) {
         const c = this.mouse_get_NormalizedDeviceCoordinates(ev);
-        this._curveSceneController.leftMouseDown_event(c[0], c[1], 0.0005);
+        this._curveSceneController.leftMouseDown_event(c[0], c[1]);
         this._curveSceneController.renderFrame();
         ev.preventDefault();
     }
 
     mouse_double_click(ev: MouseEvent) {
         const c = this.mouse_get_NormalizedDeviceCoordinates(ev);
-        let active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1], 0.0005);
+        let active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1]);
         this._curveSceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
         // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();

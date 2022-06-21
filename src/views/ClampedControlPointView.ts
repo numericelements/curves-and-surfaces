@@ -1,11 +1,10 @@
-import { Vector2d } from "../mathVector/Vector2d";
 import { RoundDotTwoLevelsTransparencyShader } from "../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader"
 import { IObserver } from "../newDesignPatterns/Observer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { AbstractPointView } from "./AbstractPointView";
+import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
 
-export class ClampedControlPointView extends AbstractPointView implements IObserver<BSplineR1toR2Interface>{
+export class ClampedControlPointView extends AbstractMouseSelectablePointView implements IObserver<BSplineR1toR2Interface>{
 
     protected readonly Z = 0;
     protected readonly DOT_SIZE = 0.03;
@@ -13,14 +12,7 @@ export class ClampedControlPointView extends AbstractPointView implements IObser
     protected readonly GREEN_COLOR = 0.0;
     protected readonly BLUE_COLOR = 1.0;
     private readonly roundDotTwoLevelsTransparencyShader: RoundDotTwoLevelsTransparencyShader;
-    private clampedControlPoint: number | null = null;
-    protected vertexBuffer: WebGLBuffer | null = null;
-    protected indexBuffer: WebGLBuffer | null = null;
-    protected vertices: Float32Array = new Float32Array([]);
-    protected indices: Uint8Array = new Uint8Array([]);
-    protected pointSequenceToDisplay: Vector2d[] = [];
-    private controlPoints: Vector2d[];
-    private clampedCPindices: number[] = [];
+    protected selectedPoints: number[];
     private a_Position: number;
     private a_Texture: number;
     private a_Color: number;
@@ -28,11 +20,11 @@ export class ClampedControlPointView extends AbstractPointView implements IObser
 
     constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface, clampedCPindices: number[]) {
         
-        super(gl);
+        super(gl, spline);
         this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader(this.gl);
-        this.controlPoints = spline.controlPoints;
-        this.clampedCPindices = clampedCPindices;
-        for(let index of this.clampedCPindices) {
+        this.selectedPoints = [];
+        this.selectedPoints = clampedCPindices;
+        for(let index of this.selectedPoints) {
             this.pointSequenceToDisplay.push(this.controlPoints[index]);
         }
         this.a_Position = -1;
@@ -115,33 +107,23 @@ export class ClampedControlPointView extends AbstractPointView implements IObser
         return this.indices.length;
     }
 
-    renderFrame() {
+    renderFrame(): void {
         this.initAttribLocation();
         this.gl.useProgram(this.roundDotTwoLevelsTransparencyShader.program);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.assignVertexAttrib();
-        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.clampedControlPoint);
+        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedPointIndex);
 
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     }
 
-    controlPointSelection(allCurveControlPoints: Vector2d[], x: number, y: number, deltaSquared: number = 0.01) {
-        let result = null
-        for (let i = 0; i < allCurveControlPoints.length; i += 1) {
-            if (Math.pow(x - allCurveControlPoints[i].x, 2) + Math.pow(y - allCurveControlPoints[i].y, 2) < deltaSquared) {
-                return i;
-            }
-        }
-        return result;
-    }
-
     update(spline: BSplineR1toR2Interface): void {
         this.controlPoints = spline.controlPoints;
         this.pointSequenceToDisplay = [];
-        for(let index of this.clampedCPindices) {
+        for(let index of this.selectedPoints) {
             this.pointSequenceToDisplay.push(this.controlPoints[index]);
         }
         this.updateVerticesAndIndices();
@@ -151,12 +133,8 @@ export class ClampedControlPointView extends AbstractPointView implements IObser
     reset(spline: BSplineR1toR2Interface): void {
     }
 
-    getSelectedControlPoint(): number | null {
-        return this.clampedControlPoint;
-    }
-
     setSelected(controlPointIndex: number | null): void {
-        this.clampedControlPoint = controlPointIndex;
+        this.selectedPointIndex = controlPointIndex;
     }
 
 }

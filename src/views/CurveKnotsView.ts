@@ -15,10 +15,6 @@ export class CurveKnotsView extends AbstractPointView implements IObserver<BSpli
     protected readonly BLUE_COLOR = 0.0;
     protected readonly ALPHA = 1;
     private readonly squareDotSolidShader: SquareDotSolidShader;
-    protected vertexBuffer: WebGLBuffer | null = null;
-    protected indexBuffer: WebGLBuffer | null = null;
-    protected vertices: Float32Array = new Float32Array([]);
-    protected indices: Uint8Array = new Uint8Array([]);
     protected pointSequenceToDisplay: Vector2d[];
     private spline: BSplineR1toR2Interface;
     private knotAbscissae: number[] = [];
@@ -57,58 +53,6 @@ export class CurveKnotsView extends AbstractPointView implements IObserver<BSpli
             this.pointSequenceToDisplay.push(point);
         }
     }
-
-    // updateVerticesAndIndices(): void {
-    //     this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
-    //     this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
-
-    //     for (let i = 0; i < this.knotAbscissae.length; i += 1) {
-    //         const x = this.pointSequenceToDisplay[i].x;
-    //         const y = this.pointSequenceToDisplay[i].y;
-    //         this.vertices[32 * i] = x - this.DOT_SIZE;
-    //         this.vertices[32 * i + 1] = y - this.DOT_SIZE;
-    //         this.vertices[32 * i + 2] = this.Z;
-    //         this.vertices[32 * i + 3] = -1;
-    //         this.vertices[32 * i + 4] = -1;
-    //         this.vertices[32 * i + 5] = this.RED_COLOR;
-    //         this.vertices[32 * i + 6] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 7] = this.BLUE_COLOR;
-
-    //         this.vertices[32 * i + 8] = x + this.DOT_SIZE;
-    //         this.vertices[32 * i + 9] = y - this.DOT_SIZE;
-    //         this.vertices[32 * i + 10] = this.Z;
-    //         this.vertices[32 * i + 11] = 1;
-    //         this.vertices[32 * i + 12] = -1;
-    //         this.vertices[32 * i + 13] = this.RED_COLOR;
-    //         this.vertices[32 * i + 14] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 15] = this.BLUE_COLOR;
-
-    //         this.vertices[32 * i + 16] = x + this.DOT_SIZE;
-    //         this.vertices[32 * i + 17] = y + this.DOT_SIZE;
-    //         this.vertices[32 * i + 18] = this.Z;
-    //         this.vertices[32 * i + 19] = 1;
-    //         this.vertices[32 * i + 20] = 1;
-    //         this.vertices[32 * i + 21] = this.RED_COLOR;
-    //         this.vertices[32 * i + 22] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 23] = this.BLUE_COLOR;
-
-    //         this.vertices[32 * i + 24] = x - this.DOT_SIZE;
-    //         this.vertices[32 * i + 25] = y + this.DOT_SIZE;
-    //         this.vertices[32 * i + 26] = this.Z;
-    //         this.vertices[32 * i + 27] = -1;
-    //         this.vertices[32 * i + 28] = 1;
-    //         this.vertices[32 * i + 29] = this.RED_COLOR;
-    //         this.vertices[32 * i + 30] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 31] = this.BLUE_COLOR;
-
-    //         this.indices[6 * i] = 4 * i;
-    //         this.indices[6 * i + 1] = 4 * i + 1;
-    //         this.indices[6 * i + 2] = 4 * i + 2;
-    //         this.indices[6 * i + 3] = 4 * i;
-    //         this.indices[6 * i + 4] = 4 * i + 2;
-    //         this.indices[6 * i + 5] = 4 * i + 3;
-    //     }
-    // }
 
     initAttribLocation(): void {
         this.a_Position = this.gl.getAttribLocation(<SquareDotSolidShader> this.squareDotSolidShader.program, 'a_Position');
@@ -186,7 +130,7 @@ export class CurveKnotsView extends AbstractPointView implements IObserver<BSpli
         this.updateBuffers();
     }
 
-    reset(message: BSplineR1toR2Interface): void {
+    reset(spline: BSplineR1toR2Interface): void {
     }
 
 }

@@ -1,4 +1,3 @@
-import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
@@ -10,28 +9,21 @@ import { AbstractCurveDifferentialEventsExtractor } from "./AbstractCurveDiffere
 export class OpenCurveDifferentialEventsExtractor extends AbstractCurveDifferentialEventsExtractor 
                                                     implements IObserver<BSplineR1toR2Interface> {
 
-    protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     protected curve: BSplineR1toR2;
     protected _curvatureNumerator: BSplineR1toR1;
     protected _curvatureDerivativeNumerator: BSplineR1toR1;
     protected curveDiffProperties: BSplineR1toR2DifferentialProperties;
     protected _inflectionParametricLocations: number[] = [];
     protected _curvatureExtremaParametricLocations: number[] = [];
-    protected _inflectionLocationsEuclideanSpace: Vector2d[];
-    protected _curvatureExtremaLocationsEuclideanSpace: Vector2d[];
-    protected _transientCurvatureExtremaLocationsEuclideanSpace: Vector2d[];
 
     constructor(curveToAnalyze: BSplineR1toR2) {
         super(curveToAnalyze);
         this.curve = curveToAnalyze;
-        this._inflectionLocationsEuclideanSpace = [];
-        this._curvatureExtremaLocationsEuclideanSpace = [];
-        this._transientCurvatureExtremaLocationsEuclideanSpace = [];
         this.curveDiffProperties = new BSplineR1toR2DifferentialProperties(this.curve);
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
-        this._sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents();
         this.extractSeqOfDiffEvents();
+        this.notifyObservers();
     }
 
     get curvatureNumerator(): BSplineR1toR1 {
@@ -42,32 +34,20 @@ export class OpenCurveDifferentialEventsExtractor extends AbstractCurveDifferent
         return this._curvatureDerivativeNumerator;
     }
 
-    get inflectionLocationsEuclideanSpace() {
-        return this._inflectionLocationsEuclideanSpace;
-    }
-
     get inflectionParametricLocations() {
         return this._inflectionParametricLocations;
-    }
-
-    get curvatureExtremaLocationsEuclideanSpace() {
-        return this._curvatureExtremaLocationsEuclideanSpace;
     }
 
     get curvatureExtremaParametricLocations() {
         return this._curvatureExtremaParametricLocations;
     }
 
-    get transientCurvatureExtremaLocationsEuclideanSpace() {
-        return this._transientCurvatureExtremaLocationsEuclideanSpace;
-    }
-
     extractSeqOfDiffEvents(): SequenceOfDifferentialEvents {
-        this._inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
+        this._crvDiffEventsLocations.inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
         this._inflectionParametricLocations = this._curvatureNumerator.zeros();
-        this._curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
+        this._crvDiffEventsLocations.curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
         this._curvatureExtremaParametricLocations = this._curvatureDerivativeNumerator.zeros();
-        this._transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
+        this._crvDiffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
         this._sequenceOfDifferentialEvents.insertEvents(this._curvatureExtremaParametricLocations, this._inflectionParametricLocations);
         return this._sequenceOfDifferentialEvents;
     }
@@ -78,6 +58,7 @@ export class OpenCurveDifferentialEventsExtractor extends AbstractCurveDifferent
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.extractSeqOfDiffEvents();
+        this.notifyObservers();
     }
 
 }

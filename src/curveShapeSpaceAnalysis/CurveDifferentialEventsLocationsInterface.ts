@@ -1,16 +1,20 @@
-import { Vector2d } from "../mathVector/Vector2d";
+import { IMultiObservable, IObserver } from "../newDesignPatterns/Observer";
+import { KindOfObservers } from "../newModels/CurveModelInterface";
+import { CurveDifferentialEventsLocations } from "./CurveDifferentialEventsLocations";
 
-export interface CurveDifferentialEventsLocationInterface {
+export interface CurveDifferentialEventsLocationInterface 
+    extends IMultiObservable<CurveDifferentialEventsLocations, KindOfObservers>{
 
-    inflectionLocationsEuclideanSpace: Vector2d[];
+    crvDiffEventsLocations: CurveDifferentialEventsLocations;
 
-    curvatureExtremaLocationsEuclideanSpace: Vector2d[];
+    observers: IObserver<CurveDifferentialEventsLocations>[];
 
-    transientCurvatureExtremaLocationsEuclideanSpace: Vector2d[];
+    observersCP: IObserver<CurveDifferentialEventsLocations>[];
 
-    inflectionParametricLocations: number[];
+    notifyObservers(): void;
 
-    curvatureExtremaParametricLocations: number[];
+    registerObserver(observer: IObserver<CurveDifferentialEventsLocations>, kind: KindOfObservers): void;
 
+    removeObserver(observer: IObserver<CurveDifferentialEventsLocations>, kind: KindOfObservers): void
 
 }

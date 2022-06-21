@@ -43,6 +43,9 @@ import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModelObserverInCurveSceneController } from "../models/CurveModelObserver";
 import { HighlightedControlPolygonView } from "../views/HighlightedControlPolygonView";
 import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface";
+import { SLCTN_ACCURACY_Squared } from "../views/AbstractMouseSelectableGraphicEntityView";
+import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
+import { AbstractCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor";
 
 // Margin expressed in pixel size
 const MARGIN_WINDOW_CANVAS = 150;
@@ -106,7 +109,8 @@ export class CurveSceneController implements SceneControllerInterface {
     private constraintAtPoint2: boolean;
     private curveConstraintSelectionState: CurveConstraintSelectionState;
     public curveModel: CurveModelInterface
-    public curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface;
+    public curveModelDifferentialEventsExtractor: CurveDifferentialEventsLocationInterface;
+    public curveDiffEventsLocations: CurveDifferentialEventsLocations;
 
     private curveObservers: Array<IRenderFrameObserver<BSplineR1toR2Interface>> = []
     
@@ -117,14 +121,15 @@ export class CurveSceneController implements SceneControllerInterface {
         this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve
         this.curveModel = curveModelDefinitionEventListener.curveModel
         this.curveShapeSpaceNavigator = this.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator;
-        this.curveModelDifferentialEvents = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this.curveModelDifferentialEventsExtractor = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this.curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
         this.controlPointsView = new ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
         this.insertKnotButtonView = new ClickButtonView(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.inflectionsView = new InflectionsView(this.gl, this.curveModelDifferentialEvents);
+        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
+        this.inflectionsView = new InflectionsView(this.gl, this.curveDiffEventsLocations);
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);
         
         let selectedEvent: number[]= []
@@ -183,10 +188,10 @@ export class CurveSceneController implements SceneControllerInterface {
         this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.insertKnotButtonView = new ClickButtonView(this.gl);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
-        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.inflectionsView = new InflectionsView(this.gl, this.curveModelDifferentialEvents);
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);
+        this.inflectionsView = new InflectionsView(this.gl, this.curveDiffEventsLocations);
+        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
         this.shapeNavigableCurve.clampedControlPoints.push(0);
         this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
         
@@ -215,12 +220,15 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this.controlPointsView, "control points");
         this.curveModel.registerObserver(this.controlPolygonView, "control points");
         this.curveModel.registerObserver(this.curveView, "curve");
-        // this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
-        this.curveModel.registerObserver(this.curvatureExtremaView, "control points");
-        this.curveModel.registerObserver(this.transitionCurvatureExtremaView, "curve");
-        this.curveModel.registerObserver(this.inflectionsView, "curve");
         this.curveModel.registerObserver(this.curveKnotsView, "control points");
         this.curveModel.registerObserver(this.clampedControlPointView, "control points");
+        this.curveModelDifferentialEventsExtractor.registerObserver(this.curvatureExtremaView, "control points");
+        this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
+        this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
+
+        this.curveModelDifferentialEventsExtractor.observersCP.forEach(element => {
+            element.update(this.curveDiffEventsLocations)
+        });
 
         if(this.curveModel instanceof CurveModel) {
             this.curveModel.observers.forEach(element => {
@@ -330,10 +338,10 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
 
-    leftMouseDown_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01) {
+    leftMouseDown_event(ndcX: number, ndcY: number) {
         // if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
         if(this.curveModel !== undefined) {
-            if(this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
+            if(this.insertKnotButtonView.buttonSelection(ndcX, ndcY) && this.selectedControlPoint !== null) {
                 let cp = this.selectedControlPoint
                 if(cp === 0) { cp += 1}
                 if(cp === this.curveModel.spline.controlPoints.length -1) { cp -= 1} 
@@ -387,7 +395,7 @@ export class CurveSceneController implements SceneControllerInterface {
                     this.curveModel.notifyObservers()
                 }
             }
-            this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
+            this.selectedControlPoint = this.controlPointsView.pointSelection(ndcX, ndcY);
             this.controlPointsView.setSelected(this.selectedControlPoint);
             if(this.selectedControlPoint !== null) {
                 this.dragging = true;
@@ -399,7 +407,7 @@ export class CurveSceneController implements SceneControllerInterface {
     leftMouseDragged_event(ndcX: number, ndcY: number) {
         const x = ndcX,
         y = ndcY,
-        selectedControlPoint = this.controlPointsView.getSelectedControlPoint()
+        selectedControlPoint = this.controlPointsView.getSelectedPoint();
         if(this.curveModel !== undefined) {
             /* JCL 2020/09/27 Add clamping condition when dragging a control point */
             //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
@@ -471,11 +479,11 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
-    dbleClick_event(ndcX: number, ndcY: number, deltaSquared: number = 0.01): boolean {
+    dbleClick_event(ndcX: number, ndcY: number): boolean {
         if(this.curveModel !== undefined) {
                                 
             // JCL 2021/10/19 code pour nvelle architecture
-            let selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
+            let selectedControlPoint = this.controlPointsView.getSelectedPoint();
             if(selectedControlPoint === 0 ) {
                 this.constraintAtPoint1 = ! this.constraintAtPoint1;
                 this.curveConstraintSelectionState.handleCurveConstraintAtPoint1();
@@ -486,7 +494,8 @@ export class CurveSceneController implements SceneControllerInterface {
             }
             if(this.controlOfCurveClamping) {
                 if(this.clampedControlPointView !== null) {
-                    let selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    // let selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    let selectedClampedControlPoint = this.clampedControlPointView.pointSelection(ndcX, ndcY);
 
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint)
                     if(selectedClampedControlPoint !== null) {

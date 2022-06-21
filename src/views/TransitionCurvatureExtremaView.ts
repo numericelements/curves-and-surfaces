@@ -1,17 +1,12 @@
 import { Vector2d } from "../mathVector/Vector2d";
-import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { DoubleRoundDotSolidShader } from "../2DgraphicsItems/DoubleRoundDotSolidShader"
 import { IObserver } from "../newDesignPatterns/Observer";
-//import { PeriodicBSpline_R1_to_R2_DifferentialProperties } from "../mathematics/PeriodicBSpline_R1_to_R2_DifferentialProperties";
-//import { PeriodicBSpline_R1_to_R2 } from "../mathematics/PeriodicBSpline_R1_to_R2";
-import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractPointView } from "./AbstractPointView";
-import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface";
+import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
 
 
-export class TransitionCurvatureExtremaView extends AbstractPointView implements IObserver<BSplineR1toR2Interface> {
+export class TransitionCurvatureExtremaView extends AbstractPointView implements IObserver<CurveDifferentialEventsLocations> {
 
     protected readonly Z = 0;
     protected readonly DOT_SIZE = 0.03;
@@ -20,18 +15,14 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
     protected readonly BLUE_COLOR = 95 / 255;
     protected readonly ALPHA = 1;
     private readonly doubleRoundDotSolidShader: DoubleRoundDotSolidShader;
-    protected vertexBuffer: WebGLBuffer | null = null;
-    protected indexBuffer: WebGLBuffer | null = null;
-    protected vertices: Float32Array = new Float32Array([]);
-    protected indices: Uint8Array = new Uint8Array([]);
     protected pointSequenceToDisplay: Vector2d[];
     private a_Position: number;
     private a_Texture: number;
     private a_ColorLocation: WebGLUniformLocation | null;
     private FSIZE: number;
-    private curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface;
+    private curveModelDifferentialEvents: CurveDifferentialEventsLocations;
 
-    constructor(gl: WebGLRenderingContext, curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface) {
+    constructor(gl: WebGLRenderingContext, curveModelDifferentialEvents: CurveDifferentialEventsLocations) {
         
         super(gl);
         this.doubleRoundDotSolidShader = new DoubleRoundDotSolidShader(this.gl);
@@ -41,7 +32,6 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
         this.a_Texture = -1;
         this.a_ColorLocation = -1;
         this.FSIZE = 0;
-        // this.controlPoints = spline.visibleControlPoints()
 
         // Write the positions of vertices to a vertex shader
         const check = this.initVertexBuffers();
@@ -51,58 +41,6 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
-    }
-
-    updateVerticesAndIndices(): void {
-        this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
-        this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
-
-        for (let i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
-            const x = this.pointSequenceToDisplay[i].x;
-            const y = this.pointSequenceToDisplay[i].y;
-            this.vertices[32 * i] = x - this.DOT_SIZE;
-            this.vertices[32 * i + 1] = y - this.DOT_SIZE;
-            this.vertices[32 * i + 2] = this.Z;
-            this.vertices[32 * i + 3] = -1;
-            this.vertices[32 * i + 4] = -1;
-            this.vertices[32 * i + 5] = this.RED_COLOR;
-            this.vertices[32 * i + 6] = this.GREEN_COLOR;
-            this.vertices[32 * i + 7] = this.BLUE_COLOR;
-
-            this.vertices[32 * i + 8] = x + this.DOT_SIZE;
-            this.vertices[32 * i + 9] = y - this.DOT_SIZE;
-            this.vertices[32 * i + 10] = this.Z;
-            this.vertices[32 * i + 11] = 1;
-            this.vertices[32 * i + 12] = -1;
-            this.vertices[32 * i + 13] = this.RED_COLOR;
-            this.vertices[32 * i + 14] = this.GREEN_COLOR;
-            this.vertices[32 * i + 15] = this.BLUE_COLOR;
-
-            this.vertices[32 * i + 16] = x + this.DOT_SIZE;
-            this.vertices[32 * i + 17] = y + this.DOT_SIZE;
-            this.vertices[32 * i + 18] = this.Z;
-            this.vertices[32 * i + 19] = 1;
-            this.vertices[32 * i + 20] = 1;
-            this.vertices[32 * i + 21] = this.RED_COLOR;
-            this.vertices[32 * i + 22] = this.GREEN_COLOR;
-            this.vertices[32 * i + 23] = this.BLUE_COLOR;
-
-            this.vertices[32 * i + 24] = x - this.DOT_SIZE;
-            this.vertices[32 * i + 25] = y + this.DOT_SIZE;
-            this.vertices[32 * i + 26] = this.Z;
-            this.vertices[32 * i + 27] = -1;
-            this.vertices[32 * i + 28] = 1;
-            this.vertices[32 * i + 29] = this.RED_COLOR;
-            this.vertices[32 * i + 30] = this.GREEN_COLOR;
-            this.vertices[32 * i + 31] = this.BLUE_COLOR;
-
-            this.indices[6 * i] = 4 * i;
-            this.indices[6 * i + 1] = 4 * i + 1;
-            this.indices[6 * i + 2] = 4 * i + 2;
-            this.indices[6 * i + 3] = 4 * i;
-            this.indices[6 * i + 4] = 4 * i + 2;
-            this.indices[6 * i + 5] = 4 * i + 3;
-        }
     }
 
     initAttribLocation(): void {
@@ -180,13 +118,13 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
         this.gl.useProgram(null);
     }
 
-    update(spline: BSplineR1toR2Interface): void {
-        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.transientCurvatureExtremaLocationsEuclideanSpace;
+    update(diffEventsLocations: CurveDifferentialEventsLocations): void {
+        this.pointSequenceToDisplay = diffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
 
-    reset(spline: BSplineR1toR2Interface): void {
+    reset(diffEventsLocations: CurveDifferentialEventsLocations): void {
     }
 
 }

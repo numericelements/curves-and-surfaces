@@ -274,7 +274,6 @@ export class SequenceOfDifferentialEvents {
         this.checkLocationConsistency();
     }
 
-
     checkConsistencyIntervalBtwInflections(modifiedEvent: ModifiedCurvatureEvents): void {
         const inflectionIndex = modifiedEvent.indexInflection;
         const nbModifiedEvents = modifiedEvent.nbEvents;
@@ -299,5 +298,14 @@ export class SequenceOfDifferentialEvents {
                 error.logMessageToConsole();
             }
         }
+    }
+
+    clone(): SequenceOfDifferentialEvents {
+        let sequence = new SequenceOfDifferentialEvents();
+        for(let event = 0; event < this._sequence.length; event++)
+        {
+            sequence.insertAt(this.eventAt(event), event);
+        }
+        return sequence;
     }
 }

@@ -42659,14 +42659,15 @@ var CurveSceneController = /** @class */ (function () {
         this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
         this.curveModel = curveModelDefinitionEventListener.curveModel;
         this.curveShapeSpaceNavigator = this.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator;
-        this.curveModelDifferentialEvents = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this.curveModelDifferentialEventsExtractor = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this.curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
         this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.curveView = new CurveView_1.CurveView(this.gl, this.curveModel.spline);
         this.insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveModelDifferentialEvents);
+        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
+        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveDiffEventsLocations);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
         var selectedEvent = [];
         this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1);
@@ -42713,10 +42714,10 @@ var CurveSceneController = /** @class */ (function () {
         this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
         this.curveView = new CurveView_1.CurveView(this.gl, this.curveModel.spline);
-        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveModelDifferentialEvents);
-        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveModelDifferentialEvents);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
+        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveDiffEventsLocations);
+        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
         this.shapeNavigableCurve.clampedControlPoints.push(0);
         this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
         this.registerCurveObservers();
@@ -42740,12 +42741,14 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.controlPointsView, "control points");
         this.curveModel.registerObserver(this.controlPolygonView, "control points");
         this.curveModel.registerObserver(this.curveView, "curve");
-        // this.curveModel.registerObserver(this.curvatureExtremaView, "curve");
-        this.curveModel.registerObserver(this.curvatureExtremaView, "control points");
-        this.curveModel.registerObserver(this.transitionCurvatureExtremaView, "curve");
-        this.curveModel.registerObserver(this.inflectionsView, "curve");
         this.curveModel.registerObserver(this.curveKnotsView, "control points");
         this.curveModel.registerObserver(this.clampedControlPointView, "control points");
+        this.curveModelDifferentialEventsExtractor.registerObserver(this.curvatureExtremaView, "control points");
+        this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
+        this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
+        this.curveModelDifferentialEventsExtractor.observersCP.forEach(function (element) {
+            element.update(_this.curveDiffEventsLocations);
+        });
         if (this.curveModel instanceof CurveModel_1.CurveModel) {
             this.curveModel.observers.forEach(function (element) {
                 if (_this.curveModel !== undefined) {
@@ -42854,11 +42857,10 @@ var CurveSceneController = /** @class */ (function () {
         this.curveEventAtExtremityMayVanish = !this.curveEventAtExtremityMayVanish;
         // this.eventMgmtAtCurveExtremities.processEventAtCurveExtremity();
     };
-    CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY, deltaSquared) {
-        if (deltaSquared === void 0) { deltaSquared = 0.01; }
+    CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY) {
         // if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
         if (this.curveModel !== undefined) {
-            if (this.insertKnotButtonView.selected(ndcX, ndcY) && this.selectedControlPoint !== null) {
+            if (this.insertKnotButtonView.buttonSelection(ndcX, ndcY) && this.selectedControlPoint !== null) {
                 var cp = this.selectedControlPoint;
                 if (cp === 0) {
                     cp += 1;
@@ -42916,7 +42918,7 @@ var CurveSceneController = /** @class */ (function () {
                     this.curveModel.notifyObservers();
                 }
             }
-            this.selectedControlPoint = this.controlPointsView.controlPointSelection(ndcX, ndcY, deltaSquared);
+            this.selectedControlPoint = this.controlPointsView.pointSelection(ndcX, ndcY);
             this.controlPointsView.setSelected(this.selectedControlPoint);
             if (this.selectedControlPoint !== null) {
                 this.dragging = true;
@@ -42926,7 +42928,7 @@ var CurveSceneController = /** @class */ (function () {
             throw new Error("Unable to process the current selection. Undefined curve model");
     };
     CurveSceneController.prototype.leftMouseDragged_event = function (ndcX, ndcY) {
-        var x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
+        var x = ndcX, y = ndcY, selectedControlPoint = this.controlPointsView.getSelectedPoint();
         if (this.curveModel !== undefined) {
             /* JCL 2020/09/27 Add clamping condition when dragging a control point */
             //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
@@ -42994,11 +42996,10 @@ var CurveSceneController = /** @class */ (function () {
         // message.logMessageToConsole();
     };
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
-    CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY, deltaSquared) {
-        if (deltaSquared === void 0) { deltaSquared = 0.01; }
+    CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY) {
         if (this.curveModel !== undefined) {
             // JCL 2021/10/19 code pour nvelle architecture
-            var selectedControlPoint = this.controlPointsView.getSelectedControlPoint();
+            var selectedControlPoint = this.controlPointsView.getSelectedPoint();
             if (selectedControlPoint === 0) {
                 this.constraintAtPoint1 = !this.constraintAtPoint1;
                 this.curveConstraintSelectionState.handleCurveConstraintAtPoint1();
@@ -43009,7 +43010,8 @@ var CurveSceneController = /** @class */ (function () {
             }
             if (this.controlOfCurveClamping) {
                 if (this.clampedControlPointView !== null) {
-                    var selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    // let selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
+                    var selectedClampedControlPoint = this.clampedControlPointView.pointSelection(ndcX, ndcY);
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if (selectedClampedControlPoint !== null) {
                         if (this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] === selectedClampedControlPoint) {
@@ -45067,11 +45069,16 @@ exports.SlidingStrategy = SlidingStrategy;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbstractCurveDifferentialEventsExtractor = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var SequenceOfDifferentialEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts");
+var CurveDifferentialEventsLocations_1 = __webpack_require__(/*! ./CurveDifferentialEventsLocations */ "./src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts");
 var AbstractCurveDifferentialEventsExtractor = /** @class */ (function () {
     function AbstractCurveDifferentialEventsExtractor(curveToAnalyze) {
+        this._observers = [];
+        this._observersCP = [];
         this.curve = curveToAnalyze;
         this._sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+        this._crvDiffEventsLocations = new CurveDifferentialEventsLocations_1.CurveDifferentialEventsLocations();
     }
     Object.defineProperty(AbstractCurveDifferentialEventsExtractor.prototype, "sequenceOfDifferentialEvents", {
         get: function () {
@@ -45080,6 +45087,67 @@ var AbstractCurveDifferentialEventsExtractor = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(AbstractCurveDifferentialEventsExtractor.prototype, "crvDiffEventsLocations", {
+        get: function () {
+            return this._crvDiffEventsLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractCurveDifferentialEventsExtractor.prototype, "observers", {
+        get: function () {
+            return this._observers;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractCurveDifferentialEventsExtractor.prototype, "observersCP", {
+        get: function () {
+            return this._observersCP;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    AbstractCurveDifferentialEventsExtractor.prototype.registerObserver = function (observer, kind) {
+        switch (kind) {
+            case 'curve':
+                this._observers.push(observer);
+                var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'registerObserver', 'register as curve' + observer.constructor.name);
+                warning.logMessageToConsole();
+                break;
+            case 'control points':
+                this._observersCP.push(observer);
+                warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'registerObserver', 'register as CP' + observer.constructor.name);
+                warning.logMessageToConsole();
+                break;
+            default:
+                throw Error("unknown kind");
+        }
+    };
+    AbstractCurveDifferentialEventsExtractor.prototype.removeObserver = function (observer, kind) {
+        switch (kind) {
+            case 'curve':
+                this._observers.splice(this._observers.indexOf(observer), 1);
+                break;
+            case 'control points':
+                this._observersCP.splice(this._observersCP.indexOf(observer), 1);
+                break;
+        }
+    };
+    AbstractCurveDifferentialEventsExtractor.prototype.notifyObservers = function () {
+        for (var _i = 0, _a = this._observers; _i < _a.length; _i++) {
+            var observer = _a[_i];
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'notifyObservers', "update as curve: " + observer.constructor.name);
+            warning.logMessageToConsole();
+            observer.update(this._crvDiffEventsLocations.clone());
+        }
+        for (var _b = 0, _c = this._observersCP; _b < _c.length; _b++) {
+            var observer = _c[_b];
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'notifyObservers', "update as curve: " + observer.constructor.name);
+            warning.logMessageToConsole();
+            observer.update(this._crvDiffEventsLocations.clone());
+        }
+    };
     return AbstractCurveDifferentialEventsExtractor;
 }());
 exports.AbstractCurveDifferentialEventsExtractor = AbstractCurveDifferentialEventsExtractor;
@@ -45531,6 +45599,113 @@ exports.ClosedCurveAnalyzer = ClosedCurveAnalyzer;
 
 /***/ }),
 
+/***/ "./src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts":
+/*!*************************************************************************!*\
+  !*** ./src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deepCopyEventsEuclideanLocations = exports.deepCopyEventsParametricLocations = exports.CurveDifferentialEventsLocations = void 0;
+var CurveDifferentialEventsLocations = /** @class */ (function () {
+    function CurveDifferentialEventsLocations() {
+        this._inflectionParametricLocations = [];
+        this._curvatureExtremaParametricLocations = [];
+        this._inflectionLocationsEuclideanSpace = [];
+        this._curvatureExtremaLocationsEuclideanSpace = [];
+        this._transientCurvatureExtremaLocationsEuclideanSpace = [];
+    }
+    Object.defineProperty(CurveDifferentialEventsLocations.prototype, "inflectionParametricLocations", {
+        get: function () {
+            return this._inflectionParametricLocations;
+        },
+        set: function (parametricLocations) {
+            this._inflectionParametricLocations = parametricLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveDifferentialEventsLocations.prototype, "curvatureExtremaParametricLocations", {
+        get: function () {
+            return this._curvatureExtremaParametricLocations;
+        },
+        set: function (parametricLocations) {
+            this._curvatureExtremaParametricLocations = parametricLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveDifferentialEventsLocations.prototype, "inflectionLocationsEuclideanSpace", {
+        get: function () {
+            return this._inflectionLocationsEuclideanSpace;
+        },
+        set: function (euclideanLocations) {
+            this._inflectionLocationsEuclideanSpace = euclideanLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveDifferentialEventsLocations.prototype, "curvatureExtremaLocationsEuclideanSpace", {
+        get: function () {
+            return this._curvatureExtremaLocationsEuclideanSpace;
+        },
+        set: function (euclideanLocations) {
+            this._curvatureExtremaLocationsEuclideanSpace = euclideanLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveDifferentialEventsLocations.prototype, "transientCurvatureExtremaLocationsEuclideanSpace", {
+        get: function () {
+            return this._transientCurvatureExtremaLocationsEuclideanSpace;
+        },
+        set: function (euclideanLocations) {
+            this._transientCurvatureExtremaLocationsEuclideanSpace = euclideanLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+     * Return a deep copy of this set of locations
+     */
+    CurveDifferentialEventsLocations.prototype.clone = function () {
+        var crvDiffEventsLocations = new CurveDifferentialEventsLocations();
+        crvDiffEventsLocations.inflectionParametricLocations = deepCopyEventsParametricLocations(this._inflectionParametricLocations);
+        crvDiffEventsLocations.curvatureExtremaParametricLocations = deepCopyEventsParametricLocations(this._curvatureExtremaParametricLocations);
+        crvDiffEventsLocations.inflectionLocationsEuclideanSpace = deepCopyEventsEuclideanLocations(this._inflectionLocationsEuclideanSpace);
+        crvDiffEventsLocations.curvatureExtremaLocationsEuclideanSpace = deepCopyEventsEuclideanLocations(this._curvatureExtremaLocationsEuclideanSpace);
+        crvDiffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace = deepCopyEventsEuclideanLocations(this._transientCurvatureExtremaLocationsEuclideanSpace);
+        return crvDiffEventsLocations;
+    };
+    return CurveDifferentialEventsLocations;
+}());
+exports.CurveDifferentialEventsLocations = CurveDifferentialEventsLocations;
+function deepCopyEventsParametricLocations(parametericLocations) {
+    var result = [];
+    for (var _i = 0, parametericLocations_1 = parametericLocations; _i < parametericLocations_1.length; _i++) {
+        var loc = parametericLocations_1[_i];
+        var newloc = loc;
+        result.push(newloc);
+    }
+    return result;
+}
+exports.deepCopyEventsParametricLocations = deepCopyEventsParametricLocations;
+function deepCopyEventsEuclideanLocations(euclideanLocations) {
+    var result = [];
+    for (var _i = 0, euclideanLocations_1 = euclideanLocations; _i < euclideanLocations_1.length; _i++) {
+        var loc = euclideanLocations_1[_i];
+        result.push(loc.clone());
+    }
+    return result;
+}
+exports.deepCopyEventsEuclideanLocations = deepCopyEventsEuclideanLocations;
+
+
+/***/ }),
+
 /***/ "./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts":
 /*!************************************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts ***!
@@ -45813,7 +45988,6 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpenCurveDifferentialEventsExtractor = void 0;
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
-var SequenceOfDifferentialEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts");
 var AbstractCurveDifferentialEventsExtractor_1 = __webpack_require__(/*! ./AbstractCurveDifferentialEventsExtractor */ "./src/curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor.ts");
 var OpenCurveDifferentialEventsExtractor = /** @class */ (function (_super) {
     __extends(OpenCurveDifferentialEventsExtractor, _super);
@@ -45822,14 +45996,11 @@ var OpenCurveDifferentialEventsExtractor = /** @class */ (function (_super) {
         _this._inflectionParametricLocations = [];
         _this._curvatureExtremaParametricLocations = [];
         _this.curve = curveToAnalyze;
-        _this._inflectionLocationsEuclideanSpace = [];
-        _this._curvatureExtremaLocationsEuclideanSpace = [];
-        _this._transientCurvatureExtremaLocationsEuclideanSpace = [];
         _this.curveDiffProperties = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(_this.curve);
         _this._curvatureNumerator = _this.curveDiffProperties.curvatureNumerator();
         _this._curvatureDerivativeNumerator = _this.curveDiffProperties.curvatureDerivativeNumerator();
-        _this._sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
         _this.extractSeqOfDiffEvents();
+        _this.notifyObservers();
         return _this;
     }
     Object.defineProperty(OpenCurveDifferentialEventsExtractor.prototype, "curvatureNumerator", {
@@ -45846,23 +46017,9 @@ var OpenCurveDifferentialEventsExtractor = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OpenCurveDifferentialEventsExtractor.prototype, "inflectionLocationsEuclideanSpace", {
-        get: function () {
-            return this._inflectionLocationsEuclideanSpace;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(OpenCurveDifferentialEventsExtractor.prototype, "inflectionParametricLocations", {
         get: function () {
             return this._inflectionParametricLocations;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OpenCurveDifferentialEventsExtractor.prototype, "curvatureExtremaLocationsEuclideanSpace", {
-        get: function () {
-            return this._curvatureExtremaLocationsEuclideanSpace;
         },
         enumerable: false,
         configurable: true
@@ -45874,19 +46031,12 @@ var OpenCurveDifferentialEventsExtractor = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OpenCurveDifferentialEventsExtractor.prototype, "transientCurvatureExtremaLocationsEuclideanSpace", {
-        get: function () {
-            return this._transientCurvatureExtremaLocationsEuclideanSpace;
-        },
-        enumerable: false,
-        configurable: true
-    });
     OpenCurveDifferentialEventsExtractor.prototype.extractSeqOfDiffEvents = function () {
-        this._inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
+        this._crvDiffEventsLocations.inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
         this._inflectionParametricLocations = this._curvatureNumerator.zeros();
-        this._curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
+        this._crvDiffEventsLocations.curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
         this._curvatureExtremaParametricLocations = this._curvatureDerivativeNumerator.zeros();
-        this._transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
+        this._crvDiffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
         this._sequenceOfDifferentialEvents.insertEvents(this._curvatureExtremaParametricLocations, this._inflectionParametricLocations);
         return this._sequenceOfDifferentialEvents;
     };
@@ -45896,6 +46046,7 @@ var OpenCurveDifferentialEventsExtractor = /** @class */ (function (_super) {
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.extractSeqOfDiffEvents();
+        this.notifyObservers();
     };
     return OpenCurveDifferentialEventsExtractor;
 }(AbstractCurveDifferentialEventsExtractor_1.AbstractCurveDifferentialEventsExtractor));
@@ -45937,14 +46088,15 @@ var OpenCurveDifferentialEventsExtractorWithoutSequence = /** @class */ (functio
         var _this = _super.call(this, curveToAnalyze) || this;
         _this._sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
         _this.extractSeqOfDiffEvents();
+        _this.notifyObservers();
         return _this;
     }
     OpenCurveDifferentialEventsExtractorWithoutSequence.prototype.extractSeqOfDiffEvents = function () {
-        this._inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
+        this._crvDiffEventsLocations.inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
         this._inflectionParametricLocations = this._curvatureNumerator.zeros();
-        this._curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
+        this._crvDiffEventsLocations.curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
         this._curvatureExtremaParametricLocations = this._curvatureDerivativeNumerator.zeros();
-        this._transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
+        this._crvDiffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
         return this._sequenceOfDifferentialEvents;
     };
     OpenCurveDifferentialEventsExtractorWithoutSequence.prototype.update = function (curveToAnalyze) {
@@ -45953,6 +46105,7 @@ var OpenCurveDifferentialEventsExtractorWithoutSequence = /** @class */ (functio
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.extractSeqOfDiffEvents();
+        this.notifyObservers();
     };
     return OpenCurveDifferentialEventsExtractorWithoutSequence;
 }(OpenCurveDifferentialEventsExtractor_1.OpenCurveDifferentialEventsExtractor));
@@ -54327,6 +54480,13 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
             }
         }
     };
+    SequenceOfDifferentialEvents.prototype.clone = function () {
+        var sequence = new SequenceOfDifferentialEvents();
+        for (var event_3 = 0; event_3 < this._sequence.length; event_3++) {
+            sequence.insertAt(this.eventAt(event_3), event_3);
+        }
+        return sequence;
+    };
     return SequenceOfDifferentialEvents;
 }());
 exports.SequenceOfDifferentialEvents = SequenceOfDifferentialEvents;
@@ -54501,9 +54661,9 @@ var CurveCategory = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveCategory.prototype, "curveModelDifferentialEvents", {
+    Object.defineProperty(CurveCategory.prototype, "curveModelDifferentialEventsLocations", {
         get: function () {
-            return this._curveModelDifferentialEvents;
+            return this._curveModelDifferentialEventsLocations;
         },
         enumerable: false,
         configurable: true
@@ -54519,6 +54679,7 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
         _this._curveModel = new CurveModel_1.CurveModel();
         _this._curveModelDifferentialEvents = new OpenCurveDifferentialEventsExtractorWithoutSequence_1.OpenCurveDifferentialEventsExtractorWithoutSequence(_this._curveModel.spline);
         _this._curveModel.registerObserver(_this._curveModelDifferentialEvents, "control points");
+        _this._curveModelDifferentialEventsLocations = _this._curveModelDifferentialEvents.crvDiffEventsLocations;
         _this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.OpenCurveShapeSpaceNavigator(_this._curveModel, _this.shapeNavigableCurve);
         _this.shapeNavigableCurve.changeCurveCategory(_this);
         _this.shapeNavigableCurve.notifyObservers();
@@ -54527,6 +54688,13 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
         _this.eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(_this.eventMgmtAtExtremities);
         return _this;
     }
+    Object.defineProperty(OpenPlanarCurve.prototype, "curveModelDifferentialEvents", {
+        get: function () {
+            return this._curveModelDifferentialEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(OpenPlanarCurve.prototype, "curveShapeSpaceNavigator", {
         get: function () {
             return this._curveShapeSpaceNavigator;
@@ -54619,11 +54787,19 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
         _this._curveModel = new ClosedCurveModel_1.ClosedCurveModel();
         _this._curveModelDifferentialEvents = new ClosedCurveDifferentialEventsExtractor_1.ClosedCurveDifferentialEventsExtractor(_this._curveModel.spline);
         _this._curveModel.registerObserver(_this._curveModelDifferentialEvents, "control points");
+        _this._curveModelDifferentialEventsLocations = _this._curveModelDifferentialEvents.crvDiffEventsLocations;
         _this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator_1.ClosedCurveShapeSpaceNavigator(_this._curveModel, _this.shapeNavigableCurve);
         _this.shapeNavigableCurve.changeCurveCategory(_this);
         _this.shapeNavigableCurve.notifyObservers();
         return _this;
     }
+    Object.defineProperty(ClosedPlanarCurve.prototype, "curveModelDifferentialEvents", {
+        get: function () {
+            return this._curveModelDifferentialEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(ClosedPlanarCurve.prototype, "curveShapeSpaceNavigator", {
         get: function () {
             return this._curveShapeSpaceNavigator;
@@ -55553,13 +55729,13 @@ var CurveSceneEventListener = /** @class */ (function () {
     };
     CurveSceneEventListener.prototype.mouse_click = function (ev) {
         var c = this.mouse_get_NormalizedDeviceCoordinates(ev);
-        this._curveSceneController.leftMouseDown_event(c[0], c[1], 0.0005);
+        this._curveSceneController.leftMouseDown_event(c[0], c[1]);
         this._curveSceneController.renderFrame();
         ev.preventDefault();
     };
     CurveSceneEventListener.prototype.mouse_double_click = function (ev) {
         var c = this.mouse_get_NormalizedDeviceCoordinates(ev);
-        var active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1], 0.0005);
+        var active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1]);
         this._curveSceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
         // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
@@ -55736,6 +55912,297 @@ exports.CurveSceneEventListener = CurveSceneEventListener;
 
 /***/ }),
 
+/***/ "./src/views/AbstractGraphicalEntityView.ts":
+/*!**************************************************!*\
+  !*** ./src/views/AbstractGraphicalEntityView.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractGraphicalEntityView = void 0;
+var AbstractGraphicalEntityView = /** @class */ (function () {
+    function AbstractGraphicalEntityView(gl) {
+        this.gl = gl;
+    }
+    return AbstractGraphicalEntityView;
+}());
+exports.AbstractGraphicalEntityView = AbstractGraphicalEntityView;
+
+
+/***/ }),
+
+/***/ "./src/views/AbstractMouseSelectableButtonView.ts":
+/*!********************************************************!*\
+  !*** ./src/views/AbstractMouseSelectableButtonView.ts ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractMouseSelectableButtonView = void 0;
+var AbstractMouseSelectableGraphicEntityView_1 = __webpack_require__(/*! ./AbstractMouseSelectableGraphicEntityView */ "./src/views/AbstractMouseSelectableGraphicEntityView.ts");
+var AbstractMouseSelectableButtonView = /** @class */ (function (_super) {
+    __extends(AbstractMouseSelectableButtonView, _super);
+    function AbstractMouseSelectableButtonView(gl) {
+        var _this = _super.call(this, gl) || this;
+        _this.HEIGHT_SIZE = 0.0;
+        _this.RATIO_WIDTH_HEIGHT = 0.0;
+        _this.X_LOCATION = 0.0;
+        _this.Y_LOCATION = 0.0;
+        _this.Z = 0;
+        _this.RED_COLOR = 0.0;
+        _this.GREEN_COLOR = 0.0;
+        _this.BLUE_COLOR = 0.0;
+        _this.indices = new Uint8Array([]);
+        _this.vertexBuffer = null;
+        _this.indexBuffer = null;
+        _this.vertices = new Float32Array([]);
+        _this.indices = new Uint8Array([]);
+        return _this;
+    }
+    AbstractMouseSelectableButtonView.prototype.buttonSelection = function (x, y) {
+        var result = false;
+        if (Math.pow(x - this.X_LOCATION, 2) + Math.pow(y - this.Y_LOCATION, 2) < this.BTN_SLCTN_ACCURACY_Squared) {
+            result = true;
+        }
+        return result;
+    };
+    AbstractMouseSelectableButtonView.prototype.updateVerticesAndIndices = function () {
+        this.vertices = new Float32Array(4 * 8);
+        this.indices = new Uint8Array(2 * 3);
+        this.vertices[0] = this.X_LOCATION - this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
+        this.vertices[1] = this.Y_LOCATION - this.HEIGHT_SIZE;
+        this.vertices[2] = this.Z;
+        this.vertices[3] = -this.RATIO_WIDTH_HEIGHT;
+        this.vertices[4] = -1;
+        this.vertices[5] = this.RED_COLOR;
+        this.vertices[6] = this.GREEN_COLOR;
+        this.vertices[7] = this.BLUE_COLOR;
+        this.vertices[8] = this.X_LOCATION + this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
+        this.vertices[9] = this.Y_LOCATION - this.HEIGHT_SIZE;
+        this.vertices[10] = this.Z;
+        this.vertices[11] = this.RATIO_WIDTH_HEIGHT;
+        this.vertices[12] = -1;
+        this.vertices[13] = this.RED_COLOR;
+        this.vertices[14] = this.GREEN_COLOR;
+        this.vertices[15] = this.BLUE_COLOR;
+        this.vertices[16] = this.X_LOCATION + this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
+        this.vertices[17] = this.Y_LOCATION + this.HEIGHT_SIZE;
+        this.vertices[18] = this.Z;
+        this.vertices[19] = this.RATIO_WIDTH_HEIGHT;
+        this.vertices[20] = 1;
+        this.vertices[21] = this.RED_COLOR;
+        this.vertices[22] = this.GREEN_COLOR;
+        this.vertices[23] = this.BLUE_COLOR;
+        this.vertices[24] = this.X_LOCATION - this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
+        this.vertices[25] = this.Y_LOCATION + this.HEIGHT_SIZE;
+        this.vertices[26] = this.Z;
+        this.vertices[27] = -this.RATIO_WIDTH_HEIGHT;
+        this.vertices[28] = 1;
+        this.vertices[29] = this.RED_COLOR;
+        this.vertices[30] = this.GREEN_COLOR;
+        this.vertices[31] = this.BLUE_COLOR;
+        this.indices[0] = 0;
+        this.indices[1] = 1;
+        this.indices[2] = 2;
+        this.indices[3] = 0;
+        this.indices[4] = 2;
+        this.indices[5] = 3;
+    };
+    AbstractMouseSelectableButtonView.prototype.updateBuffers = function () {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return AbstractMouseSelectableButtonView;
+}(AbstractMouseSelectableGraphicEntityView_1.AbstractMouseSelectableGraphicEntityView));
+exports.AbstractMouseSelectableButtonView = AbstractMouseSelectableButtonView;
+
+
+/***/ }),
+
+/***/ "./src/views/AbstractMouseSelectableGraphicEntityView.ts":
+/*!***************************************************************!*\
+  !*** ./src/views/AbstractMouseSelectableGraphicEntityView.ts ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractMouseSelectableGraphicEntityView = exports.BTN_SLCTN_ACCURACY_Squared = exports.SLCTN_ACCURACY_Squared = void 0;
+var AbstractGraphicalEntityView_1 = __webpack_require__(/*! ./AbstractGraphicalEntityView */ "./src/views/AbstractGraphicalEntityView.ts");
+exports.SLCTN_ACCURACY_Squared = 0.005;
+exports.BTN_SLCTN_ACCURACY_Squared = 0.01;
+var AbstractMouseSelectableGraphicEntityView = /** @class */ (function (_super) {
+    __extends(AbstractMouseSelectableGraphicEntityView, _super);
+    function AbstractMouseSelectableGraphicEntityView(gl) {
+        var _this = _super.call(this, gl) || this;
+        _this.SLCTN_ACCURACY_Squared = exports.SLCTN_ACCURACY_Squared;
+        _this.BTN_SLCTN_ACCURACY_Squared = exports.BTN_SLCTN_ACCURACY_Squared;
+        _this.selectedPoints = [];
+        return _this;
+    }
+    return AbstractMouseSelectableGraphicEntityView;
+}(AbstractGraphicalEntityView_1.AbstractGraphicalEntityView));
+exports.AbstractMouseSelectableGraphicEntityView = AbstractMouseSelectableGraphicEntityView;
+
+
+/***/ }),
+
+/***/ "./src/views/AbstractMouseSelectablePointView.ts":
+/*!*******************************************************!*\
+  !*** ./src/views/AbstractMouseSelectablePointView.ts ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractMouseSelectablePointView = void 0;
+var AbstractMouseSelectableGraphicEntityView_1 = __webpack_require__(/*! ./AbstractMouseSelectableGraphicEntityView */ "./src/views/AbstractMouseSelectableGraphicEntityView.ts");
+var AbstractMouseSelectablePointView = /** @class */ (function (_super) {
+    __extends(AbstractMouseSelectablePointView, _super);
+    function AbstractMouseSelectablePointView(gl, spline) {
+        var _this = _super.call(this, gl) || this;
+        _this.Z = 0;
+        _this.DOT_SIZE = 0;
+        _this.RED_COLOR = 0;
+        _this.GREEN_COLOR = 0;
+        _this.BLUE_COLOR = 0;
+        _this.ALPHA = 1;
+        _this.vertexBuffer = null;
+        _this.indexBuffer = null;
+        _this.vertices = new Float32Array([]);
+        _this.indices = new Uint8Array([]);
+        _this.pointSequenceToDisplay = [];
+        _this.selectedPointIndex = null;
+        _this.controlPoints = spline.controlPoints;
+        return _this;
+    }
+    AbstractMouseSelectablePointView.prototype.pointSelection = function (x, y, deltaSquared) {
+        if (deltaSquared === void 0) { deltaSquared = this.SLCTN_ACCURACY_Squared; }
+        var result = null;
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
+                return i;
+            }
+        }
+        return result;
+    };
+    AbstractMouseSelectablePointView.prototype.getSelectedPoint = function () {
+        return this.selectedPointIndex;
+    };
+    AbstractMouseSelectablePointView.prototype.updateVerticesAndIndices = function () {
+        this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
+        this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
+        for (var i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
+            var x = this.pointSequenceToDisplay[i].x;
+            var y = this.pointSequenceToDisplay[i].y;
+            this.vertices[32 * i] = x - this.DOT_SIZE;
+            this.vertices[32 * i + 1] = y - this.DOT_SIZE;
+            this.vertices[32 * i + 2] = this.Z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.RED_COLOR;
+            this.vertices[32 * i + 6] = this.GREEN_COLOR;
+            this.vertices[32 * i + 7] = this.BLUE_COLOR;
+            this.vertices[32 * i + 8] = x + this.DOT_SIZE;
+            this.vertices[32 * i + 9] = y - this.DOT_SIZE;
+            this.vertices[32 * i + 10] = this.Z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.RED_COLOR;
+            this.vertices[32 * i + 14] = this.GREEN_COLOR;
+            this.vertices[32 * i + 15] = this.BLUE_COLOR;
+            this.vertices[32 * i + 16] = x + this.DOT_SIZE;
+            this.vertices[32 * i + 17] = y + this.DOT_SIZE;
+            this.vertices[32 * i + 18] = this.Z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.RED_COLOR;
+            this.vertices[32 * i + 22] = this.GREEN_COLOR;
+            this.vertices[32 * i + 23] = this.BLUE_COLOR;
+            this.vertices[32 * i + 24] = x - this.DOT_SIZE;
+            this.vertices[32 * i + 25] = y + this.DOT_SIZE;
+            this.vertices[32 * i + 26] = this.Z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.RED_COLOR;
+            this.vertices[32 * i + 30] = this.GREEN_COLOR;
+            this.vertices[32 * i + 31] = this.BLUE_COLOR;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    AbstractMouseSelectablePointView.prototype.updateBuffers = function () {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return AbstractMouseSelectablePointView;
+}(AbstractMouseSelectableGraphicEntityView_1.AbstractMouseSelectableGraphicEntityView));
+exports.AbstractMouseSelectablePointView = AbstractMouseSelectablePointView;
+
+
+/***/ }),
+
 /***/ "./src/views/AbstractPointView.ts":
 /*!****************************************!*\
   !*** ./src/views/AbstractPointView.ts ***!
@@ -55745,22 +56212,38 @@ exports.CurveSceneEventListener = CurveSceneEventListener;
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbstractPointView = void 0;
-var AbstractPointView = /** @class */ (function () {
+var AbstractGraphicalEntityView_1 = __webpack_require__(/*! ./AbstractGraphicalEntityView */ "./src/views/AbstractGraphicalEntityView.ts");
+var AbstractPointView = /** @class */ (function (_super) {
+    __extends(AbstractPointView, _super);
     function AbstractPointView(gl) {
-        this.Z = 0;
-        this.DOT_SIZE = 0;
-        this.RED_COLOR = 0;
-        this.GREEN_COLOR = 0;
-        this.BLUE_COLOR = 0;
-        this.ALPHA = 1;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint8Array([]);
-        this.gl = gl;
-        this.pointSequenceToDisplay = [];
+        var _this = _super.call(this, gl) || this;
+        _this.Z = 0;
+        _this.DOT_SIZE = 0;
+        _this.RED_COLOR = 0;
+        _this.GREEN_COLOR = 0;
+        _this.BLUE_COLOR = 0;
+        _this.ALPHA = 1;
+        _this.vertexBuffer = null;
+        _this.indexBuffer = null;
+        _this.vertices = new Float32Array([]);
+        _this.indices = new Uint8Array([]);
+        _this.pointSequenceToDisplay = [];
+        return _this;
     }
     AbstractPointView.prototype.updateVerticesAndIndices = function () {
         this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
@@ -55817,7 +56300,7 @@ var AbstractPointView = /** @class */ (function () {
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     };
     return AbstractPointView;
-}());
+}(AbstractGraphicalEntityView_1.AbstractGraphicalEntityView));
 exports.AbstractPointView = AbstractPointView;
 
 
@@ -55849,27 +56332,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClampedControlPointView = void 0;
 var RoundDotTwoLevelsTransparencyShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader */ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var AbstractPointView_1 = __webpack_require__(/*! ./AbstractPointView */ "./src/views/AbstractPointView.ts");
+var AbstractMouseSelectablePointView_1 = __webpack_require__(/*! ./AbstractMouseSelectablePointView */ "./src/views/AbstractMouseSelectablePointView.ts");
 var ClampedControlPointView = /** @class */ (function (_super) {
     __extends(ClampedControlPointView, _super);
     function ClampedControlPointView(gl, spline, clampedCPindices) {
-        var _this = _super.call(this, gl) || this;
+        var _this = _super.call(this, gl, spline) || this;
         _this.Z = 0;
         _this.DOT_SIZE = 0.03;
         _this.RED_COLOR = 0.0;
         _this.GREEN_COLOR = 0.0;
         _this.BLUE_COLOR = 1.0;
-        _this.clampedControlPoint = null;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
-        _this.pointSequenceToDisplay = [];
-        _this.clampedCPindices = [];
         _this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader_1.RoundDotTwoLevelsTransparencyShader(_this.gl);
-        _this.controlPoints = spline.controlPoints;
-        _this.clampedCPindices = clampedCPindices;
-        for (var _i = 0, _a = _this.clampedCPindices; _i < _a.length; _i++) {
+        _this.selectedPoints = [];
+        _this.selectedPoints = clampedCPindices;
+        for (var _i = 0, _a = _this.selectedPoints; _i < _a.length; _i++) {
             var index = _a[_i];
             _this.pointSequenceToDisplay.push(_this.controlPoints[index]);
         }
@@ -55947,25 +56423,15 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.assignVertexAttrib();
-        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.clampedControlPoint);
+        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedPointIndex);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    ClampedControlPointView.prototype.controlPointSelection = function (allCurveControlPoints, x, y, deltaSquared) {
-        if (deltaSquared === void 0) { deltaSquared = 0.01; }
-        var result = null;
-        for (var i = 0; i < allCurveControlPoints.length; i += 1) {
-            if (Math.pow(x - allCurveControlPoints[i].x, 2) + Math.pow(y - allCurveControlPoints[i].y, 2) < deltaSquared) {
-                return i;
-            }
-        }
-        return result;
-    };
     ClampedControlPointView.prototype.update = function (spline) {
         this.controlPoints = spline.controlPoints;
         this.pointSequenceToDisplay = [];
-        for (var _i = 0, _a = this.clampedCPindices; _i < _a.length; _i++) {
+        for (var _i = 0, _a = this.selectedPoints; _i < _a.length; _i++) {
             var index = _a[_i];
             this.pointSequenceToDisplay.push(this.controlPoints[index]);
         }
@@ -55974,14 +56440,11 @@ var ClampedControlPointView = /** @class */ (function (_super) {
     };
     ClampedControlPointView.prototype.reset = function (spline) {
     };
-    ClampedControlPointView.prototype.getSelectedControlPoint = function () {
-        return this.clampedControlPoint;
-    };
     ClampedControlPointView.prototype.setSelected = function (controlPointIndex) {
-        this.clampedControlPoint = controlPointIndex;
+        this.selectedPointIndex = controlPointIndex;
     };
     return ClampedControlPointView;
-}(AbstractPointView_1.AbstractPointView));
+}(AbstractMouseSelectablePointView_1.AbstractMouseSelectablePointView));
 exports.ClampedControlPointView = ClampedControlPointView;
 
 
@@ -55996,78 +56459,48 @@ exports.ClampedControlPointView = ClampedControlPointView;
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClickButtonView = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var InsertKnotButtonDialogShader_1 = __webpack_require__(/*! ../2DgraphicsItems/InsertKnotButtonDialogShader */ "./src/2DgraphicsItems/InsertKnotButtonDialogShader.ts");
-var ClickButtonView = /** @class */ (function () {
+var AbstractMouseSelectableButtonView_1 = __webpack_require__(/*! ./AbstractMouseSelectableButtonView */ "./src/views/AbstractMouseSelectableButtonView.ts");
+var ClickButtonView = /** @class */ (function (_super) {
+    __extends(ClickButtonView, _super);
     function ClickButtonView(gl) {
-        this.HEIGHT_SIZE = 0.05;
-        this.RATIO_WIDTH_HEIGHT = 1.5;
-        this.RED_COLOR = 0.5;
-        this.GREEN_COLOR = 0.5;
-        this.BLUE_COLOR = 0.5;
-        this.X_LOCATION = -0.8;
-        this.Y_LOCATION = 0.8;
-        this.Z = 0;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint8Array([]);
-        this.gl = gl;
-        this.insertKnotButtonDialogShader = new InsertKnotButtonDialogShader_1.InsertKnotButtonDialogShader(this.gl);
-        this.a_Position = -1;
-        this.a_Texture = -1;
-        this.a_Color = -1;
-        this.FSIZE = 0;
-        var check = this.initVertexBuffers();
+        var _this = _super.call(this, gl) || this;
+        _this.HEIGHT_SIZE = 0.05;
+        _this.RATIO_WIDTH_HEIGHT = 1.5;
+        _this.RED_COLOR = 0.5;
+        _this.GREEN_COLOR = 0.5;
+        _this.BLUE_COLOR = 0.5;
+        _this.X_LOCATION = -0.8;
+        _this.Y_LOCATION = 0.8;
+        _this.Z = 0;
+        _this.insertKnotButtonDialogShader = new InsertKnotButtonDialogShader_1.InsertKnotButtonDialogShader(_this.gl);
+        _this.a_Position = -1;
+        _this.a_Texture = -1;
+        _this.a_Color = -1;
+        _this.FSIZE = 0;
+        var check = _this.initVertexBuffers();
         if (check < 0) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
             warning.logMessageToConsole();
         }
+        return _this;
     }
-    ClickButtonView.prototype.updateVerticesAndIndices = function () {
-        this.vertices = new Float32Array(4 * 8);
-        this.indices = new Uint8Array(2 * 3);
-        this.vertices[0] = this.X_LOCATION - this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
-        this.vertices[1] = this.Y_LOCATION - this.HEIGHT_SIZE;
-        this.vertices[2] = this.Z;
-        this.vertices[3] = -this.RATIO_WIDTH_HEIGHT;
-        this.vertices[4] = -1;
-        this.vertices[5] = this.RED_COLOR;
-        this.vertices[6] = this.GREEN_COLOR;
-        this.vertices[7] = this.BLUE_COLOR;
-        this.vertices[8] = this.X_LOCATION + this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
-        this.vertices[9] = this.Y_LOCATION - this.HEIGHT_SIZE;
-        this.vertices[10] = this.Z;
-        this.vertices[11] = this.RATIO_WIDTH_HEIGHT;
-        this.vertices[12] = -1;
-        this.vertices[13] = this.RED_COLOR;
-        this.vertices[14] = this.GREEN_COLOR;
-        this.vertices[15] = this.BLUE_COLOR;
-        this.vertices[16] = this.X_LOCATION + this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
-        this.vertices[17] = this.Y_LOCATION + this.HEIGHT_SIZE;
-        this.vertices[18] = this.Z;
-        this.vertices[19] = this.RATIO_WIDTH_HEIGHT;
-        this.vertices[20] = 1;
-        this.vertices[21] = this.RED_COLOR;
-        this.vertices[22] = this.GREEN_COLOR;
-        this.vertices[23] = this.BLUE_COLOR;
-        this.vertices[24] = this.X_LOCATION - this.HEIGHT_SIZE * this.RATIO_WIDTH_HEIGHT;
-        this.vertices[25] = this.Y_LOCATION + this.HEIGHT_SIZE;
-        this.vertices[26] = this.Z;
-        this.vertices[27] = -this.RATIO_WIDTH_HEIGHT;
-        this.vertices[28] = 1;
-        this.vertices[29] = this.RED_COLOR;
-        this.vertices[30] = this.GREEN_COLOR;
-        this.vertices[31] = this.BLUE_COLOR;
-        this.indices[0] = 0;
-        this.indices[1] = 1;
-        this.indices[2] = 2;
-        this.indices[3] = 0;
-        this.indices[4] = 2;
-        this.indices[5] = 3;
-    };
     ClickButtonView.prototype.initAttribLocation = function () {
         this.a_Position = this.gl.getAttribLocation(this.insertKnotButtonDialogShader.program, 'a_Position');
         this.a_Texture = this.gl.getAttribLocation(this.insertKnotButtonDialogShader.program, 'a_Texture'),
@@ -56135,24 +56568,8 @@ var ClickButtonView = /** @class */ (function () {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    ClickButtonView.prototype.selected = function (x, y) {
-        var deltaSquared = 0.01;
-        var result = false;
-        if (Math.pow(x - this.X_LOCATION, 2) + Math.pow(y - this.Y_LOCATION, 2) < deltaSquared) {
-            result = true;
-        }
-        return result;
-    };
-    ClickButtonView.prototype.updateBuffers = function () {
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
-    };
     return ClickButtonView;
-}());
+}(AbstractMouseSelectableButtonView_1.AbstractMouseSelectableButtonView));
 exports.ClickButtonView = ClickButtonView;
 
 
@@ -56184,24 +56601,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ControlPointsView = void 0;
 var RoundDotTwoLevelsTransparencyShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader */ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var AbstractPointView_1 = __webpack_require__(/*! ./AbstractPointView */ "./src/views/AbstractPointView.ts");
+var AbstractMouseSelectablePointView_1 = __webpack_require__(/*! ./AbstractMouseSelectablePointView */ "./src/views/AbstractMouseSelectablePointView.ts");
 var ControlPointsView = /** @class */ (function (_super) {
     __extends(ControlPointsView, _super);
     function ControlPointsView(gl, spline) {
-        var _this = _super.call(this, gl) || this;
+        var _this = _super.call(this, gl, spline) || this;
         _this.Z = 0;
         _this.DOT_SIZE = 0.03;
         _this.RED_COLOR = 1.0;
         _this.GREEN_COLOR = 1.0;
         _this.BLUE_COLOR = 1.0;
-        _this.selectedControlPoint = null;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
         _this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader_1.RoundDotTwoLevelsTransparencyShader(_this.gl);
         _this.pointSequenceToDisplay = spline.controlPoints;
-        // this.controlPoints = spline.visibleControlPoints()
         _this.a_Position = -1;
         _this.a_Texture = -1;
         _this.a_Color = -1;
@@ -56278,20 +56689,10 @@ var ControlPointsView = /** @class */ (function (_super) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.assignVertexAttrib();
-        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedControlPoint);
+        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedPointIndex);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
-    };
-    ControlPointsView.prototype.controlPointSelection = function (x, y, deltaSquared) {
-        if (deltaSquared === void 0) { deltaSquared = 0.01; }
-        var result = null;
-        for (var i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
-            if (Math.pow(x - this.pointSequenceToDisplay[i].x, 2) + Math.pow(y - this.pointSequenceToDisplay[i].y, 2) < deltaSquared) {
-                return i;
-            }
-        }
-        return result;
     };
     ControlPointsView.prototype.reset = function (spline) {
     };
@@ -56301,14 +56702,11 @@ var ControlPointsView = /** @class */ (function (_super) {
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
-    ControlPointsView.prototype.getSelectedControlPoint = function () {
-        return this.selectedControlPoint;
-    };
     ControlPointsView.prototype.setSelected = function (controlPointIndex) {
-        this.selectedControlPoint = controlPointIndex;
+        this.selectedPointIndex = controlPointIndex;
     };
     return ControlPointsView;
-}(AbstractPointView_1.AbstractPointView));
+}(AbstractMouseSelectablePointView_1.AbstractMouseSelectablePointView));
 exports.ControlPointsView = ControlPointsView;
 
 
@@ -56497,14 +56895,9 @@ var CurvatureExtremaView = /** @class */ (function (_super) {
         _this.GREEN_COLOR = 91 / 255;
         _this.BLUE_COLOR = 95 / 255;
         _this.ALPHA = 1;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
         _this.roundDotSolidShader = new RoundDotSolidShader_1.RoundDotSolidShader(_this.gl);
         _this.curveModelDifferentialEvents = curveModelDifferentialEvents;
         _this.pointSequenceToDisplay = _this.curveModelDifferentialEvents.curvatureExtremaLocationsEuclideanSpace;
-        // this.controlPoints = spline.visibleControlPoints()
         _this.a_Position = -1;
         _this.a_Texture = -1;
         _this.a_ColorLocation = -1;
@@ -56581,10 +56974,10 @@ var CurvatureExtremaView = /** @class */ (function (_super) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    CurvatureExtremaView.prototype.reset = function (spline) {
+    CurvatureExtremaView.prototype.reset = function (diffEventsLocations) {
     };
-    CurvatureExtremaView.prototype.update = function (spline) {
-        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.curvatureExtremaLocationsEuclideanSpace;
+    CurvatureExtremaView.prototype.update = function (diffEventsLocations) {
+        this.pointSequenceToDisplay = diffEventsLocations.curvatureExtremaLocationsEuclideanSpace;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
@@ -56632,10 +57025,6 @@ var CurveKnotsView = /** @class */ (function (_super) {
         _this.GREEN_COLOR = 0.0;
         _this.BLUE_COLOR = 0.0;
         _this.ALPHA = 1;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
         _this.knotAbscissae = [];
         _this.spline = spline;
         _this.squareDotSolidShader = new SquareDotSolidShader_1.SquareDotSolidShader(_this.gl);
@@ -56664,52 +57053,6 @@ var CurveKnotsView = /** @class */ (function (_super) {
             this.pointSequenceToDisplay.push(point);
         }
     };
-    // updateVerticesAndIndices(): void {
-    //     this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
-    //     this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
-    //     for (let i = 0; i < this.knotAbscissae.length; i += 1) {
-    //         const x = this.pointSequenceToDisplay[i].x;
-    //         const y = this.pointSequenceToDisplay[i].y;
-    //         this.vertices[32 * i] = x - this.DOT_SIZE;
-    //         this.vertices[32 * i + 1] = y - this.DOT_SIZE;
-    //         this.vertices[32 * i + 2] = this.Z;
-    //         this.vertices[32 * i + 3] = -1;
-    //         this.vertices[32 * i + 4] = -1;
-    //         this.vertices[32 * i + 5] = this.RED_COLOR;
-    //         this.vertices[32 * i + 6] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 7] = this.BLUE_COLOR;
-    //         this.vertices[32 * i + 8] = x + this.DOT_SIZE;
-    //         this.vertices[32 * i + 9] = y - this.DOT_SIZE;
-    //         this.vertices[32 * i + 10] = this.Z;
-    //         this.vertices[32 * i + 11] = 1;
-    //         this.vertices[32 * i + 12] = -1;
-    //         this.vertices[32 * i + 13] = this.RED_COLOR;
-    //         this.vertices[32 * i + 14] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 15] = this.BLUE_COLOR;
-    //         this.vertices[32 * i + 16] = x + this.DOT_SIZE;
-    //         this.vertices[32 * i + 17] = y + this.DOT_SIZE;
-    //         this.vertices[32 * i + 18] = this.Z;
-    //         this.vertices[32 * i + 19] = 1;
-    //         this.vertices[32 * i + 20] = 1;
-    //         this.vertices[32 * i + 21] = this.RED_COLOR;
-    //         this.vertices[32 * i + 22] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 23] = this.BLUE_COLOR;
-    //         this.vertices[32 * i + 24] = x - this.DOT_SIZE;
-    //         this.vertices[32 * i + 25] = y + this.DOT_SIZE;
-    //         this.vertices[32 * i + 26] = this.Z;
-    //         this.vertices[32 * i + 27] = -1;
-    //         this.vertices[32 * i + 28] = 1;
-    //         this.vertices[32 * i + 29] = this.RED_COLOR;
-    //         this.vertices[32 * i + 30] = this.GREEN_COLOR;
-    //         this.vertices[32 * i + 31] = this.BLUE_COLOR;
-    //         this.indices[6 * i] = 4 * i;
-    //         this.indices[6 * i + 1] = 4 * i + 1;
-    //         this.indices[6 * i + 2] = 4 * i + 2;
-    //         this.indices[6 * i + 3] = 4 * i;
-    //         this.indices[6 * i + 4] = 4 * i + 2;
-    //         this.indices[6 * i + 5] = 4 * i + 3;
-    //     }
-    // }
     CurveKnotsView.prototype.initAttribLocation = function () {
         this.a_Position = this.gl.getAttribLocation(this.squareDotSolidShader.program, 'a_Position');
         this.fColor = this.gl.getUniformLocation(this.squareDotSolidShader.program, 'fColor');
@@ -56772,7 +57115,7 @@ var CurveKnotsView = /** @class */ (function (_super) {
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
-    CurveKnotsView.prototype.reset = function (message) {
+    CurveKnotsView.prototype.reset = function (spline) {
     };
     return CurveKnotsView;
 }(AbstractPointView_1.AbstractPointView));
@@ -57104,14 +57447,9 @@ var InflectionsView = /** @class */ (function (_super) {
         _this.GREEN_COLOR = 120 / 255;
         _this.BLUE_COLOR = 120 / 255;
         _this.ALPHA = 1;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
         _this.roundDotSolidShader = new RoundDotSolidShader_1.RoundDotSolidShader(_this.gl);
         _this.curveModelDifferentialEvents = curveModelDifferentialEvents;
-        _this.pointSequenceToDisplay = curveModelDifferentialEvents.inflectionLocationsEuclideanSpace;
-        // this.controlPoints = spline.visibleControlPoints()
+        _this.pointSequenceToDisplay = _this.curveModelDifferentialEvents.inflectionLocationsEuclideanSpace;
         _this.a_Position = -1;
         _this.a_Texture = -1;
         _this.a_ColorLocation = -1;
@@ -57188,10 +57526,10 @@ var InflectionsView = /** @class */ (function (_super) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    InflectionsView.prototype.reset = function (message) {
+    InflectionsView.prototype.reset = function (diffEventsLocations) {
     };
-    InflectionsView.prototype.update = function (spline) {
-        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.inflectionLocationsEuclideanSpace;
+    InflectionsView.prototype.update = function (diffEventsLocations) {
+        this.pointSequenceToDisplay = diffEventsLocations.inflectionLocationsEuclideanSpace;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
@@ -57414,10 +57752,6 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         _this.GREEN_COLOR = 91 / 255;
         _this.BLUE_COLOR = 95 / 255;
         _this.ALPHA = 1;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
         _this.doubleRoundDotSolidShader = new DoubleRoundDotSolidShader_1.DoubleRoundDotSolidShader(_this.gl);
         _this.curveModelDifferentialEvents = curveModelDifferentialEvents;
         _this.pointSequenceToDisplay = _this.curveModelDifferentialEvents.transientCurvatureExtremaLocationsEuclideanSpace;
@@ -57425,7 +57759,6 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         _this.a_Texture = -1;
         _this.a_ColorLocation = -1;
         _this.FSIZE = 0;
-        // this.controlPoints = spline.visibleControlPoints()
         // Write the positions of vertices to a vertex shader
         var check = _this.initVertexBuffers();
         if (check < 0) {
@@ -57436,52 +57769,6 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         _this.updateBuffers();
         return _this;
     }
-    TransitionCurvatureExtremaView.prototype.updateVerticesAndIndices = function () {
-        this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
-        this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
-        for (var i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
-            var x = this.pointSequenceToDisplay[i].x;
-            var y = this.pointSequenceToDisplay[i].y;
-            this.vertices[32 * i] = x - this.DOT_SIZE;
-            this.vertices[32 * i + 1] = y - this.DOT_SIZE;
-            this.vertices[32 * i + 2] = this.Z;
-            this.vertices[32 * i + 3] = -1;
-            this.vertices[32 * i + 4] = -1;
-            this.vertices[32 * i + 5] = this.RED_COLOR;
-            this.vertices[32 * i + 6] = this.GREEN_COLOR;
-            this.vertices[32 * i + 7] = this.BLUE_COLOR;
-            this.vertices[32 * i + 8] = x + this.DOT_SIZE;
-            this.vertices[32 * i + 9] = y - this.DOT_SIZE;
-            this.vertices[32 * i + 10] = this.Z;
-            this.vertices[32 * i + 11] = 1;
-            this.vertices[32 * i + 12] = -1;
-            this.vertices[32 * i + 13] = this.RED_COLOR;
-            this.vertices[32 * i + 14] = this.GREEN_COLOR;
-            this.vertices[32 * i + 15] = this.BLUE_COLOR;
-            this.vertices[32 * i + 16] = x + this.DOT_SIZE;
-            this.vertices[32 * i + 17] = y + this.DOT_SIZE;
-            this.vertices[32 * i + 18] = this.Z;
-            this.vertices[32 * i + 19] = 1;
-            this.vertices[32 * i + 20] = 1;
-            this.vertices[32 * i + 21] = this.RED_COLOR;
-            this.vertices[32 * i + 22] = this.GREEN_COLOR;
-            this.vertices[32 * i + 23] = this.BLUE_COLOR;
-            this.vertices[32 * i + 24] = x - this.DOT_SIZE;
-            this.vertices[32 * i + 25] = y + this.DOT_SIZE;
-            this.vertices[32 * i + 26] = this.Z;
-            this.vertices[32 * i + 27] = -1;
-            this.vertices[32 * i + 28] = 1;
-            this.vertices[32 * i + 29] = this.RED_COLOR;
-            this.vertices[32 * i + 30] = this.GREEN_COLOR;
-            this.vertices[32 * i + 31] = this.BLUE_COLOR;
-            this.indices[6 * i] = 4 * i;
-            this.indices[6 * i + 1] = 4 * i + 1;
-            this.indices[6 * i + 2] = 4 * i + 2;
-            this.indices[6 * i + 3] = 4 * i;
-            this.indices[6 * i + 4] = 4 * i + 2;
-            this.indices[6 * i + 5] = 4 * i + 3;
-        }
-    };
     TransitionCurvatureExtremaView.prototype.initAttribLocation = function () {
         this.a_Position = this.gl.getAttribLocation(this.doubleRoundDotSolidShader.program, 'a_Position');
         this.a_Texture = this.gl.getAttribLocation(this.doubleRoundDotSolidShader.program, 'a_Texture');
@@ -57544,12 +57831,12 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    TransitionCurvatureExtremaView.prototype.update = function (spline) {
-        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.transientCurvatureExtremaLocationsEuclideanSpace;
+    TransitionCurvatureExtremaView.prototype.update = function (diffEventsLocations) {
+        this.pointSequenceToDisplay = diffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
-    TransitionCurvatureExtremaView.prototype.reset = function (spline) {
+    TransitionCurvatureExtremaView.prototype.reset = function (diffEventsLocations) {
     };
     return TransitionCurvatureExtremaView;
 }(AbstractPointView_1.AbstractPointView));

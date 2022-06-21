@@ -1,4 +1,3 @@
-import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
@@ -14,14 +13,15 @@ export class OpenCurveDifferentialEventsExtractorWithoutSequence extends OpenCur
         super(curveToAnalyze);
         this._sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents();
         this.extractSeqOfDiffEvents();
+        this.notifyObservers();
     }
 
     extractSeqOfDiffEvents(): SequenceOfDifferentialEvents {
-        this._inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
+        this._crvDiffEventsLocations.inflectionLocationsEuclideanSpace = this.curveDiffProperties.inflections();
         this._inflectionParametricLocations = this._curvatureNumerator.zeros();
-        this._curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
+        this._crvDiffEventsLocations.curvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.curvatureExtrema();
         this._curvatureExtremaParametricLocations = this._curvatureDerivativeNumerator.zeros();
-        this._transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
+        this._crvDiffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace = this.curveDiffProperties.transitionCurvatureExtrema();
         return this._sequenceOfDifferentialEvents;
     }
 
@@ -31,5 +31,6 @@ export class OpenCurveDifferentialEventsExtractorWithoutSequence extends OpenCur
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.extractSeqOfDiffEvents();
+        this.notifyObservers();
     }
 }

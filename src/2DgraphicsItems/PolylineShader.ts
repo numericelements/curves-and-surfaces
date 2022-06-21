@@ -29,7 +29,7 @@ export class PolylineShader {
         this.gl.useProgram(this.program);
     }
 
-    renderFrame(numberOfVertices: number) {
+    renderFrame(numberOfVertices: number): void {
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, numberOfVertices);
     }
 };

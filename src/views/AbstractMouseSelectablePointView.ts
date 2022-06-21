@@ -1,7 +1,8 @@
 import { Vector2d } from "../mathVector/Vector2d";
-import { AbstractGraphicalEntityView } from "./AbstractGraphicalEntityView";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
+import { AbstractMouseSelectableGraphicEntityView } from "./AbstractMouseSelectableGraphicEntityView";
 
-export abstract class AbstractPointView extends AbstractGraphicalEntityView {
+export abstract class AbstractMouseSelectablePointView extends AbstractMouseSelectableGraphicEntityView{
 
     protected readonly Z = 0;
     protected DOT_SIZE = 0;
@@ -9,15 +10,38 @@ export abstract class AbstractPointView extends AbstractGraphicalEntityView {
     protected GREEN_COLOR = 0;
     protected BLUE_COLOR = 0;
     protected ALPHA = 1;
-    protected vertexBuffer: WebGLBuffer | null = null;
-    protected indexBuffer: WebGLBuffer | null = null;
-    protected vertices: Float32Array = new Float32Array([]);
-    protected indices: Uint8Array = new Uint8Array([]);
+    protected vertexBuffer: WebGLBuffer | null;
+    protected indexBuffer: WebGLBuffer | null;
+    protected vertices: Float32Array;
+    protected indices: Uint8Array;
+    protected controlPoints: Vector2d[];
     protected pointSequenceToDisplay: Vector2d[];
+    protected selectedPointIndex: number | null;
 
-    constructor(gl: WebGLRenderingContext) {
+    constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface) {
         super(gl);
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
         this.pointSequenceToDisplay = [];
+        this.selectedPointIndex = null;
+        this.controlPoints = spline.controlPoints;
+    }
+
+    pointSelection(x: number, y: number, deltaSquared: number = this.SLCTN_ACCURACY_Squared): number | null {
+        const result = null;
+        for (let i = 0; i < this.controlPoints.length; i += 1) {
+            if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
+                return i;
+            }
+        }
+        return result;
+    }
+
+
+    getSelectedPoint(): number | null {
+        return this.selectedPointIndex;
     }
 
     updateVerticesAndIndices(): void {
@@ -71,8 +95,6 @@ export abstract class AbstractPointView extends AbstractGraphicalEntityView {
             this.indices[6 * i + 5] = 4 * i + 3;
         }
     }
-
-    abstract renderFrame(): void;
 
     updateBuffers(): void {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);

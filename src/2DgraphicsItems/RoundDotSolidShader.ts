@@ -36,7 +36,7 @@ export class RoundDotSolidShader {
         this.gl.useProgram(this.program);
     }
 
-    renderFrame(numberOfElements: number) {
+    renderFrame(numberOfElements: number): void {
         if(this.program) {
             this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
         }

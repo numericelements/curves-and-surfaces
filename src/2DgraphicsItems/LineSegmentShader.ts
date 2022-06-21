@@ -35,7 +35,7 @@ export class LineSegmentShader {
         this.gl.useProgram(this.program);
     }
 
-    renderFrame(numberOfElements: number) {
+    renderFrame(numberOfElements: number): void {
         this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
     }
 

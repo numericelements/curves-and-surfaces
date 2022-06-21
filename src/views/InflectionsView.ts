@@ -1,17 +1,12 @@
 import { Vector2d } from "../mathVector/Vector2d";
-import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { RoundDotSolidShader } from "../2DgraphicsItems/RoundDotSolidShader"
 import { IObserver } from "../newDesignPatterns/Observer";
-import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
-import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
 import { AbstractPointView } from "./AbstractPointView";
-import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface";
+import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
 
 
-export class InflectionsView extends AbstractPointView implements IObserver<BSplineR1toR2Interface> {
+export class InflectionsView extends AbstractPointView implements IObserver<CurveDifferentialEventsLocations> {
 
     protected readonly Z = 0;
     protected readonly DOT_SIZE = 0.025;
@@ -20,24 +15,19 @@ export class InflectionsView extends AbstractPointView implements IObserver<BSpl
     protected readonly BLUE_COLOR = 120 / 255;
     protected readonly ALPHA = 1;
     private readonly roundDotSolidShader: RoundDotSolidShader;
-    protected vertexBuffer: WebGLBuffer | null = null;
-    protected indexBuffer: WebGLBuffer | null = null;
-    protected vertices: Float32Array = new Float32Array([]);
-    protected indices: Uint8Array = new Uint8Array([]);
     protected pointSequenceToDisplay: Vector2d[];
     private a_Position: number;
     private a_Texture: number;
     private a_ColorLocation: WebGLUniformLocation | null;
     private FSIZE: number;
-    private curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface;
+    private curveModelDifferentialEvents: CurveDifferentialEventsLocations;
 
-    constructor(gl: WebGLRenderingContext, curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface) {
+    constructor(gl: WebGLRenderingContext, curveModelDifferentialEvents: CurveDifferentialEventsLocations) {
         
         super(gl);
         this.roundDotSolidShader = new RoundDotSolidShader(this.gl);
         this.curveModelDifferentialEvents = curveModelDifferentialEvents;
-        this.pointSequenceToDisplay = curveModelDifferentialEvents.inflectionLocationsEuclideanSpace;
-        // this.controlPoints = spline.visibleControlPoints()
+        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.inflectionLocationsEuclideanSpace;
         this.a_Position = -1;
         this.a_Texture = -1;
         this.a_ColorLocation = -1;
@@ -130,11 +120,11 @@ export class InflectionsView extends AbstractPointView implements IObserver<BSpl
         this.gl.useProgram(null);
     }
 
-    reset(message: BSplineR1toR2Interface): void {
+    reset(diffEventsLocations: CurveDifferentialEventsLocations): void {
     }
 
-    update(spline: BSplineR1toR2Interface): void {
-        this.pointSequenceToDisplay = this.curveModelDifferentialEvents.inflectionLocationsEuclideanSpace;
+    update(diffEventsLocations: CurveDifferentialEventsLocations): void {
+        this.pointSequenceToDisplay = diffEventsLocations.inflectionLocationsEuclideanSpace;
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }
