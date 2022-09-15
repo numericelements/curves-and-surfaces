@@ -9,7 +9,7 @@ import { ComparatorOfSequencesOfDiffEvents } from "../sequenceOfDifferentialEven
 import { OpenMode } from "fs";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ClosedCurveAnalyzer, OpenCurveAnalyzer, OPenCurveDummyAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
-import { CurveConstraints } from "./CurveConstraints";
+import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { CurveModel } from "../newModels/CurveModel";
@@ -31,13 +31,13 @@ export abstract class NavigationState {
 export abstract class OpenCurveNavigationState extends NavigationState{
 
     protected curveShapeSpaceNavigator: OpenCurveShapeSpaceNavigator;
-    protected curveConstraints: CurveConstraints;
+    protected shapeNavigableCurve: ShapeNavigableCurve;
 
     constructor(curveNavigator: OpenCurveShapeSpaceNavigator) {
         super();
         this.curveShapeSpaceNavigator = curveNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
-        if(!this.curveShapeSpaceNavigator.curveConstraints) {
+        this.shapeNavigableCurve = this.curveShapeSpaceNavigator.shapeNavigableCurve;
+        if(!this.curveShapeSpaceNavigator.shapeNavigableCurve) {
             let warning = new WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
             warning.logMessageToConsole();
         }
@@ -97,7 +97,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
     }
 
     curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -109,7 +109,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
 
         this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
-        this.curveConstraints.updateCurve();
+        // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -140,7 +140,7 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
     }
 
     curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -175,7 +175,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
     }
 
     curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -203,13 +203,13 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
 export abstract class ClosedCurveNavigationState extends NavigationState{
 
     protected curveShapeSpaceNavigator: ClosedCurveShapeSpaceNavigator;
-    protected curveConstraints: CurveConstraints;
+    protected shapeNavigableCurve: ShapeNavigableCurve;
 
     constructor(curveNavigator: ClosedCurveShapeSpaceNavigator) {
         super();
         this.curveShapeSpaceNavigator = curveNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
-        if(!this.curveShapeSpaceNavigator.curveConstraints) {
+        this.shapeNavigableCurve = this.curveShapeSpaceNavigator.shapeNavigableCurve;
+        if(!this.curveShapeSpaceNavigator.shapeNavigableCurve) {
             let warning = new WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
             warning.logMessageToConsole();
         }
@@ -269,7 +269,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
     }
 
     curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -281,7 +281,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
 
         this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
-        this.curveConstraints.updateCurve();
+        // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -312,7 +312,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
     }
 
     curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -347,7 +347,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
     }
 
     curveConstraintsMonitoring(): void {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {

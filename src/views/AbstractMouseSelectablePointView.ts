@@ -14,9 +14,12 @@ export abstract class AbstractMouseSelectablePointView extends AbstractMouseSele
     protected indexBuffer: WebGLBuffer | null;
     protected vertices: Float32Array;
     protected indices: Uint8Array;
+    protected spline: BSplineR1toR2Interface;
     protected controlPoints: Vector2d[];
+    protected knots: number[];
     protected pointSequenceToDisplay: Vector2d[];
     protected selectedPointIndex: number | null;
+    protected selectedKnotIndex: number | null;
 
     constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface) {
         super(gl);
@@ -26,19 +29,32 @@ export abstract class AbstractMouseSelectablePointView extends AbstractMouseSele
         this.indices = new Uint8Array([]);
         this.pointSequenceToDisplay = [];
         this.selectedPointIndex = null;
+        this.selectedKnotIndex = null;
+        this.spline = spline;
         this.controlPoints = spline.controlPoints;
+        this.knots = spline.getDistinctKnots();
     }
 
     pointSelection(x: number, y: number, deltaSquared: number = this.SLCTN_ACCURACY_Squared): number | null {
-        const result = null;
+        this.selectedPointIndex = null;
         for (let i = 0; i < this.controlPoints.length; i += 1) {
             if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
-                return i;
+                return this.selectedPointIndex = i;
             }
         }
-        return result;
+        return this.selectedPointIndex;
     }
 
+    knotSelection(x: number, y: number, deltaSquared: number = this.SLCTN_ACCURACY_Squared): number | null {
+        this.selectedKnotIndex = null;
+        for (let i = 0; i < this.knots.length; i += 1) {
+            const curvePnt = this.spline.evaluate(this.knots[i]);
+            if (Math.pow(x - curvePnt.x, 2) + Math.pow(y - curvePnt.y, 2) < deltaSquared) {
+                return this.selectedKnotIndex = i;
+            }
+        }
+        return this.selectedKnotIndex;
+    }
 
     getSelectedPoint(): number | null {
         return this.selectedPointIndex;

@@ -444,7 +444,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
 
     toggleCurveClamping() {
         this.controlOfCurveClamping = !this.controlOfCurveClamping;
-        this._shapeNavigableCurve.curveCategory.toggleCurveClamping();
+        this._shapeNavigableCurve.toggleCurveClamping();
     }
 
     clickSelectDegree() {
@@ -711,7 +711,6 @@ export class CurveSceneEventListener {
         let active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1]);
         this._curveSceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
-        // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
         if(!active_clamping) this.curveModelDefinitionEventListener.toggleButtonCurveClamping.click();
         ev.preventDefault();
     }

@@ -42263,14 +42263,15 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HandleConstraintAtPoint1Point2ConstraintState = exports.HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = exports.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = exports.HandleConstraintAtPoint1Point2NoConstraintState = exports.CurveConstraintSelectionState = void 0;
+var ShapeNavigableCurve_1 = __webpack_require__(/*! ../shapeNavigableCurve/ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveConstraintSelectionState = /** @class */ (function () {
     function CurveConstraintSelectionState(context) {
         this.curveSceneController = context;
-        this.curveModeler = this.curveSceneController.shapeNavigableCurve;
+        this.shapeNavigableCurve = this.curveSceneController.shapeNavigableCurve;
         this.curveShapeSpaceNavigator = this.curveSceneController.curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
+        this.curveConstraints = this.shapeNavigableCurve.curveConstraints;
     }
     CurveConstraintSelectionState.prototype.setContext = function (context) {
         this.curveSceneController = context;
@@ -42282,17 +42283,36 @@ var HandleConstraintAtPoint1Point2NoConstraintState = /** @class */ (function (_
     __extends(HandleConstraintAtPoint1Point2NoConstraintState, _super);
     function HandleConstraintAtPoint1Point2NoConstraintState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintNoConstraint(_this.curveShapeSpaceNavigator, _this.curveConstraints));
+        var crvConstraintAtExtremitiesStgy = new CurveConstraintStrategy_1.CurveConstraintNoConstraint(_this.shapeNavigableCurve.curveConstraints);
+        _this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
+        _this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
         return _this;
+        // this.curveConstraints.setConstraint(new CurveConstraintNoConstraint(this.shapeNavigableCurve.curveConstraints));
     }
-    HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+    HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1ConstraintPoint2NoConstraintState');
         warning.logMessageToConsole();
+        if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_1 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
+            warning_1.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[0] = selectedPoint;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this.curveSceneController));
     };
-    HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+    HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1NoConstraintPoint2ConstraintState');
         warning.logMessageToConsole();
+        if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_2 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
+            warning_2.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[1] = selectedPoint;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1NoConstraintPoint2ConstraintState(this.curveSceneController));
     };
     return HandleConstraintAtPoint1Point2NoConstraintState;
@@ -42302,17 +42322,40 @@ var HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = /** @class */ (f
     __extends(HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, _super);
     function HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(_this.curveShapeSpaceNavigator, _this.curveConstraints));
+        var crvConstraintAtExtremitiesStgy = new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(_this.shapeNavigableCurve.curveConstraints);
+        _this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
+        _this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
         return _this;
+        // this.curveConstraints.setConstraint(new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints));
     }
-    HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+    HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1Point2NoConstraintState');
         warning.logMessageToConsole();
+        if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_3 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
+            warning_3.logMessageToConsole();
+        }
+        else if (this.shapeNavigableCurve.clampedPoints[0] !== selectedPoint) {
+            var warning_4 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' clamped point selection is incorrect !');
+            warning_4.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[0] = ShapeNavigableCurve_1.NO_CONSTRAINT;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.curveSceneController));
     };
-    HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+    HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1Point2ConstraintState');
         warning.logMessageToConsole();
+        if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_5 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
+            warning_5.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[1] = selectedPoint;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2ConstraintState(this.curveSceneController));
     };
     return HandleConstraintAtPoint1ConstraintPoint2NoConstraintState;
@@ -42322,17 +42365,40 @@ var HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = /** @class */ (f
     __extends(HandleConstraintAtPoint1NoConstraintPoint2ConstraintState, _super);
     function HandleConstraintAtPoint1NoConstraintPoint2ConstraintState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedLastControlPoint(_this.curveShapeSpaceNavigator));
+        var crvConstraintAtExtremitiesStgy = new CurveConstraintStrategy_1.CurveConstraintClampedLastControlPoint(_this.shapeNavigableCurve.curveConstraints);
+        _this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
+        _this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
         return _this;
+        // this.curveConstraints.setConstraint(new CurveConstraintClampedLastControlPoint(this.shapeNavigableCurve.curveConstraints));
     }
-    HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+    HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1Point2ConstraintState');
         warning.logMessageToConsole();
+        if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_6 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
+            warning_6.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[0] = selectedPoint;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2ConstraintState(this.curveSceneController));
     };
-    HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+    HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1Point2NoConstraintState');
         warning.logMessageToConsole();
+        if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_7 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
+            warning_7.logMessageToConsole();
+        }
+        else if (this.shapeNavigableCurve.clampedPoints[0] !== selectedPoint) {
+            var warning_8 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' clamped point selection is incorrect !');
+            warning_8.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[1] = ShapeNavigableCurve_1.NO_CONSTRAINT;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.curveSceneController));
     };
     return HandleConstraintAtPoint1NoConstraintPoint2ConstraintState;
@@ -42342,17 +42408,46 @@ var HandleConstraintAtPoint1Point2ConstraintState = /** @class */ (function (_su
     __extends(HandleConstraintAtPoint1Point2ConstraintState, _super);
     function HandleConstraintAtPoint1Point2ConstraintState(context) {
         var _this = _super.call(this, context) || this;
-        _this.curveConstraints.setConstraint(new CurveConstraintStrategy_1.CurveConstraintClampedFirstAndLastControlPoint(_this.curveShapeSpaceNavigator));
+        var crvConstraintAtExtremitiesStgy = new CurveConstraintStrategy_1.CurveConstraintClampedFirstAndLastControlPoint(_this.shapeNavigableCurve.curveConstraints);
+        _this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
+        // this.curveConstraints.setConstraint(new CurveConstraintClampedFirstAndLastControlPoint(this.shapeNavigableCurve.curveConstraints));
+        _this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
         return _this;
     }
-    HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function () {
+    HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1NoConstraintPoint2ConstraintState');
         warning.logMessageToConsole();
+        var indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(function (element) { return element == selectedPoint; });
+        if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_9 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
+            warning_9.logMessageToConsole();
+        }
+        else if (indexClampedPoint === -1) {
+            var warning_10 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' clamped point selection is incorrect !');
+            warning_10.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[0] = ShapeNavigableCurve_1.NO_CONSTRAINT;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1NoConstraintPoint2ConstraintState(this.curveSceneController));
     };
-    HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function () {
+    HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1ConstraintPoint2NoConstraintState');
         warning.logMessageToConsole();
+        var indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(function (element) { return element == selectedPoint; });
+        if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var warning_11 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
+            warning_11.logMessageToConsole();
+        }
+        else if (indexClampedPoint === -1) {
+            var warning_12 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' clamped point selection is incorrect !');
+            warning_12.logMessageToConsole();
+        }
+        else {
+            this.shapeNavigableCurve.clampedPoints[1] = ShapeNavigableCurve_1.NO_CONSTRAINT;
+            this.curveSceneController.clampedControlPointView.updateSelectedPoints(selectedPoint);
+        }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this.curveSceneController));
     };
     return HandleConstraintAtPoint1Point2ConstraintState;
@@ -42671,9 +42766,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
         var selectedEvent = [];
         this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1);
-        /* JCL 2020/09/24 Add default clamped control point */
-        this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
-        // temporaire
+        this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
         this.highlightedControlPolygonView = new HighlightedControlPolygonView_1.HighlightedControlPolygonView(this.curveModel.spline, this.gl);
         this.activeLocationControl = this.shapeNavigableCurve.activeLocationControl;
         this.activeExtremaLocationControl = this.curveShapeSpaceNavigator.activeExtremaLocationControl;
@@ -42685,7 +42778,7 @@ var CurveSceneController = /** @class */ (function () {
         this.registerCurveObservers();
         this.shapeNavigableCurve.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveSceneController(this));
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
-        this.clampedControlPointView.update(this.curveModel.spline);
+        this._clampedControlPointView.update(this.curveModel.spline);
         this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent);
         if (this.curveModel instanceof CurveModel_1.CurveModel) {
             this.curveControl = new SlidingStrategy_1.SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
@@ -42697,18 +42790,29 @@ var CurveSceneController = /** @class */ (function () {
         this.sliding = this.curveShapeSpaceNavigator.sliding;
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this.curveEventAtExtremityMayVanish = true;
-        this.constraintAtPoint1 = true;
-        this.constraintAtPoint2 = false;
-        // this.curveModeler = new CurveModeler();
         this.navigationState = this.curveShapeSpaceNavigator.navigationState;
         this.navigationState.setNavigationWithoutShapeSpaceMonitoring();
         this.shapeSpaceDiffEventsConfigurator = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
         this.shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         // this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
         // this.eventMgmtAtCurveExtremities = this.curveShapeSpaceNavigator.eventMgmtAtCurveExtremities;
-        this.curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
+        this._curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1ConstraintPoint2NoConstraintState(this);
         console.log("end constructor curveSceneController");
     }
+    Object.defineProperty(CurveSceneController.prototype, "clampedControlPointView", {
+        get: function () {
+            return this._clampedControlPointView;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveSceneController.prototype, "curveConstraintSelectionState", {
+        get: function () {
+            return this._curveConstraintSelectionState;
+        },
+        enumerable: false,
+        configurable: true
+    });
     CurveSceneController.prototype.initCurveSceneView = function () {
         this.controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
@@ -42718,15 +42822,15 @@ var CurveSceneController = /** @class */ (function () {
         this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveDiffEventsLocations);
         this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
         this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.shapeNavigableCurve.clampedControlPoints.push(0);
-        this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
+        this.shapeNavigableCurve.clampedPoints.push(0);
+        this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
         this.registerCurveObservers();
         this.controlOfCurvatureExtrema = true;
         this.controlOfInflection = true;
         this.controlOfCurveClamping = true;
-        if (this.shapeNavigableCurve.clampedControlPoints.length !== 0) {
-            this.shapeNavigableCurve.clampedControlPoints = [];
-            this.shapeNavigableCurve.clampedControlPoints[0] = 0;
+        if (this.shapeNavigableCurve.clampedPoints.length !== 0) {
+            this.shapeNavigableCurve.clampedPoints = [];
+            this.shapeNavigableCurve.clampedPoints[0] = 0;
         }
         this.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.firstControlPoint;
         this.dragging = false;
@@ -42742,7 +42846,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.controlPolygonView, "control points");
         this.curveModel.registerObserver(this.curveView, "curve");
         this.curveModel.registerObserver(this.curveKnotsView, "control points");
-        this.curveModel.registerObserver(this.clampedControlPointView, "control points");
+        this.curveModel.registerObserver(this._clampedControlPointView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
@@ -42803,8 +42907,8 @@ var CurveSceneController = /** @class */ (function () {
         this.controlPointsView.renderFrame();
         this.insertKnotButtonView.renderFrame();
         /* JCL 2020/09/24 Add the display of clamped control points */
-        if (this.controlOfCurveClamping && this.clampedControlPointView !== null) {
-            this.clampedControlPointView.renderFrame();
+        if (this.controlOfCurveClamping && this._clampedControlPointView !== null) {
+            this._clampedControlPointView.renderFrame();
         }
         if (this.curveModel !== undefined) {
             var curvatureEvents = [];
@@ -42850,8 +42954,8 @@ var CurveSceneController = /** @class */ (function () {
             throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model");
     };
     CurveSceneController.prototype.curveConstraintTransitionTo = function (curveConstraintSelectionState) {
-        this.curveConstraintSelectionState = curveConstraintSelectionState;
-        this.curveConstraintSelectionState.setContext(this);
+        this._curveConstraintSelectionState = curveConstraintSelectionState;
+        this._curveConstraintSelectionState.setContext(this);
     };
     CurveSceneController.prototype.toggleControlCurveEventsAtExtremities = function () {
         this.curveEventAtExtremityMayVanish = !this.curveEventAtExtremityMayVanish;
@@ -42876,14 +42980,14 @@ var CurveSceneController = /** @class */ (function () {
                     // this.curveModel.spline.insertKnot(grevilleAbscissae[cp], 1)
                     this.curveControl.resetCurve(this.curveModel);
                     if (this.activeLocationControl === ShapeNavigableCurve_1.ActiveLocationControl.both) {
-                        if (this.shapeNavigableCurve.clampedControlPoints[0] === 0) {
-                            this.shapeNavigableCurve.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
+                        if (this.shapeNavigableCurve.clampedPoints[0] === 0) {
+                            this.shapeNavigableCurve.clampedPoints[1] = this.curveModel.spline.controlPoints.length - 1;
                         }
                         else
-                            this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                            this.shapeNavigableCurve.clampedPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                     }
                     else if (this.activeLocationControl === ShapeNavigableCurve_1.ActiveLocationControl.lastControlPoint) {
-                        this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
+                        this.shapeNavigableCurve.clampedPoints[0] = this.curveModel.spline.controlPoints.length - 1;
                     }
                     // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
                     // JCL the curveControl must be set in accordance with the current status of controls
@@ -42998,71 +43102,63 @@ var CurveSceneController = /** @class */ (function () {
     /* JCL 2020/09/25 Management of the dble click on a clamped control point */
     CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY) {
         if (this.curveModel !== undefined) {
-            // JCL 2021/10/19 code pour nvelle architecture
-            var selectedControlPoint = this.controlPointsView.getSelectedPoint();
-            if (selectedControlPoint === 0) {
-                this.constraintAtPoint1 = !this.constraintAtPoint1;
-                this.curveConstraintSelectionState.handleCurveConstraintAtPoint1();
-            }
-            if (selectedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
-                this.constraintAtPoint2 = !this.constraintAtPoint2;
-                this.curveConstraintSelectionState.handleCurveConstraintAtPoint2();
-            }
             if (this.controlOfCurveClamping) {
-                if (this.clampedControlPointView !== null) {
+                if (this._clampedControlPointView !== null) {
                     // let selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
-                    var selectedClampedControlPoint = this.clampedControlPointView.pointSelection(ndcX, ndcY);
+                    var selectedClampedControlPoint = this._clampedControlPointView.knotSelection(ndcX, ndcY);
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if (selectedClampedControlPoint !== null) {
-                        if (this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] === selectedClampedControlPoint) {
-                            console.log("dlble_click: no cp left");
-                            // this.clampedControlPointView = null
-                            this.shapeNavigableCurve.clampedControlPoints.pop();
-                            this.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.none;
-                            return false;
+                        if ((this.shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT)
+                            && this.shapeNavigableCurve.clampedPoints[1] !== selectedClampedControlPoint) {
+                            this._curveConstraintSelectionState.handleCurveConstraintAtPoint1(selectedClampedControlPoint);
                         }
-                        else if (this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] !== selectedClampedControlPoint
-                            && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
-                            console.log("dlble_click: two cp clamped");
-                            this.shapeNavigableCurve.clampedControlPoints.push(selectedClampedControlPoint);
-                            var clampedControlPoint = [];
-                            clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
-                            clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
-                            this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
-                            this.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.both;
-                            return true;
+                        else if ((this.shapeNavigableCurve.clampedPoints[1] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT)
+                            && this.shapeNavigableCurve.clampedPoints[0] !== selectedClampedControlPoint) {
+                            this._curveConstraintSelectionState.handleCurveConstraintAtPoint2(selectedClampedControlPoint);
                         }
-                        else if (this.shapeNavigableCurve.clampedControlPoints.length === 2) {
-                            if (selectedClampedControlPoint === 0) {
-                                console.log("dlble_click: last cp left");
-                                if (this.shapeNavigableCurve.clampedControlPoints[1] === selectedClampedControlPoint) {
-                                    this.shapeNavigableCurve.clampedControlPoints.pop();
-                                }
-                                else
-                                    this.shapeNavigableCurve.clampedControlPoints.splice(0, 1);
-                                var clampedControlPoint = [];
-                                clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1]);
-                                this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
-                                this.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.lastControlPoint;
-                                console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints);
-                            }
-                            else if (selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
-                                console.log("dlble_click: first cp left");
-                                if (this.shapeNavigableCurve.clampedControlPoints[1] === selectedClampedControlPoint) {
-                                    this.shapeNavigableCurve.clampedControlPoints.pop();
-                                }
-                                else
-                                    this.shapeNavigableCurve.clampedControlPoints.splice(0, 1);
-                                var clampedControlPoint = [];
-                                clampedControlPoint.push(this.curveModel.spline.controlPoints[0]);
-                                this.clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints);
-                                this.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.firstControlPoint;
-                                console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints);
-                            }
-                            return true;
-                        }
-                        else
-                            return true;
+                        this.curveModel.notifyObservers();
+                        // if(this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] === selectedClampedControlPoint) {
+                        //     console.log("dlble_click: no cp left")
+                        //     // this.clampedControlPointView = null
+                        //     this.shapeNavigableCurve.clampedControlPoints.pop()
+                        //     this.activeLocationControl = ActiveLocationControl.none
+                        //     return false
+                        // }
+                        // else if(this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] !== selectedClampedControlPoint 
+                        //     && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
+                        //     console.log("dlble_click: two cp clamped")
+                        //     this.shapeNavigableCurve.clampedControlPoints.push(selectedClampedControlPoint)
+                        //     let clampedControlPoint: Vector2d[] = []
+                        //     clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
+                        //     clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
+                        //     this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints)
+                        //     this.activeLocationControl = ActiveLocationControl.both
+                        //     return true
+                        // }
+                        // else if(this.shapeNavigableCurve.clampedControlPoints.length === 2) {
+                        //     if(selectedClampedControlPoint === 0) {
+                        //         console.log("dlble_click: last cp left")
+                        //         if(this.shapeNavigableCurve.clampedControlPoints[1] === selectedClampedControlPoint) {
+                        //             this.shapeNavigableCurve.clampedControlPoints.pop()
+                        //         } else this.shapeNavigableCurve.clampedControlPoints.splice(0, 1)
+                        //         let clampedControlPoint: Vector2d[] = []
+                        //         clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
+                        //         this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints)
+                        //         this.activeLocationControl = ActiveLocationControl.lastControlPoint
+                        //         console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints)
+                        //     } else if(selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
+                        //         console.log("dlble_click: first cp left")
+                        //         if(this.shapeNavigableCurve.clampedControlPoints[1] === selectedClampedControlPoint) {
+                        //             this.shapeNavigableCurve.clampedControlPoints.pop()
+                        //         } else this.shapeNavigableCurve.clampedControlPoints.splice(0, 1)
+                        //         let clampedControlPoint: Vector2d[] = []
+                        //         clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
+                        //         this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints)
+                        //         this.activeLocationControl = ActiveLocationControl.firstControlPoint
+                        //         console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints)
+                        //     }
+                        return true;
+                        // } else return true
                     }
                     else
                         return true;
@@ -46129,16 +46225,20 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
 var TOL_LOCATION_CURVE_EXTREMITIES = 1.0E-6;
 var CurveConstraintNoConstraint = /** @class */ (function () {
-    function CurveConstraintNoConstraint(curveShapeSpaceNavigator, curveConstraints) {
-        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    function CurveConstraintNoConstraint(curveConstraints) {
         this.curveConstraints = curveConstraints;
-        this.firstControlPoint = CurveConstraints_1.ConstraintType.none;
-        this.lastControlPoint = CurveConstraints_1.ConstraintType.none;
-        this.shapeNavigableCurve = this.curveShapeSpaceNavigator.shapeNavigableCurve;
-        this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
+        this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
+        this.curveShapeSpaceNavigator = undefined;
+        this._firstControlPoint = CurveConstraints_1.ConstraintType.none;
+        this._lastControlPoint = CurveConstraints_1.ConstraintType.none;
+        this.curveConstraints.firstControlPoint = this._firstControlPoint;
+        this.curveConstraints.lastControlPoint = this._lastControlPoint;
+        // this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
+        this.targetCurve = undefined;
         this._optimizedCurve = this.targetCurve;
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", " strategy for no CP clamped.");
         warning.logMessageToConsole();
+        // this.activeLocationControl = ActiveLocationControl.none;
     }
     Object.defineProperty(CurveConstraintNoConstraint.prototype, "optimizedCurve", {
         get: function () {
@@ -46147,21 +46247,30 @@ var CurveConstraintNoConstraint = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    // get firstControlPoint(): ConstraintType {
-    //     return this._firstControlPoint;
-    // }
-    // get lastControlPoint(): ConstraintType {
-    //     return this._lastControlPoint;
-    // }
+    Object.defineProperty(CurveConstraintNoConstraint.prototype, "firstControlPoint", {
+        get: function () {
+            return this._firstControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraintNoConstraint.prototype, "lastControlPoint", {
+        get: function () {
+            return this._lastControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
     CurveConstraintNoConstraint.prototype.updateCurve = function () {
-        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+        if (this.curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+        }
     };
     CurveConstraintNoConstraint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.none
             && curveConstraints.lastControlPoint === CurveConstraints_1.ConstraintType.none) {
             this.updateCurve();
-            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
-            this.curveConstraints.optimizedCurve = this._optimizedCurve;
+            // this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
@@ -46172,15 +46281,18 @@ var CurveConstraintNoConstraint = /** @class */ (function () {
 }());
 exports.CurveConstraintNoConstraint = CurveConstraintNoConstraint;
 var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
-    function CurveConstraintClampedFirstControlPoint(curveShapeSpaceNavigator, curveConstraints) {
-        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    function CurveConstraintClampedFirstControlPoint(curveConstraints) {
         this.curveConstraints = curveConstraints;
-        this.firstControlPoint = CurveConstraints_1.ConstraintType.location;
-        this.lastControlPoint = CurveConstraints_1.ConstraintType.none;
-        this.curveModeler = this.curveShapeSpaceNavigator.shapeNavigableCurve;
-        this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
+        this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
+        this.curveShapeSpaceNavigator = undefined;
+        this._firstControlPoint = CurveConstraints_1.ConstraintType.location;
+        this._lastControlPoint = CurveConstraints_1.ConstraintType.none;
+        this.curveConstraints.firstControlPoint = this._firstControlPoint;
+        this.curveConstraints.lastControlPoint = this._lastControlPoint;
+        this.targetCurve = undefined;
         this._optimizedCurve = this.targetCurve;
-        this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
+        this.displacementCurrentCurveControlPolygon = undefined;
+        // this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", " strategy for first CP clamped.");
         warning.logMessageToConsole();
     }
@@ -46191,27 +46303,41 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    // get firstControlPoint(): ConstraintType {
-    //     return this._firstControlPoint;
-    // }
-    // get lastControlPoint(): ConstraintType {
-    //     return this._lastControlPoint;
-    // }
+    Object.defineProperty(CurveConstraintClampedFirstControlPoint.prototype, "firstControlPoint", {
+        get: function () {
+            return this._firstControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraintClampedFirstControlPoint.prototype, "lastControlPoint", {
+        get: function () {
+            return this._lastControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
     CurveConstraintClampedFirstControlPoint.prototype.updateCurve = function () {
-        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+        if (this.curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+        }
     };
     CurveConstraintClampedFirstControlPoint.prototype.relocateCurveAfterOptimization = function () {
         this.updateCurve();
-        var controlPoints = this._optimizedCurve.controlPoints;
-        this.curveShapeSpaceNavigator.curveDisplacement();
-        for (var _i = 0, controlPoints_1 = controlPoints; _i < controlPoints_1.length; _i++) {
-            var controlP = controlPoints_1[_i];
-            controlP.x -= this.displacementCurrentCurveControlPolygon[0].x;
-            controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
+        if (this._optimizedCurve !== undefined) {
+            var controlPoints = this._optimizedCurve.controlPoints;
+            if (this.curveShapeSpaceNavigator !== undefined
+                && this.displacementCurrentCurveControlPolygon !== undefined) {
+                this.curveShapeSpaceNavigator.curveDisplacement();
+                for (var _i = 0, controlPoints_1 = controlPoints; _i < controlPoints_1.length; _i++) {
+                    var controlP = controlPoints_1[_i];
+                    controlP.x -= this.displacementCurrentCurveControlPolygon[0].x;
+                    controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
+                }
+            }
+            this._optimizedCurve.controlPoints = controlPoints;
         }
-        this._optimizedCurve.controlPoints = controlPoints;
-        this.curveConstraints.optimizedCurve = this._optimizedCurve;
-        return this.curveConstraints.optimizedCurve;
+        return this._optimizedCurve;
     };
     CurveConstraintClampedFirstControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.location
@@ -46227,39 +46353,56 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function () {
 }());
 exports.CurveConstraintClampedFirstControlPoint = CurveConstraintClampedFirstControlPoint;
 var CurveConstraintClampedLastControlPoint = /** @class */ (function () {
-    function CurveConstraintClampedLastControlPoint(curveShapeSpaceNavigator) {
-        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
-        this.firstControlPoint = CurveConstraints_1.ConstraintType.none;
-        this.lastControlPoint = CurveConstraints_1.ConstraintType.location;
-        this.curveModeler = this.curveShapeSpaceNavigator.shapeNavigableCurve;
-        this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
+    function CurveConstraintClampedLastControlPoint(curveConstraints) {
+        this.curveConstraints = curveConstraints;
+        this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
+        this.curveShapeSpaceNavigator = undefined;
+        this._firstControlPoint = CurveConstraints_1.ConstraintType.none;
+        this._lastControlPoint = CurveConstraints_1.ConstraintType.location;
+        this.curveConstraints.firstControlPoint = this._firstControlPoint;
+        this.curveConstraints.lastControlPoint = this._lastControlPoint;
+        this.targetCurve = undefined;
         this._optimizedCurve = this.targetCurve;
-        this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
+        // this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
+        this.displacementCurrentCurveControlPolygon = undefined;
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", " strategy for last CP clamped.");
         warning.logMessageToConsole();
     }
-    // get firstControlPoint(): ConstraintType {
-    //     return this._firstControlPoint;
-    // }
-    // get lastControlPoint(): ConstraintType {
-    //     return this._lastControlPoint;
-    // }
+    Object.defineProperty(CurveConstraintClampedLastControlPoint.prototype, "firstControlPoint", {
+        get: function () {
+            return this._firstControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraintClampedLastControlPoint.prototype, "lastControlPoint", {
+        get: function () {
+            return this._lastControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
     CurveConstraintClampedLastControlPoint.prototype.updateCurve = function () {
-        this._optimizedCurve = this.curveConstraints.optimizedCurve;
+        if (this.curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+        }
     };
     CurveConstraintClampedLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
         this.updateCurve();
-        var controlPoints = this._optimizedCurve.controlPoints;
-        this.curveShapeSpaceNavigator.curveDisplacement();
-        for (var _i = 0, controlPoints_2 = controlPoints; _i < controlPoints_2.length; _i++) {
-            var controlP = controlPoints_2[_i];
-            controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
-            controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
+        if (this._optimizedCurve !== undefined) {
+            var controlPoints = this._optimizedCurve.controlPoints;
+            if (this.curveShapeSpaceNavigator !== undefined &&
+                this.displacementCurrentCurveControlPolygon !== undefined) {
+                this.curveShapeSpaceNavigator.curveDisplacement();
+                for (var _i = 0, controlPoints_2 = controlPoints; _i < controlPoints_2.length; _i++) {
+                    var controlP = controlPoints_2[_i];
+                    controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
+                    controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
+                }
+            }
+            this._optimizedCurve.controlPoints = controlPoints;
         }
-        this._optimizedCurve.controlPoints = controlPoints;
-        this.curveConstraints.optimizedCurve = this._optimizedCurve;
-        return this.curveConstraints.optimizedCurve;
+        return this._optimizedCurve;
     };
     CurveConstraintClampedLastControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.none
@@ -46275,41 +46418,55 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function () {
 }());
 exports.CurveConstraintClampedLastControlPoint = CurveConstraintClampedLastControlPoint;
 var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function () {
-    function CurveConstraintClampedFirstAndLastControlPoint(curveShapeSpaceNavigator) {
-        this.curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this.curveConstraints = this.curveShapeSpaceNavigator.curveConstraints;
-        this.firstControlPoint = CurveConstraints_1.ConstraintType.location;
-        this.lastControlPoint = CurveConstraints_1.ConstraintType.location;
-        this.curveModeler = this.curveShapeSpaceNavigator.shapeNavigableCurve;
-        this.currentCurve = this.curveShapeSpaceNavigator.currentCurve;
-        this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
+    function CurveConstraintClampedFirstAndLastControlPoint(curveConstraints) {
+        this.curveConstraints = curveConstraints;
+        this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
+        this.curveShapeSpaceNavigator = undefined;
+        this._firstControlPoint = CurveConstraints_1.ConstraintType.location;
+        this._lastControlPoint = CurveConstraints_1.ConstraintType.location;
+        this.curveConstraints.firstControlPoint = this._firstControlPoint;
+        this.curveConstraints.lastControlPoint = this._lastControlPoint;
+        this.currentCurve = undefined;
+        this.targetCurve = undefined;
         this._optimizedCurve = this.targetCurve;
-        this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
+        // this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
+        this.displacementCurrentCurveControlPolygon = undefined;
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", " strategy for first and last CP clamped.");
         warning.logMessageToConsole();
     }
-    // get firstControlPoint(): ConstraintType {
-    //     return this._firstControlPoint;
-    // }
-    // get lastControlPoint(): ConstraintType {
-    //     return this._lastControlPoint;
-    // }
+    Object.defineProperty(CurveConstraintClampedFirstAndLastControlPoint.prototype, "firstControlPoint", {
+        get: function () {
+            return this._firstControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraintClampedFirstAndLastControlPoint.prototype, "lastControlPoint", {
+        get: function () {
+            return this._lastControlPoint;
+        },
+        enumerable: false,
+        configurable: true
+    });
     CurveConstraintClampedFirstAndLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
-        var controlPoints = this._optimizedCurve.controlPoints;
-        var nbControlPts = this.displacementCurrentCurveControlPolygon.length;
-        this.curveShapeSpaceNavigator.curveDisplacement();
-        if (Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < TOL_LOCATION_CURVE_EXTREMITIES) {
-            this.displacementCurrentCurveControlPolygon[controlPoints.length - 1] = this.displacementCurrentCurveControlPolygon[0];
-            for (var _i = 0, controlPoints_3 = controlPoints; _i < controlPoints_3.length; _i++) {
-                var controlP = controlPoints_3[_i];
-                controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
-                controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
+        if (this._optimizedCurve !== undefined && this.curveShapeSpaceNavigator !== undefined
+            && this.displacementCurrentCurveControlPolygon !== undefined) {
+            var controlPoints = this._optimizedCurve.controlPoints;
+            var nbControlPts = this.displacementCurrentCurveControlPolygon.length;
+            this.curveShapeSpaceNavigator.curveDisplacement();
+            if (Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < TOL_LOCATION_CURVE_EXTREMITIES) {
+                this.displacementCurrentCurveControlPolygon[controlPoints.length - 1] = this.displacementCurrentCurveControlPolygon[0];
+                for (var _i = 0, controlPoints_3 = controlPoints; _i < controlPoints_3.length; _i++) {
+                    var controlP = controlPoints_3[_i];
+                    controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
+                    controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
+                }
+                this._optimizedCurve.controlPoints = controlPoints;
             }
-            this._optimizedCurve.controlPoints = controlPoints;
-        }
-        else {
-            // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
-            this._optimizedCurve = this.currentCurve;
+            else {
+                // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
+                this._optimizedCurve = this.currentCurve;
+            }
         }
         return this._optimizedCurve;
     };
@@ -46343,8 +46500,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveConstraints = exports.CurveExtremity = exports.ConstraintType = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
-var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
 var ConstraintType;
 (function (ConstraintType) {
     ConstraintType[ConstraintType["none"] = 0] = "none";
@@ -46358,19 +46513,17 @@ var CurveExtremity;
     CurveExtremity[CurveExtremity["last"] = 1] = "last";
 })(CurveExtremity = exports.CurveExtremity || (exports.CurveExtremity = {}));
 var CurveConstraints = /** @class */ (function () {
-    function CurveConstraints(curveShapeSpaceNavigator, curveConstraintProcessor) {
+    // private _optimizedCurve: BSplineR1toR2Interface;
+    function CurveConstraints(shapeNavigableCurve) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
-        if (!curveConstraintProcessor) {
-            this._curveConstraintProcessor = new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(curveShapeSpaceNavigator, this);
-        }
-        else {
-            this._curveConstraintProcessor = curveConstraintProcessor;
-        }
-        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+        this._curveConstraintProcessor = new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(this);
         this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
         this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
-        this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
+        this._shapeNavigableCurve = shapeNavigableCurve;
+        this._firstControlPoint = ConstraintType.location;
+        this._lastControlPoint = ConstraintType.none;
+        // this._optimizedCurve = this._shapeNavigableCurve.optimizedCurve;
     }
     Object.defineProperty(CurveConstraints.prototype, "firstControlPoint", {
         get: function () {
@@ -46392,12 +46545,12 @@ var CurveConstraints = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveConstraints.prototype, "optimizedCurve", {
+    Object.defineProperty(CurveConstraints.prototype, "shapeNavigableCurve", {
+        // set optimizedCurve(curve: BSplineR1toR2Interface) {
+        //     this._optimizedCurve = curve;
+        // }
         get: function () {
-            return this._optimizedCurve;
-        },
-        set: function (curve) {
-            this._optimizedCurve = curve;
+            return this._shapeNavigableCurve;
         },
         enumerable: false,
         configurable: true
@@ -46411,27 +46564,41 @@ var CurveConstraints = /** @class */ (function () {
     });
     Object.defineProperty(CurveConstraints.prototype, "curveShapeSpaceNavigator", {
         get: function () {
-            return this._curveShapeSpaceNavigator;
+            return this._shapeNavigableCurve;
         },
         enumerable: false,
         configurable: true
     });
+    // get optimizedCurve(): BSplineR1toR2Interface {
+    //     return this._optimizedCurve;
+    // }
     CurveConstraints.prototype.setConstraint = function (curveConstraintProcessor) {
         this._curveConstraintProcessor = curveConstraintProcessor;
         this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
         this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
     };
-    CurveConstraints.prototype.processConstraint = function () {
-        this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
-        if (this._optimizedCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
-            this._curveShapeSpaceNavigator.optimizedCurve = this._optimizedCurve;
-        }
-        else if (this._optimizedCurve instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
-            console.log("periodic Bspline to be processed");
-        }
-    };
-    CurveConstraints.prototype.updateCurve = function () {
-        this._optimizedCurve = this._curveShapeSpaceNavigator.optimizedCurve;
+    // processConstraint(): void {
+    //     this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
+    //     if(this._optimizedCurve instanceof BSplineR1toR2) {
+    //         this._shapeNavigableCurve.optimizedCurve = this._optimizedCurve;
+    //     } else if(this._optimizedCurve instanceof PeriodicBSplineR1toR2) {
+    //         console.log("periodic Bspline to be processed")
+    //     }
+    // }
+    // updateCurve(): void {
+    //     this._optimizedCurve = this._shapeNavigableCurve.optimizedCurve;
+    // }
+    // clearConstraint(extremity: CurveExtremity): void {
+    //     if(extremity === CurveExtremity.first) {
+    //         this._firstControlPoint = ConstraintType.none;
+    //     }
+    //     if(extremity === CurveExtremity.last) {
+    //         this._lastControlPoint = ConstraintType.none;
+    //     }
+    // }
+    CurveConstraints.prototype.clearAll = function () {
+        this._firstControlPoint = ConstraintType.none;
+        this._lastControlPoint = ConstraintType.none;
     };
     return CurveConstraints;
 }());
@@ -46498,7 +46665,6 @@ var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mat
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
-var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
 var CurveShapeSpaceDesccriptor_1 = __webpack_require__(/*! ./CurveShapeSpaceDesccriptor */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor.ts");
 var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var NavigationState_1 = __webpack_require__(/*! ./NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
@@ -46563,8 +46729,8 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         _this._targetCurve = _this.curveModel.spline.clone();
         _this._optimizedCurve = _this._currentCurve;
         _this.currentControlPolygon.forEach(function () { return _this.displacementCurrentCurveControlPolygon.push(new Vector2d_1.Vector2d(0.0, 0.0)); });
-        _this._curveConstraints = new CurveConstraints_1.CurveConstraints(_this);
-        _this._curveConstraintProcessor = _this._curveConstraints.curveConstraintProcessor;
+        // this._curveConstraints = new CurveConstraints(this);
+        // this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
         _this.shapeSpaceDiffEventsConfigurator = new ShapeSpaceDiffEventsConfigurator_1.ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         _this.shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(_this._shapeNavigableCurve, _this.shapeSpaceDiffEventsConfigurator, _this);
         _this.curveControlState = new CurveControlState_1.HandleNoDiffEventNoSlidingState(_this);
@@ -46618,23 +46784,19 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OpenCurveShapeSpaceNavigator.prototype, "curveConstraints", {
+    Object.defineProperty(OpenCurveShapeSpaceNavigator.prototype, "optimizationProblemParam", {
+        // get curveConstraints(): CurveConstraints {
+        //     return this._curveConstraints;
+        // }
         get: function () {
-            return this._curveConstraints;
+            return this._optimizationProblemParam;
         },
         // set navigationParams(navigationParameters: ShapeSpaceDiffEventsStructure) {
         //     this._navigationParameters = navigationParameters;
         // }
-        set: function (curveConstraints) {
-            this._curveConstraints = curveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OpenCurveShapeSpaceNavigator.prototype, "optimizationProblemParam", {
-        get: function () {
-            return this._optimizationProblemParam;
-        },
+        // set curveConstraints(curveConstraints: CurveConstraints) {
+        //     this._curveConstraints = curveConstraints;
+        // }
         set: function (optimPbParam) {
             this._optimizationProblemParam = optimPbParam;
         },
@@ -46683,20 +46845,13 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OpenCurveShapeSpaceNavigator.prototype, "curveConstraintProcessor", {
-        get: function () {
-            return this._curveConstraintProcessor;
-        },
-        set: function (curveConstraintProcessor) {
-            this._curveConstraintProcessor = curveConstraintProcessor;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(OpenCurveShapeSpaceNavigator.prototype, "currentCurve", {
         get: function () {
             return this._currentCurve;
         },
+        // set curveConstraintProcessor(curveConstraintProcessor: CurveConstraintProcessor) {
+        //     this._curveConstraintProcessor = curveConstraintProcessor;
+        // }
         set: function (curve) {
             this._currentCurve = curve;
         },
@@ -46742,6 +46897,9 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(OpenCurveShapeSpaceNavigator.prototype, "curveControl", {
+        // get curveConstraintProcessor(): CurveConstraintProcessor {
+        //     return this._curveConstraintProcessor;
+        // }
         get: function () {
             return this._curveControl;
         },
@@ -46752,9 +46910,6 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         this.navigationState = state;
         this.navigationState.setCurveShapeSpaceNavigator(this);
     };
-    OpenCurveShapeSpaceNavigator.prototype.changeCurveState = function (state) {
-        this._curveConstraintProcessor = state;
-    };
     /* JCL test code debut */
     OpenCurveShapeSpaceNavigator.prototype.transitionTo = function (curveControlState) {
         this.curveControlState = curveControlState;
@@ -46763,8 +46918,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
     OpenCurveShapeSpaceNavigator.prototype.navigateSpace = function (selectedControlPoint, x, y) {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, "navigateSpace", this.navigationState.constructor.name + " "
             + this.shapeSpaceDiffEventsConfigurator.constructor.name + " "
-            + this._eventMgmtAtCurveExtremities.eventState.constructor.name + " "
-            + this._curveConstraints.curveConstraintProcessor.constructor.name + " ");
+            + this._eventMgmtAtCurveExtremities.eventState.constructor.name + " ");
         // + this._curveWithGeomConstraints.curveCategory.constructor.name);
         message.logMessageToConsole();
         this._selectedControlPoint = selectedControlPoint;
@@ -46906,7 +47060,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         _this.curveModel = curveModel;
         _this._controlOfCurvatureExtrema = true;
         _this._controlOfInflection = true;
-        _this._curveConstraints = new CurveConstraints_1.CurveConstraints(_this);
+        // this._curveConstraints = new CurveConstraints(this);
         _this.navigationState = new NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring(_this);
         _this._selectedControlPoint = undefined;
         _this.displacementSelctdCP = new Vector2d_1.Vector2d(0, 0);
@@ -46946,14 +47100,10 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(ClosedCurveShapeSpaceNavigator.prototype, "curveConstraints", {
-        get: function () {
-            return this._curveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(ClosedCurveShapeSpaceNavigator.prototype, "currentCurve", {
+        // get curveConstraints(): CurveConstraints {
+        //     return this._curveConstraints;
+        // }
         get: function () {
             return this._currentCurve;
         },
@@ -47121,8 +47271,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
     };
     ClosedCurveShapeSpaceNavigator.prototype.navigateSpace = function (selectedControlPoint, x, y) {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, "navigateSpace", this.navigationState.constructor.name + " "
-            + this.shapeSpaceDiffEventsConfigurator.constructor.name + " "
-            + this._curveConstraints.curveConstraintProcessor.constructor.name + " ");
+            + this.shapeSpaceDiffEventsConfigurator.constructor.name + " ");
         // + this._curveWithGeomConstraints.curveCategory.constructor.name);
         message.logMessageToConsole();
         this._selectedControlPoint = selectedControlPoint;
@@ -47184,8 +47333,8 @@ var OpenCurveNavigationState = /** @class */ (function (_super) {
     function OpenCurveNavigationState(curveNavigator) {
         var _this = _super.call(this) || this;
         _this.curveShapeSpaceNavigator = curveNavigator;
-        _this.curveConstraints = _this.curveShapeSpaceNavigator.curveConstraints;
-        if (!_this.curveShapeSpaceNavigator.curveConstraints) {
+        _this.shapeNavigableCurve = _this.curveShapeSpaceNavigator.shapeNavigableCurve;
+        if (!_this.curveShapeSpaceNavigator.shapeNavigableCurve) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
             warning.logMessageToConsole();
         }
@@ -47232,7 +47381,7 @@ var OCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         warning.logMessageToConsole();
     };
     OCurveNavigationWithoutShapeSpaceMonitoring.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.curveConstraints.processConstraint();
     };
     OCurveNavigationWithoutShapeSpaceMonitoring.prototype.navigate = function (selectedControlPoint, x, y) {
         this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -47242,7 +47391,7 @@ var OCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
         this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
-        this.curveConstraints.updateCurve();
+        // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -47266,7 +47415,7 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         warning.logMessageToConsole();
     };
     OCurveNavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     };
     OCurveNavigationThroughSimplerShapeSpaces.prototype.navigate = function (selectedControlPoint, x, y) {
         this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -47299,7 +47448,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         warning.logMessageToConsole();
     };
     OCurveNavigationStrictlyInsideShapeSpace.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     };
     OCurveNavigationStrictlyInsideShapeSpace.prototype.navigate = function (selectedControlPoint, x, y) {
         this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -47327,8 +47476,8 @@ var ClosedCurveNavigationState = /** @class */ (function (_super) {
     function ClosedCurveNavigationState(curveNavigator) {
         var _this = _super.call(this) || this;
         _this.curveShapeSpaceNavigator = curveNavigator;
-        _this.curveConstraints = _this.curveShapeSpaceNavigator.curveConstraints;
-        if (!_this.curveShapeSpaceNavigator.curveConstraints) {
+        _this.shapeNavigableCurve = _this.curveShapeSpaceNavigator.shapeNavigableCurve;
+        if (!_this.curveShapeSpaceNavigator.shapeNavigableCurve) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
             warning.logMessageToConsole();
         }
@@ -47375,7 +47524,7 @@ var CCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         warning.logMessageToConsole();
     };
     CCurveNavigationWithoutShapeSpaceMonitoring.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     };
     CCurveNavigationWithoutShapeSpaceMonitoring.prototype.navigate = function (selectedControlPoint, x, y) {
         this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -47385,7 +47534,7 @@ var CCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
         this.curveShapeSpaceNavigator.optimizationProblemParam.updateConstraintBounds = false;
         this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.targetCurve;
-        this.curveConstraints.updateCurve();
+        // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
         this.curveShapeSpaceNavigator.seqDiffEventsOptimizedCurve = this.curveShapeSpaceNavigator.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -47409,7 +47558,7 @@ var CCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         warning.logMessageToConsole();
     };
     CCurveNavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     };
     CCurveNavigationThroughSimplerShapeSpaces.prototype.navigate = function (selectedControlPoint, x, y) {
         this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -47442,7 +47591,7 @@ var CCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         warning.logMessageToConsole();
     };
     CCurveNavigationStrictlyInsideShapeSpace.prototype.curveConstraintsMonitoring = function () {
-        this.curveConstraints.processConstraint();
+        // this.shapeNavigableCurve.processConstraint();
     };
     CCurveNavigationStrictlyInsideShapeSpace.prototype.navigate = function (selectedControlPoint, x, y) {
         this.curveShapeSpaceNavigator.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -50040,6 +50189,7 @@ exports.CurveModelObserverInCurveSceneController = exports.CurveModelObserverInF
 var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var NavigationState_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
+var ShapeNavigableCurve_1 = __webpack_require__(/*! ../shapeNavigableCurve/ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
 var CurveModelObserver = /** @class */ (function () {
     function CurveModelObserver() {
     }
@@ -50091,12 +50241,21 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
         return _this;
     }
     CurveModelObserverInCurveModelEventListener.prototype.update = function (message) {
+        // Nothing to do there if curve clamping state changes
         if (message instanceof CurveModel_1.CurveModel) {
             if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
                 this.listener.curveModel = message;
                 this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.curveModel = message;
                 // this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.currentCurve = message.spline;
-                this.listener.shapeNavigableCurve.clampedControlPoints[0] = 0;
+                // if(this.listener.shapeNavigableCurve.controlOfCurveClamping)
+                // {
+                //     this.listener.shapeNavigableCurve.clampedPoints[0] = 0;
+                //     this.listener.shapeNavigableCurve.clampedPoints[1] = NO_CONSTRAINT;
+                // } 
+                // else {
+                //     this.listener.shapeNavigableCurve.clampedPoints[0] = NO_CONSTRAINT;
+                //     this.listener.shapeNavigableCurve.clampedPoints[1] = NO_CONSTRAINT;
+                // }
                 var degree = message.spline.degree;
                 this.listener.updateCurveDegreeSelector(degree);
                 this.listener.resetCurveConstraintControlButton();
@@ -50106,7 +50265,7 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
             this.listener.curveModel = message;
             this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.curveModel = message;
             // this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.currentCurve = message.spline;
-            this.listener.shapeNavigableCurve.clampedControlPoints[0] = 0;
+            this.listener.shapeNavigableCurve.clampedPoints[0] = 0;
             var degree = message.spline.degree;
             this.listener.updateCurveDegreeSelector(degree);
             this.listener.resetCurveConstraintControlButton();
@@ -50214,7 +50373,34 @@ var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) 
         return _this;
     }
     CurveModelObserverInCurveSceneController.prototype.update = function (message) {
-        if (message instanceof CurveModel_1.CurveModel) {
+        if (!this.listener.shapeNavigableCurve.controlOfCurveClamping) {
+            console.log("update clampedControlPointView when removing clamping control");
+            // Update the curveSceneController as if point1 and/or point2 had been selected to update the
+            // curve constraint selection state as well as the curveConstraintStrategy of the shapeNavigableCurve
+            // and the clampedPoints of the shapeNavigableCurve
+            if (this.listener.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint1(this.listener.shapeNavigableCurve.clampedPoints[0]);
+                this.listener.shapeNavigableCurve.clampedPoints[0] = ShapeNavigableCurve_1.NO_CONSTRAINT;
+            }
+            if (this.listener.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint2(this.listener.shapeNavigableCurve.clampedPoints[1]);
+                this.listener.shapeNavigableCurve.clampedPoints[1] = ShapeNavigableCurve_1.NO_CONSTRAINT;
+            }
+            this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
+            this.listener.renderFrame();
+        }
+        else if (this.listener.shapeNavigableCurve.controlOfCurveClamping) {
+            console.log("update clampedControlPointView when setting clamping control");
+            if (this.listener.shapeNavigableCurve.clampedPointsPreviousState[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint1(this.listener.shapeNavigableCurve.clampedPointsPreviousState[0]);
+            }
+            if (this.listener.shapeNavigableCurve.clampedPointsPreviousState[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
+                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint2(this.listener.shapeNavigableCurve.clampedPointsPreviousState[1]);
+            }
+            this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
+            this.listener.renderFrame();
+        }
+        else if (message instanceof CurveModel_1.CurveModel) {
             this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
             this.listener.initCurveSceneView();
             this.listener.renderFrame();
@@ -54631,7 +54817,6 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClosedPlanarCurve = exports.OpenPlanarCurve = exports.CurveCategory = void 0;
-var ShapeNavigableCurve_1 = __webpack_require__(/*! ./ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
 var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var EventMgmtAtCurveExtremities_1 = __webpack_require__(/*! ./EventMgmtAtCurveExtremities */ "./src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts");
@@ -54732,16 +54917,14 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
                 spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
                 this.curveModel.setSpline(spline);
             }
-            if (this.shapeNavigableCurve.activeLocationControl === ShapeNavigableCurve_1.ActiveLocationControl.both) {
-                if (this.shapeNavigableCurve.clampedControlPoints[0] === 0) {
-                    this.shapeNavigableCurve.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1;
-                }
-                else
-                    this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
-            }
-            else if (this.shapeNavigableCurve.activeLocationControl === ShapeNavigableCurve_1.ActiveLocationControl.lastControlPoint) {
-                this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1;
-            }
+            // if(this.shapeNavigableCurve.activeLocationControl === ActiveLocationControl.both) {
+            //     if(this.shapeNavigableCurve.clampedControlPoints[0] === 0){
+            //         this.shapeNavigableCurve.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+            //     } else this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            // }
+            // else if(this.shapeNavigableCurve.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+            //     this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            // }
             if (this._curveShapeSpaceNavigator.sliding) {
                 //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
             }
@@ -54754,28 +54937,6 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
             error.logMessageToConsole();
         }
-    };
-    /* JCL 2020/09/24 Monitor rigid body movements of the curve in accordance with the button status */
-    OpenPlanarCurve.prototype.toggleCurveClamping = function () {
-        this.shapeNavigableCurve.controlOfCurveClamping = !this.shapeNavigableCurve.controlOfCurveClamping;
-        console.log("control of curve clamping: " + this.shapeNavigableCurve.controlOfCurveClamping);
-        if (this.shapeNavigableCurve.controlOfCurveClamping) {
-            /* JCL 2020/09/24 Update the location of the clamped control point */
-            // let clampedControlPoint: Vector_2d[] = []
-            // if(this.curveModel !== undefined) {
-            //     clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-            // } else throw new Error("Unable to clamp a control point. Undefined curve model")
-            // this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
-            this.shapeNavigableCurve.clampedControlPoints = [];
-            this.shapeNavigableCurve.clampedControlPoints.push(0);
-            this.shapeNavigableCurve.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.firstControlPoint;
-            // if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
-        }
-        else {
-            this.shapeNavigableCurve.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.none;
-            this.shapeNavigableCurve.clampedControlPoints = [];
-        }
-        this.shapeNavigableCurve.notifyObservers();
     };
     return OpenPlanarCurve;
 }(CurveCategory));
@@ -54817,16 +54978,6 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
     };
     ClosedPlanarCurve.prototype.setNavigableCurveWithClosedPlanarCurve = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'no curve model to change there.');
-        warning.logMessageToConsole();
-    };
-    ClosedPlanarCurve.prototype.toggleCurveClamping = function () {
-        this.shapeNavigableCurve.controlOfCurveClamping = !this.shapeNavigableCurve.controlOfCurveClamping;
-        console.log("control of curve clamping: " + this.shapeNavigableCurve.controlOfCurveClamping);
-        this.shapeNavigableCurve.clampedControlPoints = [];
-        this.shapeNavigableCurve.clampedControlPoints.push(0);
-        this.shapeNavigableCurve.activeLocationControl = ShapeNavigableCurve_1.ActiveLocationControl.firstControlPoint;
-        this.shapeNavigableCurve.notifyObservers();
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'toggleCurveClamping', 'clamp first control point.');
         warning.logMessageToConsole();
     };
     ClosedPlanarCurve.prototype.inputSelectDegree = function (curveDegree) {
@@ -54967,9 +55118,11 @@ exports.EventSlideOutsideCurve = EventSlideOutsideCurve;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ShapeNavigableCurve = exports.ActiveLocationControl = void 0;
+exports.ShapeNavigableCurve = exports.NO_CONSTRAINT = exports.ActiveLocationControl = void 0;
 var CurveCategory_1 = __webpack_require__(/*! ./CurveCategory */ "./src/shapeNavigableCurve/CurveCategory.ts");
+var CurveConstraints_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var CurveConstraintStrategy_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 var ActiveLocationControl;
 (function (ActiveLocationControl) {
@@ -54979,15 +55132,22 @@ var ActiveLocationControl;
     ActiveLocationControl[ActiveLocationControl["none"] = 3] = "none";
     ActiveLocationControl[ActiveLocationControl["stopDeforming"] = 4] = "stopDeforming";
 })(ActiveLocationControl = exports.ActiveLocationControl || (exports.ActiveLocationControl = {}));
+;
+exports.NO_CONSTRAINT = -1;
 var ShapeNavigableCurve = /** @class */ (function () {
     function ShapeNavigableCurve() {
         // private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-        this._clampedControlPoints = [];
+        this._clampedPoints = [];
+        this._clampedPointsPreviousState = [];
         this.observers = [];
-        this._curveCategory = new CurveCategory_1.OpenPlanarCurve(this);
         this._controlOfCurveClamping = true;
+        this._curveCategory = new CurveCategory_1.OpenPlanarCurve(this);
+        this._curveConstraints = new CurveConstraints_1.CurveConstraints(this);
+        this._crvConstraintAtExtremitiesStgy = new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(this._curveConstraints);
         this.activeLocationControl = ActiveLocationControl.firstControlPoint;
-        this.clampedControlPoints.push(0);
+        this._clampedPoints.push(0);
+        this._clampedPoints.push(exports.NO_CONSTRAINT);
+        this._clampedPointsPreviousState = this._clampedPoints;
         // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
         // JCL To ensure its correct initialization, it must be called last to ensure a consistent
         // JCL initialization of each context.
@@ -54996,12 +55156,22 @@ var ShapeNavigableCurve = /** @class */ (function () {
     ShapeNavigableCurve.prototype.changeCurveCategory = function (category) {
         this._curveCategory = category;
     };
+    ShapeNavigableCurve.prototype.changeCurveConstraintStrategy = function (state) {
+        this._crvConstraintAtExtremitiesStgy = state;
+    };
     Object.defineProperty(ShapeNavigableCurve.prototype, "curveCategory", {
         // get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
         //     return this._curveShapeSpaceNavigator;
         // }
         get: function () {
             return this._curveCategory;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeNavigableCurve.prototype, "crvConstraintAtExtremitiesStgy", {
+        get: function () {
+            return this._crvConstraintAtExtremitiesStgy;
         },
         enumerable: false,
         configurable: true
@@ -55016,12 +55186,29 @@ var ShapeNavigableCurve = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(ShapeNavigableCurve.prototype, "clampedControlPoints", {
+    Object.defineProperty(ShapeNavigableCurve.prototype, "clampedPoints", {
         get: function () {
-            return this._clampedControlPoints;
+            return this._clampedPoints;
         },
-        set: function (clampedControlPoints) {
-            this._clampedControlPoints = clampedControlPoints;
+        set: function (clampedPoints) {
+            this._clampedPoints = clampedPoints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeNavigableCurve.prototype, "clampedPointsPreviousState", {
+        get: function () {
+            return this._clampedPointsPreviousState;
+        },
+        set: function (clampedPointsPreviousState) {
+            this._clampedPointsPreviousState = clampedPointsPreviousState;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShapeNavigableCurve.prototype, "curveConstraints", {
+        get: function () {
+            return this._curveConstraints;
         },
         enumerable: false,
         configurable: true
@@ -55044,6 +55231,26 @@ var ShapeNavigableCurve = /** @class */ (function () {
                 break;
             }
         }
+    };
+    /* JCL 2020/09/24 Monitor rigid body movements of the curve in accordance with the button status */
+    ShapeNavigableCurve.prototype.toggleCurveClamping = function () {
+        this._controlOfCurveClamping = !this._controlOfCurveClamping;
+        console.log("control of curve clamping: " + this._controlOfCurveClamping);
+        if (this._controlOfCurveClamping) {
+            // this.clampedPoints = []
+            // this.clampedPoints.push(0)
+            this._clampedPoints = this._clampedPointsPreviousState;
+            // this._crvConstraintAtExtremitiesStgy = new CurveConstraintClampedFirstControlPoint(this._curveConstraints);
+            this.activeLocationControl = ActiveLocationControl.firstControlPoint;
+            // if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
+        }
+        else {
+            this.activeLocationControl = ActiveLocationControl.none;
+            // Store the previous constraint state for restoration. Other actions take place when updating objects through observers
+            this._clampedPointsPreviousState = this._clampedPoints;
+            // this._crvConstraintAtExtremitiesStgy = new CurveConstraintNoConstraint(this._curveConstraints);
+        }
+        this.notifyObservers();
     };
     ShapeNavigableCurve.prototype.registerObserver = function (observer) {
         this.observers.push(observer);
@@ -55499,7 +55706,7 @@ var CurveModelDefinitionEventListener = /** @class */ (function (_super) {
     });
     CurveModelDefinitionEventListener.prototype.toggleCurveClamping = function () {
         this.controlOfCurveClamping = !this.controlOfCurveClamping;
-        this._shapeNavigableCurve.curveCategory.toggleCurveClamping();
+        this._shapeNavigableCurve.toggleCurveClamping();
     };
     CurveModelDefinitionEventListener.prototype.clickSelectDegree = function () {
         console.log("select Degree click");
@@ -55738,7 +55945,6 @@ var CurveSceneEventListener = /** @class */ (function () {
         var active_clamping = this._curveSceneController.dbleClick_event(c[0], c[1]);
         this._curveSceneController.renderFrame();
         console.log("mouse_double_click: " + active_clamping);
-        // if(!active_clamping) curveShapeModelerUserInterface.toggleButtonCurveClamping.click();
         if (!active_clamping)
             this.curveModelDefinitionEventListener.toggleButtonCurveClamping.click();
         ev.preventDefault();
@@ -56126,18 +56332,32 @@ var AbstractMouseSelectablePointView = /** @class */ (function (_super) {
         _this.indices = new Uint8Array([]);
         _this.pointSequenceToDisplay = [];
         _this.selectedPointIndex = null;
+        _this.selectedKnotIndex = null;
+        _this.spline = spline;
         _this.controlPoints = spline.controlPoints;
+        _this.knots = spline.getDistinctKnots();
         return _this;
     }
     AbstractMouseSelectablePointView.prototype.pointSelection = function (x, y, deltaSquared) {
         if (deltaSquared === void 0) { deltaSquared = this.SLCTN_ACCURACY_Squared; }
-        var result = null;
+        this.selectedPointIndex = null;
         for (var i = 0; i < this.controlPoints.length; i += 1) {
             if (Math.pow(x - this.controlPoints[i].x, 2) + Math.pow(y - this.controlPoints[i].y, 2) < deltaSquared) {
-                return i;
+                return this.selectedPointIndex = i;
             }
         }
-        return result;
+        return this.selectedPointIndex;
+    };
+    AbstractMouseSelectablePointView.prototype.knotSelection = function (x, y, deltaSquared) {
+        if (deltaSquared === void 0) { deltaSquared = this.SLCTN_ACCURACY_Squared; }
+        this.selectedKnotIndex = null;
+        for (var i = 0; i < this.knots.length; i += 1) {
+            var curvePnt = this.spline.evaluate(this.knots[i]);
+            if (Math.pow(x - curvePnt.x, 2) + Math.pow(y - curvePnt.y, 2) < deltaSquared) {
+                return this.selectedKnotIndex = i;
+            }
+        }
+        return this.selectedKnotIndex;
     };
     AbstractMouseSelectablePointView.prototype.getSelectedPoint = function () {
         return this.selectedPointIndex;
@@ -56333,6 +56553,7 @@ exports.ClampedControlPointView = void 0;
 var RoundDotTwoLevelsTransparencyShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader */ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var AbstractMouseSelectablePointView_1 = __webpack_require__(/*! ./AbstractMouseSelectablePointView */ "./src/views/AbstractMouseSelectablePointView.ts");
+var ShapeNavigableCurve_1 = __webpack_require__(/*! ../shapeNavigableCurve/ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
 var ClampedControlPointView = /** @class */ (function (_super) {
     __extends(ClampedControlPointView, _super);
     function ClampedControlPointView(gl, spline, clampedCPindices) {
@@ -56344,10 +56565,14 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         _this.BLUE_COLOR = 1.0;
         _this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader_1.RoundDotTwoLevelsTransparencyShader(_this.gl);
         _this.selectedPoints = [];
-        _this.selectedPoints = clampedCPindices;
+        for (var i = 0; i < clampedCPindices.length; i++) {
+            if (clampedCPindices[i] !== ShapeNavigableCurve_1.NO_CONSTRAINT)
+                _this.selectedPoints.push(clampedCPindices[i]);
+        }
+        _this.knots = spline.getDistinctKnots();
         for (var _i = 0, _a = _this.selectedPoints; _i < _a.length; _i++) {
             var index = _a[_i];
-            _this.pointSequenceToDisplay.push(_this.controlPoints[index]);
+            _this.pointSequenceToDisplay.push(spline.evaluate(_this.knots[index]));
         }
         _this.a_Position = -1;
         _this.a_Texture = -1;
@@ -56423,25 +56648,39 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.assignVertexAttrib();
-        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedPointIndex);
+        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedKnotIndex);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
     ClampedControlPointView.prototype.update = function (spline) {
-        this.controlPoints = spline.controlPoints;
         this.pointSequenceToDisplay = [];
+        this.knots = spline.getDistinctKnots();
         for (var _i = 0, _a = this.selectedPoints; _i < _a.length; _i++) {
             var index = _a[_i];
-            this.pointSequenceToDisplay.push(this.controlPoints[index]);
+            this.pointSequenceToDisplay.push(spline.evaluate(this.knots[index]));
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
     ClampedControlPointView.prototype.reset = function (spline) {
     };
-    ClampedControlPointView.prototype.setSelected = function (controlPointIndex) {
-        this.selectedPointIndex = controlPointIndex;
+    ClampedControlPointView.prototype.updateSelectedPoints = function (knotIndex) {
+        var index = this.selectedPoints.findIndex(function (element) { return element == knotIndex; });
+        if (index !== -1) {
+            this.selectedPoints.splice(index, 1);
+        }
+        else if (this.selectedPoints.length < 2) {
+            this.selectedPoints.push(knotIndex);
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'updateSelectedPoints', ' inconsistent number of clamped points !');
+            warning.logMessageToConsole();
+        }
+    };
+    ClampedControlPointView.prototype.setSelected = function (pointIndex) {
+        // this.selectedKnotIndex = knotIndex;
+        this.selectedPointIndex = pointIndex;
     };
     return ClampedControlPointView;
 }(AbstractMouseSelectablePointView_1.AbstractMouseSelectablePointView));

@@ -12,6 +12,8 @@ import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnal
 import { ClosedCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor";
 import { OpenCurveDifferentialEventsExtractorWithoutSequence as OpenCurveDifferentialEventsExtractorWithoutSequence } from "../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence";
 import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
+import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { CurveConstraintClampedFirstControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 
 export abstract class CurveCategory {
 
@@ -48,8 +50,6 @@ export abstract class CurveCategory {
     abstract setNavigableCurveWithOpenPlanarCurve(): void;
 
     abstract setNavigableCurveWithClosedPlanarCurve(): void;
-
-    abstract toggleCurveClamping(): void;
 
     abstract inputSelectDegree(curveDegree: number):void;
 
@@ -120,14 +120,14 @@ export class OpenPlanarCurve extends CurveCategory {
                 spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
                 this.curveModel.setSpline(spline);
             }
-            if(this.shapeNavigableCurve.activeLocationControl === ActiveLocationControl.both) {
-                if(this.shapeNavigableCurve.clampedControlPoints[0] === 0){
-                    this.shapeNavigableCurve.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
-                } else this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-            }
-            else if(this.shapeNavigableCurve.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
-            }
+            // if(this.shapeNavigableCurve.activeLocationControl === ActiveLocationControl.both) {
+            //     if(this.shapeNavigableCurve.clampedControlPoints[0] === 0){
+            //         this.shapeNavigableCurve.clampedControlPoints[1] = this.curveModel.spline.controlPoints.length - 1
+            //     } else this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            // }
+            // else if(this.shapeNavigableCurve.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+            //     this.shapeNavigableCurve.clampedControlPoints[0] = this.curveModel.spline.controlPoints.length - 1
+            // }
 
             if (this._curveShapeSpaceNavigator.sliding) {
             //     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
@@ -141,28 +141,6 @@ export class OpenPlanarCurve extends CurveCategory {
             error.logMessageToConsole();
         }
     }
-
-    /* JCL 2020/09/24 Monitor rigid body movements of the curve in accordance with the button status */
-    toggleCurveClamping() {
-        this.shapeNavigableCurve.controlOfCurveClamping = !this.shapeNavigableCurve.controlOfCurveClamping
-        console.log("control of curve clamping: " + this.shapeNavigableCurve.controlOfCurveClamping)
-        if(this.shapeNavigableCurve.controlOfCurveClamping) {
-            /* JCL 2020/09/24 Update the location of the clamped control point */
-            // let clampedControlPoint: Vector_2d[] = []
-            // if(this.curveModel !== undefined) {
-            //     clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-            // } else throw new Error("Unable to clamp a control point. Undefined curve model")
-            // this.clampedControlPointView = new ClampedControlPointView(clampedControlPoint, this.controlPointsShaders, 0, 1, 0)
-            this.shapeNavigableCurve.clampedControlPoints = []
-            this.shapeNavigableCurve.clampedControlPoints.push(0)
-            this.shapeNavigableCurve.activeLocationControl = ActiveLocationControl.firstControlPoint
-            // if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
-        } else {
-            this.shapeNavigableCurve.activeLocationControl = ActiveLocationControl.none
-            this.shapeNavigableCurve.clampedControlPoints = []
-        }
-        this.shapeNavigableCurve.notifyObservers();
-    } 
 
 }
 
@@ -204,17 +182,6 @@ export class ClosedPlanarCurve extends CurveCategory {
 
     setNavigableCurveWithClosedPlanarCurve(): void {
         const warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'no curve model to change there.');
-        warning.logMessageToConsole();
-    }
-
-    toggleCurveClamping() {
-        this.shapeNavigableCurve.controlOfCurveClamping = !this.shapeNavigableCurve.controlOfCurveClamping;
-        console.log("control of curve clamping: " + this.shapeNavigableCurve.controlOfCurveClamping);
-        this.shapeNavigableCurve.clampedControlPoints = [];
-        this.shapeNavigableCurve.clampedControlPoints.push(0);
-        this.shapeNavigableCurve.activeLocationControl = ActiveLocationControl.firstControlPoint;
-        this.shapeNavigableCurve.notifyObservers();
-        const warning = new WarningLog(this.constructor.name, 'toggleCurveClamping', 'clamp first control point.');
         warning.logMessageToConsole();
     }
 

@@ -3,6 +3,8 @@ import { IObserver } from "../newDesignPatterns/Observer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
+import { FunctionASceneController } from "../chartcontrollers/FunctionASceneController";
+import { NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 export class ClampedControlPointView extends AbstractMouseSelectablePointView implements IObserver<BSplineR1toR2Interface>{
 
@@ -23,9 +25,13 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
         super(gl, spline);
         this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader(this.gl);
         this.selectedPoints = [];
-        this.selectedPoints = clampedCPindices;
+        for(let i = 0; i < clampedCPindices.length; i++)
+        {
+            if(clampedCPindices[i] !== NO_CONSTRAINT) this.selectedPoints.push(clampedCPindices[i]);
+        }
+        this.knots = spline.getDistinctKnots();
         for(let index of this.selectedPoints) {
-            this.pointSequenceToDisplay.push(this.controlPoints[index]);
+            this.pointSequenceToDisplay.push(spline.evaluate(this.knots[index]));
         }
         this.a_Position = -1;
         this.a_Texture = -1;
@@ -113,7 +119,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.assignVertexAttrib();
-        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedPointIndex);
+        this.roundDotTwoLevelsTransparencyShader.renderFrame(this.indices.length, this.selectedKnotIndex);
 
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
@@ -121,10 +127,10 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
     }
 
     update(spline: BSplineR1toR2Interface): void {
-        this.controlPoints = spline.controlPoints;
         this.pointSequenceToDisplay = [];
+        this.knots = spline.getDistinctKnots();
         for(let index of this.selectedPoints) {
-            this.pointSequenceToDisplay.push(this.controlPoints[index]);
+            this.pointSequenceToDisplay.push(spline.evaluate(this.knots[index]));
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
@@ -133,8 +139,21 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
     reset(spline: BSplineR1toR2Interface): void {
     }
 
-    setSelected(controlPointIndex: number | null): void {
-        this.selectedPointIndex = controlPointIndex;
+    updateSelectedPoints(knotIndex: number): void {
+        const index = this.selectedPoints.findIndex(element => element == knotIndex);
+        if(index !== -1) {
+            this.selectedPoints.splice(index, 1);
+        } else if(this.selectedPoints.length < 2) {
+            this.selectedPoints.push(knotIndex);
+        } else {
+            const warning = new WarningLog(this.constructor.name, 'updateSelectedPoints', ' inconsistent number of clamped points !');
+            warning.logMessageToConsole();
+        }
+    }
+
+    setSelected(pointIndex: number | null): void {
+        // this.selectedKnotIndex = knotIndex;
+        this.selectedPointIndex = pointIndex;
     }
 
 }
