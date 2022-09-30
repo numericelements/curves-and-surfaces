@@ -1,7 +1,6 @@
 
 export interface IObserver<T> {
     update(message: T): void
-    reset(message: T): void
 }
 
 export interface IObservable<T> {
@@ -10,3 +9,10 @@ export interface IObservable<T> {
     notifyObservers(): void
 }
 
+/*
+export interface IMultiObservable<T, N> {
+    registerObserver(observer: IObserver<T>, name: N): void
+    removeObserver(observer: IObserver<T>, name: N): void
+    notifyObservers(): void
+}
+*/

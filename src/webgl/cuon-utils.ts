@@ -10,7 +10,7 @@
  * @param fshader a fragment shader program (string)
  * @return created program object, or null if the creation has failed
  */
-export function createProgram(gl: WebGLRenderingContext, vshader: string, fshader: string) {
+ export function createProgram(gl: WebGLRenderingContext, vshader: string, fshader: string) {
     // Create shader object
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vshader);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fshader);

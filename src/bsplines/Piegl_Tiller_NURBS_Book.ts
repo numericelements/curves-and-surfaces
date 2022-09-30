@@ -1,4 +1,4 @@
-import { BSpline_R1_to_R1 } from "./BSpline_R1_to_R1";
+import { BSplineR1toR1 } from "./R1toR1/BSplineR1toR1";
 
 /**
  * Returns the span index
@@ -7,11 +7,12 @@ import { BSpline_R1_to_R1 } from "./BSpline_R1_to_R1";
  * @param degree degree 
  * @returns span index i for which knots[i] ≤ u < knots[i+1] 
  */
-export function findSpan(u: number, knots: Array<number>, degree: number) {
+export function findSpan(u: number, knots: readonly number[], degree: number) {
     // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
     if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
-        console.log(u)
-        console.log(knots)
+        console.log("u: " + u)
+        console.log("knots: " + knots)
+        console.log("degree: " + degree)
         throw new Error("Error: parameter u is outside valid span")
     }
     // Special case
@@ -36,13 +37,13 @@ export function findSpan(u: number, knots: Array<number>, degree: number) {
 
 /**
  * Returns the span index used for clamping a periodic B-Spline
- * Note: The only difference with findSpan is the for the special case u = knots[-degree - 1]
+ * Note: The only difference with findSpan is the special case u = knots[-degree - 1]
  * @param u parameter
  * @param knots knot vector 
  * @param degree degree 
  * @returns span index i for which knots[i] ≤ u < knots[i+1] 
  */
-export function clampingFindSpan(u: number, knots: Array<number>, degree: number) {
+export function clampingFindSpan(u: number, knots: readonly number[], degree: number) {
     // Bibliographic reference : Piegl and Tiller, The NURBS book, p: 68
     if (u < knots[degree] || u > knots[knots.length - degree - 1]) {
         throw new Error("Error: parameter u is outside valid span")
@@ -75,11 +76,11 @@ export function clampingFindSpan(u: number, knots: Array<number>, degree: number
  * @param degree degree 
  * @returns the array of values evaluated at u
  */
-export function basisFunctions(span: number, u: number, knots: Array<number>, degree: number) {
+export function basisFunctions(span: number, u: number, knots: readonly number[], degree: number) {
     // Bibliographic reference : The NURBS BOOK, p.70
-    let result: Array<number> = [1]
-    let left: Array<number> = []
-    let right: Array<number> = []
+    let result: number[] = [1]
+    let left: number[] = []
+    let right: number[] = []
     for (let j = 1; j <= degree; j += 1) {
         left[j] = u - knots[span + 1 - j];
         right[j] = knots[span + j] - u;
@@ -94,7 +95,10 @@ export function basisFunctions(span: number, u: number, knots: Array<number>, de
     return result;
 }
 
-export function decomposeFunction(spline: BSpline_R1_to_R1) {
+/**
+ * Decompose a BSpline function into Bézier segments
+ */
+export function decomposeFunction(spline: BSplineR1toR1) {
     //Piegl and Tiller, The NURBS book, p.173
 
     let result: number[][] = []
@@ -142,7 +146,7 @@ export function decomposeFunction(spline: BSpline_R1_to_R1) {
         bezier_segment += 1;  // Bezier segment completed
 
         if (b < spline.knots.length - 1) {
-            //initialize next bezier bezier_segment
+            //initialize next bezier_segment
             for (i = Math.max(0, spline.degree - mult); i <= spline.degree; i += 1) {
                 result[bezier_segment][i] = spline.controlPoints[b - spline.degree + i];
             }

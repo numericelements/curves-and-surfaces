@@ -1,151 +1,55 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-      <meta charset="utf-8" />
-      <link href="stylesheet.css" rel="stylesheet" />
-      <title>Numeric Elements &#8211; Software Development and Research in Applied Mathematics</title>
-      <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,800,800i" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i" rel="stylesheet">
-  </head>
-    
-  <body>
+    <head>
+        <title>Numeric Elements</title>
+        <link href="stylesheet.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,800,800i" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i" rel="stylesheet">
+    </head>
 
-    <h1><center>NUMERIC ELEMENTS</center></h1>
-    <h3><center>Software Development and Research in Applied Mathematics</center></h3>
+    <body>
+        <h1 class="text_center">NUMERIC ELEMENTS</h1>
+        <h3 class="text_center">Software Development and Research in Applied Mathematics</h3>
 
-    <p style="margin-bottom:2.0cm;"> </p>
-
-    <h2><center> Control over the oscillations of a curve </center> </h2>
-
-    <p> <b>An interactive demonstration </b> </p>
-      <p> 
-        <li> Move the B-spline control points to navigate in a curve space with an upper limit on the number of <a href="https://en.wikipedia.org/wiki/Vertex_(curve)" target="_blank" rel="noopener"> curvature extrema</a> and <a href="https://en.wikipedia.org/wiki/Inflection_point" target="_blank" rel="noopener"> inflections</a>.</li>  
-        <li> Disable the <b>controls</b> as needed to introduce oscillations. </li>
-        <li>  <img src="InsertKnotButton.png" width="30"> : Add more control points around a selected one to add flexibility and degrees of freedom to the curve. </li>
-        <li> Use the 'clamping' toggle button to activate the selection (double click) of either (or both) extreme vertex(ices) of the control polygon to anchor the curve.</li>
-        <li> Use the Load button to load a pre-existing json file containing a curve and Save button to store your curve into a json file that will be located into your Downloads directory.</li>
-      </p>
-    <p style="margin-bottom:5mm;"> </p>
-
-    <p> <label>Save/Upload curves:</label>
-      <button class="favorite styled" type="button" id="buttonFileLoad">Load</button>
-      <button class="favorite styled" type="button" id="buttonFileSave">Save</button>
-      <input type="file" id="inputFileLoad" accept=".json, .png, .jpg, .jpeg" style="display:none" >
-      <input type="file" id="inputFileSave" accept=".json" style="display:none" >
-      <input type="text" id="inputFileName" style="display:none" name="fileName" placeholder="enter a filename" required>
-      <label id="labelFileExtension" style="display:none">.json</label>
-      <input class="favorite styled" type="button" id="validateInput" style="display:none" value="Ok">
-    </p>
-    <p style="margin-bottom:5mm;"> </p>
-
-    <fieldset>
-      <legend>Please, select up to three functions graphs to help analyze the curve:</legend>
-      <!-- Three columns of checkboxes to select up to three function graphs to help analyzing the curve -->
-      <div class="checkbox_layout">
-        <div class="checkbox_column">
-          <div>
-            <input type="checkbox" id="chkBoxFunctionA" name="functionPlots" value="functionA">
-            <label for="chkBoxFunctionA">Function A(u)</label>
-          </div>
+        <div class="text_center">
+            <h2>Plane curve</h2>
+            <canvas id="webgl" width="1200" height="1200" style="width: 600px; height: 600px;"> Please use a browser that supports "canvas" </canvas>
         </div>
-        <div class="checkbox_column">
-          <div>
-            <input type="checkbox" id="chkBoxFunctionB" name="functionPlots" value="functionB">
-            <label for="chkBoxFunctionB">Function B(u)</label>
-          </div>
-          <div>
-            <input type="checkbox" id="chkBoxSqrtFunctionB" name="functionPlots" value="sqrtFunctionB">
-            <label for="chkBoxSqrtFunctionB">± Sqrt( Abs( Function B(u)))</label>
-          </div>
+
+        <p style="margin-bottom:1cm;"> </p>
+
+        <div id="contextMenu" class="context-menu">
+            <ul class="menu-options">
+                <li id="addControlPoint" class="menu-option"> add </li>
+                <li id="removeControlPoint" class="menu-option"> remove </li>
+            </ul>
         </div>
-        <div class="checkbox_column">
-          <div>
-            <input type="checkbox" id="chkBoxCurvature" name="functionPlots" value="curvature">
-            <label for="chkBoxCurvature"> Curvature</label>
-          </div>
-          <div>
-            <input type="checkbox" id="chkBoxAbsCurvature" name="functionPlots" value="absCurvature">
-            <label for="chkBoxAbsCurvature"> Abs Curvature</label>
-          </div>
+        <app-curves-and-surfaces></app-curves-and-surfaces>
+
+        <br>
+        <br>
+
+        <hr class="new1">
+
+        <br>
+        <br>
+
+        <div class="text_center">
+            <h2>Space curve</h2>
+            <canvas id="webgl2" width="2400" height="2400" style="width: 600px; height: 600px;"> Please use a browser that supports "canvas" </canvas>
         </div>
-      </div>
-    </fieldset>
 
-    <p style="margin-bottom:0.5cm;"> </p>
+        <p style="margin-bottom:1cm;"> </p>
+        
+        <app-curve-3d></app-curve-3d>
 
-    <div class="wrapper">
-      <div class="wrapper_column">
-        <div hidden class="wrapper_chart" id="charts">
-          <canvas id="chart1"></canvas>
-          <canvas id="chart2"></canvas>
-          <canvas id="chart3"></canvas>
-        </div>
-      </div>
+        <br>
+        <br>
 
-      <!-- <p style="margin-bottom:0.5cm;"> </p> -->
-      <div>
-        <canvas id="webgl" width="600" height="600"> Please use a browser that supports "canvas" </canvas>
-      </div>
-      <div class="wrapper_column">
-        <div>
-          <center>  <p class="text_control_button"> Curve degree: </p>
-          <label for="curveDegree">  </label>
-          <select name="curveDegreeSelector" id="curveDegree">
-            <option id= "option1" value="3" selected="selected">3</option>
-            <option id= "option2" value="4" >4</option>
-            <option id= "option3" value="5">5</option>
-            <option id= "option4" value="6">6</option>
-          </select>
-        </div>
-        <div class="wrapper_button">
-          <!-- Rounded switch - curvature extrema -->
-          <center>  <p class="text_control_button"> Curvature extrema </p> 
-            <label class="switch">
-              <input type="checkbox"  checked id="toggleButtonCurvatureExtrema">
-              <span class="slider round"></span>
-            </label>
-          </center>
-          <!-- Rounded switch - inflexions -->
-          <center>  <p class="text_control_button"> Inflexions </p>
-            <label class="switch">
-              <input type="checkbox"  checked id="toggleButtonInflections">
-              <span class="slider round"></span>
-            </label>
-          </center>
-          <!-- Rounded switch - sliding mechanism -->
-          <center>  <p class="text_control_button"> Sliding</p>
-            <label class="switch">
-              <input type="checkbox"  checked id="toggleButtonSliding">
-              <span class="slider round"></span>
-            </label>
-          </center>
-          <!-- Rounded switch - Curve Clamping at origin -->
-          <center>  <p class="text_control_button"> Clamping </p> 
-            <label class="switch">
-              <input type="checkbox"  checked id="toggleButtonCurveClamping">
-              <span class="slider round"></span>
-            </label>
-          </center>
-        </div>
-      </div>
-    </div>
+        <copy-right-years></copy-right-years>>
 
+      <script src="dist/bundle.js"></script>
 
-    <script src="dist/bundle.js"></script>
-
-    <p style="margin-bottom:1cm;"> </p>
-
-
-    <!--
-    <p><center>  <a href="about.html"> Author </a> &nbsp  &nbsp  &nbsp  <a href="closed-curve/index.html"> Closed Curve </a>   </center> </p>
-    -->
-
-    <p style="margin-bottom:1cm;"> </p>
-
-    <div id="footer" style="margin-bottom:1cm; color:rgb(100, 100, 100); font-size: 80%;">
-      <center>  &copy; 2018-2020   </center>
-    </div>
-
-  </body>
+    </body>    
 
 </html>

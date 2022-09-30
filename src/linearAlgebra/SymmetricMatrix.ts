@@ -17,7 +17,7 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
      * @param size The number of rows or the number columns 
      * @param data The matrix data in a flat vector
      */
-    constructor(size: number, data?: Array<number>) {
+    constructor(size: number, data?: number[]) {
         this._shape = [size, size]
         if (data) {
             if (data.length !== size * (size + 1) / 2) {
@@ -28,7 +28,7 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
             this.data = []
             const n = (size * (size + 1)) / 2
             for (let i = 0; i < n; i += 1) {
-                this.data.push(0);
+                this.data.push(0)
             }
         }
     }
@@ -48,9 +48,9 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
      */
     private dataIndex(row: number, column: number) {
         if (row <= column) {
-            return row * this.shape[1] - (row - 1) * row / 2 + column - row;
+            return row * this.shape[1] - (row - 1) * row / 2 + column - row
         }
-        return column * this.shape[0] - (column - 1) * column / 2 + row - column;
+        return column * this.shape[0] - (column - 1) * column / 2 + row - column
     }
 
     /**
@@ -61,9 +61,9 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
      * @throws If an index is out of range
      */
     get(row: number, column: number) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        return this.data[this.dataIndex(row, column)];
+        this.checkRowRange(row)
+        this.checkColumnRange(column)
+        return this.data[this.dataIndex(row, column)]
     }
 
     /**
@@ -74,9 +74,9 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
      * @throws If an index is out of range
      */
     set(row: number, column: number, value: number) {
-        this.checkRowRange(row);
-        this.checkColumnRange(column);
-        this.data[this.dataIndex(row, column)] = value;
+        this.checkRowRange(row)
+        this.checkColumnRange(column)
+        this.data[this.dataIndex(row, column)] = value
 
     }
 
@@ -87,7 +87,7 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
      */
     checkRowRange(index: number) {
         if (index < 0  || index >= this.shape[0]) {
-            throw new Error("SymmetricMatrix index is out of range");
+            throw new Error("SymmetricMatrix index is out of range")
         }
     }
 
@@ -98,7 +98,7 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
      */
     checkColumnRange(index: number) {
         if (index < 0  || index >= this.shape[1]) {
-            throw new Error("SymmetricMatrix index is out of range");
+            throw new Error("SymmetricMatrix index is out of range")
         }
     }
 
@@ -111,12 +111,12 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
         let result = 0
         for (let i = 1; i < this.shape[1]; i += 1) {
             for (let j = 0; j < i; j += 1) {
-                result += this.get(i, j) * v[i] * v[j];
+                result += this.get(i, j) * v[i] * v[j]
             }
         }
-        result *= 2;
+        result *= 2
         for (let i = 0; i < this.shape[1]; i += 1) {
-            result += this.get(i, i) * Math.pow(v[i], 2);
+            result += this.get(i, i) * Math.pow(v[i], 2)
         }
         return result;
     }
@@ -171,7 +171,7 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
         let result = new SquareMatrix(n);
         for (let i = 0; i < n; i += 1) {
             for (let j = 0; j < n; j += 1) {
-                result.set(i, j, this.get(i, j));
+                result.set(i, j, this.get(i, j))
             }
         }
         return result;
@@ -218,6 +218,10 @@ export class SymmetricMatrix implements SymmetricMatrixInterface {
 
     containsNaN() {
        return containsNaN(this.data)
+    }
+
+    getData() {
+        return this.data
     }
 }
 

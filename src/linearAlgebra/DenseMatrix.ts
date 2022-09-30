@@ -44,8 +44,7 @@ export class DenseMatrix implements MatrixInterface {
      * @param column The column index
      */
     private dataIndex(row: number, column: number) {
-        let n = row * this.shape[1] + column;
-        return n;
+        return row * this.shape[1] + column
     }
 
     /**
@@ -58,7 +57,7 @@ export class DenseMatrix implements MatrixInterface {
     get(row: number, column: number) {
         this.checkRowRange(row)
         this.checkColumnRange(column)
-        return this.data[this.dataIndex(row, column)];
+        return this.data[this.dataIndex(row, column)]
     }
 
     /**
@@ -71,7 +70,7 @@ export class DenseMatrix implements MatrixInterface {
     set(row: number, column: number, value: number) {
         this.checkRowRange(row)
         this.checkColumnRange(column)
-        this.data[this.dataIndex(row, column)] = value;
+        this.data[this.dataIndex(row, column)] = value
     }
 
     /**
@@ -94,5 +93,25 @@ export class DenseMatrix implements MatrixInterface {
         if (index < 0  || index >= this.shape[0]) {
             throw new Error("DenseMatrix row index out of range")
         }
+    }
+
+    removeRows(rows: number[]) {
+        const numberOfRows = this.shape[0] - rows.length
+        const numberOfColumns = this.shape[1]
+        let result = new DenseMatrix(numberOfRows, numberOfColumns)
+        let k = 0
+        let newRowIndex = 0
+        for (let i = 0; i < this.shape[0]; i += 1) {
+            if (rows[k] != i) {
+                for (let j = 0; j < this.shape[1]; j += 1) {
+                    result.set(newRowIndex, j, this.get(i, j))
+                }
+                newRowIndex += 1
+            }
+            else { 
+                k += 1
+            }
+        }
+        return result
     }
 }
