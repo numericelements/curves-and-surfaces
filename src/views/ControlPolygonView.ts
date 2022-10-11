@@ -2,7 +2,9 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { LineSegmentShader } from "../2DgraphicsItems/LineSegmentShader"
 import { IObserver } from "../newDesignPatterns/Observer";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 
 
 export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
@@ -137,7 +139,13 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
 
     update(spline: BSplineR1toR2Interface): void {
         this.controlPoints = spline.controlPoints;
-        // this.controlPoints = message.visibleControlPoints();
+        if(spline instanceof BSplineR1toR2) {
+            this.closed =  false;
+        } else if(spline instanceof PeriodicBSplineR1toR2) {
+            this.closed = true;
+        } else {
+            const error = new ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the closed parameter.")
+        }
         if (this.closed) {
             this.controlPoints.push(this.controlPoints[0]);
         }

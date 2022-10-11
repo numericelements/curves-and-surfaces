@@ -128,6 +128,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
 
     update(spline: BSplineR1toR2Interface): void {
         this.pointSequenceToDisplay = [];
+        this.controlPoints = spline.controlPoints;
         this.knots = spline.getDistinctKnots();
         for(let index of this.selectedPoints) {
             this.pointSequenceToDisplay.push(spline.evaluate(this.knots[index]));

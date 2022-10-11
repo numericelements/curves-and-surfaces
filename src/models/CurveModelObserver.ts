@@ -6,6 +6,10 @@ import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { CCurveNavigationStrictlyInsideShapeSpace, CCurveNavigationThroughSimplerShapeSpaces, CCurveNavigationWithoutShapeSpaceMonitoring, NavigationState, OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
+import { ClosedCurveShapeSpaceNavigator, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
+import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
+import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
+import { HandleConstraintAtPoint1Point2NoConstraintState } from "../controllers/CurveConstraintSelectionState";
 
 abstract class CurveModelObserver implements IObserver<CurveModel> {
 
@@ -24,20 +28,23 @@ export class CurveModelObserverInChartEventListener extends CurveModelObserver {
     }
 
     update(message: CurveModelInterface): void {
-        if(message instanceof CurveModel) {
-            if(this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
-            {
-                this.listener.curveModel = message;
-                this.listener.resetChartContext();
-            }
-        } else if(message instanceof ClosedCurveModel) {
-            if(this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
-            {
-                this.listener.curveModel = message;
-                this.listener.resetChartContext();
+        const degreeChange = this.listener.shapeNavigableCurve.curveCategory.degreeChange;
+        const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
+        if(curveModelChange) {
+            if(message instanceof CurveModel) {
+                if(this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
+                {
+                    this.listener.curveModel = message;
+                    this.listener.resetChartContext();
+                }
+            } else if(message instanceof ClosedCurveModel) {
+                if(this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
+                {
+                    this.listener.curveModel = message;
+                    this.listener.resetChartContext();
+                }
             }
         }
-
     }
 
     reset(message: CurveModelInterface): void {
@@ -68,34 +75,53 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
 
     update(message: CurveModelInterface): void {
         // Nothing to do there if curve clamping state changes
+        this.listener.curveModel = message;
         if(message instanceof CurveModel) {
-            if(this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
-            {
-                this.listener.curveModel = message;
-                this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.curveModel = message;
-                // this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.currentCurve = message.spline;
-                // if(this.listener.shapeNavigableCurve.controlOfCurveClamping)
-                // {
-                //     this.listener.shapeNavigableCurve.clampedPoints[0] = 0;
-                //     this.listener.shapeNavigableCurve.clampedPoints[1] = NO_CONSTRAINT;
-                // } 
-                // else {
-                //     this.listener.shapeNavigableCurve.clampedPoints[0] = NO_CONSTRAINT;
-                //     this.listener.shapeNavigableCurve.clampedPoints[1] = NO_CONSTRAINT;
-                // }
+            this.listener.shapeNavigableCurve.curveCategory.curveModel = message;
+            const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+            if(curveShapeSpaceNavigator !== undefined) {
+                curveShapeSpaceNavigator.curveModel = message;
                 const degree = message.spline.degree;
                 this.listener.updateCurveDegreeSelector(degree);
-                this.listener.resetCurveConstraintControlButton();
+                this.listener.shapeNavigableCurve.clampedPoints = [];
+                if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+                    || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
+                    this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                    this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                    this.listener.shapeNavigableCurve.clampedPointsPreviousState = this.listener.shapeNavigableCurve.clampedPoints;
+                    this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintNoConstraint(this.listener.shapeNavigableCurve.curveConstraints));
+                } else {
+                    this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                    this.listener.shapeNavigableCurve.clampedPoints.push(0);
+                    this.listener.resetCurveConstraintControlButton();
+                    this.listener.shapeNavigableCurve.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this.listener.shapeNavigableCurve);
+                    this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                    this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
+                }
             }
         } else if(message instanceof ClosedCurveModel) {
-            this.listener.curveModel = message;
-            this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.curveModel = message;
-            // this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.currentCurve = message.spline;
-            this.listener.shapeNavigableCurve.clampedPoints[0] = 0;
-            const degree = message.spline.degree;
-            this.listener.updateCurveDegreeSelector(degree);
-            this.listener.resetCurveConstraintControlButton();
-            console.log("something to do there with ClosedCurveModel in CurveModelEventListener")
+            this.listener.shapeNavigableCurve.curveCategory.curveModel = message;
+            const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+            if(curveShapeSpaceNavigator !== undefined) {
+                curveShapeSpaceNavigator.curveModel = message;
+                const degree = message.spline.degree;
+                this.listener.updateCurveDegreeSelector(degree);
+                this.listener.shapeNavigableCurve.clampedPoints = [];
+                if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+                    || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
+                    this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                    this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                    this.listener.shapeNavigableCurve.clampedPointsPreviousState = this.listener.shapeNavigableCurve.clampedPoints;
+                    this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintNoConstraint(this.listener.shapeNavigableCurve.curveConstraints));
+                } else {
+                    this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                    this.listener.shapeNavigableCurve.clampedPoints.push(0);
+                    this.listener.resetCurveConstraintControlButton();
+                    this.listener.shapeNavigableCurve.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this.listener.shapeNavigableCurve);
+                    this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                    this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
+                }
+            }
         }
     }
 
@@ -105,7 +131,7 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
             if(curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
             {
                 this.listener.curveModel = curveModel;
-                this.listener.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator.curveModel = curveModel;
+                this.listener.shapeNavigableCurve.curveCategory.curveModel = curveModel;
             }
         } else if(message instanceof ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in CurveModelEventListener")
@@ -130,10 +156,17 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
         if(curveShapeSpaceNavigator.hasOwnProperty('curveModel') || curveShapeSpaceNavigator.hasOwnProperty('_curveModel'))
         {
             this.listener.curveShapeSpaceNavigator.curveModel = message;
-            // this.listener.curveShapeSpaceNavigator.currentCurve = message.spline;
+            if(message instanceof CurveModel) {
+                this.listener.curveShapeSpaceNavigator.navigationCurveModel = new OpenCurveShapeSpaceNavigator(this.listener.curveShapeSpaceNavigator);
+            } else if(message instanceof ClosedCurveModel) {
+                this.listener.curveShapeSpaceNavigator.navigationCurveModel = new ClosedCurveShapeSpaceNavigator(this.listener.curveShapeSpaceNavigator);
+            }
+            this.listener.curveShapeSpaceNavigator.navigationState = this.listener.curveShapeSpaceNavigator.navigationCurveModel.navigationState;
             this.updateNavigationState();
             this.updateCurveModelMaintainNavigationState();
-            this.listener.resetCurveShapeControlButtons();
+            if(!(this.listener.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+                || this.listener.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring))
+                    this.listener.resetCurveShapeControlButtons();
         }
     }
 
@@ -208,41 +241,50 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
     }
 
     update(message: CurveModelInterface): void {
-        if(!this.listener.shapeNavigableCurve.controlOfCurveClamping)
-        {
-            console.log("update clampedControlPointView when removing clamping control")
-            // Update the curveSceneController as if point1 and/or point2 had been selected to update the
-            // curve constraint selection state as well as the curveConstraintStrategy of the shapeNavigableCurve
-            // and the clampedPoints of the shapeNavigableCurve
-            if(this.listener.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT) {
-                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint1(this.listener.shapeNavigableCurve.clampedPoints[0]);
-                this.listener.shapeNavigableCurve.clampedPoints[0] = NO_CONSTRAINT;
+        this.listener.curveModel = message;
+        this.listener.curveModelDifferentialEventsExtractor = this.listener.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this.listener.curveDiffEventsLocations = this.listener.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
+        this.listener.initCurveSceneView();
+        const navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
+        this.listener.navigationState = navigationState;
+        if(!(navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring ||
+            navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring)) {
+            if(!this.listener.shapeNavigableCurve.controlOfCurveClamping) {
+                console.log("update clampedControlPointView when removing clamping control")
+                // Update the curveSceneController as if point1 and/or point2 had been selected to update the
+                // curve constraint selection state as well as the curveConstraintStrategy of the shapeNavigableCurve
+                // and the clampedPoints of the shapeNavigableCurve
+                if(this.listener.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT) {
+                    this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint1(this.listener.shapeNavigableCurve.clampedPoints[0]);
+                    this.listener.shapeNavigableCurve.clampedPoints[0] = NO_CONSTRAINT;
+                }
+                if(this.listener.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT) {
+                    this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint2(this.listener.shapeNavigableCurve.clampedPoints[1]);
+                    this.listener.shapeNavigableCurve.clampedPoints[1] = NO_CONSTRAINT;
+                }
+                this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
+            } else if(this.listener.shapeNavigableCurve.controlOfCurveClamping) {
+                console.log("update clampedControlPointView when setting clamping control")
+                if(this.listener.shapeNavigableCurve.clampedPointsPreviousState[0] !== NO_CONSTRAINT) {
+                    this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint1(this.listener.shapeNavigableCurve.clampedPointsPreviousState[0]);
+                }
+                if(this.listener.shapeNavigableCurve.clampedPointsPreviousState[1] !== NO_CONSTRAINT) {
+                    this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint2(this.listener.shapeNavigableCurve.clampedPointsPreviousState[1]);
+                }
+                this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
+            } else if(message instanceof CurveModel) {
+                this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
+                this.listener.initCurveSceneView();
+            } else if(message instanceof ClosedCurveModel) {
+                this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
+                this.listener.initCurveSceneView();
             }
-            if(this.listener.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT) {
-                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint2(this.listener.shapeNavigableCurve.clampedPoints[1]);
-                this.listener.shapeNavigableCurve.clampedPoints[1] = NO_CONSTRAINT;
-            }
-            this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
-            this.listener.renderFrame();
-        } else if(this.listener.shapeNavigableCurve.controlOfCurveClamping) {
-            console.log("update clampedControlPointView when setting clamping control")
-            if(this.listener.shapeNavigableCurve.clampedPointsPreviousState[0] !== NO_CONSTRAINT) {
-                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint1(this.listener.shapeNavigableCurve.clampedPointsPreviousState[0]);
-            }
-            if(this.listener.shapeNavigableCurve.clampedPointsPreviousState[1] !== NO_CONSTRAINT) {
-                this.listener.curveConstraintSelectionState.handleCurveConstraintAtPoint2(this.listener.shapeNavigableCurve.clampedPointsPreviousState[1]);
-            }
-            this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
-            this.listener.renderFrame();
-        } else if(message instanceof CurveModel) {
-            this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
-            this.listener.initCurveSceneView();
-            this.listener.renderFrame();
-        } else if(message instanceof ClosedCurveModel) {
-            this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
-            this.listener.initCurveSceneView();
-            this.listener.renderFrame();
+        } else {
+            this.listener.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
+            this.listener.curveModel.notifyObservers();
         }
+
+        this.listener.renderFrame();
     }
 
     reset(message: CurveModelInterface): void {

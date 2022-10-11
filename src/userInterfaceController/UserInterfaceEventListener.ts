@@ -1,7 +1,7 @@
 import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSceneController";
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { ShapeNavigableCurve, ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { AbstractCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
 import { DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
@@ -21,10 +21,10 @@ export class ChartEventListener extends UserInterfaceEventListener {
 // export class ChartEventListener {
 
     protected fileController?: FileController;
-    protected shapeNavigableCurve: ShapeNavigableCurve;
+    protected readonly _shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
     private readonly chartRenderingContext:  CanvasRenderingContext2D[] = [];
-    private _chartSceneController: ChartSceneController;
+    private readonly _chartSceneController: ChartSceneController;
     private readonly canvasChart1: HTMLCanvasElement;
     private readonly canvasChart2: HTMLCanvasElement;
     private readonly canvasChart3: HTMLCanvasElement;
@@ -51,7 +51,7 @@ export class ChartEventListener extends UserInterfaceEventListener {
         super();
         // ChartEventListener.a = this
         this._curveModel = shapeNavigableCurve.curveCategory.curveModel;
-        this.shapeNavigableCurve = shapeNavigableCurve;
+        this._shapeNavigableCurve = shapeNavigableCurve;
         this.canvasChart1 = <HTMLCanvasElement> document.getElementById('chart1');
         this.canvasChart2 = <HTMLCanvasElement> document.getElementById('chart2');
         this.canvasChart3 = <HTMLCanvasElement> document.getElementById('chart3');
@@ -73,9 +73,9 @@ export class ChartEventListener extends UserInterfaceEventListener {
         this.ctxChart2 = this.canvasChart2.getContext('2d');
         this.ctxChart3 = this.canvasChart3.getContext('2d');
         this.setupChartRenderingContexts();
-        this._chartSceneController = new ChartSceneController(this.chartRenderingContext, this.shapeNavigableCurve);
+        this._chartSceneController = new ChartSceneController(this.chartRenderingContext, this._shapeNavigableCurve);
 
-        this.shapeNavigableCurve.registerObserver(new CurveModelObserverInChartEventListener(this));
+        this._shapeNavigableCurve.registerObserver(new CurveModelObserverInChartEventListener(this));
 
         /* Add event handlers for checkbox processing */
         this.checkBoxFunctionA.addEventListener('click', this.chkboxFunctionA.bind(this));
@@ -91,6 +91,10 @@ export class ChartEventListener extends UserInterfaceEventListener {
 
     get curveModel() {
         return this._curveModel;
+    }
+
+    get shapeNavigableCurve() {
+        return this._shapeNavigableCurve;
     }
 
     set curveModel(curveModel:CurveModelInterface) {
@@ -210,11 +214,11 @@ export class FileEventListener extends UserInterfaceEventListener {
 // export class FileEventListener {
 
     protected chartSceneController?: ChartSceneController;
-    private _shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
     private readonly fileR: FileReader;
     private _fileController: FileController;
-    private curveSceneController: CurveSceneController;
+    private readonly curveSceneController: CurveSceneController;
     private readonly buttonFileLoad: HTMLButtonElement;
     private readonly buttonFileSave: HTMLButtonElement;
     private readonly inputFileLoad: HTMLInputElement;
@@ -373,7 +377,8 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
 
     protected chartSceneController?: ChartSceneController;
     protected fileController?: FileController;
-    private _shapeNavigableCurve: ShapeNavigableCurve;
+    protected _curveShapeSpaceNavigator?: CurveShapeSpaceNavigator;
+    private readonly _shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
     private readonly _inputCurveCategory: HTMLSelectElement;
     private readonly _inputDegree: HTMLSelectElement;
@@ -393,10 +398,13 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         this._inputDegree = <HTMLSelectElement> document.getElementById("curveDegree");
         this._toggleButtonCurveClamping = <HTMLButtonElement> document.getElementById("toggleButtonCurveClamping");
 
+        this._curveShapeSpaceNavigator = undefined;
         this._shapeNavigableCurve = new ShapeNavigableCurve();
         this._curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
-        // this._curveModeler.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
-        this.controlOfCurveClamping = true;
+        // Initizalizes clamped points monitoring in accordance with navigation modes:
+        //      mode 0: controlOfCurveClamping = false,
+        //      mode 1, mode 2: controlOfCurveClamping =  true
+        this.controlOfCurveClamping = false;
         this.activeLocationControl = this._shapeNavigableCurve.activeLocationControl;
 
         this._shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
@@ -414,10 +422,6 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         return this._currentCurveDegree;
     }
 
-    set currentCurveDegree(curveDegree: string) {
-        this._currentCurveDegree = curveDegree;
-    }
-
     get inputDegree() {
         return this._inputDegree;
     }
@@ -426,16 +430,28 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         return this._curveModel;
     }
 
-    set curveModel(curveModel: CurveModelInterface) {
-        this._curveModel = curveModel;
-    }
-
     get shapeNavigableCurve() {
         return this._shapeNavigableCurve;
     }
 
-    set shapeNavigableCurve(shapeNavigableCurve: ShapeNavigableCurve) {
-        this._shapeNavigableCurve = shapeNavigableCurve;
+    get curveShapeSpaceNavigator() {
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            return this._curveShapeSpaceNavigator;
+        } else {
+            return undefined;
+        }
+    }
+
+    set currentCurveDegree(curveDegree: string) {
+        this._currentCurveDegree = curveDegree;
+    }
+
+    set curveModel(curveModel: CurveModelInterface) {
+        this._curveModel = curveModel;
+    }
+
+    set curveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined) {
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
     }
 
     get toggleButtonCurveClamping() {
@@ -458,9 +474,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
     }
 
     inputSelectCurveCategory() {
-        console.log("select" + this._inputCurveCategory.value);
-        let curveCategory: number;
-        curveCategory = Number(this._inputCurveCategory.value);
+        const curveCategory = Number(this._inputCurveCategory.value);
         this._currentCurveCategory = this._inputCurveCategory.value;
         this.shapeNavigableCurve.inputSelectCurveCategory(curveCategory);
     }
@@ -468,9 +482,8 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
     inputSelectDegree() {
         console.log("select:  " + this._inputDegree.value);
         const optionName = "option";
-        let curveDegree: number;
         if(!isNaN(Number(this._inputDegree.value))){
-            curveDegree = Number(this._inputDegree.value);
+            const curveDegree = Number(this._inputDegree.value);
             this._currentCurveDegree = this._inputDegree.value;
             this.shapeNavigableCurve.curveCategory.inputSelectDegree(curveDegree);
             if(curveDegree > DEFAULT_CURVE_DEGREE) {
@@ -532,33 +545,42 @@ export class ShapeSpaceNavigationEventListener {
 
     private _currentNavigationMode: string;
     private readonly _inputNavigationMode: HTMLSelectElement;
-    private readonly _curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
+    private readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private readonly shapeNavigableCurve: ShapeNavigableCurve;
 
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
     private sliding: boolean;
 
-    private sceneController: CurveSceneController;
+    // private sceneController: CurveSceneController;
 
-    constructor(shapeNavigableCurve: ShapeNavigableCurve, sceneController: CurveSceneController) {
+    constructor(curveModelDefinitionEventListener: CurveModelDefinitionEventListener) {
         // super();
-        this.shapeNavigableCurve = shapeNavigableCurve;
-        this.sceneController = sceneController;
-        this._curveShapeSpaceNavigator = shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator;
+        this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
+        this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.shapeNavigableCurve);
+        curveModelDefinitionEventListener.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
+        this.shapeNavigableCurve.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
+        // this.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         /* Get control button IDs for curve shape control*/
         this._toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema");
         this._toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections");
         this._toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding");
     
         /* Get control button IDs for curve shape control*/
-        this._currentNavigationMode = "2";
+        // Initializes the navigation mode to: 
+        //      Without shape space constraints = 0
+        //      Nested simpler shape spaces = 1
+        //      Strictly in shape space = 2
+        this._currentNavigationMode = "0";
         this._inputNavigationMode = <HTMLSelectElement> document.getElementById("navigationMode");
 
-
-        this.controlOfCurvatureExtrema = true;
-        this.controlOfInflection = true;
-        this.sliding = true;
+        // Initializes the navigation parameters in azccordance with navigation modes above:
+        //      mode 0: controlOfCurvatureExtrema = false, controlOfInflection = false, sliding = false,
+        //      mode 1: controlOfCurvatureExtrema =  true, controlOfInflection = true, sliding = true,
+        //      mode 2: controlOfCurvatureExtrema =  true, controlOfInflection = true, sliding = true
+        this.controlOfCurvatureExtrema = false;
+        this.controlOfInflection = false;
+        this.sliding = false;
 
         this.shapeNavigableCurve.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this));
 
@@ -610,7 +632,7 @@ export class ShapeSpaceNavigationEventListener {
         console.log("select" + this._inputNavigationMode.value);
         const navigationMode = Number(this._inputNavigationMode.value);
         this._currentNavigationMode = this._inputNavigationMode.value;
-        this.curveShapeSpaceNavigator.inputSelectNavigationProcess(navigationMode);
+        this._curveShapeSpaceNavigator.inputSelectNavigationProcess(navigationMode);
     }
 
     resetCurveShapeControlButtons() {
@@ -631,18 +653,21 @@ export class CurveSceneEventListener {
 
     private readonly canvas: HTMLCanvasElement;
     private readonly gl: WebGLRenderingContext;
-    private curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
-    private _curveSceneController: CurveSceneController;
+    private readonly curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
+    private readonly shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener;
+    private readonly _curveSceneController: CurveSceneController;
 
     // private readonly iconKnotInsertion: HTMLImageElement;
     // private readonly textureInfo: {width: number, height: number, texture: WebGLTexture|null};
 
-    constructor(curveModelDefinitionEventListener: CurveModelDefinitionEventListener) {
+    constructor(curveModelDefinitionEventListener: CurveModelDefinitionEventListener,
+        shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener) {
         this.canvas = <HTMLCanvasElement> document.getElementById("webgl");
         this.gl = WebGLUtils().setupWebGL(this.canvas);
-
+        this.shapeSpaceNavigationEventListener = shapeSpaceNavigationEventListener;
         this.curveModelDefinitionEventListener = curveModelDefinitionEventListener;
-        this._curveSceneController = new CurveSceneController(this.canvas, this.gl, this.curveModelDefinitionEventListener);
+        this._curveSceneController = new CurveSceneController(this.canvas, this.gl, this.curveModelDefinitionEventListener,
+                this.shapeSpaceNavigationEventListener);
         
         this.stuffThatCouldBeUsedToLoadAnImageAndProcessTextures();
 

@@ -1,12 +1,19 @@
-import { EventStayInsideCurve, EventStateAtCurveExtremity } from "./EventStateAtCurveExtremity";
+import { EventStayInsideCurve, EventStateAtCurveExtremity, EventSlideOutsideCurve } from "./EventStateAtCurveExtremity";
+import { ShapeNavigableCurve } from "./ShapeNavigableCurve";
 
 
 export class EventMgmtAtCurveExtremities {
 
+    private _shapeNavigableCurve: ShapeNavigableCurve;
     private _eventState: EventStateAtCurveExtremity;
 
-    constructor() {
-        this._eventState = new EventStayInsideCurve(this);
+    constructor(shapeNavigableCurve: ShapeNavigableCurve) {
+        this._shapeNavigableCurve = shapeNavigableCurve;
+        this._eventState = new EventSlideOutsideCurve(this);
+    }
+
+    get shapeNavigableCurve(): ShapeNavigableCurve {
+        return this._shapeNavigableCurve;
     }
 
     get eventState(): EventStateAtCurveExtremity {
@@ -15,11 +22,6 @@ export class EventMgmtAtCurveExtremities {
 
     set eventState(eventState: EventStateAtCurveExtremity) {
         this._eventState = eventState;
-    }
-
-    transitionToState(eventState: EventStateAtCurveExtremity): void {
-        this._eventState = eventState;
-
     }
 
     processEventAtCurveExtremity(): void {

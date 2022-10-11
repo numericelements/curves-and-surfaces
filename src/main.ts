@@ -3,8 +3,8 @@ import { ChartEventListener, CurveModelDefinitionEventListener, CurveSceneEventL
 export function main() {
 
     const curveModelDefinitionEventListener = new CurveModelDefinitionEventListener();
-    const curveSceneEventListener = new CurveSceneEventListener(curveModelDefinitionEventListener);
-    const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelDefinitionEventListener.shapeNavigableCurve, curveSceneEventListener.curveSceneController);
+    const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelDefinitionEventListener);
+    const curveSceneEventListener = new CurveSceneEventListener(curveModelDefinitionEventListener, shapeSpaceNavigationEventListener);
     const chartEventListener = new ChartEventListener(curveModelDefinitionEventListener.shapeNavigableCurve);
     const fileEventListener = new FileEventListener(curveModelDefinitionEventListener, curveSceneEventListener.curveSceneController);
     curveSceneEventListener.curveSceneController.renderFrame();

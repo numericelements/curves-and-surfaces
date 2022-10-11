@@ -3,14 +3,14 @@ import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProce
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { ConstraintType, CurveConstraints } from "./CurveConstraints";
-import { AbstractCurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
+import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 
 const TOL_LOCATION_CURVE_EXTREMITIES = 1.0E-6;
 
 export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
 
-    private curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator | undefined;
+    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
     private shapeNavigableCurve: ShapeNavigableCurve;
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
@@ -49,7 +49,7 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
     updateCurve(): void {
         if(this.curveShapeSpaceNavigator !== undefined)
         {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+            this._optimizedCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         }
     }
 
@@ -67,7 +67,7 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
 
 export class CurveConstraintClampedFirstControlPoint implements CurveConstraintProcessor {
 
-    private curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator | undefined;
+    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
     private shapeNavigableCurve: ShapeNavigableCurve;
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
@@ -107,7 +107,7 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
     updateCurve(): void {
         if(this.curveShapeSpaceNavigator !== undefined)
         {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+            this._optimizedCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         }
     }
 
@@ -119,7 +119,7 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
             if(this.curveShapeSpaceNavigator !== undefined
                 && this.displacementCurrentCurveControlPolygon !== undefined)
             {
-                this.curveShapeSpaceNavigator.curveDisplacement();
+                this.curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
                 for(let controlP of controlPoints) {
                     controlP.x -= this.displacementCurrentCurveControlPolygon[0].x;
                     controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
@@ -145,7 +145,7 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
 
 export class CurveConstraintClampedLastControlPoint implements CurveConstraintProcessor {
 
-    private curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator | undefined;
+    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
     private shapeNavigableCurve: ShapeNavigableCurve;
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
@@ -181,7 +181,7 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
     updateCurve(): void {
         if(this.curveShapeSpaceNavigator !== undefined)
         {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+            this._optimizedCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         }
     }
 
@@ -193,7 +193,7 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
             if(this.curveShapeSpaceNavigator !== undefined &&
                 this.displacementCurrentCurveControlPolygon !== undefined)
             {
-                this.curveShapeSpaceNavigator.curveDisplacement();
+                this.curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
                 for(let controlP of controlPoints) {
                     controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
                     controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
@@ -218,7 +218,7 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
 
 export class CurveConstraintClampedFirstAndLastControlPoint implements CurveConstraintProcessor {
 
-    private curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator | undefined;
+    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
     private shapeNavigableCurve: ShapeNavigableCurve;
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
@@ -259,7 +259,7 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
         {
             let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
             const nbControlPts = this.displacementCurrentCurveControlPolygon.length;
-            this.curveShapeSpaceNavigator.curveDisplacement();
+            this.curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
             if(Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < TOL_LOCATION_CURVE_EXTREMITIES) {
                 this.displacementCurrentCurveControlPolygon[controlPoints.length - 1] = this.displacementCurrentCurveControlPolygon[0];
                 for(let controlP of controlPoints) {

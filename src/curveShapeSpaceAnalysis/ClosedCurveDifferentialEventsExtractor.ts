@@ -13,11 +13,11 @@ export class ClosedCurveDifferentialEventsExtractor extends AbstractCurveDiffere
 
     protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     protected curve: PeriodicBSplineR1toR2;
-    private _curvatureNumerator: BSplineR1toR1;
-    private _curvatureDerivativeNumerator: BSplineR1toR1;
-    private curveDiffProperties: PeriodicBSplineR1toR2DifferentialProperties;
-    private _inflectionParametricLocations: number[] = [];
-    private _curvatureExtremaParametricLocations: number[] = [];
+    protected _curvatureNumerator: BSplineR1toR1;
+    protected _curvatureDerivativeNumerator: BSplineR1toR1;
+    protected curveDiffProperties: PeriodicBSplineR1toR2DifferentialProperties;
+    protected _inflectionParametricLocations: number[] = [];
+    protected _curvatureExtremaParametricLocations: number[] = [];
     private _inflectionLocationsEuclideanSpace: Vector2d[];
     private _curvatureExtremaLocationsEuclideanSpace: Vector2d[];
     protected _transientCurvatureExtremaLocationsEuclideanSpace: Vector2d[];

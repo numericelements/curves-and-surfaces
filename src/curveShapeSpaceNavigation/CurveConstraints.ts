@@ -1,7 +1,7 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { CurveConstraintClampedFirstControlPoint } from "./CurveConstraintStrategy";
+import { CurveConstraintNoConstraint } from "./CurveConstraintStrategy";
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
@@ -22,11 +22,12 @@ export class CurveConstraints {
 
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
-        this._curveConstraintProcessor = new CurveConstraintClampedFirstControlPoint(this);
+        this._curveConstraintProcessor = new CurveConstraintNoConstraint(this);
         this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
         this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
         this._shapeNavigableCurve = shapeNavigableCurve;
-        this._firstControlPoint = ConstraintType.location;
+        this._shapeNavigableCurve.changeCurveConstraintStrategy(this._curveConstraintProcessor);
+        this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
         // this._optimizedCurve = this._shapeNavigableCurve.optimizedCurve;
     }

@@ -1,7 +1,7 @@
 import { NO_CONSTRAINT, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveConstraints } from "../curveShapeSpaceNavigation/CurveConstraints";
 import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedFirstControlPoint, CurveConstraintClampedLastControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
-import { AbstractCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveSceneController } from "./CurveSceneController";
 
@@ -9,7 +9,7 @@ export abstract class CurveConstraintSelectionState {
 
     protected curveSceneController: CurveSceneController;
     protected shapeNavigableCurve: ShapeNavigableCurve;
-    protected curveShapeSpaceNavigator: AbstractCurveShapeSpaceNavigator;
+    protected curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     protected curveConstraints: CurveConstraints;
 
     constructor(context: CurveSceneController) {
@@ -35,8 +35,6 @@ export class HandleConstraintAtPoint1Point2NoConstraintState extends CurveConstr
         const crvConstraintAtExtremitiesStgy = new CurveConstraintNoConstraint(this.shapeNavigableCurve.curveConstraints);
         this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
         this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
-        // this.curveConstraints.setConstraint(new CurveConstraintNoConstraint(this.shapeNavigableCurve.curveConstraints));
-
     }
 
     handleCurveConstraintAtPoint1(selectedPoint: number): void {
@@ -76,7 +74,6 @@ export class HandleConstraintAtPoint1ConstraintPoint2NoConstraintState extends C
         const crvConstraintAtExtremitiesStgy = new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints);
         this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
         this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
-        // this.curveConstraints.setConstraint(new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints));
     }
 
     handleCurveConstraintAtPoint1(selectedPoint: number): void {
@@ -120,7 +117,6 @@ export class HandleConstraintAtPoint1NoConstraintPoint2ConstraintState extends C
         const crvConstraintAtExtremitiesStgy = new CurveConstraintClampedLastControlPoint(this.shapeNavigableCurve.curveConstraints);
         this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
         this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
-        // this.curveConstraints.setConstraint(new CurveConstraintClampedLastControlPoint(this.shapeNavigableCurve.curveConstraints));
     }
 
     handleCurveConstraintAtPoint1(selectedPoint: number): void {
@@ -163,7 +159,6 @@ export class HandleConstraintAtPoint1Point2ConstraintState extends CurveConstrai
         super(context)
         const crvConstraintAtExtremitiesStgy = new CurveConstraintClampedFirstAndLastControlPoint(this.shapeNavigableCurve.curveConstraints);
         this.curveConstraints.setConstraint(crvConstraintAtExtremitiesStgy);
-        // this.curveConstraints.setConstraint(new CurveConstraintClampedFirstAndLastControlPoint(this.shapeNavigableCurve.curveConstraints));
         this.shapeNavigableCurve.changeCurveConstraintStrategy(crvConstraintAtExtremitiesStgy);
     }
 
