@@ -74,6 +74,7 @@ export class CurveShapeSpaceNavigator {
         this._curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
         this._navigationCurveModel = new OpenCurveShapeSpaceNavigator(this);
         this._navigationState = this._navigationCurveModel.navigationState;
+        this._navigationState.navigationStateChange = false;
         this._curveControl = this._navigationCurveModel.curveControl;
         this._curveControlState = this._navigationCurveModel.curveControlState;
         this._activeExtremaLocationControl = this._navigationCurveModel.activeExtremaLocationControl;
@@ -104,20 +105,20 @@ export class CurveShapeSpaceNavigator {
 
     toggleControlOfCurvatureExtrema() {
         this._curveControl.toggleControlOfCurvatureExtrema();
-        this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema
+        this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema;
 
         this._curveControlState.handleCurvatureExtrema();
     }
 
     toggleControlOfInflections() {
         this._curveControl.toggleControlOfInflections()
-        this.controlOfInflection = ! this.controlOfInflection
+        this.controlOfInflection = !this.controlOfInflection;
 
         this._curveControlState.handleInflections();
     }
 
     inputSelectNavigationProcess(navigationID: number) {
-        let warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
+        const warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
         warning.logMessageToConsole();
 
         switch(navigationID) {
@@ -134,7 +135,7 @@ export class CurveShapeSpaceNavigator {
                 break;
             }
             default: {
-                let error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
+                const error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
                 error.logMessageToConsole();
                 break;
             }

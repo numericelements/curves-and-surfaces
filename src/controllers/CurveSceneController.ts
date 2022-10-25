@@ -384,7 +384,6 @@ export class CurveSceneController implements SceneControllerInterface {
 
     curveConstraintTransitionTo(curveConstraintSelectionState: CurveConstraintSelectionState): void {
         this._curveConstraintSelectionState = curveConstraintSelectionState;
-        this._curveConstraintSelectionState.setContext(this);
     }
 
     changeSceneInteraction(sceneInteraction: SceneInteractionStrategy): void {

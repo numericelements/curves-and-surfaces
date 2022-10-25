@@ -1,6 +1,6 @@
 import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSceneController";
 import { CurveSceneController } from "../controllers/CurveSceneController";
-import { ShapeNavigableCurve, ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
+import { ShapeNavigableCurve, ActiveLocationControl, NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
@@ -9,6 +9,8 @@ import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelE
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { WebGLUtils } from "../webgl/webgl-utils";
 import { createProgram } from "../webgl/cuon-utils";
+import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedFirstControlPoint, CurveConstraintClampedLastControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
+import { CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 
 export abstract class UserInterfaceEventListener {
     protected abstract shapeNavigableCurve?: ShapeNavigableCurve;
@@ -386,6 +388,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
     private _currentCurveCategory: string;
     private readonly _toggleButtonCurveClamping: HTMLButtonElement;
     private controlOfCurveClamping: boolean;
+    private previousControlOfCurveClamping: boolean;
 
     public activeLocationControl: ActiveLocationControl
 
@@ -405,6 +408,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         //      mode 0: controlOfCurveClamping = false,
         //      mode 1, mode 2: controlOfCurveClamping =  true
         this.controlOfCurveClamping = false;
+        this.previousControlOfCurveClamping = false;
         this.activeLocationControl = this._shapeNavigableCurve.activeLocationControl;
 
         this._shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
@@ -460,7 +464,17 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
 
     toggleCurveClamping() {
         this.controlOfCurveClamping = !this.controlOfCurveClamping;
-        this._shapeNavigableCurve.toggleCurveClamping();
+        if((!this._shapeNavigableCurve.curveCategory.curveModelChange)
+            && (!this._curveShapeSpaceNavigator?.navigationState.navigationStateChange))
+                this._shapeNavigableCurve.toggleCurveClamping();
+    }
+
+    disableCurveClamping() {
+        this._toggleButtonCurveClamping.disabled = true;
+    }
+
+    enableCurveClamping() {
+        this._toggleButtonCurveClamping.disabled = false;
     }
 
     clickSelectDegree() {
@@ -476,7 +490,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
     inputSelectCurveCategory() {
         const curveCategory = Number(this._inputCurveCategory.value);
         this._currentCurveCategory = this._inputCurveCategory.value;
-        this.shapeNavigableCurve.inputSelectCurveCategory(curveCategory);
+        this._shapeNavigableCurve.inputSelectCurveCategory(curveCategory);
     }
 
     inputSelectDegree() {
@@ -485,7 +499,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         if(!isNaN(Number(this._inputDegree.value))){
             const curveDegree = Number(this._inputDegree.value);
             this._currentCurveDegree = this._inputDegree.value;
-            this.shapeNavigableCurve.curveCategory.inputSelectDegree(curveDegree);
+            this._shapeNavigableCurve.curveCategory.inputSelectDegree(curveDegree);
             if(curveDegree > DEFAULT_CURVE_DEGREE) {
                 for(let i = 1; i < (curveDegree - DEFAULT_CURVE_DEGREE + 1); i += 1) {
                     console.log("select" + optionName + i.toString());
@@ -503,10 +517,81 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         }
     }
 
-    resetCurveConstraintControlButton() {
-        if(!this.controlOfCurveClamping) {
+    updateCurveConstraintControlButton() {
+        if(this.controlOfCurveClamping) {
             this._toggleButtonCurveClamping.click();
         }
+    }
+
+    restorePreviousConstraintControl() {
+        if(!this._shapeNavigableCurve.curveCategory.curveModelChange) {
+            this._shapeNavigableCurve.clampedPoints = [];
+            if(this._shapeNavigableCurve.clampedPointsPreviousState[0] === NO_CONSTRAINT
+                && this._shapeNavigableCurve.clampedPointsPreviousState[1] === NO_CONSTRAINT) {
+                    if(!this.controlOfCurveClamping) this._toggleButtonCurveClamping.click();
+                    this._shapeNavigableCurve.controlOfCurveClamping = true;
+                    this.controlOfCurveClamping = true;
+                    this._shapeNavigableCurve.clampedPoints.push(0);
+                    this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+            } else {
+                this._shapeNavigableCurve.clampedPoints = this._shapeNavigableCurve.clampedPointsPreviousState;
+                if(!(this.controlOfCurveClamping && this.previousControlOfCurveClamping))
+                this._toggleButtonCurveClamping.click();
+            }
+            if(this._shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT) {
+                if(this._shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT) {
+                    this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintNoConstraint(this._shapeNavigableCurve.curveConstraints));
+                } else {
+                    this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedLastControlPoint(this._shapeNavigableCurve.curveConstraints));
+                }
+            } else {
+                if(this._shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT) {
+                    this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this._shapeNavigableCurve.curveConstraints));
+                } else {
+                    this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstAndLastControlPoint(this._shapeNavigableCurve.curveConstraints));
+                }
+            }
+            this._shapeNavigableCurve.curveConstraints.curveConstraintProcessor = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
+            this._shapeNavigableCurve.controlOfCurveClamping = this.controlOfCurveClamping;
+        } else {
+            this._shapeNavigableCurve.clampedPoints = [];
+            if(this._curveShapeSpaceNavigator?.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+                || this._curveShapeSpaceNavigator?.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
+                this._shapeNavigableCurve.clampedPointsPreviousState = [];
+                this._shapeNavigableCurve.clampedPointsPreviousState.push(NO_CONSTRAINT);
+                this._shapeNavigableCurve.clampedPointsPreviousState.push(NO_CONSTRAINT);
+                this._shapeNavigableCurve.clampedPoints = this._shapeNavigableCurve.clampedPointsPreviousState;
+            } else {
+                this._shapeNavigableCurve.controlOfCurveClamping = true;
+                this.controlOfCurveClamping = true;
+                this._shapeNavigableCurve.clampedPoints.push(0);
+                this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+                this._shapeNavigableCurve.clampedPointsPreviousState = this._shapeNavigableCurve.clampedPoints;
+                this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this._shapeNavigableCurve.curveConstraints));
+                this._shapeNavigableCurve.curveConstraints.curveConstraintProcessor = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
+                this._shapeNavigableCurve.controlOfCurveClamping = this.controlOfCurveClamping;
+            }
+        }
+    }
+
+    storeCurrentConstraintControl() {
+        this.previousControlOfCurveClamping = this.controlOfCurveClamping;
+        this.shapeNavigableCurve.clampedPointsPreviousState = this.shapeNavigableCurve.clampedPoints;
+    }
+
+    resetConstraintControl() {
+        if(this.controlOfCurveClamping) {
+            this.storeCurrentConstraintControl();
+            this._toggleButtonCurveClamping.click();
+            this._shapeNavigableCurve.controlOfCurveClamping = false;
+            this._shapeNavigableCurve.clampedPoints = [];
+            this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+            this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+            this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintNoConstraint(this.shapeNavigableCurve.curveConstraints));
+        } else {
+            this.storeCurrentConstraintControl();
+        }
+        this._shapeNavigableCurve.curveConstraints.curveConstraintProcessor = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
     }
 
     updateCurveDegreeSelector(newCurveDegree: number): void {
@@ -551,6 +636,10 @@ export class ShapeSpaceNavigationEventListener {
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
     private sliding: boolean;
+    private previousControlOfCurvatureExtrema: boolean;
+    private previousControlOfInflection: boolean;
+    private previousSliding: boolean;
+    private resetButtons: boolean;
 
     // private sceneController: CurveSceneController;
 
@@ -581,6 +670,10 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfCurvatureExtrema = false;
         this.controlOfInflection = false;
         this.sliding = false;
+        this.previousControlOfCurvatureExtrema = false;
+        this.previousControlOfInflection = false;
+        this.previousSliding = false;
+        this.resetButtons = false;
 
         this.shapeNavigableCurve.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this));
 
@@ -610,17 +703,44 @@ export class ShapeSpaceNavigationEventListener {
 
     toggleControlOfCurvatureExtrema() {
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
-        this._curveShapeSpaceNavigator.toggleControlOfCurvatureExtrema();
+        if(!this.resetButtons)
+            this._curveShapeSpaceNavigator.toggleControlOfCurvatureExtrema();
+    }
+
+    disableControlOfCurvatureExtrema() {
+        this._toggleButtonCurvatureExtrema.disabled = true;
+    }
+
+    enableControlOfCurvatureExtrema() {
+        this._toggleButtonCurvatureExtrema.disabled = false;
     }
 
     toggleControlOfInflections() {
         this.controlOfInflection = !this.controlOfInflection;
-        this._curveShapeSpaceNavigator.toggleControlOfInflections();
+        if(!this.resetButtons)
+            this._curveShapeSpaceNavigator.toggleControlOfInflections();
+    }
+
+    disableControlOfInflections() {
+        this._toggleButtonInflection.disabled = true;
+    }
+
+    enableControlOfInflections() {
+        this._toggleButtonInflection.disabled = false;
     }
 
     toggleSliding() {
         this.sliding = !this.sliding;
-        this._curveShapeSpaceNavigator.toggleSliding();
+        if(!this.resetButtons)
+            this._curveShapeSpaceNavigator.toggleSliding();
+    }
+
+    disableControlOfSliding() {
+        this._toggleButtonSliding.disabled = true;
+    }
+
+    enableControlOfSliding() {
+        this._toggleButtonSliding.disabled = false;
     }
 
     clickNavigationMode() {
@@ -635,16 +755,45 @@ export class ShapeSpaceNavigationEventListener {
         this._curveShapeSpaceNavigator.inputSelectNavigationProcess(navigationMode);
     }
 
-    resetCurveShapeControlButtons() {
-        if(!this.sliding) {
+    updateCurveShapeControlButtons() {
+        if(this.previousSliding) {
             this._toggleButtonSliding.click();
         }
-        if(!this.controlOfCurvatureExtrema) {
+        if(this.previousControlOfCurvatureExtrema) {
             this._toggleButtonCurvatureExtrema.click();
         }
-        if(!this.controlOfInflection) {
+        if(this.previousControlOfInflection) {
             this._toggleButtonInflection.click();
         }
+    }
+
+    resetCurveShapeControlButtons() {
+        this.resetButtons = true;
+        if(this.sliding) {
+            this._toggleButtonSliding.click();
+            this._curveShapeSpaceNavigator.sliding = false;
+        }
+        if(this.controlOfCurvatureExtrema) {
+            this._toggleButtonCurvatureExtrema.click();
+            this._curveShapeSpaceNavigator.controlOfCurvatureExtrema = false;
+        }
+        if(this.controlOfInflection) {
+            this._toggleButtonInflection.click();
+            this._curveShapeSpaceNavigator.controlOfInflection = false;
+        }
+        this.resetButtons = false;
+    }
+
+    restorePreviousCurveShapeControlButtons() {
+        this.controlOfCurvatureExtrema = this.previousControlOfCurvatureExtrema;
+        this.controlOfInflection = this.previousControlOfInflection;
+        this.sliding = this.previousSliding;
+    }
+
+    storeCurrentCurveShapeControlButtons() {
+        this.previousControlOfCurvatureExtrema = this.controlOfCurvatureExtrema;
+        this.previousControlOfInflection = this.controlOfInflection;
+        this.previousSliding = this.sliding;
     }
 
 }

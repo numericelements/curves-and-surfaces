@@ -40,8 +40,7 @@ export class HandleConstraintAtPoint1Point2NoConstraintState extends CurveConstr
     handleCurveConstraintAtPoint1(selectedPoint: number): void {
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1ConstraintPoint2NoConstraintState');
         warning.logMessageToConsole();
-        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT)
-        {
+        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
         } else {
@@ -54,8 +53,7 @@ export class HandleConstraintAtPoint1Point2NoConstraintState extends CurveConstr
     handleCurveConstraintAtPoint2(selectedPoint: number): void {
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1NoConstraintPoint2ConstraintState');
         warning.logMessageToConsole();
-        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT)
-        {
+        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
         } else {
@@ -79,12 +77,11 @@ export class HandleConstraintAtPoint1ConstraintPoint2NoConstraintState extends C
     handleCurveConstraintAtPoint1(selectedPoint: number): void {
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1Point2NoConstraintState');
         warning.logMessageToConsole();
-        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT)
-        {
+        const indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(element => element == selectedPoint);
+        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
-        } else if(this.shapeNavigableCurve.clampedPoints[0] !== selectedPoint)
-        {
+        } else if(indexClampedPoint === -1) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' clamped point selection is incorrect !');
             warning.logMessageToConsole();
         } else {
@@ -97,8 +94,7 @@ export class HandleConstraintAtPoint1ConstraintPoint2NoConstraintState extends C
     handleCurveConstraintAtPoint2(selectedPoint: number): void {
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1Point2ConstraintState');
         warning.logMessageToConsole();
-        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT)
-        {
+        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
         } else {
@@ -122,8 +118,7 @@ export class HandleConstraintAtPoint1NoConstraintPoint2ConstraintState extends C
     handleCurveConstraintAtPoint1(selectedPoint: number): void {
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1Point2ConstraintState');
         warning.logMessageToConsole();
-        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT)
-        {
+        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
         } else {
@@ -136,12 +131,11 @@ export class HandleConstraintAtPoint1NoConstraintPoint2ConstraintState extends C
     handleCurveConstraintAtPoint2(selectedPoint: number): void {
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1Point2NoConstraintState');
         warning.logMessageToConsole();
-        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT)
-        {
+        const indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(element => element == selectedPoint);
+        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
-        } else if(this.shapeNavigableCurve.clampedPoints[0] !== selectedPoint)
-        {
+        } else if(indexClampedPoint === -1) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' clamped point selection is incorrect !');
             warning.logMessageToConsole();
         } else {
@@ -150,7 +144,6 @@ export class HandleConstraintAtPoint1NoConstraintPoint2ConstraintState extends C
         }
         this.curveSceneController.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.curveSceneController))
     }
-
 }
 
 export class HandleConstraintAtPoint1Point2ConstraintState extends CurveConstraintSelectionState {
@@ -166,8 +159,7 @@ export class HandleConstraintAtPoint1Point2ConstraintState extends CurveConstrai
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1NoConstraintPoint2ConstraintState');
         warning.logMessageToConsole();
         const indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(element => element == selectedPoint);
-        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT)
-        {
+        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
         } else if(indexClampedPoint === -1) {
@@ -184,8 +176,7 @@ export class HandleConstraintAtPoint1Point2ConstraintState extends CurveConstrai
         const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1ConstraintPoint2NoConstraintState');
         warning.logMessageToConsole();
         const indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(element => element == selectedPoint);
-        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT)
-        {
+        if(this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
             warning.logMessageToConsole();
         } else if(indexClampedPoint === -1) {

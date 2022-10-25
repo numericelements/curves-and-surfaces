@@ -151,14 +151,12 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         if( this._curveShapeSpaceNavigator == undefined
             || this._curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || this._curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
-            // no clamping active in this case
-            console.log("no clamping active there ")
+            const error = new ErrorLog(this.constructor.name, "toggleCurveClamping", "Cannot handle clamping because no curve shape space navigator is available.");
+            error.logMessageToConsole();
         } else {
             this._controlOfCurveClamping = !this._controlOfCurveClamping
             console.log("control of curve clamping: " + this._controlOfCurveClamping)
             if(this._controlOfCurveClamping) {
-                // this.clampedPoints = []
-                // this.clampedPoints.push(0)
                 this._clampedPoints = this._clampedPointsPreviousState;
                 // this._crvConstraintAtExtremitiesStgy = new CurveConstraintClampedFirstControlPoint(this._curveConstraints);
                 this.activeLocationControl = ActiveLocationControl.firstControlPoint

@@ -40,6 +40,10 @@ export class CurveConstraints {
         this._lastControlPoint = constraintAtLastPoint;
     }
 
+    set curveConstraintProcessor(curveConstraintProcessor: CurveConstraintProcessor) {
+        this._curveConstraintProcessor = curveConstraintProcessor;
+    }
+
     // set optimizedCurve(curve: BSplineR1toR2Interface) {
     //     this._optimizedCurve = curve;
     // }

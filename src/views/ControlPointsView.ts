@@ -124,6 +124,7 @@ export class ControlPointsView extends AbstractMouseSelectablePointView implemen
 
     update(spline: BSplineR1toR2Interface): void {
         this.pointSequenceToDisplay = spline.controlPoints;
+        this.spline = spline;
         this.controlPoints = spline.controlPoints;
         this.updateVerticesAndIndices();
         this.updateBuffers();

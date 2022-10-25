@@ -128,6 +128,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
 
     update(spline: BSplineR1toR2Interface): void {
         this.pointSequenceToDisplay = [];
+        this.spline = spline;
         this.controlPoints = spline.controlPoints;
         this.knots = spline.getDistinctKnots();
         for(let index of this.selectedPoints) {
@@ -150,6 +151,11 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
             const warning = new WarningLog(this.constructor.name, 'updateSelectedPoints', ' inconsistent number of clamped points !');
             warning.logMessageToConsole();
         }
+    }
+
+    clearSelectedPoints(): void {
+        this.selectedPoints = [];
+        this.pointSequenceToDisplay = [];
     }
 
     setSelected(pointIndex: number | null): void {

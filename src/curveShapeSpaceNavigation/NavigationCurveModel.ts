@@ -91,6 +91,10 @@ export abstract class NavigationCurveModel {
         return this._activeInflectionLocationControl;
     }
 
+    set navigationState(navigationState: NavigationState) {
+        this._navigationState = navigationState;
+    }
+
     abstract get currentCurve(): BSplineR1toR2Interface;
 
     abstract get optimizedCurve(): BSplineR1toR2Interface;
@@ -98,6 +102,8 @@ export abstract class NavigationCurveModel {
     abstract navigateSpace(selectedControlPoint: number, x: number, y: number): void;
 
     abstract curveDisplacement(): void;
+
+    abstract changeNavigationState(navigationState: NavigationState): void;
 
     transitionTo(curveControlState: CurveControlState): void {
         this._curveControlState = curveControlState;
@@ -167,6 +173,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         // JCL Setting up the navigation state requires having defined the shapeSpaceDiffEventsStructure and its shapeSpaceDiffEventsConfigurator
         // JCL as well as the CurveShapeSpaceDescriptor
         this._navigationState = new OCurveNavigationWithoutShapeSpaceMonitoring(this);
+        this._curveShapeSpaceNavigator.navigationState = this._navigationState;
         // JCL requires the setting of the navigationState
         this.curveAnalyserCurrentCurve = this._navigationState.curveAnalyserCurrentCurve;
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
@@ -405,7 +412,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
         this._navigationState = new CCurveNavigationWithoutShapeSpaceMonitoring(this);
-
+        this._curveShapeSpaceNavigator.navigationState = this._navigationState;
         this.curveAnalyserCurrentCurve = this.navigationState.curveAnalyserCurrentCurve;
         this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveAnalyserOptimizedCurve = this.navigationState.curveAnalyserOptimizedCurve;
