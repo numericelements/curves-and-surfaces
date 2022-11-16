@@ -1,5 +1,5 @@
 import { OptimizationProblemCtrlParameters } from "../bsplineOptimizationProblems/OptimizationProblemCtrlParameters";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { CurveControlState, HandleNoDiffEventNoSlidingState } from "../controllers/CurveControlState";
 import { CurveControlStrategyInterface } from "../controllers/CurveControlStrategyInterface";
 import { DummyStrategy } from "../controllers/DummyStrategy";
@@ -21,7 +21,7 @@ import { NeighboringEvents } from "../sequenceOfDifferentialEvents/NeighboringEv
 import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents";
 import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { CurveShapeSpaceDescriptor } from "./CurveShapeSpaceDesccriptor";
+import { CurveShapeSpaceDescriptor } from "./CurveShapeSpaceDescriptor";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER, MAX_TRUST_REGION_RADIUS } from "./CurveShapeSpaceNavigator";
 import { CCurveNavigationWithoutShapeSpaceMonitoring, NavigationState, OCurveNavigationWithoutShapeSpaceMonitoring } from "./NavigationState";
 import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "./ShapeSpaceDiffEventsConfigurator";
@@ -31,12 +31,11 @@ import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
 export abstract class NavigationCurveModel {
 
     protected readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    protected _shapeNavigableCurve: ShapeNavigableCurve;
+    protected readonly _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
+    protected readonly _shapeNavigableCurve: ShapeNavigableCurve;
     protected abstract _navigationState: NavigationState;
-    protected abstract _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
-    protected abstract _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    protected _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
     protected abstract _curveControl: CurveControlStrategyInterface;
-    protected abstract _curveControlState: CurveControlState;
     protected abstract _currentCurve: BSplineR1toR2Interface;
     protected abstract _optimizedCurve: BSplineR1toR2Interface;
     protected readonly controlOfInflections: boolean;
@@ -47,6 +46,8 @@ export abstract class NavigationCurveModel {
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+        this._shapeSpaceDiffEventsStructure = curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
+        this._shapeSpaceDiffEventsConfigurator = this._shapeSpaceDiffEventsStructure.shapeSpaceDiffEventsConfigurator;
         this.controlOfInflections = this._curveShapeSpaceNavigator.controlOfInflection;
         this.controlOfCurvatureExtrema = this._curveShapeSpaceNavigator.controlOfCurvatureExtrema;
         this.sliding = this._curveShapeSpaceNavigator.sliding;
@@ -67,12 +68,8 @@ export abstract class NavigationCurveModel {
         return this._navigationState;
     }
 
-    get curveControl() {
+    get curveControl(): CurveControlStrategyInterface {
         return this._curveControl;
-    }
-
-    get curveControlState() {
-        return this._curveControlState;
     }
 
     get shapeSpaceDiffEventsStructure(): ShapeSpaceDiffEventsStructure {
@@ -95,9 +92,21 @@ export abstract class NavigationCurveModel {
         this._navigationState = navigationState;
     }
 
+    set shapeSpaceDiffEventsConfigurator(shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator) {
+        this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
+    }
+
+    set curveControl(curveControl: CurveControlStrategyInterface) {
+        this._curveControl = curveControl;
+    }
+
     abstract get currentCurve(): BSplineR1toR2Interface;
 
     abstract get optimizedCurve(): BSplineR1toR2Interface;
+
+    abstract set currentCurve(currentCurve: BSplineR1toR2Interface);
+
+    abstract set optimizedCurve(optimizedCurve: BSplineR1toR2Interface);
 
     abstract navigateSpace(selectedControlPoint: number, x: number, y: number): void;
 
@@ -105,10 +114,6 @@ export abstract class NavigationCurveModel {
 
     abstract changeNavigationState(navigationState: NavigationState): void;
 
-    transitionTo(curveControlState: CurveControlState): void {
-        this._curveControlState = curveControlState;
-        this._curveControlState.setContext(this);
-    }
 }
 
 export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
@@ -118,7 +123,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     private _selectedControlPoint?: number;
     protected _currentCurve: BSplineR1toR2;
     private currentControlPolygon: Vector2d[];
-    private displacementSelctdCP: Vector2d;
+    private locationSelectedCP: Vector2d;
     public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
     public curveAnalyserCurrentCurve: CurveAnalyzerInterface;
     private _targetCurve: BSplineR1toR2;
@@ -132,12 +137,8 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     public optimizer: Optimizer;
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
     protected _navigationState: NavigationState;
-    protected _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
-    protected _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
-    // private _curveConstraintProcessor: CurveConstraintProcessor;
     // private _eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
-    protected _curveControlState: CurveControlState;
     protected _curveControl: CurveControlStrategyInterface;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
@@ -147,26 +148,22 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         if(this._shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel)
             this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
 
-        // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-        this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         if(this.curveModel === undefined) {
             this.curveModel = new CurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
             error.logMessageToConsole();
         }
-        this._shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._shapeNavigableCurve, this._shapeSpaceDiffEventsConfigurator, this.curveShapeSpaceNavigator);
-        this._curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflections, this.controlOfCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+        this._curveControl = new NoSlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
 
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
-        this.displacementSelctdCP = new Vector2d(0, 0);
+        this.locationSelectedCP = new Vector2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
         this._optimizedCurve = this._currentCurve;
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
-        // this._curveConstraintProcessor = this._curveConstraints.curveConstraintProcessor;
 
-        this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
         // this._eventMgmtAtCurveExtremities = new EventMgmtAtCurveExtremities();
         this._slidingEventsAtExtremities = new CurveAnalyzerEventsSlidingOutOfInterval();
@@ -180,7 +177,6 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this.curveAnalyserOptimizedCurve = this._navigationState.curveAnalyserOptimizedCurve;
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
-        //this._navigationParameters = new ShapeSpaceDiffEventsStructure();
 
         this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
 
@@ -225,7 +221,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     //     this._curveConstraintProcessor = curveConstraintProcessor;
     // }
 
-    set currentCurve(curve: BSplineR1toR2)  {
+    set currentCurve(curve: BSplineR1toR2) {
         this._currentCurve = curve;
     }
 
@@ -298,13 +294,13 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         //this._currentCurve = newCurve.spline.clone();
         this.currentControlPolygon = this._currentCurve.controlPoints;
         this._selectedControlPoint = newSelectedControlPoint;
-        this.displacementSelctdCP = newDispSelctdCP;
+        this.locationSelectedCP = newDispSelctdCP;
     }
 
     setTargetCurve(): void {
         if(this.selectedControlPoint !== undefined) {
             this._targetCurve = this._currentCurve;
-            this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.displacementSelctdCP);
+            this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.locationSelectedCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
             error.logMessageToConsole();
@@ -366,7 +362,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     private curveCategory: CurveCategory;
     public curveModel?: ClosedCurveModel;
     private _selectedControlPoint?: number;
-    private displacementSelctdCP: Vector2d;
+    private locationSelectedCP: Vector2d;
     protected _navigationState: NavigationState;
     protected _currentCurve: PeriodicBSplineR1toR2;
     private currentControlPolygon: Vector2d[];
@@ -377,15 +373,12 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     public curveAnalyserOptimizedCurve: CurveAnalyzerInterface;
     public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
     public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
-    protected _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
-    protected _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     protected _curveControl: CurveControlStrategyInterface;
 
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
     public optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
     public optimizer: Optimizer;
-    protected _curveControlState: CurveControlState;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         super(curveShapeSpaceNavigator);
@@ -393,23 +386,21 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         if(this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel)
             this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
 
-        this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding;
         if(this.curveModel === undefined) {
             this.curveModel = new ClosedCurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
             error.logMessageToConsole();
         }
-        this._shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._shapeNavigableCurve, this._shapeSpaceDiffEventsConfigurator, this.curveShapeSpaceNavigator);
-        this._curveControl = new DummyStrategy(this.curveModel, this.controlOfInflections, this.controlOfCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+        this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
 
         this._currentCurve = this.curveModel.spline.clone();
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
-        this.displacementSelctdCP = new Vector2d(0, 0);
+        this.locationSelectedCP = new Vector2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
         this._optimizedCurve = this._currentCurve;
         this.currentControlPolygon.forEach(() => this._displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
-        this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
         this._navigationState = new CCurveNavigationWithoutShapeSpaceMonitoring(this);
         this._curveShapeSpaceNavigator.navigationState = this._navigationState;
@@ -455,6 +446,10 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         return this._shapeSpaceDescriptor;
     }
 
+    set currentCurve(curve: PeriodicBSplineR1toR2) {
+        this._currentCurve = curve;
+    }
+
     set optimizedCurve(aBSpline: PeriodicBSplineR1toR2) {
         this._optimizedCurve = aBSpline;
     }
@@ -471,7 +466,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     setTargetCurve(): void {
         if(this.selectedControlPoint !== undefined) {
             this._targetCurve = this._currentCurve;
-            this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.displacementSelctdCP);
+            this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.locationSelectedCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
             error.logMessageToConsole();
@@ -500,7 +495,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         //this._currentCurve = newCurve.spline.clone();
         this.currentControlPolygon = this._currentCurve.controlPoints;
         this._selectedControlPoint = newSelectedControlPoint;
-        this.displacementSelctdCP = newDispSelctdCP;
+        this.locationSelectedCP = newDispSelctdCP;
     }
 
     navigateSpace(selectedControlPoint: number, x: number, y: number): void {

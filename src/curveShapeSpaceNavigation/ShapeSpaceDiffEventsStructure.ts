@@ -13,11 +13,12 @@
  */
 
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceConfiguration } from "./ShapeSpaceDiffEventsConfigurator";
 import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 import { NavigationCurveModelInterface } from "./NavigationCurveModelInterface";
+import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "./ShapeSpaceDiffEventsConfigurator";
 
 export class ShapeSpaceDiffEventsStructure {
 
@@ -25,17 +26,17 @@ export class ShapeSpaceDiffEventsStructure {
     private _activeControlCurvatureExtrema: boolean;
     private _activeNavigationWithOptimizer: boolean;
     private _slidingDifferentialEvents: boolean;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration;
     private _curveCategory: CurveCategory;
     private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
 
-    constructor(shapeNavigableCurve: ShapeNavigableCurve, shapeSpaceConfigurator: ShapeSpaceDiffEventsConfigurator, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
-        let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+    constructor(shapeNavigableCurve: ShapeNavigableCurve, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
+        const warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
         this._curveCategory = shapeNavigableCurve.curveCategory;
-        this._shapeSpaceDiffEventsConfigurator = shapeSpaceConfigurator;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+        this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding(this._curveShapeSpaceNavigator);
         this._activeNavigationWithOptimizer = false;
         this._activeControlInflections = false;
         this._activeControlCurvatureExtrema = false;
@@ -88,7 +89,7 @@ export class ShapeSpaceDiffEventsStructure {
         return this._curveCategory;
     }
 
-    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEventsConfigurator {
+    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceConfiguration {
         return this._shapeSpaceDiffEventsConfigurator;
     }
 
@@ -107,7 +108,7 @@ export class ShapeSpaceDiffEventsStructure {
         this._activeNavigationWithOptimizer = true;
     }
 
-    changeShapSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator): void {
+    changeShapeSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration): void {
         this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
         // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
     }

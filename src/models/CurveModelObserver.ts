@@ -11,6 +11,8 @@ import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtC
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, HandleConstraintAtPoint1NoConstraintPoint2ConstraintState, HandleConstraintAtPoint1Point2ConstraintState, HandleConstraintAtPoint1Point2NoConstraintState } from "../controllers/CurveConstraintSelectionState";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForClosedCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
+import { CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection, CurveSceneControllerNoShapeSpaceConstraintsCPSelection, CurveSceneControllerStrictlyInsideShapeSpaceCPSelection } from "../controllers/CurveSceneControllerInteractionStrategy";
 
 abstract class CurveModelObserver implements IObserver<CurveModel> {
 
@@ -76,26 +78,57 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
 
     update(message: CurveModelInterface): void {
         this.listener.curveModel = message;
+        const curveCategory = this.listener.shapeNavigableCurve.curveCategory;
         if(message instanceof CurveModel) {
-            this.listener.shapeNavigableCurve.curveCategory.curveModel = message;
+            curveCategory.curveModel = message;
             const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
             if(curveShapeSpaceNavigator !== undefined) {
                 curveShapeSpaceNavigator.curveModel = message;
-                const degree = message.spline.degree;
-                this.listener.updateCurveDegreeSelector(degree);
-                // this.listener.shapeNavigableCurve.clampedPoints = [];
-                if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
-                    || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
-                    this.listener.resetConstraintControl();
-                    this.listener.disableCurveClamping();
-                    this.listener.shapeNavigableCurve.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this.listener.shapeNavigableCurve);
-                    this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
-                } else {
-                    this.listener.enableCurveClamping();
-                    this.listener.restorePreviousConstraintControl();
-                    this.listener.shapeNavigableCurve.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this.listener.shapeNavigableCurve);
-                    this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
-                    // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
+                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+                const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
+                const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
+                if(curveModelChange) {
+                    const degree = message.spline.degree;
+                    this.listener.updateCurveDegreeSelector(degree);
+                    this.listener.shapeNavigableCurve.clampedPoints = [];
+
+                    this.listener.shapeNavigableCurve.clampedPointsPreviousState = [];
+                    if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring
+                        || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring) {
+                        this.listener.resetConstraintControl();
+                        this.listener.disableCurveClamping();
+                        if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring)
+                            this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring)
+                            this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                    } else {
+                        this.listener.enableCurveClamping();
+                        this.listener.restorePreviousConstraintControl();
+                        this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                    }
+                } else if(navigationStateChange) {
+                    const degree = message.spline.degree;
+                    this.listener.updateCurveDegreeSelector(degree);
+                    // this.listener.shapeNavigableCurve.clampedPoints = [];
+                    if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+                        || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
+                        this.listener.resetConstraintControl();
+                        this.listener.disableCurveClamping();
+                        if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring)
+                            this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring)
+                            this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                    } else {
+                        this.listener.enableCurveClamping();
+                        this.listener.restorePreviousConstraintControl();
+                        this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                        // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
+                    }
+                } else if(shapeSpaceConfigurationChange) {
+                    curveCategory.curveModelDifferentialEventsLocations = curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
                 }
             }
         } else if(message instanceof ClosedCurveModel) {
@@ -103,19 +136,45 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
             const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
             if(curveShapeSpaceNavigator !== undefined) {
                 curveShapeSpaceNavigator.curveModel = message;
-                const degree = message.spline.degree;
-                this.listener.updateCurveDegreeSelector(degree);
-                this.listener.shapeNavigableCurve.clampedPoints = [];
-                if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
-                    || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
-                    this.listener.resetConstraintControl();
-                    this.listener.disableCurveClamping();
-                } else {
-                    this.listener.enableCurveClamping();
-                    this.listener.restorePreviousConstraintControl();
-                    this.listener.shapeNavigableCurve.eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this.listener.shapeNavigableCurve);
-                    this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
-                    // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
+                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange; 
+                const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
+                const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
+                if(curveModelChange) {
+                    const degree = message.spline.degree;
+                    this.listener.updateCurveDegreeSelector(degree);
+                    this.listener.shapeNavigableCurve.clampedPoints = [];
+
+                    this.listener.shapeNavigableCurve.clampedPointsPreviousState = [];
+                    if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring
+                        || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring) {
+                        this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.resetConstraintControl();
+                        this.listener.disableCurveClamping();
+                    } else {
+                        this.listener.enableCurveClamping();
+                        this.listener.restorePreviousConstraintControl();
+                        this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                    }
+                } else if(navigationStateChange) {
+                    const degree = message.spline.degree;
+                    this.listener.updateCurveDegreeSelector(degree);
+                    this.listener.shapeNavigableCurve.clampedPoints = [];
+                    if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+                        || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
+                        if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring)
+                            this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.resetConstraintControl();
+                        this.listener.disableCurveClamping();
+                    } else {
+                        this.listener.enableCurveClamping();
+                        this.listener.restorePreviousConstraintControl();
+                        this.listener.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.listener.shapeNavigableCurve.eventMgmtAtExtremities));
+                        this.listener.shapeNavigableCurve.eventStateAtCrvExtremities = this.listener.shapeNavigableCurve.eventMgmtAtExtremities.eventState;
+                        // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
+                    }
+                } else if(shapeSpaceConfigurationChange) {
+                    curveCategory.curveModelDifferentialEventsLocations = curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
                 }
             }
         }
@@ -147,6 +206,8 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
     update(message: CurveModelInterface): void {
         const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
         const curveModelChange = curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModelChange;
+        const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
+        const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         this.listener.curveShapeSpaceNavigator.curveModel = message;
         if(curveModelChange) {
             const currentNavigationState = curveShapeSpaceNavigator.navigationState;
@@ -155,11 +216,24 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
                 if(curveShapeSpaceNavigator.navigationCurveModel instanceof OpenCurveShapeSpaceNavigator) {
                     if(currentNavigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
                         curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new OCurveNavigationWithoutShapeSpaceMonitoring(curveShapeSpaceNavigator.navigationCurveModel));
-                    } else if(currentNavigationState instanceof CCurveNavigationThroughSimplerShapeSpaces) {
-                        curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new OCurveNavigationThroughSimplerShapeSpaces(curveShapeSpaceNavigator.navigationCurveModel));
-                    } else if(currentNavigationState instanceof CCurveNavigationStrictlyInsideShapeSpace) {
-                        curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new OCurveNavigationStrictlyInsideShapeSpace(curveShapeSpaceNavigator.navigationCurveModel));
+                        this.listener.resetCurveShapeControlButtons();
+                        this.listener.disableControlOfCurvatureExtrema();
+                        this.listener.disableControlOfInflections();
+                        this.listener.disableControlOfSliding();
+                    } else {
+                        if(currentNavigationState instanceof CCurveNavigationThroughSimplerShapeSpaces) {
+                            curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new OCurveNavigationThroughSimplerShapeSpaces(curveShapeSpaceNavigator.navigationCurveModel));
+                        } else if(currentNavigationState instanceof CCurveNavigationStrictlyInsideShapeSpace) {
+                            curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new OCurveNavigationStrictlyInsideShapeSpace(curveShapeSpaceNavigator.navigationCurveModel));
+                        }
+                        this.listener.enableControlOfCurvatureExtrema();
+                        this.listener.enableControlOfInflections();
+                        this.listener.enableControlOfSliding();
+                        this.listener.updateCurveShapeControlButtons();
+                        this.listener.restorePreviousCurveShapeControlButtons();
+                        this.listener.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this.listener.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
                     }
+                    curveShapeSpaceNavigator.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(curveShapeSpaceNavigator.shapeNavigableCurve.eventMgmtAtExtremities));
                     curveShapeSpaceNavigator.navigationState = curveShapeSpaceNavigator.navigationCurveModel.navigationState;
                 }
 
@@ -168,15 +242,29 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
                 if(curveShapeSpaceNavigator.navigationCurveModel instanceof ClosedCurveShapeSpaceNavigator) {
                     if(currentNavigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring) {
                         curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new CCurveNavigationWithoutShapeSpaceMonitoring(curveShapeSpaceNavigator.navigationCurveModel));
-                    } else if(currentNavigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-                        curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new CCurveNavigationThroughSimplerShapeSpaces(curveShapeSpaceNavigator.navigationCurveModel));
-                    } else if(currentNavigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-                        curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new CCurveNavigationStrictlyInsideShapeSpace(curveShapeSpaceNavigator.navigationCurveModel));
+                        this.listener.resetCurveShapeControlButtons();
+                        this.listener.disableControlOfCurvatureExtrema();
+                        this.listener.disableControlOfInflections();
+                        this.listener.disableControlOfSliding();
+                    } else {
+                        if(currentNavigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
+                            curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new CCurveNavigationThroughSimplerShapeSpaces(curveShapeSpaceNavigator.navigationCurveModel));
+                        } else if(currentNavigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
+                            curveShapeSpaceNavigator.navigationCurveModel.changeNavigationState(new CCurveNavigationStrictlyInsideShapeSpace(curveShapeSpaceNavigator.navigationCurveModel));
+                        }
+                        this.listener.enableControlOfCurvatureExtrema();
+                        this.listener.enableControlOfInflections();
+                        this.listener.enableControlOfSliding();
+                        this.listener.updateCurveShapeControlButtons();
+                        this.listener.restorePreviousCurveShapeControlButtons();
+                        this.listener.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this.listener.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
                     }
+                    curveShapeSpaceNavigator.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(curveShapeSpaceNavigator.shapeNavigableCurve.eventMgmtAtExtremities));
                     curveShapeSpaceNavigator.navigationState = curveShapeSpaceNavigator.navigationCurveModel.navigationState;
                 }
             }
-        } else {
+            this.listener.reinitializePreviousShapeControlButtons();
+        } else if(!curveModelChange && navigationStateChange) {
             this.updateNavigationState();
             // this.updateCurveModelMaintainNavigationState();
             if(this.listener.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
@@ -186,13 +274,25 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
                 this.listener.disableControlOfCurvatureExtrema();
                 this.listener.disableControlOfInflections();
                 this.listener.disableControlOfSliding();
+                if(this.listener.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring)
+                    curveShapeSpaceNavigator.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(curveShapeSpaceNavigator.shapeNavigableCurve.eventMgmtAtExtremities));
+                if(this.listener.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring)
+                    curveShapeSpaceNavigator.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(curveShapeSpaceNavigator.shapeNavigableCurve.eventMgmtAtExtremities));
             } else {
+                // curveShapeSpaceNavigator.navigationCurveModel.currentCurve = curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModel.spline;
+                // curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = curveShapeSpaceNavigator.navigationCurveModel.currentCurve;
                 this.listener.enableControlOfCurvatureExtrema();
                 this.listener.enableControlOfInflections();
                 this.listener.enableControlOfSliding();
                 this.listener.updateCurveShapeControlButtons();
                 this.listener.restorePreviousCurveShapeControlButtons();
+                this.listener.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this.listener.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+                if(this.listener.sliding) {
+                    curveShapeSpaceNavigator.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(curveShapeSpaceNavigator.shapeNavigableCurve.eventMgmtAtExtremities));
+                }
             }
+        } else if(shapeSpaceConfigurationChange) {
+            // nothing to do there at the moment
         }
     }
 
@@ -270,7 +370,8 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
         this.listener.curveModel = message;
         this.listener.curveModelDifferentialEventsExtractor = this.listener.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
         this.listener.curveDiffEventsLocations = this.listener.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
-        this.listener.removeCurveObservers();
+        if(!this.listener.shapeNavigableCurve.curveCategory.curveModelChange) 
+            this.listener.removeCurveObservers();
         this.listener.initCurveSceneView();
         const navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
         this.listener.navigationState = navigationState;
@@ -282,9 +383,17 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
                     error.logMessageToConsole();
                 }
                 this.listener.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
+                this.listener.changeSceneInteraction(new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this.listener));
                 this.listener.clampedControlPointView.clearSelectedPoints();
                 this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
             } else {
+                if(navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces ||
+                    navigationState instanceof CCurveNavigationThroughSimplerShapeSpaces) {
+                    this.listener.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this.listener));
+                } else if(navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace ||
+                    navigationState instanceof CCurveNavigationStrictlyInsideShapeSpace) {
+                    this.listener.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPSelection(this.listener));
+                }
                 if(!this.listener.shapeNavigableCurve.controlOfCurveClamping) {
                     this.listener.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
                     this.listener.clampedControlPointView.clearSelectedPoints();
@@ -306,10 +415,10 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
         } else {
             if(message instanceof CurveModel) {
                 this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
-                this.listener.initCurveSceneView();
+                // this.listener.initCurveSceneView();
             } else if(message instanceof ClosedCurveModel) {
                 this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
-                this.listener.initCurveSceneView();
+                // this.listener.initCurveSceneView();
             }
         }
 

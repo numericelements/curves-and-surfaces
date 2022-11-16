@@ -9,7 +9,7 @@ import { CurveDifferentialEventsLocations } from "./CurveDifferentialEventsLocat
 
 export abstract class AbstractCurveDifferentialEventsExtractor implements IObserver<BSplineR1toR2Interface> {
 
-    protected readonly curve: BSplineR1toR2Interface;
+    protected curve: BSplineR1toR2Interface;
     protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     protected _crvDiffEventsLocations: CurveDifferentialEventsLocations;
     protected _observers: IObserver<CurveDifferentialEventsLocations>[] = [];

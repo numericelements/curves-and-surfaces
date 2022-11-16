@@ -4,6 +4,7 @@ import { IObserver } from "../newDesignPatterns/Observer"
 import { Vector2d } from "../mathVector/Vector2d"
 import { CurveModelInterface, KindOfObservers } from "./CurveModelInterface"
 import { CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 // import { Optimizer } from "../optimizers/Optimizer"
 // import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
 
@@ -47,13 +48,43 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
         
     }
 
+    checkObservers(): void {
+        var i = 0;
+        for (let observer of this.observers){
+            const indexObs = this.observers.indexOf(observer);
+            if(indexObs === -1) {
+                const error = new ErrorLog(this.constructor.name, "checkObservers", "Unable to locate the " + i + "th observer in the list of observers.");
+                error.logMessageToConsole();
+            }
+            i++;
+        }
+        i = 0;
+        for (let observer of this.observersCP){
+            const indexObsCP = this.observersCP.indexOf(observer);
+            if(indexObsCP === -1) {
+                const error = new ErrorLog(this.constructor.name, "checkObservers", "Unable to locate the " + i + "th observerCP in the list of observersCP.");
+                error.logMessageToConsole();
+            }
+            i++;
+        }
+    }
 
     removeObserver(observer: IObserver<BSplineR1toR2Interface>, kind: KindOfObservers): void {
         switch(kind) {
             case 'curve':
+                const indexObs = this.observers.indexOf(observer);
+                if(indexObs === -1) {
+                    const error = new ErrorLog(this.constructor.name, "removeObserver", "Unable to locate the observer "+observer+" in the list of observers.");
+                    error.logMessageToConsole();
+                }
                 this.observers.splice(this.observers.indexOf(observer), 1);
                 break;
             case 'control points':
+                const indexObsCP = this.observersCP.indexOf(observer);
+                if(indexObsCP === -1) {
+                    const error = new ErrorLog(this.constructor.name, "removeObserver", "Unable to locate the observer "+observer+" in the list of observers.");
+                    error.logMessageToConsole();
+                }
                 this.observersCP.splice(this.observersCP.indexOf(observer), 1);
                 break;
         }
@@ -68,6 +99,8 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
             console.log("CurveModel: update as CP: " + observer.constructor.name)
             observer.update(this._spline.clone());
         }
+
+        this.checkObservers();
     }
 
     setControlPointPosition(controlPointIndex: number, x: number, y: number): void {
@@ -103,47 +136,4 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
     //         }
     //     }
     // }
-
-    
-    // toggleActiveControlOfCurvatureExtrema(): void {
-    //     if (!this.activeOptimizer) {
-    //         this.activeOptimizer = true;
-    //         this.activeControl = ActiveControl.curvatureExtrema;
-    //     }
-    //     else if (this.activeControl == ActiveControl.both){
-    //         this.activeControl = ActiveControl.inflections;
-    //     }
-    //     else if (this.activeControl == ActiveControl.inflections){
-    //         this.activeControl = ActiveControl.both;
-    //     }
-    //     else if (this.activeControl == ActiveControl.curvatureExtrema){
-    //         this.activeOptimizer = false;
-    //     }
-
-    //     if (this.activeOptimizer){
-    //         this.setActiveControl();
-    //     }
-    // }
-
-    // toggleActiveControlOfInflections(): void {
-    //     if (!this.activeOptimizer) {
-    //         this.activeOptimizer = true;
-    //         this.activeControl = ActiveControl.inflections;
-    //     }
-    //     else if (this.activeControl == ActiveControl.both){
-    //         this.activeControl = ActiveControl.curvatureExtrema;
-    //     }
-    //     else if (this.activeControl == ActiveControl.curvatureExtrema){
-    //         this.activeControl = ActiveControl.both;
-    //     }
-    //     else if (this.activeControl == ActiveControl.inflections){
-    //         this.activeOptimizer = false;
-    //     }
-
-    //     if (this.activeOptimizer){
-    //         this.setActiveControl();
-    //     }
-    // }
-    
-
 }

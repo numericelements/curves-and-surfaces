@@ -1,7 +1,7 @@
 import { SequenceOfDifferentialEvents } from "../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents"
 import { OpenCurveDifferentialEventsExtractor } from "./OpenCurveDifferentialEventsExtractor"
 import { BSplineR1toR2 } from "../../src/newBsplines/BSplineR1toR2"
-import { CurveShapeSpaceDescriptor } from "../../src/curveShapeSpaceNavigation/CurveShapeSpaceDesccriptor";
+import { CurveShapeSpaceDescriptor } from "../curveShapeSpaceNavigation/CurveShapeSpaceDescriptor";
 import { ExtremumLocationClassifier,
     ExtremumLocation,
     INITIAL_INDEX } from "./ExtremumLocationClassifiier";
@@ -159,7 +159,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         const diffEventsExtractor = new OpenCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this.shapeSpaceDiffEventsConfigurator) {
+        if(this._shapeSpaceDiffEventsConfigurator) {
             this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
@@ -169,7 +169,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
             warning.logMessageToConsole();
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this.shapeSpaceDiffEventsConfigurator) {
+        if(this._shapeSpaceDiffEventsConfigurator) {
             this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
@@ -304,19 +304,21 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
         const diffEventsExtractor = new ClosedCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this.shapeSpaceDiffEventsConfigurator) {
+        if(this._shapeSpaceDiffEventsConfigurator) {
             this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
+            this.computeCurvatureCPClosestToZero();
         } else {
             warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
             warning.logMessageToConsole();
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this.shapeSpaceDiffEventsConfigurator) {
+        if(this._shapeSpaceDiffEventsConfigurator) {
             this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
+            this.computeCurvatureDerivCPClosestToZero();
         } else {
             warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
             warning.logMessageToConsole();

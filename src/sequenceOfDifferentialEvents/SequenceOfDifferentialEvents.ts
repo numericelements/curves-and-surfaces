@@ -141,6 +141,7 @@ export class SequenceOfDifferentialEvents {
     }
 
     insertEvents(curvatureExtrema: number[], inflections: number[]):void {
+        this._sequence = [];
         let j = 0;
         let currentLocExtrema = 0.0;
         let indexExtrema = 0;
@@ -174,10 +175,8 @@ export class SequenceOfDifferentialEvents {
         if(j < inflections.length) {
             throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections.");
         } else if(this._sequence.length !== curvatureExtrema.length + inflections.length) {
-            // throw new Error("Inconsistent length of sequence of differential events.");
-            // JCL temporary modification
-            const warning = new WarningLog(this.constructor.name, "insertEvents", "Inconsistent length of sequence of differential events.");
-            warning.logMessageToConsole();
+            const error = new ErrorLog(this.constructor.name, "insertEvents", "Inconsistent length of sequence of differential events.");
+            error.logMessageToConsole();
         }
         this.checkSequenceConsistency();
         this._indicesOfInflections = this.generateIndicesInflection();

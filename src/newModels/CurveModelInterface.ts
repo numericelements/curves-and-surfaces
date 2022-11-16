@@ -20,6 +20,8 @@ export interface CurveModelInterface extends IMultiObservable<BSplineR1toR2Inter
 
     // toggleActiveControlOfInflections() : void;
 
-    notifyObservers() : void;
+    notifyObservers(): void;
+
+    checkObservers(): void;
 
 }

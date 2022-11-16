@@ -78,7 +78,7 @@ export class CurveSceneController implements SceneControllerInterface {
     private curvatureExtremaView: CurvatureExtremaView
     private transitionCurvatureExtremaView: TransitionCurvatureExtremaView
     private inflectionsView: InflectionsView
-    private _curveControl: CurveControlStrategyInterface
+    // private _curveControl: CurveControlStrategyInterface
     /* JCL 2020/10/18 Moved sliding, controlOfCurvatureExtrema, controlOfInflection, controlOfCurveClamping to public */
     public sliding: boolean
     public controlOfCurvatureExtrema: boolean
@@ -102,12 +102,9 @@ export class CurveSceneController implements SceneControllerInterface {
 
     /* JCL 2021/09/29 Add modeller for new code architecture */
     private curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
-    public shapeNavigableCurve: ShapeNavigableCurve;
-    public shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
-    public shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
-    // private curveControlState: CurveControlState;
+    public readonly shapeNavigableCurve: ShapeNavigableCurve;
     private _navigationState: NavigationState;
-    public curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    public readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private curveEventAtExtremityMayVanish: boolean;
     // private _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
     private _curveConstraintSelectionState: CurveConstraintSelectionState;
@@ -139,6 +136,9 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);
         this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
         this._sceneInteractionStrategy = new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this);
+
+        // JCL temporary modif
+        this.curveShapeSpaceNavigator.curveSceneController = this;
         
         let selectedEvent: number[]= []
         this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1)
@@ -151,8 +151,8 @@ export class CurveSceneController implements SceneControllerInterface {
 
         this._allowShapeSpaceChange = true
 
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.controlOfCurvatureExtrema
-        this.controlOfInflection = this.curveShapeSpaceNavigator.controlOfInflection
+        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema;
+        this.controlOfInflection = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections;
         this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping
 
         this.registerCurveObservers();
@@ -164,21 +164,18 @@ export class CurveSceneController implements SceneControllerInterface {
 
         // this._eventMgmtAtExtremities = this.shapeNavigableCurve.eventMgmtAtExtremities;
         this.curveEventAtExtremityMayVanish = false;
-        if(this.curveModel instanceof CurveModel) {                                                                                                                                                                                                   
-            this._curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-        } else {
-            const dummyCurveModel = new ClosedCurveModel();
-            this._curveControl = new DummyStrategy(dummyCurveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
-        }
+        // if(this.curveModel instanceof CurveModel) {                                                                                                                                                                                                   
+        //     this._curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+        // } else {
+        //     const dummyCurveModel = new ClosedCurveModel();
+        //     this._curveControl = new DummyStrategy(dummyCurveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl);
+        // }
 
-        this.sliding = this.curveShapeSpaceNavigator.sliding
+        this.sliding = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.slidingDifferentialEvents;
 
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this._navigationState = this.curveShapeSpaceNavigator.navigationState;
         this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
-        this.shapeSpaceDiffEventsConfigurator = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
-        this.shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
-        // this.curveControlState = new HandleNoDiffEventNoSlidingState(this);
 
         this._curveConstraintSelectionState = new HandleConstraintAtPoint1Point2NoConstraintState(this);
         console.log("end constructor curveSceneController")
@@ -216,9 +213,9 @@ export class CurveSceneController implements SceneControllerInterface {
     //     return this._eventMgmtAtExtremities;
     // }
 
-    get curveControl(): CurveControlStrategyInterface {
-        return this._curveControl;
-    }
+    // get curveControl(): CurveControlStrategyInterface {
+    //     return this._curveControl;
+    // }
     get allowShapeSpaceChange(): boolean {
         return this._allowShapeSpaceChange;
     }
@@ -256,9 +253,9 @@ export class CurveSceneController implements SceneControllerInterface {
         this.activeLocationControl = ActiveLocationControl.firstControlPoint;
         this.dragging = false;
         this._selectedControlPoint = null;
-        if(this.curveModel instanceof CurveModel) {
-            this._curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-        }
+        // if(this.curveModel instanceof CurveModel) {
+        //     this._curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
+        // }
     }
 
     registerCurveObservers(): void {
@@ -294,6 +291,8 @@ export class CurveSceneController implements SceneControllerInterface {
                 }
             });
         }
+
+        this.curveModel.checkObservers();
     }
 
     removeCurveObservers(): void {
@@ -327,11 +326,11 @@ export class CurveSceneController implements SceneControllerInterface {
 
         this.curveKnotsView.renderFrame()
         if(this.curveModel !== undefined) {
-            if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-                this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl, false);
-            } else {
-                this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
-            }
+            // if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
+            //     this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl, false);
+            // } else {
+            //     this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
+            // }
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
 
@@ -542,7 +541,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
     shiftKeyUp() {
         this._allowShapeSpaceChange = false;
-        this._sceneInteractionStrategy.processShiftKeyDownInteraction();
+        this._sceneInteractionStrategy.processShiftKeyUpInteraction();
         // if(this.eventMgmtAtExtremities !== undefined) {
         //     this.curveEventAtExtremityMayVanish = false;
         //     this.eventMgmtAtExtremities.processEventAtCurveExtremity();

@@ -35,6 +35,6 @@ export class ClosedCurveDifferentialEventsExtractorWithoutSequence extends Close
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();
         this._curvatureDerivativeNumerator = this.curveDiffProperties.curvatureDerivativeNumerator();
         this.extractSeqOfDiffEvents();
-        this.notifyObservers();
+        // this.notifyObservers();
     }
 }

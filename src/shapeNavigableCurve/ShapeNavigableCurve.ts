@@ -144,6 +144,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
                 break;
             }
         }
+        this._curveCategory.curveModelChange = false;
     }
 
     /* JCL 2020/09/24 Monitor rigid body movements of the curve in accordance with the button status */
