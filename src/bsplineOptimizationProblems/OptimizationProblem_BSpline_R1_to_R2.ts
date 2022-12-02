@@ -9,6 +9,7 @@ import { DenseMatrix } from "../linearAlgebra/DenseMatrix";
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 
 class ExpensiveComputationResults {
@@ -26,7 +27,7 @@ class ExpensiveComputationResults {
 
 }
 
-export enum ActiveControl {curvatureExtrema, inflections, both}
+export enum ActiveControl {curvatureExtrema, inflections, both, none}
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 /*export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none} */
@@ -412,19 +413,23 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
 
 
     compute_f(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[]) {
-        //let result: number[] = []
+        let result: number[] = [];
 
         if (this.activeControl === ActiveControl.both) {
             const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
             const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
             return r1.concat(r2)
         }
-
         else if (this.activeControl === ActiveControl.curvatureExtrema) {
             return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
         }
-        else {
+        else if (this.activeControl === ActiveControl.inflections) {
             return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
+        }
+        else {
+            const error = new ErrorLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
+            error.logMessageToConsole();
+            return result;
         }
        
     }
@@ -542,8 +547,13 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         else if (this.activeControl === ActiveControl.curvatureExtrema) {
             return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
         }
-        else {
+        else  if (this.activeControl === ActiveControl.inflections) {
             return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+        } else {
+            const error = new ErrorLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            error.logMessageToConsole();
+            let result = new DenseMatrix(1, 1);
+            return result;
         }
     }
   

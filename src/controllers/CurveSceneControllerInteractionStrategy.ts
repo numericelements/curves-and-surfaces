@@ -53,7 +53,7 @@ export class CurveSceneControllerKnotInsertion extends CurveSceneControllerInter
     // leftMouseDragged_event has no effect
     // shift key has no effect
 
-    private curveModel: CurveModelInterface;
+    private readonly curveModel: CurveModelInterface;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
@@ -73,16 +73,11 @@ export class CurveSceneControllerKnotInsertion extends CurveSceneControllerInter
             spline.insertKnot(grevilleAbscissae[cp], 1)
             this.curveModel.setSpline(spline);
             this.shapeNavigableCurve.updateClampedPointsAfterKnotInsertion(grevilleAbscissae[cp]);
-            // this.curveControl.resetCurve(this.curveModel)
-            // if(this.activeLocationControl === ActiveLocationControl.both) {
-            //     if(this.shapeNavigableCurve.clampedPoints[0] === 0) {
-            //         this.shapeNavigableCurve.clampedPoints[1] = this.curveModel.spline.controlPoints.length - 1
-            //     } else this.shapeNavigableCurve.clampedPoints[0] = this.curveModel.spline.controlPoints.length - 1
-            // }
-            // else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-            //     this.shapeNavigableCurve.clampedPoints[0] = this.curveModel.spline.controlPoints.length - 1
-            // }
             this.curveModel.notifyObservers();
+            // JCL this could be better handled with an update process of shapenavigableCurve observers ?
+            this.curveShapeSpaceNavigator.navigationState.setCurrentCurve(this.curveModel.spline);
+            this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline.clone();
+            this.curveShapeSpaceNavigator.navigationCurveModel.resetCurveToOptimize();
         }
     }
 
@@ -134,8 +129,8 @@ export class CurveSceneControllerNoShapeSpaceConstraintsCPSelection extends Curv
     // leftMouseDown_event, leftMouseDragged_event, leftMouseUp_event are active for control points only
     // shift key has no effect
 
-    private insertKnotButtonView: ClickButtonView;
-    private curveModel: CurveModelInterface;
+    private readonly insertKnotButtonView: ClickButtonView;
+    private readonly curveModel: CurveModelInterface;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
@@ -185,7 +180,7 @@ export class CurveSceneControllerNoShapeSpaceConstraintsCPSelection extends Curv
 
 export class CurveSceneControllerNoShapeSpaceConstraintsCPDragging extends CurveSceneControllerInteractionStrategy {
 
-    private curveModel: CurveModelInterface;
+    private readonly curveModel: CurveModelInterface;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
@@ -236,8 +231,8 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection extends 
     // discontinuity crossing of curvature derivative for cubic curves has no influence here and should be
     // managed through a button attached to the navigation interface
 
-    private insertKnotButtonView: ClickButtonView;
-    private curveModel: CurveModelInterface;
+    private readonly insertKnotButtonView: ClickButtonView;
+    private readonly curveModel: CurveModelInterface;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
@@ -292,9 +287,9 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection extends 
 
 export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve extends CurveSceneControllerInteractionStrategy {
 
-    private controlOfInflection: boolean;
-    private controlOfCurvatureExtrema: boolean;
-    private curveModel: CurveModelInterface;
+    private readonly controlOfInflection: boolean;
+    private readonly controlOfCurvatureExtrema: boolean;
+    private readonly curveModel: CurveModelInterface;
     // private curveControl: CurveControlStrategyInterface;
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
 
@@ -403,8 +398,8 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
     // discontinuity crossing of curvature derivative for cubic curves has no influence here and should be
     // managed through a button attached to the navigation interface
 
-    private insertKnotButtonView: ClickButtonView;
-    private curveModel: CurveModelInterface;
+    private readonly insertKnotButtonView: ClickButtonView;
+    private readonly curveModel: CurveModelInterface;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
@@ -457,9 +452,9 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
 
 export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve extends CurveSceneControllerInteractionStrategy {
 
-    private controlOfInflection: boolean;
-    private controlOfCurvatureExtrema: boolean;
-    private curveModel: CurveModelInterface;
+    private readonly controlOfInflection: boolean;
+    private readonly controlOfCurvatureExtrema: boolean;
+    private readonly curveModel: CurveModelInterface;
     // private curveControl: CurveControlStrategyInterface;
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
 

@@ -34,6 +34,8 @@ export abstract class NavigationState {
 
     abstract setNavigationWithoutShapeSpaceMonitoring(): void;
 
+    abstract setCurrentCurve(curve: BSplineR1toR2Interface): void;
+
     abstract get curveAnalyserCurrentCurve(): CurveAnalyzerInterface;
 
     abstract get curveAnalyserOptimizedCurve(): CurveAnalyzerInterface;
@@ -66,10 +68,10 @@ export abstract class OpenCurveNavigationState extends NavigationState{
             this.currentCurve = new BSplineR1toR2;
         }
         this.navigationCurveModel.currentCurve = this.currentCurve;
-        this.optimizedCurve = this.currentCurve;
+        this.optimizedCurve = this.currentCurve.clone();
         this.navigationCurveModel.optimizedCurve = this.optimizedCurve;
         if(!this.navigationCurveModel.shapeNavigableCurve) {
-            let warning = new WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
+            const warning = new WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
             warning.logMessageToConsole();
         }
     }
@@ -79,7 +81,7 @@ export abstract class OpenCurveNavigationState extends NavigationState{
     }
 
     setNavigationStrictlyInsideShapeSpace(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
+        const warning = new WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
         warning.logMessageToConsole();
         this.navigationCurveModel.changeNavigationState(new OCurveNavigationStrictlyInsideShapeSpace(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
@@ -87,7 +89,7 @@ export abstract class OpenCurveNavigationState extends NavigationState{
     }
 
     setNavigationThroughSimplerShapeSpaces(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
+        const warning = new WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
         warning.logMessageToConsole();
         this.navigationCurveModel.changeNavigationState(new OCurveNavigationThroughSimplerShapeSpaces(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
@@ -95,11 +97,15 @@ export abstract class OpenCurveNavigationState extends NavigationState{
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
-        let warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
+        const warning = new WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
         warning.logMessageToConsole();
         this.navigationCurveModel.changeNavigationState(new OCurveNavigationWithoutShapeSpaceMonitoring(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
+    }
+
+    setCurrentCurve(curve: BSplineR1toR2): void {
+        this.currentCurve = curve.clone();
     }
 
     abstract navigate(selectedControlPoint: number, x: number, y: number): void;
@@ -148,7 +154,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
     }
 
     curveConstraintsMonitoring(): void {
-        // this.shapeNavigableCurve.curveConstraints.processConstraint();
+        this.shapeNavigableCurve.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -159,7 +165,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
 
-        this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve;
+        this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve.clone();
         // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
@@ -182,6 +188,7 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
             || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = this;
             this.navigationCurveModel.navigationState = this;
+            this.shapeNavigableCurve.clampedPoints[0] = 0;
             this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints));
         } else {
             curveShapeSpaceNavigator.navigationState = this;
@@ -205,8 +212,8 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
     }
 
     curveConstraintsMonitoring(): void {
-        this.shapeNavigableCurve.curveCategory.curveModel.spline = this.optimizedCurve;
-        // this.shapeNavigableCurve.processConstraint();
+        this.shapeNavigableCurve.curveConstraints.processConstraint();
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -216,9 +223,11 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
         try {
-            this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
-            this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
-            this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
+            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            // this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
+            this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
+            this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this._curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -247,6 +256,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
             || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = this;
             this.navigationCurveModel.navigationState = this;
+            this.shapeNavigableCurve.clampedPoints[0] = 0;
             this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints));
         } else {
             curveShapeSpaceNavigator.navigationState = this;
@@ -270,7 +280,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
     }
 
     curveConstraintsMonitoring(): void {
-        // this.shapeNavigableCurve.processConstraint();
+        this.shapeNavigableCurve.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -280,9 +290,9 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = true;
         try {
-            this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
-            this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
-            this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
+            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
+            this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this.navigationCurveModel.curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -315,7 +325,7 @@ export abstract class ClosedCurveNavigationState extends NavigationState{
             this.currentCurve = new PeriodicBSplineR1toR2;
         }
         this.navigationCurveModel.currentCurve = this.currentCurve;
-        this.optimizedCurve = this.currentCurve;
+        this.optimizedCurve = this.currentCurve.clone();
         this.navigationCurveModel.optimizedCurve = this.optimizedCurve;
         if(!this.navigationCurveModel.shapeNavigableCurve) {
             let warning = new WarningLog(this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
@@ -349,6 +359,10 @@ export abstract class ClosedCurveNavigationState extends NavigationState{
         this.navigationCurveModel.changeNavigationState(new CCurveNavigationWithoutShapeSpaceMonitoring(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
+    }
+
+    setCurrentCurve(curve: PeriodicBSplineR1toR2): void {
+        this.currentCurve = curve.clone();
     }
 
     abstract navigate(selectedControlPoint: number, x: number, y: number): void;
@@ -397,7 +411,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
     }
 
     curveConstraintsMonitoring(): void {
-        // this.shapeNavigableCurve.processConstraint();
+        this.shapeNavigableCurve.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -408,7 +422,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
 
-        this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve;
+        this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve.clone();
         // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
@@ -430,6 +444,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
         if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = this;
             this.navigationCurveModel.navigationState = this;
+            this.shapeNavigableCurve.clampedPoints[0] = 0;
             this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints));
         } else {
             curveShapeSpaceNavigator.navigationState = this;
@@ -453,8 +468,8 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
     }
 
     curveConstraintsMonitoring(): void {
-        this.shapeNavigableCurve.curveCategory.curveModel.spline = this.optimizedCurve;
-        // this.shapeNavigableCurve.processConstraint();
+        this.shapeNavigableCurve.curveCategory.curveModel.spline = this.optimizedCurve.clone();
+        this.shapeNavigableCurve.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -467,7 +482,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
             this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // requires optimization process for periodic B-Splines
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
-            this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
+            this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this.curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
@@ -495,6 +510,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
         if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = this;
             this.navigationCurveModel.navigationState = this;
+            this.shapeNavigableCurve.clampedPoints[0] = 0;
             this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.shapeNavigableCurve.curveConstraints));
         } else {
             curveShapeSpaceNavigator.navigationState = this;
@@ -518,7 +534,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
     }
 
     curveConstraintsMonitoring(): void {
-        // this.shapeNavigableCurve.processConstraint();
+        this.shapeNavigableCurve.curveConstraints.processConstraint();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -530,6 +546,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
         try {
             this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
+            this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this.navigationCurveModel.curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;

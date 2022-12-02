@@ -8,9 +8,9 @@ import { CurveSceneController } from "./CurveSceneController";
 export abstract class CurveConstraintSelectionState {
 
     protected curveSceneController: CurveSceneController;
-    protected shapeNavigableCurve: ShapeNavigableCurve;
-    protected curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
-    protected curveConstraints: CurveConstraints;
+    protected readonly shapeNavigableCurve: ShapeNavigableCurve;
+    protected readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    protected readonly curveConstraints: CurveConstraints;
 
     constructor(context: CurveSceneController) {
         this.curveSceneController = context;

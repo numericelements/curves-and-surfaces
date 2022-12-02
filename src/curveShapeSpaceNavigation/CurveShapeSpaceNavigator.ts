@@ -18,7 +18,7 @@ import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint} f
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding, ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding, ShapeSpaceConfiguration } from "./ShapeSpaceDiffEventsConfigurator";
-import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { CurveAnalyzerEventsSlidingOutOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";

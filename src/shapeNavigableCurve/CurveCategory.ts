@@ -12,7 +12,7 @@ import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnal
 import { ClosedCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor";
 import { OpenCurveDifferentialEventsExtractorWithoutSequence } from "../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence";
 import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
-import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { CurveConstraintClampedFirstControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 import { ClosedCurveDifferentialEventsExtractorWithoutSequence } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence";
@@ -72,6 +72,10 @@ export abstract class CurveCategory {
 
     set curveModelDifferentialEventsLocations(curveModelDifferentialEventsLocations: CurveDifferentialEventsLocations) {
         this._curveModelDifferentialEventsLocations =  curveModelDifferentialEventsLocations;
+    }
+
+    set degreeChange(degreeChange: boolean)  {
+        this._degreeChange = degreeChange;
     }
 
     abstract setCurveCategory(): void;

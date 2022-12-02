@@ -4,7 +4,7 @@ import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShap
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
-import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity, EventStayInsideCurve } from "./EventStateAtCurveExtremity";
@@ -20,7 +20,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
     private _curveCategory: CurveCategory;
     private _controlOfCurveClamping: boolean;
     private _curveConstraints : CurveConstraints;
-    private _crvConstraintAtExtremitiesStgy: CurveConstraintProcessor;
+    private _crvConstraintAtExtremitiesStgy: CurveConstraintInterface;
     private _curveShapeSpaceNavigator?: CurveShapeSpaceNavigator;
     private _clampedPoints: number[] = [];
     private _clampedPointsPreviousState: number[] = [];
@@ -39,7 +39,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         this._curveCategory = new OpenPlanarCurve(this);
         this._curveCategory.curveModelChange = false;
         this._curveConstraints = new CurveConstraints(this);
-        this._crvConstraintAtExtremitiesStgy = this._curveConstraints.curveConstraintProcessor;
+        this._crvConstraintAtExtremitiesStgy = this._curveConstraints.curveConstraintStrategy;
         this.activeLocationControl = ActiveLocationControl.none;
         // No clamped point set to be consistent with the navigation mode at initialization
         this._clampedPoints.push(NO_CONSTRAINT);
@@ -57,7 +57,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         this._curveCategory = category;
     }
 
-    changeCurveConstraintStrategy(state: CurveConstraintProcessor): void {
+    changeCurveConstraintStrategy(state: CurveConstraintInterface): void {
         this._crvConstraintAtExtremitiesStgy = state;
     }
 
@@ -73,7 +73,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         return this._curveCategory;
     }
 
-    get crvConstraintAtExtremitiesStgy(): CurveConstraintProcessor {
+    get crvConstraintAtExtremitiesStgy(): CurveConstraintInterface {
         return this._crvConstraintAtExtremitiesStgy;
     }
 

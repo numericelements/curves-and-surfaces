@@ -101,7 +101,7 @@ export class CurveSceneController implements SceneControllerInterface {
     public lastLostEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: 0}
 
     /* JCL 2021/09/29 Add modeller for new code architecture */
-    private curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
+    private readonly curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
     public readonly shapeNavigableCurve: ShapeNavigableCurve;
     private _navigationState: NavigationState;
     public readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
@@ -119,8 +119,9 @@ export class CurveSceneController implements SceneControllerInterface {
         shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener) {
 
         this._selectedControlPoint = null;
-        this.curveModel = curveModelDefinitionEventListener.curveModel;
+        // this.curveModel = curveModelDefinitionEventListener.curveModel;
         this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
+        this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
         this._controlOfKnotInsertion = false;
         this.curveModelDefinitionEventListener = curveModelDefinitionEventListener;
         this.curveShapeSpaceNavigator = shapeSpaceNavigationEventListener.curveShapeSpaceNavigator;

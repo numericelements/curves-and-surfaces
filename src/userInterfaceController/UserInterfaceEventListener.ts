@@ -12,6 +12,8 @@ import { createProgram } from "../webgl/cuon-utils";
 import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedFirstControlPoint, CurveConstraintClampedLastControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { CurveControlState, HandleCurvatureExtremaNoSlidingState, HandleCurvatureExtremaSlidingState, HandleInflectionsAndCurvatureExtremaNoSlidingState, HandleInflectionsAndCurvatureExtremaSlidingState, HandleInflectionsNoSlidingState, HandleInflectionsSlidingState, HandleNoDiffEventNoSlidingState } from "../controllers/CurveControlState";
+import { BSplineR1toR1Interface } from "../newBsplines/BSplineR1toR1Interface";
+import { IObserver } from "../newDesignPatterns/Observer";
 
 export abstract class UserInterfaceEventListener {
     protected abstract shapeNavigableCurve?: ShapeNavigableCurve;
@@ -375,7 +377,7 @@ export class FileEventListener extends UserInterfaceEventListener {
 
 }
 
-export class CurveModelDefinitionEventListener extends UserInterfaceEventListener {
+export class CurveModelDefinitionEventListener extends UserInterfaceEventListener implements IObserver<BSplineR1toR1Interface> {
 // export class CurveModelDefinitionEventListener {
 
     protected chartSceneController?: ChartSceneController;
@@ -405,6 +407,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         this._curveShapeSpaceNavigator = undefined;
         this._shapeNavigableCurve = new ShapeNavigableCurve();
         this._curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
+        // this._curveModel.registerObserver(this, "curve");
         // Initizalizes clamped points monitoring in accordance with navigation modes:
         //      mode 0: controlOfCurveClamping = false,
         //      mode 1, mode 2: controlOfCurveClamping =  true
@@ -552,7 +555,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
                     this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstAndLastControlPoint(this._shapeNavigableCurve.curveConstraints));
                 }
             }
-            this._shapeNavigableCurve.curveConstraints.curveConstraintProcessor = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
+            this._shapeNavigableCurve.curveConstraints.curveConstraintStrategy = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
             this._shapeNavigableCurve.controlOfCurveClamping = this.controlOfCurveClamping;
         } else {
             this._shapeNavigableCurve.clampedPoints = [];
@@ -569,7 +572,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
                 this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
                 this._shapeNavigableCurve.clampedPointsPreviousState = this._shapeNavigableCurve.clampedPoints;
                 this._shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this._shapeNavigableCurve.curveConstraints));
-                this._shapeNavigableCurve.curveConstraints.curveConstraintProcessor = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
+                this._shapeNavigableCurve.curveConstraints.curveConstraintStrategy = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
                 this._shapeNavigableCurve.controlOfCurveClamping = this.controlOfCurveClamping;
             }
         }
@@ -592,7 +595,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         } else {
             this.storeCurrentConstraintControl();
         }
-        this._shapeNavigableCurve.curveConstraints.curveConstraintProcessor = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
+        this._shapeNavigableCurve.curveConstraints.curveConstraintStrategy = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
     }
 
     updateCurveDegreeSelector(newCurveDegree: number): void {
@@ -619,6 +622,10 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
             const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
             error.logMessageToConsole();
         }
+    }
+
+    update(message: BSplineR1toR1Interface):void {
+
     }
 }
 
@@ -651,6 +658,7 @@ export class ShapeSpaceNavigationEventListener {
         this._curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(this.shapeNavigableCurve);
         curveModelDefinitionEventListener.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.eventMgmtAtExtremities.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.eventMgmtAtExtremities.shapeSpaceDiffEventsStructure = this._curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this._curveControlState = new HandleNoDiffEventNoSlidingState(this);

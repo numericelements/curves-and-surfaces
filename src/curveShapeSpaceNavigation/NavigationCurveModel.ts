@@ -1,9 +1,10 @@
 import { OptimizationProblemCtrlParameters } from "../bsplineOptimizationProblems/OptimizationProblemCtrlParameters";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { ActiveControl, OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { CurveControlState, HandleNoDiffEventNoSlidingState } from "../controllers/CurveControlState";
 import { CurveControlStrategyInterface } from "../controllers/CurveControlStrategyInterface";
 import { DummyStrategy } from "../controllers/DummyStrategy";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
+import { SlidingStrategy } from "../controllers/SlidingStrategy";
 import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzerInterface";
 import { CurveAnalyzerEventsSlidingOutOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
@@ -38,6 +39,9 @@ export abstract class NavigationCurveModel {
     protected abstract _curveControl: CurveControlStrategyInterface;
     protected abstract _currentCurve: BSplineR1toR2Interface;
     protected abstract _optimizedCurve: BSplineR1toR2Interface;
+    protected abstract _targetCurve: BSplineR1toR2Interface;
+    protected abstract _displacementCurrentCurveControlPolygon: Vector2d[];
+    // protected abstract _optimizationProblem: OptimizationProblem_BSpline_R1_to_R2;
     protected readonly controlOfInflections: boolean;
     protected readonly controlOfCurvatureExtrema: boolean;
     protected readonly sliding: boolean;
@@ -104,9 +108,15 @@ export abstract class NavigationCurveModel {
 
     abstract get optimizedCurve(): BSplineR1toR2Interface;
 
+    abstract get displacementCurrentCurveControlPolygon(): Vector2d[];
+
+    // abstract get optimizationProblem(): OptimizationProblem_BSpline_R1_to_R2;
+
     abstract set currentCurve(currentCurve: BSplineR1toR2Interface);
 
     abstract set optimizedCurve(optimizedCurve: BSplineR1toR2Interface);
+
+    // abstract set optimizationProblem(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2);
 
     abstract navigateSpace(selectedControlPoint: number, x: number, y: number): void;
 
@@ -114,27 +124,29 @@ export abstract class NavigationCurveModel {
 
     abstract changeNavigationState(navigationState: NavigationState): void;
 
+    abstract resetCurveToOptimize(): void;
+
 }
 
 export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
 
     private curveCategory: CurveCategory;
-    public curveModel?: CurveModel;
+    public curveModel: CurveModel;
     private _selectedControlPoint?: number;
     protected _currentCurve: BSplineR1toR2;
     private currentControlPolygon: Vector2d[];
     private locationSelectedCP: Vector2d;
     public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
     public curveAnalyserCurrentCurve: CurveAnalyzerInterface;
-    private _targetCurve: BSplineR1toR2;
-    private _displacementCurrentCurveControlPolygon: Vector2d[] = [];
+    protected _targetCurve: BSplineR1toR2;
+    protected _displacementCurrentCurveControlPolygon: Vector2d[] = [];
     protected _optimizedCurve: BSplineR1toR2;
     public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     public curveAnalyserOptimizedCurve: CurveAnalyzerInterface;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private diffEvents: NeighboringEvents;
-    public optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
-    public optimizer: Optimizer;
+    // protected _optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors;
+    // public optimizer: Optimizer;
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
     protected _navigationState: NavigationState;
     // private _eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
@@ -145,10 +157,9 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         super(curveShapeSpaceNavigator);
 
         this.curveCategory = this._shapeNavigableCurve.curveCategory;
-        if(this._shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel)
+        if(this._shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
-
-        if(this.curveModel === undefined) {
+        } else {
             this.curveModel = new CurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
             error.logMessageToConsole();
@@ -156,12 +167,12 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._curveControl = new NoSlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
             this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
 
-        this._currentCurve = this.curveModel.spline.clone();
+        this._currentCurve = this.curveModel.spline;
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
         this.locationSelectedCP = new Vector2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
-        this._optimizedCurve = this._currentCurve;
+        this._optimizedCurve = this._currentCurve.clone();
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
 
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
@@ -178,9 +189,9 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
 
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.currentCurve.clone(), this.currentCurve.clone());
+        // this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), ActiveControl.curvatureExtrema);
 
-        this.optimizer = this.newOptimizer(this.optimizationProblem);
+        // this.optimizer = this.newOptimizer(this.optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
 
         this.changeNavigationState(this._navigationState);
@@ -194,6 +205,10 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
 
     // set curveConstraints(curveConstraints: CurveConstraints) {
     //     this._curveConstraints = curveConstraints;
+    // }
+
+    // set optimizationProblem(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
+    //     this._optimizationProblem = optimizationProblem;
     // }
 
     set optimizationProblemParam(optimPbParam: OptimizationProblemCtrlParameters) {
@@ -217,8 +232,8 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._optimizedCurve = aBSpline;
     }
 
-    // set curveConstraintProcessor(curveConstraintProcessor: CurveConstraintProcessor) {
-    //     this._curveConstraintProcessor = curveConstraintProcessor;
+    // set curveConstraintStrategy(curveConstraintStrategy: CurveConstraintInterface) {
+    //     this._curveConstraintStrategy = curveConstraintStrategy;
     // }
 
     set currentCurve(curve: BSplineR1toR2) {
@@ -245,6 +260,10 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
             error.logMessageToConsole();
         }
     }
+
+    // get optimizationProblem(): OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
+    //     return this._optimizationProblem;
+    // }
 
     // get eventMgmtAtCurveExtremities(): EventMgmtAtCurveExtremities {
     //     return this._eventMgmtAtCurveExtremities;
@@ -299,14 +318,32 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
 
     setTargetCurve(): void {
         if(this.selectedControlPoint !== undefined) {
-            this._targetCurve = this._currentCurve;
+            this._targetCurve = this._currentCurve.clone();
             this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.locationSelectedCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
             error.logMessageToConsole();
         }
         if(this._shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
-                this.optimizationProblem.setTargetSpline(this.targetCurve);
+                this.curveControl.optimizationProblem.setTargetSpline(this.targetCurve);
+                // this.optimizationProblem.setTargetSpline(this.targetCurve);
+        }
+    }
+
+    resetCurveToOptimize(): void {
+        if(this._shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+            this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
+        } else {
+            this.curveModel = new CurveModel();
+            const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
+            error.logMessageToConsole();
+        }
+        if(this._curveControl instanceof NoSlidingStrategy) {
+            this._curveControl = new NoSlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+        } else if(this._curveControl instanceof SlidingStrategy) {
+            this.curveControl = new SlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._curveShapeSpaceNavigator);
         }
     }
 
@@ -321,33 +358,33 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         }
     }
 
-    navigateUnderDevForTest(): void {
-        this.curveAnalyserCurrentCurve.update();
-        this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
-        this.setTargetCurve();
-        this._optimizationProblemParam.updateConstraintBounds = true;
-        try {
-            this.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
-            this._optimizedCurve = this.optimizationProblem.spline.clone();
-            this.curveDisplacement();
-            this.curveAnalyserOptimizedCurve.update();
-            this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
-            const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.seqDiffEventsCurrentCurve, this.seqDiffEventsOptimizedCurve);
-            seqComparator.locateNeiboringEvents();
-        }
-        catch(e)
-        {
+    // navigateUnderDevForTest(): void {
+    //     this.curveAnalyserCurrentCurve.update();
+    //     this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+    //     this.setTargetCurve();
+    //     this._optimizationProblemParam.updateConstraintBounds = true;
+    //     try {
+    //         this.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+    //         this._optimizedCurve = this.optimizationProblem.spline.clone();
+    //         this.curveDisplacement();
+    //         this.curveAnalyserOptimizedCurve.update();
+    //         this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+    //         const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.seqDiffEventsCurrentCurve, this.seqDiffEventsOptimizedCurve);
+    //         seqComparator.locateNeiboringEvents();
+    //     }
+    //     catch(e)
+    //     {
 
-        }
-    }
+    //     }
+    // }
 
-    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         //newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
     }
 
-    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         //setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors) {
         optimizationProblem.weigthingFactors[0] = 10
         optimizationProblem.weigthingFactors[this.currentControlPolygon.length] = 10
@@ -360,33 +397,31 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
 export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
 
     private curveCategory: CurveCategory;
-    public curveModel?: ClosedCurveModel;
+    public curveModel: ClosedCurveModel;
     private _selectedControlPoint?: number;
     private locationSelectedCP: Vector2d;
     protected _navigationState: NavigationState;
     protected _currentCurve: PeriodicBSplineR1toR2;
     private currentControlPolygon: Vector2d[];
-    private _displacementCurrentCurveControlPolygon: Vector2d[] = [];
+    protected _displacementCurrentCurveControlPolygon: Vector2d[] = [];
     protected _optimizedCurve: PeriodicBSplineR1toR2;
-    private _targetCurve: PeriodicBSplineR1toR2;
+    protected _targetCurve: PeriodicBSplineR1toR2;
     public curveAnalyserCurrentCurve: CurveAnalyzerInterface;
     public curveAnalyserOptimizedCurve: CurveAnalyzerInterface;
     public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
     public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     protected _curveControl: CurveControlStrategyInterface;
-
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
-    public optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
+    protected _optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation;
     public optimizer: Optimizer;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         super(curveShapeSpaceNavigator);
         this.curveCategory = this._shapeNavigableCurve.curveCategory;
-        if(this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel)
+        if(this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel) {
             this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
-
-        if(this.curveModel === undefined) {
+        } else {
             this.curveModel = new ClosedCurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
             error.logMessageToConsole();
@@ -394,12 +429,12 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
             this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
 
-        this._currentCurve = this.curveModel.spline.clone();
+        this._currentCurve = this.curveModel.spline;
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
         this.locationSelectedCP = new Vector2d(0, 0);
         this._targetCurve = this.curveModel.spline.clone();
-        this._optimizedCurve = this._currentCurve;
+        this._optimizedCurve = this._currentCurve.clone();
         this.currentControlPolygon.forEach(() => this._displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
         this._navigationState = new CCurveNavigationWithoutShapeSpaceMonitoring(this);
@@ -411,8 +446,8 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
 
         // JCL temporary setting before adapting the optimization problem setting to closed curves
         const dummyCurveModel = new CurveModel()
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(dummyCurveModel.spline, dummyCurveModel.spline);
-        this.optimizer = this.newOptimizer(this.optimizationProblem);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(dummyCurveModel.spline, dummyCurveModel.spline);
+        this.optimizer = this.newOptimizer(this._optimizationProblem);
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
     }
 
@@ -446,6 +481,14 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         return this._shapeSpaceDescriptor;
     }
 
+    get optimizationProblem(): OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation {
+        return this._optimizationProblem;
+    }
+
+    get displacementCurrentCurveControlPolygon(): Vector2d[] {
+        return this._displacementCurrentCurveControlPolygon;
+    }
+
     set currentCurve(curve: PeriodicBSplineR1toR2) {
         this._currentCurve = curve;
     }
@@ -454,8 +497,8 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._optimizedCurve = aBSpline;
     }
 
-    get displacementCurrentCurveControlPolygon(): Vector2d[] {
-        return this._displacementCurrentCurveControlPolygon;
+    set optimizationProblem(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+        this._optimizationProblem = optimizationProblem;
     }
 
     changeNavigationState(state: NavigationState): void {
@@ -465,7 +508,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
 
     setTargetCurve(): void {
         if(this.selectedControlPoint !== undefined) {
-            this._targetCurve = this._currentCurve;
+            this._targetCurve = this._currentCurve.clone();
             this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.locationSelectedCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
@@ -474,6 +517,18 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         if(this._shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
                 // this.optimizationProblem.setTargetSpline(this.targetCurve);
         }
+    }
+
+    resetCurveToOptimize(): void {
+        if(this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel) {
+            this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
+        } else {
+            this.curveModel = new ClosedCurveModel();
+            const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
+            error.logMessageToConsole();
+        }
+        this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
     }
 
     newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {

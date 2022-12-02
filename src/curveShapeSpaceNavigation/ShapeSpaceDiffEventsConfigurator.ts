@@ -12,6 +12,8 @@ import { OpenCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis
 import { ClosedCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 import { SlidingStrategy } from "../controllers/SlidingStrategy";
+import { ActiveControl, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 export abstract class ShapeSpaceConfiguration {
 
@@ -233,6 +235,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.shapeNavigableCurve.activeLocationControl);
         } else {
             const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+            error.logMessageToConsole();
         }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer

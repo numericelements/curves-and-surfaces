@@ -1,5 +1,5 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
+import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveConstraintNoConstraint } from "./CurveConstraintStrategy";
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
@@ -14,19 +14,19 @@ export class CurveConstraints {
 
     private _firstControlPoint: ConstraintType;
     private _lastControlPoint: ConstraintType;
-    private _curveConstraintProcessor: CurveConstraintProcessor;
-    private _shapeNavigableCurve: ShapeNavigableCurve;
+    private _curveConstraintStrategy: CurveConstraintInterface;
+    private readonly _shapeNavigableCurve: ShapeNavigableCurve;
     // private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve) {
 
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
-        this._curveConstraintProcessor = new CurveConstraintNoConstraint(this);
-        this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
-        this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
         this._shapeNavigableCurve = shapeNavigableCurve;
-        this._shapeNavigableCurve.changeCurveConstraintStrategy(this._curveConstraintProcessor);
+        this._curveConstraintStrategy = new CurveConstraintNoConstraint(this);
+        this._firstControlPoint = this._curveConstraintStrategy.firstControlPoint;
+        this._lastControlPoint = this._curveConstraintStrategy.lastControlPoint;
+        this._shapeNavigableCurve.changeCurveConstraintStrategy(this._curveConstraintStrategy);
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
         // this._optimizedCurve = this._shapeNavigableCurve.optimizedCurve;
@@ -40,13 +40,9 @@ export class CurveConstraints {
         this._lastControlPoint = constraintAtLastPoint;
     }
 
-    set curveConstraintProcessor(curveConstraintProcessor: CurveConstraintProcessor) {
-        this._curveConstraintProcessor = curveConstraintProcessor;
+    set curveConstraintStrategy(curveConstraintStrategy: CurveConstraintInterface) {
+        this._curveConstraintStrategy = curveConstraintStrategy;
     }
-
-    // set optimizedCurve(curve: BSplineR1toR2Interface) {
-    //     this._optimizedCurve = curve;
-    // }
 
     get shapeNavigableCurve(): ShapeNavigableCurve {
         return this._shapeNavigableCurve;
@@ -60,37 +56,23 @@ export class CurveConstraints {
         return this._lastControlPoint;
     }
 
-    get curveConstraintProcessor(): CurveConstraintProcessor {
-        return this._curveConstraintProcessor;
+    get curveConstraintStrategy(): CurveConstraintInterface {
+        return this._curveConstraintStrategy;
     }
 
     get curveShapeSpaceNavigator(): ShapeNavigableCurve {
         return this._shapeNavigableCurve;
     }
 
-    // get optimizedCurve(): BSplineR1toR2Interface {
-    //     return this._optimizedCurve;
-    // }
-
-    setConstraint(curveConstraintProcessor: CurveConstraintProcessor): void {
-        this._curveConstraintProcessor = curveConstraintProcessor;
-        this._firstControlPoint = this._curveConstraintProcessor.firstControlPoint;
-        this._lastControlPoint = this._curveConstraintProcessor.lastControlPoint;
+    setConstraint(curveConstraintStrategy: CurveConstraintInterface): void {
+        this._curveConstraintStrategy = curveConstraintStrategy;
+        this._firstControlPoint = this._curveConstraintStrategy.firstControlPoint;
+        this._lastControlPoint = this._curveConstraintStrategy.lastControlPoint;
     }
 
-    // processConstraint(): void {
-    //     this._curveConstraintProcessor.locateCurveExtremityUnderConstraint(this);
-    //     if(this._optimizedCurve instanceof BSplineR1toR2) {
-    //         this._shapeNavigableCurve.optimizedCurve = this._optimizedCurve;
-    //     } else if(this._optimizedCurve instanceof PeriodicBSplineR1toR2) {
-    //         console.log("periodic Bspline to be processed")
-    //     }
-        
-    // }
-
-    // updateCurve(): void {
-    //     this._optimizedCurve = this._shapeNavigableCurve.optimizedCurve;
-    // }
+    processConstraint(): void {
+        this._curveConstraintStrategy.locateCurveExtremityUnderConstraint(this);
+    }
 
     // clearConstraint(extremity: CurveExtremity): void {
     //     if(extremity === CurveExtremity.first) {

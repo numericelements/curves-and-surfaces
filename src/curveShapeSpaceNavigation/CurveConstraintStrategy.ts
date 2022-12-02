@@ -1,6 +1,6 @@
 import { ActiveLocationControl, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { CurveConstraintProcessor } from "../designPatterns/CurveConstraintProcessor";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { ConstraintType, CurveConstraints } from "./CurveConstraints";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
@@ -8,33 +8,38 @@ import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 
 const TOL_LOCATION_CURVE_EXTREMITIES = 1.0E-6;
 
-export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
+export class CurveConstraintNoConstraint implements CurveConstraintInterface {
 
-    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
-    private shapeNavigableCurve: ShapeNavigableCurve;
-    private _firstControlPoint: ConstraintType;
-    private _lastControlPoint: ConstraintType;
-    private curveConstraints: CurveConstraints;
-    private targetCurve?: BSplineR1toR2Interface | undefined;
-    private _optimizedCurve?: BSplineR1toR2Interface | undefined;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
+    private readonly shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _firstControlPoint: ConstraintType;
+    private readonly _lastControlPoint: ConstraintType;
+    private readonly curveConstraints: CurveConstraints;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveConstraints: CurveConstraints){
         this.curveConstraints = curveConstraints;
         this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
-        this.curveShapeSpaceNavigator = undefined;
+        if(this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
+            this._curveShapeSpaceNavigator = this.shapeNavigableCurve.curveShapeSpaceNavigator;
+        } else {
+            this._curveShapeSpaceNavigator = undefined;
+        }
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
         this.curveConstraints.firstControlPoint = this._firstControlPoint;
         this.curveConstraints.lastControlPoint = this._lastControlPoint;
-        // this.targetCurve = this.curveShapeSpaceNavigator.targetCurve;
-        this.targetCurve = undefined;
-        this._optimizedCurve = this.targetCurve;
-        let warning = new WarningLog(this.constructor.name, "constructor", " strategy for no CP clamped.");
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator?.navigationCurveModel.optimizedCurve.clone();
+        } else {
+            this._optimizedCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline.clone();
+        }
+        const warning = new WarningLog(this.constructor.name, "constructor", " strategy for no CP clamped.");
         warning.logMessageToConsole();
         // this.activeLocationControl = ActiveLocationControl.none;
     }
 
-    get optimizedCurve(): BSplineR1toR2Interface | undefined {
+    get optimizedCurve(): BSplineR1toR2Interface {
         return this._optimizedCurve;
     }
 
@@ -46,10 +51,20 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
         return this._lastControlPoint;
     }
 
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator | undefined {
+        return this._curveShapeSpaceNavigator;
+    }
+
+    set curveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined) {
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    }
+
     updateCurve(): void {
-        if(this.curveShapeSpaceNavigator !== undefined)
-        {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone();
+        } else {
+            const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
+            error.logMessageToConsole();
         }
     }
 
@@ -57,42 +72,54 @@ export class CurveConstraintNoConstraint implements CurveConstraintProcessor {
         if(curveConstraints.firstControlPoint === ConstraintType.none 
             && curveConstraints.lastControlPoint === ConstraintType.none) {
                 this.updateCurve();
-                // this._optimizedCurve = this.curveShapeSpaceNavigator.optimizedCurve;
+                if(this._curveShapeSpaceNavigator !== undefined) {
+                    this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this._optimizedCurve.clone();
+                } else {
+                    const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
+                    error.logMessageToConsole();
+                }
         } else {
-            let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
+            const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
             warning.logMessageToConsole();
         }
     }
 }
 
-export class CurveConstraintClampedFirstControlPoint implements CurveConstraintProcessor {
+export class CurveConstraintClampedFirstControlPoint implements CurveConstraintInterface {
 
-    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
-    private shapeNavigableCurve: ShapeNavigableCurve;
-    private _firstControlPoint: ConstraintType;
-    private _lastControlPoint: ConstraintType;
-    private curveConstraints: CurveConstraints;
-    private targetCurve?: BSplineR1toR2Interface | undefined;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
+    private readonly shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _firstControlPoint: ConstraintType;
+    private readonly _lastControlPoint: ConstraintType;
+    private readonly curveConstraints: CurveConstraints;
+    private readonly referencePtIndex: number;
     private displacementCurrentCurveControlPolygon: Vector2d[] | undefined;
-    private _optimizedCurve?: BSplineR1toR2Interface | undefined;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveConstraints: CurveConstraints){
         this.curveConstraints = curveConstraints;
         this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
-        this.curveShapeSpaceNavigator = undefined;
+        if(this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
+            this._curveShapeSpaceNavigator = this.shapeNavigableCurve.curveShapeSpaceNavigator;
+        } else {
+            this._curveShapeSpaceNavigator = undefined;
+        }
         this._firstControlPoint = ConstraintType.location;
         this._lastControlPoint = ConstraintType.none;
         this.curveConstraints.firstControlPoint = this._firstControlPoint;
         this.curveConstraints.lastControlPoint = this._lastControlPoint;
-        this.targetCurve = undefined;
-        this._optimizedCurve = this.targetCurve;
-        this.displacementCurrentCurveControlPolygon = undefined;
-        // this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
-        let warning = new WarningLog(this.constructor.name, "constructor", " strategy for first CP clamped.");
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator?.navigationCurveModel.optimizedCurve.clone();
+        } else {
+            this._optimizedCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline.clone();
+        }
+        this.referencePtIndex = this.shapeNavigableCurve.clampedPoints[0];
+        this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator?.navigationCurveModel.displacementCurrentCurveControlPolygon;
+        const warning = new WarningLog(this.constructor.name, "constructor", " strategy for first CP clamped.");
         warning.logMessageToConsole();
     }
 
-    get optimizedCurve(): BSplineR1toR2Interface | undefined {
+    get optimizedCurve(): BSplineR1toR2Interface {
         return this._optimizedCurve;
     }
 
@@ -104,70 +131,110 @@ export class CurveConstraintClampedFirstControlPoint implements CurveConstraintP
         return this._lastControlPoint;
     }
 
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator | undefined {
+        return this._curveShapeSpaceNavigator;
+    }
+
+    set curveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined) {
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    }
+
     updateCurve(): void {
-        if(this.curveShapeSpaceNavigator !== undefined)
-        {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone();
+        } else {
+            const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
+            error.logMessageToConsole();
         }
     }
 
-    relocateCurveAfterOptimization(): BSplineR1toR2Interface | undefined {
+    relocateCurveAfterOptimization(): BSplineR1toR2Interface {
         this.updateCurve();
-        if(this._optimizedCurve !== undefined)
-        {
-            let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
-            if(this.curveShapeSpaceNavigator !== undefined
-                && this.displacementCurrentCurveControlPolygon !== undefined)
-            {
-                this.curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
-                for(let controlP of controlPoints) {
-                    controlP.x -= this.displacementCurrentCurveControlPolygon[0].x;
-                    controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
-                }
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
+        if(this._curveShapeSpaceNavigator !== undefined
+            && this.displacementCurrentCurveControlPolygon !== undefined) {
+            this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
+            for(let controlP of controlPoints) {
+                controlP.x -= this.displacementCurrentCurveControlPolygon[0].x;
+                controlP.y -= this.displacementCurrentCurveControlPolygon[0].y;
             }
-            this._optimizedCurve.controlPoints = controlPoints;
         }
+        this._optimizedCurve.controlPoints = controlPoints;
+        return this._optimizedCurve;
+    }
 
+    relocateCurveAfterOptimizationUsingKnotPts(): BSplineR1toR2Interface {
+        this.updateCurve();
+        const knots = this._optimizedCurve.getDistinctKnots();
+        const refPoint = this._optimizedCurve.evaluate(knots[this.referencePtIndex]);
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
+        if(this._curveShapeSpaceNavigator !== undefined
+            && this.displacementCurrentCurveControlPolygon !== undefined) {
+            const displacement = refPoint.substract(this._curveShapeSpaceNavigator.navigationCurveModel.currentCurve.evaluate(knots[this.referencePtIndex]));
+            for(let controlP of controlPoints) {
+                controlP.x -= displacement.x;
+                controlP.y -= displacement.y;
+            }
+        }
+        this._optimizedCurve.controlPoints = controlPoints;
         return this._optimizedCurve;
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
         if(curveConstraints.firstControlPoint === ConstraintType.location
             && curveConstraints.lastControlPoint === ConstraintType.none) {
-                this.relocateCurveAfterOptimization();
+                // this.relocateCurveAfterOptimization();
+                this.relocateCurveAfterOptimizationUsingKnotPts();
+                if(this._curveShapeSpaceNavigator !== undefined) {
+                    this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this._optimizedCurve.clone();
+                } else {
+                    const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
+                    error.logMessageToConsole();
+                }
         } else {
-            let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
+            const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
             warning.logMessageToConsole();
         }
     }
 
 }
 
-export class CurveConstraintClampedLastControlPoint implements CurveConstraintProcessor {
+export class CurveConstraintClampedLastControlPoint implements CurveConstraintInterface {
 
-    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
-    private shapeNavigableCurve: ShapeNavigableCurve;
-    private _firstControlPoint: ConstraintType;
-    private _lastControlPoint: ConstraintType;
-    private curveConstraints: CurveConstraints;
-    private targetCurve: BSplineR1toR2Interface | undefined;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
+    private readonly shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _firstControlPoint: ConstraintType;
+    private readonly _lastControlPoint: ConstraintType;
+    private readonly curveConstraints: CurveConstraints;
+    private readonly referencePtIndex: number;
     private displacementCurrentCurveControlPolygon: Vector2d[] | undefined;
-    private _optimizedCurve: BSplineR1toR2Interface | undefined;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveConstraints: CurveConstraints){
         this.curveConstraints = curveConstraints;
         this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
-        this.curveShapeSpaceNavigator = undefined;
+        if(this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
+            this._curveShapeSpaceNavigator = this.shapeNavigableCurve.curveShapeSpaceNavigator;
+        } else {
+            this._curveShapeSpaceNavigator = undefined;
+        }
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.location;
         this.curveConstraints.firstControlPoint = this._firstControlPoint;
         this.curveConstraints.lastControlPoint = this._lastControlPoint;
-        this.targetCurve = undefined;
-        this._optimizedCurve = this.targetCurve;
-        // this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
-        this.displacementCurrentCurveControlPolygon = undefined;
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator?.navigationCurveModel.optimizedCurve.clone();
+        } else {
+            this._optimizedCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline.clone();
+        }
+        this.referencePtIndex = this.shapeNavigableCurve.clampedPoints[1];
+        this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator?.navigationCurveModel.displacementCurrentCurveControlPolygon;
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for last CP clamped.");
         warning.logMessageToConsole();
+    }
+
+    get optimizedCurve(): BSplineR1toR2Interface {
+        return this._optimizedCurve;
     }
 
     get firstControlPoint(): ConstraintType {
@@ -178,71 +245,113 @@ export class CurveConstraintClampedLastControlPoint implements CurveConstraintPr
         return this._lastControlPoint;
     }
 
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator | undefined {
+        return this._curveShapeSpaceNavigator;
+    }
+
+    set curveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined) {
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    }
+
     updateCurve(): void {
-        if(this.curveShapeSpaceNavigator !== undefined)
-        {
-            this._optimizedCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        } else {
+            const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
+            error.logMessageToConsole();
         }
     }
 
-    relocateCurveAfterOptimization(): BSplineR1toR2Interface | undefined {
+    relocateCurveAfterOptimization(): BSplineR1toR2Interface {
         this.updateCurve();
-        if(this._optimizedCurve !== undefined)
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
+        if(this._curveShapeSpaceNavigator !== undefined &&
+            this.displacementCurrentCurveControlPolygon !== undefined)
         {
-            let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
-            if(this.curveShapeSpaceNavigator !== undefined &&
-                this.displacementCurrentCurveControlPolygon !== undefined)
-            {
-                this.curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
-                for(let controlP of controlPoints) {
-                    controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
-                    controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
-                }
+            this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
+            for(let controlP of controlPoints) {
+                controlP.x -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].x;
+                controlP.y -= this.displacementCurrentCurveControlPolygon[controlPoints.length - 1].y;
             }
-            this._optimizedCurve.controlPoints = controlPoints;
         }
+        this._optimizedCurve.controlPoints = controlPoints;
+        return this._optimizedCurve;
+    }
+
+    relocateCurveAfterOptimizationUsingKnotPts(): BSplineR1toR2Interface {
+        this.updateCurve();
+        const knots = this._optimizedCurve.getDistinctKnots();
+        const refPoint = this._optimizedCurve.evaluate(knots[this.referencePtIndex]);
+        let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
+        if(this._curveShapeSpaceNavigator !== undefined
+            && this.displacementCurrentCurveControlPolygon !== undefined) {
+            const displacement = refPoint.substract(this._curveShapeSpaceNavigator.navigationCurveModel.currentCurve.evaluate(knots[this.referencePtIndex]));
+            for(let controlP of controlPoints) {
+                controlP.x -= displacement.x;
+                controlP.y -= displacement.y;
+            }
+        }
+        this._optimizedCurve.controlPoints = controlPoints;
         return this._optimizedCurve;
     }
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void{
         if(curveConstraints.firstControlPoint === ConstraintType.none
             && curveConstraints.lastControlPoint === ConstraintType.location) {
-                this.relocateCurveAfterOptimization();
+                // this.relocateCurveAfterOptimization();
+                this.relocateCurveAfterOptimizationUsingKnotPts();
+                if(this._curveShapeSpaceNavigator !== undefined) {
+                    this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this._optimizedCurve.clone();
+                } else {
+                    const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
+                    error.logMessageToConsole();
+                }
         } else {
-            let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
+            const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
             warning.logMessageToConsole();
         }
     }
 
 }
 
-export class CurveConstraintClampedFirstAndLastControlPoint implements CurveConstraintProcessor {
+export class CurveConstraintClampedFirstAndLastControlPoint implements CurveConstraintInterface {
 
-    private curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
-    private shapeNavigableCurve: ShapeNavigableCurve;
-    private _firstControlPoint: ConstraintType;
-    private _lastControlPoint: ConstraintType;
-    private curveConstraints: CurveConstraints;
-    private currentCurve: BSplineR1toR2Interface | undefined;
-    private targetCurve: BSplineR1toR2Interface | undefined;
+    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
+    private readonly shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _firstControlPoint: ConstraintType;
+    private readonly _lastControlPoint: ConstraintType;
+    private readonly curveConstraints: CurveConstraints;
+    private readonly referencePtIndex: number;
+    private currentCurve: BSplineR1toR2Interface;
     private displacementCurrentCurveControlPolygon: Vector2d[] | undefined;
-    private _optimizedCurve: BSplineR1toR2Interface | undefined;
+    private _optimizedCurve: BSplineR1toR2Interface;
 
     constructor(curveConstraints: CurveConstraints){
         this.curveConstraints = curveConstraints;
         this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
-        this.curveShapeSpaceNavigator = undefined;
+        if(this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
+            this._curveShapeSpaceNavigator = this.shapeNavigableCurve.curveShapeSpaceNavigator;
+        } else {
+            this._curveShapeSpaceNavigator = undefined;
+        }
         this._firstControlPoint = ConstraintType.location;
         this._lastControlPoint = ConstraintType.location;
         this.curveConstraints.firstControlPoint = this._firstControlPoint;
         this.curveConstraints.lastControlPoint = this._lastControlPoint;
-        this.currentCurve = undefined;
-        this.targetCurve = undefined;
-        this._optimizedCurve = this.targetCurve;
-        // this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator.displacementCurrentCurveControlPolygon;
-        this.displacementCurrentCurveControlPolygon = undefined;
+        if(this._curveShapeSpaceNavigator !== undefined) {
+            this._optimizedCurve = this._curveShapeSpaceNavigator?.navigationCurveModel.optimizedCurve.clone();
+        } else {
+            this._optimizedCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline.clone();
+        }
+        this.referencePtIndex = this.shapeNavigableCurve.clampedPoints[0];
+        this.currentCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline.clone();
+        this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator?.navigationCurveModel.displacementCurrentCurveControlPolygon;
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for first and last CP clamped.");
         warning.logMessageToConsole();
+    }
+
+    get optimizedCurve(): BSplineR1toR2Interface {
+        return this._optimizedCurve;
     }
 
     get firstControlPoint(): ConstraintType {
@@ -253,13 +362,19 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
         return this._lastControlPoint;
     }
 
-    relocateCurveAfterOptimization(): BSplineR1toR2Interface | undefined {
-        if(this._optimizedCurve !== undefined && this.curveShapeSpaceNavigator !== undefined
-            && this.displacementCurrentCurveControlPolygon !== undefined)
-        {
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator | undefined {
+        return this._curveShapeSpaceNavigator;
+    }
+
+    set curveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined) {
+        this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
+    }
+
+    relocateCurveAfterOptimization(): BSplineR1toR2Interface {
+        if(this._curveShapeSpaceNavigator !== undefined && this.displacementCurrentCurveControlPolygon !== undefined) {
             let controlPoints: Array<Vector2d> = this._optimizedCurve.controlPoints;
             const nbControlPts = this.displacementCurrentCurveControlPolygon.length;
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
+            this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
             if(Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < TOL_LOCATION_CURVE_EXTREMITIES) {
                 this.displacementCurrentCurveControlPolygon[controlPoints.length - 1] = this.displacementCurrentCurveControlPolygon[0];
                 for(let controlP of controlPoints) {
@@ -269,7 +384,7 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
                 this._optimizedCurve.controlPoints = controlPoints;
             } else {
                 // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
-                this._optimizedCurve = this.currentCurve;
+                this._optimizedCurve = this.currentCurve.clone();
             }
         }
         return this._optimizedCurve;
@@ -279,8 +394,14 @@ export class CurveConstraintClampedFirstAndLastControlPoint implements CurveCons
         if(curveConstraints.firstControlPoint === ConstraintType.location
             && curveConstraints.lastControlPoint === ConstraintType.location) {
                 this.relocateCurveAfterOptimization();
+                if(this._curveShapeSpaceNavigator !== undefined) {
+                    this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this._optimizedCurve.clone();
+                } else {
+                    const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
+                    error.logMessageToConsole();
+                }
         } else {
-            let warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
+            const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
             warning.logMessageToConsole();
         }
     }
