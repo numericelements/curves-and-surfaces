@@ -6,6 +6,7 @@ export interface CurveConstraintInterface {
     firstControlPoint: ConstraintType;
     lastControlPoint: ConstraintType;
     curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
+    constraintsNotSatisfied: boolean;
 
     locateCurveExtremityUnderConstraint(curveConstraints: CurveConstraints): void;
 

@@ -1,10 +1,10 @@
 import { RoundDotTwoLevelsTransparencyShader } from "../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader"
 import { IObserver } from "../newDesignPatterns/Observer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
 import { FunctionASceneController } from "../chartcontrollers/FunctionASceneController";
-import { NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
+import { MAX_CLAMPED_POINTS, NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 export class ClampedControlPointView extends AbstractMouseSelectablePointView implements IObserver<BSplineR1toR2Interface>{
 
@@ -161,6 +161,15 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
     setSelected(pointIndex: number | null): void {
         // this.selectedKnotIndex = knotIndex;
         this.selectedPointIndex = pointIndex;
+    }
+
+    setSelectedKnot(knotIndex: number): void {
+        if(this.selectedPoints.length < MAX_CLAMPED_POINTS) {
+            this.selectedPoints.push(knotIndex);
+        } else {
+            const error = new ErrorLog(this.constructor.name, 'setSelectedKnot', 'Try to insert a clamped point but maximum number of clamped points exceeded.');
+            error.logMessageToConsole();
+        }
     }
 
 }

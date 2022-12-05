@@ -1,3 +1,4 @@
+import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedFirstControlPoint, CurveConstraintClampedLastControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { CCurveNavigationStrictlyInsideShapeSpace, CCurveNavigationThroughSimplerShapeSpaces, CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { SceneInteractionStrategy } from "../designPatterns/SceneInteractionStrategy";
@@ -8,7 +9,7 @@ import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { ClosedPlanarCurve, OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForClosedCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
-import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
+import { NO_CONSTRAINT, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ClickButtonView } from "../views/ClickButtonView";
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { CurveSceneController } from "./CurveSceneController";
@@ -72,13 +73,33 @@ export class CurveSceneControllerKnotInsertion extends CurveSceneControllerInter
             const spline = this.curveModel.spline;
             spline.insertKnot(grevilleAbscissae[cp], 1)
             this.curveModel.setSpline(spline);
-            this.shapeNavigableCurve.updateClampedPointsAfterKnotInsertion(grevilleAbscissae[cp]);
+            this.updateClampedPoints(grevilleAbscissae[cp]);
             this.curveModel.notifyObservers();
             // JCL this could be better handled with an update process of shapenavigableCurve observers ?
             this.curveShapeSpaceNavigator.navigationState.setCurrentCurve(this.curveModel.spline);
             this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline.clone();
+            if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy instanceof CurveConstraintClampedFirstAndLastControlPoint) {
+                this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.setCurrentCurve(this.curveModel.spline);
+            }
             this.curveShapeSpaceNavigator.navigationCurveModel.resetCurveToOptimize();
         }
+    }
+
+    updateClampedPoints(knotParametricLocation: number):void {
+        // update the clamped points indices of the shape navigable curve
+        this.shapeNavigableCurve.updateClampedPointsAfterKnotInsertion(knotParametricLocation);
+        // update the indices of reference points used for curve geometric constraints
+        if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy instanceof CurveConstraintClampedFirstControlPoint) {
+            this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.referencePtIndex = this.shapeNavigableCurve.clampedPoints[0];
+        } else if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy instanceof CurveConstraintClampedLastControlPoint) {
+            this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.referencePtIndex = this.shapeNavigableCurve.clampedPoints[1];
+        }
+        // update the graphic location of clamped points
+        this._curveSceneController.clampedControlPointView.clearSelectedPoints();
+        if(this.shapeNavigableCurve.clampedPoints[0] !== NO_CONSTRAINT)
+            this._curveSceneController.clampedControlPointView.setSelectedKnot(this.shapeNavigableCurve.clampedPoints[0]);
+        if(this.shapeNavigableCurve.clampedPoints[1] !== NO_CONSTRAINT)
+            this._curveSceneController.clampedControlPointView.setSelectedKnot(this.shapeNavigableCurve.clampedPoints[1]);
     }
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
@@ -287,9 +308,9 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection extends 
 
 export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve extends CurveSceneControllerInteractionStrategy {
 
-    private readonly controlOfInflection: boolean;
-    private readonly controlOfCurvatureExtrema: boolean;
-    private readonly curveModel: CurveModelInterface;
+    protected readonly controlOfInflection: boolean;
+    protected readonly controlOfCurvatureExtrema: boolean;
+    protected readonly curveModel: CurveModelInterface;
     // private curveControl: CurveControlStrategyInterface;
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
 
@@ -327,6 +348,77 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
+                if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied)
+                    console.log("Constraints not satisfied - must change interaction Strategy");
+                this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
+                this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+            // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
+            // || this.allowShapeSpaceChange === true) {
+                /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
+                    if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
+
+                    }
+                }*/
+            }
+            this.curveModel.notifyObservers();
+            this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
+        }
+    }
+
+    processLeftMouseUpInteraction(): void {
+        this.selectedControlPoint = null;
+        this._curveSceneController.selectedControlPoint = null;
+        this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
+    }
+
+    processShiftKeyDownInteraction(): void {
+        // this.curveEventAtExtremityMayVanish = true;
+        this.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        message.logMessageToConsole();
+    }
+
+    processShiftKeyUpInteraction(): void {
+        // this.curveEventAtExtremityMayVanish = false;
+        this.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
+        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        message.logMessageToConsole();
+    }
+}
+
+export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied extends CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve {
+
+    protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+
+    constructor(curveSceneController: CurveSceneController) {
+        super(curveSceneController);
+        this.eventMgmtAtExtremities = this.shapeNavigableCurve.eventMgmtAtExtremities;
+        this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+        this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+        // this.curveControl = this._curveSceneController.curveControl;
+    }
+
+    processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
+        const x = ndcX;
+        const y = ndcY;
+        console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
+        if(this.selectedControlPoint != null) {
+        // if(this.selectedControlPoint != null && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
+            this._curveSceneController.controlPointsView.setSelected(null);
+            if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
+                /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
+                because it is part of the optimize method (whether sliding is active or not) */
+                this.curveModel.setControlPointPosition(this.selectedControlPoint, x, y);
+                this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+            } else if(this._curveSceneController.allowShapeSpaceChange === true) {
+                this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
+                if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied)
+                    console.log("Constraints not satisfied - must change interaction Strategy");
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
             // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 

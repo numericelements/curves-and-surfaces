@@ -10,11 +10,13 @@ import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity, EventStayInsideCurve } from "./EventStateAtCurveExtremity";
 import { NavigationCurveModelInterface } from "../curveShapeSpaceNavigation/NavigationCurveModelInterface";
 import { CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
+import { CurveModel } from "../newModels/CurveModel";
 
 /* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
 export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming};
 
 export const NO_CONSTRAINT = -1;
+export const MAX_CLAMPED_POINTS = 2;
 
 export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
     private _curveCategory: CurveCategory;
@@ -188,24 +190,23 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         }
     }
 
-    updateClampedPointsAfterKnotInsertion(knot: number): void {
-        const knots = this._curveCategory.curveModel.spline.knots;
+    updateClampedPointsAfterKnotInsertion(knotParametricLocation: number): void {
+        const knots = this._curveCategory.curveModel.spline.getDistinctKnots();
         let i = 0;
-        while(i < knots.length && knots[i] < knot) {
+        while(i < knots.length && knots[i] < knotParametricLocation) {
             i++;
         }
-        const knotIndex = i + 1;
+        const knotIndex = i;
         if(this._clampedPoints[0] === NO_CONSTRAINT && this._clampedPoints[1] === NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, "updateClampedPointsAfterKnotInsertion", "No need to update clamped point indices.");
             warning.logMessageToConsole();
         } else if((this._clampedPoints[0] === NO_CONSTRAINT && this._clampedPoints[1] !== NO_CONSTRAINT)
-                    || (this._clampedPoints[0] !== NO_CONSTRAINT && this._clampedPoints[1] === NO_CONSTRAINT)) {
+                || (this._clampedPoints[0] !== NO_CONSTRAINT && this._clampedPoints[1] === NO_CONSTRAINT)) {
             if(this._clampedPoints[0] === NO_CONSTRAINT && this._clampedPoints[1] >= knotIndex) this._clampedPoints[1] += 1;
             if(this._clampedPoints[1] === NO_CONSTRAINT && this._clampedPoints[0] >= knotIndex) this._clampedPoints[0] += 1;
         } else {
             if(this._clampedPoints[0] >= knotIndex) this._clampedPoints[0] += 1;
             if(this._clampedPoints[1] >= knotIndex) this._clampedPoints[1] += 1;
         }
-        // this.notifyObservers();
     }
 }

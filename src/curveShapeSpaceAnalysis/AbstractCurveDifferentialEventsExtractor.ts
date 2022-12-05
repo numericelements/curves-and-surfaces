@@ -76,13 +76,13 @@ export abstract class AbstractCurveDifferentialEventsExtractor implements IObser
 
     notifyObservers(): void {
         for (let observer of this._observers){
-            const warning = new WarningLog(this.constructor.name, 'notifyObservers', "update as curve: " + observer.constructor.name);
-            warning.logMessageToConsole();
+            // const warning = new WarningLog(this.constructor.name, 'notifyObservers', "update as curve: " + observer.constructor.name);
+            // warning.logMessageToConsole();
             observer.update(this._crvDiffEventsLocations.clone());
         }
         for (let observer of this._observersCP){
-            const warning = new WarningLog(this.constructor.name, 'notifyObservers', "update as curve: " + observer.constructor.name);
-            warning.logMessageToConsole();
+            // const warning = new WarningLog(this.constructor.name, 'notifyObservers', "update as curve: " + observer.constructor.name);
+            // warning.logMessageToConsole();
             observer.update(this._crvDiffEventsLocations.clone());
         }
     }

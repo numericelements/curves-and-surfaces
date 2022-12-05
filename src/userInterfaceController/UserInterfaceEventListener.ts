@@ -1,6 +1,6 @@
 import { ChartSceneController, CHART_TITLES } from "../chartcontrollers/ChartSceneController";
 import { CurveSceneController } from "../controllers/CurveSceneController";
-import { ShapeNavigableCurve, ActiveLocationControl, NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
+import { ShapeNavigableCurve, NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
@@ -393,8 +393,6 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
     private controlOfCurveClamping: boolean;
     private previousControlOfCurveClamping: boolean;
 
-    public activeLocationControl: ActiveLocationControl
-
     constructor() {
         super();
         /* Get selector ID for curve category and degree*/
@@ -413,7 +411,6 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         //      mode 1, mode 2: controlOfCurveClamping =  true
         this.controlOfCurveClamping = false;
         this.previousControlOfCurveClamping = false;
-        this.activeLocationControl = this._shapeNavigableCurve.activeLocationControl;
 
         this._shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveModelEventListener(this));
 

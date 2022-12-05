@@ -1,4 +1,4 @@
-import { ActiveLocationControl, ShapeNavigableCurve } from "./ShapeNavigableCurve";
+import { ShapeNavigableCurve } from "./ShapeNavigableCurve";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";

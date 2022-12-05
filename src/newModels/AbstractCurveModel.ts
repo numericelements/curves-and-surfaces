@@ -92,11 +92,11 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
 
     notifyObservers(): void {
         for (let observer of this.observers){
-            console.log("CurveModel: update as curve: " + observer.constructor.name)
+            // console.log("CurveModel: update as curve: " + observer.constructor.name)
             observer.update(this._spline.clone());
         }
         for (let observer of this.observersCP){
-            console.log("CurveModel: update as CP: " + observer.constructor.name)
+            // console.log("CurveModel: update as CP: " + observer.constructor.name)
             observer.update(this._spline.clone());
         }
 

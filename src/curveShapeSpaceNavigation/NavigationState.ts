@@ -61,7 +61,8 @@ export abstract class OpenCurveNavigationState extends NavigationState{
         this.navigationCurveModel = navigationCurveModel;
         this.shapeNavigableCurve = this.navigationCurveModel.shapeNavigableCurve;
         if(this.navigationCurveModel.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.currentCurve = this.navigationCurveModel.shapeNavigableCurve.curveCategory.curveModel.spline;
+            this.currentCurve = this.navigationCurveModel.currentCurve;
+            // this.currentCurve = this.navigationCurveModel.shapeNavigableCurve.curveCategory.curveModel.spline;
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent object type to initialize the currentCurve.");
             error.logMessageToConsole();
@@ -214,6 +215,7 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
+        this.currentCurve = this.navigationCurveModel.currentCurve;
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -281,6 +283,8 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
+        this.currentCurve = this.navigationCurveModel.currentCurve;
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -318,7 +322,8 @@ export abstract class ClosedCurveNavigationState extends NavigationState{
         this.navigationCurveModel = navigationCurveModel;
         this.shapeNavigableCurve = this.navigationCurveModel.shapeNavigableCurve;
         if(this.navigationCurveModel.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel) {
-            this.currentCurve = this.navigationCurveModel.shapeNavigableCurve.curveCategory.curveModel.spline;
+            this.currentCurve = this.navigationCurveModel.currentCurve;
+            // this.currentCurve = this.navigationCurveModel.shapeNavigableCurve.curveCategory.curveModel.spline;
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent object type to initialize the currentCurve.");
             error.logMessageToConsole();
@@ -468,8 +473,9 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
     }
 
     curveConstraintsMonitoring(): void {
-        this.shapeNavigableCurve.curveCategory.curveModel.spline = this.optimizedCurve.clone();
         this.shapeNavigableCurve.curveConstraints.processConstraint();
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
+        this.currentCurve = this.navigationCurveModel.currentCurve;
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -535,6 +541,8 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
+        this.currentCurve = this.navigationCurveModel.currentCurve;
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
