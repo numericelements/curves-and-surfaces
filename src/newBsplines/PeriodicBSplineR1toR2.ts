@@ -275,6 +275,30 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
         } 
     }
 
+    scale(factor: number) {
+        let cp: Array<Vector2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(element.multiply(factor))
+        });
+        return new PeriodicBSplineR1toR2(cp, this.knots.slice())
+    }
+
+    scaleY(factor: number) {
+        let cp: Array<Vector2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector2d(element.x, element.y * factor))
+        });
+        return new PeriodicBSplineR1toR2(cp, this.knots.slice())
+    }
+
+    scaleX(factor: number) {
+        let cp: Array<Vector2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector2d(element.x * factor, element.y))
+        });
+        return new PeriodicBSplineR1toR2(cp, this.knots.slice())
+    }
+
 }
 
 export function create_PeriodicBSplineR1toR2(controlPoints: number[][], knots: number[]): PeriodicBSplineR1toR2 {

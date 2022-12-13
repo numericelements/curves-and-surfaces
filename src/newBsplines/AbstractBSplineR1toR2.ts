@@ -85,6 +85,12 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     abstract optimizerStep(step: number[]) : void;
 
+    abstract scale(factor: number): AbstractBSplineR1toR2;
+
+    abstract scaleX(factor: number): AbstractBSplineR1toR2;
+
+    abstract scaleY(factor: number): AbstractBSplineR1toR2;
+
     getControlPointsX(): number[] {
         let result: number[] = [];
         for (let cp of this._controlPoints) {
@@ -221,7 +227,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
      * 
      * @param fromU Parametric position where the section start
      * @param toU Parametric position where the section end
-     * @retrun the BSpline_R1_to_R2 section
+     * @retrun the BSplineR1toR2 section
      */
     abstract extract(fromU: number, toU: number) : AbstractBSplineR1toR2;
 

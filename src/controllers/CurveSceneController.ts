@@ -48,7 +48,8 @@ import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/Cur
 import { AbstractCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor";
 import { OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
 import { SceneInteractionStrategy } from "../designPatterns/SceneInteractionStrategy";
-import { CurveSceneControllerKnotInsertion, CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection, CurveSceneControllerNoShapeSpaceConstraintsCPSelection, CurveSceneControllerStrictlyInsideShapeSpaceCPSelection } from "./CurveSceneControllerInteractionStrategy";
+import { CurveSceneControllerKnotInsertion, CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied, CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection, CurveSceneControllerNoShapeSpaceConstraintsCPSelection, CurveSceneControllerStrictlyInsideShapeSpaceCPSelection } from "./CurveSceneControllerInteractionStrategy";
+import { PhantomCurveView } from "../views/PhantomCurveView";
 
 // Margin expressed in pixel size
 const MARGIN_WINDOW_CANVAS = 150;
@@ -60,6 +61,8 @@ const BACKGROUND_ALPHA = 1.0;
 
 export class CurveSceneController implements SceneControllerInterface {
 
+    private canvas: HTMLCanvasElement;
+    private gl: WebGLRenderingContext;
     private _selectedControlPoint: number | null
     public selectedCurvatureExtrema: number[] | null = null
     public selectedInflection: number[] | null = null
@@ -69,7 +72,8 @@ export class CurveSceneController implements SceneControllerInterface {
     //public curveModel: CurveModel
     private _controlPointsView: ControlPointsView
     private controlPolygonView: ControlPolygonView
-    private highlightedControlPolygonView: HighlightedControlPolygonView;
+    private _highlightedControlPolygonView: HighlightedControlPolygonView;
+    private _phantomCurveView: PhantomCurveView;
     private curveView: CurveView
     private _insertKnotButtonView: ClickButtonView;
     private _controlOfKnotInsertion: boolean;
@@ -114,10 +118,12 @@ export class CurveSceneController implements SceneControllerInterface {
 
     private curveObservers: Array<IRenderFrameObserver<BSplineR1toR2Interface>> = []
     
-    constructor(private canvas: HTMLCanvasElement, private gl: WebGLRenderingContext,
+    constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext,
         curveModelDefinitionEventListener: CurveModelDefinitionEventListener,
         shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener) {
 
+        this.canvas = canvas;
+        this.gl = gl;
         this._selectedControlPoint = null;
         // this.curveModel = curveModelDefinitionEventListener.curveModel;
         this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
@@ -144,7 +150,8 @@ export class CurveSceneController implements SceneControllerInterface {
         let selectedEvent: number[]= []
         this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1)
 
-        this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
+        this._highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
+        this._phantomCurveView = new PhantomCurveView(this.gl, this.curveModel.spline);
 
         this.activeLocationControl = this.shapeNavigableCurve.activeLocationControl
         this.activeExtremaLocationControl = this.curveShapeSpaceNavigator.activeExtremaLocationControl
@@ -192,6 +199,14 @@ export class CurveSceneController implements SceneControllerInterface {
 
     get controlPointsView(): ControlPointsView {
         return this._controlPointsView;
+    }
+
+    get highlightedControlPolygonView(): HighlightedControlPolygonView {
+        return this._highlightedControlPolygonView;
+    }
+
+    get phantomCurveView(): PhantomCurveView {
+        return this._phantomCurveView;
     }
 
     get curveConstraintSelectionState(): CurveConstraintSelectionState {
@@ -324,16 +339,11 @@ export class CurveSceneController implements SceneControllerInterface {
         this.transitionCurvatureExtremaView.renderFrame()
         this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
-
         this.curveKnotsView.renderFrame()
-        if(this.curveModel !== undefined) {
-            // if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-            //     this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl, false);
-            // } else {
-            //     this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
-            // }
+        if(this._sceneInteractionStrategy instanceof CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied) {
+            this._highlightedControlPolygonView.renderFrame();
+            this._phantomCurveView.renderFrame();
         }
-        else throw new Error("Unable to render the current frame. Undefined curve model")
 
         this._controlPointsView.renderFrame()
         this._insertKnotButtonView.renderFrame()

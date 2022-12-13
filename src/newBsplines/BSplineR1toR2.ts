@@ -232,6 +232,30 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         };
     }
 
+    scale(factor: number) {
+        let cp: Array<Vector2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(element.multiply(factor))
+        });
+        return new BSplineR1toR2(cp, this.knots.slice())
+    }
+
+    scaleY(factor: number) {
+        let cp: Array<Vector2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector2d(element.x, element.y * factor))
+        });
+        return new BSplineR1toR2(cp, this.knots.slice())
+    }
+
+    scaleX(factor: number) {
+        let cp: Array<Vector2d> = []
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector2d(element.x * factor, element.y))
+        });
+        return new BSplineR1toR2(cp, this.knots.slice())
+    }
+
     // replaced by getDistinctKnots in AbstractBSplineR1toR2
     // distinctKnots(): number[] {
     //     let result = [this.knots[0]];

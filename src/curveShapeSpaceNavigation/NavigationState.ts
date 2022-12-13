@@ -216,6 +216,7 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -285,6 +286,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -476,6 +478,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
@@ -543,6 +546,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
     navigate(selectedControlPoint: number, x: number, y: number): void {

@@ -40474,6 +40474,325 @@ exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navig
 
 /***/ }),
 
+/***/ "./src/bsplines/BSpline_R1_to_R1.ts":
+/*!******************************************!*\
+  !*** ./src/bsplines/BSpline_R1_to_R1.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BSpline_R1_to_R1 = void 0;
+var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_2 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Piegl_Tiller_NURBS_Book_3 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/bsplines/Piegl_Tiller_NURBS_Book.ts");
+var Vector_2d_1 = __webpack_require__(/*! ../mathematics/Vector_2d */ "./src/mathematics/Vector_2d.ts");
+var BSpline_R1_to_R2_1 = __webpack_require__(/*! ./BSpline_R1_to_R2 */ "./src/bsplines/BSpline_R1_to_R2.ts");
+/**
+ * A B-Spline function from a one dimensional real space to a one dimensional real space
+ */
+var BSpline_R1_to_R1 = /** @class */ (function () {
+    /**
+     * Create a B-Spline
+     * @param controlPoints The control points array
+     * @param knots The knot vector
+     */
+    function BSpline_R1_to_R1(controlPoints, knots) {
+        if (controlPoints === void 0) { controlPoints = [0]; }
+        if (knots === void 0) { knots = [0, 1]; }
+        this._controlPoints = [];
+        this._knots = [];
+        this._degree = 0;
+        this._controlPoints = controlPoints;
+        this._knots = knots;
+        this._degree = this._knots.length - this._controlPoints.length - 1;
+        if (this._degree < 0) {
+            throw new Error("Negative degree BSpline_R1_to_R1 are not supported");
+        }
+    }
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "controlPoints", {
+        get: function () {
+            return this._controlPoints;
+        },
+        set: function (controlPoints) {
+            this._controlPoints = controlPoints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "knots", {
+        get: function () {
+            return this._knots;
+        },
+        set: function (knots) {
+            this._knots = knots;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BSpline_R1_to_R1.prototype, "degree", {
+        get: function () {
+            return this._degree;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BSpline_R1_to_R1.prototype.setControlPoint = function (index, value) {
+        this._controlPoints[index] = value;
+    };
+    /**
+     * B-Spline evaluation
+     * @param u The parameter
+     * @returns the value of the B-Spline at u
+     */
+    BSpline_R1_to_R1.prototype.evaluate = function (u) {
+        var span = Piegl_Tiller_NURBS_Book_1.findSpan(u, this._knots, this._degree);
+        var basis = Piegl_Tiller_NURBS_Book_2.basisFunctions(span, u, this._knots, this._degree);
+        var result = 0;
+        for (var i = 0; i < this.degree + 1; i += 1) {
+            result += basis[i] * this._controlPoints[span - this._degree + i];
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.derivative = function () {
+        var newControlPoints = [];
+        var newKnots = [];
+        for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
+            newControlPoints[i] = (this.controlPoints[i + 1] - (this.controlPoints[i])) * (this.degree / (this.knots[i + this.degree + 1] - this.knots[i + 1]));
+        }
+        newKnots = this.knots.slice(1, this.knots.length - 1);
+        return new BSpline_R1_to_R1(newControlPoints, newKnots);
+    };
+    BSpline_R1_to_R1.prototype.bernsteinDecomposition = function () {
+        // Piegl_Tiller_NURBS_BOOK.ts
+        return Piegl_Tiller_NURBS_Book_3.decomposeFunction(this);
+    };
+    BSpline_R1_to_R1.prototype.distinctKnots = function () {
+        var result = [this.knots[0]];
+        var temp = result[0];
+        for (var i = 1; i < this.knots.length; i += 1) {
+            if (this.knots[i] !== temp) {
+                result.push(this.knots[i]);
+                temp = this.knots[i];
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.zeros = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        while (maxError > tolerance) {
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var i = 0; i < vertexIndex.length; i += 1) {
+                var uLeft = greville[vertexIndex[i] - 1];
+                var uRight = greville[vertexIndex[i]];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    spline.insertKnot((uLeft + uRight) / 2);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        var result = [];
+        for (var i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]]);
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.grevilleAbscissae = function () {
+        var result = [];
+        for (var i = 0; i < this.controlPoints.length; i += 1) {
+            var sum = 0;
+            for (var j = i + 1; j < i + this.degree + 1; j += 1) {
+                sum += this.knots[j];
+            }
+            result.push(sum / this.degree);
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.insertKnot = function (u, times) {
+        if (times === void 0) { times = 1; }
+        if (times <= 0) {
+            return;
+        }
+        var index = Piegl_Tiller_NURBS_Book_1.findSpan(u, this.knots, this.degree);
+        var multiplicity = 0;
+        var newControlPoints = [];
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+        }
+    };
+    BSpline_R1_to_R1.prototype.knotMultiplicity = function (indexFromFindSpan) {
+        var result = 0;
+        var i = 0;
+        while (this.knots[indexFromFindSpan + i] === this.knots[indexFromFindSpan]) {
+            i -= 1;
+            result += 1;
+            if (indexFromFindSpan + i < 0) {
+                break;
+            }
+        }
+        return result;
+    };
+    /**
+     * Return a deep copy of this b-spline
+     */
+    BSpline_R1_to_R1.prototype.clone = function () {
+        return new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+    };
+    BSpline_R1_to_R1.prototype.clamp = function (u) {
+        // Piegl and Tiller, The NURBS book, p: 151
+        var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(u, this.knots, this.degree);
+        var newControlPoints = [];
+        var multiplicity = 0;
+        if (u === this.knots[index]) {
+            multiplicity = this.knotMultiplicity(index);
+        }
+        var times = this.degree - multiplicity + 1;
+        for (var t = 0; t < times; t += 1) {
+            for (var i = 0; i < index - this.degree + 1; i += 1) {
+                newControlPoints[i] = this.controlPoints[i];
+            }
+            for (var i = index - this.degree + 1; i <= index - multiplicity; i += 1) {
+                var alpha = (u - this.knots[i]) / (this.knots[i + this.degree] - this.knots[i]);
+                newControlPoints[i] = this.controlPoints[i - 1] * (1 - alpha) + this.controlPoints[i] * alpha;
+            }
+            for (var i = index - multiplicity; i < this.controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this.controlPoints[i];
+            }
+            this.knots.splice(index + 1, 0, u);
+            this.controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    };
+    BSpline_R1_to_R1.prototype.controlPolygonNumberOfSignChanges = function () {
+        var result = 0;
+        var greville = this.grevilleAbscissae();
+        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result += 1;
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.controlPolygonZeros = function () {
+        var result = [];
+        var greville = this.grevilleAbscissae();
+        for (var i = 0; i < this._controlPoints.length - 1; i += 1) {
+            if (Math.sign(this._controlPoints[i]) !== Math.sign(this._controlPoints[i + 1])) {
+                result.push(this.findLineZero(greville[i], this.controlPoints[i], greville[i + 1], this.controlPoints[i + 1]));
+            }
+        }
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.findLineZero = function (x1, y1, x2, y2) {
+        // find the zero of the line y = ax + b
+        var a = (y2 - y1) / (x2 - x1);
+        var b = y1 - a * x1;
+        return -b / a;
+    };
+    BSpline_R1_to_R1.prototype.zerosPolygonVsFunctionDiffViewer = function (tolerance) {
+        if (tolerance === void 0) { tolerance = 10e-8; }
+        //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
+        var spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice());
+        var greville = spline.grevilleAbscissae();
+        var maxError = tolerance * 2;
+        var vertexIndex = [];
+        var cpZeros = spline.controlPolygonNumberOfSignChanges();
+        var result = [];
+        var lastInsertedKnot = 0;
+        while (maxError > tolerance) {
+            var temp = spline.controlPolygonNumberOfSignChanges();
+            if (cpZeros !== temp) {
+                result.push(lastInsertedKnot);
+            }
+            cpZeros = temp;
+            var cpLeft = spline.controlPoints[0];
+            vertexIndex = [];
+            var maximum = 0;
+            for (var index = 1; index < spline.controlPoints.length; index += 1) {
+                var cpRight = spline.controlPoints[index];
+                if (cpLeft <= 0 && cpRight > 0) {
+                    vertexIndex.push(index);
+                }
+                if (cpLeft >= 0 && cpRight < 0) {
+                    vertexIndex.push(index);
+                }
+                cpLeft = cpRight;
+            }
+            for (var i = 0; i < vertexIndex.length; i += 1) {
+                var uLeft = greville[vertexIndex[i] - 1];
+                var uRight = greville[vertexIndex[i]];
+                if (uRight - uLeft > maximum) {
+                    maximum = uRight - uLeft;
+                }
+                if (uRight - uLeft > tolerance) {
+                    lastInsertedKnot = (uLeft + uRight) / 2;
+                    spline.insertKnot(lastInsertedKnot);
+                    greville = spline.grevilleAbscissae();
+                }
+            }
+            maxError = maximum;
+        }
+        /*
+        let result = []
+        for (let i = 0; i < vertexIndex.length; i += 1) {
+            result.push(greville[vertexIndex[i]])
+        }
+        */
+        return result;
+    };
+    BSpline_R1_to_R1.prototype.curve = function () {
+        var x = this.grevilleAbscissae();
+        var cp = [];
+        for (var i = 0; i < x.length; i += 1) {
+            cp.push(new Vector_2d_1.Vector_2d(x[i], this._controlPoints[i]));
+        }
+        return new BSpline_R1_to_R2_1.BSpline_R1_to_R2(cp, this.knots.slice());
+    };
+    return BSpline_R1_to_R1;
+}());
+exports.BSpline_R1_to_R1 = BSpline_R1_to_R1;
+
+
+/***/ }),
+
 /***/ "./src/bsplines/BSpline_R1_to_R2.ts":
 /*!******************************************!*\
   !*** ./src/bsplines/BSpline_R1_to_R2.ts ***!
@@ -42820,6 +43139,7 @@ var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel *
 var CurveModelObserver_1 = __webpack_require__(/*! ../models/CurveModelObserver */ "./src/models/CurveModelObserver.ts");
 var HighlightedControlPolygonView_1 = __webpack_require__(/*! ../views/HighlightedControlPolygonView */ "./src/views/HighlightedControlPolygonView.ts");
 var CurveSceneControllerInteractionStrategy_1 = __webpack_require__(/*! ./CurveSceneControllerInteractionStrategy */ "./src/controllers/CurveSceneControllerInteractionStrategy.ts");
+var PhantomCurveView_1 = __webpack_require__(/*! ../views/PhantomCurveView */ "./src/views/PhantomCurveView.ts");
 // Margin expressed in pixel size
 var MARGIN_WINDOW_CANVAS = 150;
 // Window background color setting
@@ -42829,8 +43149,6 @@ var BACKGROUND_BLUE_COLOR = 0.3;
 var BACKGROUND_ALPHA = 1.0;
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl, curveModelDefinitionEventListener, shapeSpaceNavigationEventListener) {
-        this.canvas = canvas;
-        this.gl = gl;
         this.selectedCurvatureExtrema = null;
         this.selectedInflection = null;
         this._allowShapeSpaceChange = false;
@@ -42846,6 +43164,8 @@ var CurveSceneController = /** @class */ (function () {
         this.counterLostEvent = 0;
         this.lastLostEvent = { event: SlidingStrategy_1.NeighboringEventsType.none, index: 0 };
         this.curveObservers = [];
+        this.canvas = canvas;
+        this.gl = gl;
         this._selectedControlPoint = null;
         // this.curveModel = curveModelDefinitionEventListener.curveModel;
         this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
@@ -42869,7 +43189,8 @@ var CurveSceneController = /** @class */ (function () {
         this.curveShapeSpaceNavigator.curveSceneController = this;
         var selectedEvent = [];
         this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1);
-        this.highlightedControlPolygonView = new HighlightedControlPolygonView_1.HighlightedControlPolygonView(this.curveModel.spline, this.gl);
+        this._highlightedControlPolygonView = new HighlightedControlPolygonView_1.HighlightedControlPolygonView(this.curveModel.spline, this.gl);
+        this._phantomCurveView = new PhantomCurveView_1.PhantomCurveView(this.gl, this.curveModel.spline);
         this.activeLocationControl = this.shapeNavigableCurve.activeLocationControl;
         this.activeExtremaLocationControl = this.curveShapeSpaceNavigator.activeExtremaLocationControl;
         this.activeInflectionLocationControl = this.curveShapeSpaceNavigator.activeInflectionLocationControl;
@@ -42914,6 +43235,20 @@ var CurveSceneController = /** @class */ (function () {
     Object.defineProperty(CurveSceneController.prototype, "controlPointsView", {
         get: function () {
             return this._controlPointsView;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveSceneController.prototype, "highlightedControlPolygonView", {
+        get: function () {
+            return this._highlightedControlPolygonView;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveSceneController.prototype, "phantomCurveView", {
+        get: function () {
+            return this._phantomCurveView;
         },
         enumerable: false,
         configurable: true
@@ -43059,15 +43394,10 @@ var CurveSceneController = /** @class */ (function () {
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
         this.curveKnotsView.renderFrame();
-        if (this.curveModel !== undefined) {
-            // if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-            //     this.highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl, false);
-            // } else {
-            //     this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
-            // }
+        if (this._sceneInteractionStrategy instanceof CurveSceneControllerInteractionStrategy_1.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied) {
+            this._highlightedControlPolygonView.renderFrame();
+            this._phantomCurveView.renderFrame();
         }
-        else
-            throw new Error("Unable to render the current frame. Undefined curve model");
         this._controlPointsView.renderFrame();
         this._insertKnotButtonView.renderFrame();
         /* JCL 2020/09/24 Add the display of clamped control points */
@@ -43656,7 +43986,6 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
         var y = ndcY;
         console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
         if (this.selectedControlPoint != null) {
-            // if(this.selectedControlPoint != null && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
             this._curveSceneController.controlPointsView.setSelected(null);
             if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization
@@ -43669,10 +43998,14 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
-                if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied)
+                if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
                     console.log("Constraints not satisfied - must change interaction Strategy");
-                this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
-                this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
+                }
+                else {
+                    this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
+                    this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                }
                 // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
                 // || this.allowShapeSpaceChange === true) {
                 /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
@@ -43712,17 +44045,17 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraint
     function CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(curveSceneController) {
         var _this = _super.call(this, curveSceneController) || this;
         _this.eventMgmtAtExtremities = _this.shapeNavigableCurve.eventMgmtAtExtremities;
-        _this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = _this.curveModel.spline;
-        _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = _this.curveModel.spline;
+        _this.lastValidCurve = _this.curveModel.spline.clone();
+        _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone());
+        _this._curveSceneController.highlightedControlPolygonView.update(_this.lastValidCurve);
+        _this._curveSceneController.phantomCurveView.update(_this.lastValidCurve);
         return _this;
-        // this.curveControl = this._curveSceneController.curveControl;
     }
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         var x = ndcX;
         var y = ndcY;
         console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
         if (this.selectedControlPoint != null) {
-            // if(this.selectedControlPoint != null && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
             this._curveSceneController.controlPointsView.setSelected(null);
             if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization
@@ -43736,16 +44069,9 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraint
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
                 if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied)
-                    console.log("Constraints not satisfied - must change interaction Strategy");
+                    console.log("Constraints not satisfied - new interaction Strategy");
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
-                // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
-                // || this.allowShapeSpaceChange === true) {
-                /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
-                    if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-
-                    }
-                }*/
             }
             this.curveModel.notifyObservers();
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
@@ -46337,18 +46663,32 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveConstraintClampedFirstAndLastControlPoint = exports.CurveConstraintClampedLastControlPoint = exports.CurveConstraintClampedFirstControlPoint = exports.CurveConstraintNoConstraint = exports.CurveConstraintStrategy = void 0;
+exports.CurveConstraintClampedFirstAndLastControlPoint = exports.CurveConstraintClampedLastControlPoint = exports.CurveConstraintClampedFirstControlPoint = exports.CurveConstraintNoConstraint = exports.CurveConstraintStrategy = exports.TOL_LOCATION_CURVE_REFERENCE_POINTS = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
-var TOL_LOCATION_CURVE_REFERENCE_POINTS = 1.0E-6;
+var SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
+exports.TOL_LOCATION_CURVE_REFERENCE_POINTS = 1.0E-6;
 var CurveConstraintStrategy = /** @class */ (function () {
     function CurveConstraintStrategy(curveConstraints) {
         this.curveConstraints = curveConstraints;
+        this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
+        this._currentCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline;
         this._constraintsNotSatisfied = false;
     }
     Object.defineProperty(CurveConstraintStrategy.prototype, "constraintsNotSatisfied", {
         get: function () {
             return this._constraintsNotSatisfied;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveConstraintStrategy.prototype, "currentCurve", {
+        get: function () {
+            return this._currentCurve;
+        },
+        set: function (currentCurve) {
+            this._currentCurve = currentCurve;
         },
         enumerable: false,
         configurable: true
@@ -46360,7 +46700,6 @@ var CurveConstraintNoConstraint = /** @class */ (function (_super) {
     __extends(CurveConstraintNoConstraint, _super);
     function CurveConstraintNoConstraint(curveConstraints) {
         var _this = _super.call(this, curveConstraints) || this;
-        _this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -46446,7 +46785,6 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function (_super) {
     function CurveConstraintClampedFirstControlPoint(curveConstraints) {
         var _a, _b;
         var _this = _super.call(this, curveConstraints) || this;
-        _this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -46573,7 +46911,6 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function (_super) {
     function CurveConstraintClampedLastControlPoint(curveConstraints) {
         var _a, _b;
         var _this = _super.call(this, curveConstraints) || this;
-        _this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -46700,7 +47037,6 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
     function CurveConstraintClampedFirstAndLastControlPoint(curveConstraints) {
         var _a, _b;
         var _this = _super.call(this, curveConstraints) || this;
-        _this.shapeNavigableCurve = curveConstraints.shapeNavigableCurve;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -46718,7 +47054,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
             _this._optimizedCurve = _this.shapeNavigableCurve.curveCategory.curveModel.spline.clone();
         }
         _this._referencePtIndex = _this.shapeNavigableCurve.clampedPoints[0];
-        _this.currentCurve = _this.shapeNavigableCurve.curveCategory.curveModel.spline;
+        _this._currentCurve = _this.shapeNavigableCurve.curveCategory.curveModel.spline;
         _this.displacementCurrentCurveControlPolygon = (_b = _this.curveShapeSpaceNavigator) === null || _b === void 0 ? void 0 : _b.navigationCurveModel.displacementCurrentCurveControlPolygon;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", " strategy for first and last CP clamped.");
         warning.logMessageToConsole();
@@ -46772,14 +47108,14 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         }
     };
     CurveConstraintClampedFirstAndLastControlPoint.prototype.setCurrentCurve = function (currentCurve) {
-        this.currentCurve = currentCurve.clone();
+        this._currentCurve = currentCurve.clone();
     };
     CurveConstraintClampedFirstAndLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
         if (this._curveShapeSpaceNavigator !== undefined && this.displacementCurrentCurveControlPolygon !== undefined) {
             var controlPoints = this._optimizedCurve.controlPoints;
             var nbControlPts = this.displacementCurrentCurveControlPolygon.length;
             this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
-            if (Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < TOL_LOCATION_CURVE_REFERENCE_POINTS) {
+            if (Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < exports.TOL_LOCATION_CURVE_REFERENCE_POINTS) {
                 this.displacementCurrentCurveControlPolygon[controlPoints.length - 1] = this.displacementCurrentCurveControlPolygon[0];
                 for (var _i = 0, controlPoints_5 = controlPoints; _i < controlPoints_5.length; _i++) {
                     var controlP = controlPoints_5[_i];
@@ -46790,7 +47126,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
             }
             else {
                 // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
-                this._optimizedCurve = this.currentCurve.clone();
+                this._optimizedCurve = this._currentCurve.clone();
                 this._constraintsNotSatisfied = true;
             }
         }
@@ -46801,26 +47137,50 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         var knots = this._optimizedCurve.getDistinctKnots();
         var refPoint1 = this._optimizedCurve.evaluate(knots[this._referencePtIndex]);
         var refPoint2 = this._optimizedCurve.evaluate(knots[this.shapeNavigableCurve.clampedPoints[1]]);
-        var displacement1 = refPoint1.substract(this.currentCurve.evaluate(knots[this._referencePtIndex]));
-        var displacement2 = refPoint2.substract(this.currentCurve.evaluate(knots[this.shapeNavigableCurve.clampedPoints[1]]));
-        var controlPoints = this._optimizedCurve.controlPoints;
+        var refDistance = this._currentCurve.evaluate(knots[this.shapeNavigableCurve.clampedPoints[1]]).distance(this._currentCurve.evaluate(knots[this._referencePtIndex]));
+        var distance = refPoint2.distance(refPoint1);
         if (this._curveShapeSpaceNavigator !== undefined) {
-            if (Math.abs(displacement1.substract(displacement2).norm()) < TOL_LOCATION_CURVE_REFERENCE_POINTS) {
-                var displacement = refPoint1.substract(this._curveShapeSpaceNavigator.navigationCurveModel.currentCurve.evaluate(knots[this._referencePtIndex]));
-                for (var _i = 0, controlPoints_6 = controlPoints; _i < controlPoints_6.length; _i++) {
-                    var controlP = controlPoints_6[_i];
-                    controlP.x -= displacement.x;
-                    controlP.y -= displacement.y;
-                }
-                this._optimizedCurve.controlPoints = controlPoints;
+            // if(Math.abs(displacement1.substract(displacement2).norm()) < TOL_LOCATION_CURVE_REFERENCE_POINTS) {
+            if (Math.abs(distance - refDistance) < exports.TOL_LOCATION_CURVE_REFERENCE_POINTS) {
+                this.applyRigidBodyDisplacement();
             }
             else {
                 // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
-                this._constraintsNotSatisfied = true;
-                this._optimizedCurve = this.currentCurve.clone();
+                var scaleFactor = refDistance / distance;
+                var scaledCurve = this._optimizedCurve.scale(scaleFactor);
+                this._optimizedCurve = scaledCurve.clone();
+                this.applyRigidBodyDisplacement();
+                // this.curveConstraints.slideConstraintAlongCurve(this._optimizedCurve.clone());
+                // this._constraintsNotSatisfied = true;
+                // this._optimizedCurve = this._currentCurve.clone();
             }
         }
         return this._optimizedCurve;
+    };
+    CurveConstraintClampedFirstAndLastControlPoint.prototype.applyRigidBodyDisplacement = function () {
+        var knots = this._optimizedCurve.getDistinctKnots();
+        var refPt1currentCurve = this._currentCurve.evaluate(knots[this._referencePtIndex]);
+        var refPt2currentCurve = this._currentCurve.evaluate(knots[this.shapeNavigableCurve.clampedPoints[1]]);
+        var pt2Pt1currentCurve = refPt2currentCurve.substract(refPt1currentCurve);
+        var refPt1optCurve = this._optimizedCurve.evaluate(knots[this._referencePtIndex]);
+        var refPt2optCurve = this._optimizedCurve.evaluate(knots[this.shapeNavigableCurve.clampedPoints[1]]);
+        var pt2Pt1optCurve = refPt2optCurve.substract(refPt1optCurve);
+        var displacement = refPt1optCurve.substract(refPt1currentCurve);
+        // use dot product to compute the angle because angle is very small and crossProduct can be less accurate
+        var angle = Math.acos(pt2Pt1currentCurve.dot(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
+        var signAngle = Math.asin(pt2Pt1currentCurve.crossPoduct(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
+        if (signAngle < 0.0)
+            angle = -angle;
+        var rotationMatrix = new SquareMatrix_1.SquareMatrix(2, [Math.cos(angle), Math.sin(angle), -Math.sin(angle), Math.cos(angle)]);
+        var controlPointsOptCrv = this._optimizedCurve.controlPoints;
+        var relocatedCtrlPts = [];
+        relocatedCtrlPts[0] = controlPointsOptCrv[0].substract(displacement);
+        for (var i = 1; i < controlPointsOptCrv.length; i++) {
+            var vertexLoc = controlPointsOptCrv[i].substract(controlPointsOptCrv[0]);
+            var vertexRot = Vector2d_1.toVector2d(rotationMatrix.multiplyByVector(vertexLoc.toArray()));
+            relocatedCtrlPts[i] = vertexRot.add(controlPointsOptCrv[0].substract(displacement));
+        }
+        this._optimizedCurve.controlPoints = relocatedCtrlPts;
     };
     CurveConstraintClampedFirstAndLastControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
         if (curveConstraints.firstControlPoint === CurveConstraints_1.ConstraintType.location
@@ -46857,9 +47217,11 @@ exports.CurveConstraintClampedFirstAndLastControlPoint = CurveConstraintClampedF
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurveConstraints = exports.CurveExtremity = exports.ConstraintType = void 0;
+exports.CurveConstraints = exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT = exports.CurveExtremity = exports.ConstraintType = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
+var ShapeNavigableCurve_1 = __webpack_require__(/*! ../shapeNavigableCurve/ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
+var BSpline_R1_to_R1_1 = __webpack_require__(/*! ../bsplines/BSpline_R1_to_R1 */ "./src/bsplines/BSpline_R1_to_R1.ts");
 var ConstraintType;
 (function (ConstraintType) {
     ConstraintType[ConstraintType["none"] = 0] = "none";
@@ -46872,6 +47234,7 @@ var CurveExtremity;
     CurveExtremity[CurveExtremity["first"] = 0] = "first";
     CurveExtremity[CurveExtremity["last"] = 1] = "last";
 })(CurveExtremity = exports.CurveExtremity || (exports.CurveExtremity = {}));
+exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT = 10;
 var CurveConstraints = /** @class */ (function () {
     // private _optimizedCurve: BSplineR1toR2Interface;
     function CurveConstraints(shapeNavigableCurve) {
@@ -46949,6 +47312,73 @@ var CurveConstraints = /** @class */ (function () {
     CurveConstraints.prototype.clearAll = function () {
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
+    };
+    CurveConstraints.prototype.slideConstraintAlongCurve = function (optimizedSpline) {
+        var indexPoint1 = this._shapeNavigableCurve.clampedPoints[0];
+        var indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
+        if (indexPoint1 === ShapeNavigableCurve_1.NO_CONSTRAINT || indexPoint2 === ShapeNavigableCurve_1.NO_CONSTRAINT) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "Configuration with only one clamped point: cannot be processed.");
+            error.logMessageToConsole();
+        }
+        else {
+            var spline = this._shapeNavigableCurve.curveCategory.curveModel.spline;
+            var knots = spline.getDistinctKnots();
+            var point1 = spline.evaluate(knots[indexPoint1]);
+            var point2 = spline.evaluate(knots[indexPoint2]);
+            var refDistance = point1.distance(point2);
+            var point1Opt = optimizedSpline.evaluate(knots[indexPoint1]);
+            var point2Opt = optimizedSpline.evaluate(knots[indexPoint2]);
+            var distance = point1Opt.distance(point2Opt);
+            var signVariation = distance - refDistance;
+            var sx = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(optimizedSpline.getControlPointsX(), optimizedSpline.knots);
+            var sxu = sx.derivative();
+            var sy = new BSpline_R1_to_R1_1.BSpline_R1_to_R1(optimizedSpline.getControlPointsY(), optimizedSpline.knots);
+            var syu = sy.derivative();
+            var newAbsc = knots[indexPoint2];
+            var iter = 0;
+            while (Math.abs(distance - refDistance) > CurveConstraintStrategy_1.TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+                var c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
+                var point2dx = sxu.evaluate(newAbsc);
+                var point2dy = syu.evaluate(newAbsc);
+                var a = Math.pow(point2dx, 2) + Math.pow(point2dy, 2);
+                var vectorP1P2 = point2Opt.substract(point1Opt);
+                var bprime = point2dx * vectorP1P2.x + point2dy * vectorP1P2.y;
+                var discriminant = Math.pow(bprime, 2) - a * c;
+                var deltaU1 = (-bprime + Math.sqrt(discriminant)) / a;
+                var deltaU2 = (-bprime - Math.sqrt(discriminant)) / a;
+                var solPoint1 = optimizedSpline.evaluate(knots[indexPoint2 + deltaU1]);
+                var solPoint2 = optimizedSpline.evaluate(knots[indexPoint2 + deltaU2]);
+                var distance1 = point1Opt.distance(solPoint1);
+                var distance2 = point1Opt.distance(solPoint2);
+                if ((distance - distance1) * signVariation > 0.0) {
+                    if ((distance - distance2) * signVariation < 0.0) {
+                        newAbsc += deltaU1;
+                    }
+                    else {
+                        if (Math.abs(distance1 - refDistance) > Math.abs(distance2 - refDistance)) {
+                            newAbsc += deltaU2;
+                        }
+                        else {
+                            newAbsc += deltaU1;
+                        }
+                    }
+                }
+                else {
+                    if ((distance - distance2) * signVariation < 0.0) {
+                        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "No valid displacement solution to slide the constraint.");
+                        error.logMessageToConsole();
+                    }
+                    else {
+                        newAbsc += deltaU2;
+                    }
+                }
+                distance = point1Opt.distance(optimizedSpline.evaluate(newAbsc));
+                point2Opt = optimizedSpline.evaluate(newAbsc);
+                iter++;
+            }
+            if (iter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+            }
+        }
     };
     return CurveConstraints;
 }());
@@ -47978,6 +48408,7 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     };
     OCurveNavigationThroughSimplerShapeSpaces.prototype.navigate = function (selectedControlPoint, x, y) {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -48047,6 +48478,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     };
     OCurveNavigationStrictlyInsideShapeSpace.prototype.navigate = function (selectedControlPoint, x, y) {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -48229,6 +48661,7 @@ var CCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     };
     CCurveNavigationThroughSimplerShapeSpaces.prototype.navigate = function (selectedControlPoint, x, y) {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -48296,6 +48729,7 @@ var CCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
         this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     };
     CCurveNavigationStrictlyInsideShapeSpace.prototype.navigate = function (selectedControlPoint, x, y) {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
@@ -49712,6 +50146,26 @@ var SquareMatrix = /** @class */ (function () {
         }
     };
     /**
+     * Multiply a matrix by a vector
+     * @param v A vector the same size the matrix
+     * @return a vector
+     */
+    SquareMatrix.prototype.multiplyByVector = function (v) {
+        if (this.shape[0] !== v.length) {
+            throw new Error("SquareMatrix multiply a vector of incorrect length");
+        }
+        var result = [];
+        var n = this.shape[0];
+        for (var i = 0; i < n; i += 1) {
+            var temp = 0;
+            for (var j = 0; j < n; j += 1) {
+                temp += this.get(i, j) * v[j];
+            }
+            result.push(temp);
+        }
+        return result;
+    };
+    /**
      * Multiply two matrices
      * @param that A square or a symmetric matrix
      * @return a square matrix
@@ -49995,7 +50449,8 @@ main();
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.scaleY = exports.scaleX = exports.scale = exports.Vector2d = void 0;
+exports.scaleY = exports.scaleX = exports.scale = exports.toVector2d = exports.Vector2d = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 /**
  * A two dimensional vector
  */
@@ -50003,45 +50458,85 @@ var Vector2d = /** @class */ (function () {
     function Vector2d(x, y) {
         if (x === void 0) { x = 0; }
         if (y === void 0) { y = 0; }
-        this.x = x;
-        this.y = y;
+        this._x = x;
+        this._y = y;
     }
+    Object.defineProperty(Vector2d.prototype, "x", {
+        get: function () {
+            return this._x;
+        },
+        set: function (x) {
+            this._x = x;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Vector2d.prototype, "y", {
+        get: function () {
+            return this._y;
+        },
+        set: function (y) {
+            this._y = y;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Vector2d.prototype.negative = function () {
-        return new Vector2d(-this.x, -this.y);
+        return new Vector2d(-this._x, -this._y);
     };
     Vector2d.prototype.add = function (v) {
-        return new Vector2d(this.x + v.x, this.y + v.y);
+        return new Vector2d(this._x + v.x, this._y + v.y);
     };
     Vector2d.prototype.multiply = function (value) {
-        return new Vector2d(this.x * value, this.y * value);
+        return new Vector2d(this._x * value, this._y * value);
     };
     Vector2d.prototype.substract = function (v) {
-        return new Vector2d(this.x - v.x, this.y - v.y);
+        return new Vector2d(this._x - v.x, this._y - v.y);
     };
     Vector2d.prototype.rotate90degrees = function () {
-        return new Vector2d(-this.y, this.x);
+        return new Vector2d(-this._y, this._x);
     };
     Vector2d.prototype.normalize = function () {
-        var norm = Math.sqrt(this.x * this.x + this.y * this.y);
-        var x = this.x / norm;
-        var y = this.y / norm;
+        var norm = Math.sqrt(this._x * this._x + this._y * this._y);
+        var x = this._x / norm;
+        var y = this._y / norm;
         return new Vector2d(x, y);
     };
     Vector2d.prototype.dot = function (v) {
-        return this.x * v.x + this.y * v.y;
+        return this._x * v.x + this._y * v.y;
+    };
+    Vector2d.prototype.crossPoduct = function (v) {
+        return this._x * v.y - this._y * v.x;
     };
     Vector2d.prototype.distance = function (v) {
-        return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+        return Math.sqrt(Math.pow(this._x - v.x, 2) + Math.pow(this._y - v.y, 2));
     };
     Vector2d.prototype.norm = function () {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
     };
     Vector2d.prototype.clone = function () {
-        return new Vector2d(this.x, this.y);
+        return new Vector2d(this._x, this._y);
+    };
+    Vector2d.prototype.toArray = function () {
+        var result = [this._x, this._y];
+        return result;
     };
     return Vector2d;
 }());
 exports.Vector2d = Vector2d;
+function toVector2d(v) {
+    var result = new Vector2d;
+    if (v.length !== 2) {
+        var error = new ErrorLoging_1.ErrorLog("function", "toVector2d", "Incorrect length of array to convert to Vector2d object.");
+        error.logMessageToConsole();
+    }
+    else {
+        result.x = v[0];
+        result.y = v[1];
+    }
+    return result;
+}
+exports.toVector2d = toVector2d;
 function scale(factor, v) {
     var result = [];
     v.forEach(function (element) {
@@ -52642,6 +53137,27 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             CPs: controlPolygons
         };
     };
+    BSplineR1toR2.prototype.scale = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(element.multiply(factor));
+        });
+        return new BSplineR1toR2(cp, this.knots.slice());
+    };
+    BSplineR1toR2.prototype.scaleY = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector2d_1.Vector2d(element.x, element.y * factor));
+        });
+        return new BSplineR1toR2(cp, this.knots.slice());
+    };
+    BSplineR1toR2.prototype.scaleX = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector2d_1.Vector2d(element.x * factor, element.y));
+        });
+        return new BSplineR1toR2(cp, this.knots.slice());
+    };
     // replaced by getDistinctKnots in AbstractBSplineR1toR2
     // distinctKnots(): number[] {
     //     let result = [this.knots[0]];
@@ -53291,6 +53807,27 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             this._controlPoints = newControlPoints;
             this._knots = newKnots;
         }
+    };
+    PeriodicBSplineR1toR2.prototype.scale = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(element.multiply(factor));
+        });
+        return new PeriodicBSplineR1toR2(cp, this.knots.slice());
+    };
+    PeriodicBSplineR1toR2.prototype.scaleY = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector2d_1.Vector2d(element.x, element.y * factor));
+        });
+        return new PeriodicBSplineR1toR2(cp, this.knots.slice());
+    };
+    PeriodicBSplineR1toR2.prototype.scaleX = function (factor) {
+        var cp = [];
+        this._controlPoints.forEach(function (element) {
+            cp.push(new Vector2d_1.Vector2d(element.x * factor, element.y));
+        });
+        return new PeriodicBSplineR1toR2(cp, this.knots.slice());
     };
     return PeriodicBSplineR1toR2;
 }(AbstractBSplineR1toR2_1.AbstractBSplineR1toR2));
@@ -59123,8 +59660,8 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         this.Z = 0;
         this.THICKNESS = 0.003;
         this.RED_COLOR = 0;
-        this.GREEN_COLOR = 0;
-        this.BLUE_COLOR = 0.9;
+        this.GREEN_COLOR = 0.6;
+        this.BLUE_COLOR = 0;
         this.ALPHA = 1;
         this.vertexBuffer = null;
         this.indexBuffer = null;
@@ -59375,6 +59912,146 @@ var InflectionsView = /** @class */ (function (_super) {
     return InflectionsView;
 }(AbstractPointView_1.AbstractPointView));
 exports.InflectionsView = InflectionsView;
+
+
+/***/ }),
+
+/***/ "./src/views/PhantomCurveView.ts":
+/*!***************************************!*\
+  !*** ./src/views/PhantomCurveView.ts ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PhantomCurveView = void 0;
+var PolylineShader_1 = __webpack_require__(/*! ../2DgraphicsItems/PolylineShader */ "./src/2DgraphicsItems/PolylineShader.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var PhantomCurveView = /** @class */ (function () {
+    function PhantomCurveView(gl, spline) {
+        this.POINT_SEQUENCE_SIZE = 1000;
+        this.THICKNESS = 0.002;
+        this.RED_COLOR = 10 / 255;
+        this.GREEN_COLOR = 150 / 255;
+        this.BLUE_COLOR = 10 / 255;
+        this.ALPHA = 1;
+        this.Z = 0;
+        this.pointSequenceOnSpline = [];
+        this.vertexBuffer = null;
+        this.vertices = new Float32Array(this.POINT_SEQUENCE_SIZE * 6);
+        this.gl = gl;
+        this.polylineShader = new PolylineShader_1.PolylineShader(this.gl);
+        this.spline = spline;
+        this.a_Position = -1;
+        this.fColorLocation = -1;
+        // Write the positions of vertices to a vertex shader
+        var check = this.initVertexBuffers();
+        if (check < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
+            warning.logMessageToConsole();
+        }
+    }
+    PhantomCurveView.prototype.updatePointSequenceOnSpline = function () {
+        var start = this.spline.knots[this.spline.degree];
+        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+        this.pointSequenceOnSpline = [];
+        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
+            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+            this.pointSequenceOnSpline.push(point);
+        }
+    };
+    PhantomCurveView.prototype.updateVertices = function () {
+        var maxLength = this.THICKNESS * 3;
+        var tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize();
+        var normal = tangent.rotate90degrees();
+        var miter, length;
+        var triangleStripVertices = [];
+        triangleStripVertices.push(this.pointSequenceOnSpline[0].add(normal.multiply(this.THICKNESS)));
+        triangleStripVertices.push(this.pointSequenceOnSpline[0].substract(normal.multiply(this.THICKNESS)));
+        for (var i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
+            normal = (this.pointSequenceOnSpline[i].substract(this.pointSequenceOnSpline[i - 1])).normalize().rotate90degrees();
+            tangent = (this.pointSequenceOnSpline[i + 1].substract(this.pointSequenceOnSpline[i - 1])).normalize();
+            miter = tangent.rotate90degrees();
+            length = this.THICKNESS / (miter.dot(normal));
+            if (length > maxLength) {
+                length = maxLength;
+            }
+            triangleStripVertices.push(this.pointSequenceOnSpline[i].add(miter.multiply(length)));
+            triangleStripVertices.push(this.pointSequenceOnSpline[i].substract(miter.multiply(length)));
+        }
+        tangent = this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 2]).normalize();
+        normal = tangent.rotate90degrees();
+        triangleStripVertices.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(this.THICKNESS)));
+        triangleStripVertices.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(this.THICKNESS)));
+        for (var i = 0; i < triangleStripVertices.length; i += 1) {
+            this.vertices[3 * i] = triangleStripVertices[i].x;
+            this.vertices[3 * i + 1] = triangleStripVertices[i].y;
+            this.vertices[3 * i + 2] = this.Z;
+        }
+    };
+    PhantomCurveView.prototype.update = function (spline) {
+        this.spline = spline;
+        this.updatePointSequenceOnSpline();
+        this.updateVertices();
+        this.updateBuffers();
+    };
+    PhantomCurveView.prototype.initAttribLocation = function () {
+        this.a_Position = this.gl.getAttribLocation(this.polylineShader.program, 'a_Position');
+        this.fColorLocation = this.gl.getUniformLocation(this.polylineShader.program, "fColor");
+        if (this.a_Position < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            warning.logMessageToConsole();
+        }
+    };
+    PhantomCurveView.prototype.assignVertexAttrib = function () {
+        // Assign the buffer object to a_Position variable
+        this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, 0, 0);
+        // Enable the assignment to a_Position variable
+        this.gl.enableVertexAttribArray(this.a_Position);
+    };
+    PhantomCurveView.prototype.reset = function (spline) {
+    };
+    PhantomCurveView.prototype.updateBuffers = function () {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    };
+    PhantomCurveView.prototype.renderFrame = function () {
+        this.initAttribLocation();
+        this.gl.useProgram(this.polylineShader.program);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.assignVertexAttrib();
+        this.gl.uniform4f(this.fColorLocation, this.RED_COLOR, this.GREEN_COLOR, this.BLUE_COLOR, this.ALPHA);
+        this.polylineShader.renderFrame(this.vertices.length / 3);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.useProgram(null);
+    };
+    PhantomCurveView.prototype.initVertexBuffers = function () {
+        // Create a buffer object
+        this.vertexBuffer = this.gl.createBuffer();
+        if (!this.vertexBuffer) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            warning.logMessageToConsole();
+            return -1;
+        }
+        this.updatePointSequenceOnSpline();
+        this.updateVertices();
+        // Bind the buffer objects to targets
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.initAttribLocation();
+        this.assignVertexAttrib();
+        // Unbind the buffer object
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        return 1;
+    };
+    return PhantomCurveView;
+}());
+exports.PhantomCurveView = PhantomCurveView;
 
 
 /***/ }),

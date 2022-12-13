@@ -10,8 +10,8 @@ export class HighlightedControlPolygonView implements IObserver<BSplineR1toR2Int
     private readonly Z = 0;
     private readonly THICKNESS = 0.003;
     private readonly RED_COLOR = 0;
-    private readonly GREEN_COLOR = 0;
-    private readonly BLUE_COLOR = 0.9;
+    private readonly GREEN_COLOR = 0.6;
+    private readonly BLUE_COLOR = 0;
     private readonly ALPHA = 1;
     private readonly lineSegmentShader: LineSegmentShader;
     private readonly gl: WebGLRenderingContext;

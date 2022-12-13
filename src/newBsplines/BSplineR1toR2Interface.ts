@@ -32,4 +32,10 @@ export interface BSplineR1toR2Interface {
 
     elevateDegree(times: number): void;
 
+    scale(factor: number): BSplineR1toR2Interface;
+
+    scaleX(factor: number): BSplineR1toR2Interface;
+
+    scaleY(factor: number): BSplineR1toR2Interface;
+
 }

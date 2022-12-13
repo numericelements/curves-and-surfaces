@@ -32,7 +32,7 @@ export class SquareMatrix implements SquareMatrixInterface {
     /**
      * Returns the shape of the matrix : [number of rows, number of columns]
      */
-    get shape() {
+    get shape(): number[] {
         return this._shape
     }
 
@@ -42,7 +42,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param row The row index
      * @param column The column index
      */
-    private dataIndex(row: number, column: number) {
+    private dataIndex(row: number, column: number): number {
         let n = row * this._shape[1] + column;
         return n;
     }
@@ -54,7 +54,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @return Scalar
      * @throws If an index is out of range
      */
-    get(row: number, column: number) {
+    get(row: number, column: number): number {
         this.checkRowRange(row)
         this.checkColumnRange(column)
         return this.data[this.dataIndex(row, column)];
@@ -67,7 +67,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param value The new value
      * @throws If an index is out of range
      */
-    set(row: number, column: number, value: number) {
+    set(row: number, column: number, value: number): void {
         this.checkRowRange(row)
         this.checkColumnRange(column)
         this.data[this.dataIndex(row, column)] = value;
@@ -80,7 +80,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param divisor The divisor value
      * @throws If an index is out of range
      */
-    divideAt(row: number, column: number, divisor: number) {
+    divideAt(row: number, column: number, divisor: number): void {
         this.checkRowRange(row)
         this.checkColumnRange(column) 
         this.data[this.dataIndex(row, column)] /= divisor 
@@ -93,7 +93,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param divisor The divisor value
      * @throws If an index is out of range
      */
-    substractAt(row: number, column: number, subtrahend: number) {
+    substractAt(row: number, column: number, subtrahend: number): void {
         this.checkRowRange(row)
         this.checkColumnRange(column) 
         this.data[this.dataIndex(row, column)] -= subtrahend 
@@ -104,7 +104,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param index The column or the row index
      * @throws If an index is out of range
      */
-    checkRowRange(index: number) {
+    checkRowRange(index: number): void {
         if (index < 0  || index >= this.shape[0]) {
             throw new Error("SymmetricMatrix index is out of range");
         }
@@ -115,10 +115,31 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param index The column or the row index
      * @throws If an index is out of range
      */
-    checkColumnRange(index: number) {
+    checkColumnRange(index: number): void {
         if (index < 0  || index >= this.shape[1]) {
             throw new Error("SymmetricMatrix index is out of range");
         }
+    }
+
+    /**
+     * Multiply a matrix by a vector
+     * @param v A vector the same size the matrix
+     * @return a vector
+     */
+    multiplyByVector(v: number[]): number[] {
+        if (this.shape[0] !== v.length) {
+            throw new Error("SquareMatrix multiply a vector of incorrect length");
+        }
+        let result = []
+        const n = this.shape[0]
+        for (let i = 0; i < n; i += 1) {
+            let temp = 0;
+            for (let j = 0; j < n; j += 1) {
+                temp += this.get(i, j) * v[j];
+            }
+            result.push(temp);
+        }
+        return result;
     }
 
     /**
@@ -126,7 +147,7 @@ export class SquareMatrix implements SquareMatrixInterface {
      * @param that A square or a symmetric matrix
      * @return a square matrix
      */
-    multiplyByMatrix(that: SquareMatrixInterface) {
+    multiplyByMatrix(that: SquareMatrixInterface): SquareMatrix {
         if (this.shape[1] !== that.shape[0]) {
             throw new Error("Size mismatch in matrix multiplication")
         }

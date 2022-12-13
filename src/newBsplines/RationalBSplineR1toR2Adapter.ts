@@ -10,6 +10,7 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
 
 
     private rationalBSplineR1toR2: RationalBSplineR1toR2;
+    protected _controlPoints: Vector3d[];
 
     /**
      * Create a B-Spline
@@ -17,8 +18,10 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
      * @param knots The knot vector
      */
     constructor(controlPoints: Vector3d[] = [new Vector3d(0, 0, 1)], knots: number[] = [0, 1]) {
-        this.rationalBSplineR1toR2 = new RationalBSplineR1toR2(controlPoints, knots);
+        this._controlPoints = deepCopyControlPoints(controlPoints);
+        this.rationalBSplineR1toR2 = new RationalBSplineR1toR2(this._controlPoints, knots);
     }
+
     getControlPointsX(): number[] {
         let result: number[] = [];
         for (let cp of this.rationalBSplineR1toR2.controlPoints) {
@@ -150,4 +153,39 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         error.logMessageToConsole();
     }
 
+    scale(factor: number) {
+        let cp: Array<Vector3d> = []
+        // need to double check this transformation before using this method
+        this._controlPoints.forEach(element => {
+            cp.push(element.multiply(factor))
+        });
+        return new RationalBSplineR1toR2Adapter(cp, this.knots.slice())
+    }
+
+    scaleY(factor: number) {
+        let cp: Array<Vector3d> = []
+        // need to double check the component element.z before using this method
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector3d(element.x, element.y * factor, element.z))
+        });
+        return new RationalBSplineR1toR2Adapter(cp, this.knots.slice())
+    }
+
+    scaleX(factor: number) {
+        let cp: Array<Vector3d> = []
+        // need to double check the component element.z before using this method
+        this._controlPoints.forEach(element => {
+            cp.push(new Vector3d(element.x * factor, element.y, element.z))
+        });
+        return new RationalBSplineR1toR2Adapter(cp, this.knots.slice())
+    }
+
+}
+
+export function deepCopyControlPoints(controlPoints: Vector3d[]): Vector3d[] {
+    let result: Vector3d[] = [];
+    for (let cp of controlPoints) {
+        result.push(cp.clone());
+    }
+    return result;
 }

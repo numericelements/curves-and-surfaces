@@ -3,6 +3,7 @@ import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShap
 import { CCurveNavigationStrictlyInsideShapeSpace, CCurveNavigationThroughSimplerShapeSpaces, CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { SceneInteractionStrategy } from "../designPatterns/SceneInteractionStrategy";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
@@ -336,7 +337,6 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
         const y = ndcY;
         console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
         if(this.selectedControlPoint != null) {
-        // if(this.selectedControlPoint != null && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
             this._curveSceneController.controlPointsView.setSelected(null);
             if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
@@ -348,10 +348,13 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
-                if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied)
+                if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
                     console.log("Constraints not satisfied - must change interaction Strategy");
-                this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
-                this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
+                } else {
+                    this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
+                    this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                }
             // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
             // || this.allowShapeSpaceChange === true) {
                 /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
@@ -391,13 +394,15 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
 export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied extends CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve {
 
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+    private readonly lastValidCurve: BSplineR1toR2Interface;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
         this.eventMgmtAtExtremities = this.shapeNavigableCurve.eventMgmtAtExtremities;
-        this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
-        this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
-        // this.curveControl = this._curveSceneController.curveControl;
+        this.lastValidCurve = this.curveModel.spline.clone();
+        this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone());
+        this._curveSceneController.highlightedControlPolygonView.update(this.lastValidCurve);
+        this._curveSceneController.phantomCurveView.update(this.lastValidCurve);
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
@@ -405,7 +410,6 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveC
         const y = ndcY;
         console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
         if(this.selectedControlPoint != null) {
-        // if(this.selectedControlPoint != null && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
             this._curveSceneController.controlPointsView.setSelected(null);
             if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
@@ -418,16 +422,9 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveC
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
                 if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied)
-                    console.log("Constraints not satisfied - must change interaction Strategy");
+                    console.log("Constraints not satisfied - new interaction Strategy");
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
-            // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
-            // || this.allowShapeSpaceChange === true) {
-                /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
-                    if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-
-                    }
-                }*/
             }
             this.curveModel.notifyObservers();
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
