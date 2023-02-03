@@ -1,3 +1,4 @@
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
@@ -50,6 +51,17 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
 
     }
 
-
+    evaluateOutsideRefInterval(u: number): number {
+        let result = 0.0;
+        const knots = this.distinctKnots().slice();
+        if(u >= knots[0] && u <= knots[knots.length - 1]) {
+            const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
+            error.logMessageToConsole();
+        } else {
+            const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Method not implemented yet.");
+            error.logMessageToConsole();
+        }
+        return result;
+    }
 
 }

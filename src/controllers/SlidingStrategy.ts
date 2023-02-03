@@ -5,8 +5,6 @@ import { CurveModel } from "../newModels/CurveModel";
 import { Vector2d } from "../mathVector/Vector2d";
 import { CurveSceneController } from "./CurveSceneController"
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
-import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ActiveLocationControl, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";

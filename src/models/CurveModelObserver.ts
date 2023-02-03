@@ -349,7 +349,6 @@ export class CurveModelObserverInFileEventListener extends CurveModelObserver {
 
     reset(message: CurveModelInterface): void {
         if(message instanceof CurveModel) {
-            const curveModel = new CurveModel();
             console.log("something to do there with CurveModel in FileEventListener")
         } else if(message instanceof ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in FileEventListener")

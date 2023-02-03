@@ -3,6 +3,7 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1, splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 
 /**
@@ -147,5 +148,88 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
 
     }
 
+    evaluateOutsideRefInterval(u: number): number {
+        let result;
+        const spline = this.clone();
+        const knots = spline.distinctKnots().slice();
+        if(u >= knots[0] && u <= knots[knots.length - 1]) {
+            result = 0.0;
+            const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
+            error.logMessageToConsole();
+        } else {
+            const extendedSpline = spline.extend(u);
+            if(u < knots[0]) {
+                result = extendedSpline.evaluate(0.0);
+            } else {
+                result = extendedSpline.evaluate(knots[knots.length - 1]);
+            }
+        }
+        return result;
+    }
+
+    extend(uAbsc: number): BSplineR1toR1 {
+        let result = new BSplineR1toR1();
+        const knots = this.distinctKnots().slice();
+        if(uAbsc >= knots[0] && uAbsc <= knots[knots.length - 1]) {
+            const error = new ErrorLog(this.constructor.name, "extend", "Parameter value for extension is not outside the knot interval.");
+            error.logMessageToConsole();
+        } else {
+            let tempCurve = this.clone();
+            let reversed = false;
+            let u;
+            if(uAbsc > knots[knots.length - 1]) {
+                tempCurve = this.revertCurve();
+                u = knots[knots.length - 1] - uAbsc;
+                reversed = true;
+            } else {
+                u = uAbsc;
+            }
+            let tempCtrlPoly = tempCurve._controlPoints;
+            let tempKnots = tempCurve._knots;
+            let vertices: Array<Array<number>> = [];
+            for(let i= 1; i < this._degree + 1; i++) {
+                let controlPolygon = [];
+                controlPolygon.push(tempCtrlPoly[i]);
+                const u1 = (tempKnots[this._degree + i]  - u) / (tempKnots[this._degree + i] - tempKnots[0]);
+                const u2 = (u  - tempKnots[0]) / (tempKnots[this._degree + i] - tempKnots[0]);
+                const vertex = tempCtrlPoly[i - 1] * u1 + tempCtrlPoly[i] * u2;
+                controlPolygon.splice(0, 0, vertex);
+                for(let j = 1; j < i; j++) {
+                    const u1 = (tempKnots[this._degree + i - j]  - u) / (tempKnots[this._degree + i - j] - tempKnots[0]);
+                    const u2 = (u  - tempKnots[0]) / (tempKnots[this._degree + i - j] - tempKnots[0]);
+                    const vertex = vertices[i - 2][vertices[i - 2].length - 1 - j] * u1 + controlPolygon[0] * u2;
+                    controlPolygon.splice(0, 0, vertex);
+                }
+                vertices.push(controlPolygon);
+            }
+            for(let k = 0; k < this._degree + 1; k++) {
+                tempCtrlPoly[k] = vertices[vertices.length - 1][k];
+                tempKnots[k] = u;
+            }
+            // const intervalSpan = tempKnots[tempKnots.length - 1] - tempKnots[0];
+            const offset = tempKnots[0];
+            for(let i = 0; i < tempKnots.length; i++) {
+                // tempKnots[i] = tempKnots[tempKnots.length - 1] - (tempKnots[tempKnots.length - 1] - tempKnots[i]) / intervalSpan;
+                tempKnots[i] = tempKnots[i] - offset;
+            }
+            result = new BSplineR1toR1(tempCtrlPoly, tempKnots);
+            if(reversed) result = result.revertCurve();
+        }
+        return result;
+    }
+
+    revertCurve(): BSplineR1toR1 {
+        let vertices = [];
+        for(let i = 0; i < this._controlPoints.length; i++) {
+            vertices.push(this._controlPoints[this._controlPoints.length - 1 -i]);
+        }
+        let revertedKnotSequence: number[] = [];
+        const intervalSpan = this._knots[this._knots.length - 1] - this._knots[0];
+        for(let j = 0; j < this._knots.length; j++) {
+            revertedKnotSequence.push(intervalSpan - this._knots[this._knots.length - 1 - j]);
+        }
+        let result = new BSplineR1toR1(vertices, revertedKnotSequence);
+        return result;
+    }
 
 }

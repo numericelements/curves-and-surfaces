@@ -1,7 +1,6 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import {RoundDotSolidShader} from "../2DgraphicsItems/RoundDotSolidShader"
-import { IObserver } from "../designPatterns/Observer";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 

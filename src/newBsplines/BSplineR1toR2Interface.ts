@@ -12,6 +12,8 @@ export interface BSplineR1toR2Interface {
 
     evaluate(u: number): Vector2d;
 
+    evaluateOutsideRefInterval(u: number): Vector2d;
+
     clone(): BSplineR1toR2Interface;
 
     optimizerStep(step: number[]): void;
@@ -37,5 +39,7 @@ export interface BSplineR1toR2Interface {
     scaleX(factor: number): BSplineR1toR2Interface;
 
     scaleY(factor: number): BSplineR1toR2Interface;
+
+    degreeIncrement(): BSplineR1toR2Interface;
 
 }

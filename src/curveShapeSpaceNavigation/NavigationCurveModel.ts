@@ -171,7 +171,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this.currentControlPolygon = this.currentCurve.controlPoints;
         this._selectedControlPoint = undefined;
         this.locationSelectedCP = new Vector2d(0, 0);
-        this._targetCurve = this.curveModel.spline.clone();
+        this._targetCurve = this.curveModel.spline;
         this._optimizedCurve = this._currentCurve.clone();
         this.currentControlPolygon.forEach(() => this.displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
 
@@ -229,7 +229,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     // }
 
     set optimizedCurve(aBSpline: BSplineR1toR2) {
-        this._optimizedCurve = aBSpline;
+        this._optimizedCurve = aBSpline.clone();
     }
 
     // set curveConstraintStrategy(curveConstraintStrategy: CurveConstraintInterface) {
@@ -237,7 +237,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     // }
 
     set currentCurve(curve: BSplineR1toR2) {
-        this._currentCurve = curve;
+        this._currentCurve = curve.clone();
     }
 
     // get navigationParams(): ShapeSpaceDiffEventsStructure {
@@ -270,15 +270,15 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     // }
 
     get currentCurve(): BSplineR1toR2 {
-        return this._currentCurve;
+        return this._currentCurve.clone();
     }
 
     get targetCurve(): BSplineR1toR2 {
-        return this._targetCurve;
+        return this._targetCurve.clone();
     }
 
     get optimizedCurve(): BSplineR1toR2 {
-        return this._optimizedCurve;
+        return this._optimizedCurve.clone();
     }
 
     get displacementCurrentCurveControlPolygon(): Vector2d[] {
@@ -295,9 +295,9 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     }
 
     navigateSpace(selectedControlPoint: number, x: number, y: number): void {
-        let message = new WarningLog(this.constructor.name, "navigateSpace", this.navigationState.constructor.name + " "
-        + this._shapeSpaceDiffEventsConfigurator.constructor.name + " ");
-        message.logMessageToConsole();
+        // const message = new WarningLog(this.constructor.name, "navigateSpace", this.navigationState.constructor.name + " "
+        // + this._shapeSpaceDiffEventsConfigurator.constructor.name + " ");
+        // message.logMessageToConsole();
         this._selectedControlPoint = selectedControlPoint;
         this.navigationState.navigate(selectedControlPoint, x, y);
     }
@@ -311,7 +311,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     updateCurrentCurve(newSelectedControlPoint: number, newDispSelctdCP: Vector2d): void {
         //this.curveModel = newCurve;
         //this._currentCurve = newCurve.spline.clone();
-        this.currentControlPolygon = this._currentCurve.controlPoints;
+        this.currentControlPolygon = this._currentCurve.controlPoints.slice();
         this._selectedControlPoint = newSelectedControlPoint;
         this.locationSelectedCP = newDispSelctdCP;
     }
@@ -430,10 +430,10 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
             this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
 
         this._currentCurve = this.curveModel.spline;
-        this.currentControlPolygon = this.currentCurve.controlPoints;
+        this.currentControlPolygon = this.currentCurve.controlPoints.slice();
         this._selectedControlPoint = undefined;
         this.locationSelectedCP = new Vector2d(0, 0);
-        this._targetCurve = this.curveModel.spline.clone();
+        this._targetCurve = this.curveModel.spline;
         this._optimizedCurve = this._currentCurve.clone();
         this.currentControlPolygon.forEach(() => this._displacementCurrentCurveControlPolygon.push(new Vector2d(0.0, 0.0)))
         this._shapeSpaceDescriptor = new CurveShapeSpaceDescriptor(this._currentCurve);
@@ -453,15 +453,15 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
 
 
     get currentCurve(): PeriodicBSplineR1toR2 {
-        return this._currentCurve;
+        return this._currentCurve.clone();
     }
 
     get targetCurve(): PeriodicBSplineR1toR2 {
-        return this._targetCurve;
+        return this._targetCurve.clone();
     }
 
     get optimizedCurve(): PeriodicBSplineR1toR2 {
-        return this._optimizedCurve;
+        return this._optimizedCurve.clone();
     }
 
     get optimizationProblemParam(): OptimizationProblemCtrlParameters {
@@ -490,11 +490,11 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     }
 
     set currentCurve(curve: PeriodicBSplineR1toR2) {
-        this._currentCurve = curve;
+        this._currentCurve = curve.clone();
     }
 
     set optimizedCurve(aBSpline: PeriodicBSplineR1toR2) {
-        this._optimizedCurve = aBSpline;
+        this._optimizedCurve = aBSpline.clone();
     }
 
     set optimizationProblem(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
@@ -548,7 +548,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     updateCurrentCurve(newSelectedControlPoint: number, newDispSelctdCP: Vector2d): void {
         //this.curveModel = newCurve;
         //this._currentCurve = newCurve.spline.clone();
-        this.currentControlPolygon = this._currentCurve.controlPoints;
+        this.currentControlPolygon = this._currentCurve.controlPoints.slice();
         this._selectedControlPoint = newSelectedControlPoint;
         this.locationSelectedCP = newDispSelctdCP;
     }

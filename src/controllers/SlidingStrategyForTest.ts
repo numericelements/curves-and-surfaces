@@ -2,10 +2,6 @@ import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../newModels/CurveModel";
-import { Vector_2d } from "../mathematics/Vector_2d";
-import { BSpline_R1_to_R2_DifferentialProperties } from "../bsplines/BSpline_R1_to_R2_DifferentialProperties";
-import { BSpline_R1_to_R2 } from "../bsplines/BSpline_R1_to_R2"
-import { findSpan } from "../bsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
 
 

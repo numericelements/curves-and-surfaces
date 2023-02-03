@@ -1,3 +1,4 @@
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
@@ -139,6 +140,89 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
         this.controlPoints = newSpline.controlPoints;
         this.knots = newSpline.knots;
         this._degree = newSpline.degree;
+    }
+
+    generateKnotSequenceOfBSplineR1toR2(): number[] {
+        const knotSequence = this._knots;
+        const distinctKnots = this.getDistinctKnots();
+        const knotMultiplicity: number[] = [];
+        let i = this._knots.length - 1;
+        while(i > 0) {
+            const multiplicity = this.knotMultiplicity(i);
+            knotMultiplicity.splice(0, 0, multiplicity);
+            i = i - multiplicity;
+        }
+        if(knotMultiplicity.length !== distinctKnots.length) {
+            const error = new ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "inconsistent set of knot multiplicities compared to the disctinct knot values.");
+            error.logMessageToConsole();
+        } else if(knotMultiplicity[0] !== knotMultiplicity[knotMultiplicity.length - 1]) {
+            const error = new ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "knot multiplicities at sequence extremities differ. Cannot generate the knot sequence of the corresponding open curve.");
+            error.logMessageToConsole();
+        }
+        const knotToAddAtOrigin: number[] = [];
+        for(let j = 0; j < (this._degree - knotMultiplicity[0] + 2); j++) {
+            knotToAddAtOrigin.push(knotSequence[0] + (knotSequence[knotSequence.length - 1 - this._degree - j] - knotSequence[knotSequence.length - 1]));
+        }
+        const knotToAddAtExtremity: number[] = [];
+        for(let j = 0; j < (this._degree - knotMultiplicity[knotMultiplicity.length - 1] + 2); j++) {
+            knotToAddAtExtremity.push(knotSequence[knotSequence.length - 1] + (knotSequence[j + 1] - knotSequence[0]));
+        }
+        let result =  knotToAddAtOrigin.concat(knotSequence).concat(knotToAddAtExtremity);
+        return result;
+    }
+
+    generateKnotSequenceOfPeriodicBSplineR1toR2(bSplineDegreeUp: BSplineR1toR2): number[] {
+        let knotSequenceDegreeUp = bSplineDegreeUp.knots;
+        while(knotSequenceDegreeUp[0] !== this._knots[0]) {
+            knotSequenceDegreeUp.splice(0, 1);
+        }
+        while(knotSequenceDegreeUp[knotSequenceDegreeUp.length - 1] !== this._knots[this._knots.length - 1]) {
+            knotSequenceDegreeUp.splice((knotSequenceDegreeUp.length - 1), 1);
+        }
+        return knotSequenceDegreeUp;
+    }
+
+    generateControlPolygonOfBSplineR1toR2(): Vector2d[] {
+        let result: Vector2d[] = [];
+        const knotMultiplicity: number[] = [];
+        let i = this._knots.length - 1;
+        while(i > 0) {
+            const multiplicity = this.knotMultiplicity(i);
+            knotMultiplicity.splice(0, 0, multiplicity);
+            i = i - multiplicity;
+        }
+        if(knotMultiplicity[0] === (this._degree + 1)) {
+            result = this._controlPoints;
+        } else {
+            const controlPtsToAddAtOrigin: Vector2d[] = [];
+            for(let j = 0; j < (this._degree - knotMultiplicity[0] + 2); j++) {
+                controlPtsToAddAtOrigin.push(this._controlPoints[this._controlPoints.length - 1 - j]);
+            }
+            result = controlPtsToAddAtOrigin.concat(this._controlPoints);
+        }
+        return result;
+    }
+
+    generateControlPolygonOfPeriodicBSplineR1toR2(bSplineDegreeUp: BSplineR1toR2): Vector2d[] {
+        let controlPolygonDegreeUp = bSplineDegreeUp.controlPoints;
+        controlPolygonDegreeUp.splice(0, bSplineDegreeUp.degree);
+        controlPolygonDegreeUp.splice((controlPolygonDegreeUp.length - 1), 1);
+        return controlPolygonDegreeUp;
+    }
+
+    generateBSplineR1toR2(): BSplineR1toR2 {
+        // const knotSequence = this.generateKnotSequenceOfBSplineR1toR2();
+        // const controlPoints = this.generateControlPolygonOfBSplineR1toR2();
+        // return new BSplineR1toR2(controlPoints, knotSequence);
+        return new BSplineR1toR2(this._controlPoints, this._knots);
+    }
+
+    degreeIncrement(): PeriodicBSplineR1toR2 {
+        const bSpline = this.generateBSplineR1toR2();
+        const bSplineDegreeUp = bSpline.degreeIncrement();
+        const newKnots = this.generateKnotSequenceOfPeriodicBSplineR1toR2(bSplineDegreeUp);
+        const newControlPolygon = this.generateControlPolygonOfPeriodicBSplineR1toR2(bSplineDegreeUp);
+        return new PeriodicBSplineR1toR2(newControlPolygon, newKnots);
     }
 
     // Probably not compatible with periodic BSplines -> to be modified
@@ -297,6 +381,19 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
             cp.push(new Vector2d(element.x * factor, element.y))
         });
         return new PeriodicBSplineR1toR2(cp, this.knots.slice())
+    }
+
+    evaluateOutsideRefInterval(u: number): Vector2d {
+        let result = new Vector2d();
+        const knots = this.getDistinctKnots();
+        if(u >= knots[0] && u <= knots[knots.length - 1]) {
+            const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
+            error.logMessageToConsole();
+        } else {
+            u = u % (knots[knots.length - 1] - knots[0]);
+            result = this.evaluate(u);
+        }
+        return result;
     }
 
 }

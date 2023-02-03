@@ -7,6 +7,7 @@ export interface CurveConstraintInterface {
     firstControlPoint: ConstraintType;
     lastControlPoint: ConstraintType;
     currentCurve: BSplineR1toR2Interface;
+    optimizedCurve: BSplineR1toR2Interface;
     curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined;
     constraintsNotSatisfied: boolean;
 

@@ -2,7 +2,7 @@ import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedF
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { CCurveNavigationStrictlyInsideShapeSpace, CCurveNavigationThroughSimplerShapeSpaces, CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { SceneInteractionStrategy } from "../designPatterns/SceneInteractionStrategy";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModel } from "../newModels/CurveModel";
@@ -287,8 +287,8 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection extends 
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
-        const warning = new WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        // const warning = new WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
+        // warning.logMessageToConsole();
     }
 
     processLeftMouseUpInteraction(): void {
@@ -335,9 +335,11 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
         const x = ndcX;
         const y = ndcY;
-        console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
+        // console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
         if(this.selectedControlPoint != null) {
             this._curveSceneController.controlPointsView.setSelected(null);
+            console.log("x0= " + this.curveModel.spline.controlPoints[0].x + " y0= " + this.curveModel.spline.controlPoints[0].y +
+            " x1= " + this.curveModel.spline.controlPoints[ this.curveModel.spline.controlPoints.length - 1].x + " y1= " + this.curveModel.spline.controlPoints[ this.curveModel.spline.controlPoints.length - 1].y)
             if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
                 because it is part of the optimize method (whether sliding is active or not) */
@@ -348,6 +350,12 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
+                for(let i = 0; i < this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.controlPoints.length; i++) {
+                    if(isNaN(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.controlPoints[i].x) || isNaN(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.controlPoints[i].y)) {
+                        const error = new ErrorLog(this.constructor.name, "update", "NaN");
+                        error.logMessageToConsole();
+                    }
+                }
                 if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
                     console.log("Constraints not satisfied - must change interaction Strategy");
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));

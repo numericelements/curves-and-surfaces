@@ -46,7 +46,7 @@ export enum ActiveInflectionLocationControl {mergeExtremaAndInflection, none, st
 
 export class CurveShapeSpaceNavigator {
 
-    private _shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _shapeNavigableCurve: ShapeNavigableCurve;
     private _curveModel: CurveModelInterface;
     private _sliding: boolean;
     private _controlOfCurvatureExtrema: boolean;
@@ -87,76 +87,6 @@ export class CurveShapeSpaceNavigator {
 
         this.curveSceneController = undefined;
     }
-
-    changeNavigationCurveModelState(state: NavigationCurveModel): void {
-        this._navigationCurveModel = state;
-        // this._navigationCurveModel.setNavigationCurveModel(this);
-    }
-
-    toggleSliding() {
-        if(this._curveModel !== undefined) {
-            if(this._sliding) {
-                this._sliding = false;
-                //  this._curveControl = new NoSlidingStrategy(this._curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
-            }
-            else {
-                this._sliding = true;
-                // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-            }
-        } else {
-            const error = new ErrorLog(this.constructor.name, "toggleSliding", "Unable to slide curvature extrema and/or inflexion points. Undefined curve model");
-            error.logMessageToConsole();
-        }
-        this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
-    }
-
-    toggleControlOfCurvatureExtrema() {
-        this._curveControl.toggleControlOfCurvatureExtrema();
-        this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema;
-
-        this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
-    }
-
-    toggleControlOfInflections() {
-        this._curveControl.toggleControlOfInflections()
-        this.controlOfInflection = !this.controlOfInflection;
-
-        this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
-    }
-
-    inputSelectNavigationProcess(navigationID: number) {
-        const warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
-        warning.logMessageToConsole();
-
-        switch(navigationID) {
-            case 0: {
-                this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
-                break;
-            }
-            case 1: {
-                this._navigationState.setNavigationThroughSimplerShapeSpaces();
-                break;
-            }
-            case 2: {
-                this._navigationState.setNavigationStrictlyInsideShapeSpace();
-                break;
-            }
-            default: {
-                const error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
-                error.logMessageToConsole();
-                break;
-            }
-        }
-        // JCL 2021/12/07 temporary setting to keep consistency between curvescenecontroller context and curveShapeSpaceNavigator context
-        // JCL 2021/12/07 should be removed when the curveScenceController context would be decomposed into (UI and graphics) and the curveShapeSpaceNavigator context on the other side
-        // this.navigationState = this.curveShapeSpaceNavigator.navigationState;
-    }
-
-    // abstract navigateSpace(selectedControlPoint: number, x: number, y: number): void;
-
-    // abstract transitionTo(curveControlState: CurveControlState): void;
-
-    // abstract curveDisplacement(): void;
 
     get curveModel(): CurveModelInterface {
         return this._curveModel;
@@ -229,4 +159,75 @@ export class CurveShapeSpaceNavigator {
     set shapeSpaceDiffEventsConfigurator(shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration) {
         this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
     }
+
+    // abstract navigateSpace(selectedControlPoint: number, x: number, y: number): void;
+
+    // abstract transitionTo(curveControlState: CurveControlState): void;
+
+    // abstract curveDisplacement(): void;
+
+    changeNavigationCurveModelState(state: NavigationCurveModel): void {
+        this._navigationCurveModel = state;
+        // this._navigationCurveModel.setNavigationCurveModel(this);
+    }
+
+    toggleSliding() {
+        if(this._curveModel !== undefined) {
+            if(this._sliding) {
+                this._sliding = false;
+                //  this._curveControl = new NoSlidingStrategy(this._curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+            }
+            else {
+                this._sliding = true;
+                // this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
+            }
+        } else {
+            const error = new ErrorLog(this.constructor.name, "toggleSliding", "Unable to slide curvature extrema and/or inflexion points. Undefined curve model");
+            error.logMessageToConsole();
+        }
+        this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
+    }
+
+    toggleControlOfCurvatureExtrema() {
+        this._curveControl.toggleControlOfCurvatureExtrema();
+        this._controlOfCurvatureExtrema = !this._controlOfCurvatureExtrema;
+
+        this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
+    }
+
+    toggleControlOfInflections() {
+        this._curveControl.toggleControlOfInflections()
+        this.controlOfInflection = !this.controlOfInflection;
+
+        this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
+    }
+
+    inputSelectNavigationProcess(navigationID: number) {
+        const warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
+        warning.logMessageToConsole();
+
+        switch(navigationID) {
+            case 0: {
+                this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
+                break;
+            }
+            case 1: {
+                this._navigationState.setNavigationThroughSimplerShapeSpaces();
+                break;
+            }
+            case 2: {
+                this._navigationState.setNavigationStrictlyInsideShapeSpace();
+                break;
+            }
+            default: {
+                const error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
+                error.logMessageToConsole();
+                break;
+            }
+        }
+        // JCL 2021/12/07 temporary setting to keep consistency between curvescenecontroller context and curveShapeSpaceNavigator context
+        // JCL 2021/12/07 should be removed when the curveScenceController context would be decomposed into (UI and graphics) and the curveShapeSpaceNavigator context on the other side
+        // this.navigationState = this.curveShapeSpaceNavigator.navigationState;
+    }
+
 }

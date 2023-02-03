@@ -2,7 +2,8 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { PolylineShader } from "../2DgraphicsItems/PolylineShader"
 import { IObserver } from "../newDesignPatterns/Observer";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { WebGLUtils } from "../webgl/webgl-utils"
 
 
 export class CurveView implements IObserver<BSplineR1toR2Interface> {
@@ -82,6 +83,13 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
     }
 
     update(spline: BSplineR1toR2Interface): void {
+        for(let i = 0; i < spline.controlPoints.length; i++) {
+            if(isNaN(spline.controlPoints[i].x) || isNaN(spline.controlPoints[i].y)) {
+                const error = new ErrorLog(this.constructor.name, "update", "NaN");
+                console.log("i = ", i);
+                error.logMessageToConsole();
+            }
+        }
         this.spline = spline;
         this.updatePointSequenceOnSpline();
         this.updateVertices();

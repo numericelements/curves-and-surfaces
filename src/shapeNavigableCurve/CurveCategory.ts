@@ -151,7 +151,10 @@ export class OpenPlanarCurve extends CurveCategory {
             if(curveDegree > this.curveModel.spline.degree) {
                 this._degreeChange = true;
                 let spline = this.curveModel.spline;
-                spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                while(spline.degree !== curveDegree) {
+                    let tempSpline = spline.degreeIncrement();
+                    spline = tempSpline.clone();
+                }
                 this.curveModel.setSpline(spline);
             }
             this.curveModel.notifyObservers();
@@ -215,11 +218,16 @@ export class ClosedPlanarCurve extends CurveCategory {
         if(this.curveModel !== undefined) {
             if(curveDegree > this.curveModel.spline.degree) {
                 this._degreeChange = true;
-                let controlPoints = this.curveModel.spline.controlPoints;
-                let knots = this.curveModel.spline.knots;
-                this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                let spline = this.curveModel.spline;
+                // this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
+                while(spline.degree !== curveDegree) {
+                    let tempSpline = spline.degreeIncrement();
+                    spline = tempSpline.clone();
+                }
             }
             this.curveModel.notifyObservers();
+            this._shapeNavigableCurve.notifyObservers();
+            this._degreeChange = false;
         } else {
             const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
             error.logMessageToConsole();

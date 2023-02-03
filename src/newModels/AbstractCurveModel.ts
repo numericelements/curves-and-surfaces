@@ -8,7 +8,7 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 // import { Optimizer } from "../optimizers/Optimizer"
 // import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
 
-
+export const DEFAULT_CURVE_DEGREE = 3;
 
 export abstract class AbstractCurveModel implements CurveModelInterface {
 

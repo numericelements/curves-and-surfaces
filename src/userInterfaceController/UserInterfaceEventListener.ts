@@ -4,7 +4,7 @@ import { ShapeNavigableCurve, NO_CONSTRAINT } from "../shapeNavigableCurve/Shape
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { FileController } from "../filecontrollers/FileController";
-import { DEFAULT_CURVE_DEGREE } from "../models/CurveModel";
+import { DEFAULT_CURVE_DEGREE } from "../newModels/AbstractCurveModel";
 import { CurveModelObserverInChartEventListener, CurveModelObserverInCurveModelEventListener, CurveModelObserverInFileEventListener, CurveModelObserverInShapeSpaceNavigationEventListener } from "../models/CurveModelObserver";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { WebGLUtils } from "../webgl/webgl-utils";

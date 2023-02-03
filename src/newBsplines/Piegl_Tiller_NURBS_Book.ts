@@ -1,3 +1,4 @@
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 
 /**
@@ -13,7 +14,9 @@ export function findSpan(u: number, knots: Array<number>, degree: number): numbe
         console.log("u: " + u);
         console.log("knots: " + knots);
         console.log("degree: " + degree);
-        throw new Error("Error: parameter u is outside valid span");
+        // throw new Error("Error: parameter u is outside valid span");
+        let error = new ErrorLog("function", "findSpan", "parameter u is outside valid span");
+        error.logMessageToConsole();
     }
     // Special case
     if (u === knots[knots.length - degree - 1]) {

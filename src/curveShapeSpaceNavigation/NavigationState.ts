@@ -146,7 +146,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
         this.currentCurve = this.navigationCurveModel.currentCurve;
-        this.optimizedCurve = this.currentCurve;
+        this.optimizedCurve = this.currentCurve.clone();
         // this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         // this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
 
@@ -214,8 +214,18 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
-        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
-        this.currentCurve = this.navigationCurveModel.currentCurve;
+        for(let i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
+            if(isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
+                const error = new ErrorLog(this.constructor.name, "update", "NaN");
+                error.logMessageToConsole();
+            }
+        }
+        if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.optimizedCurve instanceof BSplineR1toR2) {
+            this.navigationCurveModel.optimizedCurve = this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.optimizedCurve;
+            this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
+        }
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve;
+        this.currentCurve = this.navigationCurveModel.currentCurve.clone();
         this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
@@ -229,13 +239,23 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
             this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
-            this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
-            this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
+            // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
+            let curveModelOptimized = new CurveModel();
+            curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
+            this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
+            this.optimizedCurve = curveModelOptimized.spline;
             this.curveConstraintsMonitoring();
             this._curveAnalyserOptimizedCurve.update();
-            this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
-            const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-            seqComparator.locateNeiboringEvents();
+            for(let i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
+                if(isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
+                    const error = new ErrorLog(this.constructor.name, "update", "NaN");
+                    error.logMessageToConsole();
+                }
+            }
+            // this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+            // const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
+            // to be added later
+            // seqComparator.locateNeiboringEvents();
         }
         catch(e)
         {
@@ -284,8 +304,8 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
-        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
-        this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve;
+        this.currentCurve = this.navigationCurveModel.currentCurve.clone();
         this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
@@ -303,7 +323,8 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
             this.navigationCurveModel.curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-            seqComparator.locateNeiboringEvents();
+            // to be added later
+            // seqComparator.locateNeiboringEvents();
         }
         catch(e)
         {
@@ -409,7 +430,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
         this.currentCurve = this.navigationCurveModel.currentCurve;
-        this.optimizedCurve = this.currentCurve;
+        this.optimizedCurve = this.currentCurve.clone();
         // this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         // this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
 
@@ -429,7 +450,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
 
-        this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve.clone();
+        this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve;
         // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
         this.curveAnalyserOptimizedCurve.update();
@@ -476,8 +497,8 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
-        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
-        this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve;
+        this.currentCurve = this.navigationCurveModel.currentCurve.clone();
         this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
@@ -496,7 +517,8 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
             this.curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-            seqComparator.locateNeiboringEvents();
+            // to be added later
+            // seqComparator.locateNeiboringEvents();
         }
         catch(e)
         {
@@ -544,8 +566,8 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
-        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve.clone();
-        this.currentCurve = this.navigationCurveModel.currentCurve;
+        this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve;
+        this.currentCurve = this.navigationCurveModel.currentCurve.clone();
         this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.currentCurve = this.currentCurve.clone();
     }
 
@@ -563,7 +585,8 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
             this.navigationCurveModel.curveAnalyserOptimizedCurve.update();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-            seqComparator.locateNeiboringEvents();
+            // to be added later
+            // seqComparator.locateNeiboringEvents();
         }
         catch(e)
         {

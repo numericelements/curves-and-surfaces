@@ -1,12 +1,12 @@
-import { Vector_2d } from "../mathematics/Vector_2d";
+// import { Vector_2d } from "../mathematics/Vector_2d";
 
-export interface BSpline_R1_to_R2_interface {
+// export interface BSpline_R1_to_R2_interface {
 
-    visibleControlPoints(): Vector_2d[]
+//     visibleControlPoints(): Vector_2d[]
 
-    knots: number[]
+//     knots: number[]
 
-    degree: number
+//     degree: number
 
-    evaluate(u: number): Vector_2d
-}
+//     evaluate(u: number): Vector_2d
+// }

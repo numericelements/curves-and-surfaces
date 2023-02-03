@@ -48,7 +48,7 @@ export class HandleInflectionsNoSlidingState extends CurveControlState {
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleNoDiffEventNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -57,7 +57,7 @@ export class HandleInflectionsNoSlidingState extends CurveControlState {
 
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -66,7 +66,7 @@ export class HandleInflectionsNoSlidingState extends CurveControlState {
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -86,7 +86,7 @@ export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -95,7 +95,7 @@ export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
 
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleNoDiffEventNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -104,7 +104,7 @@ export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleCurvatureExtremaSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -122,7 +122,7 @@ export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveCon
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -131,7 +131,7 @@ export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveCon
     
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -140,7 +140,7 @@ export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveCon
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -158,7 +158,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -167,7 +167,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
 
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -176,7 +176,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleNoDiffEventSlidingState(this.shapeSpaceNavigationEventListener))
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -194,7 +194,7 @@ export class HandleInflectionsSlidingState extends CurveControlState {
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleNoDiffEventSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -203,7 +203,7 @@ export class HandleInflectionsSlidingState extends CurveControlState {
 
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -212,7 +212,7 @@ export class HandleInflectionsSlidingState extends CurveControlState {
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsNoSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -231,7 +231,7 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsAndCurvatureExtremaSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -240,7 +240,7 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
 
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleNoDiffEventSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -249,7 +249,7 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleCurvatureExtremaNoSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -268,7 +268,7 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleCurvatureExtremaSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -277,7 +277,7 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
     
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -286,7 +286,7 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsAndCurvatureExtremaNoSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -305,7 +305,7 @@ export class HandleNoDiffEventSlidingState extends CurveControlState {
 
     handleInflections(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleInflectionsSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -314,7 +314,7 @@ export class HandleNoDiffEventSlidingState extends CurveControlState {
 
     handleCurvatureExtrema(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleCurvatureExtremaSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
@@ -323,7 +323,7 @@ export class HandleNoDiffEventSlidingState extends CurveControlState {
 
     handleSliding(): void {
         this.shapeSpaceNavigationEventListener.transitionTo(new HandleNoDiffEventNoSlidingState(this.shapeSpaceNavigationEventListener));
-        var shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+        const shapeSpaceConfigurationChange = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
         if(shapeSpaceConfigurationChange) {
             this.shapeNavigableCurve.notifyObservers();
             this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;

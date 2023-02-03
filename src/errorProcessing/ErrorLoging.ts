@@ -20,7 +20,11 @@ export class ErrorLog extends ErrorProcessing {
 
     logMessageToConsole(): void {
         console.log(this.className + ", " + this.functionName + ":");
-        throw new Error(this.message);
+        try {
+            throw new Error(this.message);
+        } catch(e) {
+            console.error(e);
+        }
     }
 }
 

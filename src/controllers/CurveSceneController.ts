@@ -35,7 +35,6 @@ import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveSha
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
 import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, HandleConstraintAtPoint1Point2NoConstraintState } from "./CurveConstraintSelectionState";
 import { CurveModelDefinitionEventListener, ShapeSpaceNavigationEventListener } from "../userInterfaceController/UserInterfaceEventListener";
-import { convertToBsplR1_to_R2 } from "../newBsplines/BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { DummyStrategy } from "./DummyStrategy";

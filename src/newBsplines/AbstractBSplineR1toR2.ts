@@ -1,7 +1,11 @@
 import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { Vector2d } from "../mathVector/Vector2d"
 import { BSplineR1toR2Interface as BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { BSplineR1toR2 } from "./BSplineR1toR2";
+import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
 
+export enum curveSegment {BEFORE, AFTER};
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -26,7 +30,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     computeDegree(): number {
         let degree = this._knots.length - this._controlPoints.length - 1;
         if (degree < 0) {
-            throw new Error("Negative degree BSplineR1toR1 are not supported");
+            const error = new ErrorLog(this.constructor.name, "computeDegree", "Negative degree for BSplines is inconsistent.");
+            error.logMessageToConsole();
         }
         return degree;
     }
@@ -81,6 +86,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
      */
     abstract clone() : AbstractBSplineR1toR2;
 
+    abstract evaluateOutsideRefInterval(u: number): Vector2d;
+
     abstract elevateDegree(): void;
 
     abstract optimizerStep(step: number[]) : void;
@@ -90,6 +97,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     abstract scaleX(factor: number): AbstractBSplineR1toR2;
 
     abstract scaleY(factor: number): AbstractBSplineR1toR2;
+
+    abstract degreeIncrement(): AbstractBSplineR1toR2;
 
     getControlPointsX(): number[] {
         let result: number[] = [];
@@ -163,6 +172,58 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
             index += 1;
         }
 
+    }
+
+    insertKnotBoehmAlgorithm(u: number, times: number = 1): void {
+        // Uses Boehm algorithm without restristion on the structure of the knot sequence,
+        //i.e. applicable to non uniform or arbitrary knot sequences
+        if (times <= 0) {
+            return;
+        }
+        let index = this.findSpanBoehmAlgorithm(u, this._knots, this._degree);
+        if(u > this._knots[index] && u < this._knots[index + 1]) {
+            // if(times > )
+        }
+        let multiplicity = 0;
+
+        for (let t = 0; t < times; t += 1) {
+            let newControlPoints = [];
+            for (let i = 0; i < index; i += 1) {
+                newControlPoints[i] = this._controlPoints[i];
+            }
+            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
+                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+            }
+            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
+                newControlPoints[i + 1] = this._controlPoints[i];
+            }
+            this._knots.splice(index + 1, 0, u);
+            this._controlPoints = newControlPoints.slice();
+            multiplicity += 1;
+            index += 1;
+        }
+    }
+
+    findSpanBoehmAlgorithm(u: number, knots: Array<number>, degree: number): number {
+        // Special case
+        if (u === knots[knots.length - degree - 1]) {
+            return knots.length - degree - 2;
+        }
+        // Do binary search
+        let low = 0;
+        let high = knots.length - 1 - degree;
+        let i = Math.floor((low + high) / 2);
+    
+        while (!(knots[i] <= u && u < knots[i + 1])) {
+            if (u < knots[i]) {
+                high = i;
+            } else {
+                low = i;
+            }
+            i = Math.floor((low + high) / 2);
+        }
+        return i;
     }
 
     knotMultiplicity(indexFromFindSpan: number): number {

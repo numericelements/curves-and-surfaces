@@ -153,6 +153,13 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         error.logMessageToConsole();
     }
 
+    degreeIncrement(): BSplineR1toR2Interface {
+        // JCL method to be implemented
+        const error = new ErrorLog(this.constructor.name, "degreeIncrement", "method not yet implemented !");
+        error.logMessageToConsole();
+        return new RationalBSplineR1toR2Adapter();
+    }
+
     scale(factor: number) {
         let cp: Array<Vector3d> = []
         // need to double check this transformation before using this method
@@ -180,6 +187,18 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         return new RationalBSplineR1toR2Adapter(cp, this.knots.slice())
     }
 
+    evaluateOutsideRefInterval(u: number): Vector2d {
+        let result = new Vector2d();
+        const knots = this.getDistinctKnots();
+        if(u >= knots[0] && u <= knots[knots.length - 1]) {
+            const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
+            error.logMessageToConsole();
+        } else {
+            const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Method not implemented yet.");
+            error.logMessageToConsole();
+        }
+        return result;
+    }
 }
 
 export function deepCopyControlPoints(controlPoints: Vector3d[]): Vector3d[] {

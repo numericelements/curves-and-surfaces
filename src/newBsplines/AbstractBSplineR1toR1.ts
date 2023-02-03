@@ -68,6 +68,8 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         return result; 
     }
 
+    abstract evaluateOutsideRefInterval(u: number): number;
+
     abstract derivative() : AbstractBSplineR1toR1;
 
     //abstract bernsteinDecomposition() : number[][] 
