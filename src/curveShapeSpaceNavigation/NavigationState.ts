@@ -216,7 +216,7 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         for(let i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
             if(isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
-                const error = new ErrorLog(this.constructor.name, "update", "NaN");
+                const error = new ErrorLog(this.constructor.name, "curveConstraintsMonitoring", "NaN");
                 error.logMessageToConsole();
             }
         }
@@ -245,10 +245,13 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
             this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
             this.optimizedCurve = curveModelOptimized.spline;
             this.curveConstraintsMonitoring();
-            this._curveAnalyserOptimizedCurve.update();
+
+            // problème: OpenCurveAnalyzer appliqué à optimizedCurve utilise update mais celle-ci utilise
+            // navigationCurveModel.currentCurve au lieu de navigationCurveModel.optimizedCurve
+            // this._curveAnalyserOptimizedCurve.update();
             for(let i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
                 if(isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
-                    const error = new ErrorLog(this.constructor.name, "update", "NaN");
+                    const error = new ErrorLog(this.constructor.name, "navigate", "NaN");
                     error.logMessageToConsole();
                 }
             }
