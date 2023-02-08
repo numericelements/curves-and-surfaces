@@ -38,7 +38,10 @@
         const cp0 = new Vector2d(-0.5, 0)
         const cp1 = new Vector2d(0, 8)
         const cp2 = new Vector2d(0.5, 0)
-        expect(function() {const s = new BSplineR1toR2([ cp0, cp1, cp2 ], [ 0, 0, 1 ])}).to.throw()
+        const s = new BSplineR1toR2([ cp0, cp1, cp2 ], [ 0, 0, 1 ])
+        expect(s.degree).to.equal(-1)
+        // error is thrown by ErrorLog class
+        // expect(function() {const s = new BSplineR1toR2([ cp0, cp1, cp2 ], [ 0, 0, 1 ])}).to.throw()
     });
 
     it('can be used to evaluate a Bezier curve', () => {

@@ -15,6 +15,7 @@ import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzer
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "./NavigationCurveModel";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "./CurveConstraintStrategy";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
+import { OptimizerReturnStatus } from "../mathematics/Optimizer";
 
 export abstract class NavigationState {
 
@@ -214,12 +215,6 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
 
     curveConstraintsMonitoring(): void {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
-        for(let i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
-            if(isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
-                const error = new ErrorLog(this.constructor.name, "curveConstraintsMonitoring", "NaN");
-                error.logMessageToConsole();
-            }
-        }
         if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.optimizedCurve instanceof BSplineR1toR2) {
             this.navigationCurveModel.optimizedCurve = this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.optimizedCurve;
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
@@ -236,29 +231,31 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
         try {
-            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            const status: OptimizerReturnStatus = this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
-            let curveModelOptimized = new CurveModel();
-            curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
-            this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
-            this.optimizedCurve = curveModelOptimized.spline;
-            this.curveConstraintsMonitoring();
-
-            // problème: OpenCurveAnalyzer appliqué à optimizedCurve utilise update mais celle-ci utilise
-            // navigationCurveModel.currentCurve au lieu de navigationCurveModel.optimizedCurve
-            // this._curveAnalyserOptimizedCurve.update();
-            for(let i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
-                if(isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
-                    const error = new ErrorLog(this.constructor.name, "navigate", "NaN");
-                    error.logMessageToConsole();
-                }
+            if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
+                let curveModelOptimized = new CurveModel();
+                curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
+                this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
+                this.optimizedCurve = curveModelOptimized.spline;
+                this.curveConstraintsMonitoring();
+    
+                // problème: OpenCurveAnalyzer appliqué à optimizedCurve utilise update mais celle-ci utilise
+                // navigationCurveModel.currentCurve au lieu de navigationCurveModel.optimizedCurve
+                this._curveAnalyserOptimizedCurve.update();
+    
+                // this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+                // const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
+                // to be added later
+                // seqComparator.locateNeiboringEvents();
+            } else {
+                let curveModelOptimized = new CurveModel();
+                curveModelOptimized.setSpline(this.currentCurve);
+                this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
+                this.optimizedCurve = curveModelOptimized.spline;
             }
-            // this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
-            // const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-            // to be added later
-            // seqComparator.locateNeiboringEvents();
         }
         catch(e)
         {

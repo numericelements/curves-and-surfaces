@@ -46027,17 +46027,14 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
                 // this._optimizedCurve = scaledCurve.clone();
                 // this.applyRigidBodyDisplacement();
                 // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
-                for (var i = 0; i < this._optimizedCurve.controlPoints.length; i++) {
-                    if (isNaN(this._optimizedCurve.controlPoints[i].x) || isNaN(this._optimizedCurve.controlPoints[i].y)) {
-                        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "relocateCurveAfterOptimizationUsingKnotPts", "NaN");
-                        console.log("i = ", i);
-                        error.logMessageToConsole();
-                    }
+                var valid = this.curveConstraints.slideConstraintAlongCurve();
+                if (valid) {
+                    this.applyRigidBodyDisplacement();
                 }
-                this.curveConstraints.slideConstraintAlongCurve();
-                this.applyRigidBodyDisplacement();
-                // this._constraintsNotSatisfied = true;
-                // this._optimizedCurve = this._currentCurve.clone();
+                else {
+                    this._constraintsNotSatisfied = true;
+                    this._optimizedCurve = this._currentCurve.clone();
+                }
             }
         }
         return this.optimizedCurve;
@@ -46053,22 +46050,37 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         var pt2Pt1optCurve = refPt2optCurve.substract(refPt1optCurve);
         var displacement = refPt1optCurve.substract(refPt1currentCurve);
         // use dot product to compute the angle because angle is very small and crossProduct can be less accurate
+        var argument = pt2Pt1currentCurve.dot(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm());
         var angle = Math.acos(pt2Pt1currentCurve.dot(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
+        if (isNaN(angle)) {
+            // Redefine the angle when the argument of the acos is greater than one, due to roundoff errors in the evaluation
+            // of the argument. The argument being close an angle of 0, using asin does not lead to roundoff errors near one.
+            console.log('applyRigidBodyDisplacement. Angle computed through cosine is not applicable argument = ' + argument);
+            angle = Math.asin(pt2Pt1currentCurve.crossPoduct(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
+        }
         var signAngle = Math.asin(pt2Pt1currentCurve.crossPoduct(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
         if (signAngle < 0.0)
             angle = -angle;
         var rotationMatrix = new SquareMatrix_1.SquareMatrix(2, [Math.cos(angle), Math.sin(angle), -Math.sin(angle), Math.cos(angle)]);
         var controlPointsOptCrv = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._optimizedCurve.controlPoints);
         var relocatedCtrlPts = [];
-        relocatedCtrlPts[0] = controlPointsOptCrv[0].substract(displacement);
-        for (var i = 1; i < controlPointsOptCrv.length; i++) {
-            var vertexLoc = controlPointsOptCrv[i].substract(controlPointsOptCrv[0]);
-            var vertexRot = Vector2d_1.toVector2d(rotationMatrix.multiplyByVector(vertexLoc.toArray()));
-            relocatedCtrlPts[i] = vertexRot.add(controlPointsOptCrv[0].substract(displacement));
-            if (isNaN(relocatedCtrlPts[i].x) || isNaN(relocatedCtrlPts[i].y)) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "applyRigidBodyDisplacement", "generated NaN after relocating curve.");
-            }
+        for (var _i = 0, controlPointsOptCrv_1 = controlPointsOptCrv; _i < controlPointsOptCrv_1.length; _i++) {
+            var controlPt = controlPointsOptCrv_1[_i];
+            relocatedCtrlPts.push(controlPt.substract(displacement));
         }
+        for (var i = 0; i < controlPointsOptCrv.length; i++) {
+            var vertexLoc = controlPointsOptCrv[i].substract(refPt1optCurve);
+            // const vertexLoc = controlPointsOptCrv[i].substract(refPt1optCurve.substract(displacement));
+            var vertexRot = Vector2d_1.toVector2d(rotationMatrix.multiplyByVector(vertexLoc.toArray()));
+            // relocatedCtrlPts[i] = vertexRot.add(refPt1optCurve.substract(displacement));
+            relocatedCtrlPts[i] = vertexRot.add(refPt1optCurve).substract(displacement);
+        }
+        // relocatedCtrlPts[0] = controlPointsOptCrv[0].substract(displacement);
+        // for(let i = 1; i < controlPointsOptCrv.length; i++) {
+        //     const vertexLoc = controlPointsOptCrv[i].substract(controlPointsOptCrv[0]);
+        //     const vertexRot = toVector2d(rotationMatrix.multiplyByVector(vertexLoc.toArray()))
+        //     relocatedCtrlPts[i] = vertexRot.add(controlPointsOptCrv[0].substract(displacement));
+        // }
         this._optimizedCurve.controlPoints = relocatedCtrlPts;
     };
     CurveConstraintClampedFirstAndLastControlPoint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
@@ -46205,6 +46217,7 @@ var CurveConstraints = /** @class */ (function () {
         this._lastControlPoint = ConstraintType.none;
     };
     CurveConstraints.prototype.slideConstraintAlongCurve = function () {
+        var valid = true;
         var indexPoint1 = this._shapeNavigableCurve.clampedPoints[0];
         var indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
         if (indexPoint1 === ShapeNavigableCurve_1.NO_CONSTRAINT || indexPoint2 === ShapeNavigableCurve_1.NO_CONSTRAINT) {
@@ -46216,38 +46229,66 @@ var CurveConstraints = /** @class */ (function () {
             var optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
             var newAbscRefPt2 = this.computeAbscissae(indexPoint1, indexPoint2);
             var deltaU2 = Math.abs(newAbscRefPt2.abscissa - knots[indexPoint2]);
-            // console.log('newAbsc2 '+ newAbscRefPt2.abscissa + ' iter '+newAbscRefPt2.nbIter+' delatU2 '+deltaU2);
+            console.log('newAbsc2 ' + newAbscRefPt2.abscissa + ' iter ' + newAbscRefPt2.nbIter + ' delatU2 ' + deltaU2);
             var newAbscRefPt1 = this.computeAbscissae(indexPoint2, indexPoint1);
             var deltaU1 = Math.abs(newAbscRefPt1.abscissa - knots[indexPoint1]);
-            // console.log('newAbsc1 '+ newAbscRefPt1.abscissa + ' iter '+newAbscRefPt1.nbIter+' delatU1 '+deltaU1);
+            console.log('newAbsc1 ' + newAbscRefPt1.abscissa + ' iter ' + newAbscRefPt1.nbIter + ' delatU1 ' + deltaU1);
             var newAbsc = void 0;
-            if (newAbscRefPt1.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+            var segment = void 0;
+            if (newAbscRefPt1.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT
+                && newAbscRefPt1.nbIter !== -1 && newAbscRefPt2.nbIter !== -1) {
                 if (deltaU1 > deltaU2) {
                     newAbsc = newAbscRefPt2.abscissa;
+                    if (indexPoint1 < indexPoint2) {
+                        segment = AbstractBSplineR1toR2_1.curveSegment.BEFORE;
+                    }
+                    else {
+                        segment = AbstractBSplineR1toR2_1.curveSegment.AFTER;
+                    }
                 }
                 else {
                     newAbsc = newAbscRefPt1.abscissa;
+                    if (indexPoint1 < indexPoint2) {
+                        segment = AbstractBSplineR1toR2_1.curveSegment.AFTER;
+                    }
+                    else {
+                        segment = AbstractBSplineR1toR2_1.curveSegment.BEFORE;
+                    }
                 }
             }
-            else if (newAbscRefPt1.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+            else if (newAbscRefPt1.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt1.nbIter !== -1) {
                 newAbsc = newAbscRefPt1.abscissa;
+                if (indexPoint1 < indexPoint2) {
+                    segment = AbstractBSplineR1toR2_1.curveSegment.AFTER;
+                }
+                else {
+                    segment = AbstractBSplineR1toR2_1.curveSegment.BEFORE;
+                }
             }
-            else if (newAbscRefPt2.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+            else if (newAbscRefPt2.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter !== -1) {
                 newAbsc = newAbscRefPt2.abscissa;
+                if (indexPoint1 < indexPoint2) {
+                    segment = AbstractBSplineR1toR2_1.curveSegment.BEFORE;
+                }
+                else {
+                    segment = AbstractBSplineR1toR2_1.curveSegment.AFTER;
+                }
             }
             else {
-                // const error = new ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "max number of iterations reached. Constraint cannot satisfied.");
-                // error.logMessageToConsole();
+                // There is no solution of point location to satisfy the constraint
+                valid = false;
+                console.log("newAbsc = " + newAbsc);
             }
-            if (newAbsc !== undefined) {
+            if (newAbsc !== undefined && valid) {
                 if (optimizedSpline instanceof BSplineR1toR2_1.BSplineR1toR2) {
                     if (newAbsc > knots[knots.length - 1] || newAbsc < knots[0]) {
                         // console.log("extend curve to: "+newAbsc);
                         optimizedSpline = optimizedSpline.extend(newAbsc);
                     }
-                    else if (newAbsc < knots[knots.length - 1]) {
-                        // console.log("split curve at: "+newAbsc);
-                        optimizedSpline = optimizedSpline.splitAt(newAbsc, AbstractBSplineR1toR2_1.curveSegment.BEFORE);
+                    else if (newAbsc < knots[knots.length - 1] && newAbsc > knots[0]) {
+                        console.log("split curve at: " + newAbsc) + " segment = " + segment;
+                        if (segment !== undefined)
+                            optimizedSpline = optimizedSpline.splitAt(newAbsc, segment);
                     }
                     this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
                 }
@@ -46258,6 +46299,7 @@ var CurveConstraints = /** @class */ (function () {
                 this._curveConstraintStrategy.optimizedCurve = this._curveConstraintStrategy.currentCurve;
             }
         }
+        return valid;
     };
     CurveConstraints.prototype.computeAbscissae = function (indexPoint1, indexPoint2) {
         var spline = this._curveConstraintStrategy.currentCurve;
@@ -46291,24 +46333,25 @@ var CurveConstraints = /** @class */ (function () {
         while (Math.abs(distance - refDistance) > CurveConstraintStrategy_1.TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             var c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
             var knotsDeriv = sxu.knots;
-            var point2dx = void 0;
-            var point2dy = void 0;
-            if (newAbsc > knotsDeriv[knotsDeriv.length - 1]) {
-                console.log("abscissa out of range max knot value = " + knotsDeriv[knotsDeriv.length - 1]);
-                point2dx = sxu.evaluate(newAbsc);
-                point2dy = syu.evaluate(newAbsc);
-            }
-            else {
-                point2dx = sxu.evaluate(newAbsc);
-                point2dy = syu.evaluate(newAbsc);
-            }
+            var point2dx = sxu.evaluate(newAbsc);
+            var point2dy = syu.evaluate(newAbsc);
             var a = Math.pow(point2dx, 2) + Math.pow(point2dy, 2);
             point2Opt = optimizedSpline.evaluate(newAbsc);
             var vectorP1P2 = point2Opt.substract(point1Opt);
             var bprime = point2dx * vectorP1P2.x + point2dy * vectorP1P2.y;
             var discriminant = Math.pow(bprime, 2) - a * c;
-            var deltaU1 = (-bprime + Math.sqrt(discriminant)) / a;
-            var deltaU2 = (-bprime - Math.sqrt(discriminant)) / a;
+            var deltaU1 = void 0;
+            var deltaU2 = void 0;
+            if (discriminant >= 0.0) {
+                deltaU1 = (-bprime + Math.sqrt(discriminant)) / a;
+                deltaU2 = (-bprime - Math.sqrt(discriminant)) / a;
+            }
+            else {
+                deltaU1 = 0.0;
+                deltaU2 = 0.0;
+                iter = -1;
+                break;
+            }
             var solPoint1 = void 0, solPoint2 = void 0;
             var u1 = knotsOptCrv[indexPoint2] + deltaU1;
             if (u1 < knotsOptCrv[0] || u1 > knotsOptCrv[knotsOptCrv.length - 1]) {
@@ -46390,16 +46433,19 @@ var CurveConstraints = /** @class */ (function () {
         // this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
         if (iter === exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             if (iterOutside >= (exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT / 2) - 1) {
-                console.log('Nb Iter Outside = ' + iterOutside + ' maxVariation = ' + maxVariationDistance + ' minVariation = ' + minVariationDistance);
+                // console.log('Nb Iter Outside = '+iterOutside+' maxVariation = '+ maxVariationDistance+' minVariation = '+minVariationDistance);
                 var newAbscRef = this.solveWithLinearApproximation(indexPoint1, indexPoint2, minVariationAbscissa, maxVariationAbscissa, optimizedSpline, offset);
                 if (newAbscRef.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
                     iter = 1;
                     newAbsc = newAbscRef.abscissa;
                 }
-                console.log('Found newAbsc = ' + newAbscRef.abscissa + ' NbIter = ' + newAbscRef.nbIter);
+                // console.log('Found newAbsc = '+newAbscRef.abscissa+' NbIter = '+ newAbscRef.nbIter);
             }
             else
                 console.log('Nb Iter Outside = ' + iterOutside);
+        }
+        else if (iter === -1) {
+            console.log('NO SOLUTION');
         }
         return {
             abscissa: newAbsc - offset,
@@ -46417,9 +46463,9 @@ var CurveConstraints = /** @class */ (function () {
         var point1Opt = optimizedSpline.evaluate(knotsOpt[indexPoint1]);
         var umin = offset + minVariationAbscissa;
         var uMax = offset + maxVariationAbscissa;
-        if (umin < 0.0) {
-            console.log("umin = " + umin + " uMax = " + uMax);
-        }
+        // if(umin < 0.0) {
+        //     console.log("umin = "+umin+" uMax = "+uMax);
+        // }
         var point2Opt1 = optimizedSpline.evaluate(offset + minVariationAbscissa);
         var distance1 = point1Opt.distance(point2Opt1);
         var point2Opt2 = optimizedSpline.evaluate(offset + maxVariationAbscissa);
@@ -46453,7 +46499,7 @@ var CurveConstraints = /** @class */ (function () {
                 }
                 umin = offset + minVariationAbscissa;
                 uMax = offset + maxVariationAbscissa;
-                console.log("umin = " + umin + " u = " + u + "uMax = " + uMax);
+                // console.log("umin = "+umin+" u = "+u+"uMax = "+uMax);
                 iter++;
             }
         }
@@ -47313,6 +47359,7 @@ var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/new
 var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
+var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var NavigationState = /** @class */ (function () {
     function NavigationState() {
         this._navigationStateChange = true;
@@ -47488,12 +47535,6 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
     };
     OCurveNavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
-        for (var i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
-            if (isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "curveConstraintsMonitoring", "NaN");
-                error.logMessageToConsole();
-            }
-        }
         if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.optimizedCurve instanceof BSplineR1toR2_1.BSplineR1toR2) {
             this.navigationCurveModel.optimizedCurve = this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.optimizedCurve;
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
@@ -47509,28 +47550,30 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
         try {
-            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            var status_1 = this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
-            var curveModelOptimized = new CurveModel_1.CurveModel();
-            curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
-            this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
-            this.optimizedCurve = curveModelOptimized.spline;
-            this.curveConstraintsMonitoring();
-            // problème: OpenCurveAnalyzer appliqué à optimizedCurve utilise update mais celle-ci utilise
-            // navigationCurveModel.currentCurve au lieu de navigationCurveModel.optimizedCurve
-            // this._curveAnalyserOptimizedCurve.update();
-            for (var i = 0; i < this.optimizedCurve.controlPoints.length; i++) {
-                if (isNaN(this.optimizedCurve.controlPoints[i].x) || isNaN(this.optimizedCurve.controlPoints[i].y)) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "navigate", "NaN");
-                    error.logMessageToConsole();
-                }
+            if (status_1 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
+                var curveModelOptimized = new CurveModel_1.CurveModel();
+                curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
+                this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
+                this.optimizedCurve = curveModelOptimized.spline;
+                this.curveConstraintsMonitoring();
+                // problème: OpenCurveAnalyzer appliqué à optimizedCurve utilise update mais celle-ci utilise
+                // navigationCurveModel.currentCurve au lieu de navigationCurveModel.optimizedCurve
+                this._curveAnalyserOptimizedCurve.update();
+                // this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+                // const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
+                // to be added later
+                // seqComparator.locateNeiboringEvents();
             }
-            // this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
-            // const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-            // to be added later
-            // seqComparator.locateNeiboringEvents();
+            else {
+                var curveModelOptimized = new CurveModel_1.CurveModel();
+                curveModelOptimized.setSpline(this.currentCurve);
+                this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
+                this.optimizedCurve = curveModelOptimized.spline;
+            }
         }
         catch (e) {
         }
@@ -49649,13 +49692,19 @@ exports.scaleY = scaleY;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Optimizer = void 0;
+exports.Optimizer = exports.OptimizerReturnStatus = void 0;
 var TrustRegionSubproblem_1 = __webpack_require__(/*! ./TrustRegionSubproblem */ "./src/mathematics/TrustRegionSubproblem.ts");
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
 var MathVectorBasicOperations_2 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
 var MathVectorBasicOperations_3 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
 var SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
 var CholeskyDecomposition_1 = __webpack_require__(/*! ../linearAlgebra/CholeskyDecomposition */ "./src/linearAlgebra/CholeskyDecomposition.ts");
+var OptimizerReturnStatus;
+(function (OptimizerReturnStatus) {
+    OptimizerReturnStatus[OptimizerReturnStatus["SOLUTION_FOUND"] = 0] = "SOLUTION_FOUND";
+    OptimizerReturnStatus[OptimizerReturnStatus["MAX_NB_ITER_REACHED"] = 1] = "MAX_NB_ITER_REACHED";
+    OptimizerReturnStatus[OptimizerReturnStatus["TERMINATION_WITHOUT_CONVERGENCE"] = 2] = "TERMINATION_WITHOUT_CONVERGENCE";
+})(OptimizerReturnStatus = exports.OptimizerReturnStatus || (exports.OptimizerReturnStatus = {}));
 var Optimizer = /** @class */ (function () {
     function Optimizer(o) {
         this.o = o;
@@ -49731,14 +49780,14 @@ var Optimizer = /** @class */ (function () {
                     if (!checked) {
                         this.success = true;
                         console.log("terminate optimization without convergence. ");
-                        return;
+                        return OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE;
                     }
                 }
                 if (numSteps > maxNumSteps) {
                     //throw new Error("numSteps > maxNumSteps")
                     //break;
                     console.log("optimizer: max number of iterations reached ");
-                    return;
+                    return OptimizerReturnStatus.MAX_NB_ITER_REACHED;
                 }
                 var newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
                 if (newtonDecrementSquared < 0) {
@@ -49763,6 +49812,7 @@ var Optimizer = /** @class */ (function () {
         //}
         //console.log(numSteps)
         this.success = true;
+        return OptimizerReturnStatus.SOLUTION_FOUND;
     };
     Optimizer.prototype.optimize_using_line_search = function (epsilon, maxNumSteps) {
         if (epsilon === void 0) { epsilon = 10e-6; }
@@ -54046,6 +54096,20 @@ var ComparatorOfSequencesOfIntervals = /** @class */ (function () {
         this._sequenceOfIntervals2 = sequenceOfIntervals2;
         this.maxVariationInSeq1 = new MaxIntervalVariation_1.MaxIntervalVariation();
     }
+    Object.defineProperty(ComparatorOfSequencesOfIntervals.prototype, "sequenceOfIntervals1", {
+        get: function () {
+            return this._sequenceOfIntervals1;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ComparatorOfSequencesOfIntervals.prototype, "sequenceOfIntervals2", {
+        get: function () {
+            return this._sequenceOfIntervals2;
+        },
+        enumerable: false,
+        configurable: true
+    });
     ComparatorOfSequencesOfIntervals.prototype.indexIntervalMaximalVariationUnderForwardScan = function (candidateEvent, nbEvents) {
         if (this.maxVariationInSeq1.index !== ComparatorOfSequencesDiffEvents_2.RETURN_ERROR_CODE) {
             this.maxVariationInSeq1 = new MaxIntervalVariation_1.MaxIntervalVariation();
@@ -54282,10 +54346,24 @@ var LocalizerOfDifferentialEvents = /** @class */ (function () {
      *      inflection sequence
      */
     function LocalizerOfDifferentialEvents(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) {
-        this.sequenceDiffEvents1 = sequenceDiffEvents1;
-        this.sequenceDiffEvents2 = sequenceDiffEvents2;
+        this._sequenceDiffEvents1 = sequenceDiffEvents1;
+        this._sequenceDiffEvents2 = sequenceDiffEvents2;
         this.location = indexInflection;
     }
+    Object.defineProperty(LocalizerOfDifferentialEvents.prototype, "sequenceDiffEvents1", {
+        get: function () {
+            return this._sequenceDiffEvents1;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(LocalizerOfDifferentialEvents.prototype, "sequenceDiffEvents2", {
+        get: function () {
+            return this._sequenceDiffEvents2;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return LocalizerOfDifferentialEvents;
 }());
 exports.LocalizerOfDifferentialEvents = LocalizerOfDifferentialEvents;

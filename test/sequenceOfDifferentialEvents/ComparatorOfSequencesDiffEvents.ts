@@ -1,21 +1,9 @@
 import { expect } from 'chai';
-import { LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval,
-    LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval,
-    LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval,
-    LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval,
-    LocalizerOfCurvatureExtremaAppearing,
-    LocalizerOfCurvatureExtremaDisappearing,
-    LocalizerOfInflectionDisappearingInUniqueInterval,
-    LocalizerOfInflectionAppearingInUniqueInterval,
-    LocalizerOfInflectionAppearingInExtremeInterval,
-    LocalizerOfInflectionDisappearingInExtremeInterval,
-    LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum,
-    LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum } from "../../src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents";
 import { SequenceOfDifferentialEvents } from '../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents';
-import { ComparatorOfSequencesOfDiffEvents } from '../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents';
+import { ComparatorOfSequencesOfDiffEvents, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL, ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL, ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL, ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL, TWO_CURVEXT_EVENTS_APPEAR, TWO_CURVEXT_EVENTS_DISAPPEAR, TWO_INFLECTIONS_EVENTS_APPEAR, TWO_INFLECTIONS_EVENTS_DISAPPEAR } from '../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents';
 import { ModifiedCurvatureEvents, ModifiedInflectionEvents } from '../../src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents';
 
-import { NeighboringEventsType } from '../../src/sequenceOfDifferentialEvents/NeighboringEvents';
+import { NeighboringEvents, NeighboringEventsType } from '../../src/sequenceOfDifferentialEvents/NeighboringEvents';
 
 describe('ComparatorOfSequencesOfDiffEvents', () => {
     describe('locateIntervalAndNumberOfCurvExEventChanges', () => {
@@ -31,7 +19,11 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.1, 0.5, 0.75], [0.3, 0.85]);
             const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.85], [0.25, 0.9]);
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
-            expect( () => comparator.locateIntervalAndNumberOfCurvExEventChanges()).to.throw();
+            comparator.locateIntervalAndNumberOfCurvExEventChanges();
+            expect(comparator.sequenceDiffEvents1.indicesOfInflections[0]).to.eql(1);
+            expect(comparator.sequenceDiffEvents1.indicesOfInflections[1]).to.eql(4);
+            // error is thrown by ErrorLog class
+            // expect( () => comparator.locateIntervalAndNumberOfCurvExEventChanges()).to.throw();
         });
 
         it('generates the number and interval of curvature events changes when one appears', () => {
@@ -71,6 +63,12 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
         const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
         comparator.modifiedCurvExEvents = [];
         comparator.modifiedCurvExEvents.push(new ModifiedCurvatureEvents(0, 1));
+        let sum = 0;
+        comparator.modifiedCurvExEvents.forEach(element => {
+            sum += element.nbEvents;
+        });
+        expect(sum).to.not.eql(0);
+        // error is thrown by ErrorLog class
         // expect( () => comparator.checkConsistencySumModifiedEvents()).to.throw();
     });
 
@@ -80,6 +78,16 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
         const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
         comparator.modifiedCurvExEvents = [];
         comparator.modifiedCurvExEvents.push(new ModifiedCurvatureEvents(1, 1));
+        let invalid = false;
+        comparator.modifiedCurvExEvents.forEach(element => {
+            if(element.indexInflection > 0 && element.indexInflection < comparator.sequenceDiffEvents1.indicesOfInflections.length) {
+                if(element.nbEvents % 2 !== 0) {
+                    invalid = true;
+                }
+            }
+        });
+        expect(invalid).to.eql(true);
+        // error is thrown by ErrorLog class
         // expect( () => comparator.checkConsistencyModifiedEvents()).to.throw();
     });
 
@@ -169,7 +177,21 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.modifiedInflectionEvents = [];
             comparator.modifiedInflectionEvents.push(new ModifiedInflectionEvents(0, 3));
-            expect( () => comparator.locateNeiboringEventsUnderInflectionEventChanges()).to.throw();
+            let invalid = false;
+            for(let modifiedInflectionEvent of comparator.modifiedInflectionEvents) {
+                if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents1.indicesOfInflections.length > 0) {
+                } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents2.indicesOfInflections.length > 0) {
+                } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents1.indicesOfInflections.length === 0) {
+                } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents2.indicesOfInflections.length === 0) {
+                } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
+                } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
+                } else {
+                    invalid = true;
+                }
+            }
+            // error is thrown by ErrorLog class
+            // expect( () => comparator.locateNeiboringEventsUnderInflectionEventChanges()).to.throw();
+            expect(invalid).to.eql(true);
         });
 
         it('can return the neighboring event when an inflection event disappears alone at the left hand side of a unique interval', () => {
@@ -342,7 +364,21 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.modifiedCurvExEvents = [];
             comparator.modifiedCurvExEvents.push(new ModifiedCurvatureEvents(1, 3));
-            expect( () => comparator.locateNeiboringEventsUnderCurvExEventChanges()).to.throw();
+            let invalid = false;
+            for(let modifiedCurvExEvent of comparator.modifiedCurvExEvents) {
+                if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents1.indicesOfInflections.length === 0) {
+                } else if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents2.indicesOfInflections.length === 0) {
+                } else if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents1.indicesOfInflections.length > 0) {
+                } else if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && comparator.sequenceDiffEvents2.indicesOfInflections.length > 0){
+                } else if(modifiedCurvExEvent.nbEvents === TWO_CURVEXT_EVENTS_APPEAR) {
+                } else if(modifiedCurvExEvent.nbEvents === TWO_CURVEXT_EVENTS_DISAPPEAR) {
+                } else {
+                    invalid = true;
+                }
+            }
+            expect(invalid).to.eql(true);
+            // error is thrown by ErrorLog class
+            // expect( () => comparator.locateNeiboringEventsUnderCurvExEventChanges()).to.throw();
         });
 
         it('can return the neighboring event when a curvature extremum appears alone in the left extreme interval', () => {

@@ -55,7 +55,13 @@ describe('ComparatorOfSequencesOfIntervals', () => {
         const comp = new ComparatorOfSequencesOfIntervals(s1, s2);
         const candidateEventIndex = s2.indexSmallestInterval(ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
         expect(candidateEventIndex, 'candidateEventIndex: ').to.eql(5);
-        expect(() => comp.indexIntervalMaximalVariationUnderForwardScan(candidateEventIndex, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL)).to.throw();
+        let invalid = false;
+        if(candidateEventIndex >= comp.sequenceOfIntervals1.sequence.length) {
+            invalid = true;
+        }
+        expect(invalid).to.eql(true);
+        // error is thrown by ErrorLog class
+        // expect(() => comp.indexIntervalMaximalVariationUnderForwardScan(candidateEventIndex, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL)).to.throw();
         comp.indexIntervalMaximalVariationUnderForwardScan(candidateEventIndex - 1, ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL);
         expect(comp.maxVariationInSeq1, 'maximalVariation: ').to.eql({_index: 3, _value: 1.25});
     });

@@ -25,8 +25,8 @@ export enum intervalLocation {first, last}
 
 export abstract class LocalizerOfDifferentialEvents {
 
-    protected sequenceDiffEvents1: SequenceOfDifferentialEvents;
-    protected sequenceDiffEvents2: SequenceOfDifferentialEvents;
+    protected _sequenceDiffEvents1: SequenceOfDifferentialEvents;
+    protected _sequenceDiffEvents2: SequenceOfDifferentialEvents;
     protected location: number;
 
     /**
@@ -41,9 +41,17 @@ export abstract class LocalizerOfDifferentialEvents {
      */
 
     constructor(sequenceDiffEvents1: SequenceOfDifferentialEvents, sequenceDiffEvents2: SequenceOfDifferentialEvents, indexInflection: number) {
-        this.sequenceDiffEvents1 = sequenceDiffEvents1;
-        this.sequenceDiffEvents2 = sequenceDiffEvents2;
+        this._sequenceDiffEvents1 = sequenceDiffEvents1;
+        this._sequenceDiffEvents2 = sequenceDiffEvents2;
         this.location = indexInflection;
+    }
+
+    get sequenceDiffEvents1(): SequenceOfDifferentialEvents {
+        return this._sequenceDiffEvents1;
+    }
+
+    get sequenceDiffEvents2(): SequenceOfDifferentialEvents {
+        return this._sequenceDiffEvents2;
     }
 
     abstract locateDifferentialEvents(): NeighboringEvents;

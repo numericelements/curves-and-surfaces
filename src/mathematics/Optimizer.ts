@@ -9,6 +9,7 @@ import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces"
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix" 
 import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
 
+export enum OptimizerReturnStatus {SOLUTION_FOUND, MAX_NB_ITER_REACHED, TERMINATION_WITHOUT_CONVERGENCE}
 
 export class Optimizer {
 
@@ -22,7 +23,7 @@ export class Optimizer {
         
     }
 
-    optimize_using_trust_region(epsilon: number = 10e-8, maxTrustRadius = 10, maxNumSteps: number = 800) {
+    optimize_using_trust_region(epsilon: number = 10e-8, maxTrustRadius = 10, maxNumSteps: number = 800): OptimizerReturnStatus {
 
         this.success = false
 
@@ -98,14 +99,14 @@ export class Optimizer {
                     if(!checked) {
                         this.success = true
                         console.log("terminate optimization without convergence. ")
-                        return;
+                        return OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE;
                     }
                 }
                 if (numSteps > maxNumSteps) {
                     //throw new Error("numSteps > maxNumSteps")
                     //break;
                     console.log("optimizer: max number of iterations reached ")
-                    return
+                    return OptimizerReturnStatus.MAX_NB_ITER_REACHED;
                 }
                 let newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
                 if (newtonDecrementSquared < 0) {
@@ -131,7 +132,7 @@ export class Optimizer {
         //console.log(numSteps)
 
         this.success = true
-
+        return OptimizerReturnStatus.SOLUTION_FOUND;
     }
 
     optimize_using_line_search(epsilon: number = 10e-6, maxNumSteps: number = 300) {

@@ -23,6 +23,14 @@ export class ComparatorOfSequencesOfIntervals {
         this.maxVariationInSeq1 = new MaxIntervalVariation();
     }
 
+    get sequenceOfIntervals1(): SequenceOfIntervals {
+        return this._sequenceOfIntervals1;
+    }
+
+    get sequenceOfIntervals2(): SequenceOfIntervals {
+        return this._sequenceOfIntervals2;
+    }
+
     indexIntervalMaximalVariationUnderForwardScan(candidateEvent: number, nbEvents: number): void {
         if(this.maxVariationInSeq1.index !== RETURN_ERROR_CODE) {
             this.maxVariationInSeq1 = new MaxIntervalVariation();

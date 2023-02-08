@@ -442,17 +442,13 @@ export class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstra
                 // this.applyRigidBodyDisplacement();
 
                 // JCL Stop deforming curve because constraint is violated. Need to change strategy -> todo
-                for(let i = 0; i < this._optimizedCurve.controlPoints.length; i++) {
-                    if(isNaN(this._optimizedCurve.controlPoints[i].x) || isNaN(this._optimizedCurve.controlPoints[i].y)) {
-                        const error = new ErrorLog(this.constructor.name, "relocateCurveAfterOptimizationUsingKnotPts", "NaN");
-                        console.log("i = ", i);
-                        error.logMessageToConsole();
-                    }
+                const valid = this.curveConstraints.slideConstraintAlongCurve();
+                if(valid) {
+                    this.applyRigidBodyDisplacement();
+                } else {
+                    this._constraintsNotSatisfied = true;
+                    this._optimizedCurve = this._currentCurve.clone();
                 }
-                this.curveConstraints.slideConstraintAlongCurve();
-                this.applyRigidBodyDisplacement();
-                // this._constraintsNotSatisfied = true;
-                // this._optimizedCurve = this._currentCurve.clone();
             }
         }
         return this.optimizedCurve;
@@ -469,20 +465,26 @@ export class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstra
         const pt2Pt1optCurve = refPt2optCurve.substract(refPt1optCurve);
         const displacement = refPt1optCurve.substract(refPt1currentCurve);
         // use dot product to compute the angle because angle is very small and crossProduct can be less accurate
+        const argument = pt2Pt1currentCurve.dot(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm());
         let angle = Math.acos(pt2Pt1currentCurve.dot(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
+        if(isNaN(angle)) {
+            // Redefine the angle when the argument of the acos is greater than one, due to roundoff errors in the evaluation
+            // of the argument. The argument being close an angle of 0, using asin does not lead to roundoff errors near one.
+            console.log('applyRigidBodyDisplacement. Angle computed through cosine is not applicable argument = '+argument);
+            angle = Math.asin(pt2Pt1currentCurve.crossPoduct(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
+        }
         const signAngle = Math.asin(pt2Pt1currentCurve.crossPoduct(pt2Pt1optCurve) / (pt2Pt1currentCurve.norm() * pt2Pt1optCurve.norm()));
         if(signAngle < 0.0) angle = - angle;
         const rotationMatrix = new SquareMatrix(2, [Math.cos(angle), Math.sin(angle), - Math.sin(angle), Math.cos(angle)]);
         const controlPointsOptCrv: Array<Vector2d> = deepCopyControlPoints(this._optimizedCurve.controlPoints);
         let relocatedCtrlPts: Array<Vector2d> = [];
-        relocatedCtrlPts[0] = controlPointsOptCrv[0].substract(displacement);
-        for(let i = 1; i < controlPointsOptCrv.length; i++) {
-            const vertexLoc = controlPointsOptCrv[i].substract(controlPointsOptCrv[0]);
+        for (const controlPt of controlPointsOptCrv) {
+            relocatedCtrlPts.push(controlPt.substract(displacement));
+        }
+        for(let i = 0; i < controlPointsOptCrv.length; i++) {
+            const vertexLoc = controlPointsOptCrv[i].substract(refPt1optCurve);
             const vertexRot = toVector2d(rotationMatrix.multiplyByVector(vertexLoc.toArray()))
-            relocatedCtrlPts[i] = vertexRot.add(controlPointsOptCrv[0].substract(displacement));
-            if(isNaN(relocatedCtrlPts[i].x) || isNaN(relocatedCtrlPts[i].y)) {
-                const error = new ErrorLog(this.constructor.name, "applyRigidBodyDisplacement", "generated NaN after relocating curve.")
-            }
+            relocatedCtrlPts[i] = vertexRot.add(refPt1optCurve).substract(displacement);
         }
         this._optimizedCurve.controlPoints = relocatedCtrlPts;
     }
