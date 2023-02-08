@@ -7,7 +7,6 @@ import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
 import { cpuUsage } from "process";
-import { Vector2d } from "../mathVector/Vector2d";
 import { curveSegment } from "../newBsplines/AbstractBSplineR1toR2";
 
 export enum ConstraintType {none, location, tangent, locationAndTangent}
@@ -92,7 +91,8 @@ export class CurveConstraints {
         this._lastControlPoint = ConstraintType.none;
     }
 
-    slideConstraintAlongCurve(): void {
+    slideConstraintAlongCurve(): boolean {
+        let valid = true;
         const indexPoint1 = this._shapeNavigableCurve.clampedPoints[0];
         const indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
         if(indexPoint1 === NO_CONSTRAINT || indexPoint2 === NO_CONSTRAINT) {
@@ -103,34 +103,57 @@ export class CurveConstraints {
             let optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
             const newAbscRefPt2 = this.computeAbscissae(indexPoint1, indexPoint2);
             const deltaU2 = Math.abs(newAbscRefPt2.abscissa - knots[indexPoint2]);
-            // console.log('newAbsc2 '+ newAbscRefPt2.abscissa + ' iter '+newAbscRefPt2.nbIter+' delatU2 '+deltaU2);
+            console.log('newAbsc2 '+ newAbscRefPt2.abscissa + ' iter '+newAbscRefPt2.nbIter+' delatU2 '+deltaU2);
 
             const newAbscRefPt1 = this.computeAbscissae(indexPoint2, indexPoint1);
             const deltaU1 = Math.abs(newAbscRefPt1.abscissa - knots[indexPoint1]);
-            // console.log('newAbsc1 '+ newAbscRefPt1.abscissa + ' iter '+newAbscRefPt1.nbIter+' delatU1 '+deltaU1);
+            console.log('newAbsc1 '+ newAbscRefPt1.abscissa + ' iter '+newAbscRefPt1.nbIter+' delatU1 '+deltaU1);
             let newAbsc;
-            if(newAbscRefPt1.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+            let segment: curveSegment | undefined;
+            if(newAbscRefPt1.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT
+                && newAbscRefPt1.nbIter !== -1 && newAbscRefPt2.nbIter !== -1) {
                 if(deltaU1 > deltaU2) {
                     newAbsc = newAbscRefPt2.abscissa;
+                    if(indexPoint1 < indexPoint2) {
+                        segment = curveSegment.BEFORE;
+                    } else {
+                        segment = curveSegment.AFTER;
+                    }
                 } else {
                     newAbsc = newAbscRefPt1.abscissa;
+                    if(indexPoint1 < indexPoint2) {
+                        segment = curveSegment.AFTER;
+                    } else {
+                        segment = curveSegment.BEFORE;
+                    }
                 }
-            } else if(newAbscRefPt1.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+            } else if(newAbscRefPt1.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt1.nbIter !== -1) {
                 newAbsc = newAbscRefPt1.abscissa;
-            } else if(newAbscRefPt2.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
+                if(indexPoint1 < indexPoint2) {
+                    segment = curveSegment.AFTER;
+                } else {
+                    segment = curveSegment.BEFORE;
+                }
+            } else if(newAbscRefPt2.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter !== -1) {
                 newAbsc = newAbscRefPt2.abscissa;
+                if(indexPoint1 < indexPoint2) {
+                    segment = curveSegment.BEFORE;
+                } else {
+                    segment = curveSegment.AFTER;
+                }
             } else {
-                // const error = new ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "max number of iterations reached. Constraint cannot satisfied.");
-                // error.logMessageToConsole();
+                // There is no solution of point location to satisfy the constraint
+                valid = false;
+                console.log("newAbsc = "+newAbsc);
             }
-            if(newAbsc !== undefined) {
+            if(newAbsc !== undefined && valid) {
                 if(optimizedSpline instanceof BSplineR1toR2) {
                     if(newAbsc > knots[knots.length - 1] || newAbsc < knots[0]){
                         // console.log("extend curve to: "+newAbsc);
                         optimizedSpline = optimizedSpline.extend(newAbsc);
-                    } else if(newAbsc < knots[knots.length - 1]) {
-                        // console.log("split curve at: "+newAbsc);
-                        optimizedSpline = optimizedSpline.splitAt(newAbsc, curveSegment.BEFORE);
+                    } else if(newAbsc < knots[knots.length - 1] && newAbsc > knots[0]) {
+                        console.log("split curve at: "+newAbsc+" segment = "+segment);
+                        if(segment !== undefined) optimizedSpline = optimizedSpline.splitAt(newAbsc, segment);
                     }
                     this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
                 } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2) {
@@ -140,6 +163,7 @@ export class CurveConstraints {
                 this._curveConstraintStrategy.optimizedCurve = this._curveConstraintStrategy.currentCurve;
             }
         }
+        return valid;
     }
 
     computeAbscissae(indexPoint1: number, indexPoint2: number): {abscissa: number, nbIter: number} {
@@ -175,23 +199,24 @@ export class CurveConstraints {
         while(Math.abs(distance - refDistance) > TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             const c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
             const knotsDeriv = sxu.knots;
-            let point2dx;
-            let point2dy;
-            if(newAbsc > knotsDeriv[knotsDeriv.length - 1]) {
-                console.log("abscissa out of range max knot value = "+knotsDeriv[knotsDeriv.length - 1]);
-                point2dx = sxu.evaluate(newAbsc);
-                point2dy = syu.evaluate(newAbsc);
-            } else {
-                point2dx = sxu.evaluate(newAbsc);
-                point2dy = syu.evaluate(newAbsc);
-            }
+            const point2dx = sxu.evaluate(newAbsc);
+            const point2dy = syu.evaluate(newAbsc);
             const a = Math.pow(point2dx, 2) + Math.pow(point2dy, 2);
             point2Opt = optimizedSpline.evaluate(newAbsc);
             let vectorP1P2 = point2Opt.substract(point1Opt);
             const bprime = point2dx * vectorP1P2.x + point2dy * vectorP1P2.y;
             const discriminant = Math.pow(bprime, 2) - a * c;
-            const deltaU1 = (- bprime + Math.sqrt(discriminant)) / a;
-            const deltaU2 = (- bprime - Math.sqrt(discriminant)) / a;
+            let deltaU1;
+            let deltaU2;
+            if(discriminant >= 0.0) {
+                deltaU1 = (- bprime + Math.sqrt(discriminant)) / a;
+                deltaU2 = (- bprime - Math.sqrt(discriminant)) / a;
+            } else {
+                deltaU1 = 0.0;
+                deltaU2 = 0.0;
+                iter = -1;
+                break;
+            }
             let solPoint1, solPoint2;
             const u1 = knotsOptCrv[indexPoint2] + deltaU1;
             if(u1 < knotsOptCrv[0] || u1 > knotsOptCrv[knotsOptCrv.length - 1]) {
@@ -264,15 +289,17 @@ export class CurveConstraints {
         // this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
         if(iter === NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             if(iterOutside >= (NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT / 2) - 1) {
-                console.log('Nb Iter Outside = '+iterOutside+' maxVariation = '+ maxVariationDistance+' minVariation = '+minVariationDistance);
+                // console.log('Nb Iter Outside = '+iterOutside+' maxVariation = '+ maxVariationDistance+' minVariation = '+minVariationDistance);
                 let newAbscRef = this.solveWithLinearApproximation(indexPoint1, indexPoint2, minVariationAbscissa, maxVariationAbscissa, optimizedSpline, offset);
                 if(newAbscRef.nbIter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
                     iter = 1;
                     newAbsc = newAbscRef.abscissa;
                 }
-                console.log('Found newAbsc = '+newAbscRef.abscissa+' NbIter = '+ newAbscRef.nbIter);
+                // console.log('Found newAbsc = '+newAbscRef.abscissa+' NbIter = '+ newAbscRef.nbIter);
             } else 
                 console.log('Nb Iter Outside = '+iterOutside);
+        } else if(iter === -1) {
+            console.log('NO SOLUTION');
         }
         return {
             abscissa: newAbsc - offset,
@@ -292,9 +319,9 @@ export class CurveConstraints {
         const point1Opt = optimizedSpline.evaluate(knotsOpt[indexPoint1]);
         let umin = offset + minVariationAbscissa;
         let uMax = offset + maxVariationAbscissa;
-        if(umin < 0.0) {
-            console.log("umin = "+umin+" uMax = "+uMax);
-        }
+        // if(umin < 0.0) {
+        //     console.log("umin = "+umin+" uMax = "+uMax);
+        // }
         let point2Opt1 = optimizedSpline.evaluate(offset + minVariationAbscissa);
         let distance1 = point1Opt.distance(point2Opt1);
         let point2Opt2 = optimizedSpline.evaluate(offset + maxVariationAbscissa);
@@ -327,7 +354,7 @@ export class CurveConstraints {
                 }
                 umin = offset + minVariationAbscissa;
                 uMax = offset + maxVariationAbscissa;
-                console.log("umin = "+umin+" u = "+u+"uMax = "+uMax);
+                // console.log("umin = "+umin+" u = "+u+"uMax = "+uMax);
                 iter++;
             }
         } else {
