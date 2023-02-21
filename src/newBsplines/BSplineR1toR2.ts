@@ -3,7 +3,6 @@ import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, curveSegment, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
-import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ErrorLog } from "../errorProcessing/ErrorLoging"
 
 /**
@@ -312,40 +311,47 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
 
     splitAt(u: number, segmentLocation: curveSegment): BSplineR1toR2 {
         const result = this.clone();
-        const knots = result._knots.length;
-        const ctrlPts = result._controlPoints.length;
-        result.insertKnot(u, result._degree + 1);
-        let newControlPolygon: Vector2d[] = [];
-        let newKnots: number[] = [];
-        if(segmentLocation === curveSegment.BEFORE) {
-            for(let i = 0; i < ctrlPts; i++) {
-                newControlPolygon.push(result._controlPoints[i]);
-            }
-            for(let i = 0; i < knots; i++) {
-                newKnots.push(result._knots[i]);
-            }
-            const intervalSpan = newKnots[newKnots.length - 1] - newKnots[0];
-            for(let i = 0; i < newKnots.length; i++) {
-                newKnots[i] = newKnots[i] / intervalSpan;
-            }
-            result._controlPoints = newControlPolygon;
-            result._knots = newKnots;
-        } else if(segmentLocation === curveSegment.AFTER) {
-            for(let i = ctrlPts; i < result._controlPoints.length; i++) {
-                newControlPolygon.push(result._controlPoints[i]);
-            }
-            for(let i = knots - result._degree - 1; i < result._knots.length; i++) {
-                newKnots.push(result._knots[i]);
-            }
-            const intervalSpan = newKnots[newKnots.length - 1] - newKnots[0];
-            for(let i = 0; i < newKnots.length; i++) {
-                newKnots[i] = newKnots[newKnots.length - 1] - (newKnots[newKnots.length - 1] - newKnots[i]) / intervalSpan;
-            }
-            result._controlPoints = newControlPolygon;
-            result._knots = newKnots;
-        } else {
-            const error = new ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
+        const knotValues = result.getDistinctKnots();
+        if(knotValues.indexOf(u) !== -1) {
+            const error = new ErrorLog(this.constructor.name, "splitAt", "Method not configured to split a curve at an existing knot");
             error.logMessageToConsole();
+        } else {
+            result.insertKnot(u, result._degree + 1);
+            const knotSequence = result._knots;
+            let newControlPolygon: Vector2d[] = [];
+            let newKnots: number[] = [];
+            let knotIndex = result._degree + 1;
+            while(knotSequence[knotIndex] !== u && knotIndex < knotSequence.length) {
+                knotIndex++;
+            }
+            const indexBound = knotIndex + result._degree + 1;
+            if(segmentLocation === curveSegment.BEFORE) {
+                for(let i = 0; i < knotIndex; i++) {
+                    newControlPolygon.push(result._controlPoints[i]);
+                }
+                for(let i = 0; i < indexBound; i++) {
+                    newKnots.push(result._knots[i]);
+                }
+                result._controlPoints = newControlPolygon;
+                result._knots = newKnots;
+            } else if(segmentLocation === curveSegment.AFTER) {
+                for(let i = knotIndex; i < result._controlPoints.length; i++) {
+                    newControlPolygon.push(result._controlPoints[i]);
+                }
+                for(let i = knotIndex; i < result._knots.length; i++) {
+                    newKnots.push(result._knots[i]);
+                }
+                const offset = u;
+                for(let i = 0; i < newKnots.length; i++) {
+                    // newKnots[i] = newKnots[newKnots.length - 1] - (newKnots[newKnots.length - 1] - newKnots[i]) / intervalSpan;
+                    newKnots[i] = newKnots[i] - offset;
+                }
+                result._controlPoints = newControlPolygon;
+                result._knots = newKnots;
+            } else {
+                const error = new ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
+                error.logMessageToConsole();
+            }
         }
         return result;
     }
@@ -380,44 +386,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
         let result = new BSplineR1toR2(vertices, revertedKnotSequence);
         return result;
-    }
-
-    // replaced by getDistinctKnots in AbstractBSplineR1toR2
-    // distinctKnots(): number[] {
-    //     let result = [this.knots[0]];
-    //     let temp = result[0];
-    //     for (let i = 1; i < this.knots.length; i += 1) {
-    //         if (this.knots[i] !== temp) {
-    //             result.push(this.knots[i]);
-    //             temp = this.knots[i];
-    //         }
-    //     }
-    //     return result;
-    // }
-
-
-    relocateAfterOptimization(step: Array<Vector2d>, activeLocationControl: ActiveLocationControl) {
-        if(activeLocationControl !== ActiveLocationControl.stopDeforming) {
-            let index = 0
-            // if(activeLocationControl === ActiveLocationControl.firstControlPoint || activeLocationControl === ActiveLocationControl.both)
-            // index = 0 covers the other configurations
-            if(activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                index = this.controlPoints.length - 1
-            }
-
-            for (let ctrlPt of this.controlPoints) {
-                ctrlPt.x -= step[index].x;
-                ctrlPt.y -= step[index].y;
-            }
-            /*console.log("relocAfterOptim: index = " + index + " sx " + this.controlPoints[index].x + " sy " + this.controlPoints[index].y) */
-        } else {
-            for (let i = 0; i < this.controlPoints.length; i += 1) {
-                this.controlPoints[i].x -= step[i].x;
-                this.controlPoints[i].y -= step[i].y;
-            }
-            /*console.log("relocAfterOptim: relocate all ") */
-        }
-
     }
 
     /**

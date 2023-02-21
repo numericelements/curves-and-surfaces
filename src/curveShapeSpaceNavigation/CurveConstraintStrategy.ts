@@ -460,6 +460,9 @@ export class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstra
         const refPt2currentCurve = this._currentCurve.evaluate(knotsCurrentCurve[this.shapeNavigableCurve.clampedPoints[1]]);
         const pt2Pt1currentCurve = refPt2currentCurve.substract(refPt1currentCurve);
         const knotsOptCurve = this.optimizedCurve.getDistinctKnots();
+        if(knotsOptCurve[this._referencePtIndex] > knotsOptCurve[knotsOptCurve.length - 1] || knotsOptCurve[this._referencePtIndex] < knotsOptCurve[0]) {
+            console.log("Clamped points out of range")
+        }
         const refPt1optCurve = this._optimizedCurve.evaluate(knotsOptCurve[this._referencePtIndex]);
         const refPt2optCurve = this._optimizedCurve.evaluate(knotsOptCurve[this.shapeNavigableCurve.clampedPoints[1]]);
         const pt2Pt1optCurve = refPt2optCurve.substract(refPt1optCurve);

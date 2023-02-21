@@ -1,6 +1,5 @@
 import { OptimizationProblemCtrlParameters } from "../bsplineOptimizationProblems/OptimizationProblemCtrlParameters";
 import { ActiveControl, OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
-import { CurveControlState, HandleNoDiffEventNoSlidingState } from "../controllers/CurveControlState";
 import { CurveControlStrategyInterface } from "../controllers/CurveControlStrategyInterface";
 import { DummyStrategy } from "../controllers/DummyStrategy";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
@@ -52,8 +51,8 @@ export abstract class NavigationCurveModel {
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._shapeSpaceDiffEventsStructure = curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this._shapeSpaceDiffEventsConfigurator = this._shapeSpaceDiffEventsStructure.shapeSpaceDiffEventsConfigurator;
-        this.controlOfInflections = this._curveShapeSpaceNavigator.controlOfInflection;
-        this.controlOfCurvatureExtrema = this._curveShapeSpaceNavigator.controlOfCurvatureExtrema;
+        this.controlOfInflections = this._shapeSpaceDiffEventsStructure.activeControlInflections;
+        this.controlOfCurvatureExtrema = this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema;
         this.sliding = this._curveShapeSpaceNavigator.sliding;
         this._shapeNavigableCurve = curveShapeSpaceNavigator.shapeNavigableCurve;
         this._activeExtremaLocationControl = ActiveExtremaLocationControl.none;
@@ -165,7 +164,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
             error.logMessageToConsole();
         }
         this._curveControl = new NoSlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
-            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
 
         this._currentCurve = this.curveModel.spline;
         this.currentControlPolygon = this.currentCurve.controlPoints;
@@ -340,7 +339,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         }
         if(this._curveControl instanceof NoSlidingStrategy) {
             this._curveControl = new NoSlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
-            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
         } else if(this._curveControl instanceof SlidingStrategy) {
             this.curveControl = new SlidingStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
             this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._curveShapeSpaceNavigator);
@@ -427,7 +426,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
             error.logMessageToConsole();
         }
         this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
-            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
 
         this._currentCurve = this.curveModel.spline;
         this.currentControlPolygon = this.currentCurve.controlPoints.slice();
@@ -528,7 +527,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
             error.logMessageToConsole();
         }
         this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
-            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+            this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
     }
 
     newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {

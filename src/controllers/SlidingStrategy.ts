@@ -7,7 +7,6 @@ import { CurveSceneController } from "./CurveSceneController"
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { ActiveLocationControl, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
 
@@ -53,14 +52,7 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         //enum ActiveControl {curvatureExtrema, inflections, both}
         let activeControl : ActiveControl = ActiveControl.both
 
-        /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
-        // if(curveShapeSpaceNavigator.curveSceneController !== undefined) {
-            this.curveSceneController = curveShapeSpaceNavigator.curveSceneController
-        // } else {
-        //     const error = new ErrorLog(this.constructor.name, "constructor", "curveShapeSpaceNavigator undefined")
-        //     error.logMessageToConsole()
-        // }
-
+        this.curveSceneController = curveShapeSpaceNavigator.curveSceneController
 
         if (!controlOfCurvatureExtrema) {
             activeControl = ActiveControl.inflections

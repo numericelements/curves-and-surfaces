@@ -111,6 +111,18 @@ export abstract class AbstractCurveAnalyzer {
         return signChangesControlPolygon;
     }
 
+    abstract update(): void;
+
+    updateCurrent(): void {
+        this.curve = this.navigationCurveModel.currentCurve;
+        this.update();
+    }
+
+    updateOptimized(): void {
+        this.curve = this.navigationCurveModel.optimizedCurve;
+        this.update();
+    }
+
     // analyzeControlPointsUnderShapeSpaceConstraintsAtCurveExtremities(signChangesIntervals: number, controlPoints: number[], 
     //     nbCurveConstraints: number, constraintsAtCurveExtremties: number[]): number {
     //     let result = RETURN_ERROR_CODE;
@@ -217,7 +229,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
     // }
 
     update(): void {
-        this.curve = this.navigationCurveModel.currentCurve;
+        // this.curve = this.navigationCurveModel.currentCurve;
         const diffEventsExtractor = new OpenCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
@@ -271,7 +283,7 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     }
 
     update(): void {
-        this.curve = this.navigationCurveModel.currentCurve;
+        // this.curve = this.navigationCurveModel.currentCurve;
         const diffEventsExtractor = new OpenCurveDifferentialEventsExtractorWithoutSequence(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
@@ -348,7 +360,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
     }
 
     update(): void {
-        this.curve = this.navigationCurveModel.currentCurve;
+        // this.curve = this.navigationCurveModel.currentCurve;
         const diffEventsExtractor = new ClosedCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
@@ -405,7 +417,7 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     }
 
     update(): void {
-        this.curve = this.navigationCurveModel.currentCurve;
+        // this.curve = this.navigationCurveModel.currentCurve;
         const diffEventsExtractor = new ClosedCurveDifferentialEventsExtractorWithoutSequence(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;

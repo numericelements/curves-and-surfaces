@@ -2,8 +2,6 @@ import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
-import { Vector2d } from "../mathVector/Vector2d";
-import { ActiveLocationControl } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveModel } from "../newModels/CurveModel";
 
 
@@ -14,15 +12,10 @@ export class DummyStrategy implements CurveControlStrategyInterface {
     private activeOptimizer: boolean = true
 
     private curveModel: ClosedCurveModel
-    /* JCL 2020/09/23 Add management of the curve location */
-    private activeLocationControl: ActiveLocationControl
     private dummyCurveModel: CurveModel
 
-    constructor(curveModel: ClosedCurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean, activeLocationControl: ActiveLocationControl ) {
+    constructor(curveModel: ClosedCurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean) {
         let activeControl : ActiveControl = ActiveControl.both
-
-        /* JCL 2020/09/23 Update the curve location control in accordance with the status of the clamping button and the status of curveSceneController.activeLocationControl */
-        this.activeLocationControl = activeLocationControl
 
         if (!controlOfCurvatureExtrema) {
             activeControl = ActiveControl.inflections

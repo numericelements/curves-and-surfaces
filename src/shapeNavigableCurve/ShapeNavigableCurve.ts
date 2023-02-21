@@ -6,14 +6,10 @@ import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
-import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
 import { EventSlideOutsideCurve, EventStateAtCurveExtremity, EventStayInsideCurve } from "./EventStateAtCurveExtremity";
 import { NavigationCurveModelInterface } from "../curveShapeSpaceNavigation/NavigationCurveModelInterface";
 import { CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { CurveModel } from "../newModels/CurveModel";
-
-/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
-export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none, stopDeforming};
 
 export const NO_CONSTRAINT = -1;
 export const MAX_CLAMPED_POINTS = 2;
@@ -26,11 +22,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
     private _curveShapeSpaceNavigator?: CurveShapeSpaceNavigator;
     private _clampedPoints: number[] = [];
     private _clampedPointsPreviousState: number[] = [];
-    private _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
-    private _eventStateAtCrvExtremities: EventStateAtCurveExtremity;
     private observers: IObserver<CurveModelInterface>[] = [];
-
-    public activeLocationControl: ActiveLocationControl
 
     constructor() {
         this._curveShapeSpaceNavigator = undefined;
@@ -42,17 +34,10 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         this._curveCategory.curveModelChange = false;
         this._curveConstraints = new CurveConstraints(this);
         this._crvConstraintAtExtremitiesStgy = this._curveConstraints.curveConstraintStrategy;
-        this.activeLocationControl = ActiveLocationControl.none;
         // No clamped point set to be consistent with the navigation mode at initialization
         this._clampedPoints.push(NO_CONSTRAINT);
         this._clampedPoints.push(NO_CONSTRAINT);
         this._clampedPointsPreviousState = this._clampedPoints;
-        this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this);
-        this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventState;
-        // JCL CurveShapeSpaceNavigator context uses parameters of CurveModeler context
-        // JCL To ensure its correct initialization, it must be called last to ensure a consistent
-        // JCL initialization of each context.
-
     }
 
     changeCurveCategory(category: CurveCategory): void {
@@ -61,10 +46,6 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
 
     changeCurveConstraintStrategy(state: CurveConstraintInterface): void {
         this._crvConstraintAtExtremitiesStgy = state;
-    }
-
-    changeMngmtOfEventAtExtremity(eventState: EventStateAtCurveExtremity): void {
-        this._eventStateAtCrvExtremities = eventState;
     }
 
     get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator | undefined {
@@ -95,14 +76,6 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         return this._curveConstraints;
     }
 
-    get eventMgmtAtExtremities(): EventMgmtAtCurveExtremities {
-        return this._eventMgmtAtExtremities;
-    }
-
-    get eventStateAtCrvExtremities(): EventStateAtCurveExtremity {
-        return this._eventStateAtCrvExtremities;
-    }
-
     set curveShapeSpaceNavigator(curveShapeSpaceNavigator: CurveShapeSpaceNavigator | undefined) {
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
     }
@@ -117,14 +90,6 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
 
     set controlOfCurveClamping(controlOfCurveClamping: boolean) {
         this._controlOfCurveClamping = controlOfCurveClamping;
-    }
-
-    set eventMgmtAtExtremities(eventMgmtAtExtremities: EventMgmtAtCurveExtremities) {
-        this._eventMgmtAtExtremities = eventMgmtAtExtremities;
-    }
-
-    set eventStateAtCrvExtremities(eventStateAtCrvExtremities: EventStateAtCurveExtremity) {
-        this._eventStateAtCrvExtremities = eventStateAtCrvExtremities;
     }
 
     inputSelectCurveCategory(crvCategoryID: number) {
@@ -154,21 +119,16 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         if( this._curveShapeSpaceNavigator == undefined
             || this._curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || this._curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
-            const error = new ErrorLog(this.constructor.name, "toggleCurveClamping", "Cannot handle clamping because no curve shape space navigator is available.");
+            const error = new ErrorLog(this.constructor.name, "toggleCurveClamping", "Cannot handle clamping because no curve shape space navigator is available or no shape constraint is active.");
             error.logMessageToConsole();
         } else {
             this._controlOfCurveClamping = !this._controlOfCurveClamping
             console.log("control of curve clamping: " + this._controlOfCurveClamping)
             if(this._controlOfCurveClamping) {
                 this._clampedPoints = this._clampedPointsPreviousState;
-                // this._crvConstraintAtExtremitiesStgy = new CurveConstraintClampedFirstControlPoint(this._curveConstraints);
-                this.activeLocationControl = ActiveLocationControl.firstControlPoint
-                // if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
             } else {
-                this.activeLocationControl = ActiveLocationControl.none;
                 // Store the previous constraint state for restoration. Other actions take place when updating objects through observers
                 this._clampedPointsPreviousState = this._clampedPoints;
-                // this._crvConstraintAtExtremitiesStgy = new CurveConstraintNoConstraint(this._curveConstraints);
             }
             this.notifyObservers();
         }

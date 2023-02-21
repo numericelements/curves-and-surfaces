@@ -1,4 +1,5 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { intervalLocation } from "../sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents";
 
 const KNOT_COINCIDENCE_TOLERANCE = 10-6;
 
@@ -228,4 +229,47 @@ export class KnotSequence {
         return index;
     }
 
+    test(): void {
+        const seq = new Sequence(0, 10, 1)
+        for(const num of seq) {
+            console.log(num)
+        }
+    }
+
+}
+
+export class Sequence {
+
+    public start: number
+    public end: number
+    public interval: number
+
+    constructor( start = 0, end = Infinity, interval = 1 ) {
+        this.start = start;
+        this.end = end;
+        this.interval = interval;
+    }
+    [Symbol.iterator]() {
+        let counter = 0;
+        let nextIndex = this.start;
+        return  {
+            next: () => {
+                if ( nextIndex <= this.end ) {
+                    let result = { value: nextIndex,  done: false }
+                    nextIndex += this.interval;
+                    counter++;
+                    return result;
+                }
+                return { value: counter, done: true };
+            }
+        }
+    }
+
+}
+
+export class Sequence2 extends Sequence {
+
+    constructor(start = 0, end = Infinity, interval = 1) {
+        super();
+    }
 }

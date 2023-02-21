@@ -16,25 +16,20 @@ import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve"
 import { NavigationState, OCurveNavigationWithoutShapeSpaceMonitoring, CCurveNavigationWithoutShapeSpaceMonitoring } from "./NavigationState";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint} from "./CurveConstraintStrategy";
 import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
-import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding, ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding, ShapeSpaceConfiguration } from "./ShapeSpaceDiffEventsConfigurator";
 import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { CurveAnalyzerEventsSlidingOutOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
-import { SlidingStrategy } from "../controllers/SlidingStrategy";
 import { CurveControlStrategyInterface } from "../controllers/CurveControlStrategyInterface";
 import { CurveControlState, HandleNoDiffEventNoSlidingState } from "../controllers/CurveControlState";
-import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 import { CurveModel } from "../newModels/CurveModel";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
-import { DummyStrategy } from "../controllers/DummyStrategy";
-import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzerInterface";
 import { NavigationCurveModelInterface } from "./NavigationCurveModelInterface";
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "./NavigationCurveModel";
 import { CurveSceneController } from "../controllers/CurveSceneController";
+import { EventStateAtCurveExtremity } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
 
 export const MAX_NB_STEPS_TRUST_REGION_OPTIMIZER = 800;
 export const MAX_TRUST_REGION_RADIUS = 100;
@@ -51,12 +46,15 @@ export class CurveShapeSpaceNavigator {
     private _sliding: boolean;
     private _controlOfCurvatureExtrema: boolean;
     private _controlOfInflection: boolean;
+    private _controlOfEventsAtExtremity: boolean;
     private _navigationCurveModel: NavigationCurveModel;
     private _navigationState: NavigationState;
     private _curveControl: CurveControlStrategyInterface;
+    private _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+    private _eventStateAtCrvExtremities: EventStateAtCurveExtremity;
     private _activeExtremaLocationControl: ActiveExtremaLocationControl;
-    private _activeInflectionLocationControl: ActiveInflectionLocationControl;
-    private _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
+    // private _activeInflectionLocationControl: ActiveInflectionLocationControl;
+    private readonly _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     private _shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration;
 
     //JCL temporary addition for compatibility with prior version
@@ -72,18 +70,23 @@ export class CurveShapeSpaceNavigator {
         //      mode 1, mode 2: controlOfCurvatureExtrema = true, controlOfInflection = true
         this._controlOfCurvatureExtrema = false;
         this._controlOfInflection = false;
+        // Initializes controlOfEventsAtExtremity in accordance with the navigation mode:
+        //      mode 0, mode 1, mode 2: controlOfCurveClamping =  false,
+        this._controlOfEventsAtExtremity = false;
+
         this._shapeNavigableCurve = shapeNavigableCurve;
         this._curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
         this._shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._shapeNavigableCurve, this);
         this._shapeSpaceDiffEventsConfigurator = this._shapeSpaceDiffEventsStructure.shapeSpaceDiffEventsConfigurator;
         this._navigationCurveModel = new OpenCurveShapeSpaceNavigator(this);
         this._navigationState = this._navigationCurveModel.navigationState;
+        this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this);
+        this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventState;
         this._navigationState.navigationStateChange = false;
         this._shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange = false;
         this._curveControl = this._navigationCurveModel.curveControl;
-        // this._curveControlState = this._navigationCurveModel.curveControlState;
         this._activeExtremaLocationControl = this._navigationCurveModel.activeExtremaLocationControl;
-        this._activeInflectionLocationControl = this._navigationCurveModel.activeInflectionLocationControl;
+        // this._activeInflectionLocationControl = this._navigationCurveModel.activeInflectionLocationControl;
 
         this.curveSceneController = undefined;
     }
@@ -112,6 +115,18 @@ export class CurveShapeSpaceNavigator {
         return this._controlOfInflection;
     }
 
+    get controlOfEventsAtExtremity(): boolean {
+        return this._controlOfEventsAtExtremity;
+    }
+
+    get eventMgmtAtExtremities(): EventMgmtAtCurveExtremities {
+        return this._eventMgmtAtExtremities;
+    }
+
+    get eventStateAtCrvExtremities(): EventStateAtCurveExtremity {
+        return this._eventStateAtCrvExtremities;
+    }
+
     get shapeNavigableCurve(): ShapeNavigableCurve {
         return this._shapeNavigableCurve;
     }
@@ -120,9 +135,9 @@ export class CurveShapeSpaceNavigator {
         return this._activeExtremaLocationControl;
     }
 
-    get activeInflectionLocationControl(): ActiveInflectionLocationControl {
-        return this._activeInflectionLocationControl;
-    }
+    // get activeInflectionLocationControl(): ActiveInflectionLocationControl {
+    //     return this._activeInflectionLocationControl;
+    // }
 
     get shapeSpaceDiffEventsStructure(): ShapeSpaceDiffEventsStructure {
         return this._shapeSpaceDiffEventsStructure;
@@ -142,6 +157,17 @@ export class CurveShapeSpaceNavigator {
 
     set controlOfInflection(controlOfInflection: boolean) {
         this._controlOfInflection = controlOfInflection;
+    }
+    set controlOfEventsAtExtremity(controlOfEventsAtExtremity: boolean) {
+        this._controlOfEventsAtExtremity = controlOfEventsAtExtremity;
+    }
+
+    set eventMgmtAtExtremities(eventMgmtAtExtremities: EventMgmtAtCurveExtremities) {
+        this._eventMgmtAtExtremities = eventMgmtAtExtremities;
+    }
+
+    set eventStateAtCrvExtremities(eventStateAtCrvExtremities: EventStateAtCurveExtremity) {
+        this._eventStateAtCrvExtremities = eventStateAtCrvExtremities;
     }
 
     set curveModel(curveModel: CurveModelInterface) {
@@ -164,7 +190,9 @@ export class CurveShapeSpaceNavigator {
 
     // abstract transitionTo(curveControlState: CurveControlState): void;
 
-    // abstract curveDisplacement(): void;
+    changeMngmtOfEventAtExtremity(eventState: EventStateAtCurveExtremity): void {
+        this._eventStateAtCrvExtremities = eventState;
+    }
 
     changeNavigationCurveModelState(state: NavigationCurveModel): void {
         this._navigationCurveModel = state;
@@ -175,7 +203,7 @@ export class CurveShapeSpaceNavigator {
         if(this._curveModel !== undefined) {
             if(this._sliding) {
                 this._sliding = false;
-                //  this._curveControl = new NoSlidingStrategy(this._curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this._shapeNavigableCurve.activeLocationControl);
+                //  this._curveControl = new NoSlidingStrategy(this._curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema);
             }
             else {
                 this._sliding = true;
@@ -200,6 +228,13 @@ export class CurveShapeSpaceNavigator {
         this.controlOfInflection = !this.controlOfInflection;
 
         this._shapeSpaceDiffEventsStructure.changeShapeSpaceStructure(this._shapeSpaceDiffEventsConfigurator);
+    }
+
+    toggleEventMgmtAtCurveExt() {
+        // this._curveControl.toggleEventMgmtAtCurveExt();
+        this._controlOfEventsAtExtremity = !this._controlOfEventsAtExtremity
+        console.log("control of event at extremity: " + this._controlOfEventsAtExtremity)
+
     }
 
     inputSelectNavigationProcess(navigationID: number) {

@@ -16,6 +16,7 @@ import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpa
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "./CurveConstraintStrategy";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { OptimizerReturnStatus } from "../mathematics/Optimizer";
+import { NeighboringEventsType } from "../sequenceOfDifferentialEvents/NeighboringEvents";
 
 export abstract class NavigationState {
 
@@ -161,7 +162,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
-        this.curveAnalyserCurrentCurve.update();
+        this.curveAnalyserCurrentCurve.updateCurrent();
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
@@ -170,7 +171,7 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
         this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve.clone();
         // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
-        this.curveAnalyserOptimizedCurve.update();
+        this.curveAnalyserOptimizedCurve.updateOptimized();
         this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
     }
 
@@ -226,7 +227,8 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
-        this._curveAnalyserCurrentCurve.update();
+        this._curveAnalyserCurrentCurve.updateCurrent();
+        this.navigationCurveModel.curveAnalyserCurrentCurve = this._curveAnalyserCurrentCurve;
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
@@ -241,15 +243,33 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
                 this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
                 this.optimizedCurve = curveModelOptimized.spline;
                 this.curveConstraintsMonitoring();
-    
-                // problème: OpenCurveAnalyzer appliqué à optimizedCurve utilise update mais celle-ci utilise
-                // navigationCurveModel.currentCurve au lieu de navigationCurveModel.optimizedCurve
-                this._curveAnalyserOptimizedCurve.update();
-    
-                // this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
-                // const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
-                // to be added later
-                // seqComparator.locateNeiboringEvents();
+                this._curveAnalyserOptimizedCurve.updateOptimized();
+                this.navigationCurveModel.curveAnalyserOptimizedCurve = this._curveAnalyserOptimizedCurve;
+                this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+                const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
+                seqComparator.locateNeiboringEvents();
+                if(seqComparator.neighboringEvents.length > 0) {
+                    if(seqComparator.neighboringEvents.length === 1) {
+                        if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumLeftBoundary) {
+                            console.log("Curvature extremum disappear on the left boundary.");
+                            // this.shapeNavigableCurve.eventMgmtAtExtremities.processEventAtCurveExtremity();
+                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
+                            console.log("Curvature extremum disappear on the right boundary.");
+                            // this.shapeNavigableCurve.eventMgmtAtExtremities.processEventAtCurveExtremity();
+                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtrema) {
+                            console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
+                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundary) {
+                            console.log("Inflection disappear on the left boundary.");
+                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundary) {
+                            console.log("Inflection disappear on the right boundary.");
+                        } else {
+                            console.log("Cannot process this configuration with navigation state.");
+                        }
+                    } else {
+                        const error = new ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
+                        error.logMessageToConsole();
+                    }
+                }
             } else {
                 let curveModelOptimized = new CurveModel();
                 curveModelOptimized.setSpline(this.currentCurve);
@@ -311,7 +331,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
-        this.navigationCurveModel.curveAnalyserCurrentCurve.update();
+        this._curveAnalyserCurrentCurve.updateCurrent();
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = true;
@@ -320,7 +340,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
             this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
-            this.navigationCurveModel.curveAnalyserOptimizedCurve.update();
+            this._curveAnalyserOptimizedCurve.updateOptimized();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
             // to be added later
@@ -444,7 +464,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
-        this.curveAnalyserCurrentCurve.update();
+        this.curveAnalyserCurrentCurve.updateCurrent();
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         // JCL pas nécessaire dans cette config si pas incompatible avec la connexion de l'optimiseur
@@ -453,7 +473,7 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
         this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.targetCurve;
         // this.shapeNavigableCurve.updateCurve();
         this.curveConstraintsMonitoring();
-        this.curveAnalyserOptimizedCurve.update();
+        this.curveAnalyserOptimizedCurve.updateOptimized();
         this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
     }
 
@@ -504,7 +524,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
-        this.curveAnalyserCurrentCurve.update();
+        this.curveAnalyserCurrentCurve.updateCurrent();
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
@@ -514,7 +534,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
-            this.curveAnalyserOptimizedCurve.update();
+            this.curveAnalyserOptimizedCurve.updateOptimized();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
             // to be added later
@@ -573,7 +593,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
-        this.navigationCurveModel.curveAnalyserCurrentCurve.update();
+        this.curveAnalyserCurrentCurve.updateCurrent();
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = true;
@@ -582,7 +602,7 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
             // this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
-            this.navigationCurveModel.curveAnalyserOptimizedCurve.update();
+            this.curveAnalyserOptimizedCurve.updateOptimized();
             this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
             const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
             // to be added later

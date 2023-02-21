@@ -14,11 +14,14 @@
 
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ShapeSpaceConfiguration } from "./ShapeSpaceDiffEventsConfigurator";
-import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { CurveCategory, OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 import { NavigationCurveModelInterface } from "./NavigationCurveModelInterface";
 import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "./ShapeSpaceDiffEventsConfigurator";
+import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
+
+export enum EventMgmtState {Active, Inactive, NotApplicable}
 
 export class ShapeSpaceDiffEventsStructure {
 
@@ -26,9 +29,10 @@ export class ShapeSpaceDiffEventsStructure {
     private _activeControlCurvatureExtrema: boolean;
     private _activeNavigationWithOptimizer: boolean;
     private _slidingDifferentialEvents: boolean;
+    private _managementOfEventsAtExtremities: EventMgmtState;
     private _shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration;
-    private _curveCategory: CurveCategory;
-    private _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    private readonly _curveCategory: CurveCategory;
+    private readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
@@ -41,6 +45,15 @@ export class ShapeSpaceDiffEventsStructure {
         this._activeControlInflections = false;
         this._activeControlCurvatureExtrema = false;
         this._slidingDifferentialEvents =  false;
+        if(this._curveCategory instanceof OpenPlanarCurve) {
+            this._managementOfEventsAtExtremities = EventMgmtState.Inactive;
+        } else if(this._curveCategory instanceof ClosedCurveModel) {
+            this._managementOfEventsAtExtremities = EventMgmtState.NotApplicable;
+        } else{
+            this._managementOfEventsAtExtremities = EventMgmtState.NotApplicable;
+            const error = new ErrorLog(this.constructor.name, "constructor", "Curve category type unknown.");
+            error.logMessageToConsole();
+        }
     }
 
     set activeControlInflections(controlOfInflections: boolean) {
@@ -69,6 +82,24 @@ export class ShapeSpaceDiffEventsStructure {
         this._activeNavigationWithOptimizer = activeNavigation;
     }
 
+    set managementOfEventsAtExtremities(managementOfEventsAtExtremities: EventMgmtState) {
+        if(this._curveCategory instanceof OpenPlanarCurve) {
+            if(managementOfEventsAtExtremities === EventMgmtState.NotApplicable) {
+                const error = new ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
+                error.logMessageToConsole();
+            } else {
+                this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
+            }
+        } else if(this._curveCategory instanceof ClosedCurveModel) {
+            if(managementOfEventsAtExtremities !== EventMgmtState.NotApplicable) {
+                const error = new ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the closed curve category");
+                error.logMessageToConsole();
+            } else {
+                this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
+            }
+        }
+    }
+
     get activeControlInflections(): boolean {
         return this._activeControlInflections;
     }
@@ -91,6 +122,10 @@ export class ShapeSpaceDiffEventsStructure {
 
     get shapeSpaceDiffEventsConfigurator(): ShapeSpaceConfiguration {
         return this._shapeSpaceDiffEventsConfigurator;
+    }
+
+    get managementOfEventsAtExtremities():EventMgmtState {
+        return this._managementOfEventsAtExtremities;
     }
 
     reset(): void {

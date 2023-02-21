@@ -632,6 +632,7 @@ export class ShapeSpaceNavigationEventListener {
     private readonly _toggleButtonCurvatureExtrema:  HTMLButtonElement;
     private readonly _toggleButtonInflection: HTMLButtonElement;
     private readonly _toggleButtonSliding: HTMLButtonElement;
+    private readonly _toggleButtonEventsStayInside: HTMLButtonElement;
 
     private _currentNavigationMode: string;
     private readonly _inputNavigationMode: HTMLSelectElement;
@@ -642,10 +643,14 @@ export class ShapeSpaceNavigationEventListener {
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
     private _sliding: boolean;
+    private controlOfEventAtExtremity: boolean;
     private previousControlOfCurvatureExtrema: boolean;
     private previousControlOfInflection: boolean;
     private previousSliding: boolean;
+    private previousControlOfEventAtExtremity: boolean;
+    private previousCtrlOfEventAtExtrmtyWrtSliding: boolean;
     private resetButtons: boolean;
+    private resetControlOfEventAtExtremity: boolean;
 
     // private sceneController: CurveSceneController;
 
@@ -656,8 +661,6 @@ export class ShapeSpaceNavigationEventListener {
         curveModelDefinitionEventListener.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
-        this.shapeNavigableCurve.eventMgmtAtExtremities.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
-        this.shapeNavigableCurve.eventMgmtAtExtremities.shapeSpaceDiffEventsStructure = this._curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
 
         // this.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
@@ -665,6 +668,7 @@ export class ShapeSpaceNavigationEventListener {
         this._toggleButtonCurvatureExtrema = <HTMLButtonElement> document.getElementById("toggleButtonCurvatureExtrema");
         this._toggleButtonInflection = <HTMLButtonElement> document.getElementById("toggleButtonInflections");
         this._toggleButtonSliding = <HTMLButtonElement> document.getElementById("toggleButtonSliding");
+        this._toggleButtonEventsStayInside = <HTMLButtonElement> document.getElementById("toggleButtonEventsStayInside");
     
         /* Get control button IDs for curve shape control*/
         // Initializes the navigation mode to: 
@@ -681,10 +685,14 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfCurvatureExtrema = false;
         this.controlOfInflection = false;
         this._sliding = false;
+        this.controlOfEventAtExtremity = false;
         this.previousControlOfCurvatureExtrema = false;
         this.previousControlOfInflection = false;
         this.previousSliding = false;
+        this.previousControlOfEventAtExtremity = false;
+        this.previousCtrlOfEventAtExtrmtyWrtSliding = false;
         this.resetButtons = false;
+        this.resetControlOfEventAtExtremity = false;
 
         this.shapeNavigableCurve.registerObserver(new CurveModelObserverInShapeSpaceNavigationEventListener(this));
 
@@ -694,6 +702,7 @@ export class ShapeSpaceNavigationEventListener {
         this._toggleButtonCurvatureExtrema.addEventListener('click', this.toggleControlOfCurvatureExtrema.bind(this));
         this._toggleButtonInflection.addEventListener('click', this.toggleControlOfInflections.bind(this));
         this._toggleButtonSliding.addEventListener('click', this.toggleSliding.bind(this));
+        this._toggleButtonEventsStayInside.addEventListener('click', this.toggleEventMgmtAtCurveExt.bind(this));
     }
 
     get curveShapeSpaceNavigator() {
@@ -710,6 +719,10 @@ export class ShapeSpaceNavigationEventListener {
 
     get toggleButtonSliding() {
         return this._toggleButtonSliding;
+    }
+
+    get toggleButtonEventsStayInside() {
+        return this._toggleButtonEventsStayInside;
     }
 
     get sliding() {
@@ -765,6 +778,21 @@ export class ShapeSpaceNavigationEventListener {
         if(!this.resetButtons) {
             this._curveShapeSpaceNavigator.toggleSliding();
             this._curveControlState.handleSliding();
+            if(!this._sliding) {
+                this.resetControlOfEventAtExtremity = true;
+                this.previousCtrlOfEventAtExtrmtyWrtSliding = this.controlOfEventAtExtremity;
+                if(this.controlOfEventAtExtremity) {
+                    this._toggleButtonEventsStayInside.click();
+                }
+                this.disableEventMgmtAtCurveExt();
+            } else {
+                this.enableEventMgmtAtCurveExt();
+                this.controlOfEventAtExtremity = this.previousCtrlOfEventAtExtrmtyWrtSliding;
+                if(this.controlOfEventAtExtremity) {
+                    this._toggleButtonEventsStayInside.click();
+                }
+                this.resetControlOfEventAtExtremity = false;
+            }
         }
     }
 
@@ -774,6 +802,23 @@ export class ShapeSpaceNavigationEventListener {
 
     enableControlOfSliding() {
         this._toggleButtonSliding.disabled = false;
+    }
+
+    toggleEventMgmtAtCurveExt() {
+        if(!this.resetControlOfEventAtExtremity) {
+            this.controlOfEventAtExtremity = !this.controlOfEventAtExtremity;
+            if(!this.resetButtons) {
+                this._curveShapeSpaceNavigator.toggleEventMgmtAtCurveExt();
+            }
+        }
+    }
+
+    disableEventMgmtAtCurveExt() {
+        this._toggleButtonEventsStayInside.disabled = true;
+    }
+
+    enableEventMgmtAtCurveExt() {
+        this._toggleButtonEventsStayInside.disabled = false;
     }
 
     clickNavigationMode() {
@@ -791,6 +836,7 @@ export class ShapeSpaceNavigationEventListener {
     updateCurveShapeControlButtons() {
         if(this.previousSliding) {
             this._toggleButtonSliding.click();
+            this.enableEventMgmtAtCurveExt();
         }
         if(this.previousControlOfCurvatureExtrema) {
             this._toggleButtonCurvatureExtrema.click();
@@ -798,10 +844,17 @@ export class ShapeSpaceNavigationEventListener {
         if(this.previousControlOfInflection) {
             this._toggleButtonInflection.click();
         }
+        if(this.previousControlOfEventAtExtremity) {
+            this._toggleButtonEventsStayInside.click();
+        }
     }
 
     resetCurveShapeControlButtons() {
         this.resetButtons = true;
+        if(this.controlOfEventAtExtremity) {
+            this._toggleButtonEventsStayInside.click();
+            this._curveShapeSpaceNavigator.controlOfEventsAtExtremity = false;
+        }
         if(this._sliding) {
             this._toggleButtonSliding.click();
             this._curveShapeSpaceNavigator.sliding = false;
@@ -821,6 +874,7 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfCurvatureExtrema = this.previousControlOfCurvatureExtrema;
         this.controlOfInflection = this.previousControlOfInflection;
         this._sliding = this.previousSliding;
+        this.controlOfEventAtExtremity = this.previousControlOfEventAtExtremity;
         if(this.previousControlOfCurvatureExtrema) {
             if(this.previousControlOfInflection) {
                 if(this.previousSliding) {
@@ -853,12 +907,20 @@ export class ShapeSpaceNavigationEventListener {
         this.previousControlOfCurvatureExtrema = this.controlOfCurvatureExtrema;
         this.previousControlOfInflection = this.controlOfInflection;
         this.previousSliding = this._sliding;
+        this.previousControlOfEventAtExtremity = this.controlOfEventAtExtremity;
     }
 
     reinitializePreviousShapeControlButtons() {
         this.previousControlOfCurvatureExtrema = false;
         this.previousControlOfInflection = false;
         this.previousSliding = false;
+        this.previousControlOfEventAtExtremity = false;
+    }
+
+    updateEventMgmtAtCurveExtControlButton() {
+        if(this.controlOfEventAtExtremity) {
+            this._toggleButtonEventsStayInside.click();
+        }
     }
 
     transitionTo(curveControlState: CurveControlState): void {

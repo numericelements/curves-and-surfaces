@@ -67,7 +67,7 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding extends ShapeSpaceCo
         this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.shapeNavigableCurve.activeLocationControl);
+                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
         } else {
             const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
         }
@@ -117,7 +117,7 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding extends ShapeSp
         this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.shapeNavigableCurve.activeLocationControl);
+                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
         } else {
             const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
         }
@@ -171,7 +171,7 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding e
         this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.shapeNavigableCurve.activeLocationControl);
+                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
         } else {
             const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
         }
@@ -232,7 +232,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
         // JCL Should be a Dummy strategy
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.shapeNavigableCurve.activeLocationControl);
+                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
         } else {
             const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
             error.logMessageToConsole();

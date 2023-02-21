@@ -1,3 +1,4 @@
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
@@ -5,17 +6,19 @@ import { ShapeNavigableCurve } from "./ShapeNavigableCurve";
 
 export abstract class EventStateAtCurveExtremity {
 
-    protected eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
+    protected readonly eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     protected readonly shapeNavigableCurve: ShapeNavigableCurve;
+    protected readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator
 
     constructor(eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities) {
         this.eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
         this.shapeNavigableCurve = eventMgmtAtCurveExtremities.shapeNavigableCurve;
+        this.curveShapeSpaceNavigator = eventMgmtAtCurveExtremities.curveShapeSpaceNavigator;
     }
 
-    setContext(eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities): void {
-        this.eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
-    }
+    // setContext(eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities): void {
+    //     this.eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
+    // }
 
     abstract handleEventAtCurveExtremity(): void;
 
@@ -31,20 +34,14 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
     handleEventAtCurveExtremity(): void {
         const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventState.constructor.name);
         message.logMessageToConsole();
-        const curveShapeSpaceNavigator = this.shapeNavigableCurve.curveShapeSpaceNavigator;
-        if(curveShapeSpaceNavigator !== undefined) {
-            const shapeSpaceDiffEventsStructure = curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
-            if(shapeSpaceDiffEventsStructure.slidingDifferentialEvents &&
-                (curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces
-                || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces)) {
-                console.log(" display events, (insert knots ?)");
-                this.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
-            } else {
-                console.log(" nothing to do. No state change")
-            }
+        const shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
+        if(shapeSpaceDiffEventsStructure.slidingDifferentialEvents &&
+            (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces
+            || this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces)) {
+            console.log(" display events, (insert knots ?)");
+            this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
         } else {
-            const error = new ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Unable to handle events at curve extremity: curve shape space navogator undefined.");
-            error.logMessageToConsole();
+            console.log(" nothing to do. No state change")
         }
     }
 }
@@ -59,20 +56,14 @@ export class EventSlideOutsideCurve extends EventStateAtCurveExtremity {
     handleEventAtCurveExtremity(): void {
         const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventState.constructor.name);
         message.logMessageToConsole();
-        const curveShapeSpaceNavigator = this.shapeNavigableCurve.curveShapeSpaceNavigator;
-        if(curveShapeSpaceNavigator !== undefined) {
-            const shapeSpaceDiffEventsStructure = curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
-            if(shapeSpaceDiffEventsStructure.slidingDifferentialEvents
-                || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring) {
-                console.log(" nothing to do. No state change")
-            } else if((curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces
-                || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace)
-                && shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
-                this.shapeNavigableCurve.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
-            }
-        } else {
-            const error = new ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Unable to handle events at curve extremity: curve shape space navogator undefined.");
-            error.logMessageToConsole();
+        const shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
+        if(shapeSpaceDiffEventsStructure.slidingDifferentialEvents
+            || this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring) {
+            console.log(" nothing to do. No state change")
+        } else if((this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces
+            || this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace)
+            && shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
+            this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
         }
     }
 }

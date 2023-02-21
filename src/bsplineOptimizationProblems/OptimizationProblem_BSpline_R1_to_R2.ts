@@ -29,9 +29,6 @@ class ExpensiveComputationResults {
 
 export enum ActiveControl {curvatureExtrema, inflections, both, none}
 
-/* JCL 2020/09/23 Add controls to monitor the location of the curve with respect to its rigid body sliding behavior */
-/*export enum ActiveLocationControl {firstControlPoint, lastControlPoint, both, none} */
-
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
 interface extremaNearKnot {kIndex: number, extrema: Array<number>}
 export enum eventMove {still, moveToKnotLR, moveAwayFromKnotRL, moveToKnotRL, moveAwayFromKnotLR, atKnot}

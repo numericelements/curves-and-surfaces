@@ -98,7 +98,8 @@ export class ComparatorOfSequencesOfDiffEvents {
                 const modEventInInterval = new ModifiedCurvatureEvents(this._sequenceDiffEvents1.indicesOfInflections.length, (this._sequenceDiffEvents2.length() - this._sequenceDiffEvents1.length()));
                 this.modifiedCurvExEvents.push(modEventInInterval);
             }
-            if(this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
+            if(this._sequenceDiffEvents1.indicesOfInflections.length === 0 && 
+                this._sequenceDiffEvents1.length() !== this._sequenceDiffEvents2.length()) {
                 // There is no inflexion in the sequence of events -> all events take place in the 'first' interval
                 const modEventInInterval = new ModifiedCurvatureEvents(0, (this._sequenceDiffEvents2.length() - this._sequenceDiffEvents1.length()));
                 this.modifiedCurvExEvents.push(modEventInInterval);
@@ -239,7 +240,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                     const locatorCurvEventDisappearing = new LocalizerOfCurvatureExtremaDisappearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
                     let neighboringEvent: NeighboringEvents = locatorCurvEventDisappearing.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
-                } else {
+                } else if(modifiedCurvExEvent.nbEvents !== 0){
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "Cannot process the curvature extremum event.");
                     error.logMessageToConsole();
                 }
@@ -297,8 +298,10 @@ export class ComparatorOfSequencesOfDiffEvents {
         if(this.modifiedCurvExEvents.length === 0) {
             if(this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
                 // No change in curvature extrema has been identified as well as no change in inflections
-                const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "Inconsistent analysis of lost events in the sequence of differential events.");
-                error.logMessageToConsole();
+                return;
+                // no need to process an error to include the comparator into regular optimization configurations
+                // const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "Inconsistent analysis of lost events in the sequence of differential events.");
+                // error.logMessageToConsole();
             }
             this.locateIntervalAndNumberOfInflectionEventChanges();
             this.locateNeiboringEventsUnderInflectionEventChanges();
@@ -310,7 +313,6 @@ export class ComparatorOfSequencesOfDiffEvents {
             const warning = new WarningLog(this.constructor.name, "locateNeiboringEvents", "Cannot process this configuration yet.");
             warning.logMessageToConsole();
         }
-
     }
 
 

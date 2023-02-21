@@ -8,7 +8,6 @@ import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR
 import { findSpan } from "../newBsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { ActiveLocationControl, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 
 
@@ -934,29 +933,31 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                 }
             }
 
-            if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
-                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
-                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.both) {
-                if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
-                    /*console.log("optimize: s0sn constant")*/
-                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
-                    delta[delta.length - 1] = delta[0]
-                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                    this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                } else {
-                    /*console.log("optimize: s0sn variable -> stop evolving")*/
-                    this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
-                    this.curveModel.setControlPoints(controlPointsInit)
-                }
-            } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            //}
-            } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.none) {
-                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-            }
+            // if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
+            //     /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+            //     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+            //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+            // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.both) {
+            //     if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+            //         /*console.log("optimize: s0sn constant")*/
+            //         /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
+            //         delta[delta.length - 1] = delta[0]
+            //         this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+            //         this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+            //     } else {
+            //         /*console.log("optimize: s0sn variable -> stop evolving")*/
+            //         this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
+            //         this.curveModel.setControlPoints(controlPointsInit)
+            //     }
+            // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+            //     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+            //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+            // //}
+            // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.none) {
+            //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+            // }
+            this.curveSceneController?.curveShapeSpaceNavigator.shapeNavigableCurve.curveConstraints.processConstraint();
+            this.curveModel.setSpline(this.optimizationProblem.spline.clone())
             //this.curveModel.setSpline(this.optimizationProblem.spline.clone())
             /*if(sequenceDiffEventsOptim.length > 0 && sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length
                 && this.curveSceneController.controlOfCurvatureExtrema && this.curveSceneController.controlOfInflection) {
@@ -1156,29 +1157,31 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                 }
                             }
                             /* JCL Add the curve relocation process */
-                            if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
-                                /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
-                                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                            } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.both) {
-                                if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
-                                    /*console.log("optimize: s0sn constant")*/
-                                    /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
-                                    delta[delta.length - 1] = delta[0]
-                                    this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                                    this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                                } else {
-                                    /*console.log("optimize: s0sn variable -> stop evolving")*/
-                                    this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
-                                    this.curveModel.setControlPoints(controlPointsInit)
-                                }
-                            } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                                this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                            //}
-                            } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.none) {
-                                this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                            }
+                            // if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
+                            //     /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                            //     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+                            //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.both) {
+                            //     if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                            //         /*console.log("optimize: s0sn constant")*/
+                            //         /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
+                            //         delta[delta.length - 1] = delta[0]
+                            //         this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+                            //         this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            //     } else {
+                            //         /*console.log("optimize: s0sn variable -> stop evolving")*/
+                            //         this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
+                            //         this.curveModel.setControlPoints(controlPointsInit)
+                            //     }
+                            // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                            //     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+                            //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            // //}
+                            // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.none) {
+                            //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                            // }
+                            this.curveSceneController?.curveShapeSpaceNavigator.shapeNavigableCurve.curveConstraints.processConstraint();
+                            this.curveModel.setSpline(this.optimizationProblem.spline.clone())
                         }
                         catch(e) {
                             this.curveModel.setControlPoints(controlPointsInit)
@@ -1294,7 +1297,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                         console.log("corrected curve has crossed the boundary of shape space.")
                                     }
                                     if(this.curveSceneController !== undefined) {
-                                        this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
+                                        // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                         this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.mergeExtrema
                                     }
                                     this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
@@ -1363,7 +1366,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                         }
                                         /* JCL Missing the curve relocation process -> to add */
                                         if(this.curveSceneController !== undefined) {
-                                            this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
+                                            // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                             this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.mergeExtrema
                                         }
                                         this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
@@ -1489,35 +1492,36 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                         console.log("corrected curve has crossed the boundary of shape space.")
                                     }
                                     if(this.curveSceneController !== undefined) {
-                                        this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
+                                        // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                         this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumEntering
                                     }
 
                                     /* JCL Add the curve relocation process */
-                                    if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
-                                        /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
-                                        this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                                        this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                                    } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.both) {
-                                        if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
-                                            /*console.log("optimize: s0sn constant")*/
-                                            /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
-                                            delta[delta.length - 1] = delta[0]
-                                            this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                                            this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                                        } else {
-                                            /*console.log("optimize: s0sn variable -> stop evolving")*/
-                                            this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
-                                            this.curveModel.setControlPoints(controlPointsInit)
-                                        }
-                                    } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-                                        this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
-                                        this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                                    //}
-                                    } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.none) {
-                                        this.curveModel.setSpline(this.optimizationProblem.spline.clone())
-                                    }
-
+                                    // if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
+                                    //     /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
+                                    //     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+                                    //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                                    // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.both) {
+                                    //     if(Math.abs(delta[delta.length - 1].substract(delta[0]).norm()) < 1.0E-6) {
+                                    //         /*console.log("optimize: s0sn constant")*/
+                                    //         /* JCL 2020/09/27 the last control vertex moves like the first one and can be clamped -> pas d'efffet significatif sur l'accumulation d'erreurs*/
+                                    //         delta[delta.length - 1] = delta[0]
+                                    //         this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+                                    //         this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                                    //     } else {
+                                    //         /*console.log("optimize: s0sn variable -> stop evolving")*/
+                                    //         this.curveSceneController.activeLocationControl = ActiveLocationControl.stopDeforming
+                                    //         this.curveModel.setControlPoints(controlPointsInit)
+                                    //     }
+                                    // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.lastControlPoint) {
+                                    //     this.optimizationProblem.spline.relocateAfterOptimization(delta, this.curveSceneController?.activeLocationControl)
+                                    //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                                    // //}
+                                    // } else if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.none) {
+                                    //     this.curveModel.setSpline(this.optimizationProblem.spline.clone())
+                                    // }
+                                    this.curveSceneController?.curveShapeSpaceNavigator.shapeNavigableCurve.curveConstraints.processConstraint();
+                                    this.curveModel.setSpline(this.optimizationProblem.spline.clone())
                                 }
                                 catch(e) {
                                     this.curveModel.setControlPoints(controlPointsInit)
@@ -1580,7 +1584,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                             console.log("One extremum appear: corrected curve has crossed the boundary of shape space.")
                                         }
                                         if(this.curveSceneController !== undefined) {
-                                            this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
+                                            // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                             this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.mergeExtrema
                                         }
                                         this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
@@ -1613,7 +1617,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                 if(neighboringEvents[0].event !== NeighboringEventsType.none) console.log("Neighboring event(s): " + neighboringEvents[0].event + " location: " + neighboringEvents[0].index + " CP stopDef")
                 if(neighboringEvents[0].event !== NeighboringEventsType.none) console.log("CP stopDef: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
             } else if(this.curveSceneController?.allowShapeSpaceChange) {
-                this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+                // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.none
                 this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.none
             }
             //console.log("CP Optim: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))

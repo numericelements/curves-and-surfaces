@@ -1,8 +1,5 @@
 import { ShapeNavigableCurve } from "./ShapeNavigableCurve";
-import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { EventMgmtAtCurveExtremities } from "./EventMgmtAtCurveExtremities";
-import { EventSlideOutsideCurve, EventStateAtCurveExtremity, EventStayInsideCurve, NoEventToManageForClosedCurve } from "./EventStateAtCurveExtremity";
 import { SlidingStrategy } from "../controllers/SlidingStrategy";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 import { CurveModel } from "../newModels/CurveModel";
@@ -13,8 +10,6 @@ import { ClosedCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalys
 import { OpenCurveDifferentialEventsExtractorWithoutSequence } from "../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence";
 import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
 import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
-import { CurveConstraintClampedFirstControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
-import { OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 import { ClosedCurveDifferentialEventsExtractorWithoutSequence } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence";
 import { AbstractCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor";
 
@@ -183,7 +178,6 @@ export class ClosedPlanarCurve extends CurveCategory {
         this._curveModelDifferentialEventsLocations = this._curveModelDifferentialEvents.crvDiffEventsLocations;
         // this._curveShapeSpaceNavigator = new ClosedCurveShapeSpaceNavigator(this._curveModel, this._shapeNavigableCurve);
         this._shapeNavigableCurve.changeCurveCategory(this);
-        this._shapeNavigableCurve.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this._shapeNavigableCurve.eventMgmtAtExtremities));
         this._shapeNavigableCurve.notifyObservers();
     }
 

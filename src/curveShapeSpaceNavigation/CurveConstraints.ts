@@ -146,6 +146,11 @@ export class CurveConstraints {
                 valid = false;
                 console.log("newAbsc = "+newAbsc);
             }
+            for(let i = 0; i < optimizedSpline.degree+1; i++) {
+                if(optimizedSpline.knots[i] !== 0.0) {
+                    console.log("Inconsistent knot sequence")
+                }
+            }
             if(newAbsc !== undefined && valid) {
                 if(optimizedSpline instanceof BSplineR1toR2) {
                     if(newAbsc > knots[knots.length - 1] || newAbsc < knots[0]){
@@ -156,6 +161,11 @@ export class CurveConstraints {
                         if(segment !== undefined) optimizedSpline = optimizedSpline.splitAt(newAbsc, segment);
                     }
                     this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
+                    for(let i = 0; i < optimizedSpline.degree+1; i++) {
+                        if(optimizedSpline.knots[i] !== 0.0) {
+                            console.log("Inconsistent knot sequence")
+                        }
+                    }
                 } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2) {
     
                 }
@@ -198,7 +208,6 @@ export class CurveConstraints {
         
         while(Math.abs(distance - refDistance) > TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             const c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
-            const knotsDeriv = sxu.knots;
             const point2dx = sxu.evaluate(newAbsc);
             const point2dy = syu.evaluate(newAbsc);
             const a = Math.pow(point2dx, 2) + Math.pow(point2dy, 2);
@@ -206,14 +215,12 @@ export class CurveConstraints {
             let vectorP1P2 = point2Opt.substract(point1Opt);
             const bprime = point2dx * vectorP1P2.x + point2dy * vectorP1P2.y;
             const discriminant = Math.pow(bprime, 2) - a * c;
-            let deltaU1;
-            let deltaU2;
+            let deltaU1 = 0.0;
+            let deltaU2 = 0.0;
             if(discriminant >= 0.0) {
                 deltaU1 = (- bprime + Math.sqrt(discriminant)) / a;
                 deltaU2 = (- bprime - Math.sqrt(discriminant)) / a;
             } else {
-                deltaU1 = 0.0;
-                deltaU2 = 0.0;
                 iter = -1;
                 break;
             }
@@ -252,11 +259,8 @@ export class CurveConstraints {
                     let tempSpline = optimizedSpline.extend(newAbsc);
                     if(newAbsc < knotsOptCrv[0]) {
                         offset = offset - newAbsc;
-                        let dist1 = point1Opt.distance(tempSpline.evaluate(maxVariationAbscissa - newAbsc));
-                        // maxVariationAbscissa = maxVariationAbscissa - offset;
                         minVariationAbscissa = 0.0;
                         newAbsc = 0.0;
-                        let dist2 = point1Opt.distance(tempSpline.evaluate(maxVariationAbscissa + offset));
                     } else {
                         // console.log("extend curve at right extremity u = "+newAbsc);
                     }
@@ -286,7 +290,6 @@ export class CurveConstraints {
             }
             iter++;
         }
-        // this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
         if(iter === NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             if(iterOutside >= (NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT / 2) - 1) {
                 // console.log('Nb Iter Outside = '+iterOutside+' maxVariation = '+ maxVariationDistance+' minVariation = '+minVariationDistance);
