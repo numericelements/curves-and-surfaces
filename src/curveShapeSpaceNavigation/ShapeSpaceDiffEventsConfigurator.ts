@@ -1,5 +1,5 @@
 import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure"; 
-import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
+import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/IShapeSpaceConfigurator";
 import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
@@ -12,7 +12,7 @@ import { OpenCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis
 import { ClosedCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor";
 import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 import { SlidingStrategy } from "../controllers/SlidingStrategy";
-import { ActiveControl, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 export abstract class ShapeSpaceConfiguration {
@@ -63,8 +63,8 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding extends ShapeSpaceCo
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
         shapeSpaceDiffEventsStructure.activeControlInflections = true;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -113,8 +113,8 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding extends ShapeSp
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
         shapeSpaceDiffEventsStructure.activeControlInflections = false;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -167,8 +167,8 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding e
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
         shapeSpaceDiffEventsStructure.activeControlInflections = true;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -227,8 +227,8 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
         shapeSpaceDiffEventsStructure.activeControlInflections = false;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         // JCL Should be a Dummy strategy
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
@@ -283,8 +283,8 @@ export class ShapeSpaceConfiguratorWithInflectionsSliding extends ShapeSpaceConf
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
         shapeSpaceDiffEventsStructure.activeControlInflections = true;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
@@ -329,8 +329,8 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaSliding extends ShapeSpac
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
         shapeSpaceDiffEventsStructure.activeControlInflections = false;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
@@ -375,8 +375,8 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding ext
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = true;
         shapeSpaceDiffEventsStructure.activeControlInflections = true;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
                 shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
@@ -421,8 +421,8 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding 
         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema = false;
         shapeSpaceDiffEventsStructure.activeControlInflections = false;
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
-        this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
-        this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
+        // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         // JCL Should be a dummy strategy
         if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
             this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,

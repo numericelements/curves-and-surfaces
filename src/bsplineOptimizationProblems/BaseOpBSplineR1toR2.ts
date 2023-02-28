@@ -106,6 +106,10 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
             case ActiveControl.inflections: {
                 return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length
             }
+            case ActiveControl.none: {
+                // JCL 27/02/2023 modification to integrate the status none: must be double checked
+                return 0;
+            }
         }
     }
     
@@ -312,7 +316,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
 }
 
 
-export enum ActiveControl {curvatureExtrema, inflections, both}
+export enum ActiveControl {curvatureExtrema, inflections, both, none}
 
 export interface ExpensiveComputationResults {
     /*

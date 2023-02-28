@@ -30,7 +30,7 @@ export class ShapeSpaceDiffEventsStructure {
     private _activeNavigationWithOptimizer: boolean;
     private _slidingDifferentialEvents: boolean;
     private _managementOfEventsAtExtremities: EventMgmtState;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration;
+    // private _shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration;
     private readonly _curveCategory: CurveCategory;
     private readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
@@ -40,10 +40,16 @@ export class ShapeSpaceDiffEventsStructure {
         warning.logMessageToConsole();
         this._curveCategory = shapeNavigableCurve.curveCategory;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding(this._curveShapeSpaceNavigator);
+        // this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding(this._curveShapeSpaceNavigator);
         this._activeNavigationWithOptimizer = false;
         this._activeControlInflections = false;
+        // Initializes activeControlCurvatureExtrema, controlOfInflection in accordance with the navigation mode:
+        //      mode 0: activeControlCurvatureExtrema = false, controlOfInflection = false,
+        //      mode 1, mode 2: activeControlCurvatureExtrema = true, controlOfInflection = true
         this._activeControlCurvatureExtrema = false;
+            // Initializes slidingDifferentialEvents in accordance with the navigation mode:
+        //      mode 0: slidingDifferentialEvents = false
+        //      mode 1, mode 2: slidingDifferentialEvents =  true
         this._slidingDifferentialEvents =  false;
         if(this._curveCategory instanceof OpenPlanarCurve) {
             this._managementOfEventsAtExtremities = EventMgmtState.Inactive;
@@ -120,9 +126,9 @@ export class ShapeSpaceDiffEventsStructure {
         return this._curveCategory;
     }
 
-    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceConfiguration {
-        return this._shapeSpaceDiffEventsConfigurator;
-    }
+    // get shapeSpaceDiffEventsConfigurator(): ShapeSpaceConfiguration {
+    //     return this._shapeSpaceDiffEventsConfigurator;
+    // }
 
     get managementOfEventsAtExtremities():EventMgmtState {
         return this._managementOfEventsAtExtremities;
@@ -143,14 +149,10 @@ export class ShapeSpaceDiffEventsStructure {
         this._activeNavigationWithOptimizer = true;
     }
 
-    changeShapeSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration): void {
-        this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
-        // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
-    }
-
-    monitorCurveShape(): void {
-        this.shapeSpaceDiffEventsConfigurator.monitorCurveUsingDifferentialEvents(this);
-    }
+    // changeShapeSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration): void {
+    //     this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
+    //     // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
+    // }
 
     // addInflectionsToShapeSpaceStructure(): void {
     //     this.shapeSpaceConfigurator.setShapeSpaceMonitoringToInflections();

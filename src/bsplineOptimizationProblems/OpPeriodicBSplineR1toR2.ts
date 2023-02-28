@@ -419,3 +419,15 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
 
 
 }
+
+export class OpPeriodicBSplineR1toR2NoInactiveConstraints extends OpPeriodicBSplineR1toR2 {
+
+
+    constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
+        super(target, initial, activeControl)
+    }
+
+    computeInactiveConstraints(controlPoints: number[]): number[] {
+        return []
+    }
+}

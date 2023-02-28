@@ -9,7 +9,8 @@ import { DenseMatrix } from "../linearAlgebra/DenseMatrix";
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { ActiveControl, BaseOpProblemBSplineR1toR2 } from "./BaseOpBSplineR1toR2";
 
 
 class ExpensiveComputationResults {
@@ -27,8 +28,6 @@ class ExpensiveComputationResults {
 
 }
 
-export enum ActiveControl {curvatureExtrema, inflections, both, none}
-
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
 interface extremaNearKnot {kIndex: number, extrema: Array<number>}
 export enum eventMove {still, moveToKnotLR, moveAwayFromKnotRL, moveToKnotRL, moveAwayFromKnotLR, atKnot}
@@ -36,6 +35,7 @@ enum transitionCP {negativeToPositive, positiveToNegative, none}
 
 const DEVIATION_FROM_KNOT = 0.25
 
+// export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1toR2 {
 export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
     public spline: BSplineR1toR2
@@ -89,8 +89,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
     private Dh6_7xy: BernsteinDecompositionR1toR1[][] = []
     private Dh8_9xx: BernsteinDecompositionR1toR1[][] = []
     private Dh10_11xy: BernsteinDecompositionR1toR1[][] = []
-
-    //public activeControl: ActiveControl = ActiveControl.both
 
 
 
@@ -424,8 +422,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
             return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
         }
         else {
-            const error = new ErrorLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
-            error.logMessageToConsole();
+            const warning = new WarningLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
+            warning.logMessageToConsole();
             return result;
         }
        
@@ -547,8 +545,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         else  if (this.activeControl === ActiveControl.inflections) {
             return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
         } else {
-            const error = new ErrorLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            error.logMessageToConsole();
+            const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            warning.logMessageToConsole();
             let result = new DenseMatrix(1, 1);
             return result;
         }
@@ -997,8 +995,8 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inact
 export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
 
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2) {
-        super(target, initial)
+    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, activeControl: ActiveControl) {
+        super(target, initial, activeControl)
     }
 
     computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {

@@ -12,7 +12,6 @@ import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtC
 import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForClosedCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
 import { NO_CONSTRAINT, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ClickButtonView } from "../views/ClickButtonView";
-import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { CurveSceneController } from "./CurveSceneController";
 
 export abstract class CurveSceneControllerInteractionStrategy implements SceneInteractionStrategy {
@@ -312,19 +311,17 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
     protected readonly controlOfInflection: boolean;
     protected readonly controlOfCurvatureExtrema: boolean;
     protected readonly curveModel: CurveModelInterface;
-    // private curveControl: CurveControlStrategyInterface;
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
         this.selectedControlPoint = this._curveSceneController.selectedControlPoint;
         this.eventMgmtAtExtremities = this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
-        this.controlOfInflection = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections;
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema;
+        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
+        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
         this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
         this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
         this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
-        // this.curveControl = this._curveSceneController.curveControl;
     }
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
@@ -357,13 +354,6 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
                     this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                     this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
                 }
-            // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
-            // || this.allowShapeSpaceChange === true) {
-                /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
-                    if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-
-                    }
-                }*/
             }
             this.curveModel.notifyObservers();
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
@@ -546,17 +536,14 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
     private readonly controlOfInflection: boolean;
     private readonly controlOfCurvatureExtrema: boolean;
     private readonly curveModel: CurveModelInterface;
-    // private curveControl: CurveControlStrategyInterface;
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
         this.eventMgmtAtExtremities = this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
-        this.controlOfInflection = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections;
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema;
+        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
+        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
         this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
-        // this.curveControl = this.curveShapeSpaceNavigator.curveControl;
-        // this.curveControl = this._curveSceneController.curveControl;
     }
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
@@ -575,14 +562,6 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
                 this.curveModel.setControlPointPosition(this.selectedControlPoint, x, y)
             } else if(this._curveSceneController.allowShapeSpaceChange === true) {
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
-            // } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
-            // || this.allowShapeSpaceChange === true) {
-                /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
-                    if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-
-                    }
-                }*/
-                // this.curveControl.optimize(this.selectedControlPoint, x, y);
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
             }

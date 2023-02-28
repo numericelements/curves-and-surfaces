@@ -231,6 +231,7 @@ export class KnotSequence {
 
     test(): void {
         const seq = new Sequence(0, 10, 1)
+        seq[Symbol.iterator]
         for(const num of seq) {
             console.log(num)
         }

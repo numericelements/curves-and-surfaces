@@ -638,15 +638,14 @@ export class ShapeSpaceNavigationEventListener {
     private readonly _inputNavigationMode: HTMLSelectElement;
     private readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private readonly shapeNavigableCurve: ShapeNavigableCurve;
-    private _curveControlState: CurveControlState;
 
     private controlOfCurvatureExtrema: boolean;
     private controlOfInflection: boolean;
     private _sliding: boolean;
     private controlOfEventAtExtremity: boolean;
-    private previousControlOfCurvatureExtrema: boolean;
-    private previousControlOfInflection: boolean;
-    private previousSliding: boolean;
+    private _previousControlOfCurvatureExtrema: boolean;
+    private _previousControlOfInflection: boolean;
+    private _previousSliding: boolean;
     private previousControlOfEventAtExtremity: boolean;
     private previousCtrlOfEventAtExtrmtyWrtSliding: boolean;
     private resetButtons: boolean;
@@ -661,7 +660,6 @@ export class ShapeSpaceNavigationEventListener {
         curveModelDefinitionEventListener.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
-        this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
 
         // this.shapeNavigableCurve.curveCategory.curveShapeSpaceNavigator = this._curveShapeSpaceNavigator;
         /* Get control button IDs for curve shape control*/
@@ -678,7 +676,7 @@ export class ShapeSpaceNavigationEventListener {
         this._currentNavigationMode = "0";
         this._inputNavigationMode = <HTMLSelectElement> document.getElementById("navigationMode");
 
-        // Initializes the navigation parameters in azccordance with navigation modes above:
+        // Initializes the navigation parameters in accordance with navigation modes above:
         //      mode 0: controlOfCurvatureExtrema = false, controlOfInflection = false, sliding = false,
         //      mode 1: controlOfCurvatureExtrema =  true, controlOfInflection = true, sliding = true,
         //      mode 2: controlOfCurvatureExtrema =  true, controlOfInflection = true, sliding = true
@@ -686,9 +684,9 @@ export class ShapeSpaceNavigationEventListener {
         this.controlOfInflection = false;
         this._sliding = false;
         this.controlOfEventAtExtremity = false;
-        this.previousControlOfCurvatureExtrema = false;
-        this.previousControlOfInflection = false;
-        this.previousSliding = false;
+        this._previousControlOfCurvatureExtrema = false;
+        this._previousControlOfInflection = false;
+        this._previousSliding = false;
         this.previousControlOfEventAtExtremity = false;
         this.previousCtrlOfEventAtExtrmtyWrtSliding = false;
         this.resetButtons = false;
@@ -729,6 +727,18 @@ export class ShapeSpaceNavigationEventListener {
         return this._sliding;
     }
 
+    get previousControlOfCurvatureExtrema() {
+        return this._previousControlOfCurvatureExtrema;
+    }
+
+    get previousControlOfInflection() {
+        return this._previousControlOfInflection;
+    }
+
+    get previousSliding() {
+        return this._previousSliding;
+    }
+
     toggleControlOfCurvatureExtrema() {
         this.controlOfCurvatureExtrema = !this.controlOfCurvatureExtrema;
         if((!this.controlOfCurvatureExtrema) && (!this.controlOfInflection) && this._sliding) {
@@ -739,7 +749,6 @@ export class ShapeSpaceNavigationEventListener {
         }
         if(!this.resetButtons) {
             this._curveShapeSpaceNavigator.toggleControlOfCurvatureExtrema();
-            this._curveControlState.handleCurvatureExtrema();
         }
     }
 
@@ -761,7 +770,6 @@ export class ShapeSpaceNavigationEventListener {
         }
         if(!this.resetButtons) {
             this._curveShapeSpaceNavigator.toggleControlOfInflections();
-            this._curveControlState.handleInflections();
         }
     }
 
@@ -777,7 +785,6 @@ export class ShapeSpaceNavigationEventListener {
         this._sliding = !this._sliding;
         if(!this.resetButtons) {
             this._curveShapeSpaceNavigator.toggleSliding();
-            this._curveControlState.handleSliding();
             if(!this._sliding) {
                 this.resetControlOfEventAtExtremity = true;
                 this.previousCtrlOfEventAtExtrmtyWrtSliding = this.controlOfEventAtExtremity;
@@ -834,14 +841,14 @@ export class ShapeSpaceNavigationEventListener {
     }
 
     updateCurveShapeControlButtons() {
-        if(this.previousSliding) {
+        if(this._previousSliding) {
             this._toggleButtonSliding.click();
             this.enableEventMgmtAtCurveExt();
         }
-        if(this.previousControlOfCurvatureExtrema) {
+        if(this._previousControlOfCurvatureExtrema) {
             this._toggleButtonCurvatureExtrema.click();
         }
-        if(this.previousControlOfInflection) {
+        if(this._previousControlOfInflection) {
             this._toggleButtonInflection.click();
         }
         if(this.previousControlOfEventAtExtremity) {
@@ -857,63 +864,38 @@ export class ShapeSpaceNavigationEventListener {
         }
         if(this._sliding) {
             this._toggleButtonSliding.click();
-            this._curveShapeSpaceNavigator.sliding = false;
+            this._curveShapeSpaceNavigator.setSlidingDifferentialEvents(false);
         }
         if(this.controlOfCurvatureExtrema) {
             this._toggleButtonCurvatureExtrema.click();
-            this._curveShapeSpaceNavigator.controlOfCurvatureExtrema = false;
+            this._curveShapeSpaceNavigator.setActiveControlCurvatureExtrema(false);
         }
         if(this.controlOfInflection) {
             this._toggleButtonInflection.click();
-            this._curveShapeSpaceNavigator.controlOfInflection = false;
+            this._curveShapeSpaceNavigator.setActiveControlInflections(false);
         }
         this.resetButtons = false;
     }
 
     restorePreviousCurveShapeControlButtons() {
-        this.controlOfCurvatureExtrema = this.previousControlOfCurvatureExtrema;
-        this.controlOfInflection = this.previousControlOfInflection;
-        this._sliding = this.previousSliding;
+        this.controlOfCurvatureExtrema = this._previousControlOfCurvatureExtrema;
+        this.controlOfInflection = this._previousControlOfInflection;
+        this._sliding = this._previousSliding;
         this.controlOfEventAtExtremity = this.previousControlOfEventAtExtremity;
-        if(this.previousControlOfCurvatureExtrema) {
-            if(this.previousControlOfInflection) {
-                if(this.previousSliding) {
-                    this._curveControlState = new HandleInflectionsAndCurvatureExtremaSlidingState(this);
-                } else {
-                    this._curveControlState = new HandleInflectionsAndCurvatureExtremaNoSlidingState(this);
-                }
-            } else {
-                if(this.previousSliding) {
-                    this._curveControlState = new HandleCurvatureExtremaSlidingState(this);
-                } else {
-                    this._curveControlState =  new HandleCurvatureExtremaNoSlidingState(this);
-                }
-            }
-        } else {
-            if(this.previousControlOfInflection) {
-                if(this.previousSliding) {
-                    this._curveControlState = new HandleInflectionsSlidingState(this);
-                } else {
-                    this._curveControlState = new HandleInflectionsNoSlidingState(this);
-                }
-            } else {
-                this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
-                this.disableControlOfSliding();
-            }
-        }
+        this._curveShapeSpaceNavigator.restoreCurveControlState(this);
     }
 
     storeCurrentCurveShapeControlButtons() {
-        this.previousControlOfCurvatureExtrema = this.controlOfCurvatureExtrema;
-        this.previousControlOfInflection = this.controlOfInflection;
-        this.previousSliding = this._sliding;
+        this._previousControlOfCurvatureExtrema = this.controlOfCurvatureExtrema;
+        this._previousControlOfInflection = this.controlOfInflection;
+        this._previousSliding = this._sliding;
         this.previousControlOfEventAtExtremity = this.controlOfEventAtExtremity;
     }
 
     reinitializePreviousShapeControlButtons() {
-        this.previousControlOfCurvatureExtrema = false;
-        this.previousControlOfInflection = false;
-        this.previousSliding = false;
+        this._previousControlOfCurvatureExtrema = false;
+        this._previousControlOfInflection = false;
+        this._previousSliding = false;
         this.previousControlOfEventAtExtremity = false;
     }
 
@@ -921,10 +903,6 @@ export class ShapeSpaceNavigationEventListener {
         if(this.controlOfEventAtExtremity) {
             this._toggleButtonEventsStayInside.click();
         }
-    }
-
-    transitionTo(curveControlState: CurveControlState): void {
-        this._curveControlState = curveControlState;
     }
 
 }

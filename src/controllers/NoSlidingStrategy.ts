@@ -1,9 +1,10 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../newModels/CurveModel";
 import { Vector2d } from "../mathVector/Vector2d";
 import { CurveSceneController } from "./CurveSceneController"
+import { ActiveControl } from "../bsplineOptimizationProblems/BaseOpBSplineR1toR2";
 
 
 export class NoSlidingStrategy implements CurveControlStrategyInterface {
@@ -12,22 +13,23 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
     private _optimizer: Optimizer
     private activeOptimizer: boolean = true
     private curveModel: CurveModel
+    private activeControl : ActiveControl
 
     constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean) {
-        let activeControl : ActiveControl = ActiveControl.both
+        this.activeControl = ActiveControl.both
 
         if (!controlOfCurvatureExtrema) {
-            activeControl = ActiveControl.inflections
+            this.activeControl = ActiveControl.inflections
         } else if (!controlOfInflection) {
-            activeControl = ActiveControl.curvatureExtrema
+            this.activeControl = ActiveControl.curvatureExtrema
         } else if (!controlOfInflection && !controlOfCurvatureExtrema) {
-            activeControl = ActiveControl.none;
+            this.activeControl = ActiveControl.none;
             this.activeOptimizer = false
             //console.log("activeOptimizer in NoSlidingStrategy: " + this.activeOptimizer)
         }
 
         this.curveModel = curveModel
-        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), this.activeControl)
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
 
@@ -53,57 +55,57 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
 
     resetCurve(curveModel: CurveModel) {
         this.curveModel = curveModel
-        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), this.activeControl)
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
-    toggleControlOfCurvatureExtrema(): void {
-        if (this.activeOptimizer === false) {
-            this.activeOptimizer = true
-            this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
-            this._optimizer = this.newOptimizer(this.optimizationProblem)
-        }
-        else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
-            this.activeOptimizer = false
-        }
-        else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
-            this._optimizer = this.newOptimizer(this.optimizationProblem)
-        }
-        else if (this.optimizationProblem.activeControl === ActiveControl.inflections ){
-            this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-            this._optimizer = this.newOptimizer(this.optimizationProblem)
-        }
-        else {
-            console.log("Error in logic of toggle control over curvature extrema")
-        }
-    }
+    // toggleControlOfCurvatureExtrema(): void {
+    //     if (this.activeOptimizer === false) {
+    //         this.activeOptimizer = true
+    //         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+    //         this._optimizer = this.newOptimizer(this.optimizationProblem)
+    //     }
+    //     else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
+    //         this.activeOptimizer = false
+    //     }
+    //     else if (this.optimizationProblem.activeControl === ActiveControl.both) {
+    //         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+    //         this._optimizer = this.newOptimizer(this.optimizationProblem)
+    //     }
+    //     else if (this.optimizationProblem.activeControl === ActiveControl.inflections ){
+    //         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+    //         this._optimizer = this.newOptimizer(this.optimizationProblem)
+    //     }
+    //     else {
+    //         console.log("Error in logic of toggle control over curvature extrema")
+    //     }
+    // }
 
-    toggleControlOfInflections(): void {
-        if (this.activeOptimizer === false) {
-            this.activeOptimizer = true
-            this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
-            this._optimizer = this.newOptimizer(this.optimizationProblem)
-        }
-        else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
-            this.activeOptimizer = false
-        }
-        else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
-            this._optimizer = this.newOptimizer(this.optimizationProblem)
-        }
-        else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
-            this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-            this._optimizer = this.newOptimizer(this.optimizationProblem)
-        }
-        else {
-            console.log("Error in logic of toggle control over inflections")
-        }
-    }
+    // toggleControlOfInflections(): void {
+    //     if (this.activeOptimizer === false) {
+    //         this.activeOptimizer = true
+    //         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+    //         this._optimizer = this.newOptimizer(this.optimizationProblem)
+    //     }
+    //     else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
+    //         this.activeOptimizer = false
+    //     }
+    //     else if (this.optimizationProblem.activeControl === ActiveControl.both) {
+    //         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+    //         this._optimizer = this.newOptimizer(this.optimizationProblem)
+    //     }
+    //     else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
+    //         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+    //         this._optimizer = this.newOptimizer(this.optimizationProblem)
+    //     }
+    //     else {
+    //         console.log("Error in logic of toggle control over inflections")
+    //     }
+    // }
     
-    toggleSliding(): void {
-        throw new Error("Method not implemented.");
-    }
+    // toggleSliding(): void {
+    //     throw new Error("Method not implemented.");
+    // }
 
 
     optimize(selectedControlPoint: number, ndcX: number, ndcY: number) {

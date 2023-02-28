@@ -1,13 +1,13 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../newModels/CurveModel";
-import { Vector2d } from "../mathVector/Vector2d";
 import { CurveSceneController } from "./CurveSceneController"
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { ActiveControl } from "../bsplineOptimizationProblems/BaseOpBSplineR1toR2";
 
 
 
@@ -49,7 +49,6 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
         // curveSceneController: CurveSceneController ) {
         curveShapeSpaceNavigator: CurveShapeSpaceNavigator ) {
         this.curveModel = curveModel
-        //enum ActiveControl {curvatureExtrema, inflections, both}
         let activeControl : ActiveControl = ActiveControl.both
 
         this.curveSceneController = curveShapeSpaceNavigator.curveSceneController

@@ -1,8 +1,9 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints, ActiveControl } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModel } from "../newModels/CurveModel";
+import { ActiveControl } from "../bsplineOptimizationProblems/BaseOpBSplineR1toR2";
 
 
 export class DummyStrategy implements CurveControlStrategyInterface {
@@ -14,14 +15,16 @@ export class DummyStrategy implements CurveControlStrategyInterface {
     private curveModel: ClosedCurveModel
     private dummyCurveModel: CurveModel
 
+    private activeControl: ActiveControl;
+
     constructor(curveModel: ClosedCurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean) {
-        let activeControl : ActiveControl = ActiveControl.both
+        this.activeControl = ActiveControl.both
 
         if (!controlOfCurvatureExtrema) {
-            activeControl = ActiveControl.inflections
+            this.activeControl = ActiveControl.inflections
         }
         else if (!controlOfInflection) {
-            activeControl = ActiveControl.curvatureExtrema
+            this.activeControl = ActiveControl.curvatureExtrema
         }
 
         if (!controlOfInflection && !controlOfCurvatureExtrema) {
@@ -31,7 +34,7 @@ export class DummyStrategy implements CurveControlStrategyInterface {
 
         this.curveModel = curveModel
         this.dummyCurveModel = new CurveModel()
-        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), activeControl)
+        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), this.activeControl)
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
 
@@ -57,7 +60,7 @@ export class DummyStrategy implements CurveControlStrategyInterface {
 
     resetCurve(curveModel: ClosedCurveModel) {
         this.curveModel = curveModel
-        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone())
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), this.activeControl)
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
 

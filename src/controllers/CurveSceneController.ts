@@ -8,7 +8,6 @@ import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
 import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./SlidingStrategy";
-import { NoSlidingStrategy } from "./NoSlidingStrategy";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { IRenderFrameObserver } from "../newDesignPatterns/RenderFrameObserver";
@@ -25,26 +24,20 @@ import { NONAME } from "dns";
 
 import { SelectedDifferentialEventsView } from "../views/SelectedDifferentialEventsView"
 import { ShapeNavigableCurve, NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
-import { ShapeSpaceConfiguratorWithInflectionsNoSliding, ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator";
-import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { NavigationState } from "../curveShapeSpaceNavigation/NavigationState";
-import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
 import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, HandleConstraintAtPoint1Point2NoConstraintState } from "./CurveConstraintSelectionState";
 import { CurveModelDefinitionEventListener, ShapeSpaceNavigationEventListener } from "../userInterfaceController/UserInterfaceEventListener";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
-import { DummyStrategy } from "./DummyStrategy";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModelObserverInCurveSceneController } from "../models/CurveModelObserver";
 import { HighlightedControlPolygonView } from "../views/HighlightedControlPolygonView";
 import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface";
-import { SLCTN_ACCURACY_Squared } from "../views/AbstractMouseSelectableGraphicEntityView";
 import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
 import { AbstractCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor";
-import { OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
 import { SceneInteractionStrategy } from "../designPatterns/SceneInteractionStrategy";
 import { CurveSceneControllerKnotInsertion, CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied, CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection, CurveSceneControllerNoShapeSpaceConstraintsCPSelection, CurveSceneControllerStrictlyInsideShapeSpaceCPSelection } from "./CurveSceneControllerInteractionStrategy";
 import { PhantomCurveView } from "../views/PhantomCurveView";
@@ -92,7 +85,7 @@ export class CurveSceneController implements SceneControllerInterface {
     /* JCL 2020/10/02 Add the visualization of knots */
     private curveKnotsView: CurveKnotsView
     /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
-    public activeExtremaLocationControl: ActiveExtremaLocationControl = ActiveExtremaLocationControl.none
+    // public activeExtremaLocationControl: ActiveExtremaLocationControl = ActiveExtremaLocationControl.none
     // public activeInflectionLocationControl: ActiveInflectionLocationControl = ActiveInflectionLocationControl.none
     public stackControlPolygons: Array<Array<Vector2d>> = []
     public sizeStackControlPolygons: number = this.stackControlPolygons.length
@@ -149,13 +142,10 @@ export class CurveSceneController implements SceneControllerInterface {
         this._highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
         this._phantomCurveView = new PhantomCurveView(this.gl, this.curveModel.spline);
 
-        this.activeExtremaLocationControl = this.curveShapeSpaceNavigator.activeExtremaLocationControl
-        // this.activeInflectionLocationControl = this.curveShapeSpaceNavigator.activeInflectionLocationControl
-
         this._allowShapeSpaceChange = true
 
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema;
-        this.controlOfInflection = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections;
+        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
+        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
         this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping
 
         this.registerCurveObservers();
@@ -168,7 +158,7 @@ export class CurveSceneController implements SceneControllerInterface {
         // this._eventMgmtAtExtremities = this.shapeNavigableCurve.eventMgmtAtExtremities;
         this.curveEventAtExtremityMayVanish = false;
 
-        this.sliding = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.slidingDifferentialEvents;
+        this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
 
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this._navigationState = this.curveShapeSpaceNavigator.navigationState;
@@ -250,9 +240,9 @@ export class CurveSceneController implements SceneControllerInterface {
         
         this.registerCurveObservers();
 
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema;
-        this.controlOfInflection = this.curveShapeSpaceNavigator.controlOfInflection;
-        this.sliding = this.curveShapeSpaceNavigator.sliding;
+        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
+        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
+        this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
         this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
 
         this.dragging = false;
@@ -344,21 +334,21 @@ export class CurveSceneController implements SceneControllerInterface {
         if(this.curveModel !== undefined) {
             let curvatureEvents: number[] = []
             let differentialEvents: number[] = []
-            if((this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving ||
-                this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) && this.selectedCurvatureExtrema !== null) {
-                curvatureEvents = this.selectedCurvatureExtrema.slice()
-            }
+            // if((this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving ||
+            //     this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) && this.selectedCurvatureExtrema !== null) {
+            //     curvatureEvents = this.selectedCurvatureExtrema.slice()
+            // }
             // if(this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming && this.selectedInflection !== null) {
             //     differentialEvents = curvatureEvents.concat(this.selectedInflection)
             // } else differentialEvents = curvatureEvents
 
-            if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 0, 1.0, 1)
-            } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
-            } else if(differentialEvents.length === 0) {
-                this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
-            }
+            // if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
+            //     this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 0, 1.0, 1)
+            // } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
+            //     this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
+            // } else if(differentialEvents.length === 0) {
+            //     this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
+            // }
         }
         else throw new Error("Unable to render the current frame. Undefined curve model")
         if(this.selectedDifferentialEventsView !== null && this.allowShapeSpaceChange === false) this.selectedDifferentialEventsView.renderFrame()

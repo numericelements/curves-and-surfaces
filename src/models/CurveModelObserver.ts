@@ -83,8 +83,8 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
             curveCategory.curveModel = message;
             const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
             if(curveShapeSpaceNavigator !== undefined) {
-                curveShapeSpaceNavigator.curveModel = message;
-                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
+                curveShapeSpaceNavigator.navigationCurveModel.curveModel = message;
+                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
                 const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
                 const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
                 if(curveModelChange) {
@@ -135,8 +135,8 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
             this.listener.shapeNavigableCurve.curveCategory.curveModel = message;
             const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
             if(curveShapeSpaceNavigator !== undefined) {
-                curveShapeSpaceNavigator.curveModel = message;
-                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange; 
+                curveShapeSpaceNavigator.navigationCurveModel.curveModel = message;
+                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
                 const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
                 const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
                 if(curveModelChange) {
@@ -207,8 +207,8 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
         const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
         const curveModelChange = curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModelChange;
         const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
-        const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator.shapeSpaceConfigurationChange;
-        this.listener.curveShapeSpaceNavigator.curveModel = message;
+        const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
+        this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveModel = message;
         if(curveModelChange) {
             const currentNavigationState = curveShapeSpaceNavigator.navigationState;
             if(message instanceof CurveModel) {
@@ -232,7 +232,7 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
                         this.listener.enableControlOfSliding();
                         this.listener.updateCurveShapeControlButtons();
                         this.listener.restorePreviousCurveShapeControlButtons();
-                        this.listener.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this.listener.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+                        this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveControlState = this.listener.curveShapeSpaceNavigator.curveControlState;
                     }
                     curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     curveShapeSpaceNavigator.navigationState = curveShapeSpaceNavigator.navigationCurveModel.navigationState;
@@ -259,7 +259,7 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
                         this.listener.enableControlOfSliding();
                         this.listener.updateCurveShapeControlButtons();
                         this.listener.restorePreviousCurveShapeControlButtons();
-                        this.listener.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this.listener.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+                        this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveControlState = this.listener.curveShapeSpaceNavigator.curveControlState;
                     }
                     curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     curveShapeSpaceNavigator.navigationState = curveShapeSpaceNavigator.navigationCurveModel.navigationState;
@@ -289,7 +289,7 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
                 this.listener.enableControlOfSliding();
                 this.listener.updateCurveShapeControlButtons();
                 this.listener.restorePreviousCurveShapeControlButtons();
-                this.listener.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this.listener.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator;
+                this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveControlState = this.listener.curveShapeSpaceNavigator.curveControlState;
                 if(this.listener.sliding) {
                     curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                 }
@@ -323,7 +323,7 @@ export class CurveModelObserverInShapeSpaceNavigationEventListener extends Curve
             const curveModel = new CurveModel();
             if(curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel'))
             {
-                this.listener.curveShapeSpaceNavigator.curveModel = curveModel;
+                this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveModel = this.listener.curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModel;
             }
         } else if(message instanceof ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in ShapeSpaceNavigationEventListener")

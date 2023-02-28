@@ -8,8 +8,6 @@ import { ExtremumLocationClassifier,
 import { NavigationState } from "../curveShapeSpaceNavigation/NavigationState";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
-import { ShapeSpaceDiffEventsConfigurator } from "../designPatterns/ShapeSpaceConfigurator";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
@@ -20,6 +18,7 @@ import { OpenCurveDifferentialEventsExtractorWithoutSequence } from "./OpenCurve
 import { ClosedCurveDifferentialEventsExtractorWithoutSequence } from "./ClosedCurveDifferentialEventsExtractorWithoutSequence";
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 import { NavigationCurveModelInterface } from "../curveShapeSpaceNavigation/NavigationCurveModelInterface";
+import { CurveControlState } from "../controllers/CurveControlState";
 
 export abstract class AbstractCurveAnalyzer {
 
@@ -155,7 +154,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private navigationState: NavigationState;
     protected navigationCurveModel: OpenCurveShapeSpaceNavigator;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    private _curveControlState: CurveControlState;
     protected _slidingEventsAtExtremities: SlidingEventsAtExtremities;
 
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
@@ -167,11 +166,11 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
         this.navigationState = navigationCurveModel.navigationState;
         this._shapeSpaceDescriptor = navigationCurveModel.shapeSpaceDescriptor;
-        this._shapeSpaceDiffEventsConfigurator = navigationCurveModel.shapeSpaceDiffEventsConfigurator;
+        this._curveControlState = navigationCurveModel.curveShapeSpaceNavigator.curveControlState;
         const diffEventsExtractor = new OpenCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this._shapeSpaceDiffEventsConfigurator) {
+        if(this._curveControlState) {
             this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
@@ -181,7 +180,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
             warning.logMessageToConsole();
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this._shapeSpaceDiffEventsConfigurator) {
+        if(this._curveControlState) {
             this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
@@ -196,8 +195,8 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         return this._sequenceOfDifferentialEvents;
     }
 
-    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEventsConfigurator {
-        return this._shapeSpaceDiffEventsConfigurator;
+    get curveControlState(): CurveControlState {
+        return this._curveControlState;
     }
 
     get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {
@@ -250,7 +249,7 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     protected navigationCurveModel: OpenCurveShapeSpaceNavigator;
     private navigationState: NavigationState;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    private _curveControlState: CurveControlState;
 
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
@@ -261,7 +260,8 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
         this.navigationState = navigationCurveModel.navigationState;
         this._shapeSpaceDescriptor = navigationCurveModel.shapeSpaceDescriptor;
-        this._shapeSpaceDiffEventsConfigurator = navigationCurveModel.shapeSpaceDiffEventsConfigurator;
+        this._curveControlState = navigationCurveModel.curveShapeSpaceNavigator.curveControlState;
+
         const diffEventsExtractor = new OpenCurveDifferentialEventsExtractorWithoutSequence(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
@@ -274,6 +274,10 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
 
     get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {
         return this._shapeSpaceDescriptor;
+    }
+
+    get curveControlState(): CurveControlState {
+        return this._curveControlState;
     }
 
     computeCurvatureCPClosestToZero(): void {
@@ -302,7 +306,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private navigationState: NavigationState;
     protected navigationCurveModel: ClosedCurveShapeSpaceNavigator;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    private _curveControlState: CurveControlState;
 
     constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
@@ -312,11 +316,11 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
         this.navigationCurveModel = navigationCurveModel;
         this.navigationState = navigationCurveModel.navigationState;
         this._shapeSpaceDescriptor = navigationCurveModel.shapeSpaceDescriptor;
-        this._shapeSpaceDiffEventsConfigurator = navigationCurveModel.shapeSpaceDiffEventsConfigurator;
+        this._curveControlState = navigationCurveModel.curveShapeSpaceNavigator.curveControlState;
         const diffEventsExtractor = new ClosedCurveDifferentialEventsExtractor(this.curve);
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this._shapeSpaceDiffEventsConfigurator) {
+        if(this._curveControlState) {
             this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
@@ -326,7 +330,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
             warning.logMessageToConsole();
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
-        if(this._shapeSpaceDiffEventsConfigurator) {
+        if(this._curveControlState) {
             this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
@@ -341,8 +345,8 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
         return this._sequenceOfDifferentialEvents;
     }
 
-    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEventsConfigurator {
-        return this._shapeSpaceDiffEventsConfigurator;
+    get curveControlState(): CurveControlState {
+        return this._curveControlState;
     }
 
     get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {
@@ -380,7 +384,7 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     protected globalExtremumOffAxisCurvatureDerivPoly: ExtremumLocation;
     private navigationState: NavigationState;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
-    private _shapeSpaceDiffEventsConfigurator: ShapeSpaceDiffEventsConfigurator;
+    private _curveControlState: CurveControlState;
 
     constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
@@ -390,7 +394,7 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
         this.navigationCurveModel = navigationCurveModel;
         this.navigationState = navigationCurveModel.navigationState;
         this._shapeSpaceDescriptor = navigationCurveModel.shapeSpaceDescriptor;
-        this._shapeSpaceDiffEventsConfigurator = navigationCurveModel.shapeSpaceDiffEventsConfigurator;
+        this._curveControlState = navigationCurveModel.curveShapeSpaceNavigator.curveControlState;
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
 
         const diffEventsExtractor = new ClosedCurveDifferentialEventsExtractorWithoutSequence(this.curve);
@@ -402,8 +406,8 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
         return this._sequenceOfDifferentialEvents;
     }
 
-    get shapeSpaceDiffEventsConfigurator(): ShapeSpaceDiffEventsConfigurator {
-        return this._shapeSpaceDiffEventsConfigurator;
+    get curveControlState(): CurveControlState {
+        return this._curveControlState;
     }
 
     get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {

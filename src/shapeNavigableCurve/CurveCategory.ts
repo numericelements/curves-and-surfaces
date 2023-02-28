@@ -1,7 +1,5 @@
 import { ShapeNavigableCurve } from "./ShapeNavigableCurve";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { SlidingStrategy } from "../controllers/SlidingStrategy";
-import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
 import { CurveModel } from "../newModels/CurveModel";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
@@ -21,7 +19,6 @@ export abstract class CurveCategory {
     protected abstract _curveModel: CurveModelInterface;
     protected abstract _curveModelDifferentialEvents: CurveDifferentialEventsLocationInterface;
     protected abstract _curveModelDifferentialEventsLocations: CurveDifferentialEventsLocations;
-    // abstract curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve) {
         this._shapeNavigableCurve = shapeNavigableCurve;
@@ -88,9 +85,6 @@ export class OpenPlanarCurve extends CurveCategory {
     protected _curveModel: CurveModel;
     protected _curveModelDifferentialEvents: AbstractCurveDifferentialEventsExtractor;
     protected _curveModelDifferentialEventsLocations: CurveDifferentialEventsLocations;
-    // protected _curveShapeSpaceNavigator: OpenCurveShapeSpaceNavigator;
-    // private _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
-    // private _eventStateAtCrvExtremities: EventStateAtCurveExtremity;
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve) {
         super(shapeNavigableCurve);
@@ -98,28 +92,13 @@ export class OpenPlanarCurve extends CurveCategory {
         this._curveModelDifferentialEvents = new OpenCurveDifferentialEventsExtractorWithoutSequence(this._curveModel.spline);
         this._curveModel.registerObserver(this._curveModelDifferentialEvents, "control points");
         this._curveModelDifferentialEventsLocations = this._curveModelDifferentialEvents.crvDiffEventsLocations;
-        // this._curveShapeSpaceNavigator = new OpenCurveShapeSpaceNavigator(this._curveModel, this.shapeNavigableCurve);
         this._shapeNavigableCurve.changeCurveCategory(this);
         this._shapeNavigableCurve.notifyObservers();
-        // this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities();
-        // this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventState;
     }
 
     get curveModelDifferentialEvents(): AbstractCurveDifferentialEventsExtractor {
         return this._curveModelDifferentialEvents;
     }
-
-    // get curveShapeSpaceNavigator(): OpenCurveShapeSpaceNavigator {
-    //     return this._curveShapeSpaceNavigator;
-    // }
-
-    // get eventMgmtAtExtremities(): EventMgmtAtCurveExtremities {
-    //     return this._eventMgmtAtExtremities;
-    // }
-
-    // get eventStateAtCrvExtremities(): EventStateAtCurveExtremity {
-    //     return this._eventStateAtCrvExtremities;
-    // }
 
     set curveModelDifferentialEvents(curveModelDifferentialEvents: AbstractCurveDifferentialEventsExtractor) {
         this._curveModelDifferentialEvents = curveModelDifferentialEvents;
@@ -168,7 +147,6 @@ export class ClosedPlanarCurve extends CurveCategory {
     protected _curveModel: ClosedCurveModel;
     protected _curveModelDifferentialEvents: AbstractCurveDifferentialEventsExtractor;
     protected _curveModelDifferentialEventsLocations: CurveDifferentialEventsLocations;
-    // protected _curveShapeSpaceNavigator: ClosedCurveShapeSpaceNavigator;
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve) {
         super(shapeNavigableCurve);
@@ -176,7 +154,6 @@ export class ClosedPlanarCurve extends CurveCategory {
         this._curveModelDifferentialEvents = new ClosedCurveDifferentialEventsExtractorWithoutSequence(this._curveModel.spline);
         this._curveModel.registerObserver(this._curveModelDifferentialEvents, "control points");
         this._curveModelDifferentialEventsLocations = this._curveModelDifferentialEvents.crvDiffEventsLocations;
-        // this._curveShapeSpaceNavigator = new ClosedCurveShapeSpaceNavigator(this._curveModel, this._shapeNavigableCurve);
         this._shapeNavigableCurve.changeCurveCategory(this);
         this._shapeNavigableCurve.notifyObservers();
     }
@@ -188,10 +165,6 @@ export class ClosedPlanarCurve extends CurveCategory {
     set curveModelDifferentialEvents(curveModelDifferentialEvents: AbstractCurveDifferentialEventsExtractor) {
         this._curveModelDifferentialEvents = curveModelDifferentialEvents;
     }
-
-    // get curveShapeSpaceNavigator(): ClosedCurveShapeSpaceNavigator {
-    //     return this._curveShapeSpaceNavigator;
-    // }
 
     setCurveCategory(): void {
         this._shapeNavigableCurve.changeCurveCategory(new OpenPlanarCurve(this._shapeNavigableCurve));
