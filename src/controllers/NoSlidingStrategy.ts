@@ -18,14 +18,14 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
     constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean) {
         this.activeControl = ActiveControl.both
 
-        if (!controlOfCurvatureExtrema) {
-            this.activeControl = ActiveControl.inflections
-        } else if (!controlOfInflection) {
-            this.activeControl = ActiveControl.curvatureExtrema
-        } else if (!controlOfInflection && !controlOfCurvatureExtrema) {
+        if (!controlOfInflection && !controlOfCurvatureExtrema) {
             this.activeControl = ActiveControl.none;
             this.activeOptimizer = false
             //console.log("activeOptimizer in NoSlidingStrategy: " + this.activeOptimizer)
+        } else if (!controlOfCurvatureExtrema) {
+            this.activeControl = ActiveControl.inflections
+        } else if (!controlOfInflection) {
+            this.activeControl = ActiveControl.curvatureExtrema
         }
 
         this.curveModel = curveModel

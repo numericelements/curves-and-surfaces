@@ -35,35 +35,35 @@ enum transitionCP {negativeToPositive, positiveToNegative, none}
 
 const DEVIATION_FROM_KNOT = 0.25
 
-// export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1toR2 {
-export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
+export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1toR2 {
+// export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
-    public spline: BSplineR1toR2
-    private _target: BSplineR1toR2
-    readonly Dsu: BernsteinDecompositionR1toR1[]
-    readonly Dsuu: BernsteinDecompositionR1toR1[]
-    readonly Dsuuu: BernsteinDecompositionR1toR1[]
+    // public spline: BSplineR1toR2
+    protected _target: BSplineR1toR2
+    //modif pour integration BaseOpBSplineR1toR2
+    // readonly Dsu: BernsteinDecompositionR1toR1[]
+    // readonly Dsuu: BernsteinDecompositionR1toR1[]
+    // readonly Dsuuu: BernsteinDecompositionR1toR1[]
 
 
     //private curvatureExtremaConstraintsSign: number[] = []
     //private curvatureExtremaInactiveConstraints: number[] = []
 
     //private inflectionConstraintsSign: number[] = []
-    //private inflectionInactiveConstraints: number[] = []
     /* JCL for testing purposes */
     public curvatureExtremaConstraintsSign: number[] = []
-    public curvatureExtremaInactiveConstraints: number[] = []
+    // public curvatureExtremaInactiveConstraints: number[] = []
+    protected _curvatureExtremaInactiveConstraints: number[] = []
 
     public inflectionConstraintsSign: number[] = []
-    public inflectionInactiveConstraints: number[] = []
+    // public inflectionInactiveConstraints: number[] = []
+    protected _inflectionInactiveConstraints: number[] = []
 
     //protected curvatureExtremaConstraintsSign: number[] = []
-    //protected curvatureExtremaInactiveConstraints: number[] = []
 
     //protected inflectionConstraintsSign: number[] = []
-    //protected inflectionInactiveConstraints: number[] = []
 
-    private _numberOfIndependentVariables: number
+    protected _numberOfIndependentVariables: number
     protected _f0: number
     protected _gradient_f0: number[]
     protected _hessian_f0: SymmetricMatrixInterface
@@ -90,10 +90,15 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
     private Dh8_9xx: BernsteinDecompositionR1toR1[][] = []
     private Dh10_11xy: BernsteinDecompositionR1toR1[][] = []
 
-
+    //modif pour integration BaseOpBSplineR1toR2
+    protected dBasisFunctions_du: BernsteinDecompositionR1toR1[] = []
+    protected d2BasisFunctions_du2: BernsteinDecompositionR1toR1[] = []
+    protected d3BasisFunctions_du3: BernsteinDecompositionR1toR1[] = []
 
     constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
-        this.spline = initial.clone()
+        super(target, initial, activeControl);
+
+        // this.spline = initial.clone()
         this._target = target.clone()
         const n = this.spline.controlPoints.length
         this._numberOfIndependentVariables = n * 2
@@ -133,13 +138,15 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         this.curvatureExtremaTotalNumberOfConstraints = g.length
 
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
+        // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
         //console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
 
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
 
@@ -202,6 +209,58 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         return this._hessian_f
     }
 
+
+    get spline(): BSplineR1toR2 {
+        return this._spline as BSplineR1toR2
+    }
+
+    set spline(spline: BSplineR1toR2) {
+        this._spline = spline;
+    }
+
+    get inflectionInactiveConstraints() {
+        return this._inflectionInactiveConstraints;
+    }
+
+    get curvatureExtremaInactiveConstraints() {
+        return this._curvatureExtremaInactiveConstraints
+    }
+
+    bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1 {
+        return new BSplineR1toR1(controlPoints, knots);
+    }
+
+    computeBasisFunctionsDerivatives() {
+        const n = this.spline.controlPoints.length
+        this._numberOfIndependentVariables = n * 2
+        let diracControlPoints = zeroVector(n)
+        this.dBasisFunctions_du = []
+        this.d2BasisFunctions_du2 = []
+        this.d3BasisFunctions_du3 = []
+        for (let i = 0; i < n; i += 1) {
+            diracControlPoints[i] = 1
+            let s = new BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice())
+            let su = s.derivative()
+            let suu = su.derivative()
+            let suuu = suu.derivative()
+            const suBDecomp = su.bernsteinDecomposition()
+            const suuBDecomp = suu.bernsteinDecomposition()
+            const suuuBDecomp = suuu.bernsteinDecomposition()
+            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
+            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
+            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
+            this.Dsu.push(suBDecomp)
+            this.Dsuu.push(suuBDecomp)
+            this.Dsuuu.push(suuuBDecomp)
+
+            // compatibiliity with BaseOpBSplineR1toR2 constructor
+            this.dBasisFunctions_du.push(suBDecomp)
+            this.d2BasisFunctions_du2.push(suuBDecomp)
+            this.d3BasisFunctions_du3.push(suuuBDecomp)
+            diracControlPoints[i] = 0
+        }
+    }
+
     step(deltaX: number[]) {
         // JCL 05/03/2021 add the checked status to enable stopping the iteration process if the curve is analyzed
         let checked: boolean = true
@@ -212,13 +271,15 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
         const e = this.expensiveComputation(this.spline)  
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
+        // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        this.inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
 
@@ -328,7 +389,15 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
      * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
      * @param controlPoints The vector of value of the function: f_i
      */
-    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+    // computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+    //     let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
+    //     let controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints)
+    //     let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
+    //     return result
+    // }
+
+    computeInactiveConstraints(controlPoints: number[]) {
+        let constraintsSign = this.computeConstraintsSign(controlPoints);
         let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
         let controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints)
         let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
@@ -430,30 +499,32 @@ export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblem
     }
 
     expensiveComputation(spline: BSplineR1toR2) {
-        const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots),
-        sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots),
-        sxu = sx.derivative(),
-        syu = sy.derivative(),
-        sxuu = sxu.derivative(),
-        syuu = syu.derivative(),
-        sxuuu = sxuu.derivative(),
-        syuuu = syuu.derivative(),
-        bdsxu = sxu.bernsteinDecomposition(),
-        bdsyu = syu.bernsteinDecomposition(),
-        bdsxuu = sxuu.bernsteinDecomposition(),
-        bdsyuu = syuu.bernsteinDecomposition(),
-        bdsxuuu = sxuuu.bernsteinDecomposition(),
-        bdsyuuu = syuuu.bernsteinDecomposition(),
+        // const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots);
+        // const sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots);
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        const sxu = sx.derivative();
+        const syu = sy.derivative();
+        const sxuu = sxu.derivative();
+        const syuu = syu.derivative();
+        const sxuuu = sxuu.derivative();
+        const syuuu = syuu.derivative();
+        const bdsxu = sxu.bernsteinDecomposition();
+        const bdsyu = syu.bernsteinDecomposition();
+        const bdsxuu = sxuu.bernsteinDecomposition();
+        const bdsyuu = syuu.bernsteinDecomposition();
+        const bdsxuuu = sxuuu.bernsteinDecomposition();
+        const bdsyuuu = syuuu.bernsteinDecomposition();
         // bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition()),
         // bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition()),
         // bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition()),
         // bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition()),
         // bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition()),
         // bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition()),
-        h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu)),
-        h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu)),
-        h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu)),
-        h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
+        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
+        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
+        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
 
        return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4)
     }
@@ -986,7 +1057,11 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inact
         super(target, initial, activeControl)
     }
     
-    computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
+    // computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
+    //     return []
+    // }
+
+    computeInactiveConstraints(curvatureDerivativeNumerator: number[]) {
         return []
     }
 
@@ -999,7 +1074,11 @@ export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extend
         super(target, initial, activeControl)
     }
 
-    computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
+    // computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
+    //     return []
+    // }
+
+    computeInactiveConstraints(curvatureDerivativeNumerator: number[]) {
         return []
     }
 }
@@ -1047,7 +1126,15 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicate
         return result
     }
 
-    computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+    // computeInactiveConstraints(constraintsSign: number[], controlPoints: number[]) {
+    //     let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
+    //     let controlPointsClosestToZero = this.computeControlPointsClosestToZeroForCubics(signChangesIntervals, controlPoints)
+    //     let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
+    //     return result
+    // }
+
+    computeInactiveConstraints(controlPoints: number[]) {
+        let constraintsSign = this.computeConstraintsSign(controlPoints);
         let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
         let controlPointsClosestToZero = this.computeControlPointsClosestToZeroForCubics(signChangesIntervals, controlPoints)
         let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
@@ -1146,13 +1233,13 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             this.revertConstraints.push(1);
         }
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
+        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
+        this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
             this.revertConstraints, this.constraintBound)
@@ -1994,14 +2081,14 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         if(this.updateConstraintBound) {
             this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-            this.curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
         }
         this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         if(this.updateConstraintBound) {
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-            this.inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
+            this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
         }
         this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 

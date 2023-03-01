@@ -53,16 +53,16 @@ export class SlidingStrategy implements CurveControlStrategyInterface {
 
         this.curveSceneController = curveShapeSpaceNavigator.curveSceneController
 
-        if (!controlOfCurvatureExtrema) {
-            activeControl = ActiveControl.inflections
-        } else if (!controlOfInflection) {
-            activeControl = ActiveControl.curvatureExtrema
-        } else if (!controlOfInflection && !controlOfCurvatureExtrema) {
+        if (!controlOfInflection && !controlOfCurvatureExtrema) {
             activeControl = ActiveControl.none;
             this.activeOptimizer = false
             //console.log("activeOptimizer in SlidingStrategy: " + this.activeOptimizer)
             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.none
             // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.none
+        } else if (!controlOfCurvatureExtrema) {
+            activeControl = ActiveControl.inflections
+        } else if (!controlOfInflection) {
+            activeControl = ActiveControl.curvatureExtrema
         }
 
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */

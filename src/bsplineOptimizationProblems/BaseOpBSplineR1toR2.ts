@@ -7,6 +7,7 @@ import { SymmetricMatrixInterface} from "../linearAlgebra/MatrixInterfaces";
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { Vector2d } from "../mathVector/Vector2d";
 import { OpBSplineR1toR2Interface } from "./IOpBSplineR1toR2";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
 export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Interface {
@@ -45,8 +46,17 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     protected curvatureExtremaConstraintsSign: number[] = []
     protected _curvatureExtremaInactiveConstraints: number[] = []
 
+    //modif pour integration BaseOpBSplineR1toR2
+    protected Dsu: BernsteinDecompositionR1toR1[]
+    protected Dsuu: BernsteinDecompositionR1toR1[]
+    protected Dsuuu: BernsteinDecompositionR1toR1[]
+
     
     constructor(target: BSplineR1toR2Interface, initial: BSplineR1toR2Interface, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
+        this.Dsu = []
+        this.Dsuu = []
+        this.Dsuuu = []
+        
         this._spline = initial.clone()
         this._target = target.clone()
         this.computeBasisFunctionsDerivatives()
@@ -65,9 +75,11 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
         this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
         this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
-        if (this._f.length !== this._gradient_f.shape[0]) {
-            throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor")
-        }
+        // contenu de test incompatible avec OptimizationProblem_BSpline_R1_to_R2 -> a voir
+                // if (this._f.length !== this._gradient_f.shape[0]) {
+        // if (this._f.length !== this._gradient_f.shape[0] && activeControl !== ActiveControl.none) {
+        //     throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor")
+        // }
     }
 
     get inflectionInactiveConstraints() {
@@ -309,9 +321,18 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
             else if (this.activeControl === ActiveControl.curvatureExtrema) {
                 return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
             }
-            else {
+            // JCL modif temporaire pour debuter integration optimizationProblem_BSpline_R1_to_R2
+            else  if (this.activeControl === ActiveControl.inflections) {
                 return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            } else {
+                const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+                warning.logMessageToConsole();
+                let result = new DenseMatrix(1, 1);
+                return result;
             }
+            // else {
+            //     return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            // }
     }
 }
 

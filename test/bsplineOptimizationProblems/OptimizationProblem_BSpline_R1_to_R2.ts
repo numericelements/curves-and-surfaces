@@ -329,28 +329,36 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         let splineTarget = splineInitial.clone()
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
 
-        let result = o.computeInactiveConstraints([-1, -1, 1, 1], [-3, -4, 5, 6])
+        // let result = o.computeInactiveConstraints([-1, -1, 1, 1], [-3, -4, 5, 6])
+        let result = o.computeInactiveConstraints([-3, -4, 5, 6])
         expect(result).to.eql([1])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -5, 6])
+        // result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -5, 6])
+        result = o.computeInactiveConstraints([-3, -4, -5, 6])
         expect(result).to.eql([2])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, -1], [-3, -4, -5, -6])
+        // result = o.computeInactiveConstraints([-1, -1, -1, -1], [-3, -4, -5, -6])
+        result = o.computeInactiveConstraints([-3, -4, -5, -6])
         expect(result).to.eql([])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -5, 6])
+        // result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -5, 6])
+        result = o.computeInactiveConstraints([-3, -4, -5, 6])
         expect(result).to.eql([2])
 
-        result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -6, 5])
+        // result = o.computeInactiveConstraints([-1, -1, -1, 1], [-3, -4, -6, 5])
+        result = o.computeInactiveConstraints([-3, -4, -6, 5])
         expect(result).to.eql([3])
 
-        result = o.computeInactiveConstraints([-1, -1, 1, -1], [-3, -4, 5, -5])
+        // result = o.computeInactiveConstraints([-1, -1, 1, -1], [-3, -4, 5, -5])
+        result = o.computeInactiveConstraints([-3, -4, 5, -5])
         expect(result).to.eql([2])
 
-        result = o.computeInactiveConstraints([1, -1, -1, -1], [3, -4, -5, -5])
+        // result = o.computeInactiveConstraints([1, -1, -1, -1], [3, -4, -5, -5])
+        result = o.computeInactiveConstraints([3, -4, -5, -5])
         expect(result).to.eql([0])
 
-        result = o.computeInactiveConstraints([1, -1, -1, -1], [4, -3, -5, -5])
+        // result = o.computeInactiveConstraints([1, -1, -1, -1], [4, -3, -5, -5])
+        result = o.computeInactiveConstraints([4, -3, -5, -5])
         expect(result).to.eql([1])
     });
 
@@ -368,16 +376,20 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         let splineTarget = splineInitial.clone()
         let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
 
-        let result = o.computeInactiveConstraints([1, 1, 1, 1, 1, -1, -1, -1], [3, 4, 5, 2, 2, -6, -7, -8])
+        // let result = o.computeInactiveConstraints([1, 1, 1, 1, 1, -1, -1, -1], [3, 4, 5, 2, 2, -6, -7, -8])
+        let result = o.computeInactiveConstraints([3, 4, 5, 2, 2, -6, -7, -8])
         expect(result).to.eql([3, 4])
 
-        result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1], [3, 4, 5, -2, -2, -6, -7, -8])
+        // result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1], [3, 4, 5, -2, -2, -6, -7, -8])
+        result = o.computeInactiveConstraints([3, 4, 5, -2, -2, -6, -7, -8])
         expect(result).to.eql([3, 4])
 
-        result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, 1], [3, 4, 5, -2, -2, -6, -7, -8, 2, 2, 5, 6])
+        // result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, 1], [3, 4, 5, -2, -2, -6, -7, -8, 2, 2, 5, 6])
+        result = o.computeInactiveConstraints([3, 4, 5, -2, -2, -6, -7, -8, 2, 2, 5, 6])
         expect(result).to.eql([3, 4, 8, 9])
 
-        result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1], [3, 4, 5, -2, -2, -6, -7, -8, -2, -2, 5, 6])
+        // result = o.computeInactiveConstraints([1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1], [3, 4, 5, -2, -2, -6, -7, -8, -2, -2, 5, 6])
+        result = o.computeInactiveConstraints([3, 4, 5, -2, -2, -6, -7, -8, -2, -2, 5, 6])
         expect(result).to.eql([3, 4, 8, 9])
     });
 
