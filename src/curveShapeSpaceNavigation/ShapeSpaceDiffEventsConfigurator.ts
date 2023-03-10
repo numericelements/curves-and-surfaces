@@ -65,12 +65,12 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding extends ShapeSpaceCo
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -115,12 +115,12 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding extends ShapeSp
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -169,12 +169,12 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding e
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = false;
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -230,13 +230,13 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         // JCL Should be a Dummy strategy
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-            error.logMessageToConsole();
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new NoSlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        //     error.logMessageToConsole();
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -285,12 +285,12 @@ export class ShapeSpaceConfiguratorWithInflectionsSliding extends ShapeSpaceConf
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -331,12 +331,12 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaSliding extends ShapeSpac
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -377,12 +377,12 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding ext
         shapeSpaceDiffEventsStructure.slidingDifferentialEvents = true;
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
@@ -424,12 +424,12 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding 
         // this.curveShapeSpaceNavigator.shapeSpaceDiffEventsConfigurator = this;
         // this.curveShapeSpaceNavigator.navigationCurveModel.shapeSpaceDiffEventsConfigurator = this;
         // JCL Should be a dummy strategy
-        if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
-            this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
-                shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
-        } else {
-            const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
-        }
+        // if(this.shapeNavigableCurve.curveCategory.curveModel instanceof CurveModel) {
+        //     this.curveShapeSpaceNavigator.navigationCurveModel.curveControl = new SlidingStrategy(this.shapeNavigableCurve.curveCategory.curveModel, shapeSpaceDiffEventsStructure.activeControlInflections,
+        //         shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema, this.curveShapeSpaceNavigator);
+        // } else {
+        //     const error = new ErrorLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", "Not yet able to handle closed curve optimization");
+        // }
         const warning = new WarningLog(this.constructor.name, "monitorCurveUsingDifferentialEvents", 
         " activeNavigationWithOptimizer : " + shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema

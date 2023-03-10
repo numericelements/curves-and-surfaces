@@ -17,6 +17,8 @@ import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } 
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { OptimizerReturnStatus } from "../mathematics/Optimizer";
 import { NeighboringEventsType } from "../sequenceOfDifferentialEvents/NeighboringEvents";
+import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { CCurveShapeMonitoringStrategy, OCurveShapeMonitoringStrategy } from "../controllers/CurveShapeMonitoringStrategy";
 
 export abstract class NavigationState {
 
@@ -233,14 +235,21 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
         try {
-            const status: OptimizerReturnStatus = this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            let status: OptimizerReturnStatus = OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE;
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
+                status = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            }
+            // const status: OptimizerReturnStatus = this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
             if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
                 let curveModelOptimized = new CurveModel();
-                curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
-                // curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
+                // curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
+                if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
+                    curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
+                }
+
                 this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
                 this.optimizedCurve = curveModelOptimized.spline;
                 this.curveConstraintsMonitoring();
@@ -337,8 +346,14 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = true;
         try {
-            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
-            this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            }
+            // this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.optimizedCurve =  this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
+            }
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this._curveAnalyserOptimizedCurve.updateOptimized();
@@ -517,6 +532,7 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
     }
 
     curveConstraintsMonitoring(): void {
+        // pb etat des contraintes incorrect: un seul pt alors que etat: 2 pts ancres
         this.shapeNavigableCurve.curveConstraints.processConstraint();
         this.navigationCurveModel.currentCurve = this.navigationCurveModel.optimizedCurve;
         this.currentCurve = this.navigationCurveModel.currentCurve.clone();
@@ -530,9 +546,15 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
         try {
-            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            }
+            // this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // requires optimization process for periodic B-Splines
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.optimizationProblem.spline.clone();
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.optimizedCurve =  this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
+            }
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this.curveAnalyserOptimizedCurve.updateOptimized();
@@ -599,8 +621,14 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = true;
         try {
-            this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+            }
+            // this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.curveShapeSpaceNavigator.optimizedCurve = this.curveShapeSpaceNavigator.optimizationProblem.spline.clone();
+            if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.optimizedCurve =  this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
+            }
             this.optimizedCurve = this.navigationCurveModel.optimizedCurve.clone();
             this.curveConstraintsMonitoring();
             this.curveAnalyserOptimizedCurve.updateOptimized();
