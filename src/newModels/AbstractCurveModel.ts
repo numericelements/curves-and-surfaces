@@ -36,11 +36,11 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
         switch(kind) {
             case 'curve':
                 this.observers.push(observer);
-                console.log("CurveModel: registerObs as curve: " + observer.constructor.name)
+                // console.log("CurveModel: registerObs as curve: " + observer.constructor.name)
                 break;
             case 'control points':
                 this.observersCP.push(observer);
-                console.log("CurveModel: registerObs as CP: " + observer.constructor.name)
+                // console.log("CurveModel: registerObs as CP: " + observer.constructor.name)
                 break;
             default:
                 throw Error("unknown kind");

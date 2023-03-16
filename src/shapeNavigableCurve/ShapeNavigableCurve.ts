@@ -6,10 +6,7 @@ import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
-import { EventSlideOutsideCurve, EventStateAtCurveExtremity, EventStayInsideCurve } from "./EventStateAtCurveExtremity";
-import { NavigationCurveModelInterface } from "../curveShapeSpaceNavigation/NavigationCurveModelInterface";
 import { CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
-import { CurveModel } from "../newModels/CurveModel";
 
 export const NO_CONSTRAINT = -1;
 export const MAX_CLAMPED_POINTS = 2;

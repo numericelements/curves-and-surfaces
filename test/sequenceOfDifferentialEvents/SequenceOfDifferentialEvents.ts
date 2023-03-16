@@ -74,8 +74,15 @@ describe('SequenceOfDifferentialEvents', () => {
         expect(seqDif1.sequence.length, 'sequence length: ').to.eql(2);
     });
 
-        // The inflection unsed here is the index of the inflection event in the sequence of inflections
-        // If interval designated is the last one, the index is set to the length of the sequence of inflections
+    it('can add one inflection only into an empty sequence', () => {
+        const seqDif1 = new SequenceOfDifferentialEvents();
+        seqDif1.insertEvents([], [0.1]);
+        expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(1);
+        expect(seqDif1.sequence.length, 'sequence length: ').to.eql(1);
+    });
+
+        // The inflection unused here is the index of the inflection event in the sequence of inflections
+        // If the interval designated is the last one, the index is set to the length of the sequence of inflections
 
     it('can return the intervals when there is no inflection', () => {
         const seqDif1 = new SequenceOfDifferentialEvents([0.4, 0.8], []);
@@ -135,7 +142,7 @@ describe('SequenceOfDifferentialEvents', () => {
         expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[4], 'sequence of intervals: ').to.be.closeTo(0.02, 1.0e-10);
     });
 
-    it('returns an error when the curvatue extrema value is not strictly increasing', () => {
+    it('returns an error when the curvature extrema value is not strictly increasing', () => {
         const seqDif1 = new SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
         const event = new DifferentialEvent(1, 0.7);
         seqDif1.sequence.splice(3, 0, event);

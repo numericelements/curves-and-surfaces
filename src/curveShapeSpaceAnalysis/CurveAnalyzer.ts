@@ -6,7 +6,6 @@ import { ExtremumLocationClassifier,
     ExtremumLocation,
     INITIAL_INDEX } from "./ExtremumLocationClassifiier";
 import { NavigationState } from "../curveShapeSpaceNavigation/NavigationState";
-import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { RETURN_ERROR_CODE } from "../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";

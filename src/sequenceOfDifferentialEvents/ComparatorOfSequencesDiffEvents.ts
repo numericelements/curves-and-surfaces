@@ -216,29 +216,33 @@ export class ComparatorOfSequencesOfDiffEvents {
                 this._sequenceDiffEvents1.checkConsistencyIntervalBtwInflections(modifiedCurvExEvent);
                 if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
                     const locatorCurvatureEvent = new LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
                     const locatorCurvatureEvent = new LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
                     // Because there is only one event appearing and this event is of type curvature extremum, it can take place either in the first or in the last interval
                     const locatorCurvatureEvent = new LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
-                    let neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents === ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length > 0){
                     // Because there is only one event appearing and this event is of type curvature extremum, it can take place either in the first or in the last interval
                     const locatorCurvatureEvent = new LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
-                    let neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorCurvatureEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents === TWO_CURVEXT_EVENTS_APPEAR) {
                     const locatorCurvEventAppearing = new LocalizerOfCurvatureExtremaAppearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
-                    let neighboringEvent: NeighboringEvents = locatorCurvEventAppearing.locateDifferentialEvents();
+                    const neighboringEvent: NeighboringEvents = locatorCurvEventAppearing.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents === TWO_CURVEXT_EVENTS_DISAPPEAR) {
                     const locatorCurvEventDisappearing = new LocalizerOfCurvatureExtremaDisappearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
-                    let neighboringEvent: NeighboringEvents = locatorCurvEventDisappearing.locateDifferentialEvents();
+                    const neighboringEvent: NeighboringEvents = locatorCurvEventDisappearing.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents !== 0){
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "Cannot process the curvature extremum event.");
@@ -251,6 +255,23 @@ export class ComparatorOfSequencesOfDiffEvents {
         }
     }
 
+    combineLocationAndBehaviorForCurvExtrema(neighboringEvent: NeighboringEvents, eventBehavior: number): NeighboringEvents {
+        let result = neighboringEvent;
+        if(neighboringEvent.type === NeighboringEventsType.neighboringCurExtremumLeftBoundary && eventBehavior > 0) {
+            result.type = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear;
+        } else if(neighboringEvent.type === NeighboringEventsType.neighboringCurExtremumLeftBoundary && eventBehavior < 0) {
+            result.type = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear;
+        } else if(neighboringEvent.type === NeighboringEventsType.neighboringCurExtremumRightBoundary && eventBehavior > 0) {
+            result.type = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear;
+        } else if(neighboringEvent.type === NeighboringEventsType.neighboringCurExtremumRightBoundary && eventBehavior < 0) {
+            result.type = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear;
+        } else {
+            const error = new ErrorLog(this.constructor.name, "combineLocationAndBehaviorForCurvExtrema", "Inconsistent differential event type.");
+            error.logMessageToConsole();
+        }
+        return result;
+    }
+
     locateNeiboringEventsUnderInflectionEventChanges(): void {
         const nbEventsModified = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents2.length();
         const nbInflectionsModified = this._sequenceDiffEvents1.indicesOfInflections.length - this._sequenceDiffEvents2.indicesOfInflections.length;
@@ -258,27 +279,31 @@ export class ComparatorOfSequencesOfDiffEvents {
             for(let modifiedInflectionEvent of this.modifiedInflectionEvents) {
                 if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
                     const locatorInflectionEvent = new LocalizerOfInflectionAppearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length > 0) {
                     const locatorInflectionEvent = new LocalizerOfInflectionDisappearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
                     const locatorInflectionEvent = new LocalizerOfInflectionAppearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
                     const locatorInflectionEvent = new LocalizerOfInflectionDisappearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
-                    this.neighboringEvents.push(neighboringEvent);
+                    const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    const updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                    this.neighboringEvents.push(updatedNeighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
                     const locatorInflectionEvent = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
                     const locatorInflectionEvent = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
-                    let neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
                     this.neighboringEvents.push(neighboringEvent);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "Cannot process the inflection event.");
@@ -291,10 +316,30 @@ export class ComparatorOfSequencesOfDiffEvents {
         }
     }
 
+    combineLocationAndBehaviorForInflections(neighboringEvent: NeighboringEvents, eventBehavior: number): NeighboringEvents {
+        let result = neighboringEvent;
+        if(neighboringEvent.type === NeighboringEventsType.neighboringInflectionLeftBoundary && eventBehavior > 0) {
+            result.type = NeighboringEventsType.neighboringInflectionLeftBoundaryAppear;
+        } else if(neighboringEvent.type === NeighboringEventsType.neighboringInflectionLeftBoundary && eventBehavior < 0) {
+            result.type = NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear;
+        } else if(neighboringEvent.type === NeighboringEventsType.neighboringInflectionRightBoundary && eventBehavior > 0) {
+            result.type = NeighboringEventsType.neighboringInflectionRightBoundaryAppear;
+        } else if(neighboringEvent.type === NeighboringEventsType.neighboringInflectionRightBoundary && eventBehavior < 0) {
+            result.type = NeighboringEventsType.neighboringInflectionRightBoundaryDisappear;
+        } else {
+            const error = new ErrorLog(this.constructor.name, "combineLocationAndBehaviorForInflections", "Inconsistent differential event type.");
+            error.logMessageToConsole();
+        }
+        return result;
+    }
+
     locateNeiboringEvents(): void {
         this.modifiedCurvExEvents = [];
         this.modifiedInflectionEvents = [];
-        this.locateIntervalAndNumberOfCurvExEventChanges();
+        if(!(this._sequenceDiffEvents1.length() === this._sequenceDiffEvents1.indicesOfInflections.length &&
+            this._sequenceDiffEvents2.length() === this._sequenceDiffEvents2.indicesOfInflections.length)) {
+            this.locateIntervalAndNumberOfCurvExEventChanges();
+        }
         if(this.modifiedCurvExEvents.length === 0) {
             if(this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
                 // No change in curvature extrema has been identified as well as no change in inflections
@@ -307,8 +352,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             this.locateNeiboringEventsUnderInflectionEventChanges();
         } else if(this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
             this.locateNeiboringEventsUnderCurvExEventChanges();
-        }
-        else if(this.modifiedCurvExEvents.length === 0 && this.modifiedInflectionEvents.length === 0
+        } else if(this.modifiedCurvExEvents.length === 0 && this.modifiedInflectionEvents.length === 0
             && this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length()) {
             const warning = new WarningLog(this.constructor.name, "locateNeiboringEvents", "Cannot process this configuration yet.");
             warning.logMessageToConsole();

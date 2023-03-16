@@ -13,12 +13,10 @@
  */
 
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
-import { ShapeSpaceConfiguration } from "./ShapeSpaceDiffEventsConfigurator";
 import { CurveCategory, OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 import { NavigationCurveModelInterface } from "./NavigationCurveModelInterface";
-import { ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding } from "./ShapeSpaceDiffEventsConfigurator";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 
 export enum EventMgmtState {Active, Inactive, NotApplicable}
@@ -30,7 +28,6 @@ export class ShapeSpaceDiffEventsStructure {
     private _activeNavigationWithOptimizer: boolean;
     private _slidingDifferentialEvents: boolean;
     private _managementOfEventsAtExtremities: EventMgmtState;
-    // private _shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration;
     private readonly _curveCategory: CurveCategory;
     private readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
 
@@ -40,7 +37,6 @@ export class ShapeSpaceDiffEventsStructure {
         warning.logMessageToConsole();
         this._curveCategory = shapeNavigableCurve.curveCategory;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        // this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding(this._curveShapeSpaceNavigator);
         this._activeNavigationWithOptimizer = false;
         this._activeControlInflections = false;
         // Initializes activeControlCurvatureExtrema, controlOfInflection in accordance with the navigation mode:
@@ -90,7 +86,7 @@ export class ShapeSpaceDiffEventsStructure {
 
     set managementOfEventsAtExtremities(managementOfEventsAtExtremities: EventMgmtState) {
         if(this._curveCategory instanceof OpenPlanarCurve) {
-            if(managementOfEventsAtExtremities === EventMgmtState.NotApplicable) {
+            if(managementOfEventsAtExtremities === EventMgmtState.NotApplicable && this._slidingDifferentialEvents) {
                 const error = new ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
                 error.logMessageToConsole();
             } else {
@@ -126,10 +122,6 @@ export class ShapeSpaceDiffEventsStructure {
         return this._curveCategory;
     }
 
-    // get shapeSpaceDiffEventsConfigurator(): ShapeSpaceConfiguration {
-    //     return this._shapeSpaceDiffEventsConfigurator;
-    // }
-
     get managementOfEventsAtExtremities():EventMgmtState {
         return this._managementOfEventsAtExtremities;
     }
@@ -148,14 +140,5 @@ export class ShapeSpaceDiffEventsStructure {
     restart(): void {
         this._activeNavigationWithOptimizer = true;
     }
-
-    // changeShapeSpaceStructure(shapeSpaceDiffEventsConfigurator: ShapeSpaceConfiguration): void {
-    //     this._shapeSpaceDiffEventsConfigurator = shapeSpaceDiffEventsConfigurator;
-    //     // this.shapeSpaceConfigurator.setShapeSpaceDiffEventsStructure(this);
-    // }
-
-    // addInflectionsToShapeSpaceStructure(): void {
-    //     this.shapeSpaceConfigurator.setShapeSpaceMonitoringToInflections();
-    // }  
     
 }

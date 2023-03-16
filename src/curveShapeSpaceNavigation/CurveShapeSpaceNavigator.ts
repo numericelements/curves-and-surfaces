@@ -27,7 +27,7 @@ export class CurveShapeSpaceNavigator {
     private _controlOfEventsAtExtremity: boolean;
     private _navigationCurveModel: NavigationCurveModel;
     private _navigationState: NavigationState;
-    private _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+    private readonly _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
     private _eventStateAtCrvExtremities: EventStateAtCurveExtremity;
     private readonly _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
     private _curveControlState: CurveControlState;
@@ -44,9 +44,9 @@ export class CurveShapeSpaceNavigator {
         this._shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(this._shapeNavigableCurve, this);
         this._navigationCurveModel = new OpenCurveShapeSpaceNavigator(this);
         this._navigationState = this._navigationCurveModel.navigationState;
-        this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this);
-        this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventState;
         this._navigationState.navigationStateChange = false;
+        this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities(this);
+        this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventStateAtCrvExtremities;
         this._curveControlState = new HandleNoDiffEventNoSlidingState(this);
         this._navigationCurveModel.curveControlState = this._curveControlState;
         this._curveControlState.curveControlParamChange = false;
@@ -90,10 +90,6 @@ export class CurveShapeSpaceNavigator {
         this._controlOfEventsAtExtremity = controlOfEventsAtExtremity;
     }
 
-    set eventMgmtAtExtremities(eventMgmtAtExtremities: EventMgmtAtCurveExtremities) {
-        this._eventMgmtAtExtremities = eventMgmtAtExtremities;
-    }
-
     set eventStateAtCrvExtremities(eventStateAtCrvExtremities: EventStateAtCurveExtremity) {
         this._eventStateAtCrvExtremities = eventStateAtCrvExtremities;
     }
@@ -134,10 +130,6 @@ export class CurveShapeSpaceNavigator {
         this._shapeSpaceDiffEventsStructure.slidingDifferentialEvents = slidingDifferentialEvents;
     }
 
-    changeMngmtOfEventAtExtremity(eventState: EventStateAtCurveExtremity): void {
-        this._eventStateAtCrvExtremities = eventState;
-    }
-
     transitionTo(curveControlState: CurveControlState): void {
         this._curveControlState = curveControlState;
     }
@@ -156,9 +148,9 @@ export class CurveShapeSpaceNavigator {
 
     toggleEventMgmtAtCurveExt() {
         // this._curveControl.toggleEventMgmtAtCurveExt();
-        this._controlOfEventsAtExtremity = !this._controlOfEventsAtExtremity
+        this._controlOfEventsAtExtremity = !this._controlOfEventsAtExtremity;
         console.log("control of event at extremity: " + this._controlOfEventsAtExtremity)
-
+        this._eventMgmtAtExtremities.processEventAtCurveExtremity();
     }
 
     restoreCurveControlState(shapeSpaceNavigationEventListener: ShapeSpaceNavigationEventListener) {

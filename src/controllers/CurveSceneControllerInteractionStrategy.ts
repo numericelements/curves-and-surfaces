@@ -9,7 +9,7 @@ import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { ClosedPlanarCurve, OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
-import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForClosedCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
+import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
 import { NO_CONSTRAINT, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { ClickButtonView } from "../views/ClickButtonView";
 import { CurveSceneController } from "./CurveSceneController";
@@ -350,6 +350,9 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
                 if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
                     console.log("Constraints not satisfied - must change interaction Strategy");
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
+                } else if (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval) {
+                    console.log("An event went out of the interval. Display previous step");
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval(this._curveSceneController));
                 } else {
                     this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                     this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
@@ -368,17 +371,95 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
 
     processShiftKeyDownInteraction(): void {
         // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 
     processShiftKeyUpInteraction(): void {
         // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        message.logMessageToConsole();
+    }
+}
+
+export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval extends CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve {
+
+    // protected readonly controlOfInflection: boolean;
+    // protected readonly controlOfCurvatureExtrema: boolean;
+    protected readonly curveModel: CurveModelInterface;
+    protected readonly eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+    private readonly lastValidCurve: BSplineR1toR2Interface;
+
+    constructor(curveSceneController: CurveSceneController) {
+        super(curveSceneController);
+        this.selectedControlPoint = this._curveSceneController.selectedControlPoint;
+        this.eventMgmtAtExtremities = this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
+        // this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
+        // this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
+        this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
+        this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+        this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+        this.lastValidCurve = this.curveModel.spline.clone();
+        this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve.clone());
+        this._curveSceneController.selectedCurvatureExtremaView.update(this.lastValidCurve, this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsCurvExtrema);
+        this._curveSceneController.selectedInflectionsView.update(this.lastValidCurve, this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsInflections);
+    }
+
+    processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
+        const warning = new WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
+        warning.logMessageToConsole();
+    }
+
+    processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
+        const x = ndcX;
+        const y = ndcY;
+        // console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
+        if(this.selectedControlPoint != null) {
+            this._curveSceneController.controlPointsView.setSelected(null);
+            // console.log("x0= " + this.curveModel.spline.controlPoints[0].x + " y0= " + this.curveModel.spline.controlPoints[0].y +
+            // " x1= " + this.curveModel.spline.controlPoints[ this.curveModel.spline.controlPoints.length - 1].x + " y1= " + this.curveModel.spline.controlPoints[ this.curveModel.spline.controlPoints.length - 1].y)
+            if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
+                console.log("Inconsistent curve shape control settings");
+            } else if(this._curveSceneController.allowShapeSpaceChange === true) {
+                this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
+                if(this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
+                    console.log("Constraints not satisfied - must change interaction Strategy");
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
+                } else {
+                    this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
+                    this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                }
+            }
+            this.curveModel.notifyObservers();
+            this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
+        }
+    }
+
+    processLeftMouseUpInteraction(): void {
+        this.selectedControlPoint = null;
+        this._curveSceneController.selectedControlPoint = null;
+        this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
+    }
+
+    processShiftKeyDownInteraction(): void {
+        // this.curveEventAtExtremityMayVanish = true;
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        message.logMessageToConsole();
+    }
+
+    processShiftKeyUpInteraction(): void {
+        // this.curveEventAtExtremityMayVanish = false;
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
+        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 }
@@ -431,17 +512,17 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveC
 
     processShiftKeyDownInteraction(): void {
         // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 
     processShiftKeyUpInteraction(): void {
         // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 }
@@ -454,13 +535,13 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurv
 
     processShiftKeyDownInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 
     processShiftKeyUpInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 }
@@ -503,7 +584,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
                 if(this.shapeNavigableCurve.curveCategory instanceof OpenPlanarCurve) {
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve(this._curveSceneController));
                 } else if(this.shapeNavigableCurve.curveCategory instanceof ClosedCurveModel) {
-                    this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new NoEventToManageForClosedCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve(this._curveSceneController));
                 }
             }
@@ -578,17 +659,17 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
 
     processShiftKeyDownInteraction(): void {
         // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 
     processShiftKeyUpInteraction(): void {
         // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 }
@@ -601,13 +682,13 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve e
 
     processShiftKeyDownInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 
     processShiftKeyUpInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     }
 }

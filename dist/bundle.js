@@ -43282,7 +43282,6 @@ var TransitionCurvatureExtremaView_1 = __webpack_require__(/*! ../views/Transiti
 var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlPointView */ "./src/views/ClampedControlPointView.ts");
 /* JCL 2020/10/02 Add the visualization of knots */
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
-var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ../views/SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
 var ShapeNavigableCurve_1 = __webpack_require__(/*! ../shapeNavigableCurve/ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurveConstraintSelectionState_1 = __webpack_require__(/*! ./CurveConstraintSelectionState */ "./src/controllers/CurveConstraintSelectionState.ts");
@@ -43291,6 +43290,8 @@ var CurveModelObserver_1 = __webpack_require__(/*! ../models/CurveModelObserver 
 var HighlightedControlPolygonView_1 = __webpack_require__(/*! ../views/HighlightedControlPolygonView */ "./src/views/HighlightedControlPolygonView.ts");
 var CurveSceneControllerInteractionStrategy_1 = __webpack_require__(/*! ./CurveSceneControllerInteractionStrategy */ "./src/controllers/CurveSceneControllerInteractionStrategy.ts");
 var PhantomCurveView_1 = __webpack_require__(/*! ../views/PhantomCurveView */ "./src/views/PhantomCurveView.ts");
+var SelectedSlipOutOfShapeSpaceCurvExtremView_1 = __webpack_require__(/*! ../views/SelectedSlipOutOfShapeSpaceCurvExtremView */ "./src/views/SelectedSlipOutOfShapeSpaceCurvExtremView.ts");
+var SelectedSlipOutOfShapeSpaceInflectionView_1 = __webpack_require__(/*! ../views/SelectedSlipOutOfShapeSpaceInflectionView */ "./src/views/SelectedSlipOutOfShapeSpaceInflectionView.ts");
 // Margin expressed in pixel size
 var MARGIN_WINDOW_CANVAS = 150;
 // Window background color setting
@@ -43337,7 +43338,8 @@ var CurveSceneController = /** @class */ (function () {
         // JCL temporary modif
         this.curveShapeSpaceNavigator.curveSceneController = this;
         var selectedEvent = [];
-        this.selectedDifferentialEventsView = new SelectedDifferentialEventsView_1.SelectedDifferentialEventsView(this.curveModel.spline, selectedEvent, this.gl, 0, 0, 1, 1);
+        this._selectedCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremView_1.SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView_1.SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
         this._highlightedControlPolygonView = new HighlightedControlPolygonView_1.HighlightedControlPolygonView(this.curveModel.spline, this.gl);
         this._phantomCurveView = new PhantomCurveView_1.PhantomCurveView(this.gl, this.curveModel.spline);
         this._allowShapeSpaceChange = true;
@@ -43348,7 +43350,7 @@ var CurveSceneController = /** @class */ (function () {
         this.shapeNavigableCurve.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveSceneController(this));
         /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
         this._clampedControlPointView.update(this.curveModel.spline);
-        this.selectedDifferentialEventsView.update(this.curveModel.spline, selectedEvent);
+        this._selectedCurvatureExtremaView.update(this.curveModel.spline, selectedEvent);
         // this._eventMgmtAtExtremities = this.shapeNavigableCurve.eventMgmtAtExtremities;
         this.curveEventAtExtremityMayVanish = false;
         this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
@@ -43424,13 +43426,21 @@ var CurveSceneController = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(CurveSceneController.prototype, "selectedInflectionsView", {
+        get: function () {
+            return this._selectedInflectionsView;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveSceneController.prototype, "selectedCurvatureExtremaView", {
+        get: function () {
+            return this._selectedCurvatureExtremaView;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(CurveSceneController.prototype, "allowShapeSpaceChange", {
-        // get eventMgmtAtExtremities(): EventMgmtAtCurveExtremities {
-        //     return this._eventMgmtAtExtremities;
-        // }
-        // get curveControl(): CurveControlStrategyInterface {
-        //     return this._curveControl;
-        // }
         get: function () {
             return this._allowShapeSpaceChange;
         },
@@ -43539,6 +43549,8 @@ var CurveSceneController = /** @class */ (function () {
         }
         this._controlPointsView.renderFrame();
         this._insertKnotButtonView.renderFrame();
+        this._selectedCurvatureExtremaView.renderFrame();
+        this._selectedInflectionsView.renderFrame();
         /* JCL 2020/09/24 Add the display of clamped control points */
         if (this.controlOfCurveClamping && this._clampedControlPointView !== null) {
             this._clampedControlPointView.renderFrame();
@@ -43563,8 +43575,8 @@ var CurveSceneController = /** @class */ (function () {
         }
         else
             throw new Error("Unable to render the current frame. Undefined curve model");
-        if (this.selectedDifferentialEventsView !== null && this.allowShapeSpaceChange === false)
-            this.selectedDifferentialEventsView.renderFrame();
+        if (this._selectedCurvatureExtremaView !== null && this.allowShapeSpaceChange === false)
+            this._selectedCurvatureExtremaView.renderFrame();
     };
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
         if (this.curveModel !== undefined) {
@@ -43839,7 +43851,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve = exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = exports.CurveSceneControllerStrictlyInsideShapeSpaceCPSelection = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection = exports.CurveSceneControllerNoShapeSpaceConstraintsCPDragging = exports.CurveSceneControllerNoShapeSpaceConstraintsCPSelection = exports.CurveSceneControllerKnotInsertion = exports.CurveSceneControllerInteractionStrategy = void 0;
+exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve = exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = exports.CurveSceneControllerStrictlyInsideShapeSpaceCPSelection = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection = exports.CurveSceneControllerNoShapeSpaceConstraintsCPDragging = exports.CurveSceneControllerNoShapeSpaceConstraintsCPSelection = exports.CurveSceneControllerKnotInsertion = exports.CurveSceneControllerInteractionStrategy = void 0;
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var NavigationState_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
@@ -44137,6 +44149,10 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
                     console.log("Constraints not satisfied - must change interaction Strategy");
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
                 }
+                else if (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval) {
+                    console.log("An event went out of the interval. Display previous step");
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval(this._curveSceneController));
+                }
                 else {
                     this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                     this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
@@ -44153,21 +44169,92 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyDownInteraction = function () {
         // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyUpInteraction = function () {
         // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve;
 }(CurveSceneControllerInteractionStrategy));
 exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve;
+var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval = /** @class */ (function (_super) {
+    __extends(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval, _super);
+    function CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval(curveSceneController) {
+        var _this = _super.call(this, curveSceneController) || this;
+        _this.selectedControlPoint = _this._curveSceneController.selectedControlPoint;
+        _this.eventMgmtAtExtremities = _this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
+        // this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
+        // this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
+        _this.curveModel = _this.shapeNavigableCurve.curveCategory.curveModel;
+        _this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = _this.curveModel.spline;
+        _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = _this.curveModel.spline;
+        _this.lastValidCurve = _this.curveModel.spline.clone();
+        _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve.clone());
+        _this._curveSceneController.selectedCurvatureExtremaView.update(_this.lastValidCurve, _this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsCurvExtrema);
+        _this._curveSceneController.selectedInflectionsView.update(_this.lastValidCurve, _this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsInflections);
+        return _this;
+    }
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
+        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
+        warning.logMessageToConsole();
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
+        var x = ndcX;
+        var y = ndcY;
+        // console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
+        if (this.selectedControlPoint != null) {
+            this._curveSceneController.controlPointsView.setSelected(null);
+            // console.log("x0= " + this.curveModel.spline.controlPoints[0].x + " y0= " + this.curveModel.spline.controlPoints[0].y +
+            // " x1= " + this.curveModel.spline.controlPoints[ this.curveModel.spline.controlPoints.length - 1].x + " y1= " + this.curveModel.spline.controlPoints[ this.curveModel.spline.controlPoints.length - 1].y)
+            if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
+                console.log("Inconsistent curve shape control settings");
+            }
+            else if (this._curveSceneController.allowShapeSpaceChange === true) {
+                this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
+                if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
+                    console.log("Constraints not satisfied - must change interaction Strategy");
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
+                }
+                else {
+                    this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
+                    this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                }
+            }
+            this.curveModel.notifyObservers();
+            this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
+        }
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseUpInteraction = function () {
+        this.selectedControlPoint = null;
+        this._curveSceneController.selectedControlPoint = null;
+        this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processShiftKeyDownInteraction = function () {
+        // this.curveEventAtExtremityMayVanish = true;
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        message.logMessageToConsole();
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processShiftKeyUpInteraction = function () {
+        // this.curveEventAtExtremityMayVanish = false;
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        message.logMessageToConsole();
+    };
+    return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval;
+}(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve));
+exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval = CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval;
 var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied = /** @class */ (function (_super) {
     __extends(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied, _super);
     function CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(curveSceneController) {
@@ -44212,16 +44299,16 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraint
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied.prototype.processShiftKeyDownInteraction = function () {
         // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied.prototype.processShiftKeyUpInteraction = function () {
         // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied;
@@ -44234,12 +44321,12 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve = /** @
     }
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve.prototype.processShiftKeyDownInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve.prototype.processShiftKeyUpInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve;
@@ -44269,7 +44356,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPSelection = /** @class */ (fun
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve(this._curveSceneController));
                 }
                 else if (this.shapeNavigableCurve.curveCategory instanceof ClosedCurveModel_1.ClosedCurveModel) {
-                    this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve(this._curveSceneController));
                 }
             }
@@ -44334,16 +44421,16 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = /** @class
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve.prototype.processShiftKeyDownInteraction = function () {
         // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve.prototype.processShiftKeyUpInteraction = function () {
         // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
+        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     return CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve;
@@ -44356,12 +44443,12 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve = /** @cla
     }
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve.prototype.processShiftKeyDownInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve.prototype.processShiftKeyUpInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventState.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         message.logMessageToConsole();
     };
     return CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve;
@@ -44397,9 +44484,11 @@ exports.CCurveShapeMonitoringStrategyWithNoDiffEventSliding = exports.CCurveShap
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
 var OpPeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OpPeriodicBSplineR1toR2 */ "./src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts");
 var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
+var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ../shapeNavigableCurve/EventStateAtCurveExtremity */ "./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts");
 var CurveShapeMonitoringStrategy = /** @class */ (function () {
     function CurveShapeMonitoringStrategy(navigationCurveModel) {
         this.navigationCurveModel = navigationCurveModel;
@@ -44414,6 +44503,7 @@ var OCurveShapeMonitoringStrategy = /** @class */ (function (_super) {
     function OCurveShapeMonitoringStrategy(oCShapeSpaceNavigator) {
         var _this = _super.call(this, oCShapeSpaceNavigator) || this;
         _this.openCShapeSpaceNavigator = oCShapeSpaceNavigator;
+        _this.curveShapeSpaceNavigator = oCShapeSpaceNavigator.curveShapeSpaceNavigator;
         _this.currentCurve = oCShapeSpaceNavigator.currentCurve;
         return _this;
     }
@@ -44446,6 +44536,40 @@ var OCurveShapeMonitoringStrategy = /** @class */ (function (_super) {
     OCurveShapeMonitoringStrategy.prototype.resetAfterCurveChange = function () {
         this.resetCurve(this.openCShapeSpaceNavigator.curveModel.spline);
     };
+    OCurveShapeMonitoringStrategy.prototype.setEventManagementAtCurveExtremityState = function () {
+        if (this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents && this.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.NotApplicable) {
+            switch (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities) {
+                case ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active: {
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    break;
+                }
+                case ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive: {
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    break;
+                }
+                case ShapeSpaceDiffEventsStructure_1.EventMgmtState.NotApplicable: {
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive;
+                    break;
+                }
+            }
+        }
+        else if (!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
+            if (this.curveShapeSpaceNavigator.eventMgmtAtExtremities !== undefined) {
+                switch (this.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities) {
+                    case ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active: {
+                        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active;
+                        break;
+                    }
+                    case ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive: {
+                        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive;
+                        break;
+                    }
+                }
+                this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+            }
+        }
+    };
     return OCurveShapeMonitoringStrategy;
 }(CurveShapeMonitoringStrategy));
 exports.OCurveShapeMonitoringStrategy = OCurveShapeMonitoringStrategy;
@@ -44467,6 +44591,7 @@ var OCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44504,6 +44629,7 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44541,6 +44667,7 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44578,6 +44705,7 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44615,6 +44743,7 @@ var OCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44652,6 +44781,7 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44689,6 +44819,7 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -44727,6 +44858,7 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
         _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
+        _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
@@ -48396,9 +48528,9 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         this._shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure_1.ShapeSpaceDiffEventsStructure(this._shapeNavigableCurve, this);
         this._navigationCurveModel = new NavigationCurveModel_1.OpenCurveShapeSpaceNavigator(this);
         this._navigationState = this._navigationCurveModel.navigationState;
-        this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities(this);
-        this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventState;
         this._navigationState.navigationStateChange = false;
+        this._eventMgmtAtExtremities = new EventMgmtAtCurveExtremities_1.EventMgmtAtCurveExtremities(this);
+        this._eventStateAtCrvExtremities = this._eventMgmtAtExtremities.eventStateAtCrvExtremities;
         this._curveControlState = new CurveControlState_1.HandleNoDiffEventNoSlidingState(this);
         this._navigationCurveModel.curveControlState = this._curveControlState;
         this._curveControlState.curveControlParamChange = false;
@@ -48437,9 +48569,6 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     Object.defineProperty(CurveShapeSpaceNavigator.prototype, "eventMgmtAtExtremities", {
         get: function () {
             return this._eventMgmtAtExtremities;
-        },
-        set: function (eventMgmtAtExtremities) {
-            this._eventMgmtAtExtremities = eventMgmtAtExtremities;
         },
         enumerable: false,
         configurable: true
@@ -48496,9 +48625,6 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     CurveShapeSpaceNavigator.prototype.setSlidingDifferentialEvents = function (slidingDifferentialEvents) {
         this._shapeSpaceDiffEventsStructure.slidingDifferentialEvents = slidingDifferentialEvents;
     };
-    CurveShapeSpaceNavigator.prototype.changeMngmtOfEventAtExtremity = function (eventState) {
-        this._eventStateAtCrvExtremities = eventState;
-    };
     CurveShapeSpaceNavigator.prototype.transitionTo = function (curveControlState) {
         this._curveControlState = curveControlState;
     };
@@ -48515,6 +48641,7 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
         // this._curveControl.toggleEventMgmtAtCurveExt();
         this._controlOfEventsAtExtremity = !this._controlOfEventsAtExtremity;
         console.log("control of event at extremity: " + this._controlOfEventsAtExtremity);
+        this._eventMgmtAtExtremities.processEventAtCurveExtremity();
     };
     CurveShapeSpaceNavigator.prototype.restoreCurveControlState = function (shapeSpaceNavigationEventListener) {
         if (shapeSpaceNavigationEventListener.previousControlOfCurvatureExtrema) {
@@ -49075,7 +49202,6 @@ var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSp
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
-var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
 var CurveShapeMonitoringStrategy_1 = __webpack_require__(/*! ../controllers/CurveShapeMonitoringStrategy */ "./src/controllers/CurveShapeMonitoringStrategy.ts");
 var NavigationState = /** @class */ (function () {
     function NavigationState() {
@@ -49216,16 +49342,16 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         var _this = _super.call(this, navigationCurveModel) || this;
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
-        var curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
-        if (curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
-            || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
-            curveShapeSpaceNavigator.navigationState = _this;
+        _this.curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        if (_this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
+            || _this.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
+            _this.curveShapeSpaceNavigator.navigationState = _this;
             _this.navigationCurveModel.navigationState = _this;
             _this.shapeNavigableCurve.clampedPoints[0] = 0;
             _this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintStrategy_1.CurveConstraintClampedFirstControlPoint(_this.shapeNavigableCurve.curveConstraints));
         }
         else {
-            curveShapeSpaceNavigator.navigationState = _this;
+            _this.curveShapeSpaceNavigator.navigationState = _this;
             _this.navigationCurveModel.navigationState = _this;
         }
         _this._curveAnalyserCurrentCurve = new CurveAnalyzer_1.OpenCurveAnalyzer(_this.currentCurve, _this.navigationCurveModel, _this.navigationCurveModel.slidingEventsAtExtremities);
@@ -49284,40 +49410,33 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
                 }
                 this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
                 this.optimizedCurve = curveModelOptimized.spline;
-                this.curveConstraintsMonitoring();
                 this._curveAnalyserOptimizedCurve.updateOptimized();
                 this.navigationCurveModel.curveAnalyserOptimizedCurve = this._curveAnalyserOptimizedCurve;
                 this.navigationCurveModel.seqDiffEventsOptimizedCurve = this.navigationCurveModel.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
                 var seqComparator = new ComparatorOfSequencesDiffEvents_1.ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
                 seqComparator.locateNeiboringEvents();
-                if (seqComparator.neighboringEvents.length > 0) {
-                    if (seqComparator.neighboringEvents.length === 1) {
-                        if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundary) {
-                            console.log("Curvature extremum disappear on the left boundary.");
-                            // this.shapeNavigableCurve.eventMgmtAtExtremities.processEventAtCurveExtremity();
-                        }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-                            console.log("Curvature extremum disappear on the right boundary.");
-                            // this.shapeNavigableCurve.eventMgmtAtExtremities.processEventAtCurveExtremity();
-                        }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtrema) {
-                            console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
-                        }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundary) {
-                            console.log("Inflection disappear on the left boundary.");
-                        }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundary) {
-                            console.log("Inflection disappear on the right boundary.");
-                        }
-                        else {
-                            console.log("Cannot process this configuration with navigation state.");
-                        }
-                    }
-                    else {
-                        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
-                        error.logMessageToConsole();
-                    }
-                }
+                this.curveShapeSpaceNavigator.eventStateAtCrvExtremities.monitorEventInsideCurve(seqComparator);
+                // if(seqComparator.neighboringEvents.length > 0) {
+                //     if(seqComparator.neighboringEvents.length === 1) {
+                //         if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) {
+                //             console.log("Curvature extremum disappear on the left boundary.");
+                //         } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear) {
+                //             console.log("Curvature extremum disappear on the right boundary.");
+                //         } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtrema) {
+                //             console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
+                //         } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) {
+                //             console.log("Inflection disappear on the left boundary.");
+                //         } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear) {
+                //             console.log("Inflection disappear on the right boundary.");
+                //         } else {
+                //             console.log("Cannot process this configuration with navigation state.");
+                //         }
+                //     } else {
+                //         const error = new ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
+                //         error.logMessageToConsole();
+                //     }
+                // }
+                this.curveConstraintsMonitoring();
             }
             else {
                 var curveModelOptimized = new CurveModel_1.CurveModel();
@@ -49715,7 +49834,6 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
         warning.logMessageToConsole();
         this._curveCategory = shapeNavigableCurve.curveCategory;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
-        // this._shapeSpaceDiffEventsConfigurator = new ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSliding(this._curveShapeSpaceNavigator);
         this._activeNavigationWithOptimizer = false;
         this._activeControlInflections = false;
         // Initializes activeControlCurvatureExtrema, controlOfInflection in accordance with the navigation mode:
@@ -49791,15 +49909,12 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
         configurable: true
     });
     Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "managementOfEventsAtExtremities", {
-        // get shapeSpaceDiffEventsConfigurator(): ShapeSpaceConfiguration {
-        //     return this._shapeSpaceDiffEventsConfigurator;
-        // }
         get: function () {
             return this._managementOfEventsAtExtremities;
         },
         set: function (managementOfEventsAtExtremities) {
             if (this._curveCategory instanceof CurveCategory_1.OpenPlanarCurve) {
-                if (managementOfEventsAtExtremities === EventMgmtState.NotApplicable) {
+                if (managementOfEventsAtExtremities === EventMgmtState.NotApplicable && this._slidingDifferentialEvents) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
                     error.logMessageToConsole();
                 }
@@ -52087,16 +52202,16 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                         this.listener.resetConstraintControl();
                         this.listener.disableCurveClamping();
                         if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring)
-                            curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                            curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                         if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring)
-                            curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
-                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventState;
+                            curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
                     else {
                         this.listener.enableCurveClamping();
                         this.listener.restorePreviousConstraintControl();
-                        curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
-                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventState;
+                        curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
                 }
                 else if (navigationStateChange) {
@@ -52108,15 +52223,15 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                         this.listener.resetConstraintControl();
                         this.listener.disableCurveClamping();
                         if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring)
-                            curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                            curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                         if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring)
-                            curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
-                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventState;
+                            curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
                     else {
                         this.listener.enableCurveClamping();
                         this.listener.restorePreviousConstraintControl();
-                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventState;
+                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                         // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
                     }
                 }
@@ -52140,15 +52255,15 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                     this.listener.shapeNavigableCurve.clampedPointsPreviousState = [];
                     if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring
                         || curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring) {
-                        curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                        curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                         this.listener.resetConstraintControl();
                         this.listener.disableCurveClamping();
                     }
                     else {
                         this.listener.enableCurveClamping();
                         this.listener.restorePreviousConstraintControl();
-                        curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
-                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventState;
+                        curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
                 }
                 else if (navigationStateChange) {
@@ -52158,15 +52273,15 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                     if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring
                         || curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring) {
                         if (curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring)
-                            curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                            curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                         this.listener.resetConstraintControl();
                         this.listener.disableCurveClamping();
                     }
                     else {
                         this.listener.enableCurveClamping();
                         this.listener.restorePreviousConstraintControl();
-                        curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
-                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventState;
+                        curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                        curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                         // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
                     }
                 }
@@ -52230,7 +52345,7 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
                         this.listener.restorePreviousCurveShapeControlButtons();
                         this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveControlState = this.listener.curveShapeSpaceNavigator.curveControlState;
                     }
-                    curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     curveShapeSpaceNavigator.navigationState = curveShapeSpaceNavigator.navigationCurveModel.navigationState;
                 }
             }
@@ -52259,7 +52374,7 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
                         this.listener.restorePreviousCurveShapeControlButtons();
                         this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveControlState = this.listener.curveShapeSpaceNavigator.curveControlState;
                     }
-                    curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     curveShapeSpaceNavigator.navigationState = curveShapeSpaceNavigator.navigationCurveModel.navigationState;
                 }
             }
@@ -52277,9 +52392,9 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
                 this.listener.disableControlOfSliding();
                 this.listener.disableEventMgmtAtCurveExt();
                 if (this.listener.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring)
-                    curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                 if (this.listener.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring)
-                    curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForClosedCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
             }
             else {
                 // curveShapeSpaceNavigator.navigationCurveModel.currentCurve = curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModel.spline;
@@ -52291,7 +52406,7 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
                 this.listener.restorePreviousCurveShapeControlButtons();
                 this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveControlState = this.listener.curveShapeSpaceNavigator.curveControlState;
                 if (this.listener.sliding) {
-                    curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                 }
             }
         }
@@ -55152,11 +55267,11 @@ var AbstractCurveModel = /** @class */ (function () {
         switch (kind) {
             case 'curve':
                 this.observers.push(observer);
-                console.log("CurveModel: registerObs as curve: " + observer.constructor.name);
+                // console.log("CurveModel: registerObs as curve: " + observer.constructor.name)
                 break;
             case 'control points':
                 this.observersCP.push(observer);
-                console.log("CurveModel: registerObs as CP: " + observer.constructor.name);
+                // console.log("CurveModel: registerObs as CP: " + observer.constructor.name)
                 break;
             default:
                 throw Error("unknown kind");
@@ -55521,6 +55636,7 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComparatorOfSequencesOfDiffEvents = exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR = exports.TWO_INFLECTIONS_EVENTS_APPEAR = exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL = exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL = exports.TWO_CURVEXT_EVENTS_DISAPPEAR = exports.TWO_CURVEXT_EVENTS_APPEAR = exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL = exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL = exports.RETURN_ERROR_CODE = exports.CURVE_INTERVAL_SPAN = exports.LOWER_BOUND_CURVE_INTERVAL = exports.UPPER_BOUND_CURVE_INTERVAL = void 0;
 var ModifiedDifferentialEvents_1 = __webpack_require__(/*! ./ModifiedDifferentialEvents */ "./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts");
+var NeighboringEvents_1 = __webpack_require__(/*! ./NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
 var LocalizerOfDifferentialEvents_1 = __webpack_require__(/*! ./LocalizerOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts");
 var DifferentialEvent_1 = __webpack_require__(/*! ./DifferentialEvent */ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
@@ -55721,24 +55837,28 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                     if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
                         var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumAppearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                         var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
                         var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumDisappearingInsideUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                         var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
                         // Because there is only one event appearing and this event is of type curvature extremum, it can take place either in the first or in the last interval
                         var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumAppearingInsideExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
                         var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedCurvExEvent.nbEvents === exports.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length > 0) {
                         // Because there is only one event appearing and this event is of type curvature extremum, it can take place either in the first or in the last interval
                         var locatorCurvatureEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremumDisappearingInsideExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
                         var neighboringEvent = locatorCurvatureEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForCurvExtrema(neighboringEvent, modifiedCurvExEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedCurvExEvent.nbEvents === exports.TWO_CURVEXT_EVENTS_APPEAR) {
                         var locatorCurvEventAppearing = new LocalizerOfDifferentialEvents_1.LocalizerOfCurvatureExtremaAppearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
@@ -55769,6 +55889,26 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
             warning.logMessageToConsole();
         }
     };
+    ComparatorOfSequencesOfDiffEvents.prototype.combineLocationAndBehaviorForCurvExtrema = function (neighboringEvent, eventBehavior) {
+        var result = neighboringEvent;
+        if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundary && eventBehavior > 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear;
+        }
+        else if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundary && eventBehavior < 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear;
+        }
+        else if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundary && eventBehavior > 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear;
+        }
+        else if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundary && eventBehavior < 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "combineLocationAndBehaviorForCurvExtrema", "Inconsistent differential event type.");
+            error.logMessageToConsole();
+        }
+        return result;
+    };
     ComparatorOfSequencesOfDiffEvents.prototype.locateNeiboringEventsUnderInflectionEventChanges = function () {
         var e_2, _a;
         var nbEventsModified = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents2.length();
@@ -55780,22 +55920,26 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                     if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
                         var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionAppearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                         var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length > 0) {
                         var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionDisappearingInExtremeInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                         var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents1.indicesOfInflections.length === 0) {
                         var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionAppearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                         var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedInflectionEvent.nbEvents === exports.ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL && this._sequenceDiffEvents2.indicesOfInflections.length === 0) {
                         var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionDisappearingInUniqueInterval(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                         var neighboringEvent = locatorInflectionEvent.locateDifferentialEvents();
-                        this.neighboringEvents.push(neighboringEvent);
+                        var updatedNeighboringEvent = this.combineLocationAndBehaviorForInflections(neighboringEvent, modifiedInflectionEvent.nbEvents);
+                        this.neighboringEvents.push(updatedNeighboringEvent);
                     }
                     else if (modifiedInflectionEvent.nbEvents === exports.TWO_INFLECTIONS_EVENTS_APPEAR) {
                         var locatorInflectionEvent = new LocalizerOfDifferentialEvents_1.LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
@@ -55826,10 +55970,33 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
             warning.logMessageToConsole();
         }
     };
+    ComparatorOfSequencesOfDiffEvents.prototype.combineLocationAndBehaviorForInflections = function (neighboringEvent, eventBehavior) {
+        var result = neighboringEvent;
+        if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundary && eventBehavior > 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryAppear;
+        }
+        else if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundary && eventBehavior < 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear;
+        }
+        else if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundary && eventBehavior > 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryAppear;
+        }
+        else if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundary && eventBehavior < 0) {
+            result.type = NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "combineLocationAndBehaviorForInflections", "Inconsistent differential event type.");
+            error.logMessageToConsole();
+        }
+        return result;
+    };
     ComparatorOfSequencesOfDiffEvents.prototype.locateNeiboringEvents = function () {
         this.modifiedCurvExEvents = [];
         this.modifiedInflectionEvents = [];
-        this.locateIntervalAndNumberOfCurvExEventChanges();
+        if (!(this._sequenceDiffEvents1.length() === this._sequenceDiffEvents1.indicesOfInflections.length &&
+            this._sequenceDiffEvents2.length() === this._sequenceDiffEvents2.indicesOfInflections.length)) {
+            this.locateIntervalAndNumberOfCurvExEventChanges();
+        }
         if (this.modifiedCurvExEvents.length === 0) {
             if (this._sequenceDiffEvents1.indicesOfInflections.length === this._sequenceDiffEvents2.indicesOfInflections.length) {
                 // No change in curvature extrema has been identified as well as no change in inflections
@@ -57139,6 +57306,10 @@ var NeighboringEventsType;
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundaryDisappear"] = 12] = "neighboringCurExtremumLeftBoundaryDisappear";
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundaryAppear"] = 13] = "neighboringCurExtremumRightBoundaryAppear";
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumRightBoundaryDisappear"] = 14] = "neighboringCurExtremumRightBoundaryDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionLeftBoundaryAppear"] = 15] = "neighboringInflectionLeftBoundaryAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionLeftBoundaryDisappear"] = 16] = "neighboringInflectionLeftBoundaryDisappear";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionRightBoundaryAppear"] = 17] = "neighboringInflectionRightBoundaryAppear";
+    NeighboringEventsType[NeighboringEventsType["neighboringInflectionRightBoundaryDisappear"] = 18] = "neighboringInflectionRightBoundaryDisappear";
 })(NeighboringEventsType = exports.NeighboringEventsType || (exports.NeighboringEventsType = {}));
 exports.INITIAL_INTERV_INDEX = -1;
 var NeighboringEvents = /** @class */ (function () {
@@ -57895,13 +58066,25 @@ exports.ClosedPlanarCurve = ClosedPlanarCurve;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.EventMgmtAtCurveExtremities = void 0;
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ./EventStateAtCurveExtremity */ "./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts");
 var EventMgmtAtCurveExtremities = /** @class */ (function () {
     function EventMgmtAtCurveExtremities(curveShapeSpaceNavigator) {
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._shapeSpaceDiffEventsStructure = this._curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
         this._shapeNavigableCurve = this._curveShapeSpaceNavigator.shapeNavigableCurve;
-        this._eventState = new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this);
+        this._eventStateAtCrvExtremities = new EventStateAtCurveExtremity_1.NoEventToManageForCurve(this);
+        this._previousManagementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.NotApplicable;
+        this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.NotApplicable;
+        if (this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Inconsistent curve type. Should be an open curve.");
+            error.logMessageToConsole();
+        }
+        this._eventOutOfInterval = false;
+        this._locationsCurvExtrema = [];
+        this._locationsInflections = [];
     }
     Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "shapeNavigableCurve", {
         get: function () {
@@ -57910,12 +58093,12 @@ var EventMgmtAtCurveExtremities = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "eventState", {
+    Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "eventStateAtCrvExtremities", {
         get: function () {
-            return this._eventState;
+            return this._eventStateAtCrvExtremities;
         },
         set: function (eventState) {
-            this._eventState = eventState;
+            this._eventStateAtCrvExtremities = eventState;
         },
         enumerable: false,
         configurable: true
@@ -57931,14 +58114,49 @@ var EventMgmtAtCurveExtremities = /** @class */ (function () {
         get: function () {
             return this._shapeSpaceDiffEventsStructure;
         },
-        set: function (shapeSpaceDiffEventsStructure) {
-            this._shapeSpaceDiffEventsStructure = shapeSpaceDiffEventsStructure;
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "previousManagementOfEventsAtExtremities", {
+        get: function () {
+            return this._previousManagementOfEventsAtExtremities;
+        },
+        set: function (state) {
+            this._previousManagementOfEventsAtExtremities = state;
         },
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "eventOutOfInterval", {
+        get: function () {
+            return this._eventOutOfInterval;
+        },
+        set: function (eventOutOfInterval) {
+            this._eventOutOfInterval = eventOutOfInterval;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "locationsCurvExtrema", {
+        get: function () {
+            return this._locationsCurvExtrema;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(EventMgmtAtCurveExtremities.prototype, "locationsInflections", {
+        get: function () {
+            return this._locationsInflections;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    EventMgmtAtCurveExtremities.prototype.changeMngmtOfEventAtExtremity = function (eventState) {
+        this._eventStateAtCrvExtremities = eventState;
+        this._curveShapeSpaceNavigator.eventStateAtCrvExtremities = eventState;
+    };
     EventMgmtAtCurveExtremities.prototype.processEventAtCurveExtremity = function () {
-        this._eventState.handleEventAtCurveExtremity();
+        this._eventStateAtCrvExtremities.handleEventAtCurveExtremity();
     };
     return EventMgmtAtCurveExtremities;
 }());
@@ -57969,14 +58187,21 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.NoEventToManageForClosedCurve = exports.EventSlideOutsideCurve = exports.EventStayInsideCurve = exports.EventStateAtCurveExtremity = void 0;
+exports.NoEventToManageForCurve = exports.EventSlideOutsideCurve = exports.EventStayInsideCurve = exports.EventStateAtCurveExtremity = void 0;
+var CurveShapeMonitoringStrategy_1 = __webpack_require__(/*! ../controllers/CurveShapeMonitoringStrategy */ "./src/controllers/CurveShapeMonitoringStrategy.ts");
+var CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 var NavigationState_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
+var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var SequenceOfDifferentialEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts");
 var EventStateAtCurveExtremity = /** @class */ (function () {
     function EventStateAtCurveExtremity(eventMgmtAtCurveExtremities) {
         this.eventMgmtAtCurveExtremities = eventMgmtAtCurveExtremities;
         this.shapeNavigableCurve = eventMgmtAtCurveExtremities.shapeNavigableCurve;
         this.curveShapeSpaceNavigator = eventMgmtAtCurveExtremities.curveShapeSpaceNavigator;
+        this.shapeSpaceDiffEventStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
     }
     return EventStateAtCurveExtremity;
 }());
@@ -57985,21 +58210,116 @@ var EventStayInsideCurve = /** @class */ (function (_super) {
     __extends(EventStayInsideCurve, _super);
     function EventStayInsideCurve(eventMgmtAtCurveExtremities) {
         var _this = _super.call(this, eventMgmtAtCurveExtremities) || this;
-        _this.eventMgmtAtCurveExtremities.eventState = _this;
+        _this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities = _this;
+        _this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active;
+        if (_this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy) {
+            _this.curveShapeMonitoringStrategy = _this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent curveShapeMonitoringStrategy class");
+            error.logMessageToConsole();
+            _this.curveShapeMonitoringStrategy = _this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
+        }
+        _this.sequenceCurvExtOutside = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+        _this.sequenceInflectionOutside = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
         return _this;
     }
     EventStayInsideCurve.prototype.handleEventAtCurveExtremity = function () {
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventState.constructor.name);
-        message.logMessageToConsole();
-        var shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
-        if (shapeSpaceDiffEventsStructure.slidingDifferentialEvents &&
+        if (this.shapeSpaceDiffEventStructure.slidingDifferentialEvents &&
             (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces
-                || this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces)) {
-            console.log(" display events, (insert knots ?)");
-            this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
+                || this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace)) {
+            this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
+            this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
+            var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
+            message.logMessageToConsole();
         }
-        else {
-            console.log(" nothing to do. No state change");
+        else if (this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && this.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
+            this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.eventMgmtAtCurveExtremities));
+            var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
+            message.logMessageToConsole();
+        }
+        else if (!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
+            error.logMessageToConsole();
+        }
+    };
+    EventStayInsideCurve.prototype.monitorEventInsideCurve = function (seqComparator) {
+        if (seqComparator.neighboringEvents.length > 0) {
+            if (seqComparator.neighboringEvents.length === 1) {
+                var processEvent = false;
+                var curvExtLocation = [];
+                var inflectionLocation = [];
+                switch (seqComparator.neighboringEvents[0].type) {
+                    case NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear: {
+                        console.log("Curvature extremum disappear on the left boundary.");
+                        curvExtLocation.push(seqComparator.sequenceDiffEvents1.eventAt(0).location);
+                        this.sequenceCurvExtOutside.insertEvents(curvExtLocation, inflectionLocation);
+                        processEvent = true;
+                        break;
+                    }
+                    case NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear: {
+                        console.log("Curvature extremum disappear on the right boundary.");
+                        curvExtLocation.push(seqComparator.sequenceDiffEvents1.eventAt(seqComparator.sequenceDiffEvents1.length() - 1).location);
+                        this.sequenceCurvExtOutside.insertEvents(curvExtLocation, inflectionLocation);
+                        processEvent = true;
+                        break;
+                    }
+                    case NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtrema: {
+                        console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
+                        break;
+                    }
+                    case NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear: {
+                        console.log("Inflection disappear on the left boundary.");
+                        inflectionLocation.push(seqComparator.sequenceDiffEvents1.eventAt(0).location);
+                        this.sequenceInflectionOutside.insertEvents(curvExtLocation, inflectionLocation);
+                        processEvent = true;
+                        break;
+                    }
+                    case NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear: {
+                        console.log("Inflection disappear on the right boundary.");
+                        inflectionLocation.push(seqComparator.sequenceDiffEvents1.eventAt(seqComparator.sequenceDiffEvents1.length() - 1).location);
+                        this.sequenceInflectionOutside.insertEvents(curvExtLocation, inflectionLocation);
+                        processEvent = true;
+                        break;
+                    }
+                    default:
+                        {
+                            console.log("Cannot process this configuration with current navigation state.");
+                        }
+                        this.checkConsistencySequencesDiffEvents();
+                }
+                if (processEvent) {
+                    if (this.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy) {
+                        this.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                    }
+                    this.eventMgmtAtCurveExtremities.eventOutOfInterval = true;
+                    if (this.eventMgmtAtCurveExtremities.locationsCurvExtrema.length > 0)
+                        this.eventMgmtAtCurveExtremities.locationsCurvExtrema.splice(0, this.eventMgmtAtCurveExtremities.locationsCurvExtrema.length - 1);
+                    if (this.eventMgmtAtCurveExtremities.locationsInflections.length > 0)
+                        this.eventMgmtAtCurveExtremities.locationsInflections.splice(0, this.eventMgmtAtCurveExtremities.locationsInflections.length - 1);
+                    for (var i = 0; i < this.sequenceCurvExtOutside.length(); i++) {
+                        this.eventMgmtAtCurveExtremities.locationsCurvExtrema.push(this.sequenceCurvExtOutside.eventAt(i).location);
+                    }
+                    for (var i = 0; i < this.sequenceInflectionOutside.length(); i++) {
+                        this.eventMgmtAtCurveExtremities.locationsInflections.push(this.sequenceInflectionOutside.eventAt(i).location);
+                    }
+                }
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
+                error.logMessageToConsole();
+            }
+        }
+    };
+    EventStayInsideCurve.prototype.checkConsistencySequencesDiffEvents = function () {
+        if (this.sequenceCurvExtOutside.length() > 2) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencySequencesDiffEvents", "Number of curvature extrema moving outside is inconsistent.");
+            error.logMessageToConsole();
+        }
+        else if (this.sequenceInflectionOutside.length() > 2) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencySequencesDiffEvents", "Number of inflections moving outside is inconsistent.");
+            error.logMessageToConsole();
         }
     };
     return EventStayInsideCurve;
@@ -58009,40 +58329,66 @@ var EventSlideOutsideCurve = /** @class */ (function (_super) {
     __extends(EventSlideOutsideCurve, _super);
     function EventSlideOutsideCurve(eventMgmtAtCurveExtremities) {
         var _this = _super.call(this, eventMgmtAtCurveExtremities) || this;
-        _this.eventMgmtAtCurveExtremities.eventState = _this;
+        _this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities = _this;
+        _this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive;
         return _this;
     }
     EventSlideOutsideCurve.prototype.handleEventAtCurveExtremity = function () {
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventState.constructor.name);
-        message.logMessageToConsole();
-        var shapeSpaceDiffEventsStructure = this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure;
-        if (shapeSpaceDiffEventsStructure.slidingDifferentialEvents
-            || this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring) {
-            console.log(" nothing to do. No state change");
-        }
-        else if ((this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces
+        if ((this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces
             || this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace)
-            && shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
-            this.curveShapeSpaceNavigator.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
+            && this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
+            this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
+            this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
+            var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
+            message.logMessageToConsole();
         }
+        else if (this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && this.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
+            this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.eventMgmtAtCurveExtremities));
+            var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
+            message.logMessageToConsole();
+        }
+        else if (!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
+            error.logMessageToConsole();
+        }
+    };
+    EventSlideOutsideCurve.prototype.monitorEventInsideCurve = function (seqComparator) {
     };
     return EventSlideOutsideCurve;
 }(EventStateAtCurveExtremity));
 exports.EventSlideOutsideCurve = EventSlideOutsideCurve;
-var NoEventToManageForClosedCurve = /** @class */ (function (_super) {
-    __extends(NoEventToManageForClosedCurve, _super);
-    function NoEventToManageForClosedCurve(eventMgmtAtCurveExtremities) {
+var NoEventToManageForCurve = /** @class */ (function (_super) {
+    __extends(NoEventToManageForCurve, _super);
+    function NoEventToManageForCurve(eventMgmtAtCurveExtremities) {
         var _this = _super.call(this, eventMgmtAtCurveExtremities) || this;
-        _this.eventMgmtAtCurveExtremities.eventState = _this;
+        _this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities = _this;
+        _this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.NotApplicable;
         return _this;
     }
-    NoEventToManageForClosedCurve.prototype.handleEventAtCurveExtremity = function () {
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", "nothing to do there");
-        message.logMessageToConsole();
+    NoEventToManageForCurve.prototype.handleEventAtCurveExtremity = function () {
+        if (this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces
+            || this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace)) {
+            this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
+            if (this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
+            }
+            else if (this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive) {
+                this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
+            }
+            var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
+            message.logMessageToConsole();
+        }
+        else if (!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
+            error.logMessageToConsole();
+        }
     };
-    return NoEventToManageForClosedCurve;
+    NoEventToManageForCurve.prototype.monitorEventInsideCurve = function (seqComparator) {
+    };
+    return NoEventToManageForCurve;
 }(EventStateAtCurveExtremity));
-exports.NoEventToManageForClosedCurve = NoEventToManageForClosedCurve;
+exports.NoEventToManageForCurve = NoEventToManageForCurve;
 
 
 /***/ }),
@@ -61265,6 +61611,121 @@ exports.PhantomCurveView = PhantomCurveView;
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SelectedDifferentialEventsView = void 0;
+var RoundDotSolidShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotSolidShader */ "./src/2DgraphicsItems/RoundDotSolidShader.ts");
+var AbstractPointView_1 = __webpack_require__(/*! ./AbstractPointView */ "./src/views/AbstractPointView.ts");
+var SelectedDifferentialEventsView = /** @class */ (function (_super) {
+    __extends(SelectedDifferentialEventsView, _super);
+    function SelectedDifferentialEventsView(gl) {
+        var _this = _super.call(this, gl) || this;
+        _this.Z = 0;
+        _this.DOT_SIZE = 0;
+        _this.RED_COLOR = 0;
+        _this.GREEN_COLOR = 0;
+        _this.BLUE_COLOR = 0;
+        _this.ALPHA = 1;
+        _this.indexBuffer = null;
+        _this.vertices = new Float32Array([]);
+        _this.indices = new Uint8Array([]);
+        _this.roundDotSolidShader = new RoundDotSolidShader_1.RoundDotSolidShader(_this.gl);
+        return _this;
+    }
+    SelectedDifferentialEventsView.prototype.updateVerticesAndIndices = function () {
+        this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
+        this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
+        for (var i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
+            var x = this.pointSequenceToDisplay[i].x;
+            var y = this.pointSequenceToDisplay[i].y;
+            this.vertices[32 * i] = x - this.DOT_SIZE;
+            this.vertices[32 * i + 1] = y - this.DOT_SIZE;
+            this.vertices[32 * i + 2] = this.Z;
+            this.vertices[32 * i + 3] = -1;
+            this.vertices[32 * i + 4] = -1;
+            this.vertices[32 * i + 5] = this.RED_COLOR;
+            this.vertices[32 * i + 6] = this.GREEN_COLOR;
+            this.vertices[32 * i + 7] = this.BLUE_COLOR;
+            this.vertices[32 * i + 8] = x + this.DOT_SIZE;
+            this.vertices[32 * i + 9] = y - this.DOT_SIZE;
+            this.vertices[32 * i + 10] = this.Z;
+            this.vertices[32 * i + 11] = 1;
+            this.vertices[32 * i + 12] = -1;
+            this.vertices[32 * i + 13] = this.RED_COLOR;
+            this.vertices[32 * i + 14] = this.GREEN_COLOR;
+            this.vertices[32 * i + 15] = this.BLUE_COLOR;
+            this.vertices[32 * i + 16] = x + this.DOT_SIZE;
+            this.vertices[32 * i + 17] = y + this.DOT_SIZE;
+            this.vertices[32 * i + 18] = this.Z;
+            this.vertices[32 * i + 19] = 1;
+            this.vertices[32 * i + 20] = 1;
+            this.vertices[32 * i + 21] = this.RED_COLOR;
+            this.vertices[32 * i + 22] = this.GREEN_COLOR;
+            this.vertices[32 * i + 23] = this.BLUE_COLOR;
+            this.vertices[32 * i + 24] = x - this.DOT_SIZE;
+            this.vertices[32 * i + 25] = y + this.DOT_SIZE;
+            this.vertices[32 * i + 26] = this.Z;
+            this.vertices[32 * i + 27] = -1;
+            this.vertices[32 * i + 28] = 1;
+            this.vertices[32 * i + 29] = this.RED_COLOR;
+            this.vertices[32 * i + 30] = this.GREEN_COLOR;
+            this.vertices[32 * i + 31] = this.BLUE_COLOR;
+            this.indices[6 * i] = 4 * i;
+            this.indices[6 * i + 1] = 4 * i + 1;
+            this.indices[6 * i + 2] = 4 * i + 2;
+            this.indices[6 * i + 3] = 4 * i;
+            this.indices[6 * i + 4] = 4 * i + 2;
+            this.indices[6 * i + 5] = 4 * i + 3;
+        }
+    };
+    SelectedDifferentialEventsView.prototype.updateBuffers = function () {
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    };
+    return SelectedDifferentialEventsView;
+}(AbstractPointView_1.AbstractPointView));
+exports.SelectedDifferentialEventsView = SelectedDifferentialEventsView;
+
+
+/***/ }),
+
+/***/ "./src/views/SelectedSlipOutOfShapeSpaceCurvExtremView.ts":
+/*!****************************************************************!*\
+  !*** ./src/views/SelectedSlipOutOfShapeSpaceCurvExtremView.ts ***!
+  \****************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -61277,23 +61738,24 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SelectedDifferentialEventsView = void 0;
-var RoundDotSolidShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotSolidShader */ "./src/2DgraphicsItems/RoundDotSolidShader.ts");
-var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
-var SelectedDifferentialEventsView = /** @class */ (function () {
-    function SelectedDifferentialEventsView(spline, pointLoc, gl, red, green, blue, alpha) {
+exports.SelectedSlipOutOfShapeSpaceCurvExtremaView = void 0;
+var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ./SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super) {
+    __extends(SelectedSlipOutOfShapeSpaceCurvExtremaView, _super);
+    function SelectedSlipOutOfShapeSpaceCurvExtremaView(gl, spline, pointLoc) {
         var e_1, _a;
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
-        this.alpha = alpha;
-        this.Z = 0;
-        this.vertexBuffer = null;
-        this.indexBuffer = null;
-        this.vertices = new Float32Array([]);
-        this.indices = new Uint8Array([]);
-        this.gl = gl;
-        this.roundDotSolidShader = new RoundDotSolidShader_1.RoundDotSolidShader(this.gl);
+        var _this = _super.call(this, gl) || this;
+        _this.Z = 0;
+        _this.DOT_SIZE = 0.025;
+        _this.RED_COLOR = 0 / 255;
+        _this.GREEN_COLOR = 200 / 255;
+        _this.BLUE_COLOR = 0 / 255;
+        _this.ALPHA = 1;
+        _this.vertexBuffer = null;
+        _this.indexBuffer = null;
+        _this.vertices = new Float32Array([]);
+        _this.indices = new Uint8Array([]);
         var points = [];
         try {
             for (var pointLoc_1 = __values(pointLoc), pointLoc_1_1 = pointLoc_1.next(); !pointLoc_1_1.done; pointLoc_1_1 = pointLoc_1.next()) {
@@ -61308,146 +61770,253 @@ var SelectedDifferentialEventsView = /** @class */ (function () {
             }
             finally { if (e_1) throw e_1.error; }
         }
-        this.curvatureExtremumLocation = points.slice();
+        _this.pointSequenceToDisplay = points.slice();
+        _this.a_Position = -1;
+        _this.a_Texture = -1;
+        _this.a_ColorLocation = -1;
+        _this.FSIZE = 0;
         // Write the positions of vertices to a vertex shader
-        var check = this.initVertexBuffers(this.gl);
+        var check = _this.initVertexBuffers();
         if (check < 0) {
-            console.log('Failed to set the positions of the vertices');
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
+            warning.logMessageToConsole();
         }
-        this.update(spline, pointLoc);
+        _this.update(spline, pointLoc);
+        return _this;
     }
-    SelectedDifferentialEventsView.prototype.updateVerticesAndIndices = function () {
-        var size = 0.03;
-        this.vertices = new Float32Array(this.curvatureExtremumLocation.length * 32);
-        this.indices = new Uint8Array(this.curvatureExtremumLocation.length * 6);
-        for (var i = 0; i < this.curvatureExtremumLocation.length; i += 1) {
-            var x = this.curvatureExtremumLocation[i].x;
-            var y = this.curvatureExtremumLocation[i].y;
-            this.vertices[32 * i] = x - size;
-            this.vertices[32 * i + 1] = y - size;
-            this.vertices[32 * i + 2] = this.Z;
-            this.vertices[32 * i + 3] = -1;
-            this.vertices[32 * i + 4] = -1;
-            this.vertices[32 * i + 5] = this.red;
-            this.vertices[32 * i + 6] = this.green;
-            this.vertices[32 * i + 7] = this.blue;
-            this.vertices[32 * i + 8] = x + size;
-            this.vertices[32 * i + 9] = y - size;
-            this.vertices[32 * i + 10] = this.Z;
-            this.vertices[32 * i + 11] = 1;
-            this.vertices[32 * i + 12] = -1;
-            this.vertices[32 * i + 13] = this.red;
-            this.vertices[32 * i + 14] = this.green;
-            this.vertices[32 * i + 15] = this.blue;
-            this.vertices[32 * i + 16] = x + size;
-            this.vertices[32 * i + 17] = y + size;
-            this.vertices[32 * i + 18] = this.Z;
-            this.vertices[32 * i + 19] = 1;
-            this.vertices[32 * i + 20] = 1;
-            this.vertices[32 * i + 21] = this.red;
-            this.vertices[32 * i + 22] = this.green;
-            this.vertices[32 * i + 23] = this.blue;
-            this.vertices[32 * i + 24] = x - size;
-            this.vertices[32 * i + 25] = y + size;
-            this.vertices[32 * i + 26] = this.Z;
-            this.vertices[32 * i + 27] = -1;
-            this.vertices[32 * i + 28] = 1;
-            this.vertices[32 * i + 29] = this.red;
-            this.vertices[32 * i + 30] = this.green;
-            this.vertices[32 * i + 31] = this.blue;
-            this.indices[6 * i] = 4 * i;
-            this.indices[6 * i + 1] = 4 * i + 1;
-            this.indices[6 * i + 2] = 4 * i + 2;
-            this.indices[6 * i + 3] = 4 * i;
-            this.indices[6 * i + 4] = 4 * i + 2;
-            this.indices[6 * i + 5] = 4 * i + 3;
+    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.initAttribLocation = function () {
+        this.a_Position = this.gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Position');
+        this.a_Texture = this.gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Texture');
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
+        if (this.a_Position < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            warning.logMessageToConsole();
+        }
+        if (this.a_Texture < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
+            warning.logMessageToConsole();
         }
     };
-    SelectedDifferentialEventsView.prototype.initVertexBuffers = function (gl) {
+    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.assignVertexAttrib = function () {
+        // Assign the buffer object to a_Position variable
+        this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, this.FSIZE * 8, 0);
+        this.gl.vertexAttribPointer(this.a_Texture, 2, this.gl.FLOAT, false, this.FSIZE * 8, this.FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        this.gl.enableVertexAttribArray(this.a_Position);
+        this.gl.enableVertexAttribArray(this.a_Texture);
+    };
+    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.initVertexBuffers = function () {
         this.updateVerticesAndIndices();
         // Create a buffer object
-        this.vertexBuffer = gl.createBuffer();
+        this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
-            console.log('Failed to create the vertex buffer object');
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            warning.logMessageToConsole();
             return -1;
         }
         // Bind the buffer objects to targets
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         // Write date into the buffer object
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        var a_Position = gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Texture'), 
-        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
-        FSIZE = this.vertices.BYTES_PER_ELEMENT;
-        if (a_Position < 0) {
-            console.log('Failed to get the storage location of a_Position');
-            return -1;
-        }
-        if (a_Texture < 0) {
-            console.log('Failed to get the storage location of a_Texture');
-            return -1;
-        }
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
-        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Texture);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.initAttribLocation();
+        this.assignVertexAttrib();
         // Unbind the buffer object
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        this.indexBuffer = gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
-            console.log('Failed to create the index buffer object');
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
+            warning.logMessageToConsole();
             return -1;
         }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         return this.indices.length;
     };
-    SelectedDifferentialEventsView.prototype.renderFrame = function () {
-        var gl = this.gl, a_Position = gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Position'), a_Texture = gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Texture'), 
-        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
-        FSIZE = this.vertices.BYTES_PER_ELEMENT, a_ColorLocation = gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
-        gl.useProgram(this.roundDotSolidShader.program);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        // Assign the buffer object to a_Position variable
-        gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 8, 0);
-        gl.vertexAttribPointer(a_Texture, 2, gl.FLOAT, false, FSIZE * 8, FSIZE * 3);
-        // Enable the assignment to a_Position variable
-        gl.enableVertexAttribArray(a_Position);
-        gl.enableVertexAttribArray(a_Texture);
-        gl.uniform4f(a_ColorLocation, this.red, this.green, this.blue, this.alpha);
+    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.renderFrame = function () {
+        this.initAttribLocation();
+        this.gl.useProgram(this.roundDotSolidShader.program);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.assignVertexAttrib();
+        this.gl.uniform4f(this.a_ColorLocation, this.RED_COLOR, this.GREEN_COLOR, this.BLUE_COLOR, this.ALPHA);
         this.roundDotSolidShader.renderFrame(this.indices.length);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.useProgram(null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.useProgram(null);
     };
-    SelectedDifferentialEventsView.prototype.update = function (spline, pointLoc) {
-        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-            var points = [];
-            for (var i = 0; i < this.curvatureExtremumLocation.length; i += 1) {
-                points.push(spline.evaluate(pointLoc[i]));
-            }
-            this.curvatureExtremumLocation = points.slice();
-            this.updateVerticesAndIndices();
-            this.updateBuffers();
+    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.update = function (spline, pointLoc) {
+        var points = [];
+        for (var i = 0; i < pointLoc.length; i += 1) {
+            points.push(spline.evaluate(pointLoc[i]));
+        }
+        this.pointSequenceToDisplay = points.slice();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    };
+    return SelectedSlipOutOfShapeSpaceCurvExtremaView;
+}(SelectedDifferentialEventsView_1.SelectedDifferentialEventsView));
+exports.SelectedSlipOutOfShapeSpaceCurvExtremaView = SelectedSlipOutOfShapeSpaceCurvExtremaView;
+
+
+/***/ }),
+
+/***/ "./src/views/SelectedSlipOutOfShapeSpaceInflectionView.ts":
+/*!****************************************************************!*\
+  !*** ./src/views/SelectedSlipOutOfShapeSpaceInflectionView.ts ***!
+  \****************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
         }
     };
-    /*reset(message: BSpline_R1_to_R2_interface): void {
-    }*/
-    SelectedDifferentialEventsView.prototype.updateBuffers = function () {
-        var gl = this.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.DYNAMIC_DRAW);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SelectedSlipOutOfShapeSpaceInflectionView = void 0;
+var SelectedDifferentialEventsView_1 = __webpack_require__(/*! ./SelectedDifferentialEventsView */ "./src/views/SelectedDifferentialEventsView.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super) {
+    __extends(SelectedSlipOutOfShapeSpaceInflectionView, _super);
+    function SelectedSlipOutOfShapeSpaceInflectionView(gl, spline, pointLoc) {
+        var e_1, _a;
+        var _this = _super.call(this, gl) || this;
+        _this.Z = 0;
+        _this.DOT_SIZE = 0.02;
+        _this.RED_COLOR = 0 / 255;
+        _this.GREEN_COLOR = 120 / 255;
+        _this.BLUE_COLOR = 0 / 255;
+        _this.ALPHA = 1;
+        _this.vertexBuffer = null;
+        _this.indexBuffer = null;
+        _this.vertices = new Float32Array([]);
+        _this.indices = new Uint8Array([]);
+        var points = [];
+        try {
+            for (var pointLoc_1 = __values(pointLoc), pointLoc_1_1 = pointLoc_1.next(); !pointLoc_1_1.done; pointLoc_1_1 = pointLoc_1.next()) {
+                var pt = pointLoc_1_1.value;
+                points.push(spline.evaluate(pt));
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (pointLoc_1_1 && !pointLoc_1_1.done && (_a = pointLoc_1.return)) _a.call(pointLoc_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        _this.pointSequenceToDisplay = points.slice();
+        _this.a_Position = -1;
+        _this.a_Texture = -1;
+        _this.a_ColorLocation = -1;
+        _this.FSIZE = 0;
+        // Write the positions of vertices to a vertex shader
+        var check = _this.initVertexBuffers();
+        if (check < 0) {
+            var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
+            warning.logMessageToConsole();
+        }
+        _this.update(spline, pointLoc);
+        return _this;
+    }
+    SelectedSlipOutOfShapeSpaceInflectionView.prototype.initAttribLocation = function () {
+        this.a_Position = this.gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Position');
+        this.a_Texture = this.gl.getAttribLocation(this.roundDotSolidShader.program, 'a_Texture');
+        //a_Color = gl.getAttribLocation(<CurvatureExtremaShaders>this.curvatureExtremaShaders.program, 'a_Color'),
+        this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
+        this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
+        if (this.a_Position < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            warning.logMessageToConsole();
+        }
+        if (this.a_Texture < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
+            warning.logMessageToConsole();
+        }
     };
-    return SelectedDifferentialEventsView;
-}());
-exports.SelectedDifferentialEventsView = SelectedDifferentialEventsView;
+    SelectedSlipOutOfShapeSpaceInflectionView.prototype.assignVertexAttrib = function () {
+        // Assign the buffer object to a_Position variable
+        this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, this.FSIZE * 8, 0);
+        this.gl.vertexAttribPointer(this.a_Texture, 2, this.gl.FLOAT, false, this.FSIZE * 8, this.FSIZE * 3);
+        // Enable the assignment to a_Position variable
+        this.gl.enableVertexAttribArray(this.a_Position);
+        this.gl.enableVertexAttribArray(this.a_Texture);
+    };
+    SelectedSlipOutOfShapeSpaceInflectionView.prototype.initVertexBuffers = function () {
+        this.updateVerticesAndIndices();
+        // Create a buffer object
+        this.vertexBuffer = this.gl.createBuffer();
+        if (!this.vertexBuffer) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            warning.logMessageToConsole();
+            return -1;
+        }
+        // Bind the buffer objects to targets
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        // Write date into the buffer object
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
+        this.initAttribLocation();
+        this.assignVertexAttrib();
+        // Unbind the buffer object
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.indexBuffer = this.gl.createBuffer();
+        if (!this.indexBuffer) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
+            warning.logMessageToConsole();
+            return -1;
+        }
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+        return this.indices.length;
+    };
+    SelectedSlipOutOfShapeSpaceInflectionView.prototype.renderFrame = function () {
+        this.initAttribLocation();
+        this.gl.useProgram(this.roundDotSolidShader.program);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        this.assignVertexAttrib();
+        this.gl.uniform4f(this.a_ColorLocation, this.RED_COLOR, this.GREEN_COLOR, this.BLUE_COLOR, this.ALPHA);
+        this.roundDotSolidShader.renderFrame(this.indices.length);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+        this.gl.useProgram(null);
+    };
+    SelectedSlipOutOfShapeSpaceInflectionView.prototype.update = function (spline, pointLoc) {
+        var points = [];
+        for (var i = 0; i < pointLoc.length; i += 1) {
+            points.push(spline.evaluate(pointLoc[i]));
+        }
+        this.pointSequenceToDisplay = points.slice();
+        this.updateVerticesAndIndices();
+        this.updateBuffers();
+    };
+    return SelectedSlipOutOfShapeSpaceInflectionView;
+}(SelectedDifferentialEventsView_1.SelectedDifferentialEventsView));
+exports.SelectedSlipOutOfShapeSpaceInflectionView = SelectedSlipOutOfShapeSpaceInflectionView;
 
 
 /***/ }),

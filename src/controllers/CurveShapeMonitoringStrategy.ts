@@ -3,13 +3,15 @@ import { Optimizer } from "../mathematics/Optimizer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
+import { EventMgmtState, ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { NeighboringEventsType } from "./SlidingStrategy";
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
 import { OpPeriodicBSplineR1toR2, OpPeriodicBSplineR1toR2NoInactiveConstraints } from "../bsplineOptimizationProblems/OpPeriodicBSplineR1toR2";
 import { ActiveControl, BaseOpProblemBSplineR1toR2 } from "../bsplineOptimizationProblems/BaseOpBSplineR1toR2";
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
+import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
 
 export abstract class CurveShapeMonitoringStrategy {
 
@@ -30,12 +32,14 @@ export abstract class OCurveShapeMonitoringStrategy extends CurveShapeMonitoring
 
     protected currentCurve: BSplineR1toR2;
     protected readonly openCShapeSpaceNavigator: OpenCurveShapeSpaceNavigator;
+    protected readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     protected abstract _optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors
     protected abstract _optimizer: Optimizer;
 
     constructor(oCShapeSpaceNavigator: OpenCurveShapeSpaceNavigator) {
         super(oCShapeSpaceNavigator);
         this.openCShapeSpaceNavigator = oCShapeSpaceNavigator;
+        this.curveShapeSpaceNavigator = oCShapeSpaceNavigator.curveShapeSpaceNavigator;
         this.currentCurve = oCShapeSpaceNavigator.currentCurve;
     }
 
@@ -66,6 +70,40 @@ export abstract class OCurveShapeMonitoringStrategy extends CurveShapeMonitoring
         this.resetCurve(this.openCShapeSpaceNavigator.curveModel.spline);
     }
 
+    setEventManagementAtCurveExtremityState(): void {
+        if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents && this.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.NotApplicable) {
+            switch (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities) {
+                case EventMgmtState.Active: {
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    break;
+                }
+                case EventMgmtState.Inactive: {
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    break;
+                }
+                case EventMgmtState.NotApplicable: {
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities = EventMgmtState.Inactive;
+                    break;
+                }
+            }
+        } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
+            if(this.curveShapeSpaceNavigator.eventMgmtAtExtremities !== undefined) {
+                switch(this.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities) {
+                    case EventMgmtState.Active: {
+                        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities = EventMgmtState.Active;
+                        break;
+                    }
+                    case EventMgmtState.Inactive: {
+                        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.previousManagementOfEventsAtExtremities = EventMgmtState.Inactive;
+                        break;
+                    }
+                }
+                this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+            }
+        }
+    }
+
     abstract resetCurve(curve: BSplineR1toR2): void;
 }
 
@@ -91,7 +129,8 @@ export class OCurveShapeMonitoringStrategyWithInflexionsNoSliding extends OCurve
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -135,7 +174,8 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends 
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -179,7 +219,8 @@ export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSl
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -223,7 +264,8 @@ export class OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends OCurv
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -267,7 +309,8 @@ export class OCurveShapeMonitoringStrategyWithInflexionsSliding extends OCurveSh
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -311,7 +354,8 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends OC
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -354,7 +398,8 @@ export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
@@ -398,7 +443,8 @@ export class OCurveShapeMonitoringStrategyWithNoDiffEventSliding extends OCurveS
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl)
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
+        this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
