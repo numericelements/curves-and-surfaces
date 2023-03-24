@@ -3,7 +3,6 @@ import { IObserver } from "../newDesignPatterns/Observer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
-import { FunctionASceneController } from "../chartcontrollers/FunctionASceneController";
 import { MAX_CLAMPED_POINTS, NO_CONSTRAINT } from "../shapeNavigableCurve/ShapeNavigableCurve";
 
 export class ClampedControlPointView extends AbstractMouseSelectablePointView implements IObserver<BSplineR1toR2Interface>{

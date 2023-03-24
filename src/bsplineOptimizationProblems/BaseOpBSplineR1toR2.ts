@@ -11,30 +11,16 @@ import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 
 export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Interface {
-    
-    abstract spline: BSplineR1toR2Interface
-    abstract setTargetSpline(spline: BSplineR1toR2Interface): void
-    abstract bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1Interface
-    abstract compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]): DenseMatrix
-    abstract compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]): DenseMatrix
-    //abstract computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]): number[]
-    abstract computeInactiveConstraints(controlPoints: number[]): number[]
 
-    abstract computeBasisFunctionsDerivatives(): void
+    protected _spline: BSplineR1toR2Interface;
+    protected _target: BSplineR1toR2Interface;
 
-    protected _spline: BSplineR1toR2Interface
-    protected _target: BSplineR1toR2Interface
-
-    protected _numberOfIndependentVariables: number
-    protected _f0: number
-    protected _gradient_f0: number[]
-    protected _hessian_f0: SymmetricMatrixInterface
-    protected _f: number[]
-    protected _gradient_f: DenseMatrix
+    protected _numberOfIndependentVariables: number;
+    protected _f0: number;
+    protected _gradient_f0: number[];
+    protected _hessian_f0: SymmetricMatrixInterface;
+    protected _f: number[];
+    protected _gradient_f: DenseMatrix;
     protected _hessian_f: SymmetricMatrix[] | undefined = undefined
 
     protected dBasisFunctions_du: BernsteinDecompositionR1toR1[] = []
@@ -46,17 +32,9 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     protected curvatureExtremaConstraintsSign: number[] = []
     protected _curvatureExtremaInactiveConstraints: number[] = []
 
-    //modif pour integration BaseOpBSplineR1toR2
-    protected Dsu: BernsteinDecompositionR1toR1[]
-    protected Dsuu: BernsteinDecompositionR1toR1[]
-    protected Dsuuu: BernsteinDecompositionR1toR1[]
-
     
     constructor(target: BSplineR1toR2Interface, initial: BSplineR1toR2Interface, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
-        this.Dsu = []
-        this.Dsuu = []
-        this.Dsuuu = []
-        
+
         this._spline = initial.clone()
         this._target = target.clone()
         this.computeBasisFunctionsDerivatives()
@@ -83,11 +61,11 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
 
     get inflectionInactiveConstraints() {
-        return this._inflectionInactiveConstraints
+        return this._inflectionInactiveConstraints;
     }
 
     get curvatureExtremaInactiveConstraints() {
-        return this._curvatureExtremaInactiveConstraints
+        return this._curvatureExtremaInactiveConstraints;
     }
 
     get numberOfIndependentVariables() {
@@ -95,17 +73,16 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
 
     get f0() {
-        return this._f0
+        return this._f0;
     }
 
     get gradient_f0() {
-        return this._gradient_f0
+        return this._gradient_f0;
     }
 
     get hessian_f0() {
-        return this._hessian_f0
+        return this._hessian_f0;
     }
-
     
     get numberOfConstraints() {
         switch (this.activeControl) {
@@ -124,21 +101,39 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
             }
         }
     }
-    
 
     get f() {
-        return this._f
+        return this._f;
     }
 
     get gradient_f() {
-        return this._gradient_f
+        return this._gradient_f;
     }
 
     get hessian_f() {
-        return this._hessian_f
+        return this._hessian_f;
     }
 
-    step(deltaX: number[]) {
+    abstract spline: BSplineR1toR2Interface;
+
+    abstract setTargetSpline(spline: BSplineR1toR2Interface): void;
+
+    abstract bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1Interface;
+
+    abstract compute_curvatureExtremaConstraints_gradient(  e: ExpensiveComputationResults,
+                                                            constraintsSign: number[], 
+                                                            inactiveConstraints: number[]): DenseMatrix;
+
+    abstract compute_inflectionConstraints_gradient(e: ExpensiveComputationResults,
+                                                    constraintsSign: number[], 
+                                                    inactiveConstraints: number[]): DenseMatrix;
+
+    //abstract computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]): number[]
+    abstract computeInactiveConstraints(controlPoints: number[]): number[];
+
+    abstract computeBasisFunctionsDerivatives(): void;
+
+    step(deltaX: number[]): boolean {
         // this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX))
         this._gradient_f0 = this.compute_gradient_f0(this._spline)
         this._f0 = this.compute_f0(this._gradient_f0)
@@ -157,7 +152,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         return true
     }
 
-     fStep(step: number[]) {
+    fStep(step: number[]): number[] {
         let splineTemp = this.spline.clone()
         // splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step))
         let e = this.expensiveComputation(splineTemp)
@@ -166,31 +161,31 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
     }
 
-    f0Step(step: number[]) {
+    f0Step(step: number[]): number {
         let splineTemp = this.spline.clone()
         // splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step))
         return this.compute_f0(this.compute_gradient_f0(splineTemp))
     }
 
-    expensiveComputation(spline: BSplineR1toR2Interface) {
-        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots)
-        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots)
-        const sxu = sx.derivative()
-        const syu = sy.derivative()
-        const sxuu = sxu.derivative()
-        const syuu = syu.derivative()
-        const sxuuu = sxuu.derivative()
-        const syuuu = syuu.derivative()
-        const bdsxu = sxu.bernsteinDecomposition()
-        const bdsyu = syu.bernsteinDecomposition()
-        const bdsxuu = sxuu.bernsteinDecomposition()
-        const bdsyuu = syuu.bernsteinDecomposition()
-        const bdsxuuu = sxuuu.bernsteinDecomposition()
-        const bdsyuuu = syuuu.bernsteinDecomposition()
-        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu))
-        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu))
-        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu))
-        const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu))
+    expensiveComputation(spline: BSplineR1toR2Interface): ExpensiveComputationResults {
+        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        const sxu = sx.derivative();
+        const syu = sy.derivative();
+        const sxuu = sxu.derivative();
+        const syuu = syu.derivative();
+        const sxuuu = sxuu.derivative();
+        const syuuu = syuu.derivative();
+        const bdsxu = sxu.bernsteinDecomposition();
+        const bdsyu = syu.bernsteinDecomposition();
+        const bdsxuu = sxuu.bernsteinDecomposition();
+        const bdsyuu = syuu.bernsteinDecomposition();
+        const bdsxuuu = sxuuu.bernsteinDecomposition();
+        const bdsyuuu = syuuu.bernsteinDecomposition();
+        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
+        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
+        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
 
         return {
             bdsxu: bdsxu,
@@ -206,9 +201,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         }
     }
 
-
-
-    compute_gradient_f0(spline: BSplineR1toR2Interface) {
+    compute_gradient_f0(spline: BSplineR1toR2Interface): number[] {
         let result: number[] = []
         const n =  spline.freeControlPoints.length
         for (let i = 0; i < n; i += 1) {
@@ -220,49 +213,49 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         return result;
     }
 
-    compute_f0(gradient_f0: number[]) {
-        let result = 0
+    compute_f0(gradient_f0: number[]): number {
+        let result = 0;
         const n = gradient_f0.length;
         for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient_f0[i], 2)
+            result += Math.pow(gradient_f0[i], 2);
         }
         return 0.5 * result;
     }
 
-    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]) {
-        let result: number[] = []
+    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]): number[] {
+        let result: number[] = [];
         for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
-                j += 1
+                j += 1;
             } else {
-                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i])
+                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
             }
         }
-        return result
+        return result;
     }
 
-    compute_inflectionConstraints(curvatureNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]) {
-        let result: number[] = []
+    compute_inflectionConstraints(curvatureNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]): number[] {
+        let result: number[] = [];
         for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
-                j += 1
+                j += 1;
             } else {
-                result.push(curvatureNumerator[i] * constraintsSign[i])
+                result.push(curvatureNumerator[i] * constraintsSign[i]);
             }
         }
-        return result
+        return result;
     }
 
-    curvatureNumerator(h4: BernsteinDecompositionR1toR1) {
-        return h4.flattenControlPointsArray()
+    curvatureNumerator(h4: BernsteinDecompositionR1toR1): number[] {
+        return h4.flattenControlPointsArray();
     }
 
-    curvatureDerivativeNumerator(  h1: BernsteinDecompositionR1toR1, 
-        h2: BernsteinDecompositionR1toR1, 
-        h3: BernsteinDecompositionR1toR1, 
-        h4: BernsteinDecompositionR1toR1) {
-        const g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3))
-        return g.flattenControlPointsArray()
+    curvatureDerivativeNumerator(   h1: BernsteinDecompositionR1toR1, 
+                                    h2: BernsteinDecompositionR1toR1, 
+                                    h3: BernsteinDecompositionR1toR1, 
+                                    h4: BernsteinDecompositionR1toR1): number[] {
+        const g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
+        return g.flattenControlPointsArray();
     }
 
 

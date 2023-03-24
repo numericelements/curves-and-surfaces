@@ -73,14 +73,14 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const n = splineInitial.controlPoints.length
         const d = splineInitial.degree
         const numberOfConstraints = o.numberOfConstraints
-        const numberOfConstraintsFreeIndices = o.curvatureExtremaConstraintsFreeIndices.length
+        const numberOfConstraintsFreeIndices = o.curvatureExtremaInactiveConstraints.length
 
         
         // n - d = 1
         // 4 * d - 5 = 7
         const g = o.g()
         // g = [-2.53, -1.69, -4.2, 0, 4.2, 1.69, 2.53]
-        expect(o.curvatureExtremaConstraintsFreeIndices).to.eql([3])
+        expect(o.curvatureExtremaInactiveConstraints).to.eql([3])
         //expect(numberOfConstraints + numberOfConstraintsFreeIndices).to.equal( (4 * d - 5) * (n - d) )
         expect(g.length).to.equal( (4 * d - 5) * (n - d) )
 
@@ -108,10 +108,10 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         expect(o.gradient_f.shape).to.eql([10, 8])
         expect(o.f.length).to.eql(10)
 
-        const numberOfConstraintsFreeIndicesCurvatureExtrema = o.curvatureExtremaConstraintsFreeIndices.length
+        const numberOfConstraintsFreeIndicesCurvatureExtrema = o.curvatureExtremaInactiveConstraints.length
         expect(numberOfConstraintsFreeIndicesCurvatureExtrema).to.eql(1)
 
-        const numberOfConstraintsFreeIndicesInflection = o.inflectionConstraintsFreeIndices.length
+        const numberOfConstraintsFreeIndicesInflection = o.inflectionInactiveConstraints.length
         expect(numberOfConstraintsFreeIndicesInflection).to.eql(0)
 
     });

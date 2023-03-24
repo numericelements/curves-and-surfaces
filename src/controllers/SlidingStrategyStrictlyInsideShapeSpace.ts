@@ -865,7 +865,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
         
         try {
             this.optimizer.optimize_using_trust_region(10e-8, 100, 800)
-            /*console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaConstraintsFreeIndices)*/
+            /*console.log("inactive constraints: " + this.optimizationProblem.curvatureExtremaInactiveConstraints)*/
             /* JCL 2020/09/18 relocate the curve after the optimization process to clamp its first control point */
             //console.log("optimize : " + this.curveSceneController.activeLocationControl)
             let delta: Vector2d[] = []

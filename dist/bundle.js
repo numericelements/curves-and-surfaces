@@ -38192,9 +38192,6 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         this._inflectionInactiveConstraints = [];
         this.curvatureExtremaConstraintsSign = [];
         this._curvatureExtremaInactiveConstraints = [];
-        this.Dsu = [];
-        this.Dsuu = [];
-        this.Dsuuu = [];
         this._spline = initial.clone();
         this._target = target.clone();
         this.computeBasisFunctionsDerivatives();
@@ -39076,21 +39073,6 @@ var SlidingStrategy_1 = __webpack_require__(/*! ../controllers/SlidingStrategy *
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
-var ExpensiveComputationResults = /** @class */ (function () {
-    function ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4) {
-        this.bdsxu = bdsxu;
-        this.bdsyu = bdsyu;
-        this.bdsxuu = bdsxuu;
-        this.bdsyuu = bdsyuu;
-        this.bdsxuuu = bdsxuuu;
-        this.bdsyuuu = bdsyuuu;
-        this.h1 = h1;
-        this.h2 = h2;
-        this.h3 = h3;
-        this.h4 = h4;
-    }
-    return ExpensiveComputationResults;
-}());
 var eventMove;
 (function (eventMove) {
     eventMove[eventMove["still"] = 0] = "still";
@@ -39113,57 +39095,18 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both; }
         var _this = _super.call(this, target, initial, activeControl) || this;
         _this.activeControl = activeControl;
-        //modif pour integration BaseOpBSplineR1toR2
-        // readonly Dsu: BernsteinDecompositionR1toR1[]
-        // readonly Dsuu: BernsteinDecompositionR1toR1[]
-        // readonly Dsuuu: BernsteinDecompositionR1toR1[]
-        //private curvatureExtremaConstraintsSign: number[] = []
-        //private curvatureExtremaInactiveConstraints: number[] = []
-        //private inflectionConstraintsSign: number[] = []
         /* JCL for testing purposes */
         _this.curvatureExtremaConstraintsSign = [];
-        // public curvatureExtremaInactiveConstraints: number[] = []
-        _this._curvatureExtremaInactiveConstraints = [];
         _this.inflectionConstraintsSign = [];
-        // public inflectionInactiveConstraints: number[] = []
-        _this._inflectionInactiveConstraints = [];
-        //private _hessian_f: SymmetricMatrixInterface[] | undefined = undefined
-        //private _hessian_f: SymmetricMatrix[] | undefined = undefined
-        _this._hessian_f = undefined;
         _this.isComputingHessian = false;
         _this.Dh5xx = [];
         _this.Dh6_7xy = [];
         _this.Dh8_9xx = [];
         _this.Dh10_11xy = [];
-        //modif pour integration BaseOpBSplineR1toR2
-        _this.dBasisFunctions_du = [];
-        _this.d2BasisFunctions_du2 = [];
-        _this.d3BasisFunctions_du3 = [];
         // this.spline = initial.clone()
         _this._target = target.clone();
-        var n = _this.spline.controlPoints.length;
-        _this._numberOfIndependentVariables = n * 2;
-        var diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
-        _this.Dsu = [];
-        _this.Dsuu = [];
-        _this.Dsuuu = [];
-        for (var i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1;
-            var s = new BSplineR1toR1_1.BSplineR1toR1(diracControlPoints.slice(), _this.spline.knots.slice());
-            var su = s.derivative();
-            var suu = su.derivative();
-            var suuu = suu.derivative();
-            var suBDecomp = su.bernsteinDecomposition();
-            var suuBDecomp = suu.bernsteinDecomposition();
-            var suuuBDecomp = suuu.bernsteinDecomposition();
-            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
-            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
-            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
-            _this.Dsu.push(suBDecomp);
-            _this.Dsuu.push(suuBDecomp);
-            _this.Dsuuu.push(suuuBDecomp);
-            diracControlPoints[i] = 0;
-        }
+        _this.computeBasisFunctionsDerivatives();
+        _this._numberOfIndependentVariables = _this.spline.controlPoints.length * 2;
         _this._gradient_f0 = _this.compute_gradient_f0(_this.spline);
         _this._f0 = _this.compute_f0(_this._gradient_f0);
         _this._hessian_f0 = DiagonalMatrix_1.identityMatrix(_this.numberOfIndependentVariables);
@@ -39175,72 +39118,23 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         _this.curvatureExtremaConstraintsSign = _this.computeConstraintsSign(g);
         _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraints(g);
         // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        _this._curvatureExtremaNumberOfActiveConstraints = g.length - _this.curvatureExtremaInactiveConstraints.length;
+        _this.curvatureExtremaNumberOfActiveConstraints = g.length - _this.curvatureExtremaInactiveConstraints.length;
         //console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
         _this.inflectionConstraintsSign = _this.computeConstraintsSign(curvatureNumerator);
         _this._inflectionInactiveConstraints = _this.computeInactiveConstraints(curvatureNumerator);
         // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        _this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - _this.inflectionInactiveConstraints.length;
+        _this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - _this.inflectionInactiveConstraints.length;
         _this._f = _this.compute_f(curvatureNumerator, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, g, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
         _this._gradient_f = _this.compute_gradient_f(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
         if (_this.isComputingHessian) {
-            _this.prepareForHessianComputation(_this.Dsu, _this.Dsuu, _this.Dsuuu);
+            _this.prepareForHessianComputation(_this.dBasisFunctions_du, _this.d2BasisFunctions_du2, _this.d3BasisFunctions_du3);
             _this._hessian_f = _this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
         }
         return _this;
     }
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "targetSpline", {
-        set: function (spline) {
-            this._target = spline;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "curvatureExtremaConstraintsFreeIndices", {
-        get: function () {
-            return this.curvatureExtremaInactiveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "inflectionConstraintsFreeIndices", {
-        get: function () {
-            return this.inflectionInactiveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "numberOfIndependentVariables", {
-        get: function () {
-            return this._numberOfIndependentVariables;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "numberOfConstraints", {
         get: function () {
-            return this._curvatureExtremaNumberOfActiveConstraints + this._inflectionNumberOfActiveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "f0", {
-        get: function () {
-            return this._f0;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "gradient_f0", {
-        get: function () {
-            return this._gradient_f0;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "hessian_f0", {
-        get: function () {
-            return this._hessian_f0;
+            return this.curvatureExtremaNumberOfActiveConstraints + this.inflectionNumberOfActiveConstraints;
         },
         enumerable: false,
         configurable: true
@@ -39255,40 +39149,12 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "gradient_f", {
-        get: function () {
-            return this._gradient_f;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "hessian_f", {
-        get: function () {
-            return this._hessian_f;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "spline", {
         get: function () {
             return this._spline;
         },
         set: function (spline) {
             this._spline = spline;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "inflectionInactiveConstraints", {
-        get: function () {
-            return this._inflectionInactiveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "curvatureExtremaInactiveConstraints", {
-        get: function () {
-            return this._curvatureExtremaInactiveConstraints;
         },
         enumerable: false,
         configurable: true
@@ -39312,13 +39178,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
             var suBDecomp = su.bernsteinDecomposition();
             var suuBDecomp = suu.bernsteinDecomposition();
             var suuuBDecomp = suuu.bernsteinDecomposition();
-            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
-            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
-            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
-            this.Dsu.push(suBDecomp);
-            this.Dsuu.push(suuBDecomp);
-            this.Dsuuu.push(suuuBDecomp);
-            // compatibiliity with BaseOpBSplineR1toR2 constructor
             this.dBasisFunctions_du.push(suBDecomp);
             this.d2BasisFunctions_du2.push(suuBDecomp);
             this.d3BasisFunctions_du3.push(suuuBDecomp);
@@ -39336,13 +39195,13 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
         this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
         // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
+        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
         var curvatureNumerator = this.curvatureNumerator(e.h4);
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
         this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
         // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
         this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         if (this.isComputingHessian) {
@@ -39454,34 +39313,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         var result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
         return result;
     };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_gradient_f0 = function (spline) {
-        var result = [];
-        var n = spline.controlPoints.length;
-        for (var i = 0; i < n; i += 1) {
-            result.push(spline.controlPoints[i].x - this._target.controlPoints[i].x);
-        }
-        for (var i = 0; i < n; i += 1) {
-            result.push(spline.controlPoints[i].y - this._target.controlPoints[i].y);
-        }
-        return result;
-    };
-    //f0: function to minimize
-    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_f0 = function (gradient_f0) {
-        var result = 0;
-        var n = gradient_f0.length;
-        for (var i = 0; i < n; i += 1) {
-            result += Math.pow(gradient_f0[i], 2);
-        }
-        return 0.5 * result;
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.curvatureNumerator = function (h4) {
-        return h4.flattenControlPointsArray();
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.curvatureDerivativeNumerator = function (h1, h2, h3, h4) {
-        var g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
-        var result = g.flattenControlPointsArray();
-        return result;
-    };
     OptimizationProblem_BSpline_R1_to_R2.prototype.g = function () {
         var e = this.expensiveComputation(this.spline);
         return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
@@ -39489,30 +39320,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
     OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_g = function () {
         var e = this.expensiveComputation(this.spline);
         return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_curvatureExtremaConstraints = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
-        var result = [];
-        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_inflectionConstraints = function (curvatureNumerator, constraintsSign, inactiveConstraints) {
-        var result = [];
-        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1;
-            }
-            else {
-                result.push(curvatureNumerator[i] * constraintsSign[i]);
-            }
-        }
-        return result;
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
         var result = [];
@@ -39533,35 +39340,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
             return result;
         }
     };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.expensiveComputation = function (spline) {
-        // const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots);
-        // const sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots);
-        var sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
-        var sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
-        var sxu = sx.derivative();
-        var syu = sy.derivative();
-        var sxuu = sxu.derivative();
-        var syuu = syu.derivative();
-        var sxuuu = sxuu.derivative();
-        var syuuu = syuu.derivative();
-        var bdsxu = sxu.bernsteinDecomposition();
-        var bdsyu = syu.bernsteinDecomposition();
-        var bdsxuu = sxuu.bernsteinDecomposition();
-        var bdsyuu = syuu.bernsteinDecomposition();
-        var bdsxuuu = sxuuu.bernsteinDecomposition();
-        var bdsyuuu = syuuu.bernsteinDecomposition();
-        // bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition()),
-        // bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition()),
-        // bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition()),
-        // bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition()),
-        // bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition()),
-        // bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition()),
-        var h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
-        var h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
-        var h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
-        var h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
-        return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4);
-    };
     OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
         var dgx = [];
         var dgy = [];
@@ -39569,23 +39347,23 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         var n = this.curvatureExtremaTotalNumberOfConstraints;
         var result = new DenseMatrix_1.DenseMatrix(n, 2 * m);
         for (var i = 0; i < m; i += 1) {
-            var h5 = this.Dsu[i].multiply(sxu);
-            var h6 = this.Dsu[i].multiply(syuuu);
-            var h7 = syu.multiply(this.Dsuuu[i]).multiplyByScalar(-1);
-            var h8 = this.Dsu[i].multiply(sxuu);
-            var h9 = sxu.multiply(this.Dsuu[i]);
-            var h10 = this.Dsu[i].multiply(syuu);
-            var h11 = syu.multiply(this.Dsuu[i]).multiplyByScalar(-1);
+            var h5 = this.dBasisFunctions_du[i].multiply(sxu);
+            var h6 = this.dBasisFunctions_du[i].multiply(syuuu);
+            var h7 = syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1);
+            var h8 = this.dBasisFunctions_du[i].multiply(sxuu);
+            var h9 = sxu.multiply(this.d2BasisFunctions_du2[i]);
+            var h10 = this.dBasisFunctions_du[i].multiply(syuu);
+            var h11 = syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1);
             dgx.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
         }
         for (var i = 0; i < m; i += 1) {
-            var h5 = this.Dsu[i].multiply(syu);
-            var h6 = this.Dsu[i].multiply(sxuuu).multiplyByScalar(-1);
-            var h7 = sxu.multiply(this.Dsuuu[i]);
-            var h8 = this.Dsu[i].multiply(syuu);
-            var h9 = syu.multiply(this.Dsuu[i]);
-            var h10 = this.Dsu[i].multiply(sxuu).multiplyByScalar(-1);
-            var h11 = sxu.multiply(this.Dsuu[i]);
+            var h5 = this.dBasisFunctions_du[i].multiply(syu);
+            var h6 = this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1);
+            var h7 = sxu.multiply(this.d3BasisFunctions_du3[i]);
+            var h8 = this.dBasisFunctions_du[i].multiply(syuu);
+            var h9 = syu.multiply(this.d2BasisFunctions_du2[i]);
+            var h10 = this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1);
+            var h11 = sxu.multiply(this.d2BasisFunctions_du2[i]);
             dgy.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
         }
         for (var i = 0; i < m; i += 1) {
@@ -39597,39 +39375,6 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
             }
         }
         return result;
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
-            var m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
-            var _a = __read(m1.shape, 2), row_m1 = _a[0], n = _a[1];
-            var _b = __read(m2.shape, 1), row_m2 = _b[0];
-            var m = row_m1 + row_m2;
-            var result = new DenseMatrix_1.DenseMatrix(m, n);
-            for (var i = 0; i < row_m1; i += 1) {
-                for (var j = 0; j < n; j += 1) {
-                    result.set(i, j, m1.get(i, j));
-                }
-            }
-            for (var i = 0; i < row_m2; i += 1) {
-                for (var j = 0; j < n; j += 1) {
-                    result.set(row_m1 + i, j, m2.get(i, j));
-                }
-            }
-            return result;
-        }
-        else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
-        else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
-            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
-        else {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            warning.logMessageToConsole();
-            var result = new DenseMatrix_1.DenseMatrix(1, 1);
-            return result;
-        }
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.compute_curvatureExtremaConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
         var sxu = e.bdsxu;
@@ -39654,13 +39399,13 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
             var h2_subset = h2.subset(start, lessThan);
             var h3_subset = h3.subset(start, lessThan);
             var h4_subset = h4.subset(start, lessThan);
-            var h5 = this.Dsu[i].multiplyRange(sxu, start, lessThan);
-            var h6 = this.Dsu[i].multiplyRange(syuuu, start, lessThan);
-            var h7 = syu.multiplyRange(this.Dsuuu[i], start, lessThan).multiplyByScalar(-1);
-            var h8 = this.Dsu[i].multiplyRange(sxuu, start, lessThan);
-            var h9 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
-            var h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            var h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            var h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            var h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
             dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
         for (var i = 0; i < controlPointsLength; i += 1) {
@@ -39670,13 +39415,13 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
             var h2_subset = h2.subset(start, lessThan);
             var h3_subset = h3.subset(start, lessThan);
             var h4_subset = h4.subset(start, lessThan);
-            var h5 = this.Dsu[i].multiplyRange(syu, start, lessThan);
-            var h6 = this.Dsu[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            var h7 = sxu.multiplyRange(this.Dsuuu[i], start, lessThan);
-            var h8 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            var h9 = syu.multiplyRange(this.Dsuu[i], start, lessThan);
-            var h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            var h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            var h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
             dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
         var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
@@ -39716,15 +39461,15 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         for (var i = 0; i < controlPointsLength; i += 1) {
             var start = Math.max(0, i - degree);
             var lessThan = Math.min(controlPointsLength - degree, i + 1);
-            var h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            var h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
             dgx.push((h10.add(h11)));
         }
         for (var i = 0; i < controlPointsLength; i += 1) {
             var start = Math.max(0, i - degree);
             var lessThan = Math.min(controlPointsLength - degree, i + 1);
-            var h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            var h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
             dgy.push(h10.add(h11));
         }
         var totalNumberOfConstraints = this.inflectionConstraintsSign.length;
@@ -39779,22 +39524,22 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
             hessian_gxy.push([]);
         }
         for (var i = 0; i < n; i += 1) {
-            h5x.push(this.Dsu[i].multiply(sxu));
-            h6x.push(this.Dsu[i].multiply(syuuu));
-            h7x.push(syu.multiply(this.Dsuuu[i]).multiplyByScalar(-1));
-            h8x.push(this.Dsu[i].multiply(sxuu));
-            h9x.push(sxu.multiply(this.Dsuu[i]));
-            h10x.push(this.Dsu[i].multiply(syuu));
-            h11x.push(syu.multiply(this.Dsuu[i]).multiplyByScalar(-1));
+            h5x.push(this.dBasisFunctions_du[i].multiply(sxu));
+            h6x.push(this.dBasisFunctions_du[i].multiply(syuuu));
+            h7x.push(syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1));
+            h8x.push(this.dBasisFunctions_du[i].multiply(sxuu));
+            h9x.push(sxu.multiply(this.d2BasisFunctions_du2[i]));
+            h10x.push(this.dBasisFunctions_du[i].multiply(syuu));
+            h11x.push(syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1));
         }
         for (var i = 0; i < n; i += 1) {
-            h5y.push(this.Dsu[i].multiply(syu));
-            h6y.push(this.Dsu[i].multiply(sxuuu).multiplyByScalar(-1));
-            h7y.push(sxu.multiply(this.Dsuuu[i]));
-            h8y.push(this.Dsu[i].multiply(syuu));
-            h9y.push(syu.multiply(this.Dsuu[i]));
-            h10y.push(this.Dsu[i].multiply(sxuu).multiplyByScalar(-1));
-            h11y.push(sxu.multiply(this.Dsuu[i]));
+            h5y.push(this.dBasisFunctions_du[i].multiply(syu));
+            h6y.push(this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1));
+            h7y.push(sxu.multiply(this.d3BasisFunctions_du3[i]));
+            h8y.push(this.dBasisFunctions_du[i].multiply(syuu));
+            h9y.push(syu.multiply(this.d2BasisFunctions_du2[i]));
+            h10y.push(this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1));
+            h11y.push(sxu.multiply(this.d2BasisFunctions_du2[i]));
         }
         for (var i = 0; i < n; i += 1) {
             for (var j = 0; j <= i; j += 1) {
@@ -40154,12 +39899,12 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }
         _this.curvatureExtremaConstraintsSign = _this.computeConstraintsSign(g);
         _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraintsGN(_this.curvatureExtremaConstraintsSign, g);
-        _this._curvatureExtremaNumberOfActiveConstraints = g.length - _this.curvatureExtremaInactiveConstraints.length;
+        _this.curvatureExtremaNumberOfActiveConstraints = g.length - _this.curvatureExtremaInactiveConstraints.length;
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
         var curvatureNumerator = _this.curvatureNumerator(e.h4);
         _this.inflectionConstraintsSign = _this.computeConstraintsSign(curvatureNumerator);
         _this._inflectionInactiveConstraints = _this.computeInactiveConstraintsGN(_this.inflectionConstraintsSign, curvatureNumerator);
-        _this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - _this.inflectionInactiveConstraints.length;
+        _this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - _this.inflectionInactiveConstraints.length;
         _this._f = _this.compute_fGN(curvatureNumerator, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, g, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints, _this.revertConstraints, _this.constraintBound);
         _this.checkConstraintConsistency();
         if (_this.neighboringEvent.event !== SlidingStrategy_1.NeighboringEventsType.none)
@@ -40170,7 +39915,8 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             console.log("inflexion constraints at init:" + _this.inflectionInactiveConstraints);
         _this._gradient_f = _this.compute_gradient_fGN(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints, _this.revertConstraints);
         if (_this.isComputingHessian) {
-            _this.prepareForHessianComputation(_this.Dsu, _this.Dsuu, _this.Dsuuu);
+            // this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
+            _this.prepareForHessianComputation(_this.dBasisFunctions_du, _this.d2BasisFunctions_du2, _this.d3BasisFunctions_du3);
             _this._hessian_f = _this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
         }
         return _this;
@@ -40192,14 +39938,14 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                 if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
-                    if (i < this._curvatureExtremaNumberOfActiveConstraints) {
+                    if (i < this.curvatureExtremaNumberOfActiveConstraints) {
                         for (var j = 0; j < this.curvatureExtremaInactiveConstraints.length; j += 1) {
                             if (i > this.curvatureExtremaInactiveConstraints[j])
                                 indexC = indexC + 1;
                         }
                     }
                     else {
-                        indexC = i - this._curvatureExtremaNumberOfActiveConstraints;
+                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints;
                         typeC = constraintType.inflexion;
                         for (var j = 0; j < this.inflectionInactiveConstraints.length; j += 1) {
                             if (i > this.inflectionInactiveConstraints[j])
@@ -40942,13 +40688,13 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             var h2_subset = h2.subset(start, lessThan);
             var h3_subset = h3.subset(start, lessThan);
             var h4_subset = h4.subset(start, lessThan);
-            var h5 = this.Dsu[i].multiplyRange(sxu, start, lessThan);
-            var h6 = this.Dsu[i].multiplyRange(syuuu, start, lessThan);
-            var h7 = syu.multiplyRange(this.Dsuuu[i], start, lessThan).multiplyByScalar(-1);
-            var h8 = this.Dsu[i].multiplyRange(sxuu, start, lessThan);
-            var h9 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
-            var h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            var h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            var h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            var h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
             dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
         for (var i = 0; i < controlPointsLength; i += 1) {
@@ -40958,13 +40704,13 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             var h2_subset = h2.subset(start, lessThan);
             var h3_subset = h3.subset(start, lessThan);
             var h4_subset = h4.subset(start, lessThan);
-            var h5 = this.Dsu[i].multiplyRange(syu, start, lessThan);
-            var h6 = this.Dsu[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            var h7 = sxu.multiplyRange(this.Dsuuu[i], start, lessThan);
-            var h8 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            var h9 = syu.multiplyRange(this.Dsuu[i], start, lessThan);
-            var h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            var h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            var h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
             dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
         var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
@@ -41064,13 +40810,13 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
             this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g);
         }
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
+        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
         var curvatureNumerator = this.curvatureNumerator(e.h4);
         if (this.updateConstraintBound) {
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
             this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator);
         }
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
         //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
         console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " revert " + this.revertConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign + " bound " + this.constraintBound);
         this.updateConstraintBound = false;
@@ -43317,7 +43063,6 @@ var CurveSceneController = /** @class */ (function () {
         this.canvas = canvas;
         this.gl = gl;
         this._selectedControlPoint = null;
-        // this.curveModel = curveModelDefinitionEventListener.curveModel;
         this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
         this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
         this._controlOfKnotInsertion = false;
@@ -43338,8 +43083,8 @@ var CurveSceneController = /** @class */ (function () {
         // JCL temporary modif
         this.curveShapeSpaceNavigator.curveSceneController = this;
         var selectedEvent = [];
-        this._selectedCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremView_1.SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
-        this._selectedInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView_1.SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremView_1.SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedSlipOutInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView_1.SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
         this._highlightedControlPolygonView = new HighlightedControlPolygonView_1.HighlightedControlPolygonView(this.curveModel.spline, this.gl);
         this._phantomCurveView = new PhantomCurveView_1.PhantomCurveView(this.gl, this.curveModel.spline);
         this._allowShapeSpaceChange = true;
@@ -43348,11 +43093,7 @@ var CurveSceneController = /** @class */ (function () {
         this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
         this.registerCurveObservers();
         this.shapeNavigableCurve.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveSceneController(this));
-        /* JCL 2020/09/24 update the display of clamped control points (cannot be part of observers) */
-        this._clampedControlPointView.update(this.curveModel.spline);
-        this._selectedCurvatureExtremaView.update(this.curveModel.spline, selectedEvent);
-        // this._eventMgmtAtExtremities = this.shapeNavigableCurve.eventMgmtAtExtremities;
-        this.curveEventAtExtremityMayVanish = false;
+        this._selectedSlipOutCurvatureExtremaView.update(this.curveModel.spline);
         this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
         /* JCL 2021/09/29 Add modeller for new code architecture */
         this._navigationState = this.curveShapeSpaceNavigator.navigationState;
@@ -43426,16 +43167,16 @@ var CurveSceneController = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveSceneController.prototype, "selectedInflectionsView", {
+    Object.defineProperty(CurveSceneController.prototype, "selectedSlipOutInflectionsView", {
         get: function () {
-            return this._selectedInflectionsView;
+            return this._selectedSlipOutInflectionsView;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveSceneController.prototype, "selectedCurvatureExtremaView", {
+    Object.defineProperty(CurveSceneController.prototype, "selectedSlipOutCurvatureExtremaView", {
         get: function () {
-            return this._selectedCurvatureExtremaView;
+            return this._selectedSlipOutCurvatureExtremaView;
         },
         enumerable: false,
         configurable: true
@@ -43485,6 +43226,8 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.registerObserver(this.curveView, "curve");
         this.curveModel.registerObserver(this.curveKnotsView, "control points");
         this.curveModel.registerObserver(this._clampedControlPointView, "control points");
+        this.curveModel.registerObserver(this._selectedSlipOutCurvatureExtremaView, "control points");
+        this.curveModel.registerObserver(this._selectedSlipOutInflectionsView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
@@ -43521,6 +43264,8 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModel.removeObserver(this.curveView, "curve");
         this.curveModel.removeObserver(this.curveKnotsView, "control points");
         this.curveModel.removeObserver(this._clampedControlPointView, "control points");
+        this.curveModel.removeObserver(this._selectedSlipOutCurvatureExtremaView, "control points");
+        this.curveModel.removeObserver(this._selectedSlipOutInflectionsView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.inflectionsView, "control points");
@@ -43549,8 +43294,8 @@ var CurveSceneController = /** @class */ (function () {
         }
         this._controlPointsView.renderFrame();
         this._insertKnotButtonView.renderFrame();
-        this._selectedCurvatureExtremaView.renderFrame();
-        this._selectedInflectionsView.renderFrame();
+        this._selectedSlipOutCurvatureExtremaView.renderFrame();
+        this._selectedSlipOutInflectionsView.renderFrame();
         /* JCL 2020/09/24 Add the display of clamped control points */
         if (this.controlOfCurveClamping && this._clampedControlPointView !== null) {
             this._clampedControlPointView.renderFrame();
@@ -43575,8 +43320,8 @@ var CurveSceneController = /** @class */ (function () {
         }
         else
             throw new Error("Unable to render the current frame. Undefined curve model");
-        if (this._selectedCurvatureExtremaView !== null && this.allowShapeSpaceChange === false)
-            this._selectedCurvatureExtremaView.renderFrame();
+        if (this._selectedSlipOutCurvatureExtremaView !== null && this.allowShapeSpaceChange === false)
+            this._selectedSlipOutCurvatureExtremaView.renderFrame();
     };
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
         if (this.curveModel !== undefined) {
@@ -43729,7 +43474,7 @@ var CurveSceneController = /** @class */ (function () {
         // }
     };
     CurveSceneController.prototype.shiftKeyDown = function () {
-        this._allowShapeSpaceChange = true;
+        // this._allowShapeSpaceChange = true;
         this._sceneInteractionStrategy.processShiftKeyDownInteraction();
         // if(this.eventMgmtAtExtremities !== undefined) {
         //     this.curveEventAtExtremityMayVanish = true;
@@ -43739,7 +43484,7 @@ var CurveSceneController = /** @class */ (function () {
         // }
     };
     CurveSceneController.prototype.shiftKeyUp = function () {
-        this._allowShapeSpaceChange = false;
+        // this._allowShapeSpaceChange = false;
         this._sceneInteractionStrategy.processShiftKeyUpInteraction();
         // if(this.eventMgmtAtExtremities !== undefined) {
         //     this.curveEventAtExtremityMayVanish = false;
@@ -43854,6 +43599,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve = exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = exports.CurveSceneControllerStrictlyInsideShapeSpaceCPSelection = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = exports.CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection = exports.CurveSceneControllerNoShapeSpaceConstraintsCPDragging = exports.CurveSceneControllerNoShapeSpaceConstraintsCPSelection = exports.CurveSceneControllerKnotInsertion = exports.CurveSceneControllerInteractionStrategy = void 0;
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var NavigationState_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
@@ -44113,10 +43859,20 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
     __extends(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve, _super);
     function CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(curveSceneController) {
         var _this = _super.call(this, curveSceneController) || this;
+        // if(this.curveShapeSpaceNavigator.eventStateAtCrvExtremities instanceof EventStayInsideCurve) {
+        //     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval(this._curveSceneController));
+        // }
         _this.selectedControlPoint = _this._curveSceneController.selectedControlPoint;
         _this.eventMgmtAtExtremities = _this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
         _this.controlOfInflection = _this.curveShapeSpaceNavigator.getActiveControlInflections();
         _this.controlOfCurvatureExtrema = _this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
+        _this.managementOfEventsAtExtremities = _this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
+        if (_this.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+            _this.eventsStayInsideInterval = true;
+        }
+        else {
+            _this.eventsStayInsideInterval = false;
+        }
         _this.curveModel = _this.shapeNavigableCurve.curveCategory.curveModel;
         _this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = _this.curveModel.spline;
         _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = _this.curveModel.spline;
@@ -44127,6 +43883,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
         warning.logMessageToConsole();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
+        console.log('drag CPDraggingOpenCurve');
         var x = ndcX;
         var y = ndcY;
         // console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
@@ -44149,11 +43906,14 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
                     console.log("Constraints not satisfied - must change interaction Strategy");
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
                 }
-                else if (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval) {
+                else if (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval && this.eventsStayInsideInterval) {
                     console.log("An event went out of the interval. Display previous step");
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval(this._curveSceneController));
                 }
                 else {
+                    if (this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval) {
+                        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval = false;
+                    }
                     this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                     this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
                 }
@@ -44163,23 +43923,28 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
         }
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processLeftMouseUpInteraction = function () {
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
+        message.logMessageToConsole();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyDownInteraction = function () {
-        // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
-        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", "events can slip out");
         message.logMessageToConsole();
+        if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+            this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
+            this.eventsStayInsideInterval = false;
+        }
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyUpInteraction = function () {
-        // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
-        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
         message.logMessageToConsole();
+        if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+            var message_1 = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
+            message_1.logMessageToConsole();
+            this.eventsStayInsideInterval = true;
+        }
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve;
 }(CurveSceneControllerInteractionStrategy));
@@ -44190,22 +43955,23 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
         var _this = _super.call(this, curveSceneController) || this;
         _this.selectedControlPoint = _this._curveSceneController.selectedControlPoint;
         _this.eventMgmtAtExtremities = _this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
-        // this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
-        // this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
         _this.curveModel = _this.shapeNavigableCurve.curveCategory.curveModel;
         _this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = _this.curveModel.spline;
         _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = _this.curveModel.spline;
         _this.lastValidCurve = _this.curveModel.spline.clone();
         _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve.clone());
-        _this._curveSceneController.selectedCurvatureExtremaView.update(_this.lastValidCurve, _this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsCurvExtrema);
-        _this._curveSceneController.selectedInflectionsView.update(_this.lastValidCurve, _this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsInflections);
+        _this._curveSceneController.selectedSlipOutCurvatureExtremaView.updatePoints(_this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsCurvExtrema);
+        // this._curveSceneController.selectedSlipOutCurvatureExtremaView.update(this.lastValidCurve);
+        _this._curveSceneController.selectedSlipOutInflectionsView.updatePoints(_this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsInflections);
         return _this;
+        // this._curveSceneController.selectedSlipOutInflectionsView.update(this.lastValidCurve);
     }
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
         warning.logMessageToConsole();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
+        console.log('drag CPDraggingOpenCurveEventsInsideInterval');
         var x = ndcX;
         var y = ndcY;
         // console.log(" simpler spaces: selected point = ", this.selectedControlPoint);
@@ -44224,9 +43990,11 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
                     console.log("Constraints not satisfied - must change interaction Strategy");
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied(this._curveSceneController));
                 }
-                else {
+                else if (this.eventsStayInsideInterval) {
                     this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                     this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval = false;
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
                 }
             }
             this.curveModel.notifyObservers();
@@ -44234,23 +44002,27 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
         }
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseUpInteraction = function () {
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", " come back to point selection");
+        message.logMessageToConsole();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
+        this._curveSceneController.selectedSlipOutCurvatureExtremaView.clearPoints();
+        this._curveSceneController.selectedSlipOutInflectionsView.clearPoints();
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processShiftKeyDownInteraction = function () {
-        // this.curveEventAtExtremityMayVanish = true;
-        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
-        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", " come back to drag point");
         message.logMessageToConsole();
+        this.eventsStayInsideInterval = false;
+        this._curveSceneController.selectedSlipOutCurvatureExtremaView.clearPoints();
+        this._curveSceneController.selectedSlipOutInflectionsView.clearPoints();
+        this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processShiftKeyUpInteraction = function () {
-        // this.curveEventAtExtremityMayVanish = false;
-        this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
-        this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
+        var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", " come back to drag point");
         message.logMessageToConsole();
+        this.eventsStayInsideInterval = true;
+        this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval;
 }(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve));
@@ -48615,6 +48387,9 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     };
     CurveShapeSpaceNavigator.prototype.getSlidingDifferentialEvents = function () {
         return this._shapeSpaceDiffEventsStructure.slidingDifferentialEvents;
+    };
+    CurveShapeSpaceNavigator.prototype.getManagementDiffEventsAtExtremities = function () {
+        return this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities;
     };
     CurveShapeSpaceNavigator.prototype.setActiveControlInflections = function (activeControlInflections) {
         this._shapeSpaceDiffEventsStructure.activeControlInflections = activeControlInflections;
@@ -61624,6 +61399,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SelectedDifferentialEventsView = void 0;
 var RoundDotSolidShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotSolidShader */ "./src/2DgraphicsItems/RoundDotSolidShader.ts");
@@ -61641,6 +61427,7 @@ var SelectedDifferentialEventsView = /** @class */ (function (_super) {
         _this.indexBuffer = null;
         _this.vertices = new Float32Array([]);
         _this.indices = new Uint8Array([]);
+        _this.pointLoc = [];
         _this.roundDotSolidShader = new RoundDotSolidShader_1.RoundDotSolidShader(_this.gl);
         return _this;
     }
@@ -61698,6 +61485,27 @@ var SelectedDifferentialEventsView = /** @class */ (function (_super) {
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     };
+    SelectedDifferentialEventsView.prototype.updatePoints = function (pointLoc) {
+        var e_1, _a;
+        this.pointLoc = [];
+        try {
+            for (var pointLoc_1 = __values(pointLoc), pointLoc_1_1 = pointLoc_1.next(); !pointLoc_1_1.done; pointLoc_1_1 = pointLoc_1.next()) {
+                var point = pointLoc_1_1.value;
+                this.pointLoc.push(point);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (pointLoc_1_1 && !pointLoc_1_1.done && (_a = pointLoc_1.return)) _a.call(pointLoc_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+    };
+    SelectedDifferentialEventsView.prototype.clearPoints = function () {
+        this.pointLoc = [];
+        this.pointSequenceToDisplay = [];
+    };
     return SelectedDifferentialEventsView;
 }(AbstractPointView_1.AbstractPointView));
 exports.SelectedDifferentialEventsView = SelectedDifferentialEventsView;
@@ -61746,12 +61554,10 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
     function SelectedSlipOutOfShapeSpaceCurvExtremaView(gl, spline, pointLoc) {
         var e_1, _a;
         var _this = _super.call(this, gl) || this;
-        _this.Z = 0;
         _this.DOT_SIZE = 0.025;
         _this.RED_COLOR = 0 / 255;
         _this.GREEN_COLOR = 200 / 255;
         _this.BLUE_COLOR = 0 / 255;
-        _this.ALPHA = 1;
         _this.vertexBuffer = null;
         _this.indexBuffer = null;
         _this.vertices = new Float32Array([]);
@@ -61760,6 +61566,7 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
         try {
             for (var pointLoc_1 = __values(pointLoc), pointLoc_1_1 = pointLoc_1.next(); !pointLoc_1_1.done; pointLoc_1_1 = pointLoc_1.next()) {
                 var pt = pointLoc_1_1.value;
+                _this.pointLoc.push(pt);
                 points.push(spline.evaluate(pt));
             }
         }
@@ -61781,7 +61588,7 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
             warning.logMessageToConsole();
         }
-        _this.update(spline, pointLoc);
+        _this.update(spline);
         return _this;
     }
     SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.initAttribLocation = function () {
@@ -61847,10 +61654,10 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.update = function (spline, pointLoc) {
+    SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.update = function (spline) {
         var points = [];
-        for (var i = 0; i < pointLoc.length; i += 1) {
-            points.push(spline.evaluate(pointLoc[i]));
+        for (var i = 0; i < this.pointLoc.length; i += 1) {
+            points.push(spline.evaluate(this.pointLoc[i]));
         }
         this.pointSequenceToDisplay = points.slice();
         this.updateVerticesAndIndices();
@@ -61904,12 +61711,10 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
     function SelectedSlipOutOfShapeSpaceInflectionView(gl, spline, pointLoc) {
         var e_1, _a;
         var _this = _super.call(this, gl) || this;
-        _this.Z = 0;
         _this.DOT_SIZE = 0.02;
         _this.RED_COLOR = 0 / 255;
         _this.GREEN_COLOR = 120 / 255;
         _this.BLUE_COLOR = 0 / 255;
-        _this.ALPHA = 1;
         _this.vertexBuffer = null;
         _this.indexBuffer = null;
         _this.vertices = new Float32Array([]);
@@ -61918,6 +61723,7 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
         try {
             for (var pointLoc_1 = __values(pointLoc), pointLoc_1_1 = pointLoc_1.next(); !pointLoc_1_1.done; pointLoc_1_1 = pointLoc_1.next()) {
                 var pt = pointLoc_1_1.value;
+                _this.pointLoc.push(pt);
                 points.push(spline.evaluate(pt));
             }
         }
@@ -61939,7 +61745,7 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
             warning.logMessageToConsole();
         }
-        _this.update(spline, pointLoc);
+        _this.update(spline);
         return _this;
     }
     SelectedSlipOutOfShapeSpaceInflectionView.prototype.initAttribLocation = function () {
@@ -62005,10 +61811,10 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
     };
-    SelectedSlipOutOfShapeSpaceInflectionView.prototype.update = function (spline, pointLoc) {
+    SelectedSlipOutOfShapeSpaceInflectionView.prototype.update = function (spline) {
         var points = [];
-        for (var i = 0; i < pointLoc.length; i += 1) {
-            points.push(spline.evaluate(pointLoc[i]));
+        for (var i = 0; i < this.pointLoc.length; i += 1) {
+            points.push(spline.evaluate(this.pointLoc[i]));
         }
         this.pointSequenceToDisplay = points.slice();
         this.updateVerticesAndIndices();

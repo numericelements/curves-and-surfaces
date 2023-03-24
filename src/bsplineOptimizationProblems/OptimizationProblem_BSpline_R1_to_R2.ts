@@ -10,23 +10,8 @@ import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { ActiveControl, BaseOpProblemBSplineR1toR2 } from "./BaseOpBSplineR1toR2";
+import { ActiveControl, BaseOpProblemBSplineR1toR2, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2";
 
-
-class ExpensiveComputationResults {
-
-    constructor(public bdsxu: BernsteinDecompositionR1toR1,
-        public bdsyu: BernsteinDecompositionR1toR1,
-        public bdsxuu: BernsteinDecompositionR1toR1, 
-        public bdsyuu: BernsteinDecompositionR1toR1, 
-        public bdsxuuu: BernsteinDecompositionR1toR1, 
-        public bdsyuuu: BernsteinDecompositionR1toR1, 
-        public h1: BernsteinDecompositionR1toR1, 
-        public h2: BernsteinDecompositionR1toR1, 
-        public h3: BernsteinDecompositionR1toR1, 
-        public h4: BernsteinDecompositionR1toR1) {}
-
-}
 
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
 interface extremaNearKnot {kIndex: number, extrema: Array<number>}
@@ -38,230 +23,111 @@ const DEVIATION_FROM_KNOT = 0.25
 export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1toR2 {
 // export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
-    // public spline: BSplineR1toR2
-    protected _target: BSplineR1toR2
-    //modif pour integration BaseOpBSplineR1toR2
-    // readonly Dsu: BernsteinDecompositionR1toR1[]
-    // readonly Dsuu: BernsteinDecompositionR1toR1[]
-    // readonly Dsuuu: BernsteinDecompositionR1toR1[]
+    protected _target: BSplineR1toR2;
 
-
-    //private curvatureExtremaConstraintsSign: number[] = []
-    //private curvatureExtremaInactiveConstraints: number[] = []
-
-    //private inflectionConstraintsSign: number[] = []
     /* JCL for testing purposes */
     public curvatureExtremaConstraintsSign: number[] = []
-    // public curvatureExtremaInactiveConstraints: number[] = []
-    protected _curvatureExtremaInactiveConstraints: number[] = []
-
     public inflectionConstraintsSign: number[] = []
-    // public inflectionInactiveConstraints: number[] = []
-    protected _inflectionInactiveConstraints: number[] = []
-
-    //protected curvatureExtremaConstraintsSign: number[] = []
-
     //protected inflectionConstraintsSign: number[] = []
 
-    protected _numberOfIndependentVariables: number
-    protected _f0: number
-    protected _gradient_f0: number[]
-    protected _hessian_f0: SymmetricMatrixInterface
-
-    //private _curvatureExtremaNumberOfActiveConstraints: number
-    //private _inflectionNumberOfActiveConstraints: number
     //private curvatureExtremaTotalNumberOfConstraints: number
     //private inflectionTotalNumberOfConstraints: number
-    protected _curvatureExtremaNumberOfActiveConstraints: number
-    protected _inflectionNumberOfActiveConstraints: number
+    protected curvatureExtremaNumberOfActiveConstraints: number;
+    protected inflectionNumberOfActiveConstraints: number;
     public curvatureExtremaTotalNumberOfConstraints: number
     public inflectionTotalNumberOfConstraints: number
 
-    //private _f: number[]
-    protected _f: number[]
-    //private _gradient_f: DenseMatrix
-    protected _gradient_f: DenseMatrix
-    //private _hessian_f: SymmetricMatrixInterface[] | undefined = undefined
-    //private _hessian_f: SymmetricMatrix[] | undefined = undefined
-    protected _hessian_f: SymmetricMatrix[] | undefined = undefined
-    readonly isComputingHessian: boolean = false
+    readonly isComputingHessian: boolean = false;
     private Dh5xx: BernsteinDecompositionR1toR1[][] = []
     private Dh6_7xy: BernsteinDecompositionR1toR1[][] = []
     private Dh8_9xx: BernsteinDecompositionR1toR1[][] = []
     private Dh10_11xy: BernsteinDecompositionR1toR1[][] = []
 
-    //modif pour integration BaseOpBSplineR1toR2
-    protected dBasisFunctions_du: BernsteinDecompositionR1toR1[] = []
-    protected d2BasisFunctions_du2: BernsteinDecompositionR1toR1[] = []
-    protected d3BasisFunctions_du3: BernsteinDecompositionR1toR1[] = []
-
     constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
         super(target, initial, activeControl);
 
         // this.spline = initial.clone()
-        this._target = target.clone()
-        const n = this.spline.controlPoints.length
-        this._numberOfIndependentVariables = n * 2
-        let diracControlPoints = zeroVector(n)
-        this.Dsu = []
-        this.Dsuu = []
-        this.Dsuuu = []
-        for (let i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1
-            let s = new BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice())
-            let su = s.derivative()
-            let suu = su.derivative()
-            let suuu = suu.derivative()
-            const suBDecomp = su.bernsteinDecomposition()
-            const suuBDecomp = suu.bernsteinDecomposition()
-            const suuuBDecomp = suuu.bernsteinDecomposition()
-            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
-            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
-            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
-            this.Dsu.push(suBDecomp)
-            this.Dsuu.push(suuBDecomp)
-            this.Dsuuu.push(suuuBDecomp)
-            diracControlPoints[i] = 0
-        }
-
-
+        this._target = target.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this.spline.controlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this._gradient_f0)
         this._hessian_f0 = identityMatrix(this.numberOfIndependentVariables)
         const e = this.expensiveComputation(this.spline)
-
-
         const curvatureNumerator = this.curvatureNumerator(e.h4)
+        
         this.inflectionTotalNumberOfConstraints = curvatureNumerator.length
 
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         this.curvatureExtremaTotalNumberOfConstraints = g.length
-
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
         // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
         //console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
 
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
         this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
         // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
-
+        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
         this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         
         if (this.isComputingHessian) {
-            this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
+            this.prepareForHessianComputation(this.dBasisFunctions_du, this.d2BasisFunctions_du2, this.d3BasisFunctions_du3)
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
     }
 
-
-
-    set targetSpline(spline: BSplineR1toR2) {
-        this._target = spline
-    }
-
-    get curvatureExtremaConstraintsFreeIndices() {
-        return this.curvatureExtremaInactiveConstraints
-    }
-
-    get inflectionConstraintsFreeIndices() {
-        return this.inflectionInactiveConstraints
-    }
-
-    get numberOfIndependentVariables() {
-        return this._numberOfIndependentVariables
-    }
-
-
     get numberOfConstraints() {
-        return this._curvatureExtremaNumberOfActiveConstraints + this._inflectionNumberOfActiveConstraints
-    }
-
-    get f0() {
-        return this._f0
-    }
-
-    get gradient_f0() {
-        return this._gradient_f0
-    }
-
-    get hessian_f0() {
-        return this._hessian_f0
+        return this.curvatureExtremaNumberOfActiveConstraints + this.inflectionNumberOfActiveConstraints
     }
 
     get f() {
         if (containsNaN(this._f)) {
             throw new Error("OptimizationProblem_BSpline_R1_to_R2 contains Nan in its f vector")
         }
-        return this._f
+        return this._f;
     }
-
-    get gradient_f() {
-        return this._gradient_f
-    }
-
-    get hessian_f() {
-        return this._hessian_f
-    }
-
 
     get spline(): BSplineR1toR2 {
-        return this._spline as BSplineR1toR2
+        return this._spline as BSplineR1toR2;
     }
 
     set spline(spline: BSplineR1toR2) {
         this._spline = spline;
     }
 
-    get inflectionInactiveConstraints() {
-        return this._inflectionInactiveConstraints;
-    }
-
-    get curvatureExtremaInactiveConstraints() {
-        return this._curvatureExtremaInactiveConstraints
-    }
-
     bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1 {
         return new BSplineR1toR1(controlPoints, knots);
     }
 
-    computeBasisFunctionsDerivatives() {
-        const n = this.spline.controlPoints.length
-        this._numberOfIndependentVariables = n * 2
-        let diracControlPoints = zeroVector(n)
-        this.dBasisFunctions_du = []
-        this.d2BasisFunctions_du2 = []
-        this.d3BasisFunctions_du3 = []
+    computeBasisFunctionsDerivatives(): void {
+        const n = this.spline.controlPoints.length;
+        this._numberOfIndependentVariables = n * 2;
+        let diracControlPoints = zeroVector(n);
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
         for (let i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1
-            let s = new BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice())
-            let su = s.derivative()
-            let suu = su.derivative()
-            let suuu = suu.derivative()
-            const suBDecomp = su.bernsteinDecomposition()
-            const suuBDecomp = suu.bernsteinDecomposition()
-            const suuuBDecomp = suuu.bernsteinDecomposition()
-            // this.Dsu.push(new BernsteinDecompositionR1toR1(su.bernsteinDecomposition()))
-            // this.Dsuu.push(new BernsteinDecompositionR1toR1(suu.bernsteinDecomposition()))
-            // this.Dsuuu.push(new BernsteinDecompositionR1toR1(suuu.bernsteinDecomposition()))
-            this.Dsu.push(suBDecomp)
-            this.Dsuu.push(suuBDecomp)
-            this.Dsuuu.push(suuuBDecomp)
-
-            // compatibiliity with BaseOpBSplineR1toR2 constructor
-            this.dBasisFunctions_du.push(suBDecomp)
-            this.d2BasisFunctions_du2.push(suuBDecomp)
-            this.d3BasisFunctions_du3.push(suuuBDecomp)
-            diracControlPoints[i] = 0
+            diracControlPoints[i] = 1;
+            let s = new BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice());
+            let su = s.derivative();
+            let suu = su.derivative();
+            let suuu = suu.derivative();
+            const suBDecomp = su.bernsteinDecomposition();
+            const suuBDecomp = suu.bernsteinDecomposition();
+            const suuuBDecomp = suuu.bernsteinDecomposition();
+            this.dBasisFunctions_du.push(suBDecomp);
+            this.d2BasisFunctions_du2.push(suuBDecomp);
+            this.d3BasisFunctions_du3.push(suuuBDecomp);
+            diracControlPoints[i] = 0;
         }
     }
 
-    step(deltaX: number[]) {
+    step(deltaX: number[]): boolean {
         // JCL 05/03/2021 add the checked status to enable stopping the iteration process if the curve is analyzed
         let checked: boolean = true
 
@@ -273,14 +139,14 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
         // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
         this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
         // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
 
         this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
@@ -293,7 +159,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         return checked
     }
 
-    computeConstraintsSign(controlPoints: number[]) {
+    computeConstraintsSign(controlPoints: number[]): number[] {
         let result: number[] = []
         for (let i = 0, n = controlPoints.length; i < n; i += 1) {
             if (controlPoints[i] > 0) {
@@ -306,7 +172,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         return result
     }
 
-    computeSignChangeIntervals(constraintsSign: number[]) {
+    computeSignChangeIntervals(constraintsSign: number[]): number[] {
         let signChangesIntervals: number[] = []
         let previousSign = constraintsSign[0]
         for (let i = 1, n = constraintsSign.length; i < n; i += 1) {
@@ -319,7 +185,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     }
 
 
-    computeControlPointsClosestToZero(signChangesIntervals: number[], controlPoints: number[]) {
+    computeControlPointsClosestToZero(signChangesIntervals: number[], controlPoints: number[]): number[] {
         let result: number[] = []
         for (let i = 0, n = signChangesIntervals.length; i < n; i += 1) {
             if (i < n - 1  && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
@@ -355,7 +221,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         return result
     }
 
-    addInactiveConstraintsForInflections(list: number[], controlPoints: number[]) {
+    addInactiveConstraintsForInflections(list: number[], controlPoints: number[]): number[] {
         let result: number[] = []
         for (let i = 0, n = list.length; i < n; i += 1) {
             if (list[i] !== 0 && controlPoints[list[i] - 1] === controlPoints[list[i]] ) {
@@ -404,41 +270,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         return result
     }
 
-    compute_gradient_f0(spline: BSplineR1toR2) {
-        let result: number[] = []
-        const n =  spline.controlPoints.length;
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.controlPoints[i].x - this._target.controlPoints[i].x);
-        }
-        for (let i = 0; i < n; i += 1) {
-            result.push(spline.controlPoints[i].y - this._target.controlPoints[i].y);
-        }
-        return result;
-    }
-
-    //f0: function to minimize
-    compute_f0(gradient_f0: number[]) {
-        let result = 0
-        const n = gradient_f0.length;
-        for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient_f0[i], 2);
-        }
-        return 0.5 * result;
-    }
-
-    curvatureNumerator(h4: BernsteinDecompositionR1toR1) {
-        return h4.flattenControlPointsArray()
-    }
-
-    curvatureDerivativeNumerator(h1: BernsteinDecompositionR1toR1, 
-                h2: BernsteinDecompositionR1toR1, 
-                h3: BernsteinDecompositionR1toR1, 
-                h4: BernsteinDecompositionR1toR1) {
-        const g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3))
-        let result = g.flattenControlPointsArray()
-        return result
-    }
-
     g() {
         const e = this.expensiveComputation(this.spline)
         return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
@@ -449,32 +280,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4)
 
     }
-
-    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]) {
-        let result: number[] = []
-        for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1
-            } else {
-                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i])
-            }
-        }
-        return result
-    }
-
-    compute_inflectionConstraints(curvatureNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]) {
-        let result: number[] = []
-        for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
-            if (i === inactiveConstraints[j]) {
-                j += 1
-            } else {
-                result.push(curvatureNumerator[i] * constraintsSign[i])
-            }
-        }
-        return result
-    }
-
-
 
     compute_f(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[]) {
         let result: number[] = [];
@@ -498,37 +303,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
        
     }
 
-    expensiveComputation(spline: BSplineR1toR2) {
-        // const sx = new BSplineR1toR1(spline.getControlPointsX(), spline.knots);
-        // const sy = new BSplineR1toR1(spline.getControlPointsY(), spline.knots);
-        const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
-        const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
-        const sxu = sx.derivative();
-        const syu = sy.derivative();
-        const sxuu = sxu.derivative();
-        const syuu = syu.derivative();
-        const sxuuu = sxuu.derivative();
-        const syuuu = syuu.derivative();
-        const bdsxu = sxu.bernsteinDecomposition();
-        const bdsyu = syu.bernsteinDecomposition();
-        const bdsxuu = sxuu.bernsteinDecomposition();
-        const bdsyuu = syuu.bernsteinDecomposition();
-        const bdsxuuu = sxuuu.bernsteinDecomposition();
-        const bdsyuuu = syuuu.bernsteinDecomposition();
-        // bdsxu = new BernsteinDecompositionR1toR1(sxu.bernsteinDecomposition()),
-        // bdsyu = new BernsteinDecompositionR1toR1(syu.bernsteinDecomposition()),
-        // bdsxuu = new BernsteinDecompositionR1toR1(sxuu.bernsteinDecomposition()),
-        // bdsyuu = new BernsteinDecompositionR1toR1(syuu.bernsteinDecomposition()),
-        // bdsxuuu = new BernsteinDecompositionR1toR1(sxuuu.bernsteinDecomposition()),
-        // bdsyuuu = new BernsteinDecompositionR1toR1(syuuu.bernsteinDecomposition()),
-        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
-        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
-        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
-        const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
-
-       return new ExpensiveComputationResults(bdsxu, bdsyu, bdsxuu, bdsyuu, bdsxuuu, bdsyuuu, h1, h2, h3, h4)
-    }
-
     gradient_curvatureDerivativeNumerator( sxu: BernsteinDecompositionR1toR1, 
                 syu: BernsteinDecompositionR1toR1, 
                 sxuu: BernsteinDecompositionR1toR1, 
@@ -545,27 +319,27 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         const m = this.spline.controlPoints.length
         const n = this.curvatureExtremaTotalNumberOfConstraints
 
-        let result = new DenseMatrix(n, 2 * m)
+        let result = new DenseMatrix(n, 2 * m);
 
         for (let i = 0; i < m; i += 1) {
-            let h5 = this.Dsu[i].multiply(sxu);
-            let h6 = this.Dsu[i].multiply(syuuu);
-            let h7 = syu.multiply(this.Dsuuu[i]).multiplyByScalar(-1);
-            let h8 = this.Dsu[i].multiply(sxuu);
-            let h9 = sxu.multiply(this.Dsuu[i]);
-            let h10 = this.Dsu[i].multiply(syuu);
-            let h11 = syu.multiply(this.Dsuu[i]).multiplyByScalar(-1);
+            const h5 = this.dBasisFunctions_du[i].multiply(sxu);
+            let h6 = this.dBasisFunctions_du[i].multiply(syuuu);
+            let h7 = syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1);
+            let h8 = this.dBasisFunctions_du[i].multiply(sxuu);
+            let h9 = sxu.multiply(this.d2BasisFunctions_du2[i]);
+            let h10 = this.dBasisFunctions_du[i].multiply(syuu);
+            let h11 = syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1);
             dgx.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
         }
 
         for (let i = 0; i < m; i += 1) {
-            let h5 = this.Dsu[i].multiply(syu);
-            let h6 = this.Dsu[i].multiply(sxuuu).multiplyByScalar(-1);
-            let h7 = sxu.multiply(this.Dsuuu[i]);
-            let h8 = this.Dsu[i].multiply(syuu);
-            let h9 = syu.multiply(this.Dsuu[i]);
-            let h10 = this.Dsu[i].multiply(sxuu).multiplyByScalar(-1);
-            let h11 = sxu.multiply(this.Dsuu[i]);
+            let h5 = this.dBasisFunctions_du[i].multiply(syu);
+            let h6 = this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1);
+            let h7 = sxu.multiply(this.d3BasisFunctions_du3[i]);
+            let h8 = this.dBasisFunctions_du[i].multiply(syuu);
+            let h9 = syu.multiply(this.d2BasisFunctions_du2[i]);
+            let h10 = this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1);
+            let h11 = sxu.multiply(this.d2BasisFunctions_du2[i]);
             dgy.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
         }
 
@@ -573,61 +347,17 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
             let cpx = dgx[i].flattenControlPointsArray();
             let cpy = dgy[i].flattenControlPointsArray();
             for (let j = 0; j < n; j += 1) {
-                result.set(j, i, cpx[j])
-                result.set(j, m + i, cpy[j])
+                result.set(j, i, cpx[j]);
+                result.set(j, m + i, cpy[j]);
             }
         }
 
         return result;
     }
 
-
-   compute_gradient_f( e: ExpensiveComputationResults,
-    inflectionConstraintsSign: number[],
-    inflectionInactiveConstraints: number[],
-    curvatureExtremaConstraintsSign: number[], 
-    curvatureExtremaInactiveConstraints: number[]) {
-
-        if (this.activeControl === ActiveControl.both) {
-            const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
-            const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-            const [row_m1, n] = m1.shape
-            const [row_m2, ] = m2.shape
-
-            const m = row_m1 + row_m2
-
-            let result = new DenseMatrix(m, n)
-
-            for (let i = 0; i < row_m1; i += 1) {
-                for (let j = 0; j < n; j += 1 ) {
-                    result.set(i, j, m1.get(i, j))
-                }
-            }
-            for (let i = 0; i < row_m2; i += 1) {
-                for (let j = 0; j < n; j += 1 ) {
-                    result.set(row_m1 + i, j, m2.get(i, j))
-                }
-            }
-            return result
-        }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
-        }
-        else  if (this.activeControl === ActiveControl.inflections) {
-            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-        } else {
-            const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            warning.logMessageToConsole();
-            let result = new DenseMatrix(1, 1);
-            return result;
-        }
-    }
-  
-
-
     compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
         constraintsSign: number[], 
-        inactiveConstraints: number[]) {
+        inactiveConstraints: number[]): DenseMatrix {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
@@ -640,51 +370,47 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         const h3 = e.h3
         const h4 = e.h4
 
-
-        let dgx = []
-        let dgy = []
-        const controlPointsLength = this.spline.controlPoints.length
-        const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints
-        const degree = this.spline.degree
-
+        let dgx = [];
+        let dgy = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints;
+        const degree = this.spline.degree;
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h1_subset = h1.subset(start, lessThan)
-            let h2_subset = h2.subset(start, lessThan)
-            let h3_subset = h3.subset(start, lessThan)
-            let h4_subset = h4.subset(start, lessThan)
-            let h5 = this.Dsu[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.Dsu[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.Dsuuu[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.Dsu[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
-            let h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
             dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h1_subset = h1.subset(start, lessThan)
-            let h2_subset = h2.subset(start, lessThan)
-            let h3_subset = h3.subset(start, lessThan)
-            let h4_subset = h4.subset(start, lessThan)
-            let h5 = this.Dsu[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.Dsu[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.Dsuuu[i], start, lessThan);
-            let h8 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.Dsuu[i], start, lessThan);
-            let h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
             dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
 
-
         let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
-
 
         for (let i = 0; i < controlPointsLength; i += 1) {
             let cpx = dgx[i].flattenControlPointsArray();
@@ -712,46 +438,41 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         }
 
         return result;
-
-
     }
 
     compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
         constraintsSign: number[], 
-        inactiveConstraints: number[]) {
+        inactiveConstraints: number[]): DenseMatrix {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
         const syu = e.bdsyu
         const syuu = e.bdsyuu
 
-
-        let dgx = []
-        let dgy = []
-        const controlPointsLength = this.spline.controlPoints.length
-        const degree = this.spline.degree
-
+        let dgx = [];
+        let dgy = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const degree = this.spline.degree;
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
             dgx.push((h10.add(h11)));
         }
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
             dgy.push(h10.add(h11));
         }
 
        const totalNumberOfConstraints = this.inflectionConstraintsSign.length
 
        let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
-
 
        for (let i = 0; i < controlPointsLength; i += 1) {
            let cpx = dgx[i].flattenControlPointsArray();
@@ -779,8 +500,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
        }
 
        return result;
-
-
     }
 
     compute_hessian_f( sxu: BernsteinDecompositionR1toR1, 
@@ -819,32 +538,30 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         let hessian_gyy: number[][][] = []
         let hessian_gxy: number[][][] = []
 
-        for (let i = 0; i < n; i += 1){
-            hessian_gxx.push([])
-            hessian_gyy.push([])
-            hessian_gxy.push([])
+        for (let i = 0; i < n; i += 1) {
+            hessian_gxx.push([]);
+            hessian_gyy.push([]);
+            hessian_gxy.push([]);
         }
 
-        for (let i = 0; i < n; i += 1){
-            h5x.push(this.Dsu[i].multiply(sxu))
-            h6x.push(this.Dsu[i].multiply(syuuu))
-            h7x.push(syu.multiply(this.Dsuuu[i]).multiplyByScalar(-1))
-            h8x.push(this.Dsu[i].multiply(sxuu))
-            h9x.push(sxu.multiply(this.Dsuu[i]))
-            h10x.push(this.Dsu[i].multiply(syuu))
-            h11x.push(syu.multiply(this.Dsuu[i]).multiplyByScalar(-1))
+        for (let i = 0; i < n; i += 1) {
+            h5x.push(this.dBasisFunctions_du[i].multiply(sxu));
+            h6x.push(this.dBasisFunctions_du[i].multiply(syuuu));
+            h7x.push(syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1));
+            h8x.push(this.dBasisFunctions_du[i].multiply(sxuu));
+            h9x.push(sxu.multiply(this.d2BasisFunctions_du2[i]));
+            h10x.push(this.dBasisFunctions_du[i].multiply(syuu));
+            h11x.push(syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1));
         }
-        for (let i = 0; i < n; i += 1){
-            h5y.push(this.Dsu[i].multiply(syu))
-            h6y.push(this.Dsu[i].multiply(sxuuu).multiplyByScalar(-1))
-            h7y.push(sxu.multiply(this.Dsuuu[i]))
-            h8y.push(this.Dsu[i].multiply(syuu))
-            h9y.push(syu.multiply(this.Dsuu[i]))
-            h10y.push(this.Dsu[i].multiply(sxuu).multiplyByScalar(-1));
-            h11y.push(sxu.multiply(this.Dsuu[i]))
+        for (let i = 0; i < n; i += 1) {
+            h5y.push(this.dBasisFunctions_du[i].multiply(syu));
+            h6y.push(this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1));
+            h7y.push(sxu.multiply(this.d3BasisFunctions_du3[i]));
+            h8y.push(this.dBasisFunctions_du[i].multiply(syuu));
+            h9y.push(syu.multiply(this.d2BasisFunctions_du2[i]));
+            h10y.push(this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1));
+            h11y.push(sxu.multiply(this.d2BasisFunctions_du2[i]));
         }
-
-
         
         for (let i = 0; i < n; i += 1){
             for (let j = 0; j <= i; j += 1){
@@ -860,7 +577,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
                 hessian_gyy[i][j] = (term1.add(term2yy).add(term4).add(term5yy)).flattenControlPointsArray()
             }
         }
-        
         
         for (let i = 1; i < n; i += 1){
             for (let j = 0; j < i; j += 1){
@@ -896,7 +612,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
             // term6 = 0
             hessian_gxy[i][i] = (term2xy.add(term5xy)).flattenControlPointsArray();
         }
-
         
         let deltak = 0
         for (let k = 0; k < constraintsSign.length; k += 1){
@@ -943,7 +658,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
                 this.Dh6_7xy[i][j] = (Dsu[i].multiply(Dsuuu[j])).subtract(Dsu[j].multiply(Dsuuu[i]))
             }
         }
-        
         
         for (let i = 0; i < n; i += 1){
             for (let j = 0; j <= i; j += 1){
@@ -1043,8 +757,6 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends 
         }
         return 0.5 * result;
     }
-
-
 
 }
 
@@ -1234,13 +946,13 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
         this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
         this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
         this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
         this._f = this.compute_fGN(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints,
             this.revertConstraints, this.constraintBound)
         this.checkConstraintConsistency()
@@ -1251,7 +963,8 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this._gradient_f = this.compute_gradient_fGN(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints, this.revertConstraints)
         
         if (this.isComputingHessian) {
-            this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
+            // this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
+            this.prepareForHessianComputation(this.dBasisFunctions_du, this.d2BasisFunctions_du2, this.d3BasisFunctions_du3)
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
 
@@ -1270,12 +983,12 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                 if (this.activeControl === ActiveControl.both) {
                     typeC = constraintType.curvatureExtremum
                     indexC = i
-                    if(i < this._curvatureExtremaNumberOfActiveConstraints) {
+                    if(i < this.curvatureExtremaNumberOfActiveConstraints) {
                         for(let j = 0; j < this.curvatureExtremaInactiveConstraints.length; j +=1) {
                             if(i > this.curvatureExtremaInactiveConstraints[j]) indexC = indexC + 1
                         }
                     } else {
-                        indexC = i - this._curvatureExtremaNumberOfActiveConstraints
+                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints
                         typeC = constraintType.inflexion
                         for(let j = 0; j < this.inflectionInactiveConstraints.length; j +=1) {
                             if(i > this.inflectionInactiveConstraints[j]) indexC = indexC + 1
@@ -1907,7 +1620,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     compute_curvatureExtremaConstraints_gradientGN( e: ExpensiveComputationResults,
         constraintsSign: number[], 
         inactiveConstraints: number[],
-        revertConstraints: number[]) {
+        revertConstraints: number[]): DenseMatrix {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
@@ -1929,39 +1642,38 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
 
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h1_subset = h1.subset(start, lessThan)
-            let h2_subset = h2.subset(start, lessThan)
-            let h3_subset = h3.subset(start, lessThan)
-            let h4_subset = h4.subset(start, lessThan)
-            let h5 = this.Dsu[i].multiplyRange(sxu, start, lessThan);
-            let h6 = this.Dsu[i].multiplyRange(syuuu, start, lessThan);
-            let h7 = syu.multiplyRange(this.Dsuuu[i], start, lessThan).multiplyByScalar(-1);
-            let h8 = this.Dsu[i].multiplyRange(sxuu, start, lessThan);
-            let h9 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
-            let h10 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            let h11 = syu.multiplyRange(this.Dsuu[i], start, lessThan).multiplyByScalar(-1);
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
             dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
 
         for (let i = 0; i < controlPointsLength; i += 1) {
-            let start = Math.max(0, i - degree)
-            let lessThan = Math.min(controlPointsLength - degree, i + 1)
-            let h1_subset = h1.subset(start, lessThan)
-            let h2_subset = h2.subset(start, lessThan)
-            let h3_subset = h3.subset(start, lessThan)
-            let h4_subset = h4.subset(start, lessThan)
-            let h5 = this.Dsu[i].multiplyRange(syu, start, lessThan);
-            let h6 = this.Dsu[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
-            let h7 = sxu.multiplyRange(this.Dsuuu[i], start, lessThan);
-            let h8 = this.Dsu[i].multiplyRange(syuu, start, lessThan);
-            let h9 = syu.multiplyRange(this.Dsuu[i], start, lessThan);
-            let h10 = this.Dsu[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
-            let h11 = sxu.multiplyRange(this.Dsuu[i], start, lessThan);
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
             dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
         }
-
 
         let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
 
@@ -2083,14 +1795,14 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
             this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
             this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g)
         }
-        this._curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
 
         const curvatureNumerator = this.curvatureNumerator(e.h4)
         if(this.updateConstraintBound) {
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
             this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(this.inflectionConstraintsSign, curvatureNumerator)
         }
-        this._inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
         //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
         console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " revert " + this.revertConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign + " bound " + this.constraintBound)

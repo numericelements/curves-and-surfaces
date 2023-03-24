@@ -2,7 +2,7 @@ import { OptimizationProblemCtrlParameters } from "../bsplineOptimizationProblem
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { CurveShapeSpaceDescriptor } from "./CurveShapeSpaceDescriptor";
-import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
+import { EventMgmtState, ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { NavigationState } from "./NavigationState";
 import { EventMgmtAtCurveExtremities } from "../shapeNavigableCurve/EventMgmtAtCurveExtremities";
@@ -116,6 +116,10 @@ export class CurveShapeSpaceNavigator {
 
     getSlidingDifferentialEvents(): boolean {
         return this._shapeSpaceDiffEventsStructure.slidingDifferentialEvents;
+    }
+
+    getManagementDiffEventsAtExtremities(): EventMgmtState {
+        return this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities;
     }
 
     setActiveControlInflections(activeControlInflections: boolean): void {

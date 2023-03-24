@@ -1,24 +1,27 @@
 import {RoundDotSolidShader} from "../2DgraphicsItems/RoundDotSolidShader";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
+import { IObserver } from "../newDesignPatterns/Observer";
 import { AbstractPointView } from "./AbstractPointView";
 
 
-export abstract class SelectedDifferentialEventsView extends AbstractPointView {
+export abstract class SelectedDifferentialEventsView extends AbstractPointView implements IObserver<BSplineR1toR2Interface> {
 
     protected readonly Z = 0;
     protected DOT_SIZE = 0;
     protected RED_COLOR = 0;
     protected GREEN_COLOR = 0;
     protected BLUE_COLOR = 0;
-    protected ALPHA = 1;
+    protected readonly ALPHA = 1;
     protected readonly roundDotSolidShader: RoundDotSolidShader;
     protected indexBuffer: WebGLBuffer | null = null;
     protected vertices: Float32Array = new Float32Array([]);
     protected indices: Uint8Array = new Uint8Array([]);
+    protected pointLoc: number[];
 
     constructor(gl: WebGLRenderingContext) {
         super(gl);
+        this.pointLoc = [];
         this.roundDotSolidShader = new RoundDotSolidShader(this.gl);
-
     }
 
     updateVerticesAndIndices() {
@@ -83,6 +86,20 @@ export abstract class SelectedDifferentialEventsView extends AbstractPointView {
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+
+    abstract update(spline: BSplineR1toR2Interface): void;
+    
+    updatePoints(pointLoc: number[]): void {
+        this.pointLoc = [];
+        for(let point of pointLoc) {
+            this.pointLoc.push(point);
+        }
+    }
+
+    clearPoints(): void {
+        this.pointLoc = [];
+        this.pointSequenceToDisplay = [];
     }
 
 }

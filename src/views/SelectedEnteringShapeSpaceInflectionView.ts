@@ -7,12 +7,10 @@ import { WarningLog } from "../errorProcessing/ErrorLoging";
 
 export class SelectedEnteringShapeSpaceInflectionView extends SelectedDifferentialEventsView {
 
-    protected readonly Z = 0;
     protected readonly DOT_SIZE = 0.02;
     protected readonly RED_COLOR = 0 / 255;
     protected readonly GREEN_COLOR = 0 / 255;
     protected readonly BLUE_COLOR = 120 / 255;
-    protected readonly ALPHA = 1;
     protected vertexBuffer: WebGLBuffer | null = null;
     protected indexBuffer: WebGLBuffer | null = null;
     protected vertices: Float32Array = new Float32Array([]);
@@ -26,6 +24,7 @@ export class SelectedEnteringShapeSpaceInflectionView extends SelectedDifferenti
         super(gl);
         let points: Array<Vector2d> = [];
         for(let pt of pointLoc) {
+            this.pointLoc.push(pt);
             points.push(spline.evaluate(pt));
         }
         this.pointSequenceToDisplay = points.slice();
@@ -41,7 +40,7 @@ export class SelectedEnteringShapeSpaceInflectionView extends SelectedDifferenti
             warning.logMessageToConsole();
         }
 
-        this.update(spline, pointLoc);
+        this.update(spline);
     }
 
     initAttribLocation(): void {
@@ -121,10 +120,10 @@ export class SelectedEnteringShapeSpaceInflectionView extends SelectedDifferenti
     }
 
 
-    update(spline: BSplineR1toR2Interface, pointLoc: number[]): void {
+    update(spline: BSplineR1toR2Interface): void {
         let points: Array<Vector2d> = [];
-        for(let i = 0; i < pointLoc.length; i += 1) {
-            points.push(spline.evaluate(pointLoc[i]))
+        for(let i = 0; i < this.pointLoc.length; i += 1) {
+            points.push(spline.evaluate(this.pointLoc[i]))
         }
         this.pointSequenceToDisplay = points.slice()
         this.updateVerticesAndIndices()
