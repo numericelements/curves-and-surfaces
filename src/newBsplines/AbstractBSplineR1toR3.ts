@@ -85,6 +85,12 @@ export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Ve
      */
     abstract clone() : AbstractBSplineR1toR3;
 
+    /**
+     * Return a b-spline of derived class type
+     */
+    // hereunder former version of the method
+    // protected abstract factory(controlPoints: readonly Vector3d[], knots: readonly number[]): AbstractBSplineR1toR3;
+    protected abstract factory(controlPoints: Vector3d[], knots: number[]): AbstractBSplineR1toR3;
 
     abstract optimizerStep(step: number[]) : void;
 
@@ -124,6 +130,17 @@ export abstract class AbstractBSplineR1toR3 implements BSplineR1toRxInterface<Ve
         this._controlPoints[i].y += deltaY;
     }
 
+    moveControlPoints(delta: Vector3d[]): AbstractBSplineR1toR3 {
+        const n = this._controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
+        }
+        let controlPoints = this._controlPoints;
+        for (let i = 0; i < n; i += 1) {
+            controlPoints[i] = controlPoints[i].add(delta[i]);
+        }
+        return this.factory(controlPoints, this._knots);
+    }
 
     setControlPointPosition(index: number, value: Vector3d): void {
         this._controlPoints[index] =  value;

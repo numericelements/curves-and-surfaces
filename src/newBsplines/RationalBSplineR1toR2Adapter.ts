@@ -22,6 +22,11 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         this.rationalBSplineR1toR2 = new RationalBSplineR1toR2(this._controlPoints, knots);
     }
 
+    // protected override factory(controlPoints: readonly Vector3d[] = [new Vector3d(0, 0)], knots: readonly number[] = [0, 1]) {
+        protected factory(controlPoints: Vector3d[] = [new Vector3d(0, 0)], knots: number[] = [0, 1]): RationalBSplineR1toR2Adapter {
+            return new RationalBSplineR1toR2Adapter(controlPoints, knots);
+        }
+
     getControlPointsX(): number[] {
         let result: number[] = [];
         for (let cp of this.rationalBSplineR1toR2.controlPoints) {
@@ -113,6 +118,19 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         }
         this.rationalBSplineR1toR2.controlPoints[i].x += deltaX;
         this.rationalBSplineR1toR2.controlPoints[i].y += deltaY;
+    }
+
+    moveControlPoints(delta: Vector2d[]): RationalBSplineR1toR2Adapter {
+        const n = this._controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
+        }
+        let controlPoints = this._controlPoints;
+        // JCL method to be updated for rational BSplines
+        // for (let i = 0; i < n; i += 1) {
+        //     controlPoints[i] = controlPoints[i].add(delta[i]);
+        // }
+        return this.factory(controlPoints, this.knots);
     }
 
     setControlPointPosition(index: number, value: Vector2d): void {

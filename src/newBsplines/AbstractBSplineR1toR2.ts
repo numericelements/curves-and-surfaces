@@ -86,6 +86,13 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
      */
     abstract clone() : AbstractBSplineR1toR2;
 
+    /**
+     * Return a b-spline of derived class type
+     */
+    // hereunder former version of the method
+    // protected abstract factory(controlPoints: readonly Vector2d[], knots: readonly number[]): AbstractBSplineR1toR2;
+    protected abstract factory(controlPoints: Vector2d[], knots: number[]): AbstractBSplineR1toR2;
+
     abstract evaluateOutsideRefInterval(u: number): Vector2d;
 
     abstract elevateDegree(): void;
@@ -136,6 +143,17 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         this._controlPoints[i].y += deltaY;
     }
 
+    moveControlPoints(delta: Vector2d[]): AbstractBSplineR1toR2 {
+        const n = this._controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
+        }
+        let controlPoints = this._controlPoints;
+        for (let i = 0; i < n; i += 1) {
+            controlPoints[i] = controlPoints[i].add(delta[i]);
+        }
+        return this.factory(controlPoints, this._knots);
+    }
 
     setControlPointPosition(index: number, value: Vector2d): void {
         this._controlPoints[index] =  value;

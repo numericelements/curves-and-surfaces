@@ -13,6 +13,11 @@ export class RationalBSplineR1toR2 extends BSplineR1toR3 {
         super(controlPoints, knots);
     }
 
+    // protected override factory(controlPoints: readonly Vector3d[] = [new Vector3d(0, 0)], knots: readonly number[] = [0, 1]) {
+    protected factory(controlPoints: Vector3d[] = [new Vector3d(0, 0)], knots: number[] = [0, 1]): RationalBSplineR1toR2 {
+        return new RationalBSplineR1toR2(controlPoints, knots);
+    }
+
     evaluate(u: number) : Vector2d {
         let result = super.evaluate(u) as Vector3d;
         return new Vector2d(result.x / result.z, result.y / result.z);

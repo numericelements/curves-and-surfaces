@@ -134,7 +134,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     abstract computeBasisFunctionsDerivatives(): void;
 
     step(deltaX: number[]): boolean {
-        // this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX))
+        this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
         this._gradient_f0 = this.compute_gradient_f0(this._spline)
         this._f0 = this.compute_f0(this._gradient_f0)
         const e = this.expensiveComputation(this._spline)  
@@ -154,7 +154,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
 
     fStep(step: number[]): number[] {
         let splineTemp = this.spline.clone()
-        // splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step))
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
         let e = this.expensiveComputation(splineTemp)
         const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
         const curvatureNumerator = this.curvatureNumerator(e.h4)
@@ -163,7 +163,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
 
     f0Step(step: number[]): number {
         let splineTemp = this.spline.clone()
-        // splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step))
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
         return this.compute_f0(this.compute_gradient_f0(splineTemp))
     }
 

@@ -23,6 +23,10 @@ export class BSplineR1toR3 extends AbstractBSplineR1toR3 {
         return this.controlPoints
     }
 
+    // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
+    protected factory(controlPoints: Vector3d[] = [new Vector3d(0, 0)], knots: number[] = [0, 1]): BSplineR1toR3 {
+        return new BSplineR1toR3(controlPoints, knots);
+    }
 
     /**
      * Return a deep copy of this b-spline

@@ -38301,7 +38301,7 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         configurable: true
     });
     BaseOpProblemBSplineR1toR2.prototype.step = function (deltaX) {
-        // this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX))
+        this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
         var e = this.expensiveComputation(this._spline);
@@ -38320,7 +38320,7 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
     };
     BaseOpProblemBSplineR1toR2.prototype.fStep = function (step) {
         var splineTemp = this.spline.clone();
-        // splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step))
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
         var e = this.expensiveComputation(splineTemp);
         var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
         var curvatureNumerator = this.curvatureNumerator(e.h4);
@@ -38328,7 +38328,7 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
     };
     BaseOpProblemBSplineR1toR2.prototype.f0Step = function (step) {
         var splineTemp = this.spline.clone();
-        // splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step))
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
         return this.compute_f0(this.compute_gradient_f0(splineTemp));
     };
     BaseOpProblemBSplineR1toR2.prototype.expensiveComputation = function (spline) {
@@ -52880,6 +52880,17 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
         this._controlPoints[i].x += deltaX;
         this._controlPoints[i].y += deltaY;
     };
+    AbstractBSplineR1toR2.prototype.moveControlPoints = function (delta) {
+        var n = this._controlPoints.length;
+        if (delta.length !== n) {
+            throw new Error("Array of unexpected dimension");
+        }
+        var controlPoints = this._controlPoints;
+        for (var i = 0; i < n; i += 1) {
+            controlPoints[i] = controlPoints[i].add(delta[i]);
+        }
+        return this.factory(controlPoints, this._knots);
+    };
     AbstractBSplineR1toR2.prototype.setControlPointPosition = function (index, value) {
         this._controlPoints[index] = value;
     };
@@ -53546,6 +53557,12 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
+    BSplineR1toR2.prototype.factory = function (controlPoints, knots) {
+        if (controlPoints === void 0) { controlPoints = [new Vector2d_1.Vector2d(0, 0)]; }
+        if (knots === void 0) { knots = [0, 1]; }
+        return new BSplineR1toR2(controlPoints, knots);
+    };
     /**
      * Return a deep copy of this b-spline
      */
@@ -54390,6 +54407,12 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
+    PeriodicBSplineR1toR2.prototype.factory = function (controlPoints, knots) {
+        if (controlPoints === void 0) { controlPoints = [new Vector2d_1.Vector2d(0, 0)]; }
+        if (knots === void 0) { knots = [0, 1]; }
+        return new PeriodicBSplineR1toR2(controlPoints, knots);
+    };
     PeriodicBSplineR1toR2.prototype.getClampSpline = function () {
         var s = this.clone();
         var degree = this._degree;
