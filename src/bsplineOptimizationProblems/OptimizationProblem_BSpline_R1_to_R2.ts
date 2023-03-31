@@ -11,6 +11,7 @@ import { NeighboringEvents, NeighboringEventsType } from "../controllers/Sliding
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { ActiveControl, BaseOpProblemBSplineR1toR2, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2";
+import { PolygonWithVerticesR1 } from "../containers/PolygonWithVerticesR1";
 
 
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
@@ -262,26 +263,31 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     //     return result
     // }
 
-    computeInactiveConstraints(controlPoints: number[]) {
+    computeInactiveConstraints(controlPoints: number[]): number[] {
         let constraintsSign = this.computeConstraintsSign(controlPoints);
-        let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
-        let controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints)
-        let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints)
-        return result
+        let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
+        let controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints);
+        let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
+        return result;
     }
 
-    g() {
-        const e = this.expensiveComputation(this.spline)
-        return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+    g(): number[] {
+        const e = this.expensiveComputation(this.spline);
+        return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
     }
 
-    gradient_g() {
-        const e = this.expensiveComputation(this.spline)
-        return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4)
+    gradient_g(): DenseMatrix {
+        const e = this.expensiveComputation(this.spline);
+        return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
 
     }
 
-    compute_f(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[]) {
+    compute_f(  curvatureNumerator: number[],
+                inflectionConstraintsSign: number[],
+                inflectionInactiveConstraints: number[],
+                curvatureDerivativeNumerator: number[],
+                curvatureExtremaConstraintsSign: number[],
+                curvatureExtremaInactiveConstraints: number[]): number[] {
         let result: number[] = [];
 
         if (this.activeControl === ActiveControl.both) {
@@ -300,7 +306,6 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
             warning.logMessageToConsole();
             return result;
         }
-       
     }
 
     gradient_curvatureDerivativeNumerator( sxu: BernsteinDecompositionR1toR1, 
@@ -312,7 +317,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
                 h1: BernsteinDecompositionR1toR1, 
                 h2: BernsteinDecompositionR1toR1, 
                 h3: BernsteinDecompositionR1toR1, 
-                h4: BernsteinDecompositionR1toR1) {
+                h4: BernsteinDecompositionR1toR1): DenseMatrix {
 
         let dgx = []
         let dgy = []
@@ -441,8 +446,8 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     }
 
     compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]): DenseMatrix {
+                                            constraintsSign: number[], 
+                                            inactiveConstraints: number[]): DenseMatrix {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
@@ -503,17 +508,17 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     }
 
     compute_hessian_f( sxu: BernsteinDecompositionR1toR1, 
-        syu: BernsteinDecompositionR1toR1, 
-        sxuu: BernsteinDecompositionR1toR1, 
-        syuu: BernsteinDecompositionR1toR1, 
-        sxuuu: BernsteinDecompositionR1toR1, 
-        syuuu: BernsteinDecompositionR1toR1, 
-        h1: BernsteinDecompositionR1toR1, 
-        h2: BernsteinDecompositionR1toR1, 
-        h3: BernsteinDecompositionR1toR1, 
-        h4: BernsteinDecompositionR1toR1,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]) {
+                        syu: BernsteinDecompositionR1toR1, 
+                        sxuu: BernsteinDecompositionR1toR1, 
+                        syuu: BernsteinDecompositionR1toR1, 
+                        sxuuu: BernsteinDecompositionR1toR1, 
+                        syuuu: BernsteinDecompositionR1toR1, 
+                        h1: BernsteinDecompositionR1toR1, 
+                        h2: BernsteinDecompositionR1toR1, 
+                        h3: BernsteinDecompositionR1toR1, 
+                        h4: BernsteinDecompositionR1toR1,
+                        constraintsSign: number[], 
+                        inactiveConstraints: number[]): SymmetricMatrix[] {
 
 
         const n = this.spline.controlPoints.length
@@ -637,7 +642,9 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         return result;
     }
     
-    prepareForHessianComputation(Dsu: BernsteinDecompositionR1toR1[], Dsuu: BernsteinDecompositionR1toR1[], Dsuuu: BernsteinDecompositionR1toR1[]) {
+    prepareForHessianComputation(Dsu: BernsteinDecompositionR1toR1[],
+                                Dsuu: BernsteinDecompositionR1toR1[],
+                                Dsuuu: BernsteinDecompositionR1toR1[]): void {
         const n = this.spline.controlPoints.length
 
         for (let i = 0; i < n; i += 1){
@@ -676,7 +683,7 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     /**
      * The vector of constraint functions values: f(x + step)
      */
-    fStep(step: number[]) {
+    fStep(step: number[]): number[] {
         let splineTemp = this.spline.clone()
         splineTemp.optimizerStep(step)
         let e = this.expensiveComputation(splineTemp)
@@ -688,17 +695,16 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     /**
      * The objective function value: f0(x + step)
      */
-    f0Step(step: number[]) {
+    f0Step(step: number[]): number {
         let splineTemp = this.spline.clone()
         splineTemp.optimizerStep(step)
         return this.compute_f0(this.compute_gradient_f0(splineTemp))
     }
 
-    setTargetSpline(spline: BSplineR1toR2) {
+    setTargetSpline(spline: BSplineR1toR2): void {
         this._target = spline.clone()
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this.gradient_f0)
-        
     }
 
 }
@@ -746,14 +752,14 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends 
     /**
      * The objective function value: f0(x + step)
      */
-    f0Step(step: number[]) {
-        let splineTemp = this.spline.clone()
-        splineTemp.optimizerStep(step)
-        const gradient = this.compute_gradient_f0(splineTemp)
-        const n = gradient.length
-        let result = 0
+    f0Step(step: number[]): number {
+        let splineTemp = this.spline.clone();
+        splineTemp.optimizerStep(step);
+        const gradient = this.compute_gradient_f0(splineTemp);
+        const n = gradient.length;
+        let result = 0;
         for (let i = 0; i < n; i += 1) {
-            result += Math.pow(gradient[i], 2) * this.weigthingFactors[i]
+            result += Math.pow(gradient[i], 2) * this.weigthingFactors[i];
         }
         return 0.5 * result;
     }
@@ -907,32 +913,7 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         }
         
         if(this.spline.degree === 3) {
-            /* JCL Specific treatment for event sliding with cubics */
-            let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
-            if(this.spline.degree === 3 && this.spline.knots.length > 8) {
-                /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
-                /*let knots = this.spline.knots
-                this.updateConstraintBound = true
-                for(let i = 4; i < (knots.length - 4); i += 1) {
-                    if(this.spline.knotMultiplicity(knots[i]) === 1) {
-                        intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
-                        this.eventInsideKnotNeighborhood.push(false)
-                        this.eventMoveAtIterationStart.push(eventMove.still)
-                        this.eventEnterKnotNeighborhood.push(false)
-                    }
-                }
-                const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
-                const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
-                const curvatureExtremaLocationsOptim = functionBOptim.zeros()
-                for(let i = 0; i < intermediateKnots.length; i += 1) {
-                    for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
-                        if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
-                        curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
-                            if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
-                        }
-                    }
-                }*/
-            }
+            this.processCubics();
         }
 
         const e = this.expensiveComputation(this.spline)  
@@ -963,109 +944,144 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         this._gradient_f = this.compute_gradient_fGN(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints, this.revertConstraints)
         
         if (this.isComputingHessian) {
-            // this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
             this.prepareForHessianComputation(this.dBasisFunctions_du, this.d2BasisFunctions_du2, this.d3BasisFunctions_du3)
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
 
     }
 
-    checkConstraintConsistency() {
-        /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
-            As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
-            Consequently, each active constraint value must be negative. */
-        enum constraintType {curvatureExtremum, inflexion}
-        let invalidConstraints: {value: number, type: constraintType, index: number}[] = []
-        for(let i = 0; i < this._f.length; i += 1) {
-            if(this._f[i] > 0.0) {
-                let typeC: constraintType
-                let indexC: number
-                if (this.activeControl === ActiveControl.both) {
-                    typeC = constraintType.curvatureExtremum
-                    indexC = i
-                    if(i < this.curvatureExtremaNumberOfActiveConstraints) {
-                        for(let j = 0; j < this.curvatureExtremaInactiveConstraints.length; j +=1) {
-                            if(i > this.curvatureExtremaInactiveConstraints[j]) indexC = indexC + 1
-                        }
-                    } else {
-                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints
-                        typeC = constraintType.inflexion
-                        for(let j = 0; j < this.inflectionInactiveConstraints.length; j +=1) {
-                            if(i > this.inflectionInactiveConstraints[j]) indexC = indexC + 1
-                        }
-                    }
-                } else if(this.activeControl === ActiveControl.curvatureExtrema) {
-                    typeC = constraintType.curvatureExtremum
-                    indexC = i
-                    for(let j = 0; j < this.curvatureExtremaInactiveConstraints.length; j +=1) {
-                        if(i > this.curvatureExtremaInactiveConstraints[j]) indexC = indexC + 1
-                    }
-                } else {
-                    typeC = constraintType.inflexion
-                    indexC = i
-                    for(let j = 0; j < this.inflectionInactiveConstraints.length; j +=1) {
-                        if(i > this.inflectionInactiveConstraints[j]) indexC = indexC + 1
+    processCubics(): void {
+        /* JCL Specific treatment for event sliding with cubics */
+        let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
+        if(this.spline.degree === 3 && this.spline.knots.length > 8) {
+            /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
+            /*let knots = this.spline.knots
+            this.updateConstraintBound = true
+            for(let i = 4; i < (knots.length - 4); i += 1) {
+                if(this.spline.knotMultiplicity(knots[i]) === 1) {
+                    intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
+                    this.eventInsideKnotNeighborhood.push(false)
+                    this.eventMoveAtIterationStart.push(eventMove.still)
+                    this.eventEnterKnotNeighborhood.push(false)
+                }
+            }
+            const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+            const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+            const curvatureExtremaLocationsOptim = functionBOptim.zeros()
+            for(let i = 0; i < intermediateKnots.length; i += 1) {
+                for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
+                    if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
+                    curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
+                        if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
                     }
                 }
-                invalidConstraints.push({value: this._f[i], type: typeC, index: indexC})
-            }
-        }
-        if(invalidConstraints.length > 0) {
-            throw new Error("Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints))
+            }*/
         }
     }
 
-    computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
-        let localExtremum = -1
-        let localMinimum: Array<ExtremumLocation> = []
-        let localMaximum: Array<ExtremumLocation> = []
-        let globalMinimum:ExtremumLocation = {index: 0, value: 0.0}
-        let globalMaximum:ExtremumLocation = {index: 0, value: 0.0}
-        for(let i = 0; i < controlPoints.length - 2; i += 1) {
-            if(sign(controlPoints[i]) === 1 && sign(controlPoints[i + 1]) === 1 && sign(controlPoints[i + 2]) === 1) {
-                if(controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
-                    localMinimum.push({index: (i + 1), value: controlPoints[i + 1]})
+    checkConstraintConsistency(): void {
+        /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
+            As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
+            Consequently, each active constraint value must be negative. */
+        enum constraintType {curvatureExtremum, inflexion};
+        let invalidConstraints: {value: number, type: constraintType, index: number}[] = [];
+        for(let i = 0; i < this._f.length; i += 1) {
+            if(this._f[i] > 0.0) {
+                let typeC: constraintType;
+                let indexC: number;
+                if(this.activeControl === ActiveControl.both) {
+                    typeC = constraintType.curvatureExtremum;
+                    indexC = i;
+                    if(i < this.curvatureExtremaNumberOfActiveConstraints) {
+                        for(let constraintIndex of this.curvatureExtremaInactiveConstraints) {
+                            if(i > constraintIndex) indexC = indexC + 1;
+                        }
+                    } else {
+                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints;
+                        typeC = constraintType.inflexion;
+                        for(let constraintIndex of this.inflectionInactiveConstraints) {
+                            if(i > constraintIndex) indexC = indexC + 1;
+                        }
+                    }
+                } else if(this.activeControl === ActiveControl.curvatureExtrema) {
+                    typeC = constraintType.curvatureExtremum;
+                    indexC = i;
+                    for(let constraintIndex of this.curvatureExtremaInactiveConstraints) {
+                        if(i > constraintIndex) indexC = indexC + 1;
+                    }
+                } else {
+                    typeC = constraintType.inflexion;
+                    indexC = i;
+                    for(let constraintIndex of this.inflectionInactiveConstraints) {
+                        if(i > constraintIndex) indexC = indexC + 1;
+                    }
                 }
-            } else if(sign(controlPoints[i]) === -1 && sign(controlPoints[i + 1]) === -1 && sign(controlPoints[i + 2]) === -1) {
-                if(controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
-                    localMaximum.push({index: (i + 1), value: controlPoints[i + 1]})
-                }
+                invalidConstraints.push({value: this._f[i], type: typeC, index: indexC});
             }
         }
-        if(localMinimum.length > 0) {
-            localMinimum.sort(function(a, b) {
-                if (a.value > b.value) {
-                  return 1;
-                }
-                if (a.value < b.value) {
-                  return -1;
-                }
-                return 0;
-            })
-            globalMinimum = {index: localMinimum[0].index, value: localMinimum[0].value}
+        if(invalidConstraints.length > 0) {
+            const message = "Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints);
+            const error = new ErrorLog(this.constructor.name, "checkConstraintConsistency", message);
+            error.logMessageToConsole();
         }
-        if(localMaximum.length > 0) {
-            localMaximum.sort(function(a, b) {
-                if (a.value > b.value) {
-                  return 1;
-                }
-                if (a.value < b.value) {
-                  return -1;
-                }
-                return 0;
-            })
-            globalMaximum = {index: localMaximum[localMaximum.length - 1].index, value: localMaximum[localMaximum.length - 1].value}
-        }
-        if(localMinimum.length > 0 && localMaximum.length > 0 && Math.abs(globalMinimum.value) > Math.abs(globalMaximum.value)) {
-            return localExtremum = globalMaximum.index
-        } else if(localMinimum.length > 0 && localMaximum.length > 0) {
-            return localExtremum = globalMinimum.index
-        } else if(localMinimum.length > 0) {
-            return localExtremum = globalMinimum.index
-        } else if(localMaximum.length > 0) {
-            return localExtremum = globalMaximum.index
-        } else return localExtremum
     }
+
+    // computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
+    //     let localExtremum = -1
+    //     let localMinimum: Array<ExtremumLocation> = []
+    //     let localMaximum: Array<ExtremumLocation> = []
+    //     let globalMinimum:ExtremumLocation = {index: 0, value: 0.0}
+    //     let globalMaximum:ExtremumLocation = {index: 0, value: 0.0}
+    //     for(let i = 0; i < controlPoints.length - 2; i += 1) {
+    //         if(sign(controlPoints[i]) === 1 && sign(controlPoints[i + 1]) === 1 && sign(controlPoints[i + 2]) === 1) {
+    //             if(controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
+    //                 localMinimum.push({index: (i + 1), value: controlPoints[i + 1]})
+    //             }
+    //         } else if(sign(controlPoints[i]) === -1 && sign(controlPoints[i + 1]) === -1 && sign(controlPoints[i + 2]) === -1) {
+    //             if(controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
+    //                 localMaximum.push({index: (i + 1), value: controlPoints[i + 1]})
+    //             }
+    //         }
+    //     }
+    //     if(localMinimum.length > 0) {
+    //         localMinimum.sort(function(a, b) {
+    //             if (a.value > b.value) {
+    //               return 1;
+    //             }
+    //             if (a.value < b.value) {
+    //               return -1;
+    //             }
+    //             return 0;
+    //         })
+    //         globalMinimum = {index: localMinimum[0].index, value: localMinimum[0].value}
+    //     }
+    //     if(localMaximum.length > 0) {
+    //         localMaximum.sort(function(a, b) {
+    //             if (a.value > b.value) {
+    //               return 1;
+    //             }
+    //             if (a.value < b.value) {
+    //               return -1;
+    //             }
+    //             return 0;
+    //         })
+    //         globalMaximum = {index: localMaximum[localMaximum.length - 1].index, value: localMaximum[localMaximum.length - 1].value}
+    //     }
+    //     if(localMinimum.length > 0 && localMaximum.length > 0 && Math.abs(globalMinimum.value) > Math.abs(globalMaximum.value)) {
+    //         return localExtremum = globalMaximum.index
+    //     } else if(localMinimum.length > 0 && localMaximum.length > 0) {
+    //         return localExtremum = globalMinimum.index
+    //     } else if(localMinimum.length > 0) {
+    //         return localExtremum = globalMinimum.index
+    //     } else if(localMaximum.length > 0) {
+    //         return localExtremum = globalMaximum.index
+    //     } else return localExtremum
+    // }
+
+    // computeControlPointsClosestToZero(): number[] {
+    //     let result: number[] = []
+    //     return result;
+    // }
 
     computeControlPointsClosestToZeroGeneralNavigation(signChangesIntervals: number[], controlPoints: number[]) {
         let result: number[] = []
@@ -1187,7 +1203,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     computeInactiveConstraintsGN(constraintsSign: number[], controlPoints: number[]) {
         let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign)
         let controlPointsClosestToZero = this.computeControlPointsClosestToZeroGeneralNavigation(signChangesIntervals, controlPoints)
-        let globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints)
+        let polygonOfCtrlPts = new PolygonWithVerticesR1(controlPoints);
+        let globalExtremumOffAxis = polygonOfCtrlPts.extractClosestLocalExtremmumToAxis().index;
+        // let globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints)
         if(globalExtremumOffAxis !== -1) {
             controlPointsClosestToZero.push(globalExtremumOffAxis)
             controlPointsClosestToZero.sort(function(a, b) { return (a - b) })

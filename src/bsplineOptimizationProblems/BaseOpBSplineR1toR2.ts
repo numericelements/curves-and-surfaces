@@ -162,9 +162,9 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
 
     f0Step(step: number[]): number {
-        let splineTemp = this.spline.clone()
+        let splineTemp = this.spline.clone();
         splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
-        return this.compute_f0(this.compute_gradient_f0(splineTemp))
+        return this.compute_f0(this.compute_gradient_f0(splineTemp));
     }
 
     expensiveComputation(spline: BSplineR1toR2Interface): ExpensiveComputationResults {
@@ -222,7 +222,8 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         return 0.5 * result;
     }
 
-    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]): number[] {
+    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[],
+                                        inactiveConstraints: number[]): number[] {
         let result: number[] = [];
         for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
@@ -234,7 +235,8 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         return result;
     }
 
-    compute_inflectionConstraints(curvatureNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]): number[] {
+    compute_inflectionConstraints(curvatureNumerator: number[], constraintsSign: number[],
+                                inactiveConstraints: number[]): number[] {
         let result: number[] = [];
         for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
@@ -259,7 +261,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
 
 
-    computeConstraintsSign(controlPoints: number[]) {
+    computeConstraintsSign(controlPoints: number[]): number[] {
         let result: number[] = []
         for (let i = 0, n = controlPoints.length; i < n; i += 1) {
             if (controlPoints[i] > 0) {
@@ -268,10 +270,15 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
                 result.push(1);
             }
         }
-        return result
+        return result;
     }
 
-    compute_f(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[]) {
+    compute_f(  curvatureNumerator: number[],
+                inflectionConstraintsSign: number[],
+                inflectionInactiveConstraints: number[],
+                curvatureDerivativeNumerator: number[],
+                curvatureExtremaConstraintsSign: number[],
+                curvatureExtremaInactiveConstraints: number[]): number[] {
         if (this.activeControl === ActiveControl.both) {
             const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
             const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
@@ -284,14 +291,13 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         else {
             return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
         }
-        
     }
     
     compute_gradient_f( e: ExpensiveComputationResults,
-        inflectionConstraintsSign: number[],
-        inflectionInactiveConstraints: number[],
-        curvatureExtremaConstraintsSign: number[], 
-        curvatureExtremaInactiveConstraints: number[]) {
+                        inflectionConstraintsSign: number[],
+                        inflectionInactiveConstraints: number[],
+                        curvatureExtremaConstraintsSign: number[], 
+                        curvatureExtremaInactiveConstraints: number[]): DenseMatrix {
             if (this.activeControl === ActiveControl.both) {
                 const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
                 const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
@@ -358,11 +364,11 @@ export interface ExpensiveComputationResults {
     h4: BernsteinDecompositionR1toR1 
 }
 
-export function convertStepToVector2d(step: number[]) {
-    let n = step.length / 2
-    let result: Vector2d[] = []
+export function convertStepToVector2d(step: number[]): Vector2d[] {
+    let n = step.length / 2;
+    let result: Vector2d[] = [];
     for (let i = 0; i < n; i += 1) {
-        result.push(new Vector2d(step[i], step[n + i]))
+        result.push(new Vector2d(step[i], step[n + i]));
     }
-    return result
+    return result;
 }

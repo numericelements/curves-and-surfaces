@@ -51,7 +51,7 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
         return result
     }
 
-    extractChangingSignControlPointsSequences(controlPoints: number[]) {
+    extractChangingSignControlPointsSequences(controlPoints: number[]): {index: number, value: number}[][] {
         let result: {index: number, value: number}[][] = []
         let successiveControlPoints: {index: number, value: number}[] = []
         let i = 1
@@ -72,7 +72,7 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
         return result
     }
 
-    extractControlPointsClosestToZero(polygonSegments: {index: number, value: number}[][]) {
+    extractControlPointsClosestToZero(polygonSegments: {index: number, value: number}[][]): number[] {
         let result: number[] = []
         for (let polygonSegment of polygonSegments) {
             let s = this.removeBiggest(polygonSegment)
@@ -98,8 +98,8 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
 
     
     compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]) {
+                                                constraintsSign: number[], 
+                                                inactiveConstraints: number[]) {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
@@ -235,7 +235,6 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
         }
 
 
-        
         for (let i = periodicControlPointsLength; i < periodicControlPointsLength + degree; i += 1) {
             // index i : moved control point + periodicControlPointsLength
             let cpx = dgx[i].flattenControlPointsArray()
@@ -265,8 +264,8 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
     }
     
     compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]) {
+                                            constraintsSign: number[], 
+                                            inactiveConstraints: number[]) {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
@@ -382,11 +381,7 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
                 }
             }
         }
-
-
        return result
-
-
     }
 
     computeBasisFunctionsDerivatives() {

@@ -39046,6 +39046,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var __read = (this && this.__read) || function (o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
@@ -39073,6 +39084,7 @@ var SlidingStrategy_1 = __webpack_require__(/*! ../controllers/SlidingStrategy *
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
+var PolygonWithVerticesR1_1 = __webpack_require__(/*! ../containers/PolygonWithVerticesR1 */ "./src/containers/PolygonWithVerticesR1.ts");
 var eventMove;
 (function (eventMove) {
     eventMove[eventMove["still"] = 0] = "still";
@@ -39860,32 +39872,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             _this.neighboringEvent.knotIndex = 0;
         }
         if (_this.spline.degree === 3) {
-            /* JCL Specific treatment for event sliding with cubics */
-            var intermediateKnots = [];
-            if (_this.spline.degree === 3 && _this.spline.knots.length > 8) {
-                /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
-                /*let knots = this.spline.knots
-                this.updateConstraintBound = true
-                for(let i = 4; i < (knots.length - 4); i += 1) {
-                    if(this.spline.knotMultiplicity(knots[i]) === 1) {
-                        intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
-                        this.eventInsideKnotNeighborhood.push(false)
-                        this.eventMoveAtIterationStart.push(eventMove.still)
-                        this.eventEnterKnotNeighborhood.push(false)
-                    }
-                }
-                const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
-                const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
-                const curvatureExtremaLocationsOptim = functionBOptim.zeros()
-                for(let i = 0; i < intermediateKnots.length; i += 1) {
-                    for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
-                        if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
-                        curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
-                            if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
-                        }
-                    }
-                }*/
-            }
+            _this.processCubics();
         }
         var e = _this.expensiveComputation(_this.spline);
         var g = _this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
@@ -39915,13 +39902,41 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             console.log("inflexion constraints at init:" + _this.inflectionInactiveConstraints);
         _this._gradient_f = _this.compute_gradient_fGN(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints, _this.revertConstraints);
         if (_this.isComputingHessian) {
-            // this.prepareForHessianComputation(this.Dsu, this.Dsuu, this.Dsuuu)
             _this.prepareForHessianComputation(_this.dBasisFunctions_du, _this.d2BasisFunctions_du2, _this.d3BasisFunctions_du3);
             _this._hessian_f = _this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
         }
         return _this;
     }
+    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.processCubics = function () {
+        /* JCL Specific treatment for event sliding with cubics */
+        var intermediateKnots = [];
+        if (this.spline.degree === 3 && this.spline.knots.length > 8) {
+            /* JCL 04/01/2021 Look for the location of intermediate knots of multiplicity one wrt curvature extrema */
+            /*let knots = this.spline.knots
+            this.updateConstraintBound = true
+            for(let i = 4; i < (knots.length - 4); i += 1) {
+                if(this.spline.knotMultiplicity(knots[i]) === 1) {
+                    intermediateKnots.push({knot: knots[i], left: knots[i - 1], right: knots[i + 1], index: i})
+                    this.eventInsideKnotNeighborhood.push(false)
+                    this.eventMoveAtIterationStart.push(eventMove.still)
+                    this.eventEnterKnotNeighborhood.push(false)
+                }
+            }
+            const splineDPoptim = new BSpline_R1_to_R2_DifferentialProperties(this.spline)
+            const functionBOptim = splineDPoptim.curvatureDerivativeNumerator()
+            const curvatureExtremaLocationsOptim = functionBOptim.zeros()
+            for(let i = 0; i < intermediateKnots.length; i += 1) {
+                for(let j = 0; j < curvatureExtremaLocationsOptim.length; j += 1) {
+                    if(curvatureExtremaLocationsOptim[j] > (intermediateKnots[i].knot - DEVIATION_FROM_KNOT*(intermediateKnots[i].knot - intermediateKnots[i].left)) &&
+                    curvatureExtremaLocationsOptim[j] < (intermediateKnots[i].knot + DEVIATION_FROM_KNOT*(intermediateKnots[i].right - intermediateKnots[i].knot))) {
+                        if(!this.eventInsideKnotNeighborhood[i]) this.eventEnterKnotNeighborhood[i] = true
+                    }
+                }
+            }*/
+        }
+    };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.checkConstraintConsistency = function () {
+        var e_1, _a, e_2, _b, e_3, _c, e_4, _d;
         /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
             As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
             Consequently, each active constraint value must be negative. */
@@ -39930,6 +39945,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             constraintType[constraintType["curvatureExtremum"] = 0] = "curvatureExtremum";
             constraintType[constraintType["inflexion"] = 1] = "inflexion";
         })(constraintType || (constraintType = {}));
+        ;
         var invalidConstraints = [];
         for (var i = 0; i < this._f.length; i += 1) {
             if (this._f[i] > 0.0) {
@@ -39939,100 +39955,140 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
                     if (i < this.curvatureExtremaNumberOfActiveConstraints) {
-                        for (var j = 0; j < this.curvatureExtremaInactiveConstraints.length; j += 1) {
-                            if (i > this.curvatureExtremaInactiveConstraints[j])
-                                indexC = indexC + 1;
+                        try {
+                            for (var _e = (e_1 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _g = _e.next(); !_g.done; _g = _e.next()) {
+                                var constraintIndex = _g.value;
+                                if (i > constraintIndex)
+                                    indexC = indexC + 1;
+                            }
+                        }
+                        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                        finally {
+                            try {
+                                if (_g && !_g.done && (_a = _e.return)) _a.call(_e);
+                            }
+                            finally { if (e_1) throw e_1.error; }
                         }
                     }
                     else {
                         indexC = i - this.curvatureExtremaNumberOfActiveConstraints;
                         typeC = constraintType.inflexion;
-                        for (var j = 0; j < this.inflectionInactiveConstraints.length; j += 1) {
-                            if (i > this.inflectionInactiveConstraints[j])
-                                indexC = indexC + 1;
+                        try {
+                            for (var _h = (e_2 = void 0, __values(this.inflectionInactiveConstraints)), _j = _h.next(); !_j.done; _j = _h.next()) {
+                                var constraintIndex = _j.value;
+                                if (i > constraintIndex)
+                                    indexC = indexC + 1;
+                            }
+                        }
+                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                        finally {
+                            try {
+                                if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
+                            }
+                            finally { if (e_2) throw e_2.error; }
                         }
                     }
                 }
                 else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
-                    for (var j = 0; j < this.curvatureExtremaInactiveConstraints.length; j += 1) {
-                        if (i > this.curvatureExtremaInactiveConstraints[j])
-                            indexC = indexC + 1;
+                    try {
+                        for (var _k = (e_3 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _l = _k.next(); !_l.done; _l = _k.next()) {
+                            var constraintIndex = _l.value;
+                            if (i > constraintIndex)
+                                indexC = indexC + 1;
+                        }
+                    }
+                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                    finally {
+                        try {
+                            if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
+                        }
+                        finally { if (e_3) throw e_3.error; }
                     }
                 }
                 else {
                     typeC = constraintType.inflexion;
                     indexC = i;
-                    for (var j = 0; j < this.inflectionInactiveConstraints.length; j += 1) {
-                        if (i > this.inflectionInactiveConstraints[j])
-                            indexC = indexC + 1;
+                    try {
+                        for (var _m = (e_4 = void 0, __values(this.inflectionInactiveConstraints)), _o = _m.next(); !_o.done; _o = _m.next()) {
+                            var constraintIndex = _o.value;
+                            if (i > constraintIndex)
+                                indexC = indexC + 1;
+                        }
+                    }
+                    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                    finally {
+                        try {
+                            if (_o && !_o.done && (_d = _m.return)) _d.call(_m);
+                        }
+                        finally { if (e_4) throw e_4.error; }
                     }
                 }
                 invalidConstraints.push({ value: this._f[i], type: typeC, index: indexC });
             }
         }
         if (invalidConstraints.length > 0) {
-            throw new Error("Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints));
+            var message = "Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints);
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConstraintConsistency", message);
+            error.logMessageToConsole();
         }
     };
-    OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeGlobalExtremmumOffAxis = function (controlPoints) {
-        var localExtremum = -1;
-        var localMinimum = [];
-        var localMaximum = [];
-        var globalMinimum = { index: 0, value: 0.0 };
-        var globalMaximum = { index: 0, value: 0.0 };
-        for (var i = 0; i < controlPoints.length - 2; i += 1) {
-            if (MathVectorBasicOperations_1.sign(controlPoints[i]) === 1 && MathVectorBasicOperations_1.sign(controlPoints[i + 1]) === 1 && MathVectorBasicOperations_1.sign(controlPoints[i + 2]) === 1) {
-                if (controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
-                    localMinimum.push({ index: (i + 1), value: controlPoints[i + 1] });
-                }
-            }
-            else if (MathVectorBasicOperations_1.sign(controlPoints[i]) === -1 && MathVectorBasicOperations_1.sign(controlPoints[i + 1]) === -1 && MathVectorBasicOperations_1.sign(controlPoints[i + 2]) === -1) {
-                if (controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
-                    localMaximum.push({ index: (i + 1), value: controlPoints[i + 1] });
-                }
-            }
-        }
-        if (localMinimum.length > 0) {
-            localMinimum.sort(function (a, b) {
-                if (a.value > b.value) {
-                    return 1;
-                }
-                if (a.value < b.value) {
-                    return -1;
-                }
-                return 0;
-            });
-            globalMinimum = { index: localMinimum[0].index, value: localMinimum[0].value };
-        }
-        if (localMaximum.length > 0) {
-            localMaximum.sort(function (a, b) {
-                if (a.value > b.value) {
-                    return 1;
-                }
-                if (a.value < b.value) {
-                    return -1;
-                }
-                return 0;
-            });
-            globalMaximum = { index: localMaximum[localMaximum.length - 1].index, value: localMaximum[localMaximum.length - 1].value };
-        }
-        if (localMinimum.length > 0 && localMaximum.length > 0 && Math.abs(globalMinimum.value) > Math.abs(globalMaximum.value)) {
-            return localExtremum = globalMaximum.index;
-        }
-        else if (localMinimum.length > 0 && localMaximum.length > 0) {
-            return localExtremum = globalMinimum.index;
-        }
-        else if (localMinimum.length > 0) {
-            return localExtremum = globalMinimum.index;
-        }
-        else if (localMaximum.length > 0) {
-            return localExtremum = globalMaximum.index;
-        }
-        else
-            return localExtremum;
-    };
+    // computeGlobalExtremmumOffAxis(controlPoints: number[]): number {
+    //     let localExtremum = -1
+    //     let localMinimum: Array<ExtremumLocation> = []
+    //     let localMaximum: Array<ExtremumLocation> = []
+    //     let globalMinimum:ExtremumLocation = {index: 0, value: 0.0}
+    //     let globalMaximum:ExtremumLocation = {index: 0, value: 0.0}
+    //     for(let i = 0; i < controlPoints.length - 2; i += 1) {
+    //         if(sign(controlPoints[i]) === 1 && sign(controlPoints[i + 1]) === 1 && sign(controlPoints[i + 2]) === 1) {
+    //             if(controlPoints[i] > controlPoints[i + 1] && controlPoints[i + 1] < controlPoints[i + 2]) {
+    //                 localMinimum.push({index: (i + 1), value: controlPoints[i + 1]})
+    //             }
+    //         } else if(sign(controlPoints[i]) === -1 && sign(controlPoints[i + 1]) === -1 && sign(controlPoints[i + 2]) === -1) {
+    //             if(controlPoints[i] < controlPoints[i + 1] && controlPoints[i + 1] > controlPoints[i + 2]) {
+    //                 localMaximum.push({index: (i + 1), value: controlPoints[i + 1]})
+    //             }
+    //         }
+    //     }
+    //     if(localMinimum.length > 0) {
+    //         localMinimum.sort(function(a, b) {
+    //             if (a.value > b.value) {
+    //               return 1;
+    //             }
+    //             if (a.value < b.value) {
+    //               return -1;
+    //             }
+    //             return 0;
+    //         })
+    //         globalMinimum = {index: localMinimum[0].index, value: localMinimum[0].value}
+    //     }
+    //     if(localMaximum.length > 0) {
+    //         localMaximum.sort(function(a, b) {
+    //             if (a.value > b.value) {
+    //               return 1;
+    //             }
+    //             if (a.value < b.value) {
+    //               return -1;
+    //             }
+    //             return 0;
+    //         })
+    //         globalMaximum = {index: localMaximum[localMaximum.length - 1].index, value: localMaximum[localMaximum.length - 1].value}
+    //     }
+    //     if(localMinimum.length > 0 && localMaximum.length > 0 && Math.abs(globalMinimum.value) > Math.abs(globalMaximum.value)) {
+    //         return localExtremum = globalMaximum.index
+    //     } else if(localMinimum.length > 0 && localMaximum.length > 0) {
+    //         return localExtremum = globalMinimum.index
+    //     } else if(localMinimum.length > 0) {
+    //         return localExtremum = globalMinimum.index
+    //     } else if(localMaximum.length > 0) {
+    //         return localExtremum = globalMaximum.index
+    //     } else return localExtremum
+    // }
+    // computeControlPointsClosestToZero(): number[] {
+    //     let result: number[] = []
+    //     return result;
+    // }
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeControlPointsClosestToZeroGeneralNavigation = function (signChangesIntervals, controlPoints) {
         var result = [];
         /*let extremaAroundAxis: number[] = []
@@ -40179,7 +40235,9 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.computeInactiveConstraintsGN = function (constraintsSign, controlPoints) {
         var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
         var controlPointsClosestToZero = this.computeControlPointsClosestToZeroGeneralNavigation(signChangesIntervals, controlPoints);
-        var globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints);
+        var polygonOfCtrlPts = new PolygonWithVerticesR1_1.PolygonWithVerticesR1(controlPoints);
+        var globalExtremumOffAxis = polygonOfCtrlPts.extractClosestLocalExtremmumToAxis().index;
+        // let globalExtremumOffAxis = this.computeGlobalExtremmumOffAxis(controlPoints)
         if (globalExtremumOffAxis !== -1) {
             controlPointsClosestToZero.push(globalExtremumOffAxis);
             controlPointsClosestToZero.sort(function (a, b) { return (a - b); });
@@ -41982,6 +42040,350 @@ exports.ChartDescriptorQueueItem = ChartDescriptorQueueItem;
 
 /***/ }),
 
+/***/ "./src/containers/PolygonWithVerticesR1.ts":
+/*!*************************************************!*\
+  !*** ./src/containers/PolygonWithVerticesR1.ts ***!
+  \*************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.extractChangingSignControlPointsSequences = exports.PolygonWithVerticesR1 = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var VertexR1_1 = __webpack_require__(/*! ./VertexR1 */ "./src/containers/VertexR1.ts");
+var PolygonWithVerticesR1 = /** @class */ (function () {
+    function PolygonWithVerticesR1(points, startIndex) {
+        var e_1, _a;
+        this._vertices = [];
+        this._localPositiveMinima = [];
+        this._localNegativeMaxima = [];
+        var index;
+        if (startIndex !== undefined) {
+            index = startIndex;
+            if (startIndex < 0) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Cannot create a polygon with vertices with a start index negative");
+                error.logMessageToConsole();
+            }
+        }
+        else {
+            index = 0;
+        }
+        try {
+            for (var points_1 = __values(points), points_1_1 = points_1.next(); !points_1_1.done; points_1_1 = points_1.next()) {
+                var point = points_1_1.value;
+                this._vertices.push(new VertexR1_1.VertexR1(index, point));
+                index++;
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (points_1_1 && !points_1_1.done && (_a = points_1.return)) _a.call(points_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+    }
+    Object.defineProperty(PolygonWithVerticesR1.prototype, "vertices", {
+        get: function () {
+            return this._vertices.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(PolygonWithVerticesR1.prototype, "localPositiveMinima", {
+        get: function () {
+            return this._localPositiveMinima.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(PolygonWithVerticesR1.prototype, "localNegativeMaxima", {
+        get: function () {
+            return this._localNegativeMaxima.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    PolygonWithVerticesR1.prototype.checkConsistency = function () {
+        var e_2, _a;
+        var code = 0;
+        if (this._vertices.length > 1) {
+            var previousIndex = this._vertices[0].index;
+            var vertices = this._vertices.slice(1);
+            try {
+                for (var vertices_1 = __values(vertices), vertices_1_1 = vertices_1.next(); !vertices_1_1.done; vertices_1_1 = vertices_1.next()) {
+                    var vertex = vertices_1_1.value;
+                    if ((vertex.index - previousIndex) !== 1) {
+                        var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
+                        error.logMessageToConsole();
+                        code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+                        return code;
+                    }
+                    previousIndex = vertex.index;
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (vertices_1_1 && !vertices_1_1.done && (_a = vertices_1.return)) _a.call(vertices_1);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        }
+        return code;
+    };
+    PolygonWithVerticesR1.prototype.length = function () {
+        return this._vertices.length;
+    };
+    PolygonWithVerticesR1.prototype.getFirstIndex = function () {
+        if (this._vertices.length > 0) {
+            return this._vertices[0].index;
+        }
+        else {
+            return ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        }
+    };
+    PolygonWithVerticesR1.prototype.getVertexAt = function (index) {
+        var e_3, _a;
+        var result = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        try {
+            for (var _b = __values(this._vertices), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var vertex = _c.value;
+                if (vertex.index === index)
+                    result = vertex;
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
+        return result;
+    };
+    PolygonWithVerticesR1.prototype.clear = function () {
+        this._vertices = [];
+        this._localPositiveMinima = [];
+        this._localNegativeMaxima = [];
+    };
+    PolygonWithVerticesR1.prototype.extend = function (vertex) {
+        this._vertices.push(vertex);
+        this.checkConsistency();
+    };
+    PolygonWithVerticesR1.prototype.extendWithNewValue = function (value) {
+        var newIndex = this._vertices.length;
+        var newVertex = new VertexR1_1.VertexR1(newIndex, value);
+        this._vertices.push(newVertex);
+        this.checkConsistency();
+    };
+    PolygonWithVerticesR1.prototype.deepCopy = function () {
+        var firstIndex = this.getFirstIndex();
+        var polygon;
+        if (firstIndex !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            polygon = new PolygonWithVerticesR1(this.getValues(), this.getFirstIndex());
+            polygon._localNegativeMaxima = this._localNegativeMaxima.slice();
+            polygon._localPositiveMinima = this._localPositiveMinima.slice();
+            this.checkConsistency();
+        }
+        else {
+            polygon = new PolygonWithVerticesR1([]);
+            polygon._vertices.push(new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0));
+        }
+        return polygon;
+    };
+    PolygonWithVerticesR1.prototype.getValues = function () {
+        var e_4, _a;
+        var result = [];
+        try {
+            for (var _b = __values(this._vertices), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var vertex = _c.value;
+                result.push(vertex.value);
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
+        return result;
+    };
+    PolygonWithVerticesR1.prototype.sortLocalExtrema = function (localExtrema) {
+        localExtrema.sort(function (a, b) {
+            if (a.value > b.value) {
+                return 1;
+            }
+            if (a.value < b.value) {
+                return -1;
+            }
+            return 0;
+        });
+        var sortedExtrema = localExtrema.slice();
+        return sortedExtrema;
+    };
+    PolygonWithVerticesR1.prototype.extractLocalPositiveMinima = function () {
+        this._localPositiveMinima = [];
+        for (var i = 0; i < this._vertices.length - 2; i += 1) {
+            if (MathVectorBasicOperations_1.sign(this._vertices[i].value) === 1 && MathVectorBasicOperations_1.sign(this._vertices[i + 1].value) === 1 && MathVectorBasicOperations_1.sign(this._vertices[i + 2].value) === 1) {
+                if (this._vertices[i].value > this._vertices[i + 1].value && this._vertices[i + 1].value < this._vertices[i + 2].value) {
+                    this._localPositiveMinima.push(new VertexR1_1.VertexR1((i + 1), this._vertices[i + 1].value));
+                }
+            }
+        }
+    };
+    PolygonWithVerticesR1.prototype.extractLocalNegativeMaxima = function () {
+        this._localNegativeMaxima = [];
+        for (var i = 0; i < this._vertices.length - 2; i += 1) {
+            if (MathVectorBasicOperations_1.sign(this._vertices[i].value) === -1 && MathVectorBasicOperations_1.sign(this._vertices[i + 1].value) === -1 && MathVectorBasicOperations_1.sign(this._vertices[i + 2].value) === -1) {
+                if (this._vertices[i].value < this._vertices[i + 1].value && this._vertices[i + 1].value > this._vertices[i + 2].value) {
+                    this._localNegativeMaxima.push(new VertexR1_1.VertexR1((i + 1), this._vertices[i + 1].value));
+                }
+            }
+        }
+    };
+    PolygonWithVerticesR1.prototype.extractClosestLocalExtremmumToAxis = function () {
+        var localExtremum = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        var smallestPositiveMinimum = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        var largestNegativeMaximum = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        this.extractLocalPositiveMinima();
+        if (this._localPositiveMinima.length > 0) {
+            smallestPositiveMinimum = this.sortLocalExtrema(this._localPositiveMinima)[0];
+        }
+        this.extractLocalNegativeMaxima();
+        if (this._localNegativeMaxima.length > 0) {
+            largestNegativeMaximum = this.sortLocalExtrema(this._localNegativeMaxima)[this._localNegativeMaxima.length - 1];
+        }
+        if (smallestPositiveMinimum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && largestNegativeMaximum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && Math.abs(smallestPositiveMinimum.value) > Math.abs(largestNegativeMaximum.value)) {
+            return localExtremum = largestNegativeMaximum;
+        }
+        else if (smallestPositiveMinimum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && largestNegativeMaximum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            return localExtremum = smallestPositiveMinimum;
+        }
+        else if (smallestPositiveMinimum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            return localExtremum = smallestPositiveMinimum;
+        }
+        else if (largestNegativeMaximum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            return localExtremum = largestNegativeMaximum;
+        }
+        else
+            return localExtremum;
+    };
+    PolygonWithVerticesR1.prototype.extractChangingSignVerticesSequences = function () {
+        var result = [];
+        if (this._vertices.length > 1) {
+            var i = 1;
+            while (i < this._vertices.length) {
+                if (this._vertices[i - 1].value * this._vertices[i].value <= 0.0) {
+                    var firstEdge = [this._vertices[i - 1].value, this._vertices[i].value];
+                    var oscillatingPolygon = new PolygonWithVerticesR1(firstEdge, (i - 1));
+                    i += 1;
+                    if (i < (this._vertices.length - 1)) {
+                        while (this._vertices[i - 1].value * this._vertices[i].value <= 0.0) {
+                            oscillatingPolygon.extend(this._vertices[i]);
+                            i += 1;
+                            if (i === this._vertices.length)
+                                break;
+                        }
+                    }
+                    result.push(oscillatingPolygon);
+                }
+                i += 1;
+            }
+        }
+        return result;
+    };
+    PolygonWithVerticesR1.prototype.extractControlPtsClosestToZero = function (oscillatingPolygons) {
+        var e_5, _a, e_6, _b;
+        var result = [];
+        try {
+            for (var oscillatingPolygons_1 = __values(oscillatingPolygons), oscillatingPolygons_1_1 = oscillatingPolygons_1.next(); !oscillatingPolygons_1_1.done; oscillatingPolygons_1_1 = oscillatingPolygons_1.next()) {
+                var polygon = oscillatingPolygons_1_1.value;
+                var setOfVertices = this.getClosestVerticesToZero(polygon);
+                try {
+                    for (var setOfVertices_1 = (e_6 = void 0, __values(setOfVertices)), setOfVertices_1_1 = setOfVertices_1.next(); !setOfVertices_1_1.done; setOfVertices_1_1 = setOfVertices_1.next()) {
+                        var vertex = setOfVertices_1_1.value;
+                        result.push(vertex.index);
+                    }
+                }
+                catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                finally {
+                    try {
+                        if (setOfVertices_1_1 && !setOfVertices_1_1.done && (_b = setOfVertices_1.return)) _b.call(setOfVertices_1);
+                    }
+                    finally { if (e_6) throw e_6.error; }
+                }
+            }
+        }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
+        finally {
+            try {
+                if (oscillatingPolygons_1_1 && !oscillatingPolygons_1_1.done && (_a = oscillatingPolygons_1.return)) _a.call(oscillatingPolygons_1);
+            }
+            finally { if (e_5) throw e_5.error; }
+        }
+        return result;
+    };
+    PolygonWithVerticesR1.prototype.getClosestVerticesToZero = function (oscillatingPolygon) {
+        var result = [];
+        var indexClosest = oscillatingPolygon.getFirstIndex();
+        for (var i = oscillatingPolygon.getFirstIndex(); i < oscillatingPolygon.length(); i += 1) {
+            if (Math.pow(oscillatingPolygon.getVertexAt(i).value, 2) < Math.pow(oscillatingPolygon.getVertexAt(indexClosest).value, 2)) {
+                indexClosest = i;
+            }
+            else {
+            }
+            result.push(oscillatingPolygon.getVertexAt(indexClosest));
+        }
+        return result;
+    };
+    return PolygonWithVerticesR1;
+}());
+exports.PolygonWithVerticesR1 = PolygonWithVerticesR1;
+function extractChangingSignControlPointsSequences(controlPoints) {
+    var result = [];
+    if (controlPoints.length > 1) {
+        var i = 1;
+        while (i < controlPoints.length) {
+            if (controlPoints[i - 1] * controlPoints[i] <= 0.0) {
+                var firstEdge = [controlPoints[i - 1], controlPoints[i]];
+                var oscillatingPolygon = new PolygonWithVerticesR1(firstEdge, (i - 1));
+                i += 1;
+                if (i < (controlPoints.length - 1)) {
+                    while (controlPoints[i - 1] * controlPoints[i] <= 0.0) {
+                        oscillatingPolygon.extendWithNewValue(controlPoints[i]);
+                        i += 1;
+                        if (i === controlPoints.length)
+                            break;
+                    }
+                }
+                result.push(oscillatingPolygon);
+            }
+            i += 1;
+        }
+    }
+    return result;
+}
+exports.extractChangingSignControlPointsSequences = extractChangingSignControlPointsSequences;
+
+
+/***/ }),
+
 /***/ "./src/containers/Queue.ts":
 /*!*********************************!*\
   !*** ./src/containers/Queue.ts ***!
@@ -42194,6 +42596,59 @@ var QueueChartDescriptor = /** @class */ (function (_super) {
     return QueueChartDescriptor;
 }(Queue));
 exports.QueueChartDescriptor = QueueChartDescriptor;
+
+
+/***/ }),
+
+/***/ "./src/containers/VertexR1.ts":
+/*!************************************!*\
+  !*** ./src/containers/VertexR1.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.VertexR1 = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var VertexR1 = /** @class */ (function () {
+    function VertexR1(index, value) {
+        this._index = index;
+        this._value = value;
+    }
+    Object.defineProperty(VertexR1.prototype, "index", {
+        get: function () {
+            return this._index;
+        },
+        set: function (index) {
+            this._index = index;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(VertexR1.prototype, "value", {
+        get: function () {
+            return this._value;
+        },
+        set: function (value) {
+            this._value = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    VertexR1.prototype.checkIndex = function () {
+        var code = 0;
+        if (this._index < 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "checkIndex", "Inconsistent vertex index");
+            warning.logMessageToConsole();
+            code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        }
+        return code;
+    };
+    return VertexR1;
+}());
+exports.VertexR1 = VertexR1;
 
 
 /***/ }),

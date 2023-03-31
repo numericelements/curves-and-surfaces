@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { OptimizationProblem_BSpline_R1_to_R2} from '../../src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2';
+import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints} from '../../src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2';
 import { create_BSplineR1toR2V2d, BSplineR1toR2 } from '../../src/newBsplines/BSplineR1toR2';
 import { zeroVector, containsNaN } from '../../src/linearAlgebra/MathVectorBasicOperations';
 import { identityMatrix } from '../../src/linearAlgebra/DiagonalMatrix';
@@ -278,7 +278,28 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         let t3 = o.computeControlPointsClosestToZero([0, 2], [5, -3, -5, 5.1])
         expect(t3).to.eql([1, 2])
 
+        /* for compatibility with PolygonWithVerticesR1 class*/
+        let c4 = o.computeConstraintsSign([-5, -10, 1, -2, -1, 2, 1, -0.5])
+        expect(c4).to.eql([1, 1, -1, 1, 1, -1, -1, 1])
+        let s4 = o.computeSignChangeIntervals(c4)
+        expect(s4).to.eql([1, 2, 4, 6])
+        let t4 = o.computeControlPointsClosestToZero(s4, [-5, -10, 1, -2, -1, 2, 1, -0.5])
+        expect(t4).to.eql([2, 4, 7])
 
+        let c5 = o.computeConstraintsSign([-5, -10, 1, -0.5, -1, 2, 1, -0.5])
+        expect(c5).to.eql([1, 1, -1, 1, 1, -1, -1, 1])
+        let s5 = o.computeSignChangeIntervals(c5)
+        expect(s5).to.eql([1, 2, 4, 6])
+        let t5 = o.computeControlPointsClosestToZero(s5, [-5, -10, 1, -0.5, -1, 2, 1, -0.5])
+        expect(t5).to.eql([2, 4, 7])
+        // expect(t5).to.eql([2, 3, 4, 7])
+
+        let c6 = o.computeConstraintsSign([-0.5, 1, 2, -1, -0.5, 1, -10, -5])
+        expect(c6).to.eql([1, -1, -1, 1, 1, -1, 1, 1])
+        let s6 = o.computeSignChangeIntervals(c6)
+        expect(s6).to.eql([0, 2, 4, 5])
+        let t6 = o.computeControlPointsClosestToZero(s6, [-0.5, 1, 2, -1, -0.5, 1, -10, -5])
+        expect(t6).to.eql([0, 3, 5])
     });
 
     it('can add Inactive Constraints For Inflections', () => {
@@ -506,8 +527,6 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         
 
     });
-
-
 
 
 });
