@@ -42582,16 +42582,16 @@ var PolygonWithVerticesR1 = /** @class */ (function (_super) {
             largestNegativeMaximum = this.sortLocalExtrema(this._localNegativeMaxima)[this._localNegativeMaxima.length - 1];
         }
         if (smallestPositiveMinimum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && largestNegativeMaximum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && Math.abs(smallestPositiveMinimum.value) > Math.abs(largestNegativeMaximum.value)) {
-            return localExtremum = largestNegativeMaximum;
+            return largestNegativeMaximum;
         }
         else if (smallestPositiveMinimum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && largestNegativeMaximum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
-            return localExtremum = smallestPositiveMinimum;
+            return smallestPositiveMinimum;
         }
         else if (smallestPositiveMinimum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
-            return localExtremum = smallestPositiveMinimum;
+            return smallestPositiveMinimum;
         }
         else if (largestNegativeMaximum.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
-            return localExtremum = largestNegativeMaximum;
+            return largestNegativeMaximum;
         }
         else
             return localExtremum;
