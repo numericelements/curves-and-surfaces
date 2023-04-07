@@ -41984,6 +41984,194 @@ exports.NoFunctionSceneController = NoFunctionSceneController;
 
 /***/ }),
 
+/***/ "./src/containers/AbstractPolygonWithVerticesR1.ts":
+/*!*********************************************************!*\
+  !*** ./src/containers/AbstractPolygonWithVerticesR1.ts ***!
+  \*********************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractPolygonWithVerticesR1 = void 0;
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var VertexR1_1 = __webpack_require__(/*! ./VertexR1 */ "./src/containers/VertexR1.ts");
+var AbstractPolygonWithVerticesR1 = /** @class */ (function () {
+    function AbstractPolygonWithVerticesR1() {
+    }
+    Object.defineProperty(AbstractPolygonWithVerticesR1.prototype, "vertices", {
+        get: function () {
+            return this._vertices.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    AbstractPolygonWithVerticesR1.prototype.length = function () {
+        return this._vertices.length;
+    };
+    AbstractPolygonWithVerticesR1.prototype.getFirstIndex = function () {
+        if (this._vertices.length > 0) {
+            return this._vertices[0].index;
+        }
+        else {
+            return ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        }
+    };
+    AbstractPolygonWithVerticesR1.prototype.getVertexAt = function (index) {
+        var e_1, _a;
+        var result = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        try {
+            for (var _b = __values(this._vertices), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var vertex = _c.value;
+                if (vertex.index === index)
+                    result = new VertexR1_1.VertexR1(vertex.index, vertex.value);
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        return result;
+    };
+    AbstractPolygonWithVerticesR1.prototype.getValues = function () {
+        var e_2, _a;
+        var result = [];
+        try {
+            for (var _b = __values(this._vertices), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var vertex = _c.value;
+                result.push(vertex.value);
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        return result;
+    };
+    AbstractPolygonWithVerticesR1.prototype.extend = function (vertex) {
+        this._vertices.push(vertex);
+        this.checkConsistency();
+    };
+    AbstractPolygonWithVerticesR1.prototype.extendWithNewValue = function (value) {
+        var newIndex = this.getFirstIndex() + this._vertices.length;
+        var newVertex = new VertexR1_1.VertexR1(newIndex, value);
+        this._vertices.push(newVertex);
+        this.checkConsistency();
+    };
+    return AbstractPolygonWithVerticesR1;
+}());
+exports.AbstractPolygonWithVerticesR1 = AbstractPolygonWithVerticesR1;
+
+
+/***/ }),
+
+/***/ "./src/containers/AdjacentOscillatingPolygons.ts":
+/*!*******************************************************!*\
+  !*** ./src/containers/AdjacentOscillatingPolygons.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AdjacentOscillatingPolygons = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var VertexR1_1 = __webpack_require__(/*! ./VertexR1 */ "./src/containers/VertexR1.ts");
+var AdjacentOscillatingPolygons = /** @class */ (function () {
+    function AdjacentOscillatingPolygons(oscillatingPolygons) {
+        this._oscillatingPolygons = oscillatingPolygons;
+        this._closestVertex = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        this._indexOscillatingPolygon = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        this.checkConsistency();
+        this.getClosestVertexToZero();
+    }
+    Object.defineProperty(AdjacentOscillatingPolygons.prototype, "oscillatingPolygons", {
+        get: function () {
+            return this._oscillatingPolygons;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AdjacentOscillatingPolygons.prototype, "closestVertex", {
+        get: function () {
+            return this._closestVertex;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AdjacentOscillatingPolygons.prototype, "indexOscillatingPolygon", {
+        get: function () {
+            return this._indexOscillatingPolygon;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    AdjacentOscillatingPolygons.prototype.checkConsistency = function () {
+        for (var i = 0; i < this._oscillatingPolygons.length - 1; i++) {
+            var firstIndex1 = this._oscillatingPolygons[i].getFirstIndex();
+            var lastVertex1 = this._oscillatingPolygons[i].getVertexAt(firstIndex1 + this._oscillatingPolygons[i].length() - 1);
+            var firstIndex2 = this._oscillatingPolygons[i + 1].getFirstIndex();
+            var firstVertex2 = this._oscillatingPolygons[i + 1].getVertexAt(firstIndex2);
+            if (lastVertex1.checkIndex() !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && firstVertex2.checkIndex() !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                if ((lastVertex1.index + 1) !== firstVertex2.index) {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistency", "Indices of contiguous oscillating polygons are not in strict increasing order.");
+                    error.logMessageToConsole();
+                }
+                else {
+                    if (lastVertex1.value * firstVertex2.value <= 0.0) {
+                        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistency", "Extreme vertices ordinates are not of same sign.");
+                        error.logMessageToConsole();
+                    }
+                }
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistency", "Inconsistent indices of extreme vertices of oscillating polygons.");
+                error.logMessageToConsole();
+            }
+        }
+    };
+    AdjacentOscillatingPolygons.prototype.getClosestVertexToZero = function () {
+        var closestVertex = Math.pow(this.oscillatingPolygons[0].closestVertexAtEnd.value, 2);
+        this._closestVertex = this._oscillatingPolygons[0].closestVertexAtEnd;
+        this._indexOscillatingPolygon = 0;
+        for (var i = 1; i < this._oscillatingPolygons.length; i++) {
+            if (Math.pow(this._oscillatingPolygons[i].closestVertexAtEnd.value, 2) < closestVertex) {
+                closestVertex = Math.pow(this._oscillatingPolygons[i].closestVertexAtEnd.value, 2);
+                this._closestVertex = this._oscillatingPolygons[i].closestVertexAtEnd;
+                this._indexOscillatingPolygon = i;
+            }
+            else if (Math.pow(this._oscillatingPolygons[i].closestVertexAtBeginning.value, 2) < closestVertex) {
+                closestVertex = Math.pow(this._oscillatingPolygons[i].closestVertexAtBeginning.value, 2);
+                this._closestVertex = this._oscillatingPolygons[i].closestVertexAtBeginning;
+                this._indexOscillatingPolygon = i;
+            }
+        }
+    };
+    return AdjacentOscillatingPolygons;
+}());
+exports.AdjacentOscillatingPolygons = AdjacentOscillatingPolygons;
+
+
+/***/ }),
+
 /***/ "./src/containers/ChartDescriptorQueueItem.ts":
 /*!****************************************************!*\
   !*** ./src/containers/ChartDescriptorQueueItem.ts ***!
@@ -42040,14 +42228,27 @@ exports.ChartDescriptorQueueItem = ChartDescriptorQueueItem;
 
 /***/ }),
 
-/***/ "./src/containers/PolygonWithVerticesR1.ts":
-/*!*************************************************!*\
-  !*** ./src/containers/PolygonWithVerticesR1.ts ***!
-  \*************************************************/
+/***/ "./src/containers/OscillatingPolygonWithVerticesR1.ts":
+/*!************************************************************!*\
+  !*** ./src/containers/OscillatingPolygonWithVerticesR1.ts ***!
+  \************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -42060,22 +42261,197 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.extractChangingSignControlPointsSequences = exports.PolygonWithVerticesR1 = void 0;
+exports.extractAdjacentOscillatingPolygons = exports.OscillatingPolygonWithVerticesR1 = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var AbstractPolygonWithVerticesR1_1 = __webpack_require__(/*! ./AbstractPolygonWithVerticesR1 */ "./src/containers/AbstractPolygonWithVerticesR1.ts");
+var AdjacentOscillatingPolygons_1 = __webpack_require__(/*! ./AdjacentOscillatingPolygons */ "./src/containers/AdjacentOscillatingPolygons.ts");
+var VertexR1_1 = __webpack_require__(/*! ./VertexR1 */ "./src/containers/VertexR1.ts");
+var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
+    __extends(OscillatingPolygonWithVerticesR1, _super);
+    function OscillatingPolygonWithVerticesR1(polygon) {
+        var _this = _super.call(this) || this;
+        _this._vertices = [];
+        var firstIndex = polygon.getFirstIndex();
+        var upperBound = polygon.getFirstIndex() + polygon.length();
+        for (var vertex = firstIndex; vertex < upperBound; vertex++) {
+            _this._vertices.push(new VertexR1_1.VertexR1(polygon.getVertexAt(vertex).index, polygon.getVertexAt(vertex).value));
+        }
+        _this._closestVertexAtBeginning = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        _this._closestVertexAtEnd = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        _this.checkConsistency();
+        _this.extractControlPtsClosestToZeroAtExtremities();
+        return _this;
+    }
+    Object.defineProperty(OscillatingPolygonWithVerticesR1.prototype, "closestVertexAtBeginning", {
+        get: function () {
+            return this._closestVertexAtBeginning;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OscillatingPolygonWithVerticesR1.prototype, "closestVertexAtEnd", {
+        get: function () {
+            return this._closestVertexAtEnd;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OscillatingPolygonWithVerticesR1.prototype.checkConsistency = function () {
+        var e_1, _a;
+        var code = 0;
+        if (this._vertices.length > 1) {
+            var previousIndex = this._vertices[0].index;
+            var previousValue = this._vertices[0].value;
+            var vertices = this._vertices.slice(1);
+            try {
+                for (var vertices_1 = __values(vertices), vertices_1_1 = vertices_1.next(); !vertices_1_1.done; vertices_1_1 = vertices_1.next()) {
+                    var vertex = vertices_1_1.value;
+                    if ((vertex.index - previousIndex) !== 1) {
+                        var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
+                        error.logMessageToConsole();
+                        code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+                        return code;
+                    }
+                    else if (vertex.value * previousValue > 0) {
+                        var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Vertices values are not oscillating.");
+                        error.logMessageToConsole();
+                        code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+                    }
+                    previousIndex = vertex.index;
+                    previousValue = vertex.value;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (vertices_1_1 && !vertices_1_1.done && (_a = vertices_1.return)) _a.call(vertices_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Cannot process an oscillating polygon with less than two vertices.");
+            error.logMessageToConsole();
+            code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        }
+        return code;
+    };
+    OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremity = function (index) {
+        if (index !== this.getFirstIndex() && index !== this.getVertexAt(this.getFirstIndex() + this.length() - 1).index) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremity", "Current vertex index is not at an extremity of the polygon.");
+            error.logMessageToConsole();
+            return new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        }
+        var vertex1 = this.getVertexAt(index);
+        var vertex2;
+        if (index === this.getFirstIndex()) {
+            vertex2 = this.getVertexAt(index + 1);
+        }
+        else {
+            vertex2 = this.getVertexAt(index - 1);
+        }
+        if (Math.pow(vertex1.value, 2) > Math.pow(vertex2.value, 2)) {
+            return vertex2;
+        }
+        else {
+            return vertex1;
+        }
+    };
+    OscillatingPolygonWithVerticesR1.prototype.extractControlPtsClosestToZeroAtExtremities = function () {
+        var firstIndex = this.getFirstIndex();
+        this._closestVertexAtBeginning = this.extractControlPtClosestToZeroAtExtremity(firstIndex);
+        var lastIndex = firstIndex + this.length() - 1;
+        this._closestVertexAtEnd = this.extractControlPtClosestToZeroAtExtremity(lastIndex);
+    };
+    return OscillatingPolygonWithVerticesR1;
+}(AbstractPolygonWithVerticesR1_1.AbstractPolygonWithVerticesR1));
+exports.OscillatingPolygonWithVerticesR1 = OscillatingPolygonWithVerticesR1;
+function extractAdjacentOscillatingPolygons(oscillatingPolygons) {
+    var adjacentPolygons = [];
+    for (var i = 0; i < oscillatingPolygons.length; i++) {
+        var polygons = [];
+        if ((i + 1) < oscillatingPolygons.length) {
+            if (oscillatingPolygons[i].vertices[oscillatingPolygons[i].vertices.length - 1].index + 1 === oscillatingPolygons[i + 1].vertices[0].index) {
+                polygons.push(oscillatingPolygons[i]);
+                polygons.push(oscillatingPolygons[i + 1]);
+                i += 1;
+                if ((i + 1) < oscillatingPolygons.length) {
+                    while (oscillatingPolygons[i].vertices[oscillatingPolygons[i].vertices.length - 1].index + 1 === oscillatingPolygons[i + 1].vertices[0].index) {
+                        polygons.push(oscillatingPolygons[i + 1]);
+                        i += 1;
+                    }
+                }
+            }
+            else {
+                polygons.push(oscillatingPolygons[i]);
+            }
+        }
+        else {
+            polygons.push(oscillatingPolygons[i]);
+        }
+        adjacentPolygons.push(new AdjacentOscillatingPolygons_1.AdjacentOscillatingPolygons(polygons));
+    }
+    return adjacentPolygons;
+}
+exports.extractAdjacentOscillatingPolygons = extractAdjacentOscillatingPolygons;
+
+
+/***/ }),
+
+/***/ "./src/containers/PolygonWithVerticesR1.ts":
+/*!*************************************************!*\
+  !*** ./src/containers/PolygonWithVerticesR1.ts ***!
+  \*************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.extractOscillatingPolygons = exports.PolygonWithVerticesR1 = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var VertexR1_1 = __webpack_require__(/*! ./VertexR1 */ "./src/containers/VertexR1.ts");
-var PolygonWithVerticesR1 = /** @class */ (function () {
+var OscillatingPolygonWithVerticesR1_1 = __webpack_require__(/*! ./OscillatingPolygonWithVerticesR1 */ "./src/containers/OscillatingPolygonWithVerticesR1.ts");
+var AbstractPolygonWithVerticesR1_1 = __webpack_require__(/*! ./AbstractPolygonWithVerticesR1 */ "./src/containers/AbstractPolygonWithVerticesR1.ts");
+var PolygonWithVerticesR1 = /** @class */ (function (_super) {
+    __extends(PolygonWithVerticesR1, _super);
     function PolygonWithVerticesR1(points, startIndex) {
         var e_1, _a;
-        this._vertices = [];
-        this._localPositiveMinima = [];
-        this._localNegativeMaxima = [];
+        var _this = _super.call(this) || this;
+        _this._vertices = [];
+        _this._localPositiveMinima = [];
+        _this._localNegativeMaxima = [];
         var index;
         if (startIndex !== undefined) {
             index = startIndex;
             if (startIndex < 0) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Cannot create a polygon with vertices with a start index negative");
+                var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Cannot create a polygon with vertices with a start index negative");
                 error.logMessageToConsole();
             }
         }
@@ -42085,7 +42461,7 @@ var PolygonWithVerticesR1 = /** @class */ (function () {
         try {
             for (var points_1 = __values(points), points_1_1 = points_1.next(); !points_1_1.done; points_1_1 = points_1.next()) {
                 var point = points_1_1.value;
-                this._vertices.push(new VertexR1_1.VertexR1(index, point));
+                _this._vertices.push(new VertexR1_1.VertexR1(index, point));
                 index++;
             }
         }
@@ -42096,14 +42472,8 @@ var PolygonWithVerticesR1 = /** @class */ (function () {
             }
             finally { if (e_1) throw e_1.error; }
         }
+        return _this;
     }
-    Object.defineProperty(PolygonWithVerticesR1.prototype, "vertices", {
-        get: function () {
-            return this._vertices.slice();
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(PolygonWithVerticesR1.prototype, "localPositiveMinima", {
         get: function () {
             return this._localPositiveMinima.slice();
@@ -42146,50 +42516,10 @@ var PolygonWithVerticesR1 = /** @class */ (function () {
         }
         return code;
     };
-    PolygonWithVerticesR1.prototype.length = function () {
-        return this._vertices.length;
-    };
-    PolygonWithVerticesR1.prototype.getFirstIndex = function () {
-        if (this._vertices.length > 0) {
-            return this._vertices[0].index;
-        }
-        else {
-            return ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
-        }
-    };
-    PolygonWithVerticesR1.prototype.getVertexAt = function (index) {
-        var e_3, _a;
-        var result = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
-        try {
-            for (var _b = __values(this._vertices), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var vertex = _c.value;
-                if (vertex.index === index)
-                    result = vertex;
-            }
-        }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_3) throw e_3.error; }
-        }
-        return result;
-    };
     PolygonWithVerticesR1.prototype.clear = function () {
         this._vertices = [];
         this._localPositiveMinima = [];
         this._localNegativeMaxima = [];
-    };
-    PolygonWithVerticesR1.prototype.extend = function (vertex) {
-        this._vertices.push(vertex);
-        this.checkConsistency();
-    };
-    PolygonWithVerticesR1.prototype.extendWithNewValue = function (value) {
-        var newIndex = this._vertices.length;
-        var newVertex = new VertexR1_1.VertexR1(newIndex, value);
-        this._vertices.push(newVertex);
-        this.checkConsistency();
     };
     PolygonWithVerticesR1.prototype.deepCopy = function () {
         var firstIndex = this.getFirstIndex();
@@ -42205,24 +42535,6 @@ var PolygonWithVerticesR1 = /** @class */ (function () {
             polygon._vertices.push(new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0));
         }
         return polygon;
-    };
-    PolygonWithVerticesR1.prototype.getValues = function () {
-        var e_4, _a;
-        var result = [];
-        try {
-            for (var _b = __values(this._vertices), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var vertex = _c.value;
-                result.push(vertex.value);
-            }
-        }
-        catch (e_4_1) { e_4 = { error: e_4_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_4) throw e_4.error; }
-        }
-        return result;
     };
     PolygonWithVerticesR1.prototype.sortLocalExtrema = function (localExtrema) {
         localExtrema.sort(function (a, b) {
@@ -42284,7 +42596,7 @@ var PolygonWithVerticesR1 = /** @class */ (function () {
         else
             return localExtremum;
     };
-    PolygonWithVerticesR1.prototype.extractChangingSignVerticesSequences = function () {
+    PolygonWithVerticesR1.prototype.extractOscillatingPolygons = function () {
         var result = [];
         if (this._vertices.length > 1) {
             var i = 1;
@@ -42301,61 +42613,17 @@ var PolygonWithVerticesR1 = /** @class */ (function () {
                                 break;
                         }
                     }
-                    result.push(oscillatingPolygon);
+                    result.push(new OscillatingPolygonWithVerticesR1_1.OscillatingPolygonWithVerticesR1(oscillatingPolygon));
                 }
                 i += 1;
             }
         }
         return result;
     };
-    PolygonWithVerticesR1.prototype.extractControlPtsClosestToZero = function (oscillatingPolygons) {
-        var e_5, _a, e_6, _b;
-        var result = [];
-        try {
-            for (var oscillatingPolygons_1 = __values(oscillatingPolygons), oscillatingPolygons_1_1 = oscillatingPolygons_1.next(); !oscillatingPolygons_1_1.done; oscillatingPolygons_1_1 = oscillatingPolygons_1.next()) {
-                var polygon = oscillatingPolygons_1_1.value;
-                var setOfVertices = this.getClosestVerticesToZero(polygon);
-                try {
-                    for (var setOfVertices_1 = (e_6 = void 0, __values(setOfVertices)), setOfVertices_1_1 = setOfVertices_1.next(); !setOfVertices_1_1.done; setOfVertices_1_1 = setOfVertices_1.next()) {
-                        var vertex = setOfVertices_1_1.value;
-                        result.push(vertex.index);
-                    }
-                }
-                catch (e_6_1) { e_6 = { error: e_6_1 }; }
-                finally {
-                    try {
-                        if (setOfVertices_1_1 && !setOfVertices_1_1.done && (_b = setOfVertices_1.return)) _b.call(setOfVertices_1);
-                    }
-                    finally { if (e_6) throw e_6.error; }
-                }
-            }
-        }
-        catch (e_5_1) { e_5 = { error: e_5_1 }; }
-        finally {
-            try {
-                if (oscillatingPolygons_1_1 && !oscillatingPolygons_1_1.done && (_a = oscillatingPolygons_1.return)) _a.call(oscillatingPolygons_1);
-            }
-            finally { if (e_5) throw e_5.error; }
-        }
-        return result;
-    };
-    PolygonWithVerticesR1.prototype.getClosestVerticesToZero = function (oscillatingPolygon) {
-        var result = [];
-        var indexClosest = oscillatingPolygon.getFirstIndex();
-        for (var i = oscillatingPolygon.getFirstIndex(); i < oscillatingPolygon.length(); i += 1) {
-            if (Math.pow(oscillatingPolygon.getVertexAt(i).value, 2) < Math.pow(oscillatingPolygon.getVertexAt(indexClosest).value, 2)) {
-                indexClosest = i;
-            }
-            else {
-            }
-            result.push(oscillatingPolygon.getVertexAt(indexClosest));
-        }
-        return result;
-    };
     return PolygonWithVerticesR1;
-}());
+}(AbstractPolygonWithVerticesR1_1.AbstractPolygonWithVerticesR1));
 exports.PolygonWithVerticesR1 = PolygonWithVerticesR1;
-function extractChangingSignControlPointsSequences(controlPoints) {
+function extractOscillatingPolygons(controlPoints) {
     var result = [];
     if (controlPoints.length > 1) {
         var i = 1;
@@ -42372,14 +42640,14 @@ function extractChangingSignControlPointsSequences(controlPoints) {
                             break;
                     }
                 }
-                result.push(oscillatingPolygon);
+                result.push(new OscillatingPolygonWithVerticesR1_1.OscillatingPolygonWithVerticesR1(oscillatingPolygon));
             }
             i += 1;
         }
     }
     return result;
 }
-exports.extractChangingSignControlPointsSequences = extractChangingSignControlPointsSequences;
+exports.extractOscillatingPolygons = extractOscillatingPolygons;
 
 
 /***/ }),

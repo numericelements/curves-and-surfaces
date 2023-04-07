@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { extractChangingSignControlPointsSequences, PolygonWithVerticesR1 } from '../../src/containers/PolygonWithVerticesR1';
+import { PolygonWithVerticesR1, extractOscillatingPolygons } from '../../src/containers/PolygonWithVerticesR1';
 import { VertexR1 } from '../../src/containers/VertexR1';
 import { RETURN_ERROR_CODE } from '../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents';
 
@@ -220,7 +220,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-10, 1];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(2);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(1);
         expect(oscillatingPolygons[0].length()).to.eql(2);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1]);
@@ -230,7 +230,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-5, -12, -10, 1];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(4);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(1);
         expect(oscillatingPolygons[0].length()).to.eql(2);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1]);
@@ -240,7 +240,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-10, 1, -2, 0.5];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(4);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(1);
         expect(oscillatingPolygons[0].length()).to.eql(4);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1, -2, 0.5]);
@@ -250,7 +250,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-5, -12, -10, 1, -2, 0.5];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(6);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(1);
         expect(oscillatingPolygons[0].length()).to.eql(4);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1, -2, 0.5]);
@@ -260,7 +260,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-5, -12, -10, 1, -2, 0.5, 1];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(7);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(1);
         expect(oscillatingPolygons[0].length()).to.eql(4);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1, -2, 0.5]);
@@ -270,7 +270,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-10, 1, 2, -0.5];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(4);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(2);
         expect(oscillatingPolygons[0].length()).to.eql(2);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1]);
@@ -282,7 +282,7 @@ describe('PolygonWithVerticesR1', () => {
         const vertices = [-5, -10, 1, -2, -1, 2, 1, -0.5];
         const polygon = new PolygonWithVerticesR1(vertices);
         expect(polygon.length()).to.eql(8);
-        const oscillatingPolygons = polygon.extractChangingSignVerticesSequences();
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
         expect(oscillatingPolygons.length).to.eql(3);
         expect(oscillatingPolygons[0].length()).to.eql(3);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1, -2]);
@@ -295,19 +295,19 @@ describe('PolygonWithVerticesR1', () => {
     it('for comparison with OptimizationProblem_BSpline_R1_to_R2 class', () => {
         const vertices1 = [-5, -3, 5, 5];
         const polygon1 = new PolygonWithVerticesR1(vertices1);
-        const oscillatingPolygons1 = polygon1.extractChangingSignVerticesSequences();
+        const oscillatingPolygons1 = polygon1.extractOscillatingPolygons();
         expect(oscillatingPolygons1.length).to.eql(1);
         expect(oscillatingPolygons1[0].length()).to.eql(2);
         expect(oscillatingPolygons1[0].getValues()).to.eql([-3, 5]);
         const vertices2 = [-5, -5, 3, 5];
         const polygon2 = new PolygonWithVerticesR1(vertices2);
-        const oscillatingPolygons2 = polygon2.extractChangingSignVerticesSequences();
+        const oscillatingPolygons2 = polygon2.extractOscillatingPolygons();
         expect(oscillatingPolygons2.length).to.eql(1);
         expect(oscillatingPolygons2[0].length()).to.eql(2);
         expect(oscillatingPolygons2[0].getValues()).to.eql([-5, 3]);
         const vertices3 = [5, -3, -5, 5.1];
         const polygon3 = new PolygonWithVerticesR1(vertices3);
-        const oscillatingPolygons3 = polygon3.extractChangingSignVerticesSequences();
+        const oscillatingPolygons3 = polygon3.extractOscillatingPolygons();
         expect(oscillatingPolygons3.length).to.eql(2);
         expect(oscillatingPolygons3[0].length()).to.eql(2);
         expect(oscillatingPolygons3[0].getValues()).to.eql([5, -3]);
@@ -324,7 +324,7 @@ describe('PolygonWithVerticesR1', () => {
 describe('function extractChangingSignControlPointsSequences', () => {
     it('can extract multiple polygons oscillating around the axis. Variant using a control point sequence as input', () => {
         const ctrlPtSequence = [-5, -10, 1, -2, -1, 2, 1, -0.5];
-        const oscillatingPolygons = extractChangingSignControlPointsSequences(ctrlPtSequence);
+        const oscillatingPolygons = extractOscillatingPolygons(ctrlPtSequence);
         expect(oscillatingPolygons.length).to.eql(3);
         expect(oscillatingPolygons[0].length()).to.eql(3);
         expect(oscillatingPolygons[0].getValues()).to.eql([-10, 1, -2]);
