@@ -2,14 +2,17 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { sign } from "../linearAlgebra/MathVectorBasicOperations";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { VertexR1 } from "./VertexR1";
+import { OscillatingPolygonWithVerticesR1 } from "./OscillatingPolygonWithVerticesR1";
+import { AbstractPolygonWithVerticesR1 } from "./AbstractPolygonWithVerticesR1";
 
-export class PolygonWithVerticesR1 {
+export class PolygonWithVerticesR1 extends AbstractPolygonWithVerticesR1{
 
-    private _vertices: Array<VertexR1>;
+    protected _vertices: Array<VertexR1>;
     private _localPositiveMinima: Array<VertexR1>;
     private _localNegativeMaxima: Array<VertexR1>;
 
     constructor(points: number[], startIndex?: number) {
+        super();
         this._vertices = [];
         this._localPositiveMinima = [];
         this._localNegativeMaxima = [];
@@ -27,10 +30,6 @@ export class PolygonWithVerticesR1 {
             this._vertices.push(new VertexR1(index, point));
             index++;
         }
-    }
-
-    get vertices() {
-        return this._vertices.slice();
     }
 
     get localPositiveMinima() {
@@ -59,42 +58,10 @@ export class PolygonWithVerticesR1 {
         return code;
     }
 
-    length(): number {
-        return this._vertices.length;
-    }
-
-    getFirstIndex(): number {
-        if(this._vertices.length > 0) {
-            return this._vertices[0].index;
-        } else {
-            return RETURN_ERROR_CODE;
-        }
-    }
-
-    getVertexAt(index: number): VertexR1 {
-        let result = new VertexR1(RETURN_ERROR_CODE, 0.0);
-        for(let vertex of this._vertices) {
-            if(vertex.index === index) result = vertex;
-        }
-        return result;
-    }
-
     clear(): void {
         this._vertices = [];
         this._localPositiveMinima = [];
         this._localNegativeMaxima = [];
-    }
-
-    extend(vertex: VertexR1): void {
-        this._vertices.push(vertex);
-        this.checkConsistency();
-    }
-
-    extendWithNewValue(value: number): void {
-        const newIndex = this._vertices.length;
-        const newVertex = new VertexR1(newIndex, value);
-        this._vertices.push(newVertex);
-        this.checkConsistency();
     }
 
     deepCopy(): PolygonWithVerticesR1 {
@@ -110,14 +77,6 @@ export class PolygonWithVerticesR1 {
             polygon._vertices.push(new VertexR1(RETURN_ERROR_CODE, 0.0));
         }
         return polygon;
-    }
-
-    getValues(): number[] {
-        let result:number[] = [];
-        for(let vertex of this._vertices) {
-            result.push(vertex.value);
-        }
-        return result;
     }
 
     sortLocalExtrema(localExtrema: Array<VertexR1>): Array<VertexR1> {
@@ -169,24 +128,24 @@ export class PolygonWithVerticesR1 {
             largestNegativeMaximum = this.sortLocalExtrema(this._localNegativeMaxima)[this._localNegativeMaxima.length - 1];
         }
         if(smallestPositiveMinimum.index !== RETURN_ERROR_CODE && largestNegativeMaximum.index !== RETURN_ERROR_CODE && Math.abs(smallestPositiveMinimum.value) > Math.abs(largestNegativeMaximum.value)) {
-            return localExtremum = largestNegativeMaximum;
+            return largestNegativeMaximum;
         } else if(smallestPositiveMinimum.index !== RETURN_ERROR_CODE && largestNegativeMaximum.index !== RETURN_ERROR_CODE) {
-            return localExtremum = smallestPositiveMinimum;
+            return smallestPositiveMinimum;
         } else if(smallestPositiveMinimum.index !== RETURN_ERROR_CODE) {
-            return localExtremum = smallestPositiveMinimum;
+            return smallestPositiveMinimum;
         } else if(largestNegativeMaximum.index !== RETURN_ERROR_CODE) {
-            return localExtremum = largestNegativeMaximum;
+            return largestNegativeMaximum;
         } else return localExtremum;
     }
 
-    extractChangingSignVerticesSequences(): PolygonWithVerticesR1[] {
-        let result: PolygonWithVerticesR1[] = [];
+    extractOscillatingPolygons(): OscillatingPolygonWithVerticesR1[] {
+        let result: OscillatingPolygonWithVerticesR1[] = [];
         if(this._vertices.length > 1) {
             let i = 1;
             while (i < this._vertices.length) {
                 if (this._vertices[i - 1].value * this._vertices[i].value <= 0.0) {
                     const firstEdge = [this._vertices[i - 1].value, this._vertices[i].value];
-                    const oscillatingPolygon = new PolygonWithVerticesR1(firstEdge, (i - 1));
+                    let oscillatingPolygon = new PolygonWithVerticesR1(firstEdge, (i - 1));
                     i += 1;
                     if(i < (this._vertices.length - 1)) {
                         while (this._vertices[i - 1].value * this._vertices[i].value <= 0.0) {
@@ -195,7 +154,7 @@ export class PolygonWithVerticesR1 {
                             if(i === this._vertices.length) break;
                         }
                     }
-                    result.push(oscillatingPolygon);
+                    result.push(new OscillatingPolygonWithVerticesR1(oscillatingPolygon));
                 }
                 i += 1;
             }
@@ -203,34 +162,10 @@ export class PolygonWithVerticesR1 {
         return result;
     }
 
-    extractControlPtsClosestToZero(oscillatingPolygons: PolygonWithVerticesR1[]): number[] {
-        let result: number[] = [];
-        for (let polygon of oscillatingPolygons) {
-            let setOfVertices = this.getClosestVerticesToZero(polygon);
-            for (let vertex of setOfVertices) {
-                result.push(vertex.index);
-            }
-        }
-        return result
-    }
-
-    getClosestVerticesToZero(oscillatingPolygon: PolygonWithVerticesR1): Array<VertexR1> {
-        let result: Array<VertexR1> = [];
-        let indexClosest = oscillatingPolygon.getFirstIndex();
-        for (let i = oscillatingPolygon.getFirstIndex(); i < oscillatingPolygon.length(); i += 1) {
-            if (Math.pow(oscillatingPolygon.getVertexAt(i).value, 2) < Math.pow(oscillatingPolygon.getVertexAt(indexClosest).value, 2)) {
-                indexClosest = i;
-            } else {
-
-            }
-            result.push(oscillatingPolygon.getVertexAt(indexClosest));
-        }
-        return result;
-    }
 }
 
-export function extractChangingSignControlPointsSequences(controlPoints: number[]): PolygonWithVerticesR1[] {
-    let result: PolygonWithVerticesR1[] = [];
+export function extractOscillatingPolygons(controlPoints: number[]): OscillatingPolygonWithVerticesR1[] {
+    let result: OscillatingPolygonWithVerticesR1[] = [];
     if(controlPoints.length > 1) {
         let i = 1;
         while (i < controlPoints.length) {
@@ -245,7 +180,7 @@ export function extractChangingSignControlPointsSequences(controlPoints: number[
                         if(i === controlPoints.length) break;
                     }
                 }
-                result.push(oscillatingPolygon);
+                result.push(new OscillatingPolygonWithVerticesR1(oscillatingPolygon));
             }
             i += 1;
         }
