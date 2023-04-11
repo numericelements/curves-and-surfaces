@@ -59,7 +59,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
         expect(oscillatingPolygon.length()).to.equal(3);
         const firstIndex = oscillatingPolygon.getFirstIndex();
-        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremity(firstIndex)).to.eql(new VertexR1(1, -1));
+        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremityEvenNbEdges(firstIndex)).to.eql(new VertexR1(1, -1));
     });
 
     it('can extract vertex closest to zero at the beginning of the polygon when the vertex is the second one.', () => {
@@ -69,7 +69,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
         expect(oscillatingPolygon.length()).to.equal(3);
         const firstIndex = oscillatingPolygon.getFirstIndex();
-        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremity(firstIndex)).to.eql(new VertexR1(2, 0.1));
+        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremityEvenNbEdges(firstIndex)).to.eql(new VertexR1(2, 0.1));
 
         const vertices1 = [-1, 0.9, -2, 0.5, -0.1];
         const polygon1 = new PolygonWithVerticesR1(vertices1, 1);
@@ -77,7 +77,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
         expect(oscillatingPolygon1.length()).to.equal(5);
         const firstIndex1 = oscillatingPolygon1.getFirstIndex();
-        expect(oscillatingPolygon1.extractControlPtClosestToZeroAtExtremity(firstIndex1)).to.eql(new VertexR1(2, 0.9));
+        expect(oscillatingPolygon1.extractControlPtClosestToZeroAtExtremityEvenNbEdges(firstIndex1)).to.eql(new VertexR1(2, 0.9));
     });
 
     it('can extract vertex closest to zero at the end of the polygon when the vertex is the last one.', () => {
@@ -88,7 +88,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.length()).to.equal(3);
         const firstIndex = oscillatingPolygon.getFirstIndex();
         const lastIndex = firstIndex + oscillatingPolygon.length() - 1;
-        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremity(lastIndex)).to.eql(new VertexR1(3, -0.5));
+        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremityEvenNbEdges(lastIndex)).to.eql(new VertexR1(3, -0.5));
     });
 
     it('can extract vertex closest to zero at the beginning of the polygon when the vertex is the one before the last one.', () => {
@@ -99,7 +99,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.length()).to.equal(3);
         const firstIndex = oscillatingPolygon.getFirstIndex();
         const lastIndex = firstIndex + oscillatingPolygon.length() - 1;
-        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremity(lastIndex)).to.eql(new VertexR1(2, 0.1));
+        expect(oscillatingPolygon.extractControlPtClosestToZeroAtExtremityEvenNbEdges(lastIndex)).to.eql(new VertexR1(2, 0.1));
 
         const vertices1 = [-1, 0.9, -2, 0.5, -1];
         const polygon1 = new PolygonWithVerticesR1(vertices1, 1);
@@ -108,10 +108,10 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon1.length()).to.equal(5);
         const firstIndex1 = oscillatingPolygon1.getFirstIndex();
         const lastIndex1 = firstIndex1 + oscillatingPolygon1.length() - 1;
-        expect(oscillatingPolygon1.extractControlPtClosestToZeroAtExtremity(lastIndex1)).to.eql(new VertexR1(4, 0.5));
+        expect(oscillatingPolygon1.extractControlPtClosestToZeroAtExtremityEvenNbEdges(lastIndex1)).to.eql(new VertexR1(4, 0.5));
     });
 
-    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Polygon with one edge only', () => {
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Polygon with one edge only. First vertex selected', () => {
         const vertices = [-1, 1.1];
         const polygon = new PolygonWithVerticesR1(vertices, 1);
         expect(polygon.length()).to.equal(2);
@@ -119,7 +119,18 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.length()).to.equal(2);
         oscillatingPolygon.extractControlPtsClosestToZeroAtExtremities();
         expect(oscillatingPolygon.closestVertexAtBeginning).to.eql(new VertexR1(1, -1));
-        expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(1, -1));
+        expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+    });
+
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Polygon with one edge only. Second vertex selected', () => {
+        const vertices = [-2, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        oscillatingPolygon.extractControlPtsClosestToZeroAtExtremities();
+        expect(oscillatingPolygon.closestVertexAtBeginning).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+        expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(2, 1.1));
     });
 
     it('can extract vertices closest to zero at the extremities of an oscillating polygon. Polygon with two edges. First and second selected.', () => {
@@ -155,7 +166,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(3, -2));
     });
 
-    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary number of vertices. First and before last selected.', () => {
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary even number of edges. First and before last selected.', () => {
         const vertices = [-1, 3, -0.5, 1, -2];
         const polygon = new PolygonWithVerticesR1(vertices, 1);
         expect(polygon.length()).to.equal(5);
@@ -166,7 +177,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(4, 1));
     });
 
-    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary number of vertices. First and last selected.', () => {
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary even number of edges. First and last selected.', () => {
         const vertices = [-1, 3, -0.5, 2, -1];
         const polygon = new PolygonWithVerticesR1(vertices, 1);
         expect(polygon.length()).to.equal(5);
@@ -177,7 +188,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(5, -1));
     });
 
-    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary number of vertices. Second and last selected.', () => {
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary even number of edges. Second and last selected.', () => {
         const vertices = [-2, 1, -0.5, 2, -1];
         const polygon = new PolygonWithVerticesR1(vertices, 1);
         expect(polygon.length()).to.equal(5);
@@ -188,7 +199,7 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(5, -1));
     });
 
-    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary number of vertices. Second and before last selected.', () => {
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary even number of edges. Second and before last selected.', () => {
         const vertices = [-2, 1, -0.5, 1, -2];
         const polygon = new PolygonWithVerticesR1(vertices, 1);
         expect(polygon.length()).to.equal(5);
@@ -197,6 +208,28 @@ describe('OscillatingPolygonWithVerticesR1', () => {
         oscillatingPolygon.extractControlPtsClosestToZeroAtExtremities();
         expect(oscillatingPolygon.closestVertexAtBeginning).to.eql(new VertexR1(2, 1));
         expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(4, 1));
+    });
+
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary odd number of edges. Last vertex selected.', () => {
+        const vertices = [-2, 1, -0.5, 1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(4);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(4);
+        oscillatingPolygon.extractControlPtsClosestToZeroAtExtremities();
+        expect(oscillatingPolygon.closestVertexAtBeginning).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+        expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(4, 1));
+    });
+
+    it('can extract vertices closest to zero at the extremities of an oscillating polygon. Arbitrary odd number of edges. First vertex selected.', () => {
+        const vertices = [-2, 1, -0.5, 3];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(4);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(4);
+        oscillatingPolygon.extractControlPtsClosestToZeroAtExtremities();
+        expect(oscillatingPolygon.closestVertexAtBeginning).to.eql(new VertexR1(1, -2));
+        expect(oscillatingPolygon.closestVertexAtEnd).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
     });
 
 });
@@ -247,6 +280,37 @@ describe('extractAdjacentOscillatingPolygons', () => {
         expect(adjacentPolygons[0].oscillatingPolygons[0].getValues()).to.eql([-1, 1.1]);
         expect(adjacentPolygons[0].oscillatingPolygons[1].length()).to.eql(3);
         expect(adjacentPolygons[0].oscillatingPolygons[1].getValues()).to.eql([2, -1, 1]);
+    });
+
+    it('can extract one adjacent oscillating polygon from multiple oscillating polygons', () => {
+        const vertices = [-1, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        const vertices1 = [2, -1, 1];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 3);
+        expect(polygon1.length()).to.equal(3);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(3);
+        const vertices2 = [2, -1];
+        const polygon2 = new PolygonWithVerticesR1(vertices2, 6);
+        expect(polygon2.length()).to.equal(2);
+        const oscillatingPolygon2 = new OscillatingPolygonWithVerticesR1(polygon2);
+        expect(oscillatingPolygon2.length()).to.equal(2);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        allPolygons.push(oscillatingPolygon2);
+        const adjacentPolygons = extractAdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.length).to.equal(1);
+        expect(adjacentPolygons[0].oscillatingPolygons.length).to.eql(3);
+        expect(adjacentPolygons[0].oscillatingPolygons[0].length()).to.eql(2);
+        expect(adjacentPolygons[0].oscillatingPolygons[0].getValues()).to.eql([-1, 1.1]);
+        expect(adjacentPolygons[0].oscillatingPolygons[1].length()).to.eql(3);
+        expect(adjacentPolygons[0].oscillatingPolygons[1].getValues()).to.eql([2, -1, 1]);
+        expect(adjacentPolygons[0].oscillatingPolygons[2].length()).to.eql(2);
+        expect(adjacentPolygons[0].oscillatingPolygons[2].getValues()).to.eql([2, -1]);
     });
 
     it('can extract several adjacent oscillating polygons from multiple oscillating polygons. Last one is the last oscillating polygon', () => {

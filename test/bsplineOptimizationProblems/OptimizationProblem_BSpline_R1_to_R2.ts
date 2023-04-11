@@ -528,5 +528,31 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
     });
 
+    it('compare constraint inactivation 1', () => {
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(-0.25, 7)
+        const cp2 = new Vector2d(0.25, 7)
+        const cp3 = new Vector2d(0.5, 0)
+        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const ctrlPts = [-6468381.36,-266511.33,597745.062,51520.05,-159846.34,111507.975,281.475,-283.5,-111510,162596.7,-55920.37,-607691.7,296730,6669621];
+        o.computeInactiveConstraints2(ctrlPts);
+        expect(o.computeInactiveConstraints2(ctrlPts).length).to.eql(6);
+        expect(o.computeInactiveConstraints2(ctrlPts)).to.eql([1,3,6,8,10,12]);
+    });
 
+    it('compare constraint inactivation 1', () => {
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(-0.25, 7)
+        const cp2 = new Vector2d(0.25, 7)
+        const cp3 = new Vector2d(0.5, 0)
+        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const ctrlPts = [450.72,-81.945,-66.29,14.42,-15.9,-81.324,91.32];
+        o.computeInactiveConstraints2(ctrlPts);
+        expect(o.computeInactiveConstraints2(ctrlPts).length).to.eql(3);
+        expect(o.computeInactiveConstraints2(ctrlPts)).to.eql([1,3,5]);
+    });
 });

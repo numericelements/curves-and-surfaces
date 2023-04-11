@@ -12,6 +12,8 @@ import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { ActiveControl, BaseOpProblemBSplineR1toR2, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2";
 import { PolygonWithVerticesR1 } from "../containers/PolygonWithVerticesR1";
+import { extractAdjacentOscillatingPolygons } from "../containers/OscillatingPolygonWithVerticesR1";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 
 
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
@@ -268,7 +270,53 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
         let signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
         let controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints);
         let result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
-        return result;
+        // test new method
+        let result2 = this.computeInactiveConstraints2(controlPoints);
+        if(result.length !== result2.length) {
+            console.log("nb inactive constraints = "+result.length+" nb new inact = "+result2.length)
+            console.log("ctrl pts = "+controlPoints)
+            console.log("inactive = "+result)
+            console.log(" new inactive = "+result2)
+        }
+        return result2;
+        // return result;
+    }
+
+    computeInactiveConstraints2(controlPoints: number[]): number[] {
+        let indicesConstraints: number[] = [];
+        const polygon = new PolygonWithVerticesR1(controlPoints);
+        const oscillatingPolygons = polygon.extractOscillatingPolygons();
+        if(oscillatingPolygons.length !== 0) {
+            const oscillatingPolygonsWithAdjacency = extractAdjacentOscillatingPolygons(oscillatingPolygons);
+            for(let oscillatingPolyWithAdj of oscillatingPolygonsWithAdjacency) {
+                if(oscillatingPolyWithAdj.oscillatingPolygons[0].closestVertexAtBeginning.index !== RETURN_ERROR_CODE) {
+                    indicesConstraints.push(oscillatingPolyWithAdj.oscillatingPolygons[0].closestVertexAtBeginning.index);
+                }
+                if(oscillatingPolyWithAdj.oscillatingPolygons.length !== 1) {
+                    for(let connectionIndex = 0; connectionIndex < (oscillatingPolyWithAdj.oscillatingPolygons.length - 1); connectionIndex++) {
+                        const compatibleConstraint = oscillatingPolyWithAdj.getClosestVertexToZeroAtConnection(connectionIndex);
+                        if(compatibleConstraint.index !== RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== compatibleConstraint.index) {
+                            indicesConstraints.push(compatibleConstraint.index);
+                        } else {
+                            const indexEnd = oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex].closestVertexAtEnd.index;
+                            if(indexEnd !== RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== indexEnd) {
+                                indicesConstraints.push(oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex].closestVertexAtEnd.index);
+                            }
+                            const indexBgng = oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex + 1].closestVertexAtBeginning.index;
+                            if(indexBgng !== RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== indexBgng) {
+                                indicesConstraints.push(indexBgng);
+                            }
+                        }
+                    }
+                }
+                const nbOscillatingPolygons = oscillatingPolyWithAdj.oscillatingPolygons.length;
+                const index = oscillatingPolyWithAdj.oscillatingPolygons[nbOscillatingPolygons - 1].closestVertexAtEnd.index;
+                if(index !== RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== index) {
+                    indicesConstraints.push(index);
+                }
+            }
+        }
+        return indicesConstraints;
     }
 
     g(): number[] {

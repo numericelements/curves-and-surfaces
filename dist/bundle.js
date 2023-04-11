@@ -39085,6 +39085,8 @@ var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplin
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
 var PolygonWithVerticesR1_1 = __webpack_require__(/*! ../containers/PolygonWithVerticesR1 */ "./src/containers/PolygonWithVerticesR1.ts");
+var OscillatingPolygonWithVerticesR1_1 = __webpack_require__(/*! ../containers/OscillatingPolygonWithVerticesR1 */ "./src/containers/OscillatingPolygonWithVerticesR1.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var eventMove;
 (function (eventMove) {
     eventMove[eventMove["still"] = 0] = "still";
@@ -39323,7 +39325,64 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
         var controlPointsClosestToZero = this.computeControlPointsClosestToZero(signChangesIntervals, controlPoints);
         var result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
-        return result;
+        // test new method
+        var result2 = this.computeInactiveConstraints2(controlPoints);
+        if (result.length !== result2.length) {
+            console.log("nb inactive constraints = " + result.length + " nb new inact = " + result2.length);
+            console.log("ctrl pts = " + controlPoints);
+            console.log("inactive = " + result);
+            console.log(" new inactive = " + result2);
+        }
+        return result2;
+        // return result;
+    };
+    OptimizationProblem_BSpline_R1_to_R2.prototype.computeInactiveConstraints2 = function (controlPoints) {
+        var e_1, _a;
+        var indicesConstraints = [];
+        var polygon = new PolygonWithVerticesR1_1.PolygonWithVerticesR1(controlPoints);
+        var oscillatingPolygons = polygon.extractOscillatingPolygons();
+        if (oscillatingPolygons.length !== 0) {
+            var oscillatingPolygonsWithAdjacency = OscillatingPolygonWithVerticesR1_1.extractAdjacentOscillatingPolygons(oscillatingPolygons);
+            try {
+                for (var oscillatingPolygonsWithAdjacency_1 = __values(oscillatingPolygonsWithAdjacency), oscillatingPolygonsWithAdjacency_1_1 = oscillatingPolygonsWithAdjacency_1.next(); !oscillatingPolygonsWithAdjacency_1_1.done; oscillatingPolygonsWithAdjacency_1_1 = oscillatingPolygonsWithAdjacency_1.next()) {
+                    var oscillatingPolyWithAdj = oscillatingPolygonsWithAdjacency_1_1.value;
+                    if (oscillatingPolyWithAdj.oscillatingPolygons[0].closestVertexAtBeginning.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                        indicesConstraints.push(oscillatingPolyWithAdj.oscillatingPolygons[0].closestVertexAtBeginning.index);
+                    }
+                    if (oscillatingPolyWithAdj.oscillatingPolygons.length !== 1) {
+                        for (var connectionIndex = 0; connectionIndex < (oscillatingPolyWithAdj.oscillatingPolygons.length - 1); connectionIndex++) {
+                            var compatibleConstraint = oscillatingPolyWithAdj.getClosestVertexToZeroAtConnection(connectionIndex);
+                            if (compatibleConstraint.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== compatibleConstraint.index) {
+                                indicesConstraints.push(compatibleConstraint.index);
+                            }
+                            else {
+                                var indexEnd = oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex].closestVertexAtEnd.index;
+                                if (indexEnd !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== indexEnd) {
+                                    indicesConstraints.push(oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex].closestVertexAtEnd.index);
+                                }
+                                var indexBgng = oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex + 1].closestVertexAtBeginning.index;
+                                if (indexBgng !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== indexBgng) {
+                                    indicesConstraints.push(indexBgng);
+                                }
+                            }
+                        }
+                    }
+                    var nbOscillatingPolygons = oscillatingPolyWithAdj.oscillatingPolygons.length;
+                    var index = oscillatingPolyWithAdj.oscillatingPolygons[nbOscillatingPolygons - 1].closestVertexAtEnd.index;
+                    if (index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== index) {
+                        indicesConstraints.push(index);
+                    }
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (oscillatingPolygonsWithAdjacency_1_1 && !oscillatingPolygonsWithAdjacency_1_1.done && (_a = oscillatingPolygonsWithAdjacency_1.return)) _a.call(oscillatingPolygonsWithAdjacency_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+        }
+        return indicesConstraints;
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.g = function () {
         var e = this.expensiveComputation(this.spline);
@@ -39936,7 +39995,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         }
     };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.checkConstraintConsistency = function () {
-        var e_1, _a, e_2, _b, e_3, _c, e_4, _d;
+        var e_2, _a, e_3, _b, e_4, _c, e_5, _d;
         /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
             As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
             Consequently, each active constraint value must be negative. */
@@ -39956,26 +40015,8 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                     indexC = i;
                     if (i < this.curvatureExtremaNumberOfActiveConstraints) {
                         try {
-                            for (var _e = (e_1 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _g = _e.next(); !_g.done; _g = _e.next()) {
+                            for (var _e = (e_2 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _g = _e.next(); !_g.done; _g = _e.next()) {
                                 var constraintIndex = _g.value;
-                                if (i > constraintIndex)
-                                    indexC = indexC + 1;
-                            }
-                        }
-                        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                        finally {
-                            try {
-                                if (_g && !_g.done && (_a = _e.return)) _a.call(_e);
-                            }
-                            finally { if (e_1) throw e_1.error; }
-                        }
-                    }
-                    else {
-                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints;
-                        typeC = constraintType.inflexion;
-                        try {
-                            for (var _h = (e_2 = void 0, __values(this.inflectionInactiveConstraints)), _j = _h.next(); !_j.done; _j = _h.next()) {
-                                var constraintIndex = _j.value;
                                 if (i > constraintIndex)
                                     indexC = indexC + 1;
                             }
@@ -39983,9 +40024,27 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                         catch (e_2_1) { e_2 = { error: e_2_1 }; }
                         finally {
                             try {
-                                if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
+                                if (_g && !_g.done && (_a = _e.return)) _a.call(_e);
                             }
                             finally { if (e_2) throw e_2.error; }
+                        }
+                    }
+                    else {
+                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints;
+                        typeC = constraintType.inflexion;
+                        try {
+                            for (var _h = (e_3 = void 0, __values(this.inflectionInactiveConstraints)), _j = _h.next(); !_j.done; _j = _h.next()) {
+                                var constraintIndex = _j.value;
+                                if (i > constraintIndex)
+                                    indexC = indexC + 1;
+                            }
+                        }
+                        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                        finally {
+                            try {
+                                if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
+                            }
+                            finally { if (e_3) throw e_3.error; }
                         }
                     }
                 }
@@ -39993,26 +40052,8 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
                     try {
-                        for (var _k = (e_3 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _l = _k.next(); !_l.done; _l = _k.next()) {
+                        for (var _k = (e_4 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _l = _k.next(); !_l.done; _l = _k.next()) {
                             var constraintIndex = _l.value;
-                            if (i > constraintIndex)
-                                indexC = indexC + 1;
-                        }
-                    }
-                    catch (e_3_1) { e_3 = { error: e_3_1 }; }
-                    finally {
-                        try {
-                            if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
-                        }
-                        finally { if (e_3) throw e_3.error; }
-                    }
-                }
-                else {
-                    typeC = constraintType.inflexion;
-                    indexC = i;
-                    try {
-                        for (var _m = (e_4 = void 0, __values(this.inflectionInactiveConstraints)), _o = _m.next(); !_o.done; _o = _m.next()) {
-                            var constraintIndex = _o.value;
                             if (i > constraintIndex)
                                 indexC = indexC + 1;
                         }
@@ -40020,9 +40061,27 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                     catch (e_4_1) { e_4 = { error: e_4_1 }; }
                     finally {
                         try {
-                            if (_o && !_o.done && (_d = _m.return)) _d.call(_m);
+                            if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
                         }
                         finally { if (e_4) throw e_4.error; }
+                    }
+                }
+                else {
+                    typeC = constraintType.inflexion;
+                    indexC = i;
+                    try {
+                        for (var _m = (e_5 = void 0, __values(this.inflectionInactiveConstraints)), _o = _m.next(); !_o.done; _o = _m.next()) {
+                            var constraintIndex = _o.value;
+                            if (i > constraintIndex)
+                                indexC = indexC + 1;
+                        }
+                    }
+                    catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                    finally {
+                        try {
+                            if (_o && !_o.done && (_d = _m.return)) _d.call(_m);
+                        }
+                        finally { if (e_5) throw e_5.error; }
                     }
                 }
                 invalidConstraints.push({ value: this._f[i], type: typeC, index: indexC });
@@ -42148,20 +42207,69 @@ var AdjacentOscillatingPolygons = /** @class */ (function () {
             }
         }
     };
+    AdjacentOscillatingPolygons.prototype.getClosestVertexToZeroAtConnection = function (index) {
+        var closestVertex = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        var firstIndex = this._oscillatingPolygons[index].getFirstIndex();
+        var lastIndex = firstIndex + this._oscillatingPolygons[index].length() - 1;
+        if (this._oscillatingPolygons[index].closestVertexAtEnd.index === lastIndex) {
+            closestVertex = this._oscillatingPolygons[index].closestVertexAtEnd;
+            if (this._oscillatingPolygons[index + 1].closestVertexAtBeginning.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE &&
+                this._oscillatingPolygons[index + 1].closestVertexAtBeginning.index === this._oscillatingPolygons[index + 1].getFirstIndex()) {
+                if (Math.pow(closestVertex.value, 2) > Math.pow(this._oscillatingPolygons[index + 1].closestVertexAtBeginning.value, 2)) {
+                    closestVertex = this._oscillatingPolygons[index + 1].closestVertexAtBeginning;
+                }
+            }
+            else {
+                closestVertex = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+            }
+        }
+        else if (this._oscillatingPolygons[index].closestVertexAtEnd.index === ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            if (this._oscillatingPolygons[index + 1].closestVertexAtBeginning.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                closestVertex = this._oscillatingPolygons[index + 1].closestVertexAtBeginning;
+            }
+        }
+        return closestVertex;
+    };
     AdjacentOscillatingPolygons.prototype.getClosestVertexToZero = function () {
-        var closestVertex = Math.pow(this.oscillatingPolygons[0].closestVertexAtEnd.value, 2);
+        if (this._oscillatingPolygons.length === 1) {
+            return;
+        }
+        this.findFirstVertex();
+        var closestVertex = Math.pow(this._closestVertex.value, 2);
+        for (var i = 1; i < this._oscillatingPolygons.length; i++) {
+            if (this._oscillatingPolygons[i].closestVertexAtEnd.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && i < (this._oscillatingPolygons.length - 1)) {
+                if (Math.pow(this._oscillatingPolygons[i].closestVertexAtEnd.value, 2) < closestVertex) {
+                    closestVertex = Math.pow(this._oscillatingPolygons[i].closestVertexAtEnd.value, 2);
+                    this._closestVertex = this._oscillatingPolygons[i].closestVertexAtEnd;
+                    this._indexOscillatingPolygon = i;
+                }
+            }
+            if (this._oscillatingPolygons[i].closestVertexAtBeginning.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                if (Math.pow(this._oscillatingPolygons[i].closestVertexAtBeginning.value, 2) < closestVertex) {
+                    closestVertex = Math.pow(this._oscillatingPolygons[i].closestVertexAtBeginning.value, 2);
+                    this._closestVertex = this._oscillatingPolygons[i].closestVertexAtBeginning;
+                    this._indexOscillatingPolygon = i;
+                }
+            }
+        }
+    };
+    AdjacentOscillatingPolygons.prototype.findFirstVertex = function () {
         this._closestVertex = this._oscillatingPolygons[0].closestVertexAtEnd;
         this._indexOscillatingPolygon = 0;
-        for (var i = 1; i < this._oscillatingPolygons.length; i++) {
-            if (Math.pow(this._oscillatingPolygons[i].closestVertexAtEnd.value, 2) < closestVertex) {
-                closestVertex = Math.pow(this._oscillatingPolygons[i].closestVertexAtEnd.value, 2);
-                this._closestVertex = this._oscillatingPolygons[i].closestVertexAtEnd;
-                this._indexOscillatingPolygon = i;
+        if (this._closestVertex.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            return;
+        }
+        else {
+            this._indexOscillatingPolygon = 1;
+            if (this._oscillatingPolygons[1].closestVertexAtBeginning.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                this._closestVertex = this._oscillatingPolygons[1].closestVertexAtBeginning;
             }
-            else if (Math.pow(this._oscillatingPolygons[i].closestVertexAtBeginning.value, 2) < closestVertex) {
-                closestVertex = Math.pow(this._oscillatingPolygons[i].closestVertexAtBeginning.value, 2);
-                this._closestVertex = this._oscillatingPolygons[i].closestVertexAtBeginning;
-                this._indexOscillatingPolygon = i;
+            else if (this._oscillatingPolygons[1].closestVertexAtEnd.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                this._closestVertex = this._oscillatingPolygons[1].closestVertexAtEnd;
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findFirstVertex", "Inconsistent content of closestVertexAtBeginning and closestVertexAtEnd for oscillating polygon 1.");
+                error.logMessageToConsole();
             }
         }
     };
@@ -42337,9 +42445,9 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
         }
         return code;
     };
-    OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremity = function (index) {
+    OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremityEvenNbEdges = function (index) {
         if (index !== this.getFirstIndex() && index !== this.getVertexAt(this.getFirstIndex() + this.length() - 1).index) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremity", "Current vertex index is not at an extremity of the polygon.");
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremityEvenNbEdges", "Current vertex index is not at an extremity of the polygon.");
             error.logMessageToConsole();
             return new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
         }
@@ -42358,11 +42466,28 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
             return vertex1;
         }
     };
+    OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremityOddNbEdges = function () {
+        var firstIndex = this.getFirstIndex();
+        var vertex1 = this.getVertexAt(firstIndex);
+        var lastIndex = firstIndex + this.length() - 1;
+        var vertex2 = this.getVertexAt(lastIndex);
+        if (Math.pow(vertex1.value, 2) > Math.pow(vertex2.value, 2)) {
+            this._closestVertexAtEnd = vertex2;
+        }
+        else {
+            this._closestVertexAtBeginning = vertex1;
+        }
+    };
     OscillatingPolygonWithVerticesR1.prototype.extractControlPtsClosestToZeroAtExtremities = function () {
         var firstIndex = this.getFirstIndex();
-        this._closestVertexAtBeginning = this.extractControlPtClosestToZeroAtExtremity(firstIndex);
         var lastIndex = firstIndex + this.length() - 1;
-        this._closestVertexAtEnd = this.extractControlPtClosestToZeroAtExtremity(lastIndex);
+        if ((this.length() - 1) % 2 === 0) {
+            this._closestVertexAtBeginning = this.extractControlPtClosestToZeroAtExtremityEvenNbEdges(firstIndex);
+            this._closestVertexAtEnd = this.extractControlPtClosestToZeroAtExtremityEvenNbEdges(lastIndex);
+        }
+        else {
+            this.extractControlPtClosestToZeroAtExtremityOddNbEdges();
+        }
     };
     return OscillatingPolygonWithVerticesR1;
 }(AbstractPolygonWithVerticesR1_1.AbstractPolygonWithVerticesR1));
@@ -42380,6 +42505,10 @@ function extractAdjacentOscillatingPolygons(oscillatingPolygons) {
                     while (oscillatingPolygons[i].vertices[oscillatingPolygons[i].vertices.length - 1].index + 1 === oscillatingPolygons[i + 1].vertices[0].index) {
                         polygons.push(oscillatingPolygons[i + 1]);
                         i += 1;
+                        if ((i + 1) === oscillatingPolygons.length) {
+                            i += 1;
+                            break;
+                        }
                     }
                 }
             }

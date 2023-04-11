@@ -63,9 +63,9 @@ export class OscillatingPolygonWithVerticesR1 extends AbstractPolygonWithVertice
 
 
 
-    extractControlPtClosestToZeroAtExtremity(index: number): VertexR1 {
+    extractControlPtClosestToZeroAtExtremityEvenNbEdges(index: number): VertexR1 {
         if(index !== this.getFirstIndex() && index !== this.getVertexAt(this.getFirstIndex() + this.length() - 1).index) {
-            const error = new ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremity", "Current vertex index is not at an extremity of the polygon.");
+            const error = new ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremityEvenNbEdges", "Current vertex index is not at an extremity of the polygon.");
             error.logMessageToConsole();
             return new VertexR1(RETURN_ERROR_CODE, 0.0);
         }
@@ -83,11 +83,27 @@ export class OscillatingPolygonWithVerticesR1 extends AbstractPolygonWithVertice
         }
     }
 
+    extractControlPtClosestToZeroAtExtremityOddNbEdges(): void {
+        const firstIndex = this.getFirstIndex();
+        const vertex1 = this.getVertexAt(firstIndex);
+        const lastIndex = firstIndex + this.length() - 1;
+        const vertex2 = this.getVertexAt(lastIndex);
+        if(Math.pow(vertex1.value, 2) > Math.pow(vertex2.value, 2)) {
+            this._closestVertexAtEnd = vertex2;
+        } else {
+            this._closestVertexAtBeginning = vertex1;
+        }
+    }
+
     extractControlPtsClosestToZeroAtExtremities(): void {
         const firstIndex = this.getFirstIndex();
-        this._closestVertexAtBeginning = this.extractControlPtClosestToZeroAtExtremity(firstIndex);
         const lastIndex = firstIndex + this.length() - 1;
-        this._closestVertexAtEnd = this.extractControlPtClosestToZeroAtExtremity(lastIndex);
+        if((this.length() - 1) % 2 === 0) {
+            this._closestVertexAtBeginning = this.extractControlPtClosestToZeroAtExtremityEvenNbEdges(firstIndex);
+            this._closestVertexAtEnd = this.extractControlPtClosestToZeroAtExtremityEvenNbEdges(lastIndex);
+        } else {
+            this.extractControlPtClosestToZeroAtExtremityOddNbEdges();
+        }
     }
 }
 
@@ -104,6 +120,10 @@ export function extractAdjacentOscillatingPolygons(oscillatingPolygons: Oscillat
                     while(oscillatingPolygons[i].vertices[oscillatingPolygons[i].vertices.length - 1].index + 1 === oscillatingPolygons[i + 1].vertices[0].index) {
                         polygons.push(oscillatingPolygons[i + 1]);
                         i += 1;
+                        if((i + 1) === oscillatingPolygons.length) {
+                            i += 1;
+                            break;
+                        }
                     }
                 }
             } else {

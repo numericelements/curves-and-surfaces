@@ -3,6 +3,7 @@ import { PolygonWithVerticesR1 } from '../../src/containers/PolygonWithVerticesR
 import { OscillatingPolygonWithVerticesR1 } from '../../src/containers/OscillatingPolygonWithVerticesR1';
 import { AdjacentOscillatingPolygons } from '../../src/containers/AdjacentOscillatingPolygons';
 import { VertexR1 } from '../../src/containers/VertexR1';
+import { RETURN_ERROR_CODE } from '../../src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents';
 
 describe('AdjacentOscillatingPolygons', () => {
 
@@ -97,8 +98,8 @@ describe('AdjacentOscillatingPolygons', () => {
         const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
         expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
         adjacentPolygons.getClosestVertexToZero();
-        expect(adjacentPolygons.closestVertex).to.eql(new VertexR1(1, -1));
-        expect(adjacentPolygons.indexOscillatingPolygon).to.eql(0);
+        expect(adjacentPolygons.closestVertex).to.eql(new VertexR1(4, -1.5));
+        expect(adjacentPolygons.indexOscillatingPolygon).to.eql(1);
     });
 
     it('can extract the closest vertex to 0 from a set of adjacent oscillating polygons', () => {
@@ -124,7 +125,197 @@ describe('AdjacentOscillatingPolygons', () => {
         const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
         expect(adjacentPolygons.oscillatingPolygons.length).to.equal(3);
         adjacentPolygons.getClosestVertexToZero();
-        expect(adjacentPolygons.closestVertex).to.eql(new VertexR1(8, 0.1));
-        expect(adjacentPolygons.indexOscillatingPolygon).to.eql(2);
+        expect(adjacentPolygons.closestVertex).to.eql(new VertexR1(4, -0.5));
+        expect(adjacentPolygons.indexOscillatingPolygon).to.eql(1);
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with no relaxation incompatibility. Both extreme constraints maintained', () => {
+        const vertices = [-1, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        const vertices1 = [2, -0.5];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 3);
+        expect(polygon1.length()).to.equal(2);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(2);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with no relaxation incompatibility. Left extreme constraint maintained', () => {
+        const vertices = [-1, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        const vertices1 = [1, -1.5];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 3);
+        expect(polygon1.length()).to.equal(2);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(2);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(3, 1));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with no relaxation incompatibility. Right extreme constraint maintained', () => {
+        const vertices = [-1.5, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        const vertices1 = [1, -0.5];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 3);
+        expect(polygon1.length()).to.equal(2);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(2);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with relaxation incompatibility. Right extreme constraint is closest', () => {
+        const vertices = [-1.5, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        const vertices1 = [1, -2.5];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 3);
+        expect(polygon1.length()).to.equal(2);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(2);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(3, 1));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with relaxation incompatibility. Left extreme constraint is closest', () => {
+        const vertices = [-1.5, 1.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(2);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(2);
+        const vertices1 = [1.5, -2.5];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 3);
+        expect(polygon1.length()).to.equal(2);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(2);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(2, 1.1));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with no relaxation incompatibility. Left and right extreme constraints are maintained', () => {
+        const vertices = [-2, 0.8, -3, 0.1, -1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(5);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(5);
+        const vertices1 = [-2, 0.8, -3, 0.1, -2];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 6);
+        expect(polygon1.length()).to.equal(5);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(5);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with no relaxation incompatibility. Right extreme constraint is maintained', () => {
+        const vertices = [-2, 0.8, -3, 1, -0.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(5);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(5);
+        const vertices1 = [-2, 0.8, -3, 0.1, -2];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 6);
+        expect(polygon1.length()).to.equal(5);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(5);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with no relaxation incompatibility. Left extreme constraint is maintained', () => {
+        const vertices = [-2, 0.8, -3, 0.1, -1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(5);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(5);
+        const vertices1 = [-0.2, 0.8, -3, 0.1, -2];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 6);
+        expect(polygon1.length()).to.equal(5);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(5);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(RETURN_ERROR_CODE, 0.0));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with relaxation incompatibility. Left extreme constraint is closest', () => {
+        const vertices = [-2, 0.8, -3, 1, -0.1];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(5);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(5);
+        const vertices1 = [-0.2, 0.8, -3, 0.1, -2];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 6);
+        expect(polygon1.length()).to.equal(5);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(5);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(5, -0.1));
+    });
+
+    it('can extract the closest vertex to 0 at connection of adjacent oscillating polygons 0 and 1 with relaxation incompatibility. Right extreme constraint is closest', () => {
+        const vertices = [-2, 0.8, -3, 1, -0.2];
+        const polygon = new PolygonWithVerticesR1(vertices, 1);
+        expect(polygon.length()).to.equal(5);
+        const oscillatingPolygon = new OscillatingPolygonWithVerticesR1(polygon);
+        expect(oscillatingPolygon.length()).to.equal(5);
+        const vertices1 = [-0.1, 0.8, -3, 0.1, -2];
+        const polygon1 = new PolygonWithVerticesR1(vertices1, 6);
+        expect(polygon1.length()).to.equal(5);
+        const oscillatingPolygon1 = new OscillatingPolygonWithVerticesR1(polygon1);
+        expect(oscillatingPolygon1.length()).to.equal(5);
+        const allPolygons: OscillatingPolygonWithVerticesR1[] = [];
+        allPolygons.push(oscillatingPolygon);
+        allPolygons.push(oscillatingPolygon1);
+        const adjacentPolygons = new AdjacentOscillatingPolygons(allPolygons);
+        expect(adjacentPolygons.oscillatingPolygons.length).to.equal(2);
+        expect(adjacentPolygons.getClosestVertexToZeroAtConnection(0)).to.eql(new VertexR1(6, -0.1));
     });
 });
