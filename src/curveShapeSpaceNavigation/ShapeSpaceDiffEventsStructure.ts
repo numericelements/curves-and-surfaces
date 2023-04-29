@@ -16,7 +16,6 @@ import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve"
 import { CurveCategory, OpenPlanarCurve } from "../shapeNavigableCurve/CurveCategory";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
-import { NavigationCurveModelInterface } from "./NavigationCurveModelInterface";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 
 export enum EventMgmtState {Active, Inactive, NotApplicable}
@@ -43,7 +42,7 @@ export class ShapeSpaceDiffEventsStructure {
         //      mode 0: activeControlCurvatureExtrema = false, controlOfInflection = false,
         //      mode 1, mode 2: activeControlCurvatureExtrema = true, controlOfInflection = true
         this._activeControlCurvatureExtrema = false;
-            // Initializes slidingDifferentialEvents in accordance with the navigation mode:
+        // Initializes slidingDifferentialEvents in accordance with the navigation mode:
         //      mode 0: slidingDifferentialEvents = false
         //      mode 1, mode 2: slidingDifferentialEvents =  true
         this._slidingDifferentialEvents =  false;

@@ -10,10 +10,11 @@ import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { NeighboringEvents, NeighboringEventsType } from "../controllers/SlidingStrategy";
 import { BSplineR1toR2DifferentialProperties } from "../newBsplines/BSplineR1toR2DifferentialProperties";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { ActiveControl, BaseOpProblemBSplineR1toR2, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2";
+import { BaseOpProblemBSplineR1toR2, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2";
 import { PolygonWithVerticesR1 } from "../containers/PolygonWithVerticesR1";
 import { extractAdjacentOscillatingPolygons } from "../containers/OscillatingPolygonWithVerticesR1";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 
 
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
@@ -26,7 +27,7 @@ const DEVIATION_FROM_KNOT = 0.25
 export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1toR2 {
 // export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
 
-    protected _target: BSplineR1toR2;
+    // protected _target: BSplineR1toR2;
 
     /* JCL for testing purposes */
     public curvatureExtremaConstraintsSign: number[] = []
@@ -46,11 +47,11 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
     private Dh8_9xx: BernsteinDecompositionR1toR1[][] = []
     private Dh10_11xy: BernsteinDecompositionR1toR1[][] = []
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
-        super(target, initial, activeControl);
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
 
-        // this.spline = initial.clone()
-        this._target = target.clone();
+        // this._target = target.clone();
         this.computeBasisFunctionsDerivatives();
         this._numberOfIndependentVariables = this.spline.controlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
@@ -336,24 +337,20 @@ export class OptimizationProblem_BSpline_R1_to_R2 extends BaseOpProblemBSplineR1
                 curvatureDerivativeNumerator: number[],
                 curvatureExtremaConstraintsSign: number[],
                 curvatureExtremaInactiveConstraints: number[]): number[] {
-        let result: number[] = [];
-
-        if (this.activeControl === ActiveControl.both) {
+        let f: number[] = [];
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
             const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
-            return r1.concat(r2)
-        }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
-        }
-        else if (this.activeControl === ActiveControl.inflections) {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
-        }
-        else {
+            f = r1.concat(r2);
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
+        } else {
             const warning = new WarningLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
             warning.logMessageToConsole();
-            return result;
         }
+        return f;
     }
 
     gradient_curvatureDerivativeNumerator( sxu: BernsteinDecompositionR1toR1, 
@@ -762,8 +759,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends 
 
     public weigthingFactors: number[] = []
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2,  public activeControl: ActiveControl = ActiveControl.both) {
-        super(target, initial, activeControl)
+    constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    // constructor(target: BSplineR1toR2, splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
         for (let i = 0; i < this.spline.controlPoints.length * 2; i += 1) {
             this.weigthingFactors.push(1)
         }
@@ -818,9 +816,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors extends 
 
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
-
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
-        super(target, initial, activeControl)
+    constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
     }
     
     // computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
@@ -835,9 +833,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inact
 
 export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extends OptimizationProblem_BSpline_R1_to_R2 {
 
-
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, activeControl: ActiveControl) {
-        super(target, initial, activeControl)
+    constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
     }
 
     // computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
@@ -852,8 +850,9 @@ export class OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints extend
 /* JCL 2020/10/06 derive a class to process cubics with specific desactivation constraint process at discontinuities of B(u) */
 export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics extends OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors {
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both) {
-        super(target, initial, activeControl)
+    constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
     }
 
     computeControlPointsClosestToZeroForCubics(signChangesIntervals: number[], controlPoints: number[]) {
@@ -928,9 +927,11 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
     public currentCurvatureExtremaControPoints: number[]
     public updateConstraintBound: boolean
 
-    constructor(target: BSplineR1toR2, initial: BSplineR1toR2, public activeControl: ActiveControl = ActiveControl.both, neighboringEvent?: NeighboringEvents,
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure,
+    constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure,
+        neighboringEvent?: NeighboringEvents,
         shapeSpaceBoundaryConstraintsCurvExtrema?: number[]) {
-        super(target, initial, activeControl)
+        super(splineInitial, shapeSpaceDiffEventsStructure);
 
         if(shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
             this.shapeSpaceBoundaryConstraintsCurvExtrema = shapeSpaceBoundaryConstraintsCurvExtrema
@@ -1031,13 +1032,13 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
             As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
             Consequently, each active constraint value must be negative. */
-        enum constraintType {curvatureExtremum, inflexion};
+        enum constraintType {curvatureExtremum, inflexion, none};
         let invalidConstraints: {value: number, type: constraintType, index: number}[] = [];
         for(let i = 0; i < this._f.length; i += 1) {
             if(this._f[i] > 0.0) {
                 let typeC: constraintType;
                 let indexC: number;
-                if(this.activeControl === ActiveControl.both) {
+                if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
                     if(i < this.curvatureExtremaNumberOfActiveConstraints) {
@@ -1051,18 +1052,23 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
                             if(i > constraintIndex) indexC = indexC + 1;
                         }
                     }
-                } else if(this.activeControl === ActiveControl.curvatureExtrema) {
+                } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
                     for(let constraintIndex of this.curvatureExtremaInactiveConstraints) {
                         if(i > constraintIndex) indexC = indexC + 1;
                     }
-                } else {
+                } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
                     typeC = constraintType.inflexion;
                     indexC = i;
                     for(let constraintIndex of this.inflectionInactiveConstraints) {
                         if(i > constraintIndex) indexC = indexC + 1;
                     }
+                } else {
+                    typeC = constraintType.none;
+                    indexC = RETURN_ERROR_CODE;
+                    const warning = new WarningLog(this.constructor.name, "checkConstraintConsistency", "No active control set. There should be no constraint.");
+                    warning.logMessageToConsole();
                 }
                 invalidConstraints.push({value: this._f[i], type: typeC, index: indexC});
             }
@@ -1774,22 +1780,18 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
 
     compute_fGN(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[],
         revertConstraints: number[], constraintBound: number []) {
-        //let result: number[] = []
-
-        if (this.activeControl === ActiveControl.both) {
+        let f: number[] = [];
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             const r1 = this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound)
             //console.log(" compute_fGN: " + constraintBound + " modifSignConstraints: " + revertConstraints + " r1: " + r1)
             const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
-            return r1.concat(r2)
+            f = r1.concat(r2);
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound)
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
         }
-
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound)
-        }
-        else {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
-        }
-       
+       return f;
     }
 
     compute_gradient_fGN( e: ExpensiveComputationResults,
@@ -1797,38 +1799,41 @@ export class OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_
         inflectionInactiveConstraints: number[],
         curvatureExtremaConstraintsSign: number[], 
         curvatureExtremaInactiveConstraints: number[],
-        revertConstraints: number[]) {
+        revertConstraints: number[]): DenseMatrix {
     
-            if (this.activeControl === ActiveControl.both) {
-                const m1 = this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints)
-                //console.log(" grad_fGN: " + curvatureExtremaConstraintsSign + " modifSignConstraints: " + revertConstraints + " m1: " + m1)
-                const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-                const [row_m1, n] = m1.shape
-                const [row_m2, ] = m2.shape
-    
-                const m = row_m1 + row_m2
-    
-                let result = new DenseMatrix(m, n)
-    
-                for (let i = 0; i < row_m1; i += 1) {
-                    for (let j = 0; j < n; j += 1 ) {
-                        result.set(i, j, m1.get(i, j))
-                    }
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            const m1 = this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints)
+            //console.log(" grad_fGN: " + curvatureExtremaConstraintsSign + " modifSignConstraints: " + revertConstraints + " m1: " + m1)
+            const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            const [row_m1, n] = m1.shape
+            const [row_m2, ] = m2.shape
+
+            const m = row_m1 + row_m2
+
+            let result = new DenseMatrix(m, n)
+
+            for (let i = 0; i < row_m1; i += 1) {
+                for (let j = 0; j < n; j += 1 ) {
+                    result.set(i, j, m1.get(i, j))
                 }
-                for (let i = 0; i < row_m2; i += 1) {
-                    for (let j = 0; j < n; j += 1 ) {
-                        result.set(row_m1 + i, j, m2.get(i, j))
-                    }
+            }
+            for (let i = 0; i < row_m2; i += 1) {
+                for (let j = 0; j < n; j += 1 ) {
+                    result.set(row_m1 + i, j, m2.get(i, j))
                 }
-                return result
             }
-            else if (this.activeControl === ActiveControl.curvatureExtrema) {
-                return this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints)
-            }
-            else {
-                return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-            }
+            return result
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints)
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+        } else {
+            const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            warning.logMessageToConsole();
+            let result = new DenseMatrix(1, 1);
+            return result;
         }
+    }
 
     step(deltaX: number[]) {
         let checked: boolean = true

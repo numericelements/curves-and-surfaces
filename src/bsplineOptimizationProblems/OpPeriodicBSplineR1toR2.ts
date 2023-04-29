@@ -2,15 +2,17 @@ import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2"
 import { zeroVector} from "../linearAlgebra/MathVectorBasicOperations"
 import { PeriodicBSplineR1toR1 } from "../newBsplines/PeriodicBSplineR1toR1"
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix"
-import { BaseOpProblemBSplineR1toR2, ActiveControl, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2"
+import { BaseOpProblemBSplineR1toR2, ExpensiveComputationResults } from "./BaseOpBSplineR1toR2"
 import { BernsteinDecompositionR1toR1 } from "../newBsplines/BernsteinDecompositionR1toR1"
+import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure"
 
 
 
 export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
 
-    constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl) 
+    constructor(splineInitial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    // constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
     }
 
     get spline(): PeriodicBSplineR1toR2 {
@@ -417,9 +419,9 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
 
 export class OpPeriodicBSplineR1toR2NoInactiveConstraints extends OpPeriodicBSplineR1toR2 {
 
-
-    constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
-        super(target, initial, activeControl)
+    constructor(splineInitial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    // constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        super(splineInitial, shapeSpaceDiffEventsStructure);
     }
 
     computeInactiveConstraints(controlPoints: number[]): number[] {

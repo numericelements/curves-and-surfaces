@@ -8,12 +8,14 @@ import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
 import { Vector2d } from "../mathVector/Vector2d";
 import { OpBSplineR1toR2Interface } from "./IOpBSplineR1toR2";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 
 
 export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Interface {
 
     protected _spline: BSplineR1toR2Interface;
     protected _target: BSplineR1toR2Interface;
+    protected readonly _shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure;
 
     protected _numberOfIndependentVariables: number;
     protected _f0: number;
@@ -33,10 +35,13 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     protected _curvatureExtremaInactiveConstraints: number[] = []
 
     
-    constructor(target: BSplineR1toR2Interface, initial: BSplineR1toR2Interface, public activeControl: ActiveControl = ActiveControl.curvatureExtrema) {
+    // constructor(target: BSplineR1toR2Interface, splineInitial: BSplineR1toR2Interface, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    constructor(splineInitial: BSplineR1toR2Interface, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
 
-        this._spline = initial.clone()
-        this._target = target.clone()
+        this._spline = splineInitial.clone()
+        this._target = splineInitial.clone()
+        // this._target = target.clone()
+        this._shapeSpaceDiffEventsStructure = shapeSpaceDiffEventsStructure;
         this.computeBasisFunctionsDerivatives()
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2
         this._gradient_f0 = this.compute_gradient_f0(this._spline)
@@ -58,6 +63,10 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         // if (this._f.length !== this._gradient_f.shape[0] && activeControl !== ActiveControl.none) {
         //     throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor")
         // }
+    }
+
+    get shapeSpaceDiffEventsStructure() {
+        return this._shapeSpaceDiffEventsStructure;
     }
 
     get inflectionInactiveConstraints() {
@@ -85,20 +94,15 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
     
     get numberOfConstraints() {
-        switch (this.activeControl) {
-            case ActiveControl.both: {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length
-            }
-            case ActiveControl.curvatureExtrema: {
-                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length
-            }
-            case ActiveControl.inflections: {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length
-            }
-            case ActiveControl.none: {
-                // JCL 27/02/2023 modification to integrate the status none: must be double checked
-                return 0;
-            }
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
+        } else {
+            // JCL 27/02/2023 modification to integrate the status none: must be double checked
+            return 0;
         }
     }
 
@@ -279,18 +283,17 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
                 curvatureDerivativeNumerator: number[],
                 curvatureExtremaConstraintsSign: number[],
                 curvatureExtremaInactiveConstraints: number[]): number[] {
-        if (this.activeControl === ActiveControl.both) {
+        let f: number[] = [];
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
             const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
-            return r1.concat(r2)
+            f = r1.concat(r2);
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
-
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
-        }
-        else {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
-        }
+        return f;
     }
     
     compute_gradient_f( e: ExpensiveComputationResults,
@@ -298,45 +301,38 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
                         inflectionInactiveConstraints: number[],
                         curvatureExtremaConstraintsSign: number[], 
                         curvatureExtremaInactiveConstraints: number[]): DenseMatrix {
-            if (this.activeControl === ActiveControl.both) {
-                const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
-                const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-                const [row_m1, n] = m1.shape
-                const [row_m2, ] = m2.shape
-                const m = row_m1 + row_m2
-                let result = new DenseMatrix(m, n)
-                for (let i = 0; i < row_m1; i += 1) {
-                    for (let j = 0; j < n; j += 1 ) {
-                        result.set(i, j, m1.get(i, j))
-                    }
+
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
+            const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            const [row_m1, n] = m1.shape
+            const [row_m2, ] = m2.shape
+            const m = row_m1 + row_m2
+            let result = new DenseMatrix(m, n)
+            for (let i = 0; i < row_m1; i += 1) {
+                for (let j = 0; j < n; j += 1 ) {
+                    result.set(i, j, m1.get(i, j))
                 }
-                for (let i = 0; i < row_m2; i += 1) {
-                    for (let j = 0; j < n; j += 1 ) {
-                        result.set(row_m1 + i, j, m2.get(i, j))
-                    }
+            }
+            for (let i = 0; i < row_m2; i += 1) {
+                for (let j = 0; j < n; j += 1 ) {
+                    result.set(row_m1 + i, j, m2.get(i, j))
                 }
-                return result
             }
-            else if (this.activeControl === ActiveControl.curvatureExtrema) {
-                return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
-            }
-            // JCL modif temporaire pour debuter integration optimizationProblem_BSpline_R1_to_R2
-            else  if (this.activeControl === ActiveControl.inflections) {
-                return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-            } else {
-                const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-                warning.logMessageToConsole();
-                let result = new DenseMatrix(1, 1);
-                return result;
-            }
-            // else {
-            //     return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-            // }
+            return result
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
+        // JCL modif temporaire pour debuter integration optimizationProblem_BSpline_R1_to_R2
+        } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+        } else {
+            const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            warning.logMessageToConsole();
+            let result = new DenseMatrix(1, 1);
+            return result;
+        }
     }
 }
-
-
-export enum ActiveControl {curvatureExtrema, inflections, both, none}
 
 export interface ExpensiveComputationResults {
     /*

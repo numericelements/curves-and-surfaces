@@ -38175,15 +38175,14 @@ var __read = (this && this.__read) || function (o, n) {
     return ar;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.convertStepToVector2d = exports.ActiveControl = exports.BaseOpProblemBSplineR1toR2 = void 0;
+exports.convertStepToVector2d = exports.BaseOpProblemBSplineR1toR2 = void 0;
 var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
 var DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
-    function BaseOpProblemBSplineR1toR2(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = ActiveControl.curvatureExtrema; }
-        this.activeControl = activeControl;
+    // constructor(target: BSplineR1toR2Interface, splineInitial: BSplineR1toR2Interface, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    function BaseOpProblemBSplineR1toR2(splineInitial, shapeSpaceDiffEventsStructure) {
         this._hessian_f = undefined;
         this.dBasisFunctions_du = [];
         this.d2BasisFunctions_du2 = [];
@@ -38192,8 +38191,10 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         this._inflectionInactiveConstraints = [];
         this.curvatureExtremaConstraintsSign = [];
         this._curvatureExtremaInactiveConstraints = [];
-        this._spline = initial.clone();
-        this._target = target.clone();
+        this._spline = splineInitial.clone();
+        this._target = splineInitial.clone();
+        // this._target = target.clone()
+        this._shapeSpaceDiffEventsStructure = shapeSpaceDiffEventsStructure;
         this.computeBasisFunctionsDerivatives();
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
@@ -38216,6 +38217,13 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         //     throw new Error("Problem about f length and gradient_f shape in the optimization problem construtor")
         // }
     }
+    Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "shapeSpaceDiffEventsStructure", {
+        get: function () {
+            return this._shapeSpaceDiffEventsStructure;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "inflectionInactiveConstraints", {
         get: function () {
             return this._inflectionInactiveConstraints;
@@ -38260,20 +38268,18 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
     });
     Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "numberOfConstraints", {
         get: function () {
-            switch (this.activeControl) {
-                case ActiveControl.both: {
-                    return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-                }
-                case ActiveControl.curvatureExtrema: {
-                    return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
-                }
-                case ActiveControl.inflections: {
-                    return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
-                }
-                case ActiveControl.none: {
-                    // JCL 27/02/2023 modification to integrate the status none: must be double checked
-                    return 0;
-                }
+            if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
+            }
+            else {
+                // JCL 27/02/2023 modification to integrate the status none: must be double checked
+                return 0;
             }
         },
         enumerable: false,
@@ -38426,20 +38432,22 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         return result;
     };
     BaseOpProblemBSplineR1toR2.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === ActiveControl.both) {
+        var f = [];
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
             var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            return r1.concat(r2);
+            f = r1.concat(r2);
         }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
         }
-        else {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
+        return f;
     };
     BaseOpProblemBSplineR1toR2.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        if (this.activeControl === ActiveControl.both) {
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             var m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
             var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
             var _a = __read(m1.shape, 2), row_m1 = _a[0], n = _a[1];
@@ -38458,11 +38466,11 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
             }
             return result;
         }
-        else if (this.activeControl === ActiveControl.curvatureExtrema) {
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // JCL modif temporaire pour debuter integration optimizationProblem_BSpline_R1_to_R2
         }
-        // JCL modif temporaire pour debuter integration optimizationProblem_BSpline_R1_to_R2
-        else if (this.activeControl === ActiveControl.inflections) {
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
             return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
         else {
@@ -38471,20 +38479,10 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
             var result = new DenseMatrix_1.DenseMatrix(1, 1);
             return result;
         }
-        // else {
-        //     return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
-        // }
     };
     return BaseOpProblemBSplineR1toR2;
 }());
 exports.BaseOpProblemBSplineR1toR2 = BaseOpProblemBSplineR1toR2;
-var ActiveControl;
-(function (ActiveControl) {
-    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
-    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
-    ActiveControl[ActiveControl["both"] = 2] = "both";
-    ActiveControl[ActiveControl["none"] = 3] = "none";
-})(ActiveControl = exports.ActiveControl || (exports.ActiveControl = {}));
 function convertStepToVector2d(step) {
     var n = step.length / 2;
     var result = [];
@@ -38538,11 +38536,9 @@ var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./s
 var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ./BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
 var OpPeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     __extends(OpPeriodicBSplineR1toR2, _super);
-    function OpPeriodicBSplineR1toR2(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
-        return _this;
+    function OpPeriodicBSplineR1toR2(splineInitial, shapeSpaceDiffEventsStructure) {
+        // constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
     }
     Object.defineProperty(OpPeriodicBSplineR1toR2.prototype, "spline", {
         get: function () {
@@ -38951,11 +38947,9 @@ var OpPeriodicBSplineR1toR2 = /** @class */ (function (_super) {
 exports.OpPeriodicBSplineR1toR2 = OpPeriodicBSplineR1toR2;
 var OpPeriodicBSplineR1toR2NoInactiveConstraints = /** @class */ (function (_super) {
     __extends(OpPeriodicBSplineR1toR2NoInactiveConstraints, _super);
-    function OpPeriodicBSplineR1toR2NoInactiveConstraints(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
-        return _this;
+    function OpPeriodicBSplineR1toR2NoInactiveConstraints(splineInitial, shapeSpaceDiffEventsStructure) {
+        // constructor(target: PeriodicBSplineR1toR2, initial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
     }
     OpPeriodicBSplineR1toR2NoInactiveConstraints.prototype.computeInactiveConstraints = function (controlPoints) {
         return [];
@@ -39105,10 +39099,11 @@ var transitionCP;
 var DEVIATION_FROM_KNOT = 0.25;
 var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2, _super);
-    function OptimizationProblem_BSpline_R1_to_R2(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    function OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure) {
+        var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+        // export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
+        // protected _target: BSplineR1toR2;
         /* JCL for testing purposes */
         _this.curvatureExtremaConstraintsSign = [];
         _this.inflectionConstraintsSign = [];
@@ -39117,8 +39112,7 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         _this.Dh6_7xy = [];
         _this.Dh8_9xx = [];
         _this.Dh10_11xy = [];
-        // this.spline = initial.clone()
-        _this._target = target.clone();
+        // this._target = target.clone();
         _this.computeBasisFunctionsDerivatives();
         _this._numberOfIndependentVariables = _this.spline.controlPoints.length * 2;
         _this._gradient_f0 = _this.compute_gradient_f0(_this.spline);
@@ -39393,23 +39387,23 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        var result = [];
-        if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
+        var f = [];
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
             var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            return r1.concat(r2);
+            f = r1.concat(r2);
         }
-        else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
         }
-        else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
             warning.logMessageToConsole();
-            return result;
         }
+        return f;
     };
     OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
         var dgx = [];
@@ -39739,10 +39733,10 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
 exports.OptimizationProblem_BSpline_R1_to_R2 = OptimizationProblem_BSpline_R1_to_R2;
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(splineInitial, shapeSpaceDiffEventsStructure) {
+        var _this = 
+        // constructor(target: BSplineR1toR2, splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
         _this.weigthingFactors = [];
         for (var i = 0; i < _this.spline.controlPoints.length * 2; i += 1) {
             _this.weigthingFactors.push(1);
@@ -39804,11 +39798,9 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = /** @class */ (
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors;
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
-        return _this;
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(splineInitial, shapeSpaceDiffEventsStructure) {
+        // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
     }
     // computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
     //     return []
@@ -39821,8 +39813,9 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_const
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints;
 var OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints(target, initial, activeControl) {
-        return _super.call(this, target, initial, activeControl) || this;
+    function OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints(splineInitial, shapeSpaceDiffEventsStructure) {
+        // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
     }
     // computeInactiveConstraints(constraintsSign: number[], curvatureDerivativeNumerator: number[]) {
     //     return []
@@ -39836,11 +39829,9 @@ exports.OptimizationProblem_BSpline_R1_to_R2_no_inactive_constraints = Optimizat
 /* JCL 2020/10/06 derive a class to process cubics with specific desactivation constraint process at discontinuities of B(u) */
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(target, initial, activeControl) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
-        return _this;
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(splineInitial, shapeSpaceDiffEventsStructure) {
+        // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
     }
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics.prototype.computeControlPointsClosestToZeroForCubics = function (signChangesIntervals, controlPoints) {
         var result = [];
@@ -39896,10 +39887,9 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics 
 exports.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics = OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics;
 var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation = /** @class */ (function (_super) {
     __extends(OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation, _super);
-    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(target, initial, activeControl, neighboringEvent, shapeSpaceBoundaryConstraintsCurvExtrema) {
-        if (activeControl === void 0) { activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both; }
-        var _this = _super.call(this, target, initial, activeControl) || this;
-        _this.activeControl = activeControl;
+    // constructor(target: BSplineR1toR2, initial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure,
+    function OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(splineInitial, shapeSpaceDiffEventsStructure, neighboringEvent, shapeSpaceBoundaryConstraintsCurvExtrema) {
+        var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
         _this.neighboringEvent = { event: SlidingStrategy_1.NeighboringEventsType.none, index: -1 };
         if (shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
             _this.shapeSpaceBoundaryConstraintsCurvExtrema = shapeSpaceBoundaryConstraintsCurvExtrema;
@@ -40003,6 +39993,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         (function (constraintType) {
             constraintType[constraintType["curvatureExtremum"] = 0] = "curvatureExtremum";
             constraintType[constraintType["inflexion"] = 1] = "inflexion";
+            constraintType[constraintType["none"] = 2] = "none";
         })(constraintType || (constraintType = {}));
         ;
         var invalidConstraints = [];
@@ -40010,7 +40001,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             if (this._f[i] > 0.0) {
                 var typeC = void 0;
                 var indexC = void 0;
-                if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
+                if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
                     if (i < this.curvatureExtremaNumberOfActiveConstraints) {
@@ -40048,7 +40039,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                         }
                     }
                 }
-                else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+                else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
                     typeC = constraintType.curvatureExtremum;
                     indexC = i;
                     try {
@@ -40066,7 +40057,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                         finally { if (e_4) throw e_4.error; }
                     }
                 }
-                else {
+                else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
                     typeC = constraintType.inflexion;
                     indexC = i;
                     try {
@@ -40083,6 +40074,12 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
                         }
                         finally { if (e_5) throw e_5.error; }
                     }
+                }
+                else {
+                    typeC = constraintType.none;
+                    indexC = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConstraintConsistency", "No active control set. There should be no constraint.");
+                    warning.logMessageToConsole();
                 }
                 invalidConstraints.push({ value: this._f[i], type: typeC, index: indexC });
             }
@@ -40856,22 +40853,23 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         return result;
     };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.compute_fGN = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound) {
-        //let result: number[] = []
-        if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
+        var f = [];
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             var r1 = this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound);
             //console.log(" compute_fGN: " + constraintBound + " modifSignConstraints: " + revertConstraints + " r1: " + r1)
             var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            return r1.concat(r2);
+            f = r1.concat(r2);
         }
-        else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            return this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound);
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraintsGN(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints, constraintBound);
         }
-        else {
-            return this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
         }
+        return f;
     };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.compute_gradient_fGN = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints) {
-        if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             var m1 = this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints);
             //console.log(" grad_fGN: " + curvatureExtremaConstraintsSign + " modifSignConstraints: " + revertConstraints + " m1: " + m1)
             var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
@@ -40891,11 +40889,17 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
             }
             return result;
         }
-        else if (this.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             return this.compute_curvatureExtremaConstraints_gradientGN(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints, revertConstraints);
         }
-        else {
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
             return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            warning.logMessageToConsole();
+            var result = new DenseMatrix_1.DenseMatrix(1, 1);
+            return result;
         }
     };
     OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation.prototype.step = function (deltaX) {
@@ -45111,7 +45115,6 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/controllers/SlidingStrategy.ts");
 var OpPeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OpPeriodicBSplineR1toR2 */ "./src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts");
-var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
 var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ../shapeNavigableCurve/EventStateAtCurveExtremity */ "./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts");
 var CurveShapeMonitoringStrategy = /** @class */ (function () {
     function CurveShapeMonitoringStrategy(navigationCurveModel) {
@@ -45210,9 +45213,8 @@ var OCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45225,7 +45227,7 @@ var OCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
     };
     OCurveShapeMonitoringStrategyWithInflexionsNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45248,9 +45250,8 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45263,7 +45264,7 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
     };
     OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45286,9 +45287,8 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45301,7 +45301,7 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
     };
     OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45324,9 +45324,8 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.none;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45339,7 +45338,7 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
     };
     OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45362,9 +45361,8 @@ var OCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45377,7 +45375,7 @@ var OCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
     };
     OCurveShapeMonitoringStrategyWithInflexionsSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem);
     };
@@ -45400,9 +45398,8 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45415,7 +45412,7 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
     };
     OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45438,9 +45435,8 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45453,7 +45449,7 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
     };
     OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45477,9 +45473,8 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.none;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
@@ -45492,7 +45487,7 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
     };
     OCurveShapeMonitoringStrategyWithNoDiffEventSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45556,9 +45551,8 @@ var CCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45570,7 +45564,7 @@ var CCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
     };
     CCurveShapeMonitoringStrategyWithInflexionsNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45593,9 +45587,8 @@ var CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45607,7 +45600,7 @@ var CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
     };
     CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45630,9 +45623,8 @@ var CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45644,7 +45636,7 @@ var CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
     };
     CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45667,9 +45659,8 @@ var CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.none;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45681,7 +45672,7 @@ var CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
     };
     CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -45704,9 +45695,8 @@ var CCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45718,7 +45708,7 @@ var CCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
     };
     CCurveShapeMonitoringStrategyWithInflexionsSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem);
     };
@@ -45741,9 +45731,8 @@ var CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45755,7 +45744,7 @@ var CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
     };
     CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem);
     };
@@ -45778,9 +45767,8 @@ var CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45792,7 +45780,7 @@ var CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
     };
     CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem);
     };
@@ -45816,9 +45804,8 @@ var CCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
             error.logMessageToConsole();
         }
-        _this.activeControl = BaseOpBSplineR1toR2_1.ActiveControl.none;
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.currentCurve.clone(), _this.activeControl);
+        _this._optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
@@ -45830,7 +45817,7 @@ var CCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
     };
     CCurveShapeMonitoringStrategyWithNoDiffEventSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.currentCurve.clone(), this.activeControl);
+        this.optimizationProblem = new OpPeriodicBSplineR1toR2_1.OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem);
     };
@@ -45857,7 +45844,13 @@ exports.SlidingStrategy = exports.DiffEventType = exports.NeighboringEventsType 
 var OptimizationProblem_BSpline_R1_to_R2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2 */ "./src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var BaseOpBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/BaseOpBSplineR1toR2 */ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts");
+var ActiveControl;
+(function (ActiveControl) {
+    ActiveControl[ActiveControl["curvatureExtrema"] = 0] = "curvatureExtrema";
+    ActiveControl[ActiveControl["inflections"] = 1] = "inflections";
+    ActiveControl[ActiveControl["both"] = 2] = "both";
+    ActiveControl[ActiveControl["none"] = 3] = "none";
+})(ActiveControl || (ActiveControl = {}));
 var NeighboringEventsType;
 (function (NeighboringEventsType) {
     NeighboringEventsType[NeighboringEventsType["neighboringCurExtremumLeftBoundary"] = 0] = "neighboringCurExtremumLeftBoundary";
@@ -45895,23 +45888,23 @@ var SlidingStrategy = /** @class */ (function () {
     curveShapeSpaceNavigator) {
         this.activeOptimizer = true;
         this.curveModel = curveModel;
-        var activeControl = BaseOpBSplineR1toR2_1.ActiveControl.both;
+        var activeControl = ActiveControl.both;
         this.curveSceneController = curveShapeSpaceNavigator.curveSceneController;
         if (!controlOfInflection && !controlOfCurvatureExtrema) {
-            activeControl = BaseOpBSplineR1toR2_1.ActiveControl.none;
+            activeControl = ActiveControl.none;
             this.activeOptimizer = false;
             //console.log("activeOptimizer in SlidingStrategy: " + this.activeOptimizer)
             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.none
             // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.none
         }
         else if (!controlOfCurvatureExtrema) {
-            activeControl = BaseOpBSplineR1toR2_1.ActiveControl.inflections;
+            activeControl = ActiveControl.inflections;
         }
         else if (!controlOfInflection) {
-            activeControl = BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema;
+            activeControl = ActiveControl.curvatureExtrema;
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl);
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this.optimizer = this.newOptimizer(this._optimizationProblem);
         this.lastDiffEvent = NeighboringEventsType.none;
@@ -45938,27 +45931,29 @@ var SlidingStrategy = /** @class */ (function () {
     };
     SlidingStrategy.prototype.resetCurve = function (curveModel) {
         this.curveModel = curveModel;
-        this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone());
+        // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
         /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this.optimizer = this.newOptimizer(this.optimizationProblem);
     };
     SlidingStrategy.prototype.toggleControlOfCurvatureExtrema = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema);
+            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
+        else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             this.activeOptimizer = false;
         }
-        else if (this.optimizationProblem.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), BaseOpBSplineR1toR2_1.ActiveControl.inflections);
+        else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema && this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
+            //} else if (this.optimizationProblem.activeControl === ActiveControl.both) {
+            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), BaseOpBSplineR1toR2_1.ActiveControl.both);
+        else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
+            // } else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
+            //    this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
@@ -45969,20 +45964,23 @@ var SlidingStrategy = /** @class */ (function () {
     SlidingStrategy.prototype.toggleControlOfInflections = function () {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true;
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), BaseOpBSplineR1toR2_1.ActiveControl.inflections);
+            // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)*/
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.inflections) {
+        else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
+            // } else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
             this.activeOptimizer = false;
         }
-        else if (this.optimizationProblem.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.both) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema);
+        else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema && this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
+            // } else if (this.optimizationProblem.activeControl === ActiveControl.both) {
+            // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }
-        else if (this.optimizationProblem.activeControl === BaseOpBSplineR1toR2_1.ActiveControl.curvatureExtrema) {
-            this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_1.OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), BaseOpBSplineR1toR2_1.ActiveControl.both);
+        else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            // } else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
+            // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
             /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem);
         }

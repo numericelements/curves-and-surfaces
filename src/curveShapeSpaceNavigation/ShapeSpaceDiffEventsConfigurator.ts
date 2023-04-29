@@ -10,8 +10,6 @@ import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { ClosedCurveDifferentialEventsExtractorWithoutSequence } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence";
 import { OpenCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor";
 import { ClosedCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor";
-import { NoSlidingStrategy } from "../controllers/NoSlidingStrategy";
-import { SlidingStrategy } from "../controllers/SlidingStrategy";
 import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 

@@ -5,8 +5,9 @@ import { zeroVector, containsNaN } from '../../src/linearAlgebra/MathVectorBasic
 import { identityMatrix } from '../../src/linearAlgebra/DiagonalMatrix';
 import { BSplineR1toR2DifferentialProperties } from '../../src/newBsplines/BSplineR1toR2DifferentialProperties';
 import { Vector2d } from '../../src/mathVector/Vector2d';
-
-
+import { ShapeSpaceDiffEventsStructure } from '../../src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure';
+import { ShapeNavigableCurve } from '../../src/shapeNavigableCurve/ShapeNavigableCurve';
+import { CurveShapeSpaceNavigator } from '../../src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator';
 
 
 describe('OptimizationProblem_BSpline_R1_to_R2', () => {
@@ -17,11 +18,15 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 7)
         const cp2 = new Vector2d(0.25, 7)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // JCL temporary modif to set up new structure of OptimizationProblem_BSpline_R1_to_R2
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         expect(o.numberOfIndependentVariables).to.equal(splineInitial.controlPoints.length * 2)
     });
 
@@ -31,11 +36,14 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 7)
         const cp2 = new Vector2d(0.25, 7)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         expect( o.f0 ).to.equal(0)
         let deltaX = zeroVector(splineInitial.controlPoints.length * 2)
         o.step(deltaX)
@@ -48,11 +56,14 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 7)
         const cp2 = new Vector2d(0.25, 7)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 7], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         expect(o.hessian_f0).to.eql(identityMatrix(splineInitial.controlPoints.length * 2))
     });
 
@@ -65,11 +76,14 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 0.25)
         const cp2 = new Vector2d(0.25, 0.25)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         const n = splineInitial.controlPoints.length
         const d = splineInitial.degree
         const numberOfConstraints = o.numberOfConstraints
@@ -100,11 +114,14 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 0.25)
         const cp2 = new Vector2d(0.25, 0.25)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         expect(o.gradient_f.shape).to.eql([10, 8])
         expect(o.f.length).to.eql(10)
 
@@ -125,17 +142,20 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 0.000005)
         const cp2 = new Vector2d(0.25, 0.00002)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineTarget = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.000005], [0.25, 0.00002], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.000005], [0.25, 0.00002], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
         splineInitial.insertKnot(0.1)
-        splineTarget.insertKnot(0.1)
+        // splineTarget.insertKnot(0.1)
         splineInitial.insertKnot(0.2)
-        splineTarget.insertKnot(0.2)
+        // splineTarget.insertKnot(0.2)
         splineInitial.insertKnot(0.3)
-        splineTarget.insertKnot(0.3)
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // splineTarget.insertKnot(0.3)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         //let result: number[] = []
         for (let i = 0; i < o.gradient_f.shape[0]; i += 1) {
             let temp = 0
@@ -160,7 +180,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp4 = new Vector2d(0.5, 0)
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp4], [0, 0, 0, 0, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0], [-0.25, 0.25], [0.25, 0.25], [0.5, 0]], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
+        o.setTargetSpline(splineTarget);
 
         let step = zeroVector(o.numberOfIndependentVariables)
         expect(o.fStep(step) ).to.eql(o.f)
@@ -204,16 +228,17 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         splineInitial.insertKnot(0.8)
         splineInitial.insertKnot(0.9)
 
-        let splineTarget = splineInitial.clone()
-
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // let splineTarget = splineInitial.clone()
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
 
         let step = zeroVector(o.numberOfIndependentVariables)
         expect(o.fStep(step) ).to.eql(o.f)
         expect(o.f0Step(step) ).to.eql(o.f0)
 
         //let numberOfinactiveContraint1 = o.inactiveConstraints
-        
         
         step[0] = 0.001
         step[1] = 0.00
@@ -245,8 +270,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSplineR1toR2V2d(cp, knots)
-        let splineTarget = splineInitial.clone()
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // let splineTarget = splineInitial.clone()
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
 
         let result = o.computeSignChangeIntervals([-1, -1, 1, 1])
         expect(result).to.eql([1])
@@ -266,8 +294,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSplineR1toR2V2d(cp, knots)
-        let splineTarget = splineInitial.clone()
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // let splineTarget = splineInitial.clone()
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
 
         let t1 = o.computeControlPointsClosestToZero([1], [-5, -3, 5, 5],)
         expect(t1).to.eql([1])
@@ -312,8 +343,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSplineR1toR2V2d(cp, knots)
-        let splineTarget = splineInitial.clone()
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // let splineTarget = splineInitial.clone()
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
 
         let t1 = o.addInactiveConstraintsForInflections([1], [-5, -3, 5, 5])
         expect(t1).to.eql([1])
@@ -347,8 +381,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSplineR1toR2V2d(cp, knots)
-        let splineTarget = splineInitial.clone()
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // let splineTarget = splineInitial.clone()
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
 
         // let result = o.computeInactiveConstraints([-1, -1, 1, 1], [-3, -4, 5, 6])
         let result = o.computeInactiveConstraints([-3, -4, 5, 6])
@@ -394,8 +431,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         //const cp = [ [-0.5, 0.5], [-0.25, -0.4], [0.25, 0.0], [0.5, -0.5] ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         let splineInitial = create_BSplineR1toR2V2d(cp, knots)
-        let splineTarget = splineInitial.clone()
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        // let splineTarget = splineInitial.clone()
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
 
         // let result = o.computeInactiveConstraints([1, 1, 1, 1, 1, -1, -1, -1], [3, 4, 5, 2, 2, -6, -7, -8])
         let result = o.computeInactiveConstraints([3, 4, 5, 2, 2, -6, -7, -8])
@@ -416,7 +456,6 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
 
     it('can take a symmetric b-spline curve', () => {
         
-        
         let cp0 = new Vector2d(-0.5, 0)
         let cp1 = new Vector2d(-0.25, 8)
         let cp2 = new Vector2d(0.25, 8)
@@ -430,9 +469,12 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         let cp7 = new Vector2d(0.5, 0)
         let splineInitial = new BSplineR1toR2([cp4, cp5, cp6, cp7], [0, 0, 0, 0, 1, 1, 1, 1])
         splineInitial.insertKnot(0.2)
-        splineInitial.insertKnot(0.8)        
-        let optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
-        
+        splineInitial.insertKnot(0.8)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
+        optimizationProblem.setTargetSpline(splineTarget);
     });
 
     it('has a number of independent variables equal to twice the number of control points special case', () => {
@@ -451,7 +493,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp9 = new Vector2d(0.5, 0)
         let splineInitial = create_BSplineR1toR2V2d([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
+        o.setTargetSpline(splineTarget)
         expect(o.numberOfIndependentVariables).to.equal(splineInitial.controlPoints.length * 2)
     });
 
@@ -471,7 +517,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp9 = new Vector2d(0.5, 0)
         let splineInitial = create_BSplineR1toR2V2d([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
+        o.setTargetSpline(splineTarget),
         expect(containsNaN(o.g())).to.equal(false)
     });
 
@@ -491,7 +541,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp9 = new Vector2d(0.5, 0)
         let splineInitial = create_BSplineR1toR2V2d([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
+        o.setTargetSpline(splineTarget);
         const constraint_vector = o.g()
         for (let i = 0; i < constraint_vector.length; i += 1) {
             expect(constraint_vector[i]).to.not.equal(0)
@@ -515,8 +569,11 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp9 = new Vector2d(0.5, 0)
         let splineInitial = create_BSplineR1toR2V2d([cp5, cp6, cp7, cp8, cp9], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         //let splineInitial = create_BSpline_R1_to_R2([[-0.5, 0.1], [-0.25, 7], [0, 0], [0.25, 7], [0.5, 0]], [0, 0, 0, 0, 0.5, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
-
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
+        o.setTargetSpline(splineTarget);
         const m = o.gradient_g()
         const is_nan = false
         for (let i = 0; i < m.shape[0]; i += 1) {
@@ -533,9 +590,12 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 7)
         const cp2 = new Vector2d(0.25, 7)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         const ctrlPts = [-6468381.36,-266511.33,597745.062,51520.05,-159846.34,111507.975,281.475,-283.5,-111510,162596.7,-55920.37,-607691.7,296730,6669621];
         o.computeInactiveConstraints2(ctrlPts);
         expect(o.computeInactiveConstraints2(ctrlPts).length).to.eql(6);
@@ -547,9 +607,12 @@ describe('OptimizationProblem_BSpline_R1_to_R2', () => {
         const cp1 = new Vector2d(-0.25, 7)
         const cp2 = new Vector2d(0.25, 7)
         const cp3 = new Vector2d(0.5, 0)
-        let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
+        // let splineTarget = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
         let splineInitial = create_BSplineR1toR2V2d([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1])
-        let o = new OptimizationProblem_BSpline_R1_to_R2(splineTarget, splineInitial)
+        const shapeNavigableCurve = new ShapeNavigableCurve();
+        const curveShapeSpaceNavigator = new CurveShapeSpaceNavigator(shapeNavigableCurve);
+        const shapeSpaceDiffEventsStructure = new ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator);
+        let o = new OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure)
         const ctrlPts = [450.72,-81.945,-66.29,14.42,-15.9,-81.324,91.32];
         o.computeInactiveConstraints2(ctrlPts);
         expect(o.computeInactiveConstraints2(ctrlPts).length).to.eql(3);

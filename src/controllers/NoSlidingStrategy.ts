@@ -3,9 +3,9 @@ import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../newModels/CurveModel";
 import { Vector2d } from "../mathVector/Vector2d";
-import { CurveSceneController } from "./CurveSceneController"
-import { ActiveControl } from "../bsplineOptimizationProblems/BaseOpBSplineR1toR2";
+import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 
+enum ActiveControl {curvatureExtrema, inflections, both, none}
 
 export class NoSlidingStrategy implements CurveControlStrategyInterface {
     
@@ -15,7 +15,8 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
     private curveModel: CurveModel
     private activeControl : ActiveControl
 
-    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean) {
+    constructor(curveModel: CurveModel, controlOfInflection: boolean, controlOfCurvatureExtrema: boolean,
+        curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         this.activeControl = ActiveControl.both
 
         if (!controlOfInflection && !controlOfCurvatureExtrema) {
@@ -29,7 +30,7 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
         }
 
         this.curveModel = curveModel
-        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), this.activeControl)
+        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure);
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
 
@@ -55,7 +56,7 @@ export class NoSlidingStrategy implements CurveControlStrategyInterface {
 
     resetCurve(curveModel: CurveModel) {
         this.curveModel = curveModel
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), this.activeControl)
+        // this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.curveModel.spline.clone(), this.curveModel.spline.clone(), this.activeControl)
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
