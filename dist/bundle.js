@@ -38176,6 +38176,7 @@ var __read = (this && this.__read) || function (o, n) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.convertStepToVector2d = exports.BaseOpProblemBSplineR1toR2 = void 0;
+var BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../newBsplines/BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
 var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
 var DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
@@ -38189,8 +38190,15 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         this.d3BasisFunctions_du3 = [];
         this.inflectionConstraintsSign = [];
         this._inflectionInactiveConstraints = [];
-        this.curvatureExtremaConstraintsSign = [];
+        this._curvatureExtremaConstraintsSign = [];
         this._curvatureExtremaInactiveConstraints = [];
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
+        this._inflectionTotalNumberOfConstraints = 0;
+        this.inflectionNumberOfActiveConstraints = 0;
+        this._curvatureExtremaTotalNumberOfConstraints = 0;
+        this.curvatureExtremaNumberOfActiveConstraints = 0;
         this._spline = splineInitial.clone();
         this._target = splineInitial.clone();
         // this._target = target.clone()
@@ -38200,17 +38208,28 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
         this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
-        var e = this.expensiveComputation(this._spline);
-        var curvatureNumerator = this.curvatureNumerator(e.h4);
-        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this._inflectionTotalNumberOfConstraints = curvatureNumerator.length;
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaTotalNumberOfConstraints = curvatureDerivativeNumerator.length;
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        // this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
         //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
         // contenu de test incompatible avec OptimizationProblem_BSpline_R1_to_R2 -> a voir
         // if (this._f.length !== this._gradient_f.shape[0]) {
         // if (this._f.length !== this._gradient_f.shape[0] && activeControl !== ActiveControl.none) {
@@ -38245,6 +38264,27 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "inflectionTotalNumberOfConstraints", {
+        get: function () {
+            return this._inflectionTotalNumberOfConstraints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "curvatureExtremaTotalNumberOfConstraints", {
+        get: function () {
+            return this._curvatureExtremaTotalNumberOfConstraints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "curvatureExtremaConstraintsSign", {
+        get: function () {
+            return this._curvatureExtremaConstraintsSign.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "f0", {
         get: function () {
             return this._f0;
@@ -38269,10 +38309,10 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
     Object.defineProperty(BaseOpProblemBSplineR1toR2.prototype, "numberOfConstraints", {
         get: function () {
             if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this._curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
             }
             else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-                return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+                return this._curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
             }
             else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
                 return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
@@ -38307,30 +38347,46 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         configurable: true
     });
     BaseOpProblemBSplineR1toR2.prototype.step = function (deltaX) {
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
         this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        var e = this.expensiveComputation(this._spline);
-        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        var curvatureNumerator = this.curvatureNumerator(e.h4);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
         // JCL temporary add
         return true;
     };
     BaseOpProblemBSplineR1toR2.prototype.fStep = function (step) {
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
         var splineTemp = this.spline.clone();
         splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
-        var e = this.expensiveComputation(splineTemp);
-        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        var curvatureNumerator = this.curvatureNumerator(e.h4);
-        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(splineTemp);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        }
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
     };
     BaseOpProblemBSplineR1toR2.prototype.f0Step = function (step) {
         var splineTemp = this.spline.clone();
@@ -38338,24 +38394,59 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         return this.compute_f0(this.compute_gradient_f0(splineTemp));
     };
     BaseOpProblemBSplineR1toR2.prototype.expensiveComputation = function (spline) {
+        var sxuuu;
+        var syuuu;
+        var controlPointArray = [];
+        var bdsxuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h1 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h2 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h3 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
         var sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
         var sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
         var sxu = sx.derivative();
         var syu = sy.derivative();
         var sxuu = sxu.derivative();
         var syuu = syu.derivative();
-        var sxuuu = sxuu.derivative();
-        var syuuu = syuu.derivative();
         var bdsxu = sxu.bernsteinDecomposition();
         var bdsyu = syu.bernsteinDecomposition();
         var bdsxuu = sxuu.bernsteinDecomposition();
         var bdsyuu = syuu.bernsteinDecomposition();
-        var bdsxuuu = sxuuu.bernsteinDecomposition();
-        var bdsyuuu = syuuu.bernsteinDecomposition();
-        var h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
-        var h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
-        var h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            sxuuu = sxuu.derivative();
+            syuuu = syuu.derivative();
+            bdsxuuu = sxuuu.bernsteinDecomposition();
+            bdsyuuu = syuuu.bernsteinDecomposition();
+            h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
+            h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
+            h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        }
         var h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
+        return {
+            bdsxu: bdsxu,
+            bdsyu: bdsyu,
+            bdsxuu: bdsxuu,
+            bdsyuu: bdsyuu,
+            bdsxuuu: bdsxuuu,
+            bdsyuuu: bdsyuuu,
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    };
+    BaseOpProblemBSplineR1toR2.prototype.initExpansiveComputations = function () {
+        var controlPointArray = [];
+        var bdsxu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsxuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsxuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h1 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h2 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h3 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h4 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
         return {
             bdsxu: bdsxu,
             bdsyu: bdsyu,
@@ -38443,6 +38534,11 @@ var BaseOpProblemBSplineR1toR2 = /** @class */ (function () {
         }
         else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
             f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_f", "active control set to none: unable to compute f.");
+            warning.logMessageToConsole();
+            f[0] = 0;
         }
         return f;
     };
@@ -39103,51 +39199,51 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
     function OptimizationProblem_BSpline_R1_to_R2(splineInitial, shapeSpaceDiffEventsStructure) {
         var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
         // export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
-        // protected _target: BSplineR1toR2;
         /* JCL for testing purposes */
-        _this.curvatureExtremaConstraintsSign = [];
-        _this.inflectionConstraintsSign = [];
+        // public curvatureExtremaConstraintsSign: number[] = []
+        // public inflectionConstraintsSign: number[] = []
+        // protected curvatureExtremaNumberOfActiveConstraints: number;
+        // protected inflectionNumberOfActiveConstraints: number;
+        // public curvatureExtremaTotalNumberOfConstraints: number
+        // public inflectionTotalNumberOfConstraints: number
         _this.isComputingHessian = false;
         _this.Dh5xx = [];
         _this.Dh6_7xy = [];
         _this.Dh8_9xx = [];
         _this.Dh10_11xy = [];
         // this._target = target.clone();
-        _this.computeBasisFunctionsDerivatives();
-        _this._numberOfIndependentVariables = _this.spline.controlPoints.length * 2;
-        _this._gradient_f0 = _this.compute_gradient_f0(_this.spline);
-        _this._f0 = _this.compute_f0(_this._gradient_f0);
-        _this._hessian_f0 = DiagonalMatrix_1.identityMatrix(_this.numberOfIndependentVariables);
-        var e = _this.expensiveComputation(_this.spline);
-        var curvatureNumerator = _this.curvatureNumerator(e.h4);
-        _this.inflectionTotalNumberOfConstraints = curvatureNumerator.length;
-        var g = _this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        _this.curvatureExtremaTotalNumberOfConstraints = g.length;
-        _this.curvatureExtremaConstraintsSign = _this.computeConstraintsSign(g);
-        _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraints(g);
-        // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        _this.curvatureExtremaNumberOfActiveConstraints = g.length - _this.curvatureExtremaInactiveConstraints.length;
-        //console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
-        _this.inflectionConstraintsSign = _this.computeConstraintsSign(curvatureNumerator);
-        _this._inflectionInactiveConstraints = _this.computeInactiveConstraints(curvatureNumerator);
-        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        _this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - _this.inflectionInactiveConstraints.length;
-        _this._f = _this.compute_f(curvatureNumerator, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, g, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
-        _this._gradient_f = _this.compute_gradient_f(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
+        // this.computeBasisFunctionsDerivatives();
+        // this._numberOfIndependentVariables = this.spline.controlPoints.length * 2;
+        // this._gradient_f0 = this.compute_gradient_f0(this.spline)
+        // this._f0 = this.compute_f0(this._gradient_f0)
+        // this._hessian_f0 = identityMatrix(this.numberOfIndependentVariables)
+        // const e = this.expensiveComputation(this.spline)
+        // const curvatureNumerator = this.curvatureNumerator(e.h4)
+        //     // this.inflectionTotalNumberOfConstraints = curvatureNumerator.length
+        // const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        //     // this.curvatureExtremaTotalNumberOfConstraints = g.length
+        // this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
+        // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
+        //     // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+        // this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+        //     // console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+        // this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        //     // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+        // this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+        // this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         if (_this.isComputingHessian) {
+            var e = _this.expensiveComputation(_this.spline);
             _this.prepareForHessianComputation(_this.dBasisFunctions_du, _this.d2BasisFunctions_du2, _this.d3BasisFunctions_du3);
             _this._hessian_f = _this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
         }
         return _this;
     }
-    Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "numberOfConstraints", {
-        get: function () {
-            return this.curvatureExtremaNumberOfActiveConstraints + this.inflectionNumberOfActiveConstraints;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(OptimizationProblem_BSpline_R1_to_R2.prototype, "f", {
+        // get numberOfConstraints() {
+        //     return this.curvatureExtremaNumberOfActiveConstraints + this.inflectionNumberOfActiveConstraints
+        // }
         get: function () {
             if (MathVectorBasicOperations_1.containsNaN(this._f)) {
                 throw new Error("OptimizationProblem_BSpline_R1_to_R2 contains Nan in its f vector");
@@ -39174,62 +39270,75 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         var n = this.spline.controlPoints.length;
         this._numberOfIndependentVariables = n * 2;
         var diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
+        var secondOrderSplineDerivatives = [];
         this.dBasisFunctions_du = [];
         this.d2BasisFunctions_du2 = [];
         this.d3BasisFunctions_du3 = [];
-        for (var i = 0; i < n; i += 1) {
-            diracControlPoints[i] = 1;
-            var s = new BSplineR1toR1_1.BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice());
-            var su = s.derivative();
-            var suu = su.derivative();
-            var suuu = suu.derivative();
-            var suBDecomp = su.bernsteinDecomposition();
-            var suuBDecomp = suu.bernsteinDecomposition();
-            var suuuBDecomp = suuu.bernsteinDecomposition();
-            this.dBasisFunctions_du.push(suBDecomp);
-            this.d2BasisFunctions_du2.push(suuBDecomp);
-            this.d3BasisFunctions_du3.push(suuuBDecomp);
-            diracControlPoints[i] = 0;
-        }
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.step = function (deltaX) {
-        // JCL 05/03/2021 add the checked status to enable stopping the iteration process if the curve is analyzed
-        var checked = true;
-        this.spline.optimizerStep(deltaX);
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
-        this._f0 = this.compute_f0(this._gradient_f0);
-        var e = this.expensiveComputation(this.spline);
-        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-        // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
-        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
-        var curvatureNumerator = this.curvatureNumerator(e.h4);
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
-        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
-        if (this.isComputingHessian) {
-            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
-        }
-        return checked;
-    };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.computeConstraintsSign = function (controlPoints) {
-        var result = [];
-        for (var i = 0, n = controlPoints.length; i < n; i += 1) {
-            if (controlPoints[i] > 0) {
-                result.push(-1);
-            }
-            else {
-                result.push(1);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            for (var i = 0; i < n; i += 1) {
+                diracControlPoints[i] = 1;
+                var s = new BSplineR1toR1_1.BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice());
+                var su = s.derivative();
+                var suu = su.derivative();
+                secondOrderSplineDerivatives.push(suu);
+                // let suuu = suu.derivative();
+                var suBDecomp = su.bernsteinDecomposition();
+                var suuBDecomp = suu.bernsteinDecomposition();
+                // const suuuBDecomp = suuu.bernsteinDecomposition();
+                this.dBasisFunctions_du.push(suBDecomp);
+                this.d2BasisFunctions_du2.push(suuBDecomp);
+                // this.d3BasisFunctions_du3.push(suuuBDecomp);
+                diracControlPoints[i] = 0;
             }
         }
-        //console.log(result.length)
-        return result;
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            var diracControlPoints_1 = MathVectorBasicOperations_1.zeroVector(n);
+            for (var i = 0; i < n; i += 1) {
+                diracControlPoints_1[i] = 1;
+                var suuu = secondOrderSplineDerivatives[i].derivative();
+                var suuuBDecomp = suuu.bernsteinDecomposition();
+                this.d3BasisFunctions_du3.push(suuuBDecomp);
+                diracControlPoints_1[i] = 0;
+            }
+        }
     };
+    // step(deltaX: number[]): boolean {
+    //     // JCL 05/03/2021 add the checked status to enable stopping the iteration process if the curve is analyzed
+    //     let checked: boolean = true
+    //     this.spline.optimizerStep(deltaX)
+    //     this._gradient_f0 = this.compute_gradient_f0(this.spline)
+    //     this._f0 = this.compute_f0(this._gradient_f0)
+    //     const e = this.expensiveComputation(this.spline)  
+    //     const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+    //     this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
+    //     this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
+    //     // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+    //     this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
+    //     //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+    //     const curvatureNumerator = this.curvatureNumerator(e.h4)
+    //     this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+    //     this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+    //     // this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+    //     this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
+    //     this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+    //     this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+    //     if (this.isComputingHessian) {
+    //         this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+    //     }
+    //     return checked
+    // }
+    // computeConstraintsSign(controlPoints: number[]): number[] {
+    //     let result: number[] = []
+    //     for (let i = 0, n = controlPoints.length; i < n; i += 1) {
+    //         if (controlPoints[i] > 0) {
+    //             result.push(-1);
+    //         } else {
+    //             result.push(1);
+    //         }
+    //     }
+    //     //console.log(result.length)
+    //     return result
+    // }
     OptimizationProblem_BSpline_R1_to_R2.prototype.computeSignChangeIntervals = function (constraintsSign) {
         var signChangesIntervals = [];
         var previousSign = constraintsSign[0];
@@ -39386,25 +39495,27 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
         var e = this.expensiveComputation(this.spline);
         return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
     };
-    OptimizationProblem_BSpline_R1_to_R2.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
-        var f = [];
-        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-            var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-            f = r1.concat(r2);
-        }
-        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
-        }
-        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
-            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
-        }
-        else {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
-            warning.logMessageToConsole();
-        }
-        return f;
-    };
+    // compute_f(  curvatureNumerator: number[],
+    //             inflectionConstraintsSign: number[],
+    //             inflectionInactiveConstraints: number[],
+    //             curvatureDerivativeNumerator: number[],
+    //             curvatureExtremaConstraintsSign: number[],
+    //             curvatureExtremaInactiveConstraints: number[]): number[] {
+    //     let f: number[] = [];
+    //     if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+    //         const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
+    //         const r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
+    //         f = r1.concat(r2);
+    //     } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+    //         f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints)
+    //     } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+    //         f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints)
+    //     } else {
+    //         const warning = new WarningLog(this.constructor.name, "compute_f", " active control set to none: cannot proceed with constraints computation");
+    //         warning.logMessageToConsole();
+    //     }
+    //     return f;
+    // }
     OptimizationProblem_BSpline_R1_to_R2.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
         var dgx = [];
         var dgy = [];
@@ -39707,22 +39818,22 @@ var OptimizationProblem_BSpline_R1_to_R2 = /** @class */ (function (_super) {
     /**
      * The vector of constraint functions values: f(x + step)
      */
-    OptimizationProblem_BSpline_R1_to_R2.prototype.fStep = function (step) {
-        var splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        var e = this.expensiveComputation(splineTemp);
-        var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
-        var curvatureNumerator = this.curvatureNumerator(e.h4);
-        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
-    };
+    // fStep(step: number[]): number[] {
+    //     let splineTemp = this.spline.clone()
+    //     splineTemp.optimizerStep(step)
+    //     let e = this.expensiveComputation(splineTemp)
+    //     const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+    //     const curvatureNumerator = this.curvatureNumerator(e.h4)
+    //     return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+    // }
     /**
      * The objective function value: f0(x + step)
      */
-    OptimizationProblem_BSpline_R1_to_R2.prototype.f0Step = function (step) {
-        var splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
-        return this.compute_f0(this.compute_gradient_f0(splineTemp));
-    };
+    // f0Step(step: number[]): number {
+    //     let splineTemp = this.spline.clone()
+    //     splineTemp.optimizerStep(step)
+    //     return this.compute_f0(this.compute_gradient_f0(splineTemp))
+    // }
     OptimizationProblem_BSpline_R1_to_R2.prototype.setTargetSpline = function (spline) {
         this._target = spline.clone();
         this._gradient_f0 = this.compute_gradient_f0(this.spline);
@@ -39933,7 +40044,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         for (var i = 0; i < g.length; i += 1) {
             _this.revertConstraints.push(1);
         }
-        _this.curvatureExtremaConstraintsSign = _this.computeConstraintsSign(g);
+        _this._curvatureExtremaConstraintsSign = _this.computeConstraintsSign(g);
         _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraintsGN(_this.curvatureExtremaConstraintsSign, g);
         _this.curvatureExtremaNumberOfActiveConstraints = g.length - _this.curvatureExtremaInactiveConstraints.length;
         //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
@@ -40928,7 +41039,7 @@ var OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigatio
         var e = this.expensiveComputation(this.spline);
         var g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
         if (this.updateConstraintBound) {
-            this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(g);
             this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(this.curvatureExtremaConstraintsSign, g);
         }
         this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length;
@@ -44678,6 +44789,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection = /** @class */ (
         }
         else {
             this.selectedControlPoint = this._curveSceneController.controlPointsView.pointSelection(ndcX, ndcY);
+            console.log(" select CP id = ", this.selectedControlPoint);
             this._curveSceneController.controlPointsView.setSelected(this.selectedControlPoint);
             this._curveSceneController.renderFrame();
             if (this.selectedControlPoint !== null) {

@@ -33,7 +33,7 @@ export class OpPeriodicBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
      * Some contraints are set inactive to allowed the point of inflection or curvature extrema 
      * to slide along the curve. 
      **/ 
-     computeInactiveConstraints(controlPoints: number[]) {  
+    computeInactiveConstraints(controlPoints: number[]) {  
         let controlPointsSequences = this.extractChangingSignControlPointsSequences(controlPoints)
         let result = this.extractControlPointsClosestToZero(controlPointsSequences)
         const firstCP = controlPoints[0]

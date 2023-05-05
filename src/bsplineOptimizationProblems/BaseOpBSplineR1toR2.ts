@@ -31,33 +31,56 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
 
     protected inflectionConstraintsSign: number[] = []
     protected _inflectionInactiveConstraints: number[] = []
-    protected curvatureExtremaConstraintsSign: number[] = []
+    protected _inflectionTotalNumberOfConstraints: number;
+    protected inflectionNumberOfActiveConstraints: number;
+    protected _curvatureExtremaConstraintsSign: number[] = []
     protected _curvatureExtremaInactiveConstraints: number[] = []
+    protected _curvatureExtremaTotalNumberOfConstraints: number;
+    protected curvatureExtremaNumberOfActiveConstraints: number;
 
     
     // constructor(target: BSplineR1toR2Interface, splineInitial: BSplineR1toR2Interface, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
     constructor(splineInitial: BSplineR1toR2Interface, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
 
-        this._spline = splineInitial.clone()
-        this._target = splineInitial.clone()
+        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        let curvatureNumerator: number[] = [];
+        let curvatureDerivativeNumerator: number[] = [];
+        this._inflectionTotalNumberOfConstraints = 0;
+        this.inflectionNumberOfActiveConstraints = 0;
+        this._curvatureExtremaTotalNumberOfConstraints = 0;
+        this.curvatureExtremaNumberOfActiveConstraints = 0;
+        this._spline = splineInitial.clone();
+        this._target = splineInitial.clone();
         // this._target = target.clone()
         this._shapeSpaceDiffEventsStructure = shapeSpaceDiffEventsStructure;
-        this.computeBasisFunctionsDerivatives()
-        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2
-        this._gradient_f0 = this.compute_gradient_f0(this._spline)
-        this._f0 = this.compute_f0(this._gradient_f0)
-        this._hessian_f0 = identityMatrix(this._numberOfIndependentVariables)
-        const e = this.expensiveComputation(this._spline)
-        const curvatureNumerator = this.curvatureNumerator(e.h4)
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = identityMatrix(this._numberOfIndependentVariables);
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this._inflectionTotalNumberOfConstraints = curvatureNumerator.length;
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        }
+        if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaTotalNumberOfConstraints = curvatureDerivativeNumerator.length;
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+
+        // this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
         //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        // this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
         // contenu de test incompatible avec OptimizationProblem_BSpline_R1_to_R2 -> a voir
                 // if (this._f.length !== this._gradient_f.shape[0]) {
         // if (this._f.length !== this._gradient_f.shape[0] && activeControl !== ActiveControl.none) {
@@ -78,7 +101,19 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
 
     get numberOfIndependentVariables() {
-        return this._numberOfIndependentVariables
+        return this._numberOfIndependentVariables;
+    }
+
+    get inflectionTotalNumberOfConstraints() {
+        return this._inflectionTotalNumberOfConstraints;
+    }
+
+    get curvatureExtremaTotalNumberOfConstraints() {
+        return this._curvatureExtremaTotalNumberOfConstraints;
+    }
+
+    get curvatureExtremaConstraintsSign() {
+        return this._curvatureExtremaConstraintsSign.slice();
     }
 
     get f0() {
@@ -95,9 +130,9 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     
     get numberOfConstraints() {
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this._curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
         } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            return this.curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            return this._curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
         } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
             return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
         } else {
@@ -138,31 +173,48 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     abstract computeBasisFunctionsDerivatives(): void;
 
     step(deltaX: number[]): boolean {
+        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        let curvatureNumerator: number[] = [];
+        let curvatureDerivativeNumerator: number[] = [];
         this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
         this._gradient_f0 = this.compute_gradient_f0(this._spline)
         this._f0 = this.compute_f0(this._gradient_f0)
-        const e = this.expensiveComputation(this._spline)  
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        this.curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-        //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
-        this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g)
-        const curvatureNumerator = this.curvatureNumerator(e.h4)
-        this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
-        //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
-        this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator)
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)  
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        }
+        if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)  
         // JCL temporary add
         return true
     }
 
     fStep(step: number[]): number[] {
+        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        let curvatureNumerator: number[] = [];
+        let curvatureDerivativeNumerator: number[] = [];
         let splineTemp = this.spline.clone()
         splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
-        let e = this.expensiveComputation(splineTemp)
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        const curvatureNumerator = this.curvatureNumerator(e.h4)
-        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(splineTemp);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+        }
+        if( this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        }
+
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
     }
 
     f0Step(step: number[]): number {
@@ -172,23 +224,33 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
     }
 
     expensiveComputation(spline: BSplineR1toR2Interface): ExpensiveComputationResults {
+        let sxuuu: BSplineR1toR1Interface;
+        let syuuu: BSplineR1toR1Interface;
+        const controlPointArray: number[][] = [];
+        let bdsxuuu = new BernsteinDecompositionR1toR1(controlPointArray);
+        let bdsyuuu = new BernsteinDecompositionR1toR1(controlPointArray);
+        let h1 = new BernsteinDecompositionR1toR1(controlPointArray);
+        let h2 = new BernsteinDecompositionR1toR1(controlPointArray);
+        let h3 = new BernsteinDecompositionR1toR1(controlPointArray);
         const sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
         const sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
         const sxu = sx.derivative();
         const syu = sy.derivative();
         const sxuu = sxu.derivative();
         const syuu = syu.derivative();
-        const sxuuu = sxuu.derivative();
-        const syuuu = syuu.derivative();
         const bdsxu = sxu.bernsteinDecomposition();
         const bdsyu = syu.bernsteinDecomposition();
         const bdsxuu = sxuu.bernsteinDecomposition();
         const bdsyuu = syuu.bernsteinDecomposition();
-        const bdsxuuu = sxuuu.bernsteinDecomposition();
-        const bdsyuuu = syuuu.bernsteinDecomposition();
-        const h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
-        const h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
-        const h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            sxuuu = sxuu.derivative();
+            syuuu = syuu.derivative();
+            bdsxuuu = sxuuu.bernsteinDecomposition();
+            bdsyuuu = syuuu.bernsteinDecomposition();
+            h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
+            h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
+            h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        }
         const h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
 
         return {
@@ -205,9 +267,36 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         }
     }
 
+    initExpansiveComputations(): ExpensiveComputationResults {
+        const controlPointArray: number[][] = [];
+        const bdsxu = new BernsteinDecompositionR1toR1(controlPointArray);
+        const bdsyu = new BernsteinDecompositionR1toR1(controlPointArray);
+        const bdsxuu = new BernsteinDecompositionR1toR1(controlPointArray);
+        const bdsyuu = new BernsteinDecompositionR1toR1(controlPointArray);
+        const bdsxuuu = new BernsteinDecompositionR1toR1(controlPointArray);
+        const bdsyuuu = new BernsteinDecompositionR1toR1(controlPointArray);
+        const h1 = new BernsteinDecompositionR1toR1(controlPointArray);
+        const h2 = new BernsteinDecompositionR1toR1(controlPointArray);
+        const h3 = new BernsteinDecompositionR1toR1(controlPointArray);
+        const h4 = new BernsteinDecompositionR1toR1(controlPointArray);
+
+        return {
+            bdsxu: bdsxu,
+            bdsyu: bdsyu,
+            bdsxuu: bdsxuu,
+            bdsyuu: bdsyuu,
+            bdsxuuu: bdsxuuu,
+            bdsyuuu: bdsyuuu,
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        }
+    }
+
     compute_gradient_f0(spline: BSplineR1toR2Interface): number[] {
-        let result: number[] = []
-        const n =  spline.freeControlPoints.length
+        let result: number[] = [];
+        const n =  spline.freeControlPoints.length;
         for (let i = 0; i < n; i += 1) {
             result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x)
         }
@@ -292,6 +381,10 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
             f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
         } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
             f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        } else {
+            const warning = new WarningLog(this.constructor.name, "compute_f", "active control set to none: unable to compute f.");
+            warning.logMessageToConsole();
+            f[0] = 0;
         }
         return f;
     }

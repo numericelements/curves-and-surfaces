@@ -272,6 +272,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection extends 
             console.log("Nested simplified spaces: insertButton")
         } else {
             this.selectedControlPoint = this._curveSceneController.controlPointsView.pointSelection(ndcX, ndcY);
+            console.log(" select CP id = ", this.selectedControlPoint)
             this._curveSceneController.controlPointsView.setSelected(this.selectedControlPoint);
             this._curveSceneController.renderFrame();
             if(this.selectedControlPoint !== null) {
