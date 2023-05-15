@@ -17,8 +17,6 @@ import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpa
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "./CurveConstraintStrategy";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { OptimizerReturnStatus } from "../mathematics/Optimizer";
-import { NeighboringEventsType } from "../sequenceOfDifferentialEvents/NeighboringEvents";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
 import { CCurveShapeMonitoringStrategy, OCurveShapeMonitoringStrategy } from "../controllers/CurveShapeMonitoringStrategy";
 
 export abstract class NavigationState {

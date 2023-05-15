@@ -292,7 +292,7 @@ describe('PolygonWithVerticesR1', () => {
         expect(oscillatingPolygons[2].getValues()).to.eql([1, -0.5]);
     });
 
-    it('for comparison with OptimizationProblem_BSpline_R1_to_R2 class', () => {
+    it('for comparison with OptProblemBSplineR1toR2 class', () => {
         const vertices1 = [-5, -3, 5, 5];
         const polygon1 = new PolygonWithVerticesR1(vertices1);
         const oscillatingPolygons1 = polygon1.extractOscillatingPolygons();

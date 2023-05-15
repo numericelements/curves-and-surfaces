@@ -1,5 +1,5 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints } from "../bsplineOptimizationProblems/OptProblemBSplineR1toR2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModel } from "../newModels/CurveModel";
@@ -9,7 +9,7 @@ enum ActiveControl {curvatureExtrema, inflections, both, none}
 
 export class DummyStrategy implements CurveControlStrategyInterface {
     
-    private _optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints
+    private _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints
     private _optimizer: Optimizer
     private activeOptimizer: boolean = true
 
@@ -36,7 +36,7 @@ export class DummyStrategy implements CurveControlStrategyInterface {
 
         this.curveModel = curveModel
         this.dummyCurveModel = new CurveModel()
-        this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure);
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
 
@@ -44,43 +44,43 @@ export class DummyStrategy implements CurveControlStrategyInterface {
         return this._optimizer;
     }
 
-    get optimizationProblem(): OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints {
+    get optimizationProblem(): OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints {
         return this._optimizationProblem;
     }
 
-    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints) {
+    setWeightingFactor(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints) {
         optimizationProblem.weigthingFactors[0] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length-1] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length*2-1] = 10
     }
 
-    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints) {
+    newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints) {
         this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
     }
 
     resetCurve(curveModel: ClosedCurveModel) {
         this.curveModel = curveModel
-        // this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), this.activeControl)
+        // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), this.activeControl)
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
     toggleControlOfCurvatureExtrema(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            // this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            // this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.curvatureExtrema)
             this._optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false
         } else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema && this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            // this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.inflections)
+            // this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.inflections)
             this._optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.inflections ) {
-            // this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.both)
+            // this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.both)
             this._optimizer = this.newOptimizer(this.optimizationProblem)
         } else {
             console.log("Error in logic of toggle control over curvature extrema")
@@ -90,18 +90,18 @@ export class DummyStrategy implements CurveControlStrategyInterface {
     toggleControlOfInflections(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            // this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.inflections)
+            // this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.inflections)
             this._optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
             this.activeOptimizer = false
         } else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema && this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            // this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            // this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.curvatureExtrema)
             this._optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
-            // this._optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_no_inactive_constraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.both)
+            // this._optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.dummyCurveModel.spline.clone(), this.dummyCurveModel.spline.clone(), ActiveControl.both)
             this._optimizer = this.newOptimizer(this.optimizationProblem)
         } else {
             console.log("Error in logic of toggle control over inflections")

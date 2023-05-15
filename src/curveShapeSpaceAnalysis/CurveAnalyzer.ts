@@ -18,6 +18,8 @@ import { ClosedCurveDifferentialEventsExtractorWithoutSequence } from "./ClosedC
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 import { NavigationCurveModelInterface } from "../curveShapeSpaceNavigation/NavigationCurveModelInterface";
 import { CurveControlState } from "../controllers/CurveControlState";
+import { BSplineR1toR1Interface } from "../newBsplines/BSplineR1toR1Interface";
+import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
 
 export abstract class AbstractCurveAnalyzer {
 
@@ -29,6 +31,8 @@ export abstract class AbstractCurveAnalyzer {
     protected _curvatureCrtlPtsClosestToZero: number[];
     protected _curvatureDerivCrtlPtsClosestToZero: number[];
     protected _curvatureDerivativeSignChanges:  number[];
+    protected abstract readonly _curvatureNumerator: BSplineR1toR1Interface;
+    protected abstract readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: BSplineR1toR2Interface, navigationCurveModel: NavigationCurveModel) {
         this.curve = curveToAnalyze;
@@ -67,6 +71,14 @@ export abstract class AbstractCurveAnalyzer {
 
     get curvatureDerivCrtlPtsClosestToZero(): number[] {
         return this._curvatureDerivCrtlPtsClosestToZero;
+    }
+
+    get curvatureNumerator(): BSplineR1toR1Interface {
+        return this._curvatureNumerator;
+    }
+
+    get curvatureDerivativeNumerator(): BSplineR1toR1Interface {
+        return this._curvatureDerivativeNumerator;
     }
 
     getGlobalExtremmumOffAxis(controlPoints: number[]): ExtremumLocation {
@@ -155,11 +167,15 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
     protected navigationCurveModel: OpenCurveShapeSpaceNavigator;
     private _curveControlState: CurveControlState;
     protected _slidingEventsAtExtremities: SlidingEventsAtExtremities;
+    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
+    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
+        this._curvatureNumerator = new BSplineR1toR1();
+        this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
         this.navigationCurveModel = navigationCurveModel;
         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
@@ -170,6 +186,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         this._sequenceOfDifferentialEvents = diffEventsExtractor.extractSeqOfDiffEvents();
         this.globalExtremumOffAxisCurvaturePoly = {index: INITIAL_INDEX, value: 0.0};
         if(this._curveControlState) {
+            this._curvatureNumerator = diffEventsExtractor.curvatureNumerator;
             this._curveCurvatureCntrlPolygon = diffEventsExtractor.curvatureNumerator.controlPoints;
             this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureCntrlPolygon);
             this._curvatureSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureCntrlPolygon);
@@ -180,6 +197,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
         if(this._curveControlState) {
+            this._curvatureDerivativeNumerator = diffEventsExtractor.curvatureDerivativeNumerator;
             this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
             this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this._curveCurvatureDerivativeCntrlPolygon);
             this._curvatureDerivativeSignChanges = this.getSignChangesControlPolygon(this._curveCurvatureDerivativeCntrlPolygon);
@@ -249,11 +267,15 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     private navigationState: NavigationState;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private _curveControlState: CurveControlState;
+    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
+    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
+        this._curvatureNumerator = new BSplineR1toR1();
+        this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
         this.navigationCurveModel = navigationCurveModel;
         this._slidingEventsAtExtremities = slidingEventsAtExtremities;
@@ -306,11 +328,15 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
     private navigationState: NavigationState;
     protected navigationCurveModel: ClosedCurveShapeSpaceNavigator;
     private _curveControlState: CurveControlState;
+    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
+    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
+        this._curvatureNumerator = new BSplineR1toR1();
+        this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
         this.navigationCurveModel = navigationCurveModel;
         this.navigationState = navigationCurveModel.navigationState;
@@ -384,11 +410,15 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     private navigationState: NavigationState;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private _curveControlState: CurveControlState;
+    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
+    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
+        this._curvatureNumerator = new BSplineR1toR1();
+        this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
         this.navigationCurveModel = navigationCurveModel;
         this.navigationState = navigationCurveModel.navigationState;

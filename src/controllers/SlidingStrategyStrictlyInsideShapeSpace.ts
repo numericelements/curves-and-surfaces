@@ -1,5 +1,5 @@
 import { CurveControlStrategyInterface } from "./CurveControlStrategyInterface";
-import { OptimizationProblem_BSpline_R1_to_R2, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics, OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation } from "../bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2";
+import { OptProblemBSplineR1toR2, OptProblemBSplineR1toR2WithWeigthingFactors, OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics, OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation } from "../bsplineOptimizationProblems/OptProblemBSplineR1toR2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModel } from "../newModels/CurveModel";
 import { Vector2d } from "../mathVector/Vector2d";
@@ -9,6 +9,7 @@ import { findSpan } from "../newBsplines/Piegl_Tiller_NURBS_Book"
 import { type } from "os";
 import { ActiveExtremaLocationControl, ActiveInflectionLocationControl, CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 
 
 
@@ -36,7 +37,7 @@ const DEVIATION_FROM_KNOT = 0.25
 
 export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStrategyInterface {
     
-    private _optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation
+    private _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation
     //private optimizer: Optimizer
     public optimizer: Optimizer
     private activeOptimizer: boolean = true
@@ -76,61 +77,69 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
         }
 
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure)
-        /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
+        if(curveShapeSpaceNavigator.navigationCurveModel instanceof OpenCurveShapeSpaceNavigator) {
+            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure,
+            curveShapeSpaceNavigator.navigationCurveModel)
+        } else {
+            const navigationCurveModel = new OpenCurveShapeSpaceNavigator(curveShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure,
+            navigationCurveModel)
+        }
+
+        /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this.optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    get optimizationProblem(): OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation {
+    get optimizationProblem(): OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation {
         return this._optimizationProblem;
     }
 
-    set optimizationProblem(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    set optimizationProblem(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation) {
         this._optimizationProblem = optimizationProblem;
     }
 
-    setWeightingFactor(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    setWeightingFactor(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation) {
         optimizationProblem.weigthingFactors[0] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length-1] = 10
         optimizationProblem.weigthingFactors[this.curveModel.spline.controlPoints.length*2-1] = 10
     }
 
-    newOptimizer(optimizationProblem: OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation) {
+    newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation) {
         this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
     }
 
     resetCurve(curveModel: CurveModel) {
         this.curveModel = curveModel
-        // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
-        /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
+        // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+        //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone())
+        /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this.optimizer = this.newOptimizer(this.optimizationProblem)
     }
 
     toggleControlOfCurvatureExtrema(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
-            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
-            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
+            // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
             this.activeOptimizer = false
         } else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema && this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
-            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
-            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections) */
+            // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.inflections ){
-            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
+            // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else {
@@ -141,24 +150,24 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
     toggleControlOfInflections(): void {
         if (this.activeOptimizer === false) {
             this.activeOptimizer = true
-            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
-            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
-            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)*/
+            // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)
+            /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.inflections)*/
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.inflections) {
             this.activeOptimizer = false
         } else if (this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema && this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.both) {
-            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
-            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
-            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
+            // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema)
+            /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.curvatureExtrema) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         } else if(this.optimizationProblem.shapeSpaceDiffEventsStructure.activeControlInflections) {
         // } else if (this.optimizationProblem.activeControl === ActiveControl.curvatureExtrema) {
-            // this.optimizationProblem = new OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-            //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
-            /*this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_dedicated_cubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
+            // this.optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactors(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both)
+            /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), ActiveControl.both) */
             this.optimizer = this.newOptimizer(this.optimizationProblem)
         }
         else {
@@ -858,7 +867,8 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
         this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
         this.optimizationProblem.setTargetSpline(this.curveModel.spline)
         console.log("zeros " + curvatureExtremaLocations + " CP delta X " + (p.x - this.curveModel.spline.controlPoints[selectedControlPoint].x) + " delta Y " + (p.y - this.curveModel.spline.controlPoints[selectedControlPoint].y) + " signs " 
-            + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints + " revert " + this.optimizationProblem.revertConstraints)
+            + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints)
+            // + this.optimizationProblem.curvatureExtremaConstraintsSign + " inactive " + this.optimizationProblem.curvatureExtremaInactiveConstraints + " revert " + this.optimizationProblem.revertConstraints)
         this.optimizationProblem.updateConstraintBound = true
         //this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
         //this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
@@ -885,7 +895,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
             this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
             this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
             this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim
-            this.optimizationProblem.currentCurvatureExtremaControPoints = functionBOptim.controlPoints
+            this.optimizationProblem.curvatureDerivativeNumeratorCP = functionBOptim.controlPoints
 
             /*let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
             let extremaNearKnot: Array<extremaNearKnot> = []
@@ -1039,24 +1049,28 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                         }
 
                         this.curveModel.setControlPoints(controlPointsInit)
-                        // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
+                        // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
                         //     activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema)
                         this.optimizer = this.newOptimizer(this.optimizationProblem)
                         if(constraintID === 0 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length
                             && this.curveSceneController !== undefined) {
-                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+                            this.optimizationProblem.diffEventsVariation.neighboringEvents[0].type = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+                            // this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
                             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumLeaving
                         } else if(constraintID === 0 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length
                             && this.curveSceneController !== undefined) {
-                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+                            this.optimizationProblem.diffEventsVariation.neighboringEvents[0].type = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+                            // this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
                             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumEntering
                         } else if(constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length > sequenceDiffEventsOptim.length
                             && this.curveSceneController !== undefined) {
-                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+                            this.optimizationProblem.diffEventsVariation.neighboringEvents[0].type = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+                            // this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
                             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumLeaving
                         } else if(constraintID === this.optimizationProblem.spline.controlPoints.length - 1 && sequenceDiffEventsInit.length < sequenceDiffEventsOptim.length
                             && this.curveSceneController !== undefined) {
-                            this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear
+                            this.optimizationProblem.diffEventsVariation.neighboringEvents[0].type = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear
+                            // this.optimizationProblem.neighboringEvent.event = NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear
                             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.extremumEntering
                         }
 
@@ -1134,7 +1148,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                     this.curveModel.setSpline(splineInit)
                                     //const splineDP2 = new BSpline_R1_to_R2_DifferentialProperties(splineInit)
                                     //const testfunctionB = splineDP2.curvatureDerivativeNumerator()
-                                    // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
+                                    // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
                                     //     activeControl, neighboringEvents[i], shapeSpaceBoundaryConstraintsCurvExtrema)
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
@@ -1187,7 +1201,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                             this.curveModel.setControlPoints(controlPointsInit)
                             console.log(e)
                         }
-                        //this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                        //this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                         //this.optimizer = this.newOptimizer(this.optimizationProblem)
 
                     } else if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary ||
@@ -1198,7 +1212,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                             if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary) constraintID = 0
                             if(this.optimizationProblem.shapeSpaceBoundaryConstraintsInflection.indexOf(constraintID) === -1) this.optimizationProblem.shapeSpaceBoundaryConstraintsInflection.push(constraintID)
                             this.curveModel.setControlPoints(controlPointsInit)
-                            // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                            // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                             this.optimizer = this.newOptimizer(this.optimizationProblem)
 
                         } else {
@@ -1263,7 +1277,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                     }
                                 }
                                 this.curveModel.setControlPoints(controlPointsInit)
-                                // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
+                                // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                 this.optimizer = this.newOptimizer(this.optimizationProblem)
                                 let ratio = Math.abs(functionBExtremum/(functionBOptimExtremum - functionBExtremum))
                                 let modifiedndcX = controlPointsInit[selectedControlPoint].x + (ndcX - controlPointsInit[selectedControlPoint].x) * ratio
@@ -1284,7 +1298,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                     const functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator()
                                     const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
                                     this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1
-                                    this.optimizationProblem.currentCurvatureExtremaControPoints = functionBOptim1.controlPoints
+                                    this.optimizationProblem.curvatureDerivativeNumeratorCP = functionBOptim1.controlPoints
                                     if(curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
                                         console.log("set a control point displacement")
                                         //this.curveModel.setControlPoint(selectedControlPoint, modifiedndcX, modifiedndcY)
@@ -1300,7 +1314,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                         // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                         // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.mergeExtrema
                                     }
-                                    // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                                    // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
                                 }
                                 catch(e) {
@@ -1343,7 +1357,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                         }
                                     }
                                     this.curveModel.setControlPoints(controlPointsInit)
-                                    // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
+                                    // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                     this.optimizationProblem.updateConstraintBound = true
@@ -1369,7 +1383,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                             // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.mergeExtrema
                                         }
-                                        // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                                        // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                                         this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     }
                                     catch(e) {
@@ -1467,7 +1481,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                 }
                                 neighboringEvents[i].knotIndex = knotIndex
                                 this.curveModel.setControlPoints(controlPointsInit)
-                                // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
+                                // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                 this.optimizer = this.newOptimizer(this.optimizationProblem)
                                 this.curveModel.setControlPointPosition(selectedControlPoint, ndcX, ndcY)
                                 this.optimizationProblem.setTargetSpline(this.curveModel.spline)
@@ -1562,7 +1576,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                         }
                                     }
                                     this.curveModel.setControlPoints(controlPointsInit)
-                                    // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
+                                    // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl, neighboringEvents[i])
                                     this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     this.optimizationProblem.setTargetSpline(this.curveModel.spline)
                                     this.optimizationProblem.updateConstraintBound = true
@@ -1587,7 +1601,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                             // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.mergeExtremaAndInflection
                                             // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.mergeExtrema
                                         }
-                                        // this.optimizationProblem = new  OptimizationProblem_BSpline_R1_to_R2_with_weigthingFactors_general_navigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
+                                        // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                                         this.optimizer = this.newOptimizer(this.optimizationProblem)
                                     }
                                     catch(e) {
