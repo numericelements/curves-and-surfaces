@@ -28,6 +28,8 @@ enum transitionCP {negativeToPositive, positiveToNegative, none}
 
 const DEVIATION_FROM_KNOT = 0.25
 export const CONSTRAINT_BOUND_THRESHOLD = 1.0e-7;
+export const DEFAULT_WEIGHT = 1;
+export const WEIGHT_AT_EXTREMITIES = 10;
 
 export class OptProblemBSplineR1toR2 extends BaseOpProblemBSplineR1toR2 {
 // export class OptimizationProblem_BSpline_R1_to_R2 implements OptimizationProblemInterface {
@@ -785,7 +787,7 @@ export class OptProblemBSplineR1toR2WithWeigthingFactors extends OptProblemBSpli
     // constructor(target: BSplineR1toR2, splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
         super(splineInitial, shapeSpaceDiffEventsStructure);
         for (let i = 0; i < this.spline.controlPoints.length * 2; i += 1) {
-            this.weigthingFactors.push(1)
+            this.weigthingFactors.push(DEFAULT_WEIGHT);
         }
     }
 
@@ -821,8 +823,8 @@ export class OptProblemBSplineR1toR2WithWeigthingFactors extends OptProblemBSpli
      * The objective function value: f0(x + step)
      */
     f0Step(step: number[]): number {
-        let splineTemp = this.spline.clone();
-        splineTemp.optimizerStep(step);
+        let splineTemp = this._spline.clone();
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
         const gradient = this.compute_gradient_f0(splineTemp);
         const n = gradient.length;
         let result = 0;
@@ -830,6 +832,13 @@ export class OptProblemBSplineR1toR2WithWeigthingFactors extends OptProblemBSpli
             result += Math.pow(gradient[i], 2) * this.weigthingFactors[i];
         }
         return 0.5 * result;
+    }
+
+    setWeightingFactor(): void {
+        this.weigthingFactors[0] = WEIGHT_AT_EXTREMITIES;
+        this.weigthingFactors[this._spline.controlPoints.length] = WEIGHT_AT_EXTREMITIES;
+        this.weigthingFactors[this._spline.controlPoints.length - 1] = WEIGHT_AT_EXTREMITIES;
+        this.weigthingFactors[this._spline.controlPoints.length * 2 - 1] = WEIGHT_AT_EXTREMITIES;
     }
 
 }
@@ -998,8 +1007,22 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             this.processCubics();
         }
         let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        this._curvatureNumeratorCP = [];
+        this._curvatureDerivativeNumeratorCP = [];
+        this.constraintType = ConstraintType.none;
+        this._inflectionTotalNumberOfConstraints = 0;
+        this.inflectionNumberOfActiveConstraints = 0;
+        this._curvatureExtremaTotalNumberOfConstraints = 0;
+        this.curvatureExtremaNumberOfActiveConstraints = 0;
+        this._spline = splineInitial.clone();
+        this._target = splineInitial.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = identityMatrix(this._numberOfIndependentVariables);
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            const e = this.expensiveComputation(this.spline)  
+            e = this.expensiveComputation(this.spline)  
             this._curvatureNumeratorCP = this.curvatureNumerator(e.h4)
             this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
             this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP)
@@ -1029,7 +1052,7 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         this.clearConstraintBoundsUpdate();
         this.revertInequalitiesWithinRangeOfLocalExtremum();
         this.updateConstraintBoundsWithinRangeOfLocalExtremum();
-        //console.log("step : optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
+        console.log("optim inactive constraints: " + this.curvatureExtremaInactiveConstraints)
 
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         this.checkConstraintConsistency();
@@ -1320,8 +1343,10 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             inactiveConstraints.push(controlPoints.length - 1);
     }
 
-    inactivateConstraintsWithinRangeOfLocalExtremum(inactiveConstraints: number[]) {
-        if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
+    inactivateConstraintsWithinRangeOfLocalExtremum(inactiveConstraints: number[]): void {
+        if(this._diffEventsVariation === undefined || this._diffEventsVariation.neighboringEvents.length === 0) {
+            return;
+        } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.constraintType === ConstraintType.curvatureExtrema && this.updateConstraintBound) {
 
@@ -1387,7 +1412,9 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     }
 
     revertInequalitiesWithinRangeOfLocalExtremum(): void {
-        if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
+        if(this._diffEventsVariation.neighboringEvents.length === 0) {
+            return;
+        } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.constraintType === ConstraintType.curvatureExtrema && this.updateConstraintBound) {
 
@@ -1441,7 +1468,9 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     }
 
     updateConstraintBoundsWithinRangeOfLocalExtremum(): void {
-        if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
+        if(this._diffEventsVariation.neighboringEvents.length === 0) {
+            return;
+        } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
             && this.constraintType === ConstraintType.curvatureExtrema && this.updateConstraintBound) {
 
@@ -1501,10 +1530,10 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         this.inactivateConstraintsAtCurveEXtremities(controlPoints, inactiveConstraints);
         this.inactivateConstraintsWithinRangeOfLocalExtremum(inactiveConstraints);
 
-        this.clearInequalityChanges();
-        this.clearConstraintBoundsUpdate();
-        this.revertInequalitiesWithinRangeOfLocalExtremum();
-        this.updateConstraintBoundsWithinRangeOfLocalExtremum();
+        // this.clearInequalityChanges();
+        // this.clearConstraintBoundsUpdate();
+        // this.revertInequalitiesWithinRangeOfLocalExtremum();
+        // this.updateConstraintBoundsWithinRangeOfLocalExtremum();
         return inactiveConstraints;
     }
 
@@ -1931,8 +1960,9 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     //     return result
     // }
 
-    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]) {
+    compute_curvatureExtremaConstraints(curvatureDerivativeNumerator: number[], constraintsSign: number[], inactiveConstraints: number[]): number[] {
         let result: number[] = [];
+        if(this._diffEventsVariation === undefined) return result;
         for (let i = 0, j= 0, n = constraintsSign.length; i < n; i += 1) {
             if (i === inactiveConstraints[j]) {
                 j += 1;
@@ -1944,8 +1974,8 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     }
 
     compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]): DenseMatrix {
+                                                constraintsSign: number[], 
+                                                inactiveConstraints: number[]): DenseMatrix {
 
         const sxu = e.bdsxu
         const sxuu = e.bdsxuu
@@ -1958,13 +1988,11 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         const h3 = e.h3
         const h4 = e.h4
 
-
         let dgx = []
         let dgy = []
         const controlPointsLength = this.spline.controlPoints.length
         const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints
         const degree = this.spline.degree
-
 
         for (let i = 0; i < controlPointsLength; i += 1) {
             let start = Math.max(0, i - degree);
@@ -2001,7 +2029,7 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         }
 
         let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
-
+        if(this._diffEventsVariation === undefined) return result;
 
         for (let i = 0; i < controlPointsLength; i += 1) {
             let cpx = dgx[i].flattenControlPointsArray();
@@ -2031,7 +2059,12 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         return result;
     }
 
-    compute_f(curvatureNumerator: number[], inflectionConstraintsSign: number[], inflectionInactiveConstraints: number[], curvatureDerivativeNumerator: number[], curvatureExtremaConstraintsSign: number[], curvatureExtremaInactiveConstraints: number[]) {
+    compute_f(  curvatureNumerator: number[],
+                inflectionConstraintsSign: number[],
+                inflectionInactiveConstraints: number[],
+                curvatureDerivativeNumerator: number[],
+                curvatureExtremaConstraintsSign: number[],
+                curvatureExtremaInactiveConstraints: number[]) {
         let f: number[] = [];
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             const r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
@@ -2047,10 +2080,10 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     }
 
     compute_gradient_f( e: ExpensiveComputationResults,
-        inflectionConstraintsSign: number[],
-        inflectionInactiveConstraints: number[],
-        curvatureExtremaConstraintsSign: number[], 
-        curvatureExtremaInactiveConstraints: number[]): DenseMatrix {
+                        inflectionConstraintsSign: number[],
+                        inflectionInactiveConstraints: number[],
+                        curvatureExtremaConstraintsSign: number[], 
+                        curvatureExtremaInactiveConstraints: number[]): DenseMatrix {
     
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
@@ -2089,60 +2122,70 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     step(deltaX: number[]) {
         let checked: boolean = true
         let inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints
-
+        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        let curvatureNumerator: number[] = [];
+        let curvatureDerivativeNumerator: number[] = [];
         // if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
-        if(this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
-            const splineDP = new BSplineR1toR2DifferentialProperties(this.spline)
-            const functionB = splineDP.curvatureDerivativeNumerator()
-            const curvatureExtremaLocations = functionB.zeros()
-            const splineCurrent = this.spline.clone()
-
-            this.spline.optimizerStep(deltaX)
-            const splineDPupdated = new BSplineR1toR2DifferentialProperties(this.spline)
-            const functionBupdated = splineDPupdated.curvatureDerivativeNumerator()
-            const curvatureExtremaLocationsUpdated = functionBupdated.zeros()
-            if(curvatureExtremaLocationsUpdated.length !== curvatureExtremaLocations.length) {
-                checked = false
-                this.spline = splineCurrent
-                console.log("extrema current: " + curvatureExtremaLocations + " extrema updated: " + curvatureExtremaLocationsUpdated)
+        if(this.diffEventsVariation.neighboringEvents.length > 0) {
+            if(this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                const splineDP = new BSplineR1toR2DifferentialProperties(this.spline)
+                const functionB = splineDP.curvatureDerivativeNumerator()
+                const curvatureExtremaLocations = functionB.zeros()
+                const splineCurrent = this.spline.clone()
+    
+                this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
+                const splineDPupdated = new BSplineR1toR2DifferentialProperties(this.spline)
+                const functionBupdated = splineDPupdated.curvatureDerivativeNumerator()
+                const curvatureExtremaLocationsUpdated = functionBupdated.zeros()
+                if(curvatureExtremaLocationsUpdated.length !== curvatureExtremaLocations.length) {
+                    checked = false
+                    this.spline = splineCurrent
+                    console.log("extrema current: " + curvatureExtremaLocations + " extrema updated: " + curvatureExtremaLocationsUpdated)
+                }
             }
         } else {
-            this.spline.optimizerStep(deltaX)
+            this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
         }
 
-        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        const e = this.expensiveComputation(this.spline)  
-        const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        if(this.updateConstraintBound) {
-            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(g)
-            // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(g)
-            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(g);
-            this.clearInequalityChanges();
-            this.clearConstraintBoundsUpdate();
-            this.revertInequalitiesWithinRangeOfLocalExtremum();
-            this.updateConstraintBoundsWithinRangeOfLocalExtremum();
-        }
-        this.curvatureExtremaNumberOfActiveConstraints = g.length - this.curvatureExtremaInactiveConstraints.length
-
-        const curvatureNumerator = this.curvatureNumerator(e.h4)
-        if(this.updateConstraintBound) {
+        if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
+            this.constraintType = ConstraintType.inflection;
             // this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(curvatureNumerator)
             this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+            // if(this.updateConstraintBound) {
+            //     this.clearInequalityChanges();
+            //     this.clearConstraintBoundsUpdate();
+            //     this.revertInequalitiesWithinRangeOfLocalExtremum();
+            //     this.updateConstraintBoundsWithinRangeOfLocalExtremum();
+            // }
+        }
+        if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator)
+            this.constraintType = ConstraintType.curvatureExtrema;
+            // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+
+        if(this.updateConstraintBound) {
             this.clearInequalityChanges();
             this.clearConstraintBoundsUpdate();
             this.revertInequalitiesWithinRangeOfLocalExtremum();
             this.updateConstraintBoundsWithinRangeOfLocalExtremum();
         }
-        this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length
 
         //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
         console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " revert " + this.revertCurvatureExtremaConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign + " bound " + this.curvatureExtremaConstraintBounds)
 
-        this.updateConstraintBound = false
+        this.updateConstraintBound = false;
 
-        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, g, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, curvatureDerivativeNumerator, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
 
         if(this.isComputingHessian) {

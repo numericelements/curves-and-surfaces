@@ -595,6 +595,8 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
         this.selectedControlPoint = this._curveSceneController.selectedControlPoint;
         this.insertKnotButtonView = this._curveSceneController.insertKnotButtonView;
         this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
+        this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+        this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
         this.curveModel.notifyObservers();
     }
 
@@ -604,6 +606,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
         }
         else {
             this.selectedControlPoint = this._curveSceneController.controlPointsView.pointSelection(ndcX, ndcY);
+            console.log(" stricly inside shape space: select CP id = ", this.selectedControlPoint)
             this._curveSceneController.controlPointsView.setSelected(this.selectedControlPoint);
             this._curveSceneController.renderFrame();
             if(this.selectedControlPoint !== null) {
@@ -611,7 +614,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
                 if(this.shapeNavigableCurve.curveCategory instanceof OpenPlanarCurve) {
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve(this._curveSceneController));
                 } else if(this.shapeNavigableCurve.curveCategory instanceof ClosedCurveModel) {
-                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
+                    // this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.curveShapeSpaceNavigator.eventMgmtAtExtremities));
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve(this._curveSceneController));
                 }
             }
@@ -643,15 +646,26 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
 
     private readonly controlOfInflection: boolean;
     private readonly controlOfCurvatureExtrema: boolean;
+    protected managementOfEventsAtExtremities: EventMgmtState;
     private readonly curveModel: CurveModelInterface;
     protected eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
+    protected eventsStayInsideInterval: boolean;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
+        this.selectedControlPoint = this._curveSceneController.selectedControlPoint;
         this.eventMgmtAtExtremities = this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
         this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
         this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
+        this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
+        if(this.managementOfEventsAtExtremities === EventMgmtState.Active) {
+            this.eventsStayInsideInterval = true;
+        } else {
+            this.eventsStayInsideInterval = false;
+        }
         this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
+        this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+        this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
     }
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
@@ -660,6 +674,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
+        console.log('drag CPDraggingOpenCurve Stricly Inside Shape Space')
         const x = ndcX;
         const y = ndcY;
         if(this.selectedControlPoint != null) {
@@ -667,11 +682,18 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
             if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
                 because it is part of the optimize method (whether sliding is active or not) */
-                this.curveModel.setControlPointPosition(this.selectedControlPoint, x, y)
+                this.curveModel.setControlPointPosition(this.selectedControlPoint, x, y);
+                this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
             } else if(this._curveSceneController.allowShapeSpaceChange === true) {
+                this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
+            }
+            if(this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer) {
+                console.log("need to change interaction strategy")
             }
             this.curveModel.notifyObservers();
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
@@ -679,6 +701,8 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
     }
 
     processLeftMouseUpInteraction(): void {
+        const message = new WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
+        message.logMessageToConsole();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPSelection(this._curveSceneController));

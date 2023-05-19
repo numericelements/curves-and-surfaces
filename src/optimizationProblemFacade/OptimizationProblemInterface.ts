@@ -30,11 +30,6 @@ export interface OptimizationProblemInterface {
     hessian_f0: SymmetricMatrixInterface
 
     /**
-     * The number of constraints (f.length)
-     */
-    numberOfConstraints: number
-
-    /**
      * The vector of inequality constraint functions values: f_i(x) <= 0
      * Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe p. 1
      */
@@ -50,6 +45,10 @@ export interface OptimizationProblemInterface {
      */
     hessian_f?: SymmetricMatrixInterface[]
 
+    /**
+     * The number of constraints (f.length)
+     */
+    numberOfConstraints: number
 
     /**
      * Update all instance properties 

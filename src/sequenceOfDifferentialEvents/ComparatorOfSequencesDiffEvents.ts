@@ -239,10 +239,12 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else if(modifiedCurvExEvent.nbEvents === TWO_CURVEXT_EVENTS_APPEAR) {
                     const locatorCurvEventAppearing = new LocalizerOfCurvatureExtremaAppearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
                     const neighboringEvent: NeighboringEvents = locatorCurvEventAppearing.locateDifferentialEvents();
+                    neighboringEvent.type = NeighboringEventsType.neighboringCurvatureExtremaAppear;
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents === TWO_CURVEXT_EVENTS_DISAPPEAR) {
                     const locatorCurvEventDisappearing = new LocalizerOfCurvatureExtremaDisappearing(this._sequenceDiffEvents1, this._sequenceDiffEvents2, modifiedCurvExEvent.indexInflection);
                     const neighboringEvent: NeighboringEvents = locatorCurvEventDisappearing.locateDifferentialEvents();
+                    neighboringEvent.type = NeighboringEventsType.neighboringCurvatureExtremaDisappear;
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents !== 0){
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "Cannot process the curvature extremum event.");
@@ -300,10 +302,12 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_APPEAR) {
                     const locatorInflectionEvent = new LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    neighboringEvent.type = NeighboringEventsType.neighboringInflectionsCurvatureExtremumAppear;
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedInflectionEvent.nbEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
                     const locatorInflectionEvent = new LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum(this._sequenceDiffEvents1, this._sequenceDiffEvents2);
                     const neighboringEvent: NeighboringEvents = locatorInflectionEvent.locateDifferentialEvents();
+                    neighboringEvent.type = NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear;
                     this.neighboringEvents.push(neighboringEvent);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "Cannot process the inflection event.");

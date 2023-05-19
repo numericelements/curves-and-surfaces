@@ -202,6 +202,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
             e = this.expensiveComputation(this._spline);
             curvatureNumerator = this.curvatureNumerator(e.h4);
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            this.constraintType = ConstraintType.inflection;
             //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
             this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
             this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
@@ -209,6 +210,7 @@ export abstract class BaseOpProblemBSplineR1toR2 implements OpBSplineR1toR2Inter
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            this.constraintType = ConstraintType.curvatureExtrema;
             //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
             this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
             this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
