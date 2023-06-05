@@ -15,9 +15,9 @@ export class Optimizer {
 
     public success = false
 
-    constructor(private o: OptimizationProblemInterface ) {
+    constructor(private optimizationProblem: OptimizationProblemInterface ) {
 
-        if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
+        if (this.optimizationProblem.f.length !== this.optimizationProblem.gradient_f.shape[0] ) {
             console.log("Problem about f length and gradient_f shape 0 is in the Optimizer Constructor")
         }
         
@@ -31,34 +31,34 @@ export class Optimizer {
         // Bibliographic reference: Numerical Optimization, second edition, Jorge Nocedal and Stephen J. Wright, p. 69
         let numSteps = 0
         //let numGradientComputation = 0
-        let t = this.o.numberOfConstraints / this.o.f0
+        let t = this.optimizationProblem.numberOfConstraints / this.optimizationProblem.f0
         let trustRadius = 9
         let rho: number 
         const eta = 0.1 // [0, 1/4)
         const mu = 10 // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
 
         /* JCL 2020/09/18 Collect the elementary steps prior to shift the control polygon */
-        let globalStep: number[] = zeroVector(this.o.f.length)
+        let globalStep: number[] = zeroVector(this.optimizationProblem.f.length)
         // JCL 05/03/2021 add the use of checked to take into account the curve analysis
         let checked:boolean = true
 
-        while (this.o.numberOfConstraints / t > epsilon) {
+        while (this.optimizationProblem.numberOfConstraints / t > epsilon) {
             while (true) {
                 numSteps += 1;
                 //console.log("number of steps")
                 //console.log(numSteps) 
 
                 
-                if (this.o.f.length !== this.o.gradient_f.shape[0] ) {
+                if (this.optimizationProblem.f.length !== this.optimizationProblem.gradient_f.shape[0] ) {
                     console.log("Problem about f length and gradient_f shape 0 is in the function optimize_using_trust_region")
                 }
 
-                let b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f)
-                let gradient = saxpy2(t, this.o.gradient_f0, b.gradient)
-                let hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t)
+                let b = this.barrier(this.optimizationProblem.f, this.optimizationProblem.gradient_f, this.optimizationProblem.hessian_f)
+                let gradient = saxpy2(t, this.optimizationProblem.gradient_f0, b.gradient)
+                let hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.optimizationProblem.hessian_f0, t)
                 let trustRegionSubproblem = new TrustRegionSubproblem(gradient, hessian);
                 let tr = trustRegionSubproblem.solve(trustRadius);
-                let fStep = this.o.fStep(tr.step)
+                let fStep = this.optimizationProblem.fStep(tr.step)
 
                 let numSteps2 = 0
                 while(Math.max.apply(null, fStep) >= 0) {
@@ -66,18 +66,18 @@ export class Optimizer {
                     trustRadius *= 0.25
                     tr = trustRegionSubproblem.solve(trustRadius)
                     //numGradientComputation += 1;
-                    fStep = this.o.fStep(tr.step)
+                    fStep = this.optimizationProblem.fStep(tr.step)
                     if (numSteps2 > 100) {
                         throw new Error("maxSteps2 > 100")
                     }
                 }
 
                 let barrierValueStep = this.barrierValue(fStep)
-                let actualReduction = t * (this.o.f0 - this.o.f0Step(tr.step)) + (b.value - barrierValueStep);
+                let actualReduction = t * (this.optimizationProblem.f0 - this.optimizationProblem.f0Step(tr.step)) + (b.value - barrierValueStep);
                 let predictedReduction = -dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
 
                 /* JCL 2020/09/17 update the global step */
-                for(let i = 0; i < this.o.f.length; i += 1) {
+                for(let i = 0; i < this.optimizationProblem.f.length; i += 1) {
                     globalStep[i] += tr.step[i]
                 }
                 
@@ -95,7 +95,7 @@ export class Optimizer {
                     //numGradientComputation = 0
                     // JCL 05/03/2021 modify the use of step to take into account the curve analysis
                     //this.o.step(tr.step)
-                    checked = this.o.step(tr.step)
+                    checked = this.optimizationProblem.step(tr.step)
                     if(!checked) {
                         this.success = true
                         console.log("terminate optimization without convergence. ")
@@ -108,7 +108,7 @@ export class Optimizer {
                     console.log("optimizer: max number of iterations reached ")
                     return OptimizerReturnStatus.MAX_NB_ITER_REACHED;
                 }
-                let newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.o.gradient_f0, b.gradient);
+                let newtonDecrementSquared = this.newtonDecrementSquared(tr.step, t, this.optimizationProblem.gradient_f0, b.gradient);
                 if (newtonDecrementSquared < 0) {
                     throw new Error("newtonDecrementSquared is smaller than zero")
                 }
@@ -138,21 +138,21 @@ export class Optimizer {
     optimize_using_line_search(epsilon: number = 10e-6, maxNumSteps: number = 300) {
         // Bibliographic reference: Numerical Optimization, second edition, Jorge Nocedal and Stephen J. Wright, p. 69
         let numSteps = 0
-        let t = this.o.numberOfConstraints / this.o.f0 
+        let t = this.optimizationProblem.numberOfConstraints / this.optimizationProblem.f0 
         let rho: number 
         const eta = 0.1 // [0, 1/4)
         const mu = 10 // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
-        while (this.o.numberOfConstraints / t > epsilon) {
+        while (this.optimizationProblem.numberOfConstraints / t > epsilon) {
             while (true) {
                 numSteps += 1;
                 //console.log(numSteps) 
-                const b = this.barrier(this.o.f, this.o.gradient_f, this.o.hessian_f)
-                const gradient = saxpy2(t, this.o.gradient_f0, b.gradient)
-                const hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.o.hessian_f0, t)
+                const b = this.barrier(this.optimizationProblem.f, this.optimizationProblem.gradient_f, this.optimizationProblem.hessian_f)
+                const gradient = saxpy2(t, this.optimizationProblem.gradient_f0, b.gradient)
+                const hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.optimizationProblem.hessian_f0, t)
 
                 const newtonStep = this.computeNewtonStep(gradient, hessian)
 
-                const stepRatio = this.backtrackingLineSearch(t, newtonStep, this.o.f0, b.value, this.o.gradient_f0, b.gradient)
+                const stepRatio = this.backtrackingLineSearch(t, newtonStep, this.optimizationProblem.f0, b.value, this.optimizationProblem.gradient_f0, b.gradient)
 
                 if (stepRatio < 1) {
                     //console.log(stepRatio)
@@ -175,7 +175,7 @@ export class Optimizer {
                 }
                 */
 
-                this.o.step(step)
+                this.optimizationProblem.step(step)
 
 
                 if (numSteps > maxNumSteps) {
@@ -184,7 +184,7 @@ export class Optimizer {
                     console.log("numSteps > maxNumSteps")
                     return
                 }
-                let newtonDecrementSquared = this.newtonDecrementSquared(step, t, this.o.gradient_f0, b.gradient)
+                let newtonDecrementSquared = this.newtonDecrementSquared(step, t, this.optimizationProblem.gradient_f0, b.gradient)
                 if (newtonDecrementSquared < 0) {
                     throw new Error("newtonDecrementSquared is smaller than zero")
                 }
@@ -298,13 +298,13 @@ export class Optimizer {
         let result = 1
         let step = newtonStep.slice()
 
-        while (Math.max(...this.o.fStep(step)) > 0 ) {
+        while (Math.max(...this.optimizationProblem.fStep(step)) > 0 ) {
             result *= beta
             //console.log(Math.max(...this.o.fStep(step)))
             step = multiplyVectorByScalar(newtonStep, result)
         }
 
-        while (t * this.o.f0Step(step) + this.barrierValue(this.o.fStep(step)) > t * f0 + barrierValue 
+        while (t * this.optimizationProblem.f0Step(step) + this.barrierValue(this.optimizationProblem.fStep(step)) > t * f0 + barrierValue 
         + alpha * result * dotProduct(addTwoVectors(multiplyVectorByScalar(gradient_f0, t), barrierGradient), newtonStep) ) {
             result *= beta
             step = multiplyVectorByScalar(newtonStep, result)

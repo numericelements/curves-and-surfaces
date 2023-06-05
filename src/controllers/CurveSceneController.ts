@@ -38,6 +38,8 @@ import { CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConst
 import { PhantomCurveView } from "../views/PhantomCurveView";
 import { SelectedSlipOutOfShapeSpaceCurvExtremaView } from "../views/SelectedSlipOutOfShapeSpaceCurvExtremView";
 import { SelectedSlipOutOfShapeSpaceInflectionView } from "../views/SelectedSlipOutOfShapeSpaceInflectionView";
+import { SelectedEnteringShapeSpaceCurvExtremaView } from "../views/SelectedEnteringShapeSpaceCurvExtremView";
+import { SelectedEnteringShapeSpaceInflectionView } from "../views/SelectedEnteringShapeSpaceInflectionView";
 
 // Margin expressed in pixel size
 const MARGIN_WINDOW_CANVAS = 150;
@@ -56,7 +58,9 @@ export class CurveSceneController implements SceneControllerInterface {
     public selectedInflection: number[] | null = null
     private _allowShapeSpaceChange: boolean = false
     private _selectedSlipOutCurvatureExtremaView: SelectedSlipOutOfShapeSpaceCurvExtremaView;
+    private _selectedEnteringCurvatureExtremaView: SelectedEnteringShapeSpaceCurvExtremaView;
     private _selectedSlipOutInflectionsView: SelectedSlipOutOfShapeSpaceInflectionView;
+    private _selectedEnteringInflectionsView: SelectedEnteringShapeSpaceInflectionView;
     /* JCL 2020/10/18 Moved CurveModel to public */
     //public curveModel: CurveModel
     private _controlPointsView: ControlPointsView
@@ -133,7 +137,9 @@ export class CurveSceneController implements SceneControllerInterface {
         
         let selectedEvent: number[]= []
         this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedEnteringCurvatureExtremaView = new SelectedEnteringShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
         this._selectedSlipOutInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedEnteringInflectionsView = new SelectedEnteringShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
 
         this._highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
         this._phantomCurveView = new PhantomCurveView(this.gl, this.curveModel.spline);
@@ -148,6 +154,9 @@ export class CurveSceneController implements SceneControllerInterface {
         this.shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveSceneController(this));
 
         this._selectedSlipOutCurvatureExtremaView.update(this.curveModel.spline);
+        this._selectedEnteringCurvatureExtremaView.update(this.curveModel.spline);
+        this._selectedSlipOutInflectionsView.update(this.curveModel.spline);
+        this._selectedEnteringInflectionsView.update(this.curveModel.spline);
 
         this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
 
@@ -203,6 +212,10 @@ export class CurveSceneController implements SceneControllerInterface {
         return this._selectedSlipOutCurvatureExtremaView;
     }
 
+    get selectedEnteringCurvatureExtremaView(): SelectedEnteringShapeSpaceCurvExtremaView {
+        return this._selectedEnteringCurvatureExtremaView;
+    }
+
     get allowShapeSpaceChange(): boolean {
         return this._allowShapeSpaceChange;
     }
@@ -252,6 +265,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.registerObserver(this._clampedControlPointView, "control points");
         this.curveModel.registerObserver(this._selectedSlipOutCurvatureExtremaView, "control points");
         this.curveModel.registerObserver(this._selectedSlipOutInflectionsView, "control points");
+        this.curveModel.registerObserver(this._selectedEnteringCurvatureExtremaView, "control points");
+        this.curveModel.registerObserver(this._selectedEnteringInflectionsView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
@@ -291,6 +306,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModel.removeObserver(this._clampedControlPointView, "control points");
         this.curveModel.removeObserver(this._selectedSlipOutCurvatureExtremaView, "control points");
         this.curveModel.removeObserver(this._selectedSlipOutInflectionsView, "control points");
+        this.curveModel.registerObserver(this._selectedEnteringCurvatureExtremaView, "control points");
+        this.curveModel.registerObserver(this._selectedEnteringInflectionsView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.inflectionsView, "control points");
@@ -323,6 +340,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this._insertKnotButtonView.renderFrame()
         this._selectedSlipOutCurvatureExtremaView.renderFrame();
         this._selectedSlipOutInflectionsView.renderFrame();
+        this._selectedEnteringCurvatureExtremaView.renderFrame();
+        this._selectedEnteringInflectionsView.renderFrame();
 
         /* JCL 2020/09/24 Add the display of clamped control points */
         if(this.controlOfCurveClamping && this._clampedControlPointView !== null) {

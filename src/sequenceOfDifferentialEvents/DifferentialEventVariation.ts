@@ -41,6 +41,10 @@ export class DiffrentialEventVariation {
         return this._neighboringEvents;
     }
 
+    get curveAnalyser2(): CurveAnalyzerInterface {
+        return this._curveAnalyser2;
+    }
+
     get extremumValue(): number {
         return this._extremumValue;
     }
@@ -67,6 +71,18 @@ export class DiffrentialEventVariation {
 
     get CPvariations(): number[] {
         return this._CPvariations.slice();
+    }
+
+    set neighboringEvents(neighboringEvents: NeighboringEvents[]) {
+        this._neighboringEvents = neighboringEvents;
+    }
+
+    set curveAnalyser1(curveAnalyser: CurveAnalyzerInterface) {
+        this._curveAnalyser1 = curveAnalyser;
+    }
+
+    set curveAnalyser2(curveAnalyser: CurveAnalyzerInterface) {
+        this._curveAnalyser2 = curveAnalyser;
     }
 
     neighboringEventsAt(index: number): NeighboringEvents {

@@ -61,5 +61,8 @@ export class NeighboringEvents {
         return this._index;
     }
 
-    
+    clear(): void {
+        this._index = INITIAL_INTERV_INDEX;
+        this._type = NeighboringEventsType.none;
+    }
 }

@@ -17,6 +17,7 @@ import { LocalizerOfCurvatureExtremaAppearing,
         LocalizerOfInflectionsDisappearingInAdjacentCurvatureExtremum} from "./LocalizerOfDifferentialEvents";
 import { ORDER_CURVATURE_EXTREMUM, ORDER_INFLECTION } from "./DifferentialEvent";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { INITIAL_INDEX } from "../curveShapeSpaceAnalysis/ExtremumLocationClassifiier";
 
 
 export const UPPER_BOUND_CURVE_INTERVAL = 1.0;
@@ -388,4 +389,61 @@ export class ComparatorOfSequencesOfDiffEvents {
         }
     }
 
+    removeNeighboringEvents(neighboringEvents: NeighboringEvents): void {
+        let index = INITIAL_INDEX;
+        let indexEvent = INITIAL_INDEX;
+        for (const events of this.neighboringEvents) {
+            index+= 1;
+            switch (events.type) {
+                case NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringCurvatureExtremaAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurvatureExtremaAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringCurvatureExtremaDisappear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurvatureExtremaDisappear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionLeftBoundaryAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionRightBoundaryAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionRightBoundaryAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionRightBoundaryDisappear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionsCurvatureExtremumAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionsCurvatureExtremumAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear) indexEvent = index;
+                    break;
+                default:
+                    if(neighboringEvents.type === NeighboringEventsType.none) {
+                        const warning = new WarningLog(this.constructor.name, "removeNeighboringEvents", "The events to remove are of type 'none'. Inconsistent operation." );
+                        warning.logMessageToConsole();
+                    }
+                    break;
+            }
+        }
+        if(indexEvent === INITIAL_INDEX) {
+            const error = new ErrorLog(this.constructor.name, "removeNeighboringEvents", "Inconsistent index found when removing neighboring events from a comparator. Operation cannot be performed.");
+            error.logMessageToConsole();
+        } else {
+            this.neighboringEvents.splice(indexEvent, 1);
+        }
+    }
 }

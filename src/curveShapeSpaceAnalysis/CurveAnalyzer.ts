@@ -167,8 +167,8 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
     protected navigationCurveModel: OpenCurveShapeSpaceNavigator;
     private _curveControlState: CurveControlState;
     protected _slidingEventsAtExtremities: SlidingEventsAtExtremities;
-    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
-    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
+    protected _curvatureNumerator: BSplineR1toR1Interface;
+    protected _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
@@ -252,6 +252,8 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
         this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
         this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
         this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+        this._curvatureNumerator = diffEventsExtractor.curvatureNumerator;
+        this._curvatureDerivativeNumerator = diffEventsExtractor.curvatureDerivativeNumerator;
     }
 
 }
@@ -267,8 +269,8 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     private navigationState: NavigationState;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private _curveControlState: CurveControlState;
-    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
-    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
+    protected _curvatureNumerator: BSplineR1toR1Interface;
+    protected _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
@@ -315,6 +317,8 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
         this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
         this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
         this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+        this._curvatureNumerator = diffEventsExtractor.curvatureNumerator;
+        this._curvatureDerivativeNumerator = diffEventsExtractor.curvatureDerivativeNumerator;
     }
 }
 
@@ -328,8 +332,8 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
     private navigationState: NavigationState;
     protected navigationCurveModel: ClosedCurveShapeSpaceNavigator;
     private _curveControlState: CurveControlState;
-    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
-    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
+    protected _curvatureNumerator: BSplineR1toR1Interface;
+    protected _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
@@ -396,6 +400,8 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
         this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
         this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
         this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+        this._curvatureNumerator = diffEventsExtractor.curvatureNumerator;
+        this._curvatureDerivativeNumerator = diffEventsExtractor.curvatureDerivativeNumerator;
     }
 
 }
@@ -410,8 +416,8 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     private navigationState: NavigationState;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private _curveControlState: CurveControlState;
-    protected readonly _curvatureNumerator: BSplineR1toR1Interface;
-    protected readonly _curvatureDerivativeNumerator: BSplineR1toR1Interface;
+    protected _curvatureNumerator: BSplineR1toR1Interface;
+    protected _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
     constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
@@ -457,5 +463,7 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
         this.globalExtremumOffAxisCurvaturePoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureCntrlPolygon);
         this._curveCurvatureDerivativeCntrlPolygon = diffEventsExtractor.curvatureDerivativeNumerator.controlPoints;
         this.globalExtremumOffAxisCurvatureDerivPoly = this.getGlobalExtremmumOffAxis(this.curveCurvatureDerivativeCntrlPolygon);
+        this._curvatureNumerator = diffEventsExtractor.curvatureNumerator;
+        this._curvatureDerivativeNumerator = diffEventsExtractor.curvatureDerivativeNumerator;
     }
 }
