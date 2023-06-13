@@ -894,7 +894,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
             let sequenceDiffEventsOptim: Array<DifferentialEvent> = this.generateSequenceDifferentialEvents(curvatureExtremaLocationsOptim, inflectionLocationsOptim)
             this.optimizationProblem.previousSequenceCurvatureExtrema = curvatureExtremaLocations
             this.optimizationProblem.previousCurvatureExtremaControlPoints = functionB.controlPoints
-            this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim
+            // this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim
             this.optimizationProblem.curvatureDerivativeNumeratorCP = functionBOptim.controlPoints
 
             /*let intermediateKnots: Array<intermediateKnotWithNeighborhood> = []
@@ -926,14 +926,14 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                 if(sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length) {
                     if(neighboringEvents.length > 0) {
                         if(this.curveSceneController?.counterLostEvent === 0) {
-                            this.curveSceneController.lastLostEvent = neighboringEvents[0]
+                            // this.curveSceneController.lastLostEvent = neighboringEvents[0]
                             this.curveSceneController.counterLostEvent += 1
-                        } else if(this.curveSceneController?.lastLostEvent.event === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index) {
+                        } else if(this.curveSceneController?.lastLostEvent.type === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index) {
                             this.curveSceneController.counterLostEvent += 1
-                        } else if(this.curveSceneController?.lastLostEvent.event !== neighboringEvents[0].event || 
-                            (this.curveSceneController.lastLostEvent.event === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index)) {
+                        } else if(this.curveSceneController?.lastLostEvent.type !== neighboringEvents[0].event || 
+                            (this.curveSceneController.lastLostEvent.type === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index)) {
                             this.curveSceneController.counterLostEvent = 0
-                            this.curveSceneController.lastLostEvent = {event: NeighboringEventsType.none, index: 0}
+                            // this.curveSceneController.lastLostEvent = {event: NeighboringEventsType.none, index: 0}
                         }
                         //console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent)
                     }
@@ -1210,7 +1210,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                             inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
                             let constraintID = this.optimizationProblem.inflectionTotalNumberOfConstraints - 1
                             if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary) constraintID = 0
-                            if(this.optimizationProblem.shapeSpaceBoundaryConstraintsInflection.indexOf(constraintID) === -1) this.optimizationProblem.shapeSpaceBoundaryConstraintsInflection.push(constraintID)
+                            if(this.optimizationProblem.shapeSpaceBoundaryConstraintsInflections.indexOf(constraintID) === -1) this.optimizationProblem.shapeSpaceBoundaryConstraintsInflections.push(constraintID)
                             this.curveModel.setControlPoints(controlPointsInit)
                             // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                             this.optimizer = this.newOptimizer(this.optimizationProblem)
@@ -1297,7 +1297,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                                     const splineDPoptim1 = new BSplineR1toR2DifferentialProperties(this.optimizationProblem.spline)
                                     const functionBOptim1 = splineDPoptim1.curvatureDerivativeNumerator()
                                     const curvatureExtremaLocationsOptim1 = functionBOptim1.zeros()
-                                    this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1
+                                    // this.optimizationProblem.currentSequenceCurvatureExtrema = curvatureExtremaLocationsOptim1
                                     this.optimizationProblem.curvatureDerivativeNumeratorCP = functionBOptim1.controlPoints
                                     if(curvatureExtremaLocationsOptim1.length === curvatureExtremaLocations.length) {
                                         console.log("set a control point displacement")

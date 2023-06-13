@@ -9,7 +9,7 @@ import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces"
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix" 
 import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
 
-export enum OptimizerReturnStatus {SOLUTION_FOUND, MAX_NB_ITER_REACHED, TERMINATION_WITHOUT_CONVERGENCE}
+export enum OptimizerReturnStatus {SOLUTION_FOUND, MAX_NB_ITER_REACHED, TERMINATION_WITHOUT_CONVERGENCE, FIRST_ITERATION}
 
 export class Optimizer {
 
@@ -99,7 +99,11 @@ export class Optimizer {
                     if(!checked) {
                         this.success = true
                         console.log("terminate optimization without convergence. ")
-                        return OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE;
+                        if(numSteps === 1) {
+                            return OptimizerReturnStatus.FIRST_ITERATION;
+                        } else {
+                            return OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE;
+                        }
                     }
                 }
                 if (numSteps > maxNumSteps) {

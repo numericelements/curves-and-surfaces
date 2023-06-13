@@ -1,4 +1,7 @@
 import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzerInterface";
+import { Vector2d } from "../mathVector/Vector2d";
+import { BSplineR1toR1Interface } from "../newBsplines/BSplineR1toR1Interface";
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { findSpan } from "../newBsplines/Piegl_Tiller_NURBS_Book";
 import { ComparatorOfSequencesOfDiffEvents } from "./ComparatorOfSequencesDiffEvents";
 import { NeighboringEvents } from "./NeighboringEvents";
@@ -101,14 +104,16 @@ export class DiffrentialEventVariation {
         if((curvatureDerivativeZerosLocationsOpt.length - curvatureDerivativeZerosLocations.length) % 2 === 0) {
             /* JCL 06/03/2021 Configuration where one or more couples of extrema appeared */
             let curvatureExtremumInterval: number[] = [];
-            let variationsOptim1_2: number[] = []
+            // let variationsOptim1_2: number[] = []
             for(let exLocOpt = 0; exLocOpt < curvatureDerivativeExtremaLocationsOpt.length; exLocOpt +=1) {
                 const currentNbExtremumLocations = curvatureExtremumInterval.length;
                 const curvatureDerivExtremumOpt =  curvatureDerivativeNumeratorOpt.evaluate(curvatureDerivativeExtremaLocationsOpt[exLocOpt]);
+                let extremumLocationFound = false;
                 for(let zeroLoc = 0; zeroLoc < curvatureDerivativeZerosLocationsOpt.length - 1; zeroLoc+=1) {
                     if(curvatureDerivativeExtremaLocationsOpt[exLocOpt] > curvatureDerivativeZerosLocationsOpt[zeroLoc]
                         && curvatureDerivativeExtremaLocationsOpt[exLocOpt] < curvatureDerivativeZerosLocationsOpt[zeroLoc + 1]) {
                         curvatureExtremumInterval.push(zeroLoc);
+                        extremumLocationFound = true;
                         if(curvatureDerivativeExtremaLocations.length === curvatureDerivativeExtremaLocationsOpt.length) {
                             this._extremumValue = curvatureDerivativeNumerator.evaluate(curvatureDerivativeExtremaLocations[exLocOpt]);
                             this._extremumLocation = curvatureDerivativeExtremaLocations[exLocOpt];
@@ -129,29 +134,95 @@ export class DiffrentialEventVariation {
                         this._extremumLocationOpt = curvatureDerivativeExtremaLocationsOpt[exLocOpt];
                     }
                 }
-                if(currentNbExtremumLocations === curvatureExtremumInterval.length) console.log("Problem to locate a curvature derivative extremum. ")
-                if(curvatureDerivExtremumOpt > 0.0) {
-                    for(let j = 0; j < curvatureDerivativeNumeratorOpt.controlPoints.length; j +=1) {
-                        // variationsOptim1_2.push(curvatureDerivativeNumeratorOpt.controlPoints[j] - functionBOptim.controlPoints[j])
-                        // variations1.push(functionBOptim.controlPoints[j] - curvatureDerivativeNumerator.controlPoints[j])
-                        this._CPvariations.push(curvatureDerivativeNumeratorOpt.controlPoints[j] - curvatureDerivativeNumerator.controlPoints[j]);
+                if(extremumLocationFound) {
+                    if(this._extremumValue * this._extremumValueOpt > 0) {
+                        console.log("Inconsistency of function B(u) extrema values functionBExtremum: " + this._extremumValue + " functionBOptimExtremum" + this._extremumValueOpt)
                     }
-                    console.log("variations1_2: " + variationsOptim1_2)
-                }
-                const span = findSpan(this._extremumLocation, curvatureDerivativeNumerator.knots, curvatureDerivativeNumerator.degree);
-                const spanOptim = findSpan(this._extremumLocationOpt, curvatureDerivativeNumeratorOpt.knots, curvatureDerivativeNumeratorOpt.degree);
-                const curveDegree = curvatureDerivativeNumerator.degree;
-                if(span === spanOptim) {
-                    this._span = span;
-                    this._rangeOfInfluence = curveDegree;
-                } else {
-                    if(span < spanOptim) {
+    
+                    if(currentNbExtremumLocations === curvatureExtremumInterval.length) console.log("Problem to locate a curvature derivative extremum. ")
+                    if(curvatureDerivExtremumOpt > 0.0) {
+                        for(let j = 0; j < curvatureDerivativeNumeratorOpt.controlPoints.length; j +=1) {
+                            // variationsOptim1_2.push(curvatureDerivativeNumeratorOpt.controlPoints[j] - functionBOptim.controlPoints[j])
+                            // variations1.push(functionBOptim.controlPoints[j] - curvatureDerivativeNumerator.controlPoints[j])
+                            this._CPvariations.push(curvatureDerivativeNumeratorOpt.controlPoints[j] - curvatureDerivativeNumerator.controlPoints[j]);
+                        }
+                        console.log("variations1_2: " + this._CPvariations)
+                    }
+                    const span = findSpan(this._extremumLocation, curvatureDerivativeNumerator.knots, curvatureDerivativeNumerator.degree);
+                    const spanOptim = findSpan(this._extremumLocationOpt, curvatureDerivativeNumeratorOpt.knots, curvatureDerivativeNumeratorOpt.degree);
+                    const curveDegree = curvatureDerivativeNumerator.degree;
+                    if(span === spanOptim) {
                         this._span = span;
-                        this._rangeOfInfluence = curveDegree + spanOptim - span;
+                        this._rangeOfInfluence = curveDegree;
                     } else {
-                        this._span = spanOptim;
-                        this._rangeOfInfluence = curveDegree + span - spanOptim;
+                        if(span < spanOptim) {
+                            this._span = span;
+                            this._rangeOfInfluence = curveDegree + spanOptim - span;
+                        } else {
+                            this._span = spanOptim;
+                            this._rangeOfInfluence = curveDegree + span - spanOptim;
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    updateCPDisplacement(currentCurve: BSplineR1toR2Interface, selectedControlPoint: number, x: number, y: number): Vector2d {
+        let newDisplacement = new Vector2d();
+        const controlPointsInit = currentCurve.controlPoints;
+        let ratio = Math.abs(this._extremumValue/(this._extremumValueOpt - this._extremumValue));
+        newDisplacement.x = controlPointsInit[selectedControlPoint].x + (x - controlPointsInit[selectedControlPoint].x) * ratio;
+        newDisplacement.y = controlPointsInit[selectedControlPoint].y + (y - controlPointsInit[selectedControlPoint].y) * ratio;
+        return newDisplacement;
+    }
+
+    updateExtremumValueOptimized(curvatureDerivativeNumeratorOptimized: BSplineR1toR1Interface): void {
+        const curvatureDerivativeNumeratorOpt = curvatureDerivativeNumeratorOptimized;
+        const curvatureDerivativeExtremaLocationsOpt = curvatureDerivativeNumeratorOpt.derivative().zeros();
+        const curvatureDerivativeZerosLocationsOpt = curvatureDerivativeNumeratorOpt.zeros();
+
+        const curvatureDerivativeNumerator = this._curveAnalyser1.curvatureDerivativeNumerator;
+        const curvatureDerivativeExtremaLocations = curvatureDerivativeNumerator.derivative().zeros();
+        const curvatureDerivativeZerosLocations = curvatureDerivativeNumerator.zeros();
+
+        if((curvatureDerivativeZerosLocationsOpt.length - curvatureDerivativeZerosLocations.length) % 2 === 0) {
+            /* JCL 06/03/2021 Configuration where one or more couples of extrema appeared */
+            let curvatureExtremumInterval: number[] = [];
+            // let variationsOptim1_2: number[] = []
+            for(let exLocOpt = 0; exLocOpt < curvatureDerivativeExtremaLocationsOpt.length; exLocOpt +=1) {
+                const currentNbExtremumLocations = curvatureExtremumInterval.length;
+                const curvatureDerivExtremumOpt =  curvatureDerivativeNumeratorOpt.evaluate(curvatureDerivativeExtremaLocationsOpt[exLocOpt]);
+                let extremumLocationFound = false;
+                for(let zeroLoc = 0; zeroLoc < curvatureDerivativeZerosLocationsOpt.length - 1; zeroLoc+=1) {
+                    if(curvatureDerivativeExtremaLocationsOpt[exLocOpt] > curvatureDerivativeZerosLocationsOpt[zeroLoc]
+                        && curvatureDerivativeExtremaLocationsOpt[exLocOpt] < curvatureDerivativeZerosLocationsOpt[zeroLoc + 1]) {
+                        curvatureExtremumInterval.push(zeroLoc);
+                        extremumLocationFound = true;
+                        if(curvatureDerivativeExtremaLocations.length === curvatureDerivativeExtremaLocationsOpt.length) {
+                            // this._extremumValue = curvatureDerivativeNumerator.evaluate(curvatureDerivativeExtremaLocations[exLocOpt]);
+                            // this._extremumLocation = curvatureDerivativeExtremaLocations[exLocOpt];
+                        } else {
+                            let minDist = Math.abs(curvatureDerivativeExtremaLocations[0] - curvatureDerivativeExtremaLocationsOpt[exLocOpt]);
+                            let indexMin = 0;
+                            for(let exLoc = 1; exLoc < curvatureDerivativeExtremaLocations.length; exLoc +=1) {
+                                if(Math.abs(curvatureDerivativeExtremaLocations[exLoc] - curvatureDerivativeExtremaLocationsOpt[exLocOpt]) < minDist) {
+                                    minDist = Math.abs(curvatureDerivativeExtremaLocations[exLoc] - curvatureDerivativeExtremaLocationsOpt[exLocOpt]);
+                                    indexMin = exLoc;
+                                }
+                            }
+                            // this._extremumValue = curvatureDerivativeNumerator.evaluate(curvatureDerivativeExtremaLocations[indexMin]);
+                            // this._extremumLocation = curvatureDerivativeExtremaLocations[indexMin];
+                        }
+                        const curvatureDerivExtremumOpt =  curvatureDerivativeNumeratorOpt.evaluate(curvatureDerivativeExtremaLocationsOpt[exLocOpt]);
+                        this._extremumValueOpt = curvatureDerivExtremumOpt;
+                        // this._extremumLocationOpt = curvatureDerivativeExtremaLocationsOpt[exLocOpt];
+                    }
+                }
+                if(extremumLocationFound && this._extremumValue * this._extremumValueOpt > 0) {
+                    console.log("Inconsistency of function B(u) extrema values functionBExtremum: " + this._extremumValue + " functionBOptimExtremum" + this._extremumValueOpt);
+                } else if(!extremumLocationFound) {
+                    console.log("Extremum has been correctly located");
                 }
             }
         }

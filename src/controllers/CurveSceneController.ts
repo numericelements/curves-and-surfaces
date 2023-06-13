@@ -6,16 +6,13 @@ import { SceneControllerInterface } from "./SceneControllerInterface";
 import { ClickButtonView } from "../views/ClickButtonView";
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
-import { NeighboringEventsType, NeighboringEvents, SlidingStrategy } from "./SlidingStrategy";
+import { NeighboringEventsType, NeighboringEvents} from "../sequenceOfDifferentialEvents/NeighboringEvents";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { IRenderFrameObserver } from "../newDesignPatterns/RenderFrameObserver";
-
-/* JCL 2020/09/24 Add the visualization of clamped control points */
+import { CurveKnotsView } from "../views/CurveKnotsView"
 import { ClampedControlPointView } from "../views/ClampedControlPointView"
 import { Vector2d } from "../mathVector/Vector2d";
-/* JCL 2020/10/02 Add the visualization of knots */
-import { CurveKnotsView } from "../views/CurveKnotsView"
 
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
@@ -25,7 +22,7 @@ import { ShapeNavigableCurve, NO_CONSTRAINT } from "../shapeNavigableCurve/Shape
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { NavigationState } from "../curveShapeSpaceNavigation/NavigationState";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
-import { CurveConstraintSelectionState, HandleConstraintAtPoint1ConstraintPoint2NoConstraintState, HandleConstraintAtPoint1Point2NoConstraintState } from "./CurveConstraintSelectionState";
+import { CurveConstraintSelectionState, HandleConstraintAtPoint1Point2NoConstraintState } from "./CurveConstraintSelectionState";
 import { CurveModelDefinitionEventListener, ShapeSpaceNavigationEventListener } from "../userInterfaceController/UserInterfaceEventListener";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
@@ -61,8 +58,6 @@ export class CurveSceneController implements SceneControllerInterface {
     private _selectedEnteringCurvatureExtremaView: SelectedEnteringShapeSpaceCurvExtremaView;
     private _selectedSlipOutInflectionsView: SelectedSlipOutOfShapeSpaceInflectionView;
     private _selectedEnteringInflectionsView: SelectedEnteringShapeSpaceInflectionView;
-    /* JCL 2020/10/18 Moved CurveModel to public */
-    //public curveModel: CurveModel
     private _controlPointsView: ControlPointsView
     private controlPolygonView: ControlPolygonView
     private _highlightedControlPolygonView: HighlightedControlPolygonView;
@@ -71,12 +66,9 @@ export class CurveSceneController implements SceneControllerInterface {
     private _insertKnotButtonView: ClickButtonView;
     private _controlOfKnotInsertion: boolean;
     private _sceneInteractionStrategy: SceneInteractionStrategy;
-    private dragging: boolean = false
     private curvatureExtremaView: CurvatureExtremaView
     private transitionCurvatureExtremaView: TransitionCurvatureExtremaView
     private inflectionsView: InflectionsView
-    // private _curveControl: CurveControlStrategyInterface
-    /* JCL 2020/10/18 Moved sliding, controlOfCurvatureExtrema, controlOfInflection, controlOfCurveClamping to public */
     public sliding: boolean
     public controlOfCurvatureExtrema: boolean
     public controlOfInflection: boolean
@@ -84,16 +76,12 @@ export class CurveSceneController implements SceneControllerInterface {
     private _clampedControlPointView: ClampedControlPointView
 
     private curveKnotsView: CurveKnotsView
-    /* JCL 2020/11/06 Add management of the curvature extrema and inflections */
-    // public activeExtremaLocationControl: ActiveExtremaLocationControl = ActiveExtremaLocationControl.none
-    // public activeInflectionLocationControl: ActiveInflectionLocationControl = ActiveInflectionLocationControl.none
     public stackControlPolygons: Array<Array<Vector2d>> = []
     public sizeStackControlPolygons: number = this.stackControlPolygons.length
     public readonly MAX_NB_CONFIGS_CP = 5
     public counterLostEvent: number = 0
-    public lastLostEvent: NeighboringEvents = {event: NeighboringEventsType.none, index: 0}
+    public lastLostEvent: NeighboringEvents = new NeighboringEvents(NeighboringEventsType.none, 0)
 
-    /* JCL 2021/09/29 Add modeller for new code architecture */
     private readonly curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
     public readonly shapeNavigableCurve: ShapeNavigableCurve;
     private _navigationState: NavigationState;
@@ -121,6 +109,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveShapeSpaceNavigator = shapeSpaceNavigationEventListener.curveShapeSpaceNavigator;
         this.curveModelDifferentialEventsExtractor = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
         this.curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
+
         this._controlPointsView = new ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
@@ -130,25 +119,24 @@ export class CurveSceneController implements SceneControllerInterface {
         this.inflectionsView = new InflectionsView(this.gl, this.curveDiffEventsLocations);
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);
         this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
+        let selectedEvent: number[]= [];
+        this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedEnteringCurvatureExtremaView = new SelectedEnteringShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedSlipOutInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
+        this._selectedEnteringInflectionsView = new SelectedEnteringShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
+        this._highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
+        this._phantomCurveView = new PhantomCurveView(this.gl, this.curveModel.spline);
+
         this._sceneInteractionStrategy = new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this);
 
         // JCL temporary modif
         this.curveShapeSpaceNavigator.curveSceneController = this;
         
-        let selectedEvent: number[]= []
-        this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
-        this._selectedEnteringCurvatureExtremaView = new SelectedEnteringShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
-        this._selectedSlipOutInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
-        this._selectedEnteringInflectionsView = new SelectedEnteringShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
-
-        this._highlightedControlPolygonView = new HighlightedControlPolygonView(this.curveModel.spline, this.gl);
-        this._phantomCurveView = new PhantomCurveView(this.gl, this.curveModel.spline);
-
         this._allowShapeSpaceChange = true
 
         this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
         this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
-        this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping
+        this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
 
         this.registerCurveObservers();
         this.shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveSceneController(this));
@@ -159,8 +147,6 @@ export class CurveSceneController implements SceneControllerInterface {
         this._selectedEnteringInflectionsView.update(this.curveModel.spline);
 
         this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
-
-        /* JCL 2021/09/29 Add modeller for new code architecture */
         this._navigationState = this.curveShapeSpaceNavigator.navigationState;
         this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
 
@@ -208,6 +194,10 @@ export class CurveSceneController implements SceneControllerInterface {
         return this._selectedSlipOutInflectionsView;
     }
 
+    get selectedEnteringInflectionsView(): SelectedEnteringShapeSpaceInflectionView {
+        return this._selectedEnteringInflectionsView;
+    }
+
     get selectedSlipOutCurvatureExtremaView(): SelectedSlipOutOfShapeSpaceCurvExtremaView {
         return this._selectedSlipOutCurvatureExtremaView;
     }
@@ -244,17 +234,12 @@ export class CurveSceneController implements SceneControllerInterface {
         this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
         
         this.registerCurveObservers();
-
         this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
         this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
         this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
         this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
 
-        this.dragging = false;
         this._selectedControlPoint = null;
-        // if(this.curveModel instanceof CurveModel) {
-        //     this._curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-        // }
     }
 
     registerCurveObservers(): void {
@@ -294,7 +279,6 @@ export class CurveSceneController implements SceneControllerInterface {
                 }
             });
         }
-
         this.curveModel.checkObservers();
     }
 
@@ -342,32 +326,15 @@ export class CurveSceneController implements SceneControllerInterface {
         this._selectedSlipOutInflectionsView.renderFrame();
         this._selectedEnteringCurvatureExtremaView.renderFrame();
         this._selectedEnteringInflectionsView.renderFrame();
-
-        /* JCL 2020/09/24 Add the display of clamped control points */
         if(this.controlOfCurveClamping && this._clampedControlPointView !== null) {
             this._clampedControlPointView.renderFrame()
         }
 
-        if(this.curveModel !== undefined) {
-            let curvatureEvents: number[] = []
-            let differentialEvents: number[] = []
-            // if((this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving ||
-            //     this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) && this.selectedCurvatureExtrema !== null) {
-            //     curvatureEvents = this.selectedCurvatureExtrema.slice()
-            // }
-            // if(this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming && this.selectedInflection !== null) {
-            //     differentialEvents = curvatureEvents.concat(this.selectedInflection)
-            // } else differentialEvents = curvatureEvents
-
-            // if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming || this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumLeaving) {
-            //     this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 0, 1.0, 1)
-            // } else if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.extremumEntering) {
-            //     this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
-            // } else if(differentialEvents.length === 0) {
-            //     this.selectedDifferentialEventsView = new SelectedDifferentialEventsView(this.curveModel.spline, differentialEvents, this.gl, 0, 1.0, 0, 1)
-            // }
-        }
-        else throw new Error("Unable to render the current frame. Undefined curve model")
+        // if(this.curveModel !== undefined) {
+        //     let curvatureEvents: number[] = []
+        //     let differentialEvents: number[] = []
+        // }
+        // else throw new Error("Unable to render the current frame. Undefined curve model")
         if(this._selectedSlipOutCurvatureExtremaView !== null && this.allowShapeSpaceChange === false) this._selectedSlipOutCurvatureExtremaView.renderFrame()
 
     }
@@ -376,7 +343,6 @@ export class CurveSceneController implements SceneControllerInterface {
         if(this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
             this.curveModel.registerObserver(curveObserver, "curve");
-            
         } else throw new Error("Unable to attach a curve observer to the current curve. Undefined curve model")
     }
 
@@ -396,175 +362,31 @@ export class CurveSceneController implements SceneControllerInterface {
     }
 
     leftMouseDown_event(ndcX: number, ndcY: number) {
-        const previousSceneInteractionStrategy = this._sceneInteractionStrategy;
         this._sceneInteractionStrategy.processLeftMouseDownInteraction(ndcX, ndcY);
-        // if(this._sceneInteractionStrategy instanceof CurveSceneControllerKnotInsertion) {
-        //     if(previousSceneInteractionStrategy instanceof CurveSceneControllerNoShapeSpaceConstraintsCPSelection) {
-        //         this.changeSceneInteraction(new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this));
-        //     } else if(previousSceneInteractionStrategy instanceof CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection) {
-        //         this.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this));
-        //     } else if(previousSceneInteractionStrategy instanceof CurveSceneControllerStrictlyInsideShapeSpaceCPSelection) {
-        //         this.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPSelection(this));
-        //     }
-        // }
-
-        // if(this.curveModel !== undefined && this.curveModel instanceof CurveModel) {
-        // if(this.curveModel !== undefined) {
-        //     if(this._insertKnotButtonView.buttonSelection(ndcX, ndcY) && this._selectedControlPoint !== null) {
-        //         let cp = this._selectedControlPoint
-        //         if(cp === 0) { cp += 1}
-        //         if(cp === this.curveModel.spline.controlPoints.length -1) { cp -= 1} 
-        //         const grevilleAbscissae = this.curveModel.spline.grevilleAbscissae()
-        //         if(cp != null) {
-        //             const spline = this.curveModel.spline;
-        //             spline.insertKnot(grevilleAbscissae[cp], 1)
-        //             this.curveModel.setSpline(spline);
-        //             // this.curveModel.spline.insertKnot(grevilleAbscissae[cp], 1)
-        //             this.curveControl.resetCurve(this.curveModel)
-        //             if(this.activeLocationControl === ActiveLocationControl.both) {
-        //                 if(this.shapeNavigableCurve.clampedPoints[0] === 0) {
-        //                     this.shapeNavigableCurve.clampedPoints[1] = this.curveModel.spline.controlPoints.length - 1
-        //                 } else this.shapeNavigableCurve.clampedPoints[0] = this.curveModel.spline.controlPoints.length - 1
-        //             }
-        //             else if(this.activeLocationControl === ActiveLocationControl.lastControlPoint) {
-        //                 this.shapeNavigableCurve.clampedPoints[0] = this.curveModel.spline.controlPoints.length - 1
-        //             }
-
-        //             // JCL after resetting the curve the activeControl parameter is reset to 2 independently of the control settings
-        //             // JCL the curveControl must be set in accordance with the current status of controls
-        //             if(this.curveModel instanceof CurveModel) {
-        //                 if(this.sliding) {
-        //                     this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-        //                     this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
-        //                     this.selectedInflection = null
-        //                     this.selectedCurvatureExtrema = null
-        //                     this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this);
-        //                 }
-        //                 else {
-        //                     this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
-        //                 }
-        //             }
-        //             this.curveModel.notifyObservers()
-        //         }
-        //     }
-            
-        //     if(this.curveModel instanceof CurveModel) {
-        //         if(this.activeLocationControl === ActiveLocationControl.both && this._selectedControlPoint === null) {
-        //             /* JCL 2020/09/28 Reinitialize the curve optimization context after releasing the conotrol point dragging mode */
-        //             if(this.sliding) {
-        //                 this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-        //                 this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
-        //                 this.selectedInflection = null
-        //                 this.selectedCurvatureExtrema = null
-        //                 this.curveControl = new SlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this)
-        //             }
-        //             else {
-        //                 this.curveControl = new NoSlidingStrategy(this.curveModel, this.controlOfInflection, this.controlOfCurvatureExtrema, this.activeLocationControl)
-        //             }
-        //             this.curveModel.notifyObservers()
-        //         }
-        //     }
-        //     this._selectedControlPoint = this.controlPointsView.pointSelection(ndcX, ndcY);
-        //     this.controlPointsView.setSelected(this._selectedControlPoint);
-        //     if(this._selectedControlPoint !== null) {
-        //         this.dragging = true;
-        //     }
-        // } else throw new Error("Unable to process the current selection. Undefined curve model")
     }
-
 
     leftMouseDragged_event(ndcX: number, ndcY: number) {
         this._sceneInteractionStrategy.processLeftMouseDragInteraction(ndcX, ndcY);
-        // const x = ndcX,
-        // y = ndcY,
-        // selectedControlPoint = this._controlPointsView.getSelectedPoint();
-        // if(this.curveModel !== undefined) {
-        //     /* JCL 2020/09/27 Add clamping condition when dragging a control point */
-        //     //if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming 
-        //     //    && (this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming || this.allowShapeSpaceChange === true)) {
-        //     if (selectedControlPoint != null && this.dragging === true && this.activeLocationControl !== ActiveLocationControl.stopDeforming) {
-        //         // JCL new code
-        //         this.curveShapeSpaceNavigator.navigateSpace(selectedControlPoint, x, y);
-        //         if(!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
-        //             /* JCL 2020/11/12 Remove the setControlPoint as a preliminary step of optimization 
-        //             because it is part of the optimize method (whether sliding is active or not) */
-        //             this.curveModel.setControlPointPosition(selectedControlPoint, x, y)
-        //         } else if((this.activeExtremaLocationControl !== ActiveExtremaLocationControl.stopDeforming && this.activeInflectionLocationControl !== ActiveInflectionLocationControl.stopDeforming) 
-        //                 || this.allowShapeSpaceChange === true) {
-        //             /*if(this.curveControl instanceof SlidingStrategy && this.curveControl.lastDiffEvent !== NeighboringEventsType.none) {
-        //                 if(this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumLeftBoundary || this.curveControl.lastDiffEvent === NeighboringEventsType.neighboringCurExtremumRightBoundary) {
-
-        //                 }
-        //             }*/
-        //             this._curveControl.optimize(selectedControlPoint, x, y)
-        //         }
-
-        //         this.curveModel.notifyObservers()
-        //         // if(this.curveModeler.clampedControlPoints.length > 0) {
-        //         //     let clampedControlPoint: Vector_2d[] = [];
-        //         //     for(let controlP of this.curveModeler.clampedControlPoints) {
-        //         //         clampedControlPoint.push(this.curveModel.spline.controlPoints[controlP])
-        //         //     }
-        //         //     if(this.clampedControlPointView !== null) this.clampedControlPointView.update(clampedControlPoint)
-        //         // }
-        //         /*let curvatureEvents: number[] = []
-        //         let differentialEvents: number[] = []
-        //         if(this.selectedCurvatureExtrema !== null && this.allowShapeSpaceChange === false) curvatureEvents = this.selectedCurvatureExtrema.slice()
-        //         if(this.selectedInflection !== null && this.allowShapeSpaceChange === false) differentialEvents = curvatureEvents.concat(this.selectedInflection)
-        //         this.selectedDifferentialEventsView.update(this.curveModel.spline, differentialEvents)*/
-
-        //     }
-        // } else throw new Error("Unable to drag the selected control point. Undefined curve model")
-
     }
 
     leftMouseUp_event() {
         this._sceneInteractionStrategy.processLeftMouseUpInteraction();
-        // this.changeSceneInteraction(new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this));
-        this.dragging = false;
-        // if(this.activeLocationControl === ActiveLocationControl.stopDeforming) {
-        //     this.activeLocationControl = ActiveLocationControl.both
-        //     this._selectedControlPoint = null;
-        // }
-        // if(this.activeInflectionLocationControl === ActiveInflectionLocationControl.stopDeforming) {
-        //     this.activeInflectionLocationControl = ActiveInflectionLocationControl.none
-        // }
-        // if(this.activeExtremaLocationControl === ActiveExtremaLocationControl.stopDeforming) {
-        //     this.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-        // }
     }
 
     shiftKeyDown() {
-        // this._allowShapeSpaceChange = true;
         this._sceneInteractionStrategy.processShiftKeyDownInteraction();
-        // if(this.eventMgmtAtExtremities !== undefined) {
-        //     this.curveEventAtExtremityMayVanish = true;
-        //     this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        //     let message = new WarningLog(this.constructor.name, " shiftKeyDown ", this.eventMgmtAtExtremities.eventState.constructor.name);
-        //     message.logMessageToConsole();
-        // }
     }
 
     shiftKeyUp() {
-        // this._allowShapeSpaceChange = false;
         this._sceneInteractionStrategy.processShiftKeyUpInteraction();
-        // if(this.eventMgmtAtExtremities !== undefined) {
-        //     this.curveEventAtExtremityMayVanish = false;
-        //     this.eventMgmtAtExtremities.processEventAtCurveExtremity();
-        //     let message = new WarningLog(this.constructor.name, " shiftKeyUp ", this.eventMgmtAtExtremities.eventState.constructor.name);
-        //     message.logMessageToConsole();
-        // }
     }
 
-    /* JCL 2020/09/25 Management of the dble click on a clamped control point */
     dbleClick_event(ndcX: number, ndcY: number): boolean {
         if(this.curveModel !== undefined) {
                                 
             if(this.controlOfCurveClamping) {
                 if(this._clampedControlPointView !== null) {
-                    // let selectedClampedControlPoint = this.clampedControlPointView.controlPointSelection(this.curveModel.spline.controlPoints, ndcX, ndcY, deltaSquared);
                     let selectedClampedControlPoint = this._clampedControlPointView.knotSelection(ndcX, ndcY);
-
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if(selectedClampedControlPoint !== null) {
                         if((this.shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT)
@@ -576,46 +398,6 @@ export class CurveSceneController implements SceneControllerInterface {
                         }
                         this.curveModel.notifyObservers();
                         
-                        // if(this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] === selectedClampedControlPoint) {
-                        //     console.log("dlble_click: no cp left")
-                        //     // this.clampedControlPointView = null
-                        //     this.shapeNavigableCurve.clampedControlPoints.pop()
-                        //     this.activeLocationControl = ActiveLocationControl.none
-                        //     return false
-                        // }
-                        // else if(this.shapeNavigableCurve.clampedControlPoints.length === 1 && this.shapeNavigableCurve.clampedControlPoints[0] !== selectedClampedControlPoint 
-                        //     && (selectedClampedControlPoint === 0 || selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1))) {
-                        //     console.log("dlble_click: two cp clamped")
-                        //     this.shapeNavigableCurve.clampedControlPoints.push(selectedClampedControlPoint)
-                        //     let clampedControlPoint: Vector2d[] = []
-                        //     clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-                        //     clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
-                        //     this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints)
-                        //     this.activeLocationControl = ActiveLocationControl.both
-                        //     return true
-                        // }
-                        // else if(this.shapeNavigableCurve.clampedControlPoints.length === 2) {
-                        //     if(selectedClampedControlPoint === 0) {
-                        //         console.log("dlble_click: last cp left")
-                        //         if(this.shapeNavigableCurve.clampedControlPoints[1] === selectedClampedControlPoint) {
-                        //             this.shapeNavigableCurve.clampedControlPoints.pop()
-                        //         } else this.shapeNavigableCurve.clampedControlPoints.splice(0, 1)
-                        //         let clampedControlPoint: Vector2d[] = []
-                        //         clampedControlPoint.push(this.curveModel.spline.controlPoints[this.curveModel.spline.controlPoints.length - 1])
-                        //         this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints)
-                        //         this.activeLocationControl = ActiveLocationControl.lastControlPoint
-                        //         console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints)
-                        //     } else if(selectedClampedControlPoint === (this.curveModel.spline.controlPoints.length - 1)) {
-                        //         console.log("dlble_click: first cp left")
-                        //         if(this.shapeNavigableCurve.clampedControlPoints[1] === selectedClampedControlPoint) {
-                        //             this.shapeNavigableCurve.clampedControlPoints.pop()
-                        //         } else this.shapeNavigableCurve.clampedControlPoints.splice(0, 1)
-                        //         let clampedControlPoint: Vector2d[] = []
-                        //         clampedControlPoint.push(this.curveModel.spline.controlPoints[0])
-                        //         this.clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedControlPoints)
-                        //         this.activeLocationControl = ActiveLocationControl.firstControlPoint
-                        //         console.log("dble click: clampedControlPoints " + this.shapeNavigableCurve.clampedControlPoints)
-                        //     }
                             return true
                         // } else return true
                     } else return true;

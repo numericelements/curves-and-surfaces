@@ -307,4 +307,9 @@ export class SequenceOfDifferentialEvents {
         }
         return sequence;
     }
+
+    clear(): void {
+        this._sequence = [];
+        this._indicesOfInflections = this.generateIndicesInflection();
+    }
 }
