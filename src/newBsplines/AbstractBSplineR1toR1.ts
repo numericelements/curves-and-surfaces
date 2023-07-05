@@ -1,6 +1,7 @@
 import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
@@ -311,7 +312,26 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         return result
     }
     
-
+    getExtremumClosestToZero(): {location: number, value: number} {
+        let locExtremum = RETURN_ERROR_CODE;
+        let valExtremum = 0.0;
+        const locExtrema = this.derivative().zeros();
+        if(locExtrema.length > 1) {
+            let closestVal = this.evaluate(locExtrema[0]);
+            let locExtremum = locExtrema[0];
+            for(let location = 1; location < locExtrema.length; location++) {
+                const currentVal = this.evaluate(locExtrema[location]);
+                if(Math.abs(currentVal) < Math.abs(closestVal)) {
+                    closestVal = currentVal;
+                    locExtremum = locExtrema[location];
+                }
+            }
+            return {location: locExtremum, value: closestVal};
+        } else if(locExtrema.length === 1) {
+            return {location: locExtrema[0], value: this.evaluate(locExtrema[0])};
+        }
+        return {location: locExtremum, value: valExtremum};
+    }
 
 }
 

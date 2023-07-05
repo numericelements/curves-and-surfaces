@@ -59,6 +59,14 @@ export class SequenceOfDifferentialEvents {
         this.checkSequenceConsistency();
     }
 
+    set sequence(sequence: Array<DifferentialEvent>) {
+        this._sequence = sequence.slice();
+    }
+
+    set indicesOfInflections(indicesOfInflections: number[]) {
+        this._indicesOfInflections = indicesOfInflections.slice();
+    }
+
     get lastEvent(): DifferentialEvent | undefined {
         let event: DifferentialEvent;
         if(this._sequence[this._sequence.length - 1] !== undefined) {
@@ -312,4 +320,11 @@ export class SequenceOfDifferentialEvents {
         this._sequence = [];
         this._indicesOfInflections = this.generateIndicesInflection();
     }
+}
+
+export function deepCopySequenceOfDifferentialEvents(sequenceDifEvents: SequenceOfDifferentialEvents): SequenceOfDifferentialEvents {
+    const sequence =  new SequenceOfDifferentialEvents();
+    sequence.sequence = sequenceDifEvents.sequence;
+    sequence.indicesOfInflections = sequenceDifEvents.indicesOfInflections;
+    return sequence;
 }

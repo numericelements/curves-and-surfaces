@@ -1039,14 +1039,14 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                         neighboringEvents[i].variation?.push(0.0)
                         neighboringEvents[i].span = 0
                         neighboringEvents[i].range = 0
-                        let shapeSpaceBoundaryConstraintsCurvExtrema = this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema
-                        if(this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1) {
-                            shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID)
+                        // let shapeSpaceBoundaryConstraintsCurvExtrema = this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema
+                        // if(this.optimizationProblem.shapeSpaceBoundaryConstraintsCurvExtrema.indexOf(constraintID) === -1) {
+                        //     shapeSpaceBoundaryConstraintsCurvExtrema.push(constraintID)
                             /* JCL To be used for interaction when the user removes one event to monitor the removal (or the addition) of this event 
                             To be distinguished between the insertion of an extremum when removing the curvature extrema from the case where only one
                             extremum appears on the curve because the other one should appear outside (case where a couple of extrema appear simultaneously) */
-                            this.lastDiffEvent = neighboringEvents[i].event
-                        }
+                        //     this.lastDiffEvent = neighboringEvents[i].event
+                        // }
 
                         this.curveModel.setControlPoints(controlPointsInit)
                         // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), 
@@ -1210,7 +1210,7 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                             inflections.push(sequenceDiffEventsInit[neighboringEvents[i].index].loc)
                             let constraintID = this.optimizationProblem.inflectionTotalNumberOfConstraints - 1
                             if(neighboringEvents[i].event === NeighboringEventsType.neighboringInflectionLeftBoundary) constraintID = 0
-                            if(this.optimizationProblem.shapeSpaceBoundaryConstraintsInflections.indexOf(constraintID) === -1) this.optimizationProblem.shapeSpaceBoundaryConstraintsInflections.push(constraintID)
+                            // if(this.optimizationProblem.shapeSpaceBoundaryConstraintsInflections.indexOf(constraintID) === -1) this.optimizationProblem.shapeSpaceBoundaryConstraintsInflections.push(constraintID)
                             this.curveModel.setControlPoints(controlPointsInit)
                             // this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl)
                             this.optimizer = this.newOptimizer(this.optimizationProblem)

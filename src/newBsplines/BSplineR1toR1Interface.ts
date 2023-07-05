@@ -18,4 +18,6 @@ export interface BSplineR1toR1Interface {
 
     zeros(): number[];
 
+    getExtremumClosestToZero(): {location: number, value: number};
+
 }

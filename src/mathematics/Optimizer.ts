@@ -9,7 +9,7 @@ import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces"
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix" 
 import { CholeskyDecomposition } from "../linearAlgebra/CholeskyDecomposition";
 
-export enum OptimizerReturnStatus {SOLUTION_FOUND, MAX_NB_ITER_REACHED, TERMINATION_WITHOUT_CONVERGENCE, FIRST_ITERATION}
+export enum OptimizerReturnStatus {SOLUTION_FOUND, MAX_NB_ITER_REACHED, SOLUTION_OUTSIDE_SHAPE_SPACE, FIRST_ITERATION}
 
 export class Optimizer {
 
@@ -98,11 +98,11 @@ export class Optimizer {
                     checked = this.optimizationProblem.step(tr.step)
                     if(!checked) {
                         this.success = true
-                        console.log("terminate optimization without convergence. ")
+                        console.log("terminate optimization: solution not in shape space. ")
                         if(numSteps === 1) {
                             return OptimizerReturnStatus.FIRST_ITERATION;
                         } else {
-                            return OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE;
+                            return OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
                         }
                     }
                 }

@@ -34,6 +34,9 @@ export abstract class NavigationCurveModel {
     protected abstract _currentCurve: BSplineR1toR2Interface;
     protected abstract _optimizedCurve: BSplineR1toR2Interface;
     protected abstract _targetCurve: BSplineR1toR2Interface;
+    protected abstract _adjacentShapeSpaceCurve: BSplineR1toR2Interface | undefined;
+    protected abstract _seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
+    protected abstract _seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     protected abstract _displacementCurrentCurveControlPolygon: Vector2d[];
     protected readonly controlOfInflections: boolean;
     protected readonly controlOfCurvatureExtrema: boolean;
@@ -99,13 +102,25 @@ export abstract class NavigationCurveModel {
 
     abstract get optimizedCurve(): BSplineR1toR2Interface;
 
+    abstract get adjacentShapeSpaceCurve(): BSplineR1toR2Interface | undefined;
+
     abstract get displacementCurrentCurveControlPolygon(): Vector2d[];
+
+    abstract get seqDiffEventsCurrentCurve(): SequenceOfDifferentialEvents;
+
+    abstract get seqDiffEventsOptimizedCurve(): SequenceOfDifferentialEvents;
 
     abstract set curveModel(curveModel: CurveModelInterface);
 
     abstract set currentCurve(currentCurve: BSplineR1toR2Interface);
 
     abstract set optimizedCurve(optimizedCurve: BSplineR1toR2Interface);
+
+    abstract set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: BSplineR1toR2Interface | undefined);
+
+    abstract set seqDiffEventsCurrentCurve(seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents);
+
+    abstract set seqDiffEventsOptimizedCurve(seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents);
 
     abstract navigateSpace(selectedControlPoint: number, x: number, y: number): void;
 
@@ -126,22 +141,23 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     protected _curveModel: CurveModel;
     private _selectedControlPoint?: number;
     protected _currentCurve: BSplineR1toR2;
+    protected _optimizedCurve: BSplineR1toR2;
+    protected _targetCurve: BSplineR1toR2;
+    protected _adjacentShapeSpaceCurve: BSplineR1toR2 | undefined;
     private currentControlPolygon: Vector2d[];
     private locationSelectedCP: Vector2d;
-    public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
+    protected _seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
+    protected _seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     public curveAnalyserCurrentCurve: CurveAnalyzerInterface;
-    protected _targetCurve: BSplineR1toR2;
-    protected _displacementCurrentCurveControlPolygon: Vector2d[] = [];
-    protected _optimizedCurve: BSplineR1toR2;
-    public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     public curveAnalyserOptimizedCurve: CurveAnalyzerInterface;
+    protected _displacementCurrentCurveControlPolygon: Vector2d[] = [];
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     private diffEvents: NeighboringEvents;
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
     protected _navigationState: NavigationState;
+    protected _curveShapeMonitoringStrategy: OCurveShapeMonitoringStrategy;
     // private _eventMgmtAtCurveExtremities: EventMgmtAtCurveExtremities;
     private _slidingEventsAtExtremities: SlidingEventsAtExtremities;
-    protected _curveShapeMonitoringStrategy: OCurveShapeMonitoringStrategy;
 
     constructor(curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         super(curveShapeSpaceNavigator);
@@ -171,15 +187,23 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._curveShapeSpaceNavigator.navigationState = this._navigationState;
         // JCL requires the setting of the navigationState
         this.curveAnalyserCurrentCurve = this._navigationState.curveAnalyserCurrentCurve;
-        this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+        this._seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveAnalyserOptimizedCurve = this._navigationState.curveAnalyserOptimizedCurve;
-        this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+        this._seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
         this.diffEvents = new NeighboringEvents();
 
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
 
         this.changeNavigationState(this._navigationState);
         console.log("end constructor curveShapeSpaceNavigator")
+    }
+
+    get seqDiffEventsCurrentCurve(): SequenceOfDifferentialEvents {
+        return this._seqDiffEventsCurrentCurve;
+    }
+
+    get seqDiffEventsOptimizedCurve(): SequenceOfDifferentialEvents {
+        return this._seqDiffEventsOptimizedCurve;
     }
 
     set optimizationProblemParam(optimPbParam: OptimizationProblemCtrlParameters) {
@@ -207,12 +231,24 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._currentCurve = curve.clone();
     }
 
+    set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: BSplineR1toR2 | undefined) {
+        this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve?.clone();
+    };
+
     set curveModel(curveModel: CurveModel) {
         this._curveModel = curveModel;
     }
 
     get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor {
         return this._shapeSpaceDescriptor;
+    }
+
+    set seqDiffEventsCurrentCurve(seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents) {
+        this._seqDiffEventsCurrentCurve = seqDiffEventsCurrentCurve;
+    }
+
+    set seqDiffEventsOptimizedCurve(seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents) {
+        this._seqDiffEventsOptimizedCurve = seqDiffEventsOptimizedCurve;
     }
 
     get optimizationProblemParam(): OptimizationProblemCtrlParameters {
@@ -243,6 +279,11 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     get optimizedCurve(): BSplineR1toR2 {
         return this._optimizedCurve.clone();
     }
+
+    get adjacentShapeSpaceCurve(): BSplineR1toR2 | undefined {
+        return this._adjacentShapeSpaceCurve?.clone();
+    };
+
 
     get displacementCurrentCurveControlPolygon(): Vector2d[] {
         return this._displacementCurrentCurveControlPolygon;
@@ -326,10 +367,11 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     protected _displacementCurrentCurveControlPolygon: Vector2d[] = [];
     protected _optimizedCurve: PeriodicBSplineR1toR2;
     protected _targetCurve: PeriodicBSplineR1toR2;
+    protected _adjacentShapeSpaceCurve: PeriodicBSplineR1toR2 | undefined;
     public curveAnalyserCurrentCurve: CurveAnalyzerInterface;
     public curveAnalyserOptimizedCurve: CurveAnalyzerInterface;
-    public seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
-    public seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
+    protected _seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
+    protected _seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents;
     private _shapeSpaceDescriptor: CurveShapeSpaceDescriptor;
     // protected _curveControl: CurveControlStrategyInterface;
     private _optimizationProblemParam: OptimizationProblemCtrlParameters;
@@ -360,15 +402,22 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._navigationState = new CCurveNavigationWithoutShapeSpaceMonitoring(this);
         this._curveShapeSpaceNavigator.navigationState = this._navigationState;
         this.curveAnalyserCurrentCurve = this.navigationState.curveAnalyserCurrentCurve;
-        this.seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+        this._seqDiffEventsCurrentCurve = this.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.curveAnalyserOptimizedCurve = this.navigationState.curveAnalyserOptimizedCurve;
-        this.seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
+        this._seqDiffEventsOptimizedCurve = this.curveAnalyserOptimizedCurve.sequenceOfDifferentialEvents;
 
         // JCL temporary setting before adapting the optimization problem setting to closed curves
         // const dummyCurveModel = new CurveModel()
         this._optimizationProblemParam = new OptimizationProblemCtrlParameters();
     }
 
+    get seqDiffEventsCurrentCurve(): SequenceOfDifferentialEvents {
+        return this._seqDiffEventsCurrentCurve;
+    }
+
+    get seqDiffEventsOptimizedCurve(): SequenceOfDifferentialEvents {
+        return this._seqDiffEventsOptimizedCurve;
+    }
 
     get currentCurve(): PeriodicBSplineR1toR2 {
         return this._currentCurve.clone();
@@ -380,6 +429,10 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
 
     get optimizedCurve(): PeriodicBSplineR1toR2 {
         return this._optimizedCurve.clone();
+    }
+
+    get adjacentShapeSpaceCurve(): PeriodicBSplineR1toR2 | undefined {
+        return this._adjacentShapeSpaceCurve?.clone();
     }
 
     get optimizationProblemParam(): OptimizationProblemCtrlParameters {
@@ -415,8 +468,20 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         this._optimizedCurve = aBSpline.clone();
     }
 
+    set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: PeriodicBSplineR1toR2 | undefined) {
+        this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve?.clone();
+    }
+
     set curveModel(curveModel: ClosedCurveModel) {
         this._curveModel = curveModel;
+    }
+
+    set seqDiffEventsCurrentCurve(seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents) {
+        this._seqDiffEventsCurrentCurve = seqDiffEventsCurrentCurve;
+    }
+
+    set seqDiffEventsOptimizedCurve(seqDiffEventsOptimizedCurve: SequenceOfDifferentialEvents) {
+        this._seqDiffEventsOptimizedCurve = seqDiffEventsOptimizedCurve;
     }
 
     changeNavigationState(state: NavigationState): void {

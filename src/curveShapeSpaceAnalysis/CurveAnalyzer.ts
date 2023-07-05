@@ -1,4 +1,4 @@
-import { SequenceOfDifferentialEvents } from "../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents"
+import { SequenceOfDifferentialEvents, deepCopySequenceOfDifferentialEvents } from "../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents"
 import { OpenCurveDifferentialEventsExtractor } from "./OpenCurveDifferentialEventsExtractor"
 import { BSplineR1toR2 } from "../../src/newBsplines/BSplineR1toR2"
 import { CurveShapeSpaceDescriptor } from "../curveShapeSpaceNavigation/CurveShapeSpaceDescriptor";
@@ -50,27 +50,27 @@ export abstract class AbstractCurveAnalyzer {
     abstract get shapeSpaceDescriptor(): CurveShapeSpaceDescriptor;
 
     get curvatureSignChanges(): number[] {
-        return this._curvatureSignChanges;
+        return this._curvatureSignChanges.slice();
     }
 
     get curveCurvatureCntrlPolygon(): number[] {
-        return this._curveCurvatureCntrlPolygon;
+        return this._curveCurvatureCntrlPolygon.slice();
     }
 
     get curvatureCrtlPtsClosestToZero(): number[] {
-        return this._curvatureCrtlPtsClosestToZero;
+        return this._curvatureCrtlPtsClosestToZero.slice();
     }
 
     get curvatureDerivativeSignChanges(): number[] {
-        return this._curvatureDerivativeSignChanges;
+        return this._curvatureDerivativeSignChanges.slice();
     }
 
     get curveCurvatureDerivativeCntrlPolygon(): number[] {
-        return this._curveCurvatureDerivativeCntrlPolygon;
+        return this._curveCurvatureDerivativeCntrlPolygon.slice();
     }
 
     get curvatureDerivCrtlPtsClosestToZero(): number[] {
-        return this._curvatureDerivCrtlPtsClosestToZero;
+        return this._curvatureDerivCrtlPtsClosestToZero.slice();
     }
 
     get curvatureNumerator(): BSplineR1toR1Interface {
@@ -209,7 +209,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
     }
 
     get sequenceOfDifferentialEvents(): SequenceOfDifferentialEvents {
-        return this._sequenceOfDifferentialEvents;
+        return deepCopySequenceOfDifferentialEvents(this._sequenceOfDifferentialEvents);
     }
 
     get curveControlState(): CurveControlState {
