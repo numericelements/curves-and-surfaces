@@ -391,6 +391,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
         let spline = new BSplineR1toR2();
         this._transitionEvents.clear();
         this._currentNeighboringEvents = [];
+        this.navigationCurveModel.adjacentShapeSpaceCurve = undefined;
         // this._boundaryEnforcer.reset();
         if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy
             && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation) {
@@ -485,6 +486,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
                                             if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
                                                 curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                             } else if(status === OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
+                                                this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                 const closestCurveToShapeSpaceBoundary = this.closestCurveToShapeSpaceBoundary();
                                                 if(closestCurveToShapeSpaceBoundary !== undefined) {
                                                     curveModelOptimized.setSpline(closestCurveToShapeSpaceBoundary);
@@ -532,6 +534,7 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
                                                         if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
                                                             curveModelOptimized2.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                                         } else if(status === OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
+                                                            this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                             const closestCurveToShapeSpaceBoundary = this.closestCurveToShapeSpaceBoundary();
                                                             if(closestCurveToShapeSpaceBoundary !== undefined) {
                                                                 curveModelOptimized2.setSpline(closestCurveToShapeSpaceBoundary);
@@ -638,9 +641,12 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
                                             && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2) {
                                             if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
                                                 curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
-                                            } else if(status === OptimizerReturnStatus.FIRST_ITERATION || closestCurveToShapeSpaceBoundary1 === undefined) {
+                                            } else if(status === OptimizerReturnStatus.FIRST_ITERATION || status === OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE
+                                                || closestCurveToShapeSpaceBoundary1 === undefined) {
+                                                this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                 curveModelOptimized.setSpline(spline);
                                             } else if(closestCurveToShapeSpaceBoundary1 !== undefined) {
+                                                this.navigationCurveModel.adjacentShapeSpaceCurve = curveModelOptimized.spline;
                                                 curveModelOptimized.setSpline(closestCurveToShapeSpaceBoundary1);
                                             }
                                         }

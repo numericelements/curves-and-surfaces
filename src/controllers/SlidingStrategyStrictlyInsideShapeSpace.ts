@@ -918,30 +918,30 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
             }*/
             //console.log("Event(s) optim: ", JSON.parse(JSON.stringify(sequenceDiffEventsOptim)))
             let neighboringEvents: Array<NeighboringEvents> = []
-            if(this.curveSceneController?.controlOfCurvatureExtrema && this.curveSceneController?.controlOfInflection) {
+            // if(this.curveSceneController?.controlOfCurvatureExtrema && this.curveSceneController?.controlOfInflection) {
                 neighboringEvents = this.neighboringDifferentialEvents(sequenceDiffEventsInit, sequenceDiffEventsOptim)
                 if(sequenceDiffEventsInit.length === sequenceDiffEventsOptim.length) {
                     // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.none
                 }
                 if(sequenceDiffEventsInit.length >= sequenceDiffEventsOptim.length) {
                     if(neighboringEvents.length > 0) {
-                        if(this.curveSceneController?.counterLostEvent === 0) {
+                        // if(this.curveSceneController?.counterLostEvent === 0) {
                             // this.curveSceneController.lastLostEvent = neighboringEvents[0]
-                            this.curveSceneController.counterLostEvent += 1
-                        } else if(this.curveSceneController?.lastLostEvent.type === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index) {
-                            this.curveSceneController.counterLostEvent += 1
-                        } else if(this.curveSceneController?.lastLostEvent.type !== neighboringEvents[0].event || 
-                            (this.curveSceneController.lastLostEvent.type === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index)) {
-                            this.curveSceneController.counterLostEvent = 0
+                            // this.curveSceneController.counterLostEvent += 1
+                        // } else if(this.curveSceneController?.lastLostEvent.type === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index) {
+                            // this.curveSceneController.counterLostEvent += 1
+                        // } else if(this.curveSceneController?.lastLostEvent.type !== neighboringEvents[0].event || 
+                        //     (this.curveSceneController.lastLostEvent.type === neighboringEvents[0].event && this.curveSceneController?.lastLostEvent.index === neighboringEvents[0].index)) {
+                            // this.curveSceneController.counterLostEvent = 0
                             // this.curveSceneController.lastLostEvent = {event: NeighboringEventsType.none, index: 0}
-                        }
+                        // }
                         //console.log("lostEvent counter: " + this.curveSceneController.counterLostEvent)
                     }
                 } else {
-                    console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController?.controlOfCurvatureExtrema + " inflection " + this.curveSceneController?.controlOfInflection)
+                    // console.log("sequence init " + sequenceDiffEventsInit.length + " optim " + sequenceDiffEventsOptim.length + " controls: extrema " + this.curveSceneController?.controlOfCurvatureExtrema + " inflection " + this.curveSceneController?.controlOfInflection)
                     //console.log("Possibly an inconsistency between sequences of differential events at the transision between statuses of inflection and curvature controls")
                 }
-            }
+            // }
 
             // if(this.curveSceneController?.activeLocationControl === ActiveLocationControl.firstControlPoint) {
             //     /*console.log("optimize : s[0] " + delta[0].norm() + " s[n] " + delta[delta.length - 1].norm())*/
@@ -997,17 +997,18 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
 
             if(neighboringEvents.length === 0 && this.curveSceneController !== undefined) {
                 if(sequenceDiffEventsOptim.length > 0) {
-                    if(this.curveSceneController.sizeStackControlPolygons < this.curveSceneController.MAX_NB_CONFIGS_CP) {
-                        this.curveSceneController?.stackControlPolygons.push(this.optimizationProblem.spline.clone().controlPoints)
-                        this.curveSceneController.sizeStackControlPolygons += 1
-                    } else if(this.curveSceneController?.sizeStackControlPolygons === this.curveSceneController?.MAX_NB_CONFIGS_CP) {
-                        this.curveSceneController?.stackControlPolygons.push(this.optimizationProblem.spline.clone().controlPoints)
-                        this.curveSceneController?.stackControlPolygons.shift()
-                    }
+                    // if(this.curveSceneController.sizeStackControlPolygons < this.curveSceneController.MAX_NB_CONFIGS_CP) {
+                        // this.curveSceneController?.stackControlPolygons.push(this.optimizationProblem.spline.clone().controlPoints)
+                        // this.curveSceneController.sizeStackControlPolygons += 1
+                    // } else if(this.curveSceneController?.sizeStackControlPolygons === this.curveSceneController?.MAX_NB_CONFIGS_CP) {
+                        // this.curveSceneController?.stackControlPolygons.push(this.optimizationProblem.spline.clone().controlPoints)
+                        // this.curveSceneController?.stackControlPolygons.shift()
+                    // }
                     //console.log("stack CP: ", this.curveSceneController.sizeStackControlPolygons)
                 }
 
-            } else if(!this.curveSceneController?.allowShapeSpaceChange && neighboringEvents.length > 0) {
+            } else if(neighboringEvents.length > 0) {
+            // } else if(!this.curveSceneController?.allowShapeSpaceChange && neighboringEvents.length > 0) {
                 //this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.stopDeforming
                 //this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.stopDeforming
                 let curvatureExtrema: number[] = []
@@ -1622,18 +1623,18 @@ export class SlidingStrategyStrictlyInsideShapeSpace implements CurveControlStra
                     }
                 }
                 if(this.curveSceneController !== undefined) {
-                    this.curveSceneController.selectedCurvatureExtrema = curvatureExtrema.slice()
-                    this.curveSceneController.selectedInflection = inflections.slice()
+                    // this.curveSceneController.selectedCurvatureExtrema = curvatureExtrema.slice()
+                    // this.curveSceneController.selectedInflection = inflections.slice()
                 }
 
                 //if(neighboringEvents[0].event !== NeighboringEventsType.none) this.curveModel.setControlPoints(controlPointsInit)
 
                 if(neighboringEvents[0].event !== NeighboringEventsType.none) console.log("Neighboring event(s): " + neighboringEvents[0].event + " location: " + neighboringEvents[0].index + " CP stopDef")
                 if(neighboringEvents[0].event !== NeighboringEventsType.none) console.log("CP stopDef: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
-            } else if(this.curveSceneController?.allowShapeSpaceChange) {
+            } // else if(this.curveSceneController?.allowShapeSpaceChange) {
                 // this.curveSceneController.activeInflectionLocationControl = ActiveInflectionLocationControl.none
                 // this.curveSceneController.activeExtremaLocationControl = ActiveExtremaLocationControl.none
-            }
+            // }
             //console.log("CP Optim: ", JSON.parse(JSON.stringify(this.curveModel.spline.controlPoints)))
         }
             catch(e) {

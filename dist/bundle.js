@@ -44574,7 +44574,6 @@ var CurveView_1 = __webpack_require__(/*! ../views/CurveView */ "./src/views/Cur
 var ClickButtonView_1 = __webpack_require__(/*! ../views/ClickButtonView */ "./src/views/ClickButtonView.ts");
 var CurvatureExtremaView_1 = __webpack_require__(/*! ../views/CurvatureExtremaView */ "./src/views/CurvatureExtremaView.ts");
 var InflectionsView_1 = __webpack_require__(/*! ../views/InflectionsView */ "./src/views/InflectionsView.ts");
-var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
 var TransitionCurvatureExtremaView_1 = __webpack_require__(/*! ../views/TransitionCurvatureExtremaView */ "./src/views/TransitionCurvatureExtremaView.ts");
 var CurveKnotsView_1 = __webpack_require__(/*! ../views/CurveKnotsView */ "./src/views/CurveKnotsView.ts");
 var ClampedControlPointView_1 = __webpack_require__(/*! ../views/ClampedControlPointView */ "./src/views/ClampedControlPointView.ts");
@@ -44599,34 +44598,24 @@ var BACKGROUND_BLUE_COLOR = 0.3;
 var BACKGROUND_ALPHA = 1.0;
 var CurveSceneController = /** @class */ (function () {
     function CurveSceneController(canvas, gl, curveModelDefinitionEventListener, shapeSpaceNavigationEventListener) {
-        this.selectedCurvatureExtrema = null;
-        this.selectedInflection = null;
-        this._allowShapeSpaceChange = false;
-        this.stackControlPolygons = [];
-        this.sizeStackControlPolygons = this.stackControlPolygons.length;
-        this.MAX_NB_CONFIGS_CP = 5;
-        this.counterLostEvent = 0;
-        this.lastLostEvent = new NeighboringEvents_1.NeighboringEvents(NeighboringEvents_1.NeighboringEventsType.none, 0);
-        this.curveObservers = [];
         this.canvas = canvas;
         this.gl = gl;
         this._selectedControlPoint = null;
-        this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
-        this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
+        this._shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
+        this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
         this._controlOfKnotInsertion = false;
-        this.curveModelDefinitionEventListener = curveModelDefinitionEventListener;
-        this.curveShapeSpaceNavigator = shapeSpaceNavigationEventListener.curveShapeSpaceNavigator;
-        this.curveModelDifferentialEventsExtractor = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
-        this.curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
+        this._curveShapeSpaceNavigator = shapeSpaceNavigationEventListener.curveShapeSpaceNavigator;
+        this.curveModelDifferentialEventsExtractor = this._shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this._curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
         this._controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.curveView = new CurveView_1.CurveView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveDiffEventsLocations);
+        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this._curveDiffEventsLocations);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
-        this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
+        this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this._shapeNavigableCurve.clampedPoints);
         var selectedEvent = [];
         this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremView_1.SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
         this._selectedEnteringCurvatureExtremaView = new SelectedEnteringShapeSpaceCurvExtremView_1.SelectedEnteringShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
@@ -44636,19 +44625,14 @@ var CurveSceneController = /** @class */ (function () {
         this._phantomCurveView = new PhantomCurveView_1.PhantomCurveView(this.gl, this.curveModel.spline);
         this._sceneInteractionStrategy = new CurveSceneControllerInteractionStrategy_1.CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this);
         // JCL temporary modif
-        this.curveShapeSpaceNavigator.curveSceneController = this;
-        this._allowShapeSpaceChange = true;
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
-        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
-        this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
+        this._curveShapeSpaceNavigator.curveSceneController = this;
         this.registerCurveObservers();
-        this.shapeNavigableCurve.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveSceneController(this));
+        this._shapeNavigableCurve.registerObserver(new CurveModelObserver_1.CurveModelObserverInCurveSceneController(this));
         this._selectedSlipOutCurvatureExtremaView.update(this.curveModel.spline);
         this._selectedEnteringCurvatureExtremaView.update(this.curveModel.spline);
         this._selectedSlipOutInflectionsView.update(this.curveModel.spline);
         this._selectedEnteringInflectionsView.update(this.curveModel.spline);
-        this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
-        this._navigationState = this.curveShapeSpaceNavigator.navigationState;
+        this._navigationState = this._curveShapeSpaceNavigator.navigationState;
         this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
         this._curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1Point2NoConstraintState(this);
         console.log("end constructor curveSceneController");
@@ -44747,13 +44731,6 @@ var CurveSceneController = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(CurveSceneController.prototype, "allowShapeSpaceChange", {
-        get: function () {
-            return this._allowShapeSpaceChange;
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(CurveSceneController.prototype, "navigationState", {
         get: function () {
             return this._navigationState;
@@ -44764,21 +44741,38 @@ var CurveSceneController = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(CurveSceneController.prototype, "shapeNavigableCurve", {
+        get: function () {
+            return this._shapeNavigableCurve;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveSceneController.prototype, "curveShapeSpaceNavigator", {
+        get: function () {
+            return this._curveShapeSpaceNavigator;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CurveSceneController.prototype, "curveDiffEventsLocations", {
+        set: function (curveDiffEventsLocations) {
+            this._curveDiffEventsLocations = curveDiffEventsLocations;
+        },
+        enumerable: false,
+        configurable: true
+    });
     CurveSceneController.prototype.initCurveSceneView = function () {
         this._controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
         this._insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
         this.curveView = new CurveView_1.CurveView(this.gl, this.curveModel.spline);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
-        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this.curveDiffEventsLocations);
-        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
+        this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this._curveDiffEventsLocations);
+        this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView_1.TransitionCurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this._shapeNavigableCurve.clampedPoints);
         this.registerCurveObservers();
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
-        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
-        this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
-        this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
         this._selectedControlPoint = null;
     };
     CurveSceneController.prototype.registerCurveObservers = function () {
@@ -44796,7 +44790,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
         this.curveModelDifferentialEventsExtractor.observersCP.forEach(function (element) {
-            element.update(_this.curveDiffEventsLocations);
+            element.update(_this._curveDiffEventsLocations);
         });
         if (this.curveModel instanceof CurveModel_1.CurveModel) {
             this.curveModel.observers.forEach(function (element) {
@@ -44854,7 +44848,8 @@ var CurveSceneController = /** @class */ (function () {
         this.inflectionsView.renderFrame();
         this.controlPolygonView.renderFrame();
         this.curveKnotsView.renderFrame();
-        if (this._sceneInteractionStrategy instanceof CurveSceneControllerInteractionStrategy_1.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied) {
+        if (this._sceneInteractionStrategy instanceof CurveSceneControllerInteractionStrategy_1.CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied
+            || this._sceneInteractionStrategy instanceof CurveSceneControllerInteractionStrategy_1.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary) {
             this._highlightedControlPolygonView.renderFrame();
             this._phantomCurveView.renderFrame();
         }
@@ -44864,16 +44859,9 @@ var CurveSceneController = /** @class */ (function () {
         this._selectedSlipOutInflectionsView.renderFrame();
         this._selectedEnteringCurvatureExtremaView.renderFrame();
         this._selectedEnteringInflectionsView.renderFrame();
-        if (this.controlOfCurveClamping && this._clampedControlPointView !== null) {
+        if (this._shapeNavigableCurve.controlOfCurveClamping && this._clampedControlPointView !== null) {
             this._clampedControlPointView.renderFrame();
         }
-        // if(this.curveModel !== undefined) {
-        //     let curvatureEvents: number[] = []
-        //     let differentialEvents: number[] = []
-        // }
-        // else throw new Error("Unable to render the current frame. Undefined curve model")
-        if (this._selectedSlipOutCurvatureExtremaView !== null && this.allowShapeSpaceChange === false)
-            this._selectedSlipOutCurvatureExtremaView.renderFrame();
     };
     CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
         if (this.curveModel !== undefined) {
@@ -44914,22 +44902,21 @@ var CurveSceneController = /** @class */ (function () {
     };
     CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY) {
         if (this.curveModel !== undefined) {
-            if (this.controlOfCurveClamping) {
+            if (this._shapeNavigableCurve.controlOfCurveClamping) {
                 if (this._clampedControlPointView !== null) {
                     var selectedClampedControlPoint = this._clampedControlPointView.knotSelection(ndcX, ndcY);
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if (selectedClampedControlPoint !== null) {
-                        if ((this.shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT)
-                            && this.shapeNavigableCurve.clampedPoints[1] !== selectedClampedControlPoint) {
+                        if ((this._shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this._shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT)
+                            && this._shapeNavigableCurve.clampedPoints[1] !== selectedClampedControlPoint) {
                             this._curveConstraintSelectionState.handleCurveConstraintAtPoint1(selectedClampedControlPoint);
                         }
-                        else if ((this.shapeNavigableCurve.clampedPoints[1] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT)
-                            && this.shapeNavigableCurve.clampedPoints[0] !== selectedClampedControlPoint) {
+                        else if ((this._shapeNavigableCurve.clampedPoints[1] === selectedClampedControlPoint || this._shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT)
+                            && this._shapeNavigableCurve.clampedPoints[0] !== selectedClampedControlPoint) {
                             this._curveConstraintSelectionState.handleCurveConstraintAtPoint2(selectedClampedControlPoint);
                         }
                         this.curveModel.notifyObservers();
                         return true;
-                        // } else return true
                     }
                     else
                         return true;
@@ -45288,7 +45275,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
             }
-            else if (this._curveSceneController.allowShapeSpaceChange === true) {
+            else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
@@ -45372,7 +45359,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
             if (!this.controlOfCurvatureExtrema && !this.controlOfInflection) {
                 console.log("Inconsistent curve shape control settings");
             }
-            else if (this._curveSceneController.allowShapeSpaceChange === true) {
+            else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
@@ -45441,7 +45428,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraint
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
             }
-            else if (this._curveSceneController.allowShapeSpaceChange === true) {
+            else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
@@ -45583,7 +45570,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = /** @class
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
             }
-            else if (this._curveSceneController.allowShapeSpaceChange === true) {
+            else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 console.log("navigate inside shape space");
@@ -45637,12 +45624,24 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
         _this.curveModel = _this.shapeNavigableCurve.curveCategory.curveModel;
         _this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = _this.curveModel.spline;
         _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = _this.curveModel.spline;
-        _this.adjacentShapeSpaceCurve = _this.curveModel.spline.clone();
-        // this._curveSceneController.highlightedControlPolygonView.update(this.adjacentShapeSpaceCurve);
-        // this._curveSceneController.phantomCurveView.update(this.adjacentShapeSpaceCurve);
+        if (_this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+            _this.adjacentShapeSpaceCurve = _this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve;
+            _this._curveSceneController.highlightedControlPolygonView.update(_this.adjacentShapeSpaceCurve);
+            _this._curveSceneController.phantomCurveView.update(_this.adjacentShapeSpaceCurve);
+        }
+        else {
+            _this.adjacentShapeSpaceCurve = _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        }
         _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone());
         _this.convertNeighboringEventsIntoDiffEventsToDisplay();
         _this.curveModel.notifyObservers();
+        if (_this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+            _this._curveSceneController.selectedEnteringCurvatureExtremaView.update(_this.adjacentShapeSpaceCurve);
+            _this._curveSceneController.selectedSlipOutCurvatureExtremaView.update(_this.adjacentShapeSpaceCurve);
+            _this._curveSceneController.selectedEnteringInflectionsView.update(_this.adjacentShapeSpaceCurve);
+            _this._curveSceneController.selectedSlipOutInflectionsView.update(_this.adjacentShapeSpaceCurve);
+            _this.updateDiffEventsToDisplay();
+        }
         _this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         _this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
         return _this;
@@ -45658,7 +45657,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
                 because it is part of the optimize method (whether sliding is active or not) */
                 console.log("Inconsistent curve shape control settings");
             }
-            else if (this._curveSceneController.allowShapeSpaceChange === true) {
+            else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
                 this.clearListsOfDiffEvents();
@@ -45670,6 +45669,14 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
                 if (this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.isActive()) {
+                    if (this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+                        this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve;
+                        this._curveSceneController.highlightedControlPolygonView.update(this.adjacentShapeSpaceCurve);
+                        this._curveSceneController.phantomCurveView.update(this.adjacentShapeSpaceCurve);
+                    }
+                    else {
+                        this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+                    }
                     this.convertNeighboringEventsIntoDiffEventsToDisplay();
                     this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
                 }
@@ -45684,6 +45691,13 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
                 }
             }
             this.curveModel.notifyObservers();
+            if (this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+                this._curveSceneController.selectedEnteringCurvatureExtremaView.update(this.adjacentShapeSpaceCurve);
+                this._curveSceneController.selectedSlipOutCurvatureExtremaView.update(this.adjacentShapeSpaceCurve);
+                this._curveSceneController.selectedEnteringInflectionsView.update(this.adjacentShapeSpaceCurve);
+                this._curveSceneController.selectedSlipOutInflectionsView.update(this.adjacentShapeSpaceCurve);
+                this.updateDiffEventsToDisplay();
+            }
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         }
     };
@@ -50577,7 +50591,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
             return (_a = this._adjacentShapeSpaceCurve) === null || _a === void 0 ? void 0 : _a.clone();
         },
         set: function (adjacentShapeSpaceCurve) {
-            this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve === null || adjacentShapeSpaceCurve === void 0 ? void 0 : adjacentShapeSpaceCurve.clone();
+            this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve;
         },
         enumerable: false,
         configurable: true
@@ -50766,7 +50780,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
             return (_a = this._adjacentShapeSpaceCurve) === null || _a === void 0 ? void 0 : _a.clone();
         },
         set: function (adjacentShapeSpaceCurve) {
-            this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve === null || adjacentShapeSpaceCurve === void 0 ? void 0 : adjacentShapeSpaceCurve.clone();
+            this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve;
         },
         enumerable: false,
         configurable: true
@@ -51273,6 +51287,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         var spline = new BSplineR1toR2_1.BSplineR1toR2();
         this._transitionEvents.clear();
         this._currentNeighboringEvents = [];
+        this.navigationCurveModel.adjacentShapeSpaceCurve = undefined;
         // this._boundaryEnforcer.reset();
         if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
             && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation) {
@@ -51369,6 +51384,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                                 curveModelOptimized_1.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                             }
                                             else if (status_3 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
+                                                this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                 var closestCurveToShapeSpaceBoundary = this.closestCurveToShapeSpaceBoundary();
                                                 if (closestCurveToShapeSpaceBoundary !== undefined) {
                                                     curveModelOptimized_1.setSpline(closestCurveToShapeSpaceBoundary);
@@ -51418,6 +51434,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                                             curveModelOptimized2.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                                         }
                                                         else if (status_4 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
+                                                            this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                             var closestCurveToShapeSpaceBoundary = this.closestCurveToShapeSpaceBoundary();
                                                             if (closestCurveToShapeSpaceBoundary !== undefined) {
                                                                 curveModelOptimized2.setSpline(closestCurveToShapeSpaceBoundary);
@@ -51525,10 +51542,13 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                                 if (status_5 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
                                                     curveModelOptimized_2.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                                 }
-                                                else if (status_5 === Optimizer_1.OptimizerReturnStatus.FIRST_ITERATION || closestCurveToShapeSpaceBoundary1 === undefined) {
+                                                else if (status_5 === Optimizer_1.OptimizerReturnStatus.FIRST_ITERATION || status_5 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE
+                                                    || closestCurveToShapeSpaceBoundary1 === undefined) {
+                                                    this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                     curveModelOptimized_2.setSpline(spline);
                                                 }
                                                 else if (closestCurveToShapeSpaceBoundary1 !== undefined) {
+                                                    this.navigationCurveModel.adjacentShapeSpaceCurve = curveModelOptimized_2.spline;
                                                     curveModelOptimized_2.setSpline(closestCurveToShapeSpaceBoundary1);
                                                 }
                                             }
@@ -54587,7 +54607,6 @@ var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) 
                 this.listener.curveConstraintTransitionTo(new CurveConstraintSelectionState_1.HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
                 this.listener.changeSceneInteraction(new CurveSceneControllerInteractionStrategy_1.CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this.listener));
                 this.listener.clampedControlPointView.clearSelectedPoints();
-                this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
             }
             else {
                 if (navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces ||
@@ -54615,7 +54634,6 @@ var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) 
                         }
                     }
                 }
-                this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
             }
             this.listener.curveModel.notifyObservers();
         }

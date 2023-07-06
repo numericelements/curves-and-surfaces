@@ -387,7 +387,6 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
                 this.listener.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
                 this.listener.changeSceneInteraction(new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this.listener));
                 this.listener.clampedControlPointView.clearSelectedPoints();
-                this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
             } else {
                 if(navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces ||
                     navigationState instanceof CCurveNavigationThroughSimplerShapeSpaces) {
@@ -411,7 +410,6 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
                         }
                     }
                 }
-                this.listener.controlOfCurveClamping = this.listener.shapeNavigableCurve.controlOfCurveClamping;
             }
             this.listener.curveModel.notifyObservers();
         } else {

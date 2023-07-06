@@ -6,13 +6,11 @@ import { SceneControllerInterface } from "./SceneControllerInterface";
 import { ClickButtonView } from "../views/ClickButtonView";
 import { CurvatureExtremaView } from "../views/CurvatureExtremaView";
 import { InflectionsView } from "../views/InflectionsView";
-import { NeighboringEventsType, NeighboringEvents} from "../sequenceOfDifferentialEvents/NeighboringEvents";
 import { TransitionCurvatureExtremaView } from "../views/TransitionCurvatureExtremaView";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { IRenderFrameObserver } from "../newDesignPatterns/RenderFrameObserver";
 import { CurveKnotsView } from "../views/CurveKnotsView"
 import { ClampedControlPointView } from "../views/ClampedControlPointView"
-import { Vector2d } from "../mathVector/Vector2d";
 
 //import * as fs from "fs";
 import { saveAs } from "file-saver";
@@ -31,7 +29,7 @@ import { HighlightedControlPolygonView } from "../views/HighlightedControlPolygo
 import { CurveDifferentialEventsLocationInterface } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface";
 import { CurveDifferentialEventsLocations } from "../curveShapeSpaceAnalysis/CurveDifferentialEventsLocations";
 import { SceneInteractionStrategy } from "../designPatterns/SceneInteractionStrategy";
-import { CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied, CurveSceneControllerNoShapeSpaceConstraintsCPSelection } from "./CurveSceneControllerInteractionStrategy";
+import { CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied, CurveSceneControllerNoShapeSpaceConstraintsCPSelection, CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve, CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary } from "./CurveSceneControllerInteractionStrategy";
 import { PhantomCurveView } from "../views/PhantomCurveView";
 import { SelectedSlipOutOfShapeSpaceCurvExtremaView } from "../views/SelectedSlipOutOfShapeSpaceCurvExtremView";
 import { SelectedSlipOutOfShapeSpaceInflectionView } from "../views/SelectedSlipOutOfShapeSpaceInflectionView";
@@ -50,50 +48,34 @@ export class CurveSceneController implements SceneControllerInterface {
 
     private canvas: HTMLCanvasElement;
     private gl: WebGLRenderingContext;
-    private _selectedControlPoint: number | null
-    public selectedCurvatureExtrema: number[] | null = null
-    public selectedInflection: number[] | null = null
-    private _allowShapeSpaceChange: boolean = false
+    private _selectedControlPoint: number | null;
     private _selectedSlipOutCurvatureExtremaView: SelectedSlipOutOfShapeSpaceCurvExtremaView;
     private _selectedEnteringCurvatureExtremaView: SelectedEnteringShapeSpaceCurvExtremaView;
     private _selectedSlipOutInflectionsView: SelectedSlipOutOfShapeSpaceInflectionView;
     private _selectedEnteringInflectionsView: SelectedEnteringShapeSpaceInflectionView;
-    private _controlPointsView: ControlPointsView
-    private controlPolygonView: ControlPolygonView
+    private _controlPointsView: ControlPointsView;
+    private controlPolygonView: ControlPolygonView;
     private _highlightedControlPolygonView: HighlightedControlPolygonView;
     private _phantomCurveView: PhantomCurveView;
-    private curveView: CurveView
+    private curveView: CurveView;
+    private curveKnotsView: CurveKnotsView;
     private _insertKnotButtonView: ClickButtonView;
     private _controlOfKnotInsertion: boolean;
     private _sceneInteractionStrategy: SceneInteractionStrategy;
-    private curvatureExtremaView: CurvatureExtremaView
-    private transitionCurvatureExtremaView: TransitionCurvatureExtremaView
-    private inflectionsView: InflectionsView
-    public sliding: boolean
-    public controlOfCurvatureExtrema: boolean
-    public controlOfInflection: boolean
-    public controlOfCurveClamping: boolean
-    private _clampedControlPointView: ClampedControlPointView
+    private curvatureExtremaView: CurvatureExtremaView;
+    private transitionCurvatureExtremaView: TransitionCurvatureExtremaView;
+    private inflectionsView: InflectionsView;
+    private _clampedControlPointView: ClampedControlPointView;
 
-    private curveKnotsView: CurveKnotsView
-    public stackControlPolygons: Array<Array<Vector2d>> = []
-    public sizeStackControlPolygons: number = this.stackControlPolygons.length
-    public readonly MAX_NB_CONFIGS_CP = 5
-    public counterLostEvent: number = 0
-    public lastLostEvent: NeighboringEvents = new NeighboringEvents(NeighboringEventsType.none, 0)
-
-    private readonly curveModelDefinitionEventListener: CurveModelDefinitionEventListener;
-    public readonly shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _shapeNavigableCurve: ShapeNavigableCurve;
+    private readonly _curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     private _navigationState: NavigationState;
-    public readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
     // private curveEventAtExtremityMayVanish: boolean;
     // private _eventMgmtAtExtremities: EventMgmtAtCurveExtremities;
     private _curveConstraintSelectionState: CurveConstraintSelectionState;
     public curveModel: CurveModelInterface
     public curveModelDifferentialEventsExtractor: CurveDifferentialEventsLocationInterface;
-    public curveDiffEventsLocations: CurveDifferentialEventsLocations;
-
-    private curveObservers: Array<IRenderFrameObserver<BSplineR1toR2Interface>> = []
+    private _curveDiffEventsLocations: CurveDifferentialEventsLocations;
     
     constructor(canvas: HTMLCanvasElement, gl: WebGLRenderingContext,
         curveModelDefinitionEventListener: CurveModelDefinitionEventListener,
@@ -102,24 +84,23 @@ export class CurveSceneController implements SceneControllerInterface {
         this.canvas = canvas;
         this.gl = gl;
         this._selectedControlPoint = null;
-        this.shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
-        this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
+        this._shapeNavigableCurve = curveModelDefinitionEventListener.shapeNavigableCurve;
+        this.curveModel = this._shapeNavigableCurve.curveCategory.curveModel;
         this._controlOfKnotInsertion = false;
-        this.curveModelDefinitionEventListener = curveModelDefinitionEventListener;
-        this.curveShapeSpaceNavigator = shapeSpaceNavigationEventListener.curveShapeSpaceNavigator;
-        this.curveModelDifferentialEventsExtractor = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
-        this.curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
+        this._curveShapeSpaceNavigator = shapeSpaceNavigationEventListener.curveShapeSpaceNavigator;
+        this.curveModelDifferentialEventsExtractor = this._shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
+        this._curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
 
         this._controlPointsView = new ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView(this.gl);
-        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.inflectionsView = new InflectionsView(this.gl, this.curveDiffEventsLocations);
+        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this.inflectionsView = new InflectionsView(this.gl, this._curveDiffEventsLocations);
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);
-        this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
-        let selectedEvent: number[]= [];
+        this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this._shapeNavigableCurve.clampedPoints);
+        const selectedEvent: number[]= [];
         this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
         this._selectedEnteringCurvatureExtremaView = new SelectedEnteringShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
         this._selectedSlipOutInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
@@ -130,24 +111,17 @@ export class CurveSceneController implements SceneControllerInterface {
         this._sceneInteractionStrategy = new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this);
 
         // JCL temporary modif
-        this.curveShapeSpaceNavigator.curveSceneController = this;
-        
-        this._allowShapeSpaceChange = true
-
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
-        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
-        this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
+        this._curveShapeSpaceNavigator.curveSceneController = this;
 
         this.registerCurveObservers();
-        this.shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveSceneController(this));
+        this._shapeNavigableCurve.registerObserver(new CurveModelObserverInCurveSceneController(this));
 
         this._selectedSlipOutCurvatureExtremaView.update(this.curveModel.spline);
         this._selectedEnteringCurvatureExtremaView.update(this.curveModel.spline);
         this._selectedSlipOutInflectionsView.update(this.curveModel.spline);
         this._selectedEnteringInflectionsView.update(this.curveModel.spline);
 
-        this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
-        this._navigationState = this.curveShapeSpaceNavigator.navigationState;
+        this._navigationState = this._curveShapeSpaceNavigator.navigationState;
         this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
 
         this._curveConstraintSelectionState = new HandleConstraintAtPoint1Point2NoConstraintState(this);
@@ -206,12 +180,16 @@ export class CurveSceneController implements SceneControllerInterface {
         return this._selectedEnteringCurvatureExtremaView;
     }
 
-    get allowShapeSpaceChange(): boolean {
-        return this._allowShapeSpaceChange;
-    }
-
     get navigationState(): NavigationState {
         return this._navigationState;
+    }
+
+    get shapeNavigableCurve(): ShapeNavigableCurve {
+        return this._shapeNavigableCurve;
+    }
+
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
+        return this._curveShapeSpaceNavigator;
     }
 
     set selectedControlPoint(selectedCPIndex: number | null) {
@@ -222,23 +200,22 @@ export class CurveSceneController implements SceneControllerInterface {
         this._navigationState = navigationState;
     }
 
+    set curveDiffEventsLocations(curveDiffEventsLocations: CurveDifferentialEventsLocations) {
+        this._curveDiffEventsLocations = curveDiffEventsLocations;
+    }
+
     initCurveSceneView(): void {
         this._controlPointsView = new ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
         this._insertKnotButtonView = new ClickButtonView(this.gl);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);
-        this.inflectionsView = new InflectionsView(this.gl, this.curveDiffEventsLocations);
-        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this.curveDiffEventsLocations);
-        this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this.shapeNavigableCurve.clampedPoints);
+        this.inflectionsView = new InflectionsView(this.gl, this._curveDiffEventsLocations);
+        this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this.transitionCurvatureExtremaView = new TransitionCurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
+        this._clampedControlPointView = new ClampedControlPointView(this.gl, this.curveModel.spline, this._shapeNavigableCurve.clampedPoints);
         
         this.registerCurveObservers();
-        this.controlOfCurvatureExtrema = this.curveShapeSpaceNavigator.getActiveControlCurvatureExtrema();
-        this.controlOfInflection = this.curveShapeSpaceNavigator.getActiveControlInflections();
-        this.sliding = this.curveShapeSpaceNavigator.getSlidingDifferentialEvents();
-        this.controlOfCurveClamping = this.shapeNavigableCurve.controlOfCurveClamping;
-
         this._selectedControlPoint = null;
     }
 
@@ -257,7 +234,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
 
         this.curveModelDifferentialEventsExtractor.observersCP.forEach(element => {
-            element.update(this.curveDiffEventsLocations)
+            element.update(this._curveDiffEventsLocations)
         });
 
         if(this.curveModel instanceof CurveModel) {
@@ -315,7 +292,8 @@ export class CurveSceneController implements SceneControllerInterface {
         this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
         this.curveKnotsView.renderFrame()
-        if(this._sceneInteractionStrategy instanceof CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied) {
+        if(this._sceneInteractionStrategy instanceof CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied
+            || this._sceneInteractionStrategy instanceof CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary) {
             this._highlightedControlPolygonView.renderFrame();
             this._phantomCurveView.renderFrame();
         }
@@ -326,17 +304,9 @@ export class CurveSceneController implements SceneControllerInterface {
         this._selectedSlipOutInflectionsView.renderFrame();
         this._selectedEnteringCurvatureExtremaView.renderFrame();
         this._selectedEnteringInflectionsView.renderFrame();
-        if(this.controlOfCurveClamping && this._clampedControlPointView !== null) {
+        if(this._shapeNavigableCurve.controlOfCurveClamping && this._clampedControlPointView !== null) {
             this._clampedControlPointView.renderFrame()
         }
-
-        // if(this.curveModel !== undefined) {
-        //     let curvatureEvents: number[] = []
-        //     let differentialEvents: number[] = []
-        // }
-        // else throw new Error("Unable to render the current frame. Undefined curve model")
-        if(this._selectedSlipOutCurvatureExtremaView !== null && this.allowShapeSpaceChange === false) this._selectedSlipOutCurvatureExtremaView.renderFrame()
-
     }
 
     addCurveObserver(curveObserver: IRenderFrameObserver<BSplineR1toR2Interface>) {
@@ -383,23 +353,20 @@ export class CurveSceneController implements SceneControllerInterface {
 
     dbleClick_event(ndcX: number, ndcY: number): boolean {
         if(this.curveModel !== undefined) {
-                                
-            if(this.controlOfCurveClamping) {
+            if(this._shapeNavigableCurve.controlOfCurveClamping) {
                 if(this._clampedControlPointView !== null) {
                     let selectedClampedControlPoint = this._clampedControlPointView.knotSelection(ndcX, ndcY);
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if(selectedClampedControlPoint !== null) {
-                        if((this.shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT)
-                            && this.shapeNavigableCurve.clampedPoints[1] !== selectedClampedControlPoint) {
+                        if((this._shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this._shapeNavigableCurve.clampedPoints[0] === NO_CONSTRAINT)
+                            && this._shapeNavigableCurve.clampedPoints[1] !== selectedClampedControlPoint) {
                             this._curveConstraintSelectionState.handleCurveConstraintAtPoint1(selectedClampedControlPoint);
-                        } else if((this.shapeNavigableCurve.clampedPoints[1] === selectedClampedControlPoint || this.shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT)
-                            && this.shapeNavigableCurve.clampedPoints[0] !== selectedClampedControlPoint) {
+                        } else if((this._shapeNavigableCurve.clampedPoints[1] === selectedClampedControlPoint || this._shapeNavigableCurve.clampedPoints[1] === NO_CONSTRAINT)
+                            && this._shapeNavigableCurve.clampedPoints[0] !== selectedClampedControlPoint) {
                             this._curveConstraintSelectionState.handleCurveConstraintAtPoint2(selectedClampedControlPoint);
                         }
                         this.curveModel.notifyObservers();
-                        
-                            return true
-                        // } else return true
+                        return true;
                     } else return true;
                 } else return true
             } else return true

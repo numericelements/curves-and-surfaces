@@ -232,7 +232,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
     }
 
     set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: BSplineR1toR2 | undefined) {
-        this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve?.clone();
+        this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve;
     };
 
     set curveModel(curveModel: CurveModel) {
@@ -469,7 +469,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     }
 
     set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: PeriodicBSplineR1toR2 | undefined) {
-        this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve?.clone();
+        this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve;
     }
 
     set curveModel(curveModel: ClosedCurveModel) {
