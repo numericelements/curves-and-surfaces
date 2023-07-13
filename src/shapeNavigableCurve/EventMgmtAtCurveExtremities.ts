@@ -86,4 +86,9 @@ export class EventMgmtAtCurveExtremities {
         this._eventStateAtCrvExtremities.handleEventAtCurveExtremity();
     }
 
+    clearEvents(): void {
+        this._eventOutOfInterval = false;
+        this._locationsCurvExtrema = [];
+        this._locationsInflections = [];
+    }
 }

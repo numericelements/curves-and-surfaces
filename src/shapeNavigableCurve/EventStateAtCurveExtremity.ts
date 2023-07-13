@@ -48,6 +48,7 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
             error.logMessageToConsole();
             this.curveShapeMonitoringStrategy = this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
         }
+        this.curveShapeMonitoringStrategy.resetCurve(this.shapeNavigableCurve.curveCategory.curveModel.spline);
         this.sequenceCurvExtOutside = new SequenceOfDifferentialEvents();
         this.sequenceInflectionOutside = new SequenceOfDifferentialEvents();
     }

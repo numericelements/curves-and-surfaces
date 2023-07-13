@@ -38150,6 +38150,474 @@ exports.SquareDotSolidShader = SquareDotSolidShader;
 
 /***/ }),
 
+/***/ "./src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts":
+/*!****************************************************************************!*\
+  !*** ./src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts ***!
+  \****************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.convertStepToVector2d = exports.AbstractOptProblemBSplineR1toR2 = exports.ConstraintType = void 0;
+var BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../newBsplines/BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
+var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+var DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
+var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ConstraintType;
+(function (ConstraintType) {
+    ConstraintType[ConstraintType["none"] = 0] = "none";
+    ConstraintType[ConstraintType["inflection"] = 1] = "inflection";
+    ConstraintType[ConstraintType["curvatureExtrema"] = 2] = "curvatureExtrema";
+})(ConstraintType = exports.ConstraintType || (exports.ConstraintType = {}));
+var AbstractOptProblemBSplineR1toR2 = /** @class */ (function () {
+    function AbstractOptProblemBSplineR1toR2(splineInitial, shapeSpaceDiffEventsStructure) {
+        this.inflectionConstraintsSign = [];
+        this._inflectionInactiveConstraints = [];
+        this._curvatureExtremaConstraintsSign = [];
+        this._curvatureExtremaInactiveConstraints = [];
+        this._curvatureNumeratorCP = [];
+        this._curvatureDerivativeNumeratorCP = [];
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        this.constraintType = ConstraintType.none;
+        this._inflectionTotalNumberOfConstraints = 0;
+        this.inflectionNumberOfActiveConstraints = 0;
+        this._curvatureExtremaTotalNumberOfConstraints = 0;
+        this.curvatureExtremaNumberOfActiveConstraints = 0;
+        this._spline = splineInitial.clone();
+        this._target = splineInitial.clone();
+        this._shapeSpaceDiffEventsStructure = shapeSpaceDiffEventsStructure;
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._f = [];
+        this._gradient_f = new DenseMatrix_1.DenseMatrix(1, 1);
+        this._hessian_f = undefined;
+    }
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "shapeSpaceDiffEventsStructure", {
+        get: function () {
+            return this._shapeSpaceDiffEventsStructure;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "inflectionInactiveConstraints", {
+        get: function () {
+            return this._inflectionInactiveConstraints.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "curvatureExtremaInactiveConstraints", {
+        get: function () {
+            return this._curvatureExtremaInactiveConstraints.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "numberOfIndependentVariables", {
+        get: function () {
+            return this._numberOfIndependentVariables;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "inflectionTotalNumberOfConstraints", {
+        get: function () {
+            return this._inflectionTotalNumberOfConstraints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "curvatureExtremaTotalNumberOfConstraints", {
+        get: function () {
+            return this._curvatureExtremaTotalNumberOfConstraints;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "curvatureExtremaConstraintsSign", {
+        get: function () {
+            return this._curvatureExtremaConstraintsSign.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "curvatureNumeratorCP", {
+        get: function () {
+            return this._curvatureNumeratorCP.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "curvatureDerivativeNumeratorCP", {
+        get: function () {
+            return this._curvatureDerivativeNumeratorCP.slice();
+        },
+        set: function (curvatureDerivativeNumeratorCP) {
+            this._curvatureDerivativeNumeratorCP = curvatureDerivativeNumeratorCP.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "f0", {
+        get: function () {
+            return this._f0;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "gradient_f0", {
+        get: function () {
+            return this._gradient_f0.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "hessian_f0", {
+        get: function () {
+            return this._hessian_f0;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "numberOfConstraints", {
+        get: function () {
+            if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length + this._curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+                return this._curvatureExtremaConstraintsSign.length - this._curvatureExtremaInactiveConstraints.length;
+            }
+            else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+                return this.inflectionConstraintsSign.length - this._inflectionInactiveConstraints.length;
+            }
+            else {
+                // JCL 27/02/2023 modification to integrate the status none: must be double checked
+                return 0;
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "f", {
+        get: function () {
+            return this._f.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "gradient_f", {
+        get: function () {
+            return this._gradient_f;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AbstractOptProblemBSplineR1toR2.prototype, "hessian_f", {
+        get: function () {
+            return this._hessian_f;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    AbstractOptProblemBSplineR1toR2.prototype.step = function (deltaX) {
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
+        this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            this.constraintType = ConstraintType.inflection;
+            //this._inflectionInactiveConstraints = this.computeInactiveConstraints(this.inflectionConstraintsSign, curvatureNumerator)
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            this.constraintType = ConstraintType.curvatureExtrema;
+            //this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this.curvatureExtremaConstraintsSign, g)
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        // JCL temporary add
+        return true;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.fStep = function (step) {
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
+        var splineTemp = this.spline.clone();
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(splineTemp);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        }
+        return this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, curvatureDerivativeNumerator, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.f0Step = function (step) {
+        var splineTemp = this.spline.clone();
+        splineTemp = splineTemp.moveControlPoints(convertStepToVector2d(step));
+        return this.compute_f0(this.compute_gradient_f0(splineTemp));
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.expensiveComputation = function (spline) {
+        var sxuuu;
+        var syuuu;
+        var controlPointArray = [];
+        var bdsxuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h1 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h2 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h3 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var sx = this.bSplineR1toR1Factory(spline.getControlPointsX(), spline.knots);
+        var sy = this.bSplineR1toR1Factory(spline.getControlPointsY(), spline.knots);
+        var sxu = sx.derivative();
+        var syu = sy.derivative();
+        var sxuu = sxu.derivative();
+        var syuu = syu.derivative();
+        var bdsxu = sxu.bernsteinDecomposition();
+        var bdsyu = syu.bernsteinDecomposition();
+        var bdsxuu = sxuu.bernsteinDecomposition();
+        var bdsyuu = syuu.bernsteinDecomposition();
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            sxuuu = sxuu.derivative();
+            syuuu = syuu.derivative();
+            bdsxuuu = sxuuu.bernsteinDecomposition();
+            bdsyuuu = syuuu.bernsteinDecomposition();
+            h1 = (bdsxu.multiply(bdsxu)).add(bdsyu.multiply(bdsyu));
+            h2 = (bdsxu.multiply(bdsyuuu)).subtract(bdsyu.multiply(bdsxuuu));
+            h3 = (bdsxu.multiply(bdsxuu)).add(bdsyu.multiply(bdsyuu));
+        }
+        var h4 = (bdsxu.multiply(bdsyuu)).subtract(bdsyu.multiply(bdsxuu));
+        return {
+            bdsxu: bdsxu,
+            bdsyu: bdsyu,
+            bdsxuu: bdsxuu,
+            bdsyuu: bdsyuu,
+            bdsxuuu: bdsxuuu,
+            bdsyuuu: bdsyuuu,
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.initExpansiveComputations = function () {
+        var controlPointArray = [];
+        var bdsxu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsxuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsxuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var bdsyuuu = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h1 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h2 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h3 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        var h4 = new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(controlPointArray);
+        return {
+            bdsxu: bdsxu,
+            bdsyu: bdsyu,
+            bdsxuu: bdsxuu,
+            bdsyuu: bdsyuu,
+            bdsxuuu: bdsxuuu,
+            bdsyuuu: bdsyuuu,
+            h1: h1,
+            h2: h2,
+            h3: h3,
+            h4: h4
+        };
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.compute_gradient_f0 = function (spline) {
+        var result = [];
+        var n = spline.freeControlPoints.length;
+        for (var i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].x - this._target.freeControlPoints[i].x);
+        }
+        for (var i = 0; i < n; i += 1) {
+            result.push(spline.freeControlPoints[i].y - this._target.freeControlPoints[i].y);
+        }
+        return result;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.compute_f0 = function (gradient_f0) {
+        var result = 0;
+        var n = gradient_f0.length;
+        for (var i = 0; i < n; i += 1) {
+            result += Math.pow(gradient_f0[i], 2);
+        }
+        return 0.5 * result;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.compute_curvatureExtremaConstraints = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
+        var result = [];
+        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureDerivativeNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.compute_inflectionConstraints = function (curvatureNumerator, constraintsSign, inactiveConstraints) {
+        var result = [];
+        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push(curvatureNumerator[i] * constraintsSign[i]);
+            }
+        }
+        return result;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.curvatureNumerator = function (h4) {
+        return h4.flattenControlPointsArray();
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.curvatureDerivativeNumerator = function (h1, h2, h3, h4) {
+        var g = (h1.multiply(h2)).subtract(h3.multiply(h4).multiplyByScalar(3));
+        return g.flattenControlPointsArray();
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.computeConstraintsSign = function (controlPoints) {
+        var result = [];
+        for (var i = 0, n = controlPoints.length; i < n; i += 1) {
+            if (controlPoints[i] > 0) {
+                result.push(-1);
+            }
+            else {
+                result.push(1);
+            }
+        }
+        return result;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        var f = [];
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+            f = r1.concat(r2);
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_f", "active control set to none: unable to compute f.");
+            warning.logMessageToConsole();
+            f[0] = 0;
+        }
+        return f;
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            var m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+            var _a = __read(m1.shape, 2), row_m1 = _a[0], n = _a[1];
+            var _b = __read(m2.shape, 1), row_m2 = _b[0];
+            var m = row_m1 + row_m2;
+            var result = new DenseMatrix_1.DenseMatrix(m, n);
+            for (var i = 0; i < row_m1; i += 1) {
+                for (var j = 0; j < n; j += 1) {
+                    result.set(i, j, m1.get(i, j));
+                }
+            }
+            for (var i = 0; i < row_m2; i += 1) {
+                for (var j = 0; j < n; j += 1) {
+                    result.set(row_m1 + i, j, m2.get(i, j));
+                }
+            }
+            return result;
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // JCL modif temporaire pour debuter integration OptProblemBSplineR1toR2
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            warning.logMessageToConsole();
+            var result = new DenseMatrix_1.DenseMatrix(1, 1);
+            return result;
+        }
+    };
+    AbstractOptProblemBSplineR1toR2.prototype.update = function (spline) {
+        var e = this.initExpansiveComputations();
+        this._spline = spline.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
+            this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
+            this.constraintType = ConstraintType.inflection;
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(this._curvatureNumeratorCP);
+            this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
+            this.constraintType = ConstraintType.curvatureExtrema;
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this._curvatureDerivativeNumeratorCP);
+            this.curvatureExtremaNumberOfActiveConstraints = this._curvatureDerivativeNumeratorCP.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    };
+    return AbstractOptProblemBSplineR1toR2;
+}());
+exports.AbstractOptProblemBSplineR1toR2 = AbstractOptProblemBSplineR1toR2;
+function convertStepToVector2d(step) {
+    var n = step.length / 2;
+    var result = [];
+    for (var i = 0; i < n; i += 1) {
+        result.push(new Vector2d_1.Vector2d(step[i], step[n + i]));
+    }
+    return result;
+}
+exports.convertStepToVector2d = convertStepToVector2d;
+
+
+/***/ }),
+
 /***/ "./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts":
 /*!****************************************************************!*\
   !*** ./src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts ***!
@@ -41618,6 +42086,1808 @@ var OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation = /** @class */
     return OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation;
 }(OptProblemBSplineR1toR2WithWeigthingFactors));
 exports.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation = OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation;
+
+
+/***/ }),
+
+/***/ "./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts":
+/*!************************************************************************!*\
+  !*** ./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts ***!
+  \************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics = exports.OptProblemOpenBSplineR1toR2NoInactiveConstraints = exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints = exports.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities = exports.OptProblemOPenBSplineR1toR2WithWeigthingFactors = exports.OptProblemOpenBSplineR1toR2 = exports.WEIGHT_AT_EXTREMITIES = exports.DEFAULT_WEIGHT = exports.CONSTRAINT_BOUND_THRESHOLD = exports.eventMove = void 0;
+var MathVectorBasicOperations_1 = __webpack_require__(/*! ../linearAlgebra/MathVectorBasicOperations */ "./src/linearAlgebra/MathVectorBasicOperations.ts");
+var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
+var DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
+var DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
+var SymmetricMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SymmetricMatrix */ "./src/linearAlgebra/SymmetricMatrix.ts");
+var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var PolygonWithVerticesR1_1 = __webpack_require__(/*! ../containers/PolygonWithVerticesR1 */ "./src/containers/PolygonWithVerticesR1.ts");
+var OscillatingPolygonWithVerticesR1_1 = __webpack_require__(/*! ../containers/OscillatingPolygonWithVerticesR1 */ "./src/containers/OscillatingPolygonWithVerticesR1.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var DifferentialEventVariation_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/DifferentialEventVariation */ "./src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts");
+var AbstractOptProblemBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractOptProblemBSplineR1toR2 */ "./src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts");
+var ShapeSpaceBoundaryEnforcer_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer */ "./src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts");
+var eventMove;
+(function (eventMove) {
+    eventMove[eventMove["still"] = 0] = "still";
+    eventMove[eventMove["moveToKnotLR"] = 1] = "moveToKnotLR";
+    eventMove[eventMove["moveAwayFromKnotRL"] = 2] = "moveAwayFromKnotRL";
+    eventMove[eventMove["moveToKnotRL"] = 3] = "moveToKnotRL";
+    eventMove[eventMove["moveAwayFromKnotLR"] = 4] = "moveAwayFromKnotLR";
+    eventMove[eventMove["atKnot"] = 5] = "atKnot";
+})(eventMove = exports.eventMove || (exports.eventMove = {}));
+var transitionCP;
+(function (transitionCP) {
+    transitionCP[transitionCP["negativeToPositive"] = 0] = "negativeToPositive";
+    transitionCP[transitionCP["positiveToNegative"] = 1] = "positiveToNegative";
+    transitionCP[transitionCP["none"] = 2] = "none";
+})(transitionCP || (transitionCP = {}));
+var DEVIATION_FROM_KNOT = 0.25;
+exports.CONSTRAINT_BOUND_THRESHOLD = 1.0e-7;
+exports.DEFAULT_WEIGHT = 1;
+exports.WEIGHT_AT_EXTREMITIES = 10;
+var OptProblemOpenBSplineR1toR2 = /** @class */ (function (_super) {
+    __extends(OptProblemOpenBSplineR1toR2, _super);
+    function OptProblemOpenBSplineR1toR2(splineInitial, shapeSpaceDiffEventsStructure) {
+        var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+        _this.isComputingHessian = false;
+        _this.Dh5xx = [];
+        _this.Dh6_7xy = [];
+        _this.Dh8_9xx = [];
+        _this.Dh10_11xy = [];
+        var e = _this.initExpansiveComputations();
+        e = _this.expensiveComputation(_this._spline);
+        if (_this._shapeSpaceDiffEventsStructure.activeControlInflections || _this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            _this._curvatureNumeratorCP = _this.curvatureNumerator(e.h4);
+            _this._inflectionTotalNumberOfConstraints = _this._curvatureNumeratorCP.length;
+            _this.inflectionConstraintsSign = _this.computeConstraintsSign(_this._curvatureNumeratorCP);
+            _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            _this._inflectionInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureNumeratorCP);
+            _this.inflectionNumberOfActiveConstraints = _this._curvatureNumeratorCP.length - _this.inflectionInactiveConstraints.length;
+        }
+        if (_this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            _this._curvatureDerivativeNumeratorCP = _this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            _this._curvatureExtremaTotalNumberOfConstraints = _this._curvatureDerivativeNumeratorCP.length;
+            _this._curvatureExtremaConstraintsSign = _this.computeConstraintsSign(_this._curvatureDerivativeNumeratorCP);
+            _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureDerivativeNumeratorCP);
+            _this.curvatureExtremaNumberOfActiveConstraints = _this._curvatureDerivativeNumeratorCP.length - _this.curvatureExtremaInactiveConstraints.length;
+        }
+        _this._f = _this.compute_f(_this._curvatureNumeratorCP, _this.inflectionConstraintsSign, _this._inflectionInactiveConstraints, _this._curvatureDerivativeNumeratorCP, _this._curvatureExtremaConstraintsSign, _this._curvatureExtremaInactiveConstraints);
+        _this._gradient_f = _this.compute_gradient_f(e, _this.inflectionConstraintsSign, _this._inflectionInactiveConstraints, _this._curvatureExtremaConstraintsSign, _this._curvatureExtremaInactiveConstraints);
+        if (_this.isComputingHessian) {
+            var e_1 = _this.expensiveComputation(_this.spline);
+            _this.prepareForHessianComputation(_this.dBasisFunctions_du, _this.d2BasisFunctions_du2, _this.d3BasisFunctions_du3);
+            _this._hessian_f = _this.compute_hessian_f(e_1.bdsxu, e_1.bdsyu, e_1.bdsxuu, e_1.bdsyuu, e_1.bdsxuuu, e_1.bdsyuuu, e_1.h1, e_1.h2, e_1.h3, e_1.h4, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
+        }
+        return _this;
+    }
+    Object.defineProperty(OptProblemOpenBSplineR1toR2.prototype, "f", {
+        get: function () {
+            if (MathVectorBasicOperations_1.containsNaN(this._f)) {
+                throw new Error("OptimizationProblem_BSpline_R1_to_R2 contains Nan in its f vector");
+            }
+            return this._f;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OptProblemOpenBSplineR1toR2.prototype, "spline", {
+        get: function () {
+            return this._spline;
+        },
+        set: function (spline) {
+            this._spline = spline;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OptProblemOpenBSplineR1toR2.prototype.bSplineR1toR1Factory = function (controlPoints, knots) {
+        return new BSplineR1toR1_1.BSplineR1toR1(controlPoints, knots);
+    };
+    OptProblemOpenBSplineR1toR2.prototype.computeBasisFunctionsDerivatives = function () {
+        var n = this.spline.controlPoints.length;
+        this._numberOfIndependentVariables = n * 2;
+        var diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
+        var secondOrderSplineDerivatives = [];
+        this.dBasisFunctions_du = [];
+        this.d2BasisFunctions_du2 = [];
+        this.d3BasisFunctions_du3 = [];
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            for (var i = 0; i < n; i += 1) {
+                diracControlPoints[i] = 1;
+                var s = new BSplineR1toR1_1.BSplineR1toR1(diracControlPoints.slice(), this.spline.knots.slice());
+                var su = s.derivative();
+                var suu = su.derivative();
+                secondOrderSplineDerivatives.push(suu);
+                var suBDecomp = su.bernsteinDecomposition();
+                var suuBDecomp = suu.bernsteinDecomposition();
+                this.dBasisFunctions_du.push(suBDecomp);
+                this.d2BasisFunctions_du2.push(suuBDecomp);
+                diracControlPoints[i] = 0;
+            }
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            var diracControlPoints_1 = MathVectorBasicOperations_1.zeroVector(n);
+            for (var i = 0; i < n; i += 1) {
+                diracControlPoints_1[i] = 1;
+                var suuu = secondOrderSplineDerivatives[i].derivative();
+                var suuuBDecomp = suuu.bernsteinDecomposition();
+                this.d3BasisFunctions_du3.push(suuuBDecomp);
+                diracControlPoints_1[i] = 0;
+            }
+        }
+    };
+    OptProblemOpenBSplineR1toR2.prototype.computeSignChangeIntervals = function (constraintsSign) {
+        var signChangesIntervals = [];
+        var previousSign = constraintsSign[0];
+        for (var i = 1, n = constraintsSign.length; i < n; i += 1) {
+            if (previousSign !== constraintsSign[i]) {
+                signChangesIntervals.push(i - 1);
+            }
+            previousSign = constraintsSign[i];
+        }
+        return signChangesIntervals;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.inactivateConstraintsAtCurveEXtremities = function (controlPoints, inactiveConstraints) {
+        if (inactiveConstraints.indexOf(0) === -1)
+            inactiveConstraints.splice(0, 0, 0);
+        if (inactiveConstraints.indexOf(controlPoints.length - 1) === -1)
+            inactiveConstraints.push(controlPoints.length - 1);
+    };
+    /**
+     * Some contraints are set inactive to allowed the point of curvature extrema to slide along the curve.
+     * A curvature extremum or an inflection is located between two coefficient of different signs.
+     * For the general case, the smallest coefficient in absolute value is chosen to be free.
+     * For the specific case of two successive sign changes, the coefficient in the middle is chosen.
+     *
+     * @param constraintsSign The vector of sign for the constraints: sign f_i <= 0
+     * @param controlPoints The vector of value of the function: f_i
+     */
+    OptProblemOpenBSplineR1toR2.prototype.computeInactiveConstraints = function (controlPoints) {
+        this.checkConstraintTypeConsistency(controlPoints);
+        var result = this.extractVerticesLocallyClosestToZero(controlPoints);
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.extractVerticesLocallyClosestToZero = function (controlPoints) {
+        var e_2, _a;
+        var indicesConstraints = [];
+        var polygon = new PolygonWithVerticesR1_1.PolygonWithVerticesR1(controlPoints);
+        var oscillatingPolygons = polygon.extractOscillatingPolygons();
+        if (oscillatingPolygons.length !== 0) {
+            var oscillatingPolygonsWithAdjacency = OscillatingPolygonWithVerticesR1_1.extractAdjacentOscillatingPolygons(oscillatingPolygons);
+            try {
+                for (var oscillatingPolygonsWithAdjacency_1 = __values(oscillatingPolygonsWithAdjacency), oscillatingPolygonsWithAdjacency_1_1 = oscillatingPolygonsWithAdjacency_1.next(); !oscillatingPolygonsWithAdjacency_1_1.done; oscillatingPolygonsWithAdjacency_1_1 = oscillatingPolygonsWithAdjacency_1.next()) {
+                    var oscillatingPolyWithAdj = oscillatingPolygonsWithAdjacency_1_1.value;
+                    if (oscillatingPolyWithAdj.oscillatingPolygons[0].closestVertexAtBeginning.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+                        indicesConstraints.push(oscillatingPolyWithAdj.oscillatingPolygons[0].closestVertexAtBeginning.index);
+                    }
+                    if (oscillatingPolyWithAdj.oscillatingPolygons.length !== 1) {
+                        for (var connectionIndex = 0; connectionIndex < (oscillatingPolyWithAdj.oscillatingPolygons.length - 1); connectionIndex++) {
+                            var compatibleConstraint = oscillatingPolyWithAdj.getClosestVertexToZeroAtConnection(connectionIndex);
+                            if (compatibleConstraint.index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== compatibleConstraint.index) {
+                                indicesConstraints.push(compatibleConstraint.index);
+                            }
+                            else {
+                                var indexEnd = oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex].closestVertexAtEnd.index;
+                                if (indexEnd !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== indexEnd) {
+                                    indicesConstraints.push(oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex].closestVertexAtEnd.index);
+                                }
+                                var indexBgng = oscillatingPolyWithAdj.oscillatingPolygons[connectionIndex + 1].closestVertexAtBeginning.index;
+                                if (indexBgng !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== indexBgng) {
+                                    indicesConstraints.push(indexBgng);
+                                }
+                            }
+                        }
+                    }
+                    var nbOscillatingPolygons = oscillatingPolyWithAdj.oscillatingPolygons.length;
+                    var index = oscillatingPolyWithAdj.oscillatingPolygons[nbOscillatingPolygons - 1].closestVertexAtEnd.index;
+                    if (index !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && indicesConstraints[indicesConstraints.length - 1] !== index) {
+                        indicesConstraints.push(index);
+                    }
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (oscillatingPolygonsWithAdjacency_1_1 && !oscillatingPolygonsWithAdjacency_1_1.done && (_a = oscillatingPolygonsWithAdjacency_1.return)) _a.call(oscillatingPolygonsWithAdjacency_1);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+        }
+        return indicesConstraints;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.checkConstraintTypeConsistency = function (controlPoints) {
+        var valid = false;
+        if (controlPoints.length === this._inflectionTotalNumberOfConstraints && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection) {
+            valid = true;
+        }
+        else if (controlPoints.length === this._curvatureExtremaTotalNumberOfConstraints && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            valid = true;
+        }
+        if (!valid) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConstraintTypeConsistency", "The number of constraints to analyse is not consistent with the type of constraint prescribed: please check.");
+            error.logMessageToConsole();
+        }
+    };
+    OptProblemOpenBSplineR1toR2.prototype.g = function () {
+        var e = this.expensiveComputation(this.spline);
+        return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+    };
+    OptProblemOpenBSplineR1toR2.prototype.gradient_g = function () {
+        var e = this.expensiveComputation(this.spline);
+        return this.gradient_curvatureDerivativeNumerator(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4);
+    };
+    OptProblemOpenBSplineR1toR2.prototype.gradient_curvatureDerivativeNumerator = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4) {
+        var dgx = [];
+        var dgy = [];
+        var m = this.spline.controlPoints.length;
+        var n = this.curvatureExtremaTotalNumberOfConstraints;
+        var result = new DenseMatrix_1.DenseMatrix(n, 2 * m);
+        for (var i = 0; i < m; i += 1) {
+            var h5 = this.dBasisFunctions_du[i].multiply(sxu);
+            var h6 = this.dBasisFunctions_du[i].multiply(syuuu);
+            var h7 = syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1);
+            var h8 = this.dBasisFunctions_du[i].multiply(sxuu);
+            var h9 = sxu.multiply(this.d2BasisFunctions_du2[i]);
+            var h10 = this.dBasisFunctions_du[i].multiply(syuu);
+            var h11 = syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < m; i += 1) {
+            var h5 = this.dBasisFunctions_du[i].multiply(syu);
+            var h6 = this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1);
+            var h7 = sxu.multiply(this.d3BasisFunctions_du3[i]);
+            var h8 = this.dBasisFunctions_du[i].multiply(syuu);
+            var h9 = syu.multiply(this.d2BasisFunctions_du2[i]);
+            var h10 = this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1);
+            var h11 = sxu.multiply(this.d2BasisFunctions_du2[i]);
+            dgy.push((h5.multiply(h2).multiplyByScalar(2)).add(h1.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4))).add((h10.add(h11)).multiply(h3))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < m; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            for (var j = 0; j < n; j += 1) {
+                result.set(j, i, cpx[j]);
+                result.set(j, m + i, cpy[j]);
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.compute_curvatureExtremaConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+        var sxu = e.bdsxu;
+        var sxuu = e.bdsxuu;
+        var sxuuu = e.bdsxuuu;
+        var syu = e.bdsyu;
+        var syuu = e.bdsyuu;
+        var syuuu = e.bdsyuuu;
+        var h1 = e.h1;
+        var h2 = e.h2;
+        var h3 = e.h3;
+        var h4 = e.h4;
+        var dgx = [];
+        var dgy = [];
+        var controlPointsLength = this.spline.controlPoints.length;
+        var totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints;
+        var degree = this.spline.degree;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h1_subset = h1.subset(start, lessThan);
+            var h2_subset = h2.subset(start, lessThan);
+            var h3_subset = h3.subset(start, lessThan);
+            var h4_subset = h4.subset(start, lessThan);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            var h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            var h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h1_subset = h1.subset(start, lessThan);
+            var h2_subset = h2.subset(start, lessThan);
+            var h3_subset = h3.subset(start, lessThan);
+            var h4_subset = h4.subset(start, lessThan);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            var h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            var start = Math.max(0, i - degree) * (4 * degree - 5);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5);
+            var deltaj = 0;
+            for (var i_1 = 0; i_1 < inactiveConstraints.length; i_1 += 1) {
+                if (inactiveConstraints[i_1] >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (var j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.compute_inflectionConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+        var sxu = e.bdsxu;
+        var sxuu = e.bdsxuu;
+        var syu = e.bdsyu;
+        var syuu = e.bdsyuu;
+        var dgx = [];
+        var dgy = [];
+        var controlPointsLength = this.spline.controlPoints.length;
+        var degree = this.spline.degree;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h10.add(h11)));
+        }
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push(h10.add(h11));
+        }
+        var totalNumberOfConstraints = this.inflectionConstraintsSign.length;
+        var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            var start = Math.max(0, i - degree) * (2 * degree - 2);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2);
+            var deltaj = 0;
+            for (var i_2 = 0; i_2 < inactiveConstraints.length; i_2 += 1) {
+                if (inactiveConstraints[i_2] >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (var j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j]);
+                }
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.compute_hessian_f = function (sxu, syu, sxuu, syuu, sxuuu, syuuu, h1, h2, h3, h4, constraintsSign, inactiveConstraints) {
+        var n = this.spline.controlPoints.length;
+        var result = [];
+        var h5x = [];
+        var h5y = [];
+        var h6x = [];
+        var h6y = [];
+        var h7x = [];
+        var h7y = [];
+        var h8x = [];
+        var h8y = [];
+        var h9x = [];
+        var h9y = [];
+        var h10x = [];
+        var h10y = [];
+        var h11x = [];
+        var h11y = [];
+        var hessian_gxx = [];
+        var hessian_gyy = [];
+        var hessian_gxy = [];
+        for (var i = 0; i < n; i += 1) {
+            hessian_gxx.push([]);
+            hessian_gyy.push([]);
+            hessian_gxy.push([]);
+        }
+        for (var i = 0; i < n; i += 1) {
+            h5x.push(this.dBasisFunctions_du[i].multiply(sxu));
+            h6x.push(this.dBasisFunctions_du[i].multiply(syuuu));
+            h7x.push(syu.multiply(this.d3BasisFunctions_du3[i]).multiplyByScalar(-1));
+            h8x.push(this.dBasisFunctions_du[i].multiply(sxuu));
+            h9x.push(sxu.multiply(this.d2BasisFunctions_du2[i]));
+            h10x.push(this.dBasisFunctions_du[i].multiply(syuu));
+            h11x.push(syu.multiply(this.d2BasisFunctions_du2[i]).multiplyByScalar(-1));
+        }
+        for (var i = 0; i < n; i += 1) {
+            h5y.push(this.dBasisFunctions_du[i].multiply(syu));
+            h6y.push(this.dBasisFunctions_du[i].multiply(sxuuu).multiplyByScalar(-1));
+            h7y.push(sxu.multiply(this.d3BasisFunctions_du3[i]));
+            h8y.push(this.dBasisFunctions_du[i].multiply(syuu));
+            h9y.push(syu.multiply(this.d2BasisFunctions_du2[i]));
+            h10y.push(this.dBasisFunctions_du[i].multiply(sxuu).multiplyByScalar(-1));
+            h11y.push(sxu.multiply(this.d2BasisFunctions_du2[i]));
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j <= i; j += 1) {
+                var term1 = this.Dh5xx[i][j].multiply(h2).multiplyByScalar(2);
+                var term2xx = ((h5x[j].multiply(h6x[i].add(h7x[i]))).add(h5x[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2);
+                var term2yy = ((h5y[j].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6y[j].add(h7y[j]))))).multiplyByScalar(2);
+                // term3 = 0
+                var term4 = this.Dh8_9xx[i][j].multiply(h4).multiplyByScalar(-3);
+                var term5xx = (((h8x[j].add(h9x[j])).multiply(h10x[i].add(h11x[i]))).add((h8x[i].add(h9x[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3);
+                var term5yy = (((h8y[j].add(h9y[j])).multiply(h10y[i].add(h11y[i]))).add((h8y[i].add(h9y[i])).multiply((h10y[j].add(h11y[j]))))).multiplyByScalar(-3);
+                // term 6 = 0
+                hessian_gxx[i][j] = (term1.add(term2xx).add(term4).add(term5xx)).flattenControlPointsArray();
+                hessian_gyy[i][j] = (term1.add(term2yy).add(term4).add(term5yy)).flattenControlPointsArray();
+            }
+        }
+        for (var i = 1; i < n; i += 1) {
+            for (var j = 0; j < i; j += 1) {
+                // term1 = 0
+                var term2xy = ((h5x[j].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2);
+                var term3 = this.Dh6_7xy[j][i].multiply(h1).multiplyByScalar(-1); //Dh_6_7xy is antisymmetric
+                // term4 = 0
+                var term5xy = (((h8x[j].add(h9x[j])).multiply((h10y[i].add(h11y[i])))).add((h8y[i].add(h9y[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3);
+                var term6 = this.Dh10_11xy[j][i].multiply(h3).multiplyByScalar(3); //Dh_10_11xy is antisymmetric
+                hessian_gxy[i][j] = (term2xy.add(term3).add(term5xy).add(term6)).flattenControlPointsArray();
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = i + 1; j < n; j += 1) {
+                // term1 = 0
+                var term2xy = ((h5x[j].multiply((h6y[i].add(h7y[i])))).add(h5y[i].multiply((h6x[j].add(h7x[j]))))).multiplyByScalar(2);
+                var term3 = this.Dh6_7xy[i][j].multiply(h1); //Dh_6_7xy is antisymmetric
+                // term4 = 0
+                var term5xy = (((h8x[j].add(h9x[j])).multiply((h10y[i].add(h11y[i])))).add((h8y[i].add(h9y[i])).multiply((h10x[j].add(h11x[j]))))).multiplyByScalar(-3);
+                var term6 = this.Dh10_11xy[i][j].multiply(h3).multiplyByScalar(-3); //Dh_10_11xy is antisymmetric
+                hessian_gxy[i][j] = (term2xy.add(term3).add(term5xy).add(term6)).flattenControlPointsArray();
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            // term1 = 0
+            var term2xy = ((h5x[i].multiply(h6y[i].add(h7y[i]))).add(h5y[i].multiply((h6x[i].add(h7x[i]))))).multiplyByScalar(2);
+            //const term3 = this.Dh6_7xy[i][i].multiply(h1)
+            // term3 = 0
+            // term4 = 0
+            var term5xy = (((h8y[i].add(h9y[i])).multiply((h10x[i].add(h11x[i])))).add((h8x[i].add(h9x[i])).multiply(h10y[i].add(h11y[i])))).multiplyByScalar(-3);
+            // term6 = 0
+            hessian_gxy[i][i] = (term2xy.add(term5xy)).flattenControlPointsArray();
+        }
+        var deltak = 0;
+        for (var k = 0; k < constraintsSign.length; k += 1) {
+            if (k === inactiveConstraints[deltak]) {
+                deltak += 1;
+            }
+            else {
+                var m = new SymmetricMatrix_1.SymmetricMatrix(2 * n);
+                for (var i = 0; i < n; i += 1) {
+                    for (var j = 0; j <= i; j += 1) {
+                        m.set(i, j, hessian_gxx[i][j][k] * constraintsSign[k]);
+                        m.set(n + i, n + j, hessian_gyy[i][j][k] * constraintsSign[k]);
+                    }
+                }
+                for (var i = 0; i < n; i += 1) {
+                    for (var j = 0; j < n; j += 1) {
+                        m.set(n + i, j, hessian_gxy[i][j][k] * constraintsSign[k]);
+                    }
+                }
+                result.push(m);
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2.prototype.prepareForHessianComputation = function (Dsu, Dsuu, Dsuuu) {
+        var n = this.spline.controlPoints.length;
+        for (var i = 0; i < n; i += 1) {
+            this.Dh5xx.push([]);
+            this.Dh6_7xy.push([]);
+            this.Dh8_9xx.push([]);
+            this.Dh10_11xy.push([]);
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j <= i; j += 1) {
+                this.Dh5xx[i][j] = Dsu[i].multiply(Dsu[j]);
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < n; j += 1) {
+                this.Dh6_7xy[i][j] = (Dsu[i].multiply(Dsuuu[j])).subtract(Dsu[j].multiply(Dsuuu[i]));
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j <= i; j += 1) {
+                this.Dh8_9xx[i][j] = (Dsu[i].multiply(Dsuu[j])).add(Dsu[j].multiply(Dsuu[i]));
+            }
+        }
+        for (var i = 0; i < n; i += 1) {
+            for (var j = 0; j < n; j += 1) {
+                this.Dh10_11xy[i][j] = (Dsu[i].multiply(Dsuu[j])).subtract(Dsu[j].multiply(Dsuu[i]));
+            }
+        }
+    };
+    OptProblemOpenBSplineR1toR2.prototype.setTargetSpline = function (spline) {
+        this._target = spline.clone();
+        this._gradient_f0 = this.compute_gradient_f0(this.spline);
+        this._f0 = this.compute_f0(this.gradient_f0);
+    };
+    return OptProblemOpenBSplineR1toR2;
+}(AbstractOptProblemBSplineR1toR2_1.AbstractOptProblemBSplineR1toR2));
+exports.OptProblemOpenBSplineR1toR2 = OptProblemOpenBSplineR1toR2;
+var OptProblemOPenBSplineR1toR2WithWeigthingFactors = /** @class */ (function (_super) {
+    __extends(OptProblemOPenBSplineR1toR2WithWeigthingFactors, _super);
+    function OptProblemOPenBSplineR1toR2WithWeigthingFactors(splineInitial, shapeSpaceDiffEventsStructure) {
+        var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+        _this.weigthingFactors = [];
+        for (var i = 0; i < _this.spline.controlPoints.length * 2; i += 1) {
+            _this.weigthingFactors.push(exports.DEFAULT_WEIGHT);
+        }
+        return _this;
+    }
+    Object.defineProperty(OptProblemOPenBSplineR1toR2WithWeigthingFactors.prototype, "f0", {
+        get: function () {
+            var result = 0;
+            var n = this._gradient_f0.length;
+            for (var i = 0; i < n; i += 1) {
+                result += Math.pow(this._gradient_f0[i], 2) * this.weigthingFactors[i];
+            }
+            return 0.5 * result;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OptProblemOPenBSplineR1toR2WithWeigthingFactors.prototype, "gradient_f0", {
+        get: function () {
+            var result = [];
+            var n = this._gradient_f0.length;
+            for (var i = 0; i < n; i += 1) {
+                result.push(this._gradient_f0[i] * this.weigthingFactors[i]);
+            }
+            return result;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OptProblemOPenBSplineR1toR2WithWeigthingFactors.prototype, "hessian_f0", {
+        get: function () {
+            var n = this._gradient_f0.length;
+            var result = new DiagonalMatrix_1.DiagonalMatrix(n);
+            for (var i = 0; i < n; i += 1) {
+                result.set(i, i, this.weigthingFactors[i]);
+            }
+            return result;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    /**
+     * The objective function value: f0(x + step)
+     */
+    OptProblemOPenBSplineR1toR2WithWeigthingFactors.prototype.f0Step = function (step) {
+        var splineTemp = this._spline.clone();
+        splineTemp = splineTemp.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(step));
+        var gradient = this.compute_gradient_f0(splineTemp);
+        var n = gradient.length;
+        var result = 0;
+        for (var i = 0; i < n; i += 1) {
+            result += Math.pow(gradient[i], 2) * this.weigthingFactors[i];
+        }
+        return 0.5 * result;
+    };
+    OptProblemOPenBSplineR1toR2WithWeigthingFactors.prototype.setWeightingFactor = function () {
+        this.weigthingFactors[0] = exports.WEIGHT_AT_EXTREMITIES;
+        this.weigthingFactors[this._spline.controlPoints.length] = exports.WEIGHT_AT_EXTREMITIES;
+        this.weigthingFactors[this._spline.controlPoints.length - 1] = exports.WEIGHT_AT_EXTREMITIES;
+        this.weigthingFactors[this._spline.controlPoints.length * 2 - 1] = exports.WEIGHT_AT_EXTREMITIES;
+    };
+    return OptProblemOPenBSplineR1toR2WithWeigthingFactors;
+}(OptProblemOpenBSplineR1toR2));
+exports.OptProblemOPenBSplineR1toR2WithWeigthingFactors = OptProblemOPenBSplineR1toR2WithWeigthingFactors;
+var OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities = /** @class */ (function (_super) {
+    __extends(OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities, _super);
+    function OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(splineInitial, shapeSpaceDiffEventsStructure) {
+        var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+        _this._shapeSpaceBoundaryEnforcer = new ShapeSpaceBoundaryEnforcer_1.NestedShapeSpacesBoundaryEnforcerOpenCurve();
+        var e = _this.initExpansiveComputations();
+        e = _this.expensiveComputation(_this._spline);
+        if (_this._shapeSpaceDiffEventsStructure.activeControlInflections || _this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            _this._inflectionInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureNumeratorCP);
+            _this.inflectionNumberOfActiveConstraints = _this._curvatureNumeratorCP.length - _this.inflectionInactiveConstraints.length;
+        }
+        if (_this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureDerivativeNumeratorCP);
+            _this.curvatureExtremaNumberOfActiveConstraints = _this._curvatureDerivativeNumeratorCP.length - _this.curvatureExtremaInactiveConstraints.length;
+        }
+        _this._f = _this.compute_f(_this._curvatureNumeratorCP, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this._curvatureDerivativeNumeratorCP, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
+        // this.checkConstraintConsistency();
+        _this._gradient_f = _this.compute_gradient_f(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
+        return _this;
+    }
+    Object.defineProperty(OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities.prototype, "shapeSpaceBoundaryEnforcer", {
+        get: function () {
+            return this._shapeSpaceBoundaryEnforcer;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities.prototype.computeInactiveConstraints = function (controlPoints) {
+        var _a;
+        this.checkConstraintTypeConsistency(controlPoints);
+        var inactiveConstraints = this.extractVerticesLocallyClosestToZero(controlPoints);
+        if (!((_a = this._shapeSpaceBoundaryEnforcer) === null || _a === void 0 ? void 0 : _a.isActive())) {
+            this.inactivateConstraintsAtCurveEXtremities(controlPoints, inactiveConstraints);
+        }
+        else if (this._shapeSpaceBoundaryEnforcer.isCurvatureExtTransitionAtExtremity() && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema
+            && inactiveConstraints.length > 0) {
+            if (inactiveConstraints.indexOf(0) !== -1)
+                inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
+            if (inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1) !== -1)
+                inactiveConstraints.splice(inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1), 1);
+        }
+        else if (this._shapeSpaceBoundaryEnforcer.isInflectionTransitionAtExtremity() && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection
+            && inactiveConstraints.length > 0) {
+            if (inactiveConstraints.indexOf(0) !== -1)
+                inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
+            if (inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1) !== -1)
+                inactiveConstraints.splice(inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1), 1);
+        }
+        console.log("Optim EventMonitoringAtExtremities. inactive constraints" + inactiveConstraints);
+        return inactiveConstraints;
+    };
+    OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities.prototype.step = function (deltaX) {
+        var checked = true;
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
+        if (this._shapeSpaceBoundaryEnforcer.isActive()) {
+            this._inflectionInactiveConstraints = [];
+            this._curvatureExtremaInactiveConstraints = [];
+        }
+        this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        e = this.expensiveComputation(this._spline);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            if (!this._shapeSpaceBoundaryEnforcer.isActive())
+                this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            if (!this._shapeSpaceBoundaryEnforcer.isActive())
+                this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        this._curvatureNumeratorCP = curvatureNumerator;
+        this._curvatureDerivativeNumeratorCP = curvatureDerivativeNumerator;
+        //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
+        console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign);
+        this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        if (this.isComputingHessian) {
+            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        }
+        return checked;
+    };
+    OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities.prototype.update = function (spline) {
+        this._spline = spline.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._inflectionInactiveConstraints = [];
+        this._curvatureExtremaInactiveConstraints = [];
+        var e = this.initExpansiveComputations();
+        e = this.expensiveComputation(this._spline);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
+            this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            this._inflectionInactiveConstraints = this.computeInactiveConstraints(this._curvatureNumeratorCP);
+            this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this._curvatureDerivativeNumeratorCP);
+            this.curvatureExtremaNumberOfActiveConstraints = this._curvatureDerivativeNumeratorCP.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        console.log("optim curv ext inactive constraints: " + this.curvatureExtremaInactiveConstraints);
+        console.log("optim inflection inactive constraints: " + this.inflectionInactiveConstraints);
+        this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        // this.checkConstraintConsistency();
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    };
+    return OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities;
+}(OptProblemOPenBSplineR1toR2WithWeigthingFactors));
+exports.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities = OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities;
+var OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints = /** @class */ (function (_super) {
+    __extends(OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints, _super);
+    function OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(splineInitial, shapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+    }
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints.prototype.computeInactiveConstraints = function (curvatureDerivativeNumerator) {
+        return [];
+    };
+    return OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints;
+}(OptProblemOPenBSplineR1toR2WithWeigthingFactors));
+exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints = OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints;
+var OptProblemOpenBSplineR1toR2NoInactiveConstraints = /** @class */ (function (_super) {
+    __extends(OptProblemOpenBSplineR1toR2NoInactiveConstraints, _super);
+    function OptProblemOpenBSplineR1toR2NoInactiveConstraints(splineInitial, shapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+    }
+    OptProblemOpenBSplineR1toR2NoInactiveConstraints.prototype.computeInactiveConstraints = function (curvatureDerivativeNumerator) {
+        return [];
+    };
+    return OptProblemOpenBSplineR1toR2NoInactiveConstraints;
+}(OptProblemOpenBSplineR1toR2));
+exports.OptProblemOpenBSplineR1toR2NoInactiveConstraints = OptProblemOpenBSplineR1toR2NoInactiveConstraints;
+/* JCL 2020/10/06 derive a class to process cubics with specific desactivation constraint process at discontinuities of B(u) */
+var OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics = /** @class */ (function (_super) {
+    __extends(OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics, _super);
+    function OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(splineInitial, shapeSpaceDiffEventsStructure) {
+        return _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+    }
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics.prototype.computeControlPointsClosestToZeroForCubics = function (signChangesIntervals, controlPoints) {
+        var result = [];
+        for (var i = 0, n = signChangesIntervals.length; i < n; i += 1) {
+            if (i < n - 1 && signChangesIntervals[i] + 1 === signChangesIntervals[i + 1]) {
+                result.push(signChangesIntervals[i] + 1);
+                i += 1;
+            }
+            else {
+                if (Math.pow(controlPoints[signChangesIntervals[i]], 2) < Math.pow(controlPoints[signChangesIntervals[i] + 1], 2)) {
+                    result.push(signChangesIntervals[i]);
+                }
+                else {
+                    result.push(signChangesIntervals[i] + 1);
+                }
+            }
+        }
+        //console.log("degree: " + this.spline.degree + " nbKnot: " + this.spline.distinctKnots().length)
+        /* JCL 2020/10/02 modification as alternative to sliding mechanism */
+        if (this.spline.degree === 3 && controlPoints.length === (this.spline.getDistinctKnots().length - 1) * 7) {
+            var n = Math.trunc(controlPoints.length / 7);
+            console.log("degree: " + this.spline.degree + " nbCP: " + controlPoints.length);
+            for (var j = 1; j < n; j += 1) {
+                if (controlPoints[6 * j] * controlPoints[6 * j + 1] < 0) {
+                    //console.log("CP: " + controlPoints)
+                    if (result.indexOf(6 * j) > 0 && result.indexOf(6 * j + 1) < 0) {
+                        result.push(6 * j + 1);
+                    }
+                    else if (result.indexOf(6 * j) < 0 && result.indexOf(6 * j + 1) > 0) {
+                        result.push(6 * j);
+                    }
+                }
+            }
+            result.sort(function (a, b) { return (a - b); });
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics.prototype.addInactiveConstraintsForInflections = function (list, controlPoints) {
+        var result = [];
+        for (var i = 0, n = list.length; i < n; i += 1) {
+            if (list[i] !== 0 && controlPoints[list[i] - 1] === controlPoints[list[i]]) {
+                if (i == 0) {
+                    result.push(list[i] - 1);
+                }
+                if (i !== 0 && list[i - 1] !== list[i] - 1) {
+                    result.push(list[i] - 1);
+                }
+            }
+            result.push(list[i]);
+            if (list[i] !== controlPoints.length - 2 && controlPoints[list[i]] === controlPoints[list[i] + 1]) {
+                if (i == list.length - 1) {
+                    result.push(list[i] + 1);
+                }
+                if (i !== list.length - 1 && list[i + 1] !== list[i] + 1) {
+                    result.push(list[i] + 1);
+                }
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics.prototype.computeInactiveConstraints = function (controlPoints) {
+        var constraintsSign = this.computeConstraintsSign(controlPoints);
+        var signChangesIntervals = this.computeSignChangeIntervals(constraintsSign);
+        var controlPointsClosestToZero = this.computeControlPointsClosestToZeroForCubics(signChangesIntervals, controlPoints);
+        var result = this.addInactiveConstraintsForInflections(controlPointsClosestToZero, controlPoints);
+        return result;
+    };
+    return OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics;
+}(OptProblemOPenBSplineR1toR2WithWeigthingFactors));
+exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics = OptProblemOpenBSplineR1toR2WithWeigthingFactorsDedicatedToCubics;
+var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class */ (function (_super) {
+    __extends(OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace, _super);
+    function OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(splineInitial, shapeSpaceDiffEventsStructure, navigationCurveModel) {
+        var _this = _super.call(this, splineInitial, shapeSpaceDiffEventsStructure) || this;
+        _this.curveAnalyzerCurrentCurve = navigationCurveModel.curveAnalyserCurrentCurve;
+        _this.curveAnalyzerOptimizedCurve = navigationCurveModel.curveAnalyserOptimizedCurve;
+        _this._diffEventsVariation = new DifferentialEventVariation_1.DiffrentialEventVariation(_this.curveAnalyzerCurrentCurve, _this.curveAnalyzerOptimizedCurve);
+        _this._shapeSpaceBoundaryEnforcer = new ShapeSpaceBoundaryEnforcer_1.StrictShapeSpacesBoundaryEnforcerOpenCurve();
+        _this._iteratedCurves = [];
+        _this.updateConstraintBound = true;
+        _this.revertCurvatureExtremaConstraints = [];
+        _this.revertInflectionsConstraints = [];
+        var e = _this.initExpansiveComputations();
+        e = _this.expensiveComputation(_this._spline);
+        if (_this._shapeSpaceDiffEventsStructure.activeControlInflections || _this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            _this._inflectionInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureNumeratorCP);
+            _this.inflectionNumberOfActiveConstraints = _this._curvatureNumeratorCP.length - _this.inflectionInactiveConstraints.length;
+        }
+        for (var i = 0; i < _this._curvatureNumeratorCP.length; i += 1) {
+            _this.revertInflectionsConstraints.push(1);
+        }
+        _this.inflectionsConstraintsBounds = MathVectorBasicOperations_1.zeroVector(_this._curvatureNumeratorCP.length);
+        if (_this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureDerivativeNumeratorCP);
+            _this.curvatureExtremaNumberOfActiveConstraints = _this._curvatureDerivativeNumeratorCP.length - _this.curvatureExtremaInactiveConstraints.length;
+        }
+        _this.controlPointsFunctionBInit = _this._curvatureDerivativeNumeratorCP;
+        _this.curvatureExtremaConstraintBounds = MathVectorBasicOperations_1.zeroVector(_this._curvatureDerivativeNumeratorCP.length);
+        for (var i = 0; i < _this._curvatureDerivativeNumeratorCP.length; i += 1) {
+            _this.revertCurvatureExtremaConstraints.push(1);
+        }
+        _this.clearInequalityChanges();
+        _this.clearConstraintBoundsUpdate();
+        _this.revertInequalitiesWithinRangeOfLocalExtremum();
+        _this.updateConstraintBoundsWithinRangeOfLocalExtremum();
+        console.log("optim inactive curv ext constraints: " + _this.curvatureExtremaInactiveConstraints);
+        console.log("optim inactive inflection constraints: " + _this.inflectionInactiveConstraints);
+        _this._f = _this.compute_f(_this._curvatureNumeratorCP, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this._curvatureDerivativeNumeratorCP, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
+        _this.checkConstraintConsistency();
+        _this._gradient_f = _this.compute_gradient_f(e, _this.inflectionConstraintsSign, _this.inflectionInactiveConstraints, _this.curvatureExtremaConstraintsSign, _this.curvatureExtremaInactiveConstraints);
+        return _this;
+        // if (this.isComputingHessian) {
+        //     this.prepareForHessianComputation(this.dBasisFunctions_du, this.d2BasisFunctions_du2, this.d3BasisFunctions_du3)
+        //     this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+        // }
+    }
+    Object.defineProperty(OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype, "diffEventsVariation", {
+        get: function () {
+            return this._diffEventsVariation;
+        },
+        set: function (diffEventsVariation) {
+            this._diffEventsVariation = diffEventsVariation;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype, "iteratedCurves", {
+        get: function () {
+            return this._iteratedCurves;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype, "shapeSpaceBoundaryEnforcer", {
+        get: function () {
+            return this._shapeSpaceBoundaryEnforcer;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.clearIteratedCurves = function () {
+        this._iteratedCurves = [];
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.checkConstraintConsistency = function () {
+        var e_3, _a, e_4, _b, e_5, _c, e_6, _d;
+        /* JCL 08/03/2021 Add test to check the consistency of the constraints values.
+            As the reference optimization problem is set up, each active constraint is an inequality strictly negative.
+            Consequently, each active constraint value must be negative. */
+        var constraintType;
+        (function (constraintType) {
+            constraintType[constraintType["curvatureExtremum"] = 0] = "curvatureExtremum";
+            constraintType[constraintType["inflexion"] = 1] = "inflexion";
+            constraintType[constraintType["none"] = 2] = "none";
+        })(constraintType || (constraintType = {}));
+        ;
+        var invalidConstraints = [];
+        for (var i = 0; i < this._f.length; i += 1) {
+            if (this._f[i] > 0.0) {
+                var typeC = void 0;
+                var indexC = void 0;
+                if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+                    typeC = constraintType.curvatureExtremum;
+                    indexC = i;
+                    if (i < this.curvatureExtremaNumberOfActiveConstraints) {
+                        try {
+                            for (var _e = (e_3 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _g = _e.next(); !_g.done; _g = _e.next()) {
+                                var constraintIndex = _g.value;
+                                if (i > constraintIndex)
+                                    indexC = indexC + 1;
+                            }
+                        }
+                        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                        finally {
+                            try {
+                                if (_g && !_g.done && (_a = _e.return)) _a.call(_e);
+                            }
+                            finally { if (e_3) throw e_3.error; }
+                        }
+                    }
+                    else {
+                        indexC = i - this.curvatureExtremaNumberOfActiveConstraints;
+                        typeC = constraintType.inflexion;
+                        try {
+                            for (var _h = (e_4 = void 0, __values(this.inflectionInactiveConstraints)), _j = _h.next(); !_j.done; _j = _h.next()) {
+                                var constraintIndex = _j.value;
+                                if (i > constraintIndex)
+                                    indexC = indexC + 1;
+                            }
+                        }
+                        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+                        finally {
+                            try {
+                                if (_j && !_j.done && (_b = _h.return)) _b.call(_h);
+                            }
+                            finally { if (e_4) throw e_4.error; }
+                        }
+                    }
+                }
+                else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+                    typeC = constraintType.curvatureExtremum;
+                    indexC = i;
+                    try {
+                        for (var _k = (e_5 = void 0, __values(this.curvatureExtremaInactiveConstraints)), _l = _k.next(); !_l.done; _l = _k.next()) {
+                            var constraintIndex = _l.value;
+                            if (i > constraintIndex)
+                                indexC = indexC + 1;
+                        }
+                    }
+                    catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                    finally {
+                        try {
+                            if (_l && !_l.done && (_c = _k.return)) _c.call(_k);
+                        }
+                        finally { if (e_5) throw e_5.error; }
+                    }
+                }
+                else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+                    typeC = constraintType.inflexion;
+                    indexC = i;
+                    try {
+                        for (var _m = (e_6 = void 0, __values(this.inflectionInactiveConstraints)), _o = _m.next(); !_o.done; _o = _m.next()) {
+                            var constraintIndex = _o.value;
+                            if (i > constraintIndex)
+                                indexC = indexC + 1;
+                        }
+                    }
+                    catch (e_6_1) { e_6 = { error: e_6_1 }; }
+                    finally {
+                        try {
+                            if (_o && !_o.done && (_d = _m.return)) _d.call(_m);
+                        }
+                        finally { if (e_6) throw e_6.error; }
+                    }
+                }
+                else {
+                    typeC = constraintType.none;
+                    indexC = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+                    var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConstraintConsistency", "No active control set. There should be no constraint.");
+                    warning.logMessageToConsole();
+                }
+                invalidConstraints.push({ value: this._f[i], type: typeC, index: indexC });
+            }
+        }
+        if (invalidConstraints.length > 0) {
+            var message = "Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints);
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConstraintConsistency", message);
+            error.logMessageToConsole();
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.inactivateConstraintClosestToZero = function (controlPoints, inactiveConstraints) {
+        var polygonOfCtrlPts = new PolygonWithVerticesR1_1.PolygonWithVerticesR1(controlPoints);
+        var globalExtremumOffAxis = polygonOfCtrlPts.extractClosestLocalExtremmumToAxis().index;
+        if (globalExtremumOffAxis !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
+            inactiveConstraints.push(globalExtremumOffAxis);
+            inactiveConstraints.sort(function (a, b) { return (a - b); });
+        }
+    };
+    // inactivateConstraintsAtCurveEXtremities(controlPoints: number[], inactiveConstraints: number[]): void {
+    //     if(inactiveConstraints.indexOf(0) === -1) inactiveConstraints.splice(0, 0, 0);
+    //     if(inactiveConstraints.indexOf(controlPoints.length - 1) === -1) inactiveConstraints.push(controlPoints.length - 1);
+    // }
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.inactivateConstraintsWithinRangeOfLocalExtremum = function (inactiveConstraints) {
+        if (this._diffEventsVariation === undefined || this._diffEventsVariation.neighboringEvents.length === 0) {
+            return;
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear)
+            // && this.constraintType === ConstraintType.curvatureExtrema && this.updateConstraintBound) {
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            var upperBound = this._diffEventsVariation.span;
+            var lowerBound = this._diffEventsVariation.span - this._diffEventsVariation.rangeOfInfluence;
+            for (var j = lowerBound; j < upperBound + 1; j += 1) {
+                if (inactiveConstraints.indexOf(j) !== -1)
+                    inactiveConstraints.splice(inactiveConstraints.indexOf(j), 1);
+            }
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.start || this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                // if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.start) {
+                    if (inactiveConstraints.length > 0 && inactiveConstraints.indexOf(0) !== -1)
+                        inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
+                }
+                else if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                    if (inactiveConstraints.length > 0 && inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1) !== -1)
+                        inactiveConstraints.splice(inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1), 1);
+                }
+                /* JCL 08/03/2021 Add constraint modifications to curvature extrema appearing based on a non null optimum value of B(u) */
+                if (this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
+                    /* to be added: the interval span to be processed */
+                    for (var i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i += 1) {
+                        if (inactiveConstraints.length > 0 && inactiveConstraints.indexOf(i) !== -1)
+                            inactiveConstraints.splice(inactiveConstraints.indexOf(i), 1);
+                    }
+                }
+            }
+            else
+                console.log("Null content of shapeSpaceBoundaryConstraintsCurvExtrema.");
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryAppear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection) {
+            if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.start || this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.end) {
+                // if(this.shapeSpaceBoundaryConstraintsInflections.length > 0) {
+                if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.start) {
+                    if (inactiveConstraints.length > 0 && inactiveConstraints.indexOf(0) !== -1)
+                        inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
+                }
+                else if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.end) {
+                    if (inactiveConstraints.length > 0 && inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1) !== -1)
+                        inactiveConstraints.splice(inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1), 1);
+                }
+                /* JCL something to do with this._diffEventsVariation for A(u) extrema ? */
+            }
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.clearInequalityChanges = function () {
+        var e_7, _a, e_8, _b;
+        if (this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            try {
+                for (var _c = __values(this._curvatureDerivativeNumeratorCP), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var controlPoint = _d.value;
+                    this.revertCurvatureExtremaConstraints[controlPoint] = 1;
+                }
+            }
+            catch (e_7_1) { e_7 = { error: e_7_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_7) throw e_7.error; }
+            }
+        }
+        else if (this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection) {
+            try {
+                for (var _e = __values(this._curvatureNumeratorCP), _g = _e.next(); !_g.done; _g = _e.next()) {
+                    var controlPoint = _g.value;
+                    this.revertCurvatureExtremaConstraints[controlPoint] = 1;
+                }
+            }
+            catch (e_8_1) { e_8 = { error: e_8_1 }; }
+            finally {
+                try {
+                    if (_g && !_g.done && (_b = _e.return)) _b.call(_e);
+                }
+                finally { if (e_8) throw e_8.error; }
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "clearInequalityChanges", "Current constraint type is not compatible with the inequalities changes.");
+            error.logMessageToConsole();
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.clearConstraintBoundsUpdate = function () {
+        var e_9, _a, e_10, _b;
+        if (this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            try {
+                for (var _c = __values(this._curvatureDerivativeNumeratorCP), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var controlPoint = _d.value;
+                    this.curvatureExtremaConstraintBounds[controlPoint] = 0;
+                }
+            }
+            catch (e_9_1) { e_9 = { error: e_9_1 }; }
+            finally {
+                try {
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+                }
+                finally { if (e_9) throw e_9.error; }
+            }
+        }
+        else if (this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection) {
+            try {
+                for (var _e = __values(this._curvatureNumeratorCP), _g = _e.next(); !_g.done; _g = _e.next()) {
+                    var controlPoint = _g.value;
+                    this.curvatureExtremaConstraintBounds[controlPoint] = 0;
+                }
+            }
+            catch (e_10_1) { e_10 = { error: e_10_1 }; }
+            finally {
+                try {
+                    if (_g && !_g.done && (_b = _e.return)) _b.call(_e);
+                }
+                finally { if (e_10) throw e_10.error; }
+            }
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "clearConstraintBoundsUpdate", "Current constraint type is not compatible with the constraint bounds update.");
+            error.logMessageToConsole();
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.revertInequalitiesWithinRangeOfLocalExtremum = function () {
+        if (this._diffEventsVariation.neighboringEvents.length === 0) {
+            return;
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema && (this.updateConstraintBound || this._shapeSpaceBoundaryEnforcer.hasNewEvent())) {
+            var upperBound = this._diffEventsVariation.span;
+            var lowerBound = this._diffEventsVariation.span - this._diffEventsVariation.rangeOfInfluence;
+            for (var i = lowerBound + 1; i < upperBound; i += 1) {
+                if (this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                    if (this.controlPointsFunctionBInit[i] < 0 && this._diffEventsVariation.extremumValue > 0
+                        && this._diffEventsVariation.extremumValueOpt < 0)
+                        this.revertCurvatureExtremaConstraints[i] = -1;
+                    if (this.controlPointsFunctionBInit[i] > 0 && this._diffEventsVariation.extremumValue < 0
+                        && this._diffEventsVariation.extremumValueOpt > 0)
+                        this.revertCurvatureExtremaConstraints[i] = -1;
+                }
+                else if (this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                    if (this.controlPointsFunctionBInit[i] < 0 && this._diffEventsVariation.extremumValue > 0
+                        && this._diffEventsVariation.extremumValueOpt < 0)
+                        this.revertCurvatureExtremaConstraints[i] = -1;
+                    if (this.controlPointsFunctionBInit[i] > 0 && this._diffEventsVariation.extremumValue < 0
+                        && this._diffEventsVariation.extremumValueOpt > 0) {
+                        if (this._diffEventsVariation.CPvariations[i] > 0) {
+                            this.revertCurvatureExtremaConstraints[i] = 1;
+                        }
+                        else {
+                            this.revertCurvatureExtremaConstraints[i] = -1;
+                        }
+                    }
+                }
+            }
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.start || this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                // if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.start) {
+                    this.revertCurvatureExtremaConstraints[0] = 1;
+                }
+                if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                    this.revertCurvatureExtremaConstraints[this._curvatureExtremaTotalNumberOfConstraints - 1] = 1;
+                }
+                if (this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
+                    /* to be added: the interval span to be processed */
+                    for (var i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i += 1) {
+                        this.revertCurvatureExtremaConstraints[i] = 1;
+                        if (this._diffEventsVariation.extremumValueOpt > 0.0 && this.controlPointsFunctionBInit[i] > 0.0) {
+                            if (this._diffEventsVariation.CPvariations[i] > 0.0) {
+                                this.revertCurvatureExtremaConstraints[i] = -1;
+                            }
+                            else {
+                                this.revertCurvatureExtremaConstraints[i] = -1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryAppear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection) {
+            if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.start || this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.end) {
+                // if(this.shapeSpaceBoundaryConstraintsInflections.length > 0) {
+                if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.start) {
+                    this.revertInflectionsConstraints[0] = 1;
+                }
+                if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.end) {
+                    this.revertInflectionsConstraints[this._inflectionTotalNumberOfConstraints - 1] = 1;
+                }
+                // if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
+                //     /* to be added: the interval span to be processed */
+                //     for(let i = 1; i < this._inflectionTotalNumberOfConstraints - 1; i+= 1){
+                //         this.revertInflectionsConstraints[i] = 1;
+                //         if(this._diffEventsVariation.extremumValueOpt > 0.0 && this.controlPointsFunctionBInit[i] > 0.0) {
+                //             if(this._diffEventsVariation.CPvariations[i] > 0.0) {
+                //                 this.revertInflectionsConstraints[i] = -1;
+                //             } else {
+                //                 this.revertInflectionsConstraints[i] = -1;
+                //             }
+                //         }
+                //     }
+                // }
+            }
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.updateConstraintBoundsWithinRangeOfLocalExtremum = function () {
+        if (this._diffEventsVariation.neighboringEvents.length === 0) {
+            return;
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema && (this.updateConstraintBound || this._shapeSpaceBoundaryEnforcer.hasNewEvent())) {
+            var upperBound = this._diffEventsVariation.span;
+            var lowerBound = this._diffEventsVariation.span - this._diffEventsVariation.rangeOfInfluence;
+            for (var i = lowerBound + 1; i < upperBound; i += 1) {
+                if (this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                    if (this.controlPointsFunctionBInit[i] > 0 && this._diffEventsVariation.extremumValue < 0
+                        && this._diffEventsVariation.extremumValueOpt > 0) {
+                        if (this._diffEventsVariation.CPvariations[i] > 0) {
+                            this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + (this._diffEventsVariation.CPvariations[i] * this._diffEventsVariation.extremumValue) / (this._diffEventsVariation.extremumValueOpt - this._diffEventsVariation.extremumValue);
+                        }
+                        else {
+                            this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + exports.CONSTRAINT_BOUND_THRESHOLD;
+                        }
+                    }
+                }
+            }
+            if (this._shapeSpaceBoundaryEnforcer.hasNewEvent()) {
+                this.curvatureExtremaConstraintBounds[0] = 0;
+                for (var i = 1; i < this._curvatureExtremaTotalNumberOfConstraints; i += 1) {
+                    if (this.curveAnalyzerCurrentCurve.curvatureDerivativeNumerator.controlPoints[i] > 0) {
+                        this.curvatureExtremaConstraintBounds[i] = this.curveAnalyzerCurrentCurve.curvatureDerivativeNumerator.controlPoints[i] - exports.CONSTRAINT_BOUND_THRESHOLD;
+                    }
+                    else {
+                        this.curvatureExtremaConstraintBounds[i] = 0;
+                    }
+                }
+            }
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema) {
+            if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.start || this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                // if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
+                if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.start) {
+                    // this.curvatureExtremaConstraintBounds[0] = this.controlPointsFunctionBInit[0] + CONSTRAINT_BOUND_THRESHOLD;
+                    this.curvatureExtremaConstraintBounds[0] = 0;
+                }
+                if (this._shapeSpaceBoundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                    this.curvatureExtremaConstraintBounds[this._curvatureExtremaTotalNumberOfConstraints - 1] = 0;
+                }
+                if (this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
+                    /* to be added: the interval span to be processed */
+                    for (var i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i += 1) {
+                        this.curvatureExtremaConstraintBounds[i] = 0;
+                        if (this._diffEventsVariation.extremumValueOpt > 0.0 && this.controlPointsFunctionBInit[i] > 0.0) {
+                            if (this._diffEventsVariation.CPvariations[i] > 0.0) {
+                                this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + this._diffEventsVariation.CPvariations[i];
+                            }
+                            else {
+                                this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + exports.CONSTRAINT_BOUND_THRESHOLD;
+                            }
+                        }
+                        else if (this._diffEventsVariation.extremumValueOpt < 0.0 && this.controlPointsFunctionBInit[i] < 0.0) {
+                            if (this._diffEventsVariation.CPvariations[i] < 0.0) {
+                                this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + this._diffEventsVariation.CPvariations[i];
+                            }
+                            else {
+                                this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + exports.CONSTRAINT_BOUND_THRESHOLD;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if ((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryAppear
+            || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryAppear)
+            && this.constraintType === AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection) {
+            if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.start || this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.end) {
+                // if(this.shapeSpaceBoundaryConstraintsInflections.length > 0) {
+                if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.start) {
+                    // this.curvatureExtremaConstraintBounds[0] = this.controlPointsFunctionBInit[0] + CONSTRAINT_BOUND_THRESHOLD;
+                    this.inflectionsConstraintsBounds[0] = 0;
+                }
+                if (this._shapeSpaceBoundaryEnforcer.inflectionEventAtExtremity.end) {
+                    this.inflectionsConstraintsBounds[this._inflectionTotalNumberOfConstraints - 1] = 0;
+                }
+                // if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
+                //     /* to be added: the interval span to be processed */
+                //     for(let i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i+= 1){
+                //         this.curvatureExtremaConstraintBounds[i] = 0;
+                //         if(this._diffEventsVariation.extremumValueOpt > 0.0 && this.controlPointsFunctionBInit[i] > 0.0) {
+                //             if(this._diffEventsVariation.CPvariations[i] > 0.0) {
+                //                 this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + this._diffEventsVariation.CPvariations[i];
+                //             } else {
+                //                 this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + CONSTRAINT_BOUND_THRESHOLD;
+                //             }
+                //         } else if(this._diffEventsVariation.extremumValueOpt < 0.0 && this.controlPointsFunctionBInit[i] < 0.0) {
+                //             if(this._diffEventsVariation.CPvariations[i] < 0.0) {
+                //                 this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + this._diffEventsVariation.CPvariations[i];
+                //             } else {
+                //                 this.curvatureExtremaConstraintBounds[i] = this.controlPointsFunctionBInit[i] + CONSTRAINT_BOUND_THRESHOLD;
+                //             }
+                //         }
+                //     }
+                // }
+            }
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.computeInactiveConstraints = function (controlPoints) {
+        this.checkConstraintTypeConsistency(controlPoints);
+        var inactiveConstraints = this.extractVerticesLocallyClosestToZero(controlPoints);
+        this.inactivateConstraintClosestToZero(controlPoints, inactiveConstraints);
+        this.inactivateConstraintsAtCurveEXtremities(controlPoints, inactiveConstraints);
+        this.inactivateConstraintsWithinRangeOfLocalExtremum(inactiveConstraints);
+        return inactiveConstraints;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.compute_curvatureExtremaConstraints = function (curvatureDerivativeNumerator, constraintsSign, inactiveConstraints) {
+        var result = [];
+        if (this._diffEventsVariation === undefined)
+            return result;
+        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push((curvatureDerivativeNumerator[i] - this.curvatureExtremaConstraintBounds[i]) * constraintsSign[i] * this.revertCurvatureExtremaConstraints[i]);
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.compute_inflectionConstraints = function (curvatureNumerator, constraintsSign, inactiveConstraints) {
+        var result = [];
+        if (this._diffEventsVariation === undefined)
+            return result;
+        for (var i = 0, j = 0, n = constraintsSign.length; i < n; i += 1) {
+            if (i === inactiveConstraints[j]) {
+                j += 1;
+            }
+            else {
+                result.push((curvatureNumerator[i] - this.inflectionsConstraintsBounds[i]) * constraintsSign[i] * this.revertInflectionsConstraints[i]);
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.compute_curvatureExtremaConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+        var sxu = e.bdsxu;
+        var sxuu = e.bdsxuu;
+        var sxuuu = e.bdsxuuu;
+        var syu = e.bdsyu;
+        var syuu = e.bdsyuu;
+        var syuuu = e.bdsyuuu;
+        var h1 = e.h1;
+        var h2 = e.h2;
+        var h3 = e.h3;
+        var h4 = e.h4;
+        var dgx = [];
+        var dgy = [];
+        var controlPointsLength = this.spline.controlPoints.length;
+        var totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints;
+        var degree = this.spline.degree;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h1_subset = h1.subset(start, lessThan);
+            var h2_subset = h2.subset(start, lessThan);
+            var h3_subset = h3.subset(start, lessThan);
+            var h4_subset = h4.subset(start, lessThan);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            var h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            var h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h1_subset = h1.subset(start, lessThan);
+            var h2_subset = h2.subset(start, lessThan);
+            var h3_subset = h3.subset(start, lessThan);
+            var h4_subset = h4.subset(start, lessThan);
+            var h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            var h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            var h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            var h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+        var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        if (this._diffEventsVariation === undefined)
+            return result;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            var start = Math.max(0, i - degree) * (4 * degree - 5);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5);
+            var deltaj = 0;
+            for (var i_3 = 0; i_3 < inactiveConstraints.length; i_3 += 1) {
+                if (inactiveConstraints[i_3] >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (var j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j] * this.revertCurvatureExtremaConstraints[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j] * this.revertCurvatureExtremaConstraints[j]);
+                }
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.compute_inflectionConstraints_gradient = function (e, constraintsSign, inactiveConstraints) {
+        var sxu = e.bdsxu;
+        var sxuu = e.bdsxuu;
+        var syu = e.bdsyu;
+        var syuu = e.bdsyuu;
+        var dgx = [];
+        var dgy = [];
+        var controlPointsLength = this.spline.controlPoints.length;
+        var degree = this.spline.degree;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            var h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h10.add(h11)));
+        }
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var start = Math.max(0, i - degree);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1);
+            var h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            var h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push(h10.add(h11));
+        }
+        var totalNumberOfConstraints = this.inflectionConstraintsSign.length;
+        var result = new DenseMatrix_1.DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength);
+        if (this._diffEventsVariation === undefined)
+            return result;
+        for (var i = 0; i < controlPointsLength; i += 1) {
+            var cpx = dgx[i].flattenControlPointsArray();
+            var cpy = dgy[i].flattenControlPointsArray();
+            var start = Math.max(0, i - degree) * (2 * degree - 2);
+            var lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2);
+            var deltaj = 0;
+            for (var i_4 = 0; i_4 < inactiveConstraints.length; i_4 += 1) {
+                if (inactiveConstraints[i_4] >= start) {
+                    break;
+                }
+                deltaj += 1;
+            }
+            for (var j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1;
+                }
+                else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j] * this.revertInflectionsConstraints[j]);
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j] * this.revertInflectionsConstraints[j]);
+                }
+            }
+        }
+        return result;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.compute_f = function (curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        var f = [];
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            var r1 = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // console.log(" compute_fGN: " + this.curvatureExtremaConstraintBounds + " modifSignConstraints: " + this.revertCurvatureExtremaConstraints + " r1: " + r1)
+            var r2 = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+            f = r1.concat(r2);
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            f = this.compute_curvatureExtremaConstraints(curvatureDerivativeNumerator, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // console.log(" compute_fGN: " + this.curvatureExtremaConstraintBounds + " modifSignConstraints: " + this.revertCurvatureExtremaConstraints + " f: " + f)
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+        return f;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.compute_gradient_f = function (e, inflectionConstraintsSign, inflectionInactiveConstraints, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints) {
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            var m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // console.log(" grad_fGN: " + curvatureExtremaConstraintsSign + " modifSignConstraints: " + this.revertCurvatureExtremaConstraints + " m1: " + m1)
+            var m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+            var _a = __read(m1.shape, 2), row_m1 = _a[0], n = _a[1];
+            var _b = __read(m2.shape, 1), row_m2 = _b[0];
+            var m = row_m1 + row_m2;
+            var result = new DenseMatrix_1.DenseMatrix(m, n);
+            for (var i = 0; i < row_m1; i += 1) {
+                for (var j = 0; j < n; j += 1) {
+                    result.set(i, j, m1.get(i, j));
+                }
+            }
+            for (var i = 0; i < row_m2; i += 1) {
+                for (var j = 0; j < n; j += 1) {
+                    result.set(row_m1 + i, j, m2.get(i, j));
+                }
+            }
+            return result;
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+        }
+        else if (this._shapeSpaceDiffEventsStructure.activeControlInflections) {
+            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints);
+        }
+        else {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
+            warning.logMessageToConsole();
+            var result = new DenseMatrix_1.DenseMatrix(1, 1);
+            return result;
+        }
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.step = function (deltaX) {
+        var e_11, _a, e_12, _b;
+        var checked = true;
+        var inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints;
+        var e = this.initExpansiveComputations();
+        var curvatureNumerator = [];
+        var curvatureDerivativeNumerator = [];
+        var curvatureDerivativeEXtrema = [];
+        var curvatureDerivativeEXtremaUpdated = [];
+        if (this._shapeSpaceBoundaryEnforcer.isActive()) {
+            this._inflectionInactiveConstraints = [];
+            this._curvatureExtremaInactiveConstraints = [];
+        }
+        // if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+        if (this.diffEventsVariation.neighboringEvents.length > 0) {
+            if (this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                var splineDP = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.spline);
+                var functionB = splineDP.curvatureDerivativeNumerator();
+                var curvatureExtremaLocations = functionB.zeros();
+                var functionBderivativeExtrema = functionB.derivative().zeros();
+                try {
+                    for (var functionBderivativeExtrema_1 = __values(functionBderivativeExtrema), functionBderivativeExtrema_1_1 = functionBderivativeExtrema_1.next(); !functionBderivativeExtrema_1_1.done; functionBderivativeExtrema_1_1 = functionBderivativeExtrema_1.next()) {
+                        var extLoc = functionBderivativeExtrema_1_1.value;
+                        curvatureDerivativeEXtrema.push(functionB.evaluate(extLoc));
+                    }
+                }
+                catch (e_11_1) { e_11 = { error: e_11_1 }; }
+                finally {
+                    try {
+                        if (functionBderivativeExtrema_1_1 && !functionBderivativeExtrema_1_1.done && (_a = functionBderivativeExtrema_1.return)) _a.call(functionBderivativeExtrema_1);
+                    }
+                    finally { if (e_11) throw e_11.error; }
+                }
+                var splineCurrent = this.spline.clone();
+                this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+                var splineDPupdated = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.spline);
+                var functionBupdated = splineDPupdated.curvatureDerivativeNumerator();
+                var curvatureExtremaLocationsUpdated = functionBupdated.zeros();
+                var functionBderivativeExtremaUpdated = functionBupdated.derivative().zeros();
+                try {
+                    for (var functionBderivativeExtremaUpdated_1 = __values(functionBderivativeExtremaUpdated), functionBderivativeExtremaUpdated_1_1 = functionBderivativeExtremaUpdated_1.next(); !functionBderivativeExtremaUpdated_1_1.done; functionBderivativeExtremaUpdated_1_1 = functionBderivativeExtremaUpdated_1.next()) {
+                        var extLoc = functionBderivativeExtremaUpdated_1_1.value;
+                        curvatureDerivativeEXtremaUpdated.push(functionBupdated.evaluate(extLoc));
+                    }
+                }
+                catch (e_12_1) { e_12 = { error: e_12_1 }; }
+                finally {
+                    try {
+                        if (functionBderivativeExtremaUpdated_1_1 && !functionBderivativeExtremaUpdated_1_1.done && (_b = functionBderivativeExtremaUpdated_1.return)) _b.call(functionBderivativeExtremaUpdated_1);
+                    }
+                    finally { if (e_12) throw e_12.error; }
+                }
+                if (curvatureExtremaLocationsUpdated.length !== curvatureExtremaLocations.length) {
+                    checked = false;
+                    // this.spline = splineCurrent
+                    console.log("extrema current: " + curvatureExtremaLocations + " extrema updated: " + curvatureExtremaLocationsUpdated);
+                    this._iteratedCurves.pop();
+                    return checked;
+                }
+                else {
+                    this._iteratedCurves.push(this.spline);
+                }
+            }
+            else {
+                this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+            }
+        }
+        else {
+            this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+            this._iteratedCurves.push(this.spline);
+        }
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            curvatureNumerator = this.curvatureNumerator(e.h4);
+            this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            // this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(curvatureNumerator)
+            if (!this._shapeSpaceBoundaryEnforcer.isActive())
+                this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
+            // if(this.updateConstraintBound) {
+            //     this.clearInequalityChanges();
+            //     this.clearConstraintBoundsUpdate();
+            //     this.revertInequalitiesWithinRangeOfLocalExtremum();
+            //     this.updateConstraintBoundsWithinRangeOfLocalExtremum();
+            // }
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(g)
+            if (!this._shapeSpaceBoundaryEnforcer.isActive())
+                this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        if (this.updateConstraintBound) {
+            this.clearInequalityChanges();
+            this.clearConstraintBoundsUpdate();
+            this.revertInequalitiesWithinRangeOfLocalExtremum();
+            this.updateConstraintBoundsWithinRangeOfLocalExtremum();
+        }
+        //console.log("step : inactive cst start: " + inactiveCurvatureConstraintsAtStart + " updated " + this.curvatureExtremaInactiveConstraints + " infl " + this.inflectionInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
+        console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " revert " + this.revertCurvatureExtremaConstraints
+            + " cst sgn " + this.curvatureExtremaConstraintsSign + " bound " + this.curvatureExtremaConstraintBounds
+            + " update status " + this.updateConstraintBound + " extB " + curvatureDerivativeEXtrema + " extBUpdt " + curvatureDerivativeEXtremaUpdated);
+        this.updateConstraintBound = false;
+        this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, curvatureDerivativeNumerator, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        if (this.isComputingHessian) {
+            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu, e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        }
+        return checked;
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.update = function (spline) {
+        var e = this.initExpansiveComputations();
+        this._spline = spline.clone();
+        this.computeBasisFunctionsDerivatives();
+        this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
+        this._gradient_f0 = this.compute_gradient_f0(this._spline);
+        this._f0 = this.compute_f0(this._gradient_f0);
+        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._inflectionInactiveConstraints = [];
+        this._curvatureExtremaInactiveConstraints = [];
+        this.curveAnalyzerCurrentCurve = this._diffEventsVariation.curveAnalyser1;
+        this.curveAnalyzerOptimizedCurve = this._diffEventsVariation.curveAnalyser2;
+        if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            e = this.expensiveComputation(this._spline);
+            this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
+            this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.inflection;
+            if (!this._shapeSpaceBoundaryEnforcer.hasNewEvent())
+                this._inflectionInactiveConstraints = this.computeInactiveConstraints(this._curvatureNumeratorCP);
+            this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
+        }
+        if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
+            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
+            this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
+            this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
+            if (!this._shapeSpaceBoundaryEnforcer.hasNewEvent())
+                this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this._curvatureDerivativeNumeratorCP);
+            this.curvatureExtremaNumberOfActiveConstraints = this._curvatureDerivativeNumeratorCP.length - this.curvatureExtremaInactiveConstraints.length;
+        }
+        this.controlPointsFunctionBInit = this._curvatureDerivativeNumeratorCP;
+        // if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("B(u) control points at init:" + this.currentCurvatureExtremaControPoints)
+        this.curvatureExtremaConstraintBounds = MathVectorBasicOperations_1.zeroVector(this._curvatureDerivativeNumeratorCP.length);
+        for (var i = 0; i < this._curvatureDerivativeNumeratorCP.length; i += 1) {
+            this.revertCurvatureExtremaConstraints[i] = 1;
+        }
+        this.clearInequalityChanges();
+        this.clearConstraintBoundsUpdate();
+        this.revertInequalitiesWithinRangeOfLocalExtremum();
+        this.updateConstraintBoundsWithinRangeOfLocalExtremum();
+        console.log("optim curv ext inactive constraints: " + this.curvatureExtremaInactiveConstraints);
+        console.log("optim inflection inactive constraints: " + this.inflectionInactiveConstraints);
+        this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this.checkConstraintConsistency();
+        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+    };
+    OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.cancelEvent = function () {
+        /* JCL attention clearVariation n'est pas strictement equivalent aux operations ci-dessus*/
+        this._diffEventsVariation.clearVariation();
+        // this._diffEventsVariation.neighboringEvents = [];
+        //const e = this.expensiveComputation(this.spline)  
+        //const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
+        this.curvatureExtremaConstraintBounds = MathVectorBasicOperations_1.zeroVector(this.curvatureExtremaConstraintBounds.length);
+        for (var i = 0; i < this.revertCurvatureExtremaConstraints.length; i += 1) {
+            this.revertCurvatureExtremaConstraints[i] = 1;
+        }
+        var delta = MathVectorBasicOperations_1.zeroVector(this.spline.controlPoints.length * 2);
+        this.step(delta);
+        this.checkConstraintConsistency();
+    };
+    return OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace;
+}(OptProblemOPenBSplineR1toR2WithWeigthingFactors));
+exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace;
 
 
 /***/ }),
@@ -45278,6 +47548,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
             else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+                this.curveShapeSpaceNavigator.eventMgmtAtExtremities.clearEvents();
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
                 if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
                     console.log("Constraints not satisfied - must change interaction Strategy");
@@ -45310,17 +47581,20 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", "events can slip out");
         message.logMessageToConsole();
         if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
-            this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
             this.eventsStayInsideInterval = false;
+            this.curveShapeSpaceNavigator.setManagementDiffEventsAtExtremities(ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive);
+            this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
         }
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
         message.logMessageToConsole();
-        if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+        if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive) {
             var message_1 = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
             message_1.logMessageToConsole();
             this.eventsStayInsideInterval = true;
+            this.curveShapeSpaceNavigator.setManagementDiffEventsAtExtremities(ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active);
+            this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
         }
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve;
@@ -45330,18 +47604,16 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
     __extends(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval, _super);
     function CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval(curveSceneController) {
         var _this = _super.call(this, curveSceneController) || this;
+        _this.curvatureExtSplippingOut = [];
+        _this.inflectionsSplippingOut = [];
         _this.selectedControlPoint = _this._curveSceneController.selectedControlPoint;
         _this.eventMgmtAtExtremities = _this.curveShapeSpaceNavigator.eventMgmtAtExtremities;
         _this.curveModel = _this.shapeNavigableCurve.curveCategory.curveModel;
-        _this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = _this.curveModel.spline;
-        _this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = _this.curveModel.spline;
-        _this.lastValidCurve = _this.curveModel.spline.clone();
-        _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve.clone());
-        _this._curveSceneController.selectedSlipOutCurvatureExtremaView.updatePoints(_this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsCurvExtrema);
-        // this._curveSceneController.selectedSlipOutCurvatureExtremaView.update(this.lastValidCurve);
-        _this._curveSceneController.selectedSlipOutInflectionsView.updatePoints(_this.curveShapeSpaceNavigator.eventMgmtAtExtremities.locationsInflections);
+        _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone());
+        _this.convertNeighboringEventsIntoDiffEventsToDisplay();
+        _this.curveModel.notifyObservers();
+        _this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         return _this;
-        // this._curveSceneController.selectedSlipOutInflectionsView.update(this.lastValidCurve);
     }
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
@@ -45362,6 +47634,9 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
             else {
                 this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
                 this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+                this.clearListsOfDiffEvents();
+                this.updateDiffEventsToDisplay();
+                this.eventMgmtAtExtremities.clearEvents();
                 this.curveShapeSpaceNavigator.navigationCurveModel.navigateSpace(this.selectedControlPoint, x, y);
                 if (this.shapeNavigableCurve.curveConstraints.curveConstraintStrategy.constraintsNotSatisfied) {
                     console.log("Constraints not satisfied - must change interaction Strategy");
@@ -45370,7 +47645,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
                 else if (this.eventsStayInsideInterval) {
                     this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                     this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
-                    this.curveShapeSpaceNavigator.eventMgmtAtExtremities.eventOutOfInterval = false;
+                    this.eventMgmtAtExtremities.eventOutOfInterval = false;
                     this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
                 }
             }
@@ -45400,6 +47675,19 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
         message.logMessageToConsole();
         this.eventsStayInsideInterval = true;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.clearListsOfDiffEvents = function () {
+        this.curvatureExtSplippingOut = [];
+        this.inflectionsSplippingOut = [];
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.updateDiffEventsToDisplay = function () {
+        this._curveSceneController.selectedSlipOutCurvatureExtremaView.updatePoints(this.curvatureExtSplippingOut);
+        this._curveSceneController.selectedSlipOutInflectionsView.updatePoints(this.inflectionsSplippingOut);
+    };
+    CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.convertNeighboringEventsIntoDiffEventsToDisplay = function () {
+        this.curvatureExtSplippingOut = this.eventMgmtAtExtremities.locationsCurvExtrema;
+        this.inflectionsSplippingOut = this.eventMgmtAtExtremities.locationsInflections;
+        this.updateDiffEventsToDisplay();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval;
 }(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve));
@@ -45635,13 +47923,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
         _this.curveModel.setSpline(_this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone());
         _this.convertNeighboringEventsIntoDiffEventsToDisplay();
         _this.curveModel.notifyObservers();
-        if (_this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
-            _this._curveSceneController.selectedEnteringCurvatureExtremaView.update(_this.adjacentShapeSpaceCurve);
-            _this._curveSceneController.selectedSlipOutCurvatureExtremaView.update(_this.adjacentShapeSpaceCurve);
-            _this._curveSceneController.selectedEnteringInflectionsView.update(_this.adjacentShapeSpaceCurve);
-            _this._curveSceneController.selectedSlipOutInflectionsView.update(_this.adjacentShapeSpaceCurve);
-            _this.updateDiffEventsToDisplay();
-        }
+        _this.updateDiffEventsEnteringOnCurveAdjacentToShapeSpace();
         _this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         _this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
         return _this;
@@ -45669,14 +47951,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
                 if (this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.isActive()) {
-                    if (this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
-                        this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve;
-                        this._curveSceneController.highlightedControlPolygonView.update(this.adjacentShapeSpaceCurve);
-                        this._curveSceneController.phantomCurveView.update(this.adjacentShapeSpaceCurve);
-                    }
-                    else {
-                        this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
-                    }
+                    this.updateCurveAdjacentToShapeSpace();
                     this.convertNeighboringEventsIntoDiffEventsToDisplay();
                     this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
                 }
@@ -45691,13 +47966,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
                 }
             }
             this.curveModel.notifyObservers();
-            if (this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
-                this._curveSceneController.selectedEnteringCurvatureExtremaView.update(this.adjacentShapeSpaceCurve);
-                this._curveSceneController.selectedSlipOutCurvatureExtremaView.update(this.adjacentShapeSpaceCurve);
-                this._curveSceneController.selectedEnteringInflectionsView.update(this.adjacentShapeSpaceCurve);
-                this._curveSceneController.selectedSlipOutInflectionsView.update(this.adjacentShapeSpaceCurve);
-                this.updateDiffEventsToDisplay();
-            }
+            this.updateDiffEventsEnteringOnCurveAdjacentToShapeSpace();
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         }
     };
@@ -45792,6 +48061,23 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
         }
         this.updateDiffEventsToDisplay();
     };
+    CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary.prototype.updateCurveAdjacentToShapeSpace = function () {
+        if (this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+            this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve;
+            this._curveSceneController.highlightedControlPolygonView.update(this.adjacentShapeSpaceCurve);
+            this._curveSceneController.phantomCurveView.update(this.adjacentShapeSpaceCurve);
+        }
+        else {
+            this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        }
+    };
+    CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary.prototype.updateDiffEventsEnteringOnCurveAdjacentToShapeSpace = function () {
+        if (this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+            this._curveSceneController.selectedEnteringCurvatureExtremaView.update(this.adjacentShapeSpaceCurve);
+            this._curveSceneController.selectedEnteringInflectionsView.update(this.adjacentShapeSpaceCurve);
+            this.updateDiffEventsToDisplay();
+        }
+    };
     return CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary;
 }(CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve));
 exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary = CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary;
@@ -45848,6 +48134,7 @@ var SlidingStrategy_1 = __webpack_require__(/*! ./SlidingStrategy */ "./src/cont
 var OpPeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OpPeriodicBSplineR1toR2 */ "./src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts");
 var EventStateAtCurveExtremity_1 = __webpack_require__(/*! ../shapeNavigableCurve/EventStateAtCurveExtremity */ "./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts");
 var NavigationState_1 = __webpack_require__(/*! ../curveShapeSpaceNavigation/NavigationState */ "./src/curveShapeSpaceNavigation/NavigationState.ts");
+var OptProblemOpenBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2 */ "./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts");
 var CurveShapeMonitoringStrategy = /** @class */ (function () {
     function CurveShapeMonitoringStrategy(navigationCurveModel) {
         this.navigationCurveModel = navigationCurveModel;
@@ -46098,20 +48385,29 @@ var OCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
             error.logMessageToConsole();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            if (_this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            }
+            else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            }
         }
         else if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace) {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure, _this.openCShapeSpaceNavigator);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure, _this.openCShapeSpaceNavigator);
         }
         else {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         }
-        /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
+    // newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
     OCurveShapeMonitoringStrategyWithInflexionsSliding.prototype.newOptimizer = function (optimizationProblem) {
         optimizationProblem.setWeightingFactor();
         // this.setWeightingFactor(optimizationProblem);
@@ -46120,13 +48416,22 @@ var OCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
     OCurveShapeMonitoringStrategyWithInflexionsSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
         if (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if (this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
+            else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         }
         else if (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, this.openCShapeSpaceNavigator);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, this.openCShapeSpaceNavigator);
         }
         else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -46150,19 +48455,29 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
             error.logMessageToConsole();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            if (_this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            }
+            else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            }
         }
         else if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace) {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure, _this.openCShapeSpaceNavigator);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);            
+            _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure, _this.openCShapeSpaceNavigator);
         }
         else {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         }
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
+    // newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
     OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding.prototype.newOptimizer = function (optimizationProblem) {
         optimizationProblem.setWeightingFactor();
         // this.setWeightingFactor(optimizationProblem)
@@ -46171,13 +48486,22 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
     OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
         if (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if (this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
+            else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         }
         else if (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, this.openCShapeSpaceNavigator);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, this.openCShapeSpaceNavigator);
         }
         else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -46201,19 +48525,29 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
             error.logMessageToConsole();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            if (_this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            }
+            else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            }
         }
         else if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace) {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure, _this.openCShapeSpaceNavigator);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure, _this.openCShapeSpaceNavigator);
         }
         else {
-            _this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
         }
         _this._optimizer = _this.newOptimizer(_this._optimizationProblem);
         _this.setEventManagementAtCurveExtremityState();
         _this.lastDiffEvent = SlidingStrategy_1.NeighboringEventsType.none;
         return _this;
     }
+    // newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
     OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding.prototype.newOptimizer = function (optimizationProblem) {
         optimizationProblem.setWeightingFactor();
         // this.setWeightingFactor(optimizationProblem)
@@ -46222,13 +48556,22 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
     OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding.prototype.resetCurve = function (curve) {
         this.currentCurve = curve;
         if (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if (this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
+            else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         }
         else if (this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, this.openCShapeSpaceNavigator);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, this.openCShapeSpaceNavigator);
         }
         else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2_1.OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem);
     };
@@ -48835,6 +51178,19 @@ exports.OpenCurveDifferentialEventsExtractorWithoutSequence = OpenCurveDifferent
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -48847,7 +51203,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BoudaryEnforcer = exports.EventsAtCurveExtremities = void 0;
+exports.BoundaryEnforcerStrictShapeSpacesClosedCurve = exports.BoundaryEnforcerNoShapeSpaceClosedCurve = exports.BoundaryEnforcerStrictShapeSpacesOpenCurve = exports.BoundaryEnforcerNestedShapeSpacesOpenCurve = exports.BoundaryEnforcerNoShapeSpaceOpenCurve = exports.AbstractBoundaryEnforcer = exports.EventsAtCurveExtremities = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
 var EventsAtCurveExtremities = /** @class */ (function () {
@@ -48878,78 +51234,115 @@ var EventsAtCurveExtremities = /** @class */ (function () {
     return EventsAtCurveExtremities;
 }());
 exports.EventsAtCurveExtremities = EventsAtCurveExtremities;
-var BoudaryEnforcer = /** @class */ (function () {
-    function BoudaryEnforcer() {
-        this._status = false;
+var AbstractBoundaryEnforcer = /** @class */ (function () {
+    function AbstractBoundaryEnforcer() {
+        this.status = false;
         this._neighboringEvents = [];
-        this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
-        this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
-        this._curvatureDerivativeCPOpt = [];
-        this._newEvent = false;
     }
-    Object.defineProperty(BoudaryEnforcer.prototype, "neighboringEvents", {
+    Object.defineProperty(AbstractBoundaryEnforcer.prototype, "neighboringEvents", {
         get: function () {
             return this._neighboringEvents;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(BoudaryEnforcer.prototype, "curvExtremumEventAtExtremity", {
+    return AbstractBoundaryEnforcer;
+}());
+exports.AbstractBoundaryEnforcer = AbstractBoundaryEnforcer;
+var BoundaryEnforcerNoShapeSpaceOpenCurve = /** @class */ (function (_super) {
+    __extends(BoundaryEnforcerNoShapeSpaceOpenCurve, _super);
+    function BoundaryEnforcerNoShapeSpaceOpenCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
+        _this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
+        return _this;
+    }
+    Object.defineProperty(BoundaryEnforcerNoShapeSpaceOpenCurve.prototype, "curvExtremumEventAtExtremity", {
         get: function () {
             return this._curvExtremumEventAtExtremity;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(BoudaryEnforcer.prototype, "inflectionEventAtExtremity", {
+    Object.defineProperty(BoundaryEnforcerNoShapeSpaceOpenCurve.prototype, "inflectionEventAtExtremity", {
         get: function () {
             return this._inflectionEventAtExtremity;
         },
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(BoudaryEnforcer.prototype, "curvatureDerivativeCPOpt", {
-        get: function () {
-            return this._curvatureDerivativeCPOpt;
-        },
-        set: function (curvatureDerivativeCPOpt) {
-            this._curvatureDerivativeCPOpt = curvatureDerivativeCPOpt.slice();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    BoudaryEnforcer.prototype.activate = function () {
-        this._status = true;
+    BoundaryEnforcerNoShapeSpaceOpenCurve.prototype.isActive = function () {
+        return false;
     };
-    BoudaryEnforcer.prototype.deactivate = function () {
-        this._status = false;
+    BoundaryEnforcerNoShapeSpaceOpenCurve.prototype.deactivate = function () {
+        return;
     };
-    BoudaryEnforcer.prototype.isActive = function () {
-        if (this._status) {
+    BoundaryEnforcerNoShapeSpaceOpenCurve.prototype.reset = function () {
+        return;
+    };
+    BoundaryEnforcerNoShapeSpaceOpenCurve.prototype.addTransitionOfEvents = function (neighborinhEvents) {
+        return;
+    };
+    BoundaryEnforcerNoShapeSpaceOpenCurve.prototype.hasNewEvent = function () {
+        return false;
+    };
+    return BoundaryEnforcerNoShapeSpaceOpenCurve;
+}(AbstractBoundaryEnforcer));
+exports.BoundaryEnforcerNoShapeSpaceOpenCurve = BoundaryEnforcerNoShapeSpaceOpenCurve;
+var BoundaryEnforcerNestedShapeSpacesOpenCurve = /** @class */ (function (_super) {
+    __extends(BoundaryEnforcerNestedShapeSpacesOpenCurve, _super);
+    function BoundaryEnforcerNestedShapeSpacesOpenCurve() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.activate = function () {
+        this.status = true;
+    };
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.deactivate = function () {
+        this.status = false;
+    };
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.isActive = function () {
+        if (this.status) {
             return true;
         }
         else {
             return false;
         }
     };
-    BoudaryEnforcer.prototype.newEventExist = function () {
-        this._newEvent = true;
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.isTransitionAtExtremity = function () {
+        var isTransition = false;
+        if (this.isCurvatureExtTransitionAtExtremity() || this.isInflectionTransitionAtExtremity()
+            || this.isMixedTransitionAtExtremity())
+            isTransition = true;
+        return isTransition;
     };
-    BoudaryEnforcer.prototype.removeNewEvent = function () {
-        this._newEvent = false;
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.isCurvatureExtTransitionAtExtremity = function () {
+        var isTransition = false;
+        if ((this._curvExtremumEventAtExtremity.start || this._curvExtremumEventAtExtremity.end)
+            && !(this._inflectionEventAtExtremity.start || this._inflectionEventAtExtremity.end))
+            isTransition = true;
+        return isTransition;
     };
-    BoudaryEnforcer.prototype.hasNewEvent = function () {
-        if (this._newEvent) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.isInflectionTransitionAtExtremity = function () {
+        var isTransition = false;
+        if (!(this._curvExtremumEventAtExtremity.start || this._curvExtremumEventAtExtremity.end)
+            && (this._inflectionEventAtExtremity.start || this._inflectionEventAtExtremity.end))
+            isTransition = true;
+        return isTransition;
     };
-    BoudaryEnforcer.prototype.addTransitionOfEvents = function (neighborinhEvents) {
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.isMixedTransitionAtExtremity = function () {
+        var isTransition = false;
+        if (this._curvExtremumEventAtExtremity.start && this._inflectionEventAtExtremity.end
+            && !this._curvExtremumEventAtExtremity.end && !this._inflectionEventAtExtremity.start)
+            isTransition = true;
+        if (this._curvExtremumEventAtExtremity.end && this._inflectionEventAtExtremity.start
+            && !this._curvExtremumEventAtExtremity.start && !this._inflectionEventAtExtremity.end)
+            isTransition = true;
+        return isTransition;
+    };
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.addTransitionOfEvents = function (neighborinhEvents) {
         this._neighboringEvents = neighborinhEvents.slice();
     };
-    BoudaryEnforcer.prototype.hasTransitionsOfEvents = function () {
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.hasTransitionsOfEvents = function () {
         var e_1, _a;
         if (this._neighboringEvents.length > 0) {
             var validList = true;
@@ -48980,52 +51373,181 @@ var BoudaryEnforcer = /** @class */ (function () {
             return false;
         }
     };
-    BoudaryEnforcer.prototype.resetNeighboringEvents = function () {
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.resetNeighboringEvents = function () {
         this._neighboringEvents = [];
     };
-    BoudaryEnforcer.prototype.resetEventsAtExtremities = function () {
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.resetEventsAtExtremities = function () {
         this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
         this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
     };
-    BoudaryEnforcer.prototype.reset = function () {
+    BoundaryEnforcerNestedShapeSpacesOpenCurve.prototype.reset = function () {
         this.resetNeighboringEvents();
         this.resetEventsAtExtremities();
-        this._status = false;
+        this.status = false;
     };
-    BoudaryEnforcer.prototype.isTransitionAtExtremity = function () {
-        var isTransition = false;
-        if (this.isCurvatureExtTransitionAtExtremity() || this.isInflectionTransitionAtExtremity()
-            || this.isMixedTransitionAtExtremity())
-            isTransition = true;
-        return isTransition;
+    return BoundaryEnforcerNestedShapeSpacesOpenCurve;
+}(BoundaryEnforcerNoShapeSpaceOpenCurve));
+exports.BoundaryEnforcerNestedShapeSpacesOpenCurve = BoundaryEnforcerNestedShapeSpacesOpenCurve;
+var BoundaryEnforcerStrictShapeSpacesOpenCurve = /** @class */ (function (_super) {
+    __extends(BoundaryEnforcerStrictShapeSpacesOpenCurve, _super);
+    function BoundaryEnforcerStrictShapeSpacesOpenCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvatureDerivativeCPOpt = [];
+        _this._newEvent = false;
+        return _this;
+    }
+    Object.defineProperty(BoundaryEnforcerStrictShapeSpacesOpenCurve.prototype, "curvatureDerivativeCPOpt", {
+        get: function () {
+            return this._curvatureDerivativeCPOpt;
+        },
+        set: function (curvatureDerivativeCPOpt) {
+            this._curvatureDerivativeCPOpt = curvatureDerivativeCPOpt.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BoundaryEnforcerStrictShapeSpacesOpenCurve.prototype.newEventExist = function () {
+        this._newEvent = true;
     };
-    BoudaryEnforcer.prototype.isCurvatureExtTransitionAtExtremity = function () {
-        var isTransition = false;
-        if ((this._curvExtremumEventAtExtremity.start || this._curvExtremumEventAtExtremity.end)
-            && !(this._inflectionEventAtExtremity.start || this._inflectionEventAtExtremity.end))
-            isTransition = true;
-        return isTransition;
+    BoundaryEnforcerStrictShapeSpacesOpenCurve.prototype.removeNewEvent = function () {
+        this._newEvent = false;
     };
-    BoudaryEnforcer.prototype.isInflectionTransitionAtExtremity = function () {
-        var isTransition = false;
-        if (!(this._curvExtremumEventAtExtremity.start || this._curvExtremumEventAtExtremity.end)
-            && (this._inflectionEventAtExtremity.start || this._inflectionEventAtExtremity.end))
-            isTransition = true;
-        return isTransition;
+    BoundaryEnforcerStrictShapeSpacesOpenCurve.prototype.hasNewEvent = function () {
+        if (this._newEvent) {
+            return true;
+        }
+        else {
+            return false;
+        }
     };
-    BoudaryEnforcer.prototype.isMixedTransitionAtExtremity = function () {
-        var isTransition = false;
-        if (this._curvExtremumEventAtExtremity.start && this._inflectionEventAtExtremity.end
-            && !this._curvExtremumEventAtExtremity.end && !this._inflectionEventAtExtremity.start)
-            isTransition = true;
-        if (this._curvExtremumEventAtExtremity.end && this._inflectionEventAtExtremity.start
-            && !this._curvExtremumEventAtExtremity.start && !this._inflectionEventAtExtremity.end)
-            isTransition = true;
-        return isTransition;
+    return BoundaryEnforcerStrictShapeSpacesOpenCurve;
+}(BoundaryEnforcerNestedShapeSpacesOpenCurve));
+exports.BoundaryEnforcerStrictShapeSpacesOpenCurve = BoundaryEnforcerStrictShapeSpacesOpenCurve;
+var BoundaryEnforcerNoShapeSpaceClosedCurve = /** @class */ (function (_super) {
+    __extends(BoundaryEnforcerNoShapeSpaceClosedCurve, _super);
+    function BoundaryEnforcerNoShapeSpaceClosedCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
+        _this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
+        return _this;
+    }
+    Object.defineProperty(BoundaryEnforcerNoShapeSpaceClosedCurve.prototype, "curvExtremumEventAtExtremity", {
+        get: function () {
+            return this._curvExtremumEventAtExtremity;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(BoundaryEnforcerNoShapeSpaceClosedCurve.prototype, "inflectionEventAtExtremity", {
+        get: function () {
+            return this._inflectionEventAtExtremity;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BoundaryEnforcerNoShapeSpaceClosedCurve.prototype.isActive = function () {
+        return false;
     };
-    return BoudaryEnforcer;
-}());
-exports.BoudaryEnforcer = BoudaryEnforcer;
+    BoundaryEnforcerNoShapeSpaceClosedCurve.prototype.deactivate = function () {
+        return;
+    };
+    BoundaryEnforcerNoShapeSpaceClosedCurve.prototype.reset = function () {
+        return;
+    };
+    BoundaryEnforcerNoShapeSpaceClosedCurve.prototype.addTransitionOfEvents = function (neighborinhEvents) {
+        return;
+    };
+    BoundaryEnforcerNoShapeSpaceClosedCurve.prototype.hasNewEvent = function () {
+        return false;
+    };
+    return BoundaryEnforcerNoShapeSpaceClosedCurve;
+}(AbstractBoundaryEnforcer));
+exports.BoundaryEnforcerNoShapeSpaceClosedCurve = BoundaryEnforcerNoShapeSpaceClosedCurve;
+var BoundaryEnforcerStrictShapeSpacesClosedCurve = /** @class */ (function (_super) {
+    __extends(BoundaryEnforcerStrictShapeSpacesClosedCurve, _super);
+    function BoundaryEnforcerStrictShapeSpacesClosedCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvatureDerivativeCPOpt = [];
+        _this._newEvent = false;
+        return _this;
+    }
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.activate = function () {
+        this.status = true;
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.deactivate = function () {
+        this.status = false;
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.isActive = function () {
+        if (this.status) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.addTransitionOfEvents = function (neighborinhEvents) {
+        this._neighboringEvents = neighborinhEvents.slice();
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.hasTransitionsOfEvents = function () {
+        var e_2, _a;
+        if (this._neighboringEvents.length > 0) {
+            var validList = true;
+            try {
+                for (var _b = __values(this._neighboringEvents), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var neighboringEvent = _c.value;
+                    if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.none)
+                        validList = false;
+                }
+            }
+            catch (e_2_1) { e_2 = { error: e_2_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_2) throw e_2.error; }
+            }
+            if (validList) {
+                return true;
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "hasTransitionsOfEvents", "The list of current differential events is inconsistent");
+                error.logMessageToConsole();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.resetNeighboringEvents = function () {
+        this._neighboringEvents = [];
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.resetEventsAtExtremities = function () {
+        this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
+        this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.reset = function () {
+        this.resetNeighboringEvents();
+        this.resetEventsAtExtremities();
+        this.status = false;
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.newEventExist = function () {
+        this._newEvent = true;
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.removeNewEvent = function () {
+        this._newEvent = false;
+    };
+    BoundaryEnforcerStrictShapeSpacesClosedCurve.prototype.hasNewEvent = function () {
+        if (this._newEvent) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    return BoundaryEnforcerStrictShapeSpacesClosedCurve;
+}(BoundaryEnforcerNoShapeSpaceClosedCurve));
+exports.BoundaryEnforcerStrictShapeSpacesClosedCurve = BoundaryEnforcerStrictShapeSpacesClosedCurve;
 
 
 /***/ }),
@@ -50280,6 +52802,9 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     CurveShapeSpaceNavigator.prototype.setSlidingDifferentialEvents = function (slidingDifferentialEvents) {
         this._shapeSpaceDiffEventsStructure.slidingDifferentialEvents = slidingDifferentialEvents;
     };
+    CurveShapeSpaceNavigator.prototype.setManagementDiffEventsAtExtremities = function (eventManagementStateAtExtremity) {
+        this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities = eventManagementStateAtExtremity;
+    };
     CurveShapeSpaceNavigator.prototype.transitionTo = function (curveControlState) {
         this._curveControlState = curveControlState;
     };
@@ -50939,10 +53464,12 @@ var BoundaryEnforcer_1 = __webpack_require__(/*! ./BoundaryEnforcer */ "./src/cu
 var SequenceOfDifferentialEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents */ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts");
 var OpenCurveDifferentialEventsExtractor_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor */ "./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts");
 var DifferentialEventVariation_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/DifferentialEventVariation */ "./src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts");
+var OptProblemOpenBSplineR1toR2_1 = __webpack_require__(/*! ../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2 */ "./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts");
+var ShapeSpaceDiffEventsStructure_1 = __webpack_require__(/*! ./ShapeSpaceDiffEventsStructure */ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts");
 var NavigationState = /** @class */ (function () {
     function NavigationState() {
         this._navigationStateChange = true;
-        this._boundaryEnforcer = new BoundaryEnforcer_1.BoudaryEnforcer();
+        // this._boundaryEnforcer = new BoundaryEnforcerStrictShapeSpacesOpenCurve();
         this._currentNeighboringEvents = [];
         this._transitionEvents = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
     }
@@ -50952,16 +53479,6 @@ var NavigationState = /** @class */ (function () {
         },
         set: function (navigationStateChange) {
             this._navigationStateChange = navigationStateChange;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(NavigationState.prototype, "boundaryEnforcer", {
-        get: function () {
-            return this._boundaryEnforcer;
-        },
-        set: function (boundaryEnforcer) {
-            this._boundaryEnforcer = boundaryEnforcer;
         },
         enumerable: false,
         configurable: true
@@ -51044,6 +53561,7 @@ var OCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
         var curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        _this._boundaryEnforcer = new BoundaryEnforcer_1.BoundaryEnforcerNoShapeSpaceOpenCurve();
         if (curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces
             || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
             curveShapeSpaceNavigator.navigationState = _this;
@@ -51068,6 +53586,16 @@ var OCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
     Object.defineProperty(OCurveNavigationWithoutShapeSpaceMonitoring.prototype, "curveAnalyserOptimizedCurve", {
         get: function () {
             return this._curveAnalyserOptimizedCurve;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OCurveNavigationWithoutShapeSpaceMonitoring.prototype, "boundaryEnforcer", {
+        get: function () {
+            return this._boundaryEnforcer;
+        },
+        set: function (boundaryEnforcer) {
+            this._boundaryEnforcer = boundaryEnforcer;
         },
         enumerable: false,
         configurable: true
@@ -51106,6 +53634,7 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
         _this.curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        _this._boundaryEnforcer = new BoundaryEnforcer_1.BoundaryEnforcerNestedShapeSpacesOpenCurve();
         if (_this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || _this.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             _this.curveShapeSpaceNavigator.navigationState = _this;
@@ -51135,6 +53664,16 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(OCurveNavigationThroughSimplerShapeSpaces.prototype, "boundaryEnforcer", {
+        get: function () {
+            return this._boundaryEnforcer;
+        },
+        set: function (boundaryEnforcer) {
+            this._boundaryEnforcer = boundaryEnforcer;
+        },
+        enumerable: false,
+        configurable: true
+    });
     OCurveNavigationThroughSimplerShapeSpaces.prototype.setNavigationThroughSimplerShapeSpaces = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
         warning.logMessageToConsole();
@@ -51156,9 +53695,13 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
+        var spline = new BSplineR1toR2_1.BSplineR1toR2();
+        if (this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities) {
+            this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.reset();
+            spline = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline.clone();
+        }
         try {
-            if (this._boundaryEnforcer.isActive())
-                this._boundaryEnforcer.deactivate();
+            // if(this._boundaryEnforcer.isActive()) this._boundaryEnforcer.deactivate();
             var status_1 = Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
             if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy) {
                 status_1 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
@@ -51169,7 +53712,6 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
             if (status_1 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
                 var curveModelOptimized = new CurveModel_1.CurveModel();
-                // curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
                 if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
                     && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
                     curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
@@ -51182,29 +53724,56 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
                 var seqComparator = new ComparatorOfSequencesDiffEvents_1.ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
                 seqComparator.locateNeiboringEvents();
                 this.curveShapeSpaceNavigator.eventStateAtCrvExtremities.monitorEventInsideCurve(seqComparator);
-                if (seqComparator.neighboringEvents.length > 0) {
-                    if (seqComparator.neighboringEvents.length === 1) {
-                        if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) {
-                            console.log("Curvature extremum disappear on the left boundary.");
+                if (seqComparator.neighboringEvents.length > 0 && this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                    var filteredSeqComparator = seqComparator.filterOutneighboringEventsNestedShapeSpacesNavigation(this.curveShapeSpaceNavigator);
+                    if (filteredSeqComparator.neighboringEvents.length === 1) {
+                        if (this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities) {
+                            this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.configureBoundaryEnforcer(filteredSeqComparator);
+                            this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d_1.Vector2d(x, y));
+                            this._curveAnalyserCurrentCurve.updateCurrent();
+                            this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+                            this.navigationCurveModel.setTargetCurve();
+                            this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.update(spline);
+                            try {
+                                var curveModelOptimized1 = new CurveModel_1.CurveModel();
+                                if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy) {
+                                    var status_2 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                                    if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
+                                        && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
+                                        if (status_2 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
+                                            curveModelOptimized1.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
+                                        }
+                                    }
+                                }
+                                var diffEvExtractor = new OpenCurveDifferentialEventsExtractor_1.OpenCurveDifferentialEventsExtractor(curveModelOptimized1.spline);
+                                var seqComparatorWithConstraintsAtExtremities = new ComparatorOfSequencesDiffEvents_1.ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, diffEvExtractor.sequenceOfDifferentialEvents);
+                                seqComparatorWithConstraintsAtExtremities.locateNeiboringEvents();
+                                var filteredSeqComparatorWithConstraints = seqComparatorWithConstraintsAtExtremities.filterOutneighboringEventsNestedShapeSpacesNavigation(this.curveShapeSpaceNavigator);
+                                if (seqComparatorWithConstraintsAtExtremities.neighboringEvents.length === seqComparator.neighboringEvents.length
+                                    && filteredSeqComparatorWithConstraints.neighboringEvents.length === 0) {
+                                    console.log(" No match of events after applying constraints at extremities");
+                                }
+                                this.navigationCurveModel.optimizedCurve = curveModelOptimized1.spline;
+                                this.optimizedCurve = curveModelOptimized1.spline;
+                            }
+                            catch (e) {
+                                console.error(e);
+                            }
                         }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear) {
-                            console.log("Curvature extremum disappear on the right boundary.");
-                        }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) {
-                            console.log("Inflection disappear on the left boundary.");
-                        }
-                        else if (seqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear) {
-                            console.log("Inflection disappear on the right boundary.");
-                        }
-                        else {
-                            console.log("Cannot process this configuration with this navigation state.");
-                        }
-                        this._boundaryEnforcer.activate();
+                        // this._boundaryEnforcer.activate();
                     }
                     else {
                         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
                         error.logMessageToConsole();
                     }
+                }
+                else if (this.navigationCurveModel.seqDiffEventsCurrentCurve.length() === this.navigationCurveModel.seqDiffEventsOptimizedCurve.length()
+                    && this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
+                    var nbInflectionsCurrrent = this.navigationCurveModel.seqDiffEventsCurrentCurve.nbInflections();
+                    var nbInflectionsOpt = this.navigationCurveModel.seqDiffEventsOptimizedCurve.nbInflections();
+                    var nbCurvExtCurrent = this.navigationCurveModel.seqDiffEventsCurrentCurve.nbCurvatureExtrema();
+                    var nbCurvExtOpt = this.navigationCurveModel.seqDiffEventsOptimizedCurve.nbCurvatureExtrema();
+                    console.log("There may be two different events evolving simultaneously nbICur = " + nbInflectionsCurrrent + " nbIOpt = " + nbInflectionsOpt + " nbCECur = " + nbCurvExtCurrent + " nbCEOpt = " + nbCurvExtOpt);
                 }
                 this.curveConstraintsMonitoring();
                 if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
@@ -51221,6 +53790,7 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
             }
         }
         catch (e) {
+            console.error(e);
         }
     };
     return OCurveNavigationThroughSimplerShapeSpaces;
@@ -51233,6 +53803,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
         _this.curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        _this._boundaryEnforcer = new BoundaryEnforcer_1.BoundaryEnforcerStrictShapeSpacesOpenCurve();
         if (_this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || _this.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             _this.curveShapeSpaceNavigator.navigationState = _this;
@@ -51258,6 +53829,16 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
     Object.defineProperty(OCurveNavigationStrictlyInsideShapeSpace.prototype, "curveAnalyserOptimizedCurve", {
         get: function () {
             return this._curveAnalyserOptimizedCurve;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(OCurveNavigationStrictlyInsideShapeSpace.prototype, "boundaryEnforcer", {
+        get: function () {
+            return this._boundaryEnforcer;
+        },
+        set: function (boundaryEnforcer) {
+            this._boundaryEnforcer = boundaryEnforcer;
         },
         enumerable: false,
         configurable: true
@@ -51295,16 +53876,16 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
             this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.clearIteratedCurves();
         }
         try {
-            var status_2 = Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
+            var status_3 = Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
             if (this._boundaryEnforcer.isActive())
                 this._boundaryEnforcer.deactivate();
             if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy) {
-                status_2 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                status_3 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             }
             // this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
             var curveModelOptimized = new CurveModel_1.CurveModel();
-            if (status_2 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE || status_2 === Optimizer_1.OptimizerReturnStatus.MAX_NB_ITER_REACHED) {
+            if (status_3 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE || status_3 === Optimizer_1.OptimizerReturnStatus.MAX_NB_ITER_REACHED) {
                 console.log('no solution found from the current curve');
             }
             if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
@@ -51376,14 +53957,14 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                     this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.clearIteratedCurves();
                                     try {
                                         var threshold = CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD;
-                                        var status_3 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(threshold, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                                        var status_4 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(threshold, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
                                         var curveModelOptimized_1 = new CurveModel_1.CurveModel();
                                         if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
                                             && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-                                            if (status_3 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
+                                            if (status_4 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
                                                 curveModelOptimized_1.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                             }
-                                            else if (status_3 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
+                                            else if (status_4 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
                                                 this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                 var closestCurveToShapeSpaceBoundary = this.closestCurveToShapeSpaceBoundary();
                                                 if (closestCurveToShapeSpaceBoundary !== undefined) {
@@ -51426,14 +54007,14 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                                 // this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.diffEventsVariation.clearVariation();
                                                 try {
                                                     var threshold_1 = CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD;
-                                                    var status_4 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(threshold_1, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                                                    var status_5 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(threshold_1, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
                                                     var curveModelOptimized2 = new CurveModel_1.CurveModel();
                                                     if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
                                                         && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-                                                        if (status_4 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
+                                                        if (status_5 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
                                                             curveModelOptimized2.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                                         }
-                                                        else if (status_4 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
+                                                        else if (status_5 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE) {
                                                             this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                             var closestCurveToShapeSpaceBoundary = this.closestCurveToShapeSpaceBoundary();
                                                             if (closestCurveToShapeSpaceBoundary !== undefined) {
@@ -51503,14 +54084,14 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                             this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.diffEventsVariation.clearVariation();
                                         }
                                         try {
-                                            var status_5 = Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
+                                            var status_6 = Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
                                             var threshold = CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD;
                                             if (this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.f0 < CurveShapeSpaceNavigator_1.CONVERGENCE_THRESHOLD) {
                                                 while (this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.f0 < threshold) {
                                                     threshold = threshold / 10;
                                                 }
                                             }
-                                            status_5 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(threshold, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                                            status_6 = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(threshold, CurveShapeSpaceNavigator_1.MAX_TRUST_REGION_RADIUS, CurveShapeSpaceNavigator_1.MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
                                             // while (status === OptimizerReturnStatus.TERMINATION_WITHOUT_CONVERGENCE) {
                                             //     let updatedCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                             //     const curveAnalyzerUpdatedCurve = new OpenCurveAnalyzer(updatedCurve, this.navigationCurveModel, this.navigationCurveModel.slidingEventsAtExtremities);
@@ -51539,10 +54120,10 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
                                             var curveModelOptimized_2 = new CurveModel_1.CurveModel();
                                             if (this.navigationCurveModel.curveShapeMonitoringStrategy instanceof CurveShapeMonitoringStrategy_1.OCurveShapeMonitoringStrategy
                                                 && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-                                                if (status_5 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
+                                                if (status_6 === Optimizer_1.OptimizerReturnStatus.SOLUTION_FOUND) {
                                                     curveModelOptimized_2.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                                                 }
-                                                else if (status_5 === Optimizer_1.OptimizerReturnStatus.FIRST_ITERATION || status_5 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE
+                                                else if (status_6 === Optimizer_1.OptimizerReturnStatus.FIRST_ITERATION || status_6 === Optimizer_1.OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE
                                                     || closestCurveToShapeSpaceBoundary1 === undefined) {
                                                     this.navigationCurveModel.adjacentShapeSpaceCurve = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline;
                                                     curveModelOptimized_2.setSpline(spline);
@@ -51689,6 +54270,7 @@ var CCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
         var curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        _this._boundaryEnforcer = new BoundaryEnforcer_1.BoundaryEnforcerNoShapeSpaceClosedCurve();
         if (curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationThroughSimplerShapeSpaces
             || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationStrictlyInsideShapeSpace) {
             curveShapeSpaceNavigator.navigationState = _this;
@@ -51713,6 +54295,16 @@ var CCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
     Object.defineProperty(CCurveNavigationWithoutShapeSpaceMonitoring.prototype, "curveAnalyserOptimizedCurve", {
         get: function () {
             return this._curveAnalyserOptimizedCurve;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CCurveNavigationWithoutShapeSpaceMonitoring.prototype, "boundaryEnforcer", {
+        get: function () {
+            return this._boundaryEnforcer;
+        },
+        set: function (boundaryEnforcer) {
+            this._boundaryEnforcer = boundaryEnforcer;
         },
         enumerable: false,
         configurable: true
@@ -51751,6 +54343,7 @@ var CCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
         var curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        _this._boundaryEnforcer = new BoundaryEnforcer_1.BoundaryEnforcerNoShapeSpaceClosedCurve();
         if (curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = _this;
             _this.navigationCurveModel.navigationState = _this;
@@ -51775,6 +54368,16 @@ var CCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
     Object.defineProperty(CCurveNavigationThroughSimplerShapeSpaces.prototype, "curveAnalyserOptimizedCurve", {
         get: function () {
             return this._curveAnalyserOptimizedCurve;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CCurveNavigationThroughSimplerShapeSpaces.prototype, "boundaryEnforcer", {
+        get: function () {
+            return this._boundaryEnforcer;
+        },
+        set: function (boundaryEnforcer) {
+            this._boundaryEnforcer = boundaryEnforcer;
         },
         enumerable: false,
         configurable: true
@@ -51827,6 +54430,7 @@ var CCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         _this.optimizedCurve = _this.navigationCurveModel.optimizedCurve;
         var curveShapeSpaceNavigator = _this.navigationCurveModel.curveShapeSpaceNavigator;
+        _this._boundaryEnforcer = new BoundaryEnforcer_1.BoundaryEnforcerStrictShapeSpacesClosedCurve();
         if (curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = _this;
             _this.navigationCurveModel.navigationState = _this;
@@ -51851,6 +54455,16 @@ var CCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
     Object.defineProperty(CCurveNavigationStrictlyInsideShapeSpace.prototype, "curveAnalyserOptimizedCurve", {
         get: function () {
             return this._curveAnalyserOptimizedCurve;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(CCurveNavigationStrictlyInsideShapeSpace.prototype, "boundaryEnforcer", {
+        get: function () {
+            return this._boundaryEnforcer;
+        },
+        set: function (boundaryEnforcer) {
+            this._boundaryEnforcer = boundaryEnforcer;
         },
         enumerable: false,
         configurable: true
@@ -51894,6 +54508,289 @@ var CCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
     return CCurveNavigationStrictlyInsideShapeSpace;
 }(ClosedCurveNavigationState));
 exports.CCurveNavigationStrictlyInsideShapeSpace = CCurveNavigationStrictlyInsideShapeSpace;
+
+
+/***/ }),
+
+/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts":
+/*!*********************************************************************!*\
+  !*** ./src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts ***!
+  \*********************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StrictShapeSpacesBoundaryEnforcerClosedCurve = exports.StrictShapeSpacesBoundaryEnforcerOpenCurve = exports.NestedShapeSpacesBoundaryEnforcerOpenCurve = exports.AbstractShapeSpaceBoundaryEnforcer = exports.EventsAtCurveExtremities = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
+var EventsAtCurveExtremities = /** @class */ (function () {
+    function EventsAtCurveExtremities() {
+        this._start = false;
+        this._end = false;
+    }
+    Object.defineProperty(EventsAtCurveExtremities.prototype, "start", {
+        get: function () {
+            return this._start;
+        },
+        set: function (start) {
+            this._start = start;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(EventsAtCurveExtremities.prototype, "end", {
+        get: function () {
+            return this._end;
+        },
+        set: function (end) {
+            this._end = end;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return EventsAtCurveExtremities;
+}());
+exports.EventsAtCurveExtremities = EventsAtCurveExtremities;
+var AbstractShapeSpaceBoundaryEnforcer = /** @class */ (function () {
+    function AbstractShapeSpaceBoundaryEnforcer() {
+        this.status = false;
+        this._neighboringEvents = [];
+    }
+    Object.defineProperty(AbstractShapeSpaceBoundaryEnforcer.prototype, "neighboringEvents", {
+        get: function () {
+            return this._neighboringEvents;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    AbstractShapeSpaceBoundaryEnforcer.prototype.activate = function () {
+        this.status = true;
+    };
+    AbstractShapeSpaceBoundaryEnforcer.prototype.isActive = function () {
+        if (this.status) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    AbstractShapeSpaceBoundaryEnforcer.prototype.deactivate = function () {
+        this.status = false;
+    };
+    AbstractShapeSpaceBoundaryEnforcer.prototype.addTransitionOfEvents = function (neighborinhEvents) {
+        this._neighboringEvents = neighborinhEvents.slice();
+    };
+    AbstractShapeSpaceBoundaryEnforcer.prototype.hasTransitionsOfEvents = function () {
+        var e_1, _a;
+        if (this._neighboringEvents.length > 0) {
+            var validList = true;
+            try {
+                for (var _b = __values(this._neighboringEvents), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var neighboringEvent = _c.value;
+                    if (neighboringEvent.type === NeighboringEvents_1.NeighboringEventsType.none)
+                        validList = false;
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            if (validList) {
+                return true;
+            }
+            else {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "hasTransitionsOfEvents", "The list of current differential events is inconsistent");
+                error.logMessageToConsole();
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    };
+    AbstractShapeSpaceBoundaryEnforcer.prototype.resetNeighboringEvents = function () {
+        this._neighboringEvents = [];
+    };
+    return AbstractShapeSpaceBoundaryEnforcer;
+}());
+exports.AbstractShapeSpaceBoundaryEnforcer = AbstractShapeSpaceBoundaryEnforcer;
+var NestedShapeSpacesBoundaryEnforcerOpenCurve = /** @class */ (function (_super) {
+    __extends(NestedShapeSpacesBoundaryEnforcerOpenCurve, _super);
+    function NestedShapeSpacesBoundaryEnforcerOpenCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
+        _this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
+        return _this;
+    }
+    Object.defineProperty(NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype, "curvExtremumEventAtExtremity", {
+        get: function () {
+            return this._curvExtremumEventAtExtremity;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype, "inflectionEventAtExtremity", {
+        get: function () {
+            return this._inflectionEventAtExtremity;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.isTransitionAtExtremity = function () {
+        var isTransition = false;
+        if (this.isCurvatureExtTransitionAtExtremity() || this.isInflectionTransitionAtExtremity()
+            || this.isMixedTransitionAtExtremity())
+            isTransition = true;
+        return isTransition;
+    };
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.isCurvatureExtTransitionAtExtremity = function () {
+        var isTransition = false;
+        if ((this._curvExtremumEventAtExtremity.start || this._curvExtremumEventAtExtremity.end)
+            && !(this._inflectionEventAtExtremity.start || this._inflectionEventAtExtremity.end))
+            isTransition = true;
+        return isTransition;
+    };
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.isInflectionTransitionAtExtremity = function () {
+        var isTransition = false;
+        if (!(this._curvExtremumEventAtExtremity.start || this._curvExtremumEventAtExtremity.end)
+            && (this._inflectionEventAtExtremity.start || this._inflectionEventAtExtremity.end))
+            isTransition = true;
+        return isTransition;
+    };
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.isMixedTransitionAtExtremity = function () {
+        var isTransition = false;
+        if (this._curvExtremumEventAtExtremity.start && this._inflectionEventAtExtremity.end
+            && !this._curvExtremumEventAtExtremity.end && !this._inflectionEventAtExtremity.start)
+            isTransition = true;
+        if (this._curvExtremumEventAtExtremity.end && this._inflectionEventAtExtremity.start
+            && !this._curvExtremumEventAtExtremity.start && !this._inflectionEventAtExtremity.end)
+            isTransition = true;
+        return isTransition;
+    };
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.resetEventsAtExtremities = function () {
+        this._curvExtremumEventAtExtremity = new EventsAtCurveExtremities();
+        this._inflectionEventAtExtremity = new EventsAtCurveExtremities();
+    };
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.reset = function () {
+        this.resetNeighboringEvents();
+        this.resetEventsAtExtremities();
+        this.status = false;
+    };
+    NestedShapeSpacesBoundaryEnforcerOpenCurve.prototype.configureBoundaryEnforcer = function (filteredSeqComparator) {
+        if (filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+            || filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear) {
+            this.curvExtremumEventAtExtremity.start = true;
+        }
+        else if (filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+            || filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) {
+            this.curvExtremumEventAtExtremity.end = true;
+        }
+        else if (filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
+            || filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryAppear) {
+            this.inflectionEventAtExtremity.start = true;
+        }
+        else if (filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
+            || filteredSeqComparator.neighboringEvents[0].type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryAppear) {
+            this.inflectionEventAtExtremity.end = true;
+        }
+        this.activate();
+        this.neighboringEvents.push(filteredSeqComparator.neighboringEvents[0]);
+    };
+    return NestedShapeSpacesBoundaryEnforcerOpenCurve;
+}(AbstractShapeSpaceBoundaryEnforcer));
+exports.NestedShapeSpacesBoundaryEnforcerOpenCurve = NestedShapeSpacesBoundaryEnforcerOpenCurve;
+var StrictShapeSpacesBoundaryEnforcerOpenCurve = /** @class */ (function (_super) {
+    __extends(StrictShapeSpacesBoundaryEnforcerOpenCurve, _super);
+    function StrictShapeSpacesBoundaryEnforcerOpenCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvatureDerivativeCPOpt = [];
+        _this._newEvent = false;
+        return _this;
+    }
+    Object.defineProperty(StrictShapeSpacesBoundaryEnforcerOpenCurve.prototype, "curvatureDerivativeCPOpt", {
+        get: function () {
+            return this._curvatureDerivativeCPOpt;
+        },
+        set: function (curvatureDerivativeCPOpt) {
+            this._curvatureDerivativeCPOpt = curvatureDerivativeCPOpt.slice();
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StrictShapeSpacesBoundaryEnforcerOpenCurve.prototype.newEventExist = function () {
+        this._newEvent = true;
+    };
+    StrictShapeSpacesBoundaryEnforcerOpenCurve.prototype.removeNewEvent = function () {
+        this._newEvent = false;
+    };
+    StrictShapeSpacesBoundaryEnforcerOpenCurve.prototype.hasNewEvent = function () {
+        if (this._newEvent) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    return StrictShapeSpacesBoundaryEnforcerOpenCurve;
+}(NestedShapeSpacesBoundaryEnforcerOpenCurve));
+exports.StrictShapeSpacesBoundaryEnforcerOpenCurve = StrictShapeSpacesBoundaryEnforcerOpenCurve;
+var StrictShapeSpacesBoundaryEnforcerClosedCurve = /** @class */ (function (_super) {
+    __extends(StrictShapeSpacesBoundaryEnforcerClosedCurve, _super);
+    function StrictShapeSpacesBoundaryEnforcerClosedCurve() {
+        var _this = _super.call(this) || this;
+        _this._curvatureDerivativeCPOpt = [];
+        _this._newEvent = false;
+        return _this;
+    }
+    StrictShapeSpacesBoundaryEnforcerClosedCurve.prototype.reset = function () {
+        this.resetNeighboringEvents();
+        this.status = false;
+    };
+    StrictShapeSpacesBoundaryEnforcerClosedCurve.prototype.newEventExist = function () {
+        this._newEvent = true;
+    };
+    StrictShapeSpacesBoundaryEnforcerClosedCurve.prototype.removeNewEvent = function () {
+        this._newEvent = false;
+    };
+    StrictShapeSpacesBoundaryEnforcerClosedCurve.prototype.hasNewEvent = function () {
+        if (this._newEvent) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    return StrictShapeSpacesBoundaryEnforcerClosedCurve;
+}(AbstractShapeSpaceBoundaryEnforcer));
+exports.StrictShapeSpacesBoundaryEnforcerClosedCurve = StrictShapeSpacesBoundaryEnforcerClosedCurve;
 
 
 /***/ }),
@@ -58431,6 +61328,88 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         return filteredSeqComparator;
     };
+    ComparatorOfSequencesOfDiffEvents.prototype.filterOutneighboringEventsNestedShapeSpacesNavigation = function (curveShapeSpaceNavigator) {
+        var e_6, _a;
+        var navigationCurveModel = curveShapeSpaceNavigator.navigationCurveModel;
+        var filteredSeqComparator = this.clone();
+        try {
+            for (var _b = __values(this.neighboringEvents), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var neighboringEvents = _c.value;
+                if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
+                    || neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear) {
+                    if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) {
+                        console.log("Curvature extremum disappear on the left boundary.");
+                    }
+                    else {
+                        console.log("Curvature extremum appear on the left boundary.");
+                    }
+                    if (!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema)
+                        filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
+                    || neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) {
+                    if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear) {
+                        console.log("Curvature extremum disappear on the right boundary.");
+                    }
+                    else {
+                        console.log("Curvature extremum appear on the right boundary.");
+                    }
+                    if (!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema)
+                        filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
+                    console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
+                    filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringCurvatureExtremaAppear) {
+                    console.log("Two Curvature extrema appear between two inflections or an extreme interval or a unique interval.");
+                    filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear) {
+                    console.log("Two inflections disappear at a curvature extremum.");
+                    filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionsCurvatureExtremumAppear) {
+                    console.log("Two inflections appear at a curvature extremum.");
+                    filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
+                    || neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryAppear) {
+                    if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) {
+                        console.log("Inflection disappear on the left boundary.");
+                    }
+                    else {
+                        console.log("Inflection appear on the left boundary.");
+                    }
+                    if (!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections)
+                        filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
+                    || neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryAppear) {
+                    if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.neighboringInflectionRightBoundaryDisappear) {
+                        console.log("Inflection disappear on the right boundary.");
+                    }
+                    else {
+                        console.log("Inflection appear on the right boundary.");
+                    }
+                    if (!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections)
+                        filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+                }
+                else {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "filterOutneighboringEvents", "Incorrect transition of differential events.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+        catch (e_6_1) { e_6 = { error: e_6_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_6) throw e_6.error; }
+        }
+        return filteredSeqComparator;
+    };
     return ComparatorOfSequencesOfDiffEvents;
 }());
 exports.ComparatorOfSequencesOfDiffEvents = ComparatorOfSequencesOfDiffEvents;
@@ -60881,6 +63860,11 @@ var EventMgmtAtCurveExtremities = /** @class */ (function () {
     EventMgmtAtCurveExtremities.prototype.processEventAtCurveExtremity = function () {
         this._eventStateAtCrvExtremities.handleEventAtCurveExtremity();
     };
+    EventMgmtAtCurveExtremities.prototype.clearEvents = function () {
+        this._eventOutOfInterval = false;
+        this._locationsCurvExtrema = [];
+        this._locationsInflections = [];
+    };
     return EventMgmtAtCurveExtremities;
 }());
 exports.EventMgmtAtCurveExtremities = EventMgmtAtCurveExtremities;
@@ -60943,6 +63927,7 @@ var EventStayInsideCurve = /** @class */ (function (_super) {
             error.logMessageToConsole();
             _this.curveShapeMonitoringStrategy = _this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
         }
+        _this.curveShapeMonitoringStrategy.resetCurve(_this.shapeNavigableCurve.curveCategory.curveModel.spline);
         _this.sequenceCurvExtOutside = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
         _this.sequenceInflectionOutside = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
         return _this;

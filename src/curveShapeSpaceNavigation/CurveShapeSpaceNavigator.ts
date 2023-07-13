@@ -134,6 +134,10 @@ export class CurveShapeSpaceNavigator {
         this._shapeSpaceDiffEventsStructure.slidingDifferentialEvents = slidingDifferentialEvents;
     }
 
+    setManagementDiffEventsAtExtremities(eventManagementStateAtExtremity: EventMgmtState) {
+        this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities = eventManagementStateAtExtremity;
+    }
+
     transitionTo(curveControlState: CurveControlState): void {
         this._curveControlState = curveControlState;
     }

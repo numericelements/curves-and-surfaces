@@ -13,6 +13,8 @@ import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForCurve }
 import { OptimizationProblemInterface } from "../optimizationProblemFacade/OptimizationProblemInterface";
 import { OpBSplineR1toR2Interface } from "../bsplineOptimizationProblems/IOpBSplineR1toR2";
 import { OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces } from "../curveShapeSpaceNavigation/NavigationState";
+import { OptProblemOPenBSplineR1toR2WithWeigthingFactors, OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities, OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace } from "../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
+import { AbstractOptProblemBSplineR1toR2 } from "../bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2";
 
 export abstract class CurveShapeMonitoringStrategy {
 
@@ -26,7 +28,9 @@ export abstract class CurveShapeMonitoringStrategy {
         this.currentCurve = navigationCurveModel.currentCurve;
     }
 
-    // abstract get optimizationProblem(): BaseOpProblemBSplineR1toR2;
+    abstract get optimizationProblem(): OpBSplineR1toR2Interface;
+
+    abstract resetCurve(curve: BSplineR1toR2Interface): void;
 }
 
 export abstract class OCurveShapeMonitoringStrategy extends CurveShapeMonitoringStrategy {
@@ -287,7 +291,8 @@ export class OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends OCurv
 
 export class OCurveShapeMonitoringStrategyWithInflexionsSliding extends OCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors;
+    // protected _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors;
+    protected _optimizationProblem: OptProblemOPenBSplineR1toR2WithWeigthingFactors;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -303,21 +308,28 @@ export class OCurveShapeMonitoringStrategyWithInflexionsSliding extends OCurveSh
             error.logMessageToConsole();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            } else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         } else if (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
                 this.openCShapeSpaceNavigator);
         } else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
-
-        /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem);
         this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
+    // newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemOPenBSplineR1toR2WithWeigthingFactors): Optimizer {
         optimizationProblem.setWeightingFactor();
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
@@ -326,14 +338,22 @@ export class OCurveShapeMonitoringStrategyWithInflexionsSliding extends OCurveSh
     resetCurve(curve: BSplineR1toR2): void {
         this.currentCurve = curve;
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            } else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         } else if (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
                 this.openCShapeSpaceNavigator);
         } else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
-        this._optimizer = this.newOptimizer(this._optimizationProblem)
+        this._optimizer = this.newOptimizer(this._optimizationProblem);
     }
 
     optimize(selectedControlPoint: number, ndcX: number, ndcY: number) {
@@ -344,7 +364,8 @@ export class OCurveShapeMonitoringStrategyWithInflexionsSliding extends OCurveSh
 
 export class OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends OCurveShapeMonitoringStrategy{
     
-    protected _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors;
+    // protected _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors;
+    protected _optimizationProblem: OptProblemOPenBSplineR1toR2WithWeigthingFactors;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -360,19 +381,28 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends OC
             error.logMessageToConsole();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            } else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         } else if (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);            
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure,
                 this.openCShapeSpaceNavigator);
         } else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem);
         this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
+    // newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemOPenBSplineR1toR2WithWeigthingFactors): Optimizer {
         optimizationProblem.setWeightingFactor();
         // this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
@@ -381,12 +411,20 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends OC
     resetCurve(curve: BSplineR1toR2): void {
         this.currentCurve = curve;
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            } else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         } else if (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure,
                 this.openCShapeSpaceNavigator);
         } else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
@@ -398,7 +436,8 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends OC
 
 export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding extends OCurveShapeMonitoringStrategy{
     
-    protected _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors;
+    // protected _optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors;
+    protected _optimizationProblem: OptProblemOPenBSplineR1toR2WithWeigthingFactors;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -414,19 +453,28 @@ export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
             error.logMessageToConsole();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            } else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         } else if (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
                 this.openCShapeSpaceNavigator);
         } else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem);
         this.setEventManagementAtCurveExtremityState();
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
+    // newOptimizer(optimizationProblem: OptProblemBSplineR1toR2WithWeigthingFactors): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemOPenBSplineR1toR2WithWeigthingFactors): Optimizer {
         optimizationProblem.setWeightingFactor();
         // this.setWeightingFactor(optimizationProblem)
         return new Optimizer(optimizationProblem)
@@ -435,12 +483,20 @@ export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
     resetCurve(curve: BSplineR1toR2): void {
         this.currentCurve = curve;
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            } else {
+                // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+                this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            }
         } else if (this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
+            //     this.openCShapeSpaceNavigator);
+            this._optimizationProblem = new OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure, 
                 this.openCShapeSpaceNavigator);
         } else {
-            this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            // this._optimizationProblem = new OptProblemBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+            this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         }
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }

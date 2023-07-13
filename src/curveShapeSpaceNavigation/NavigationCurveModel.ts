@@ -20,7 +20,7 @@ import { CurveCategory } from "../shapeNavigableCurve/CurveCategory";
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveShapeSpaceDescriptor } from "./CurveShapeSpaceDescriptor";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
-import { CCurveNavigationWithoutShapeSpaceMonitoring, NavigationState, OCurveNavigationWithoutShapeSpaceMonitoring } from "./NavigationState";
+import { CCurveNavigationWithoutShapeSpaceMonitoring, NavigationState, OCurveNavigationWithoutShapeSpaceMonitoring, OpenCurveNavigationState } from "./NavigationState";
 import { ShapeSpaceDiffEventsStructure } from "./ShapeSpaceDiffEventsStructure";
 
 

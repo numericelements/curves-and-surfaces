@@ -21,21 +21,23 @@ import { CCurveShapeMonitoringStrategy, OCurveShapeMonitoringStrategy } from "..
 import { NeighboringEvents, NeighboringEventsType } from "../sequenceOfDifferentialEvents/NeighboringEvents";
 import { OptProblemBSplineR1toR2WithWeigthingFactors, OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation, OptProblemBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints } from "../bsplineOptimizationProblems/OptProblemBSplineR1toR2";
 import { zeroVector } from "../linearAlgebra/MathVectorBasicOperations";
-import { BoudaryEnforcer } from "./BoundaryEnforcer";
+import { AbstractBoundaryEnforcer, BoundaryEnforcerNestedShapeSpacesOpenCurve, BoundaryEnforcerNoShapeSpaceClosedCurve, BoundaryEnforcerNoShapeSpaceOpenCurve, BoundaryEnforcerStrictShapeSpacesClosedCurve, BoundaryEnforcerStrictShapeSpacesOpenCurve } from "./BoundaryEnforcer";
 import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents";
 import { OpenCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor";
 import { DiffrentialEventVariation } from "../sequenceOfDifferentialEvents/DifferentialEventVariation";
+import { OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities } from "../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
+import { EventMgmtState } from "./ShapeSpaceDiffEventsStructure";
 
 export abstract class NavigationState {
 
     protected _navigationStateChange: boolean;
-    protected _boundaryEnforcer: BoudaryEnforcer;
+    protected abstract _boundaryEnforcer: AbstractBoundaryEnforcer;
     protected _currentNeighboringEvents: Array<NeighboringEvents>;
     protected _transitionEvents: SequenceOfDifferentialEvents;
 
     constructor() {
         this._navigationStateChange = true;
-        this._boundaryEnforcer = new BoudaryEnforcer();
+        // this._boundaryEnforcer = new BoundaryEnforcerStrictShapeSpacesOpenCurve();
         this._currentNeighboringEvents = [];
         this._transitionEvents =  new SequenceOfDifferentialEvents();
     }
@@ -56,12 +58,12 @@ export abstract class NavigationState {
 
     abstract get curveAnalyserOptimizedCurve(): CurveAnalyzerInterface;
 
+    abstract get boundaryEnforcer(): AbstractBoundaryEnforcer;
+
+    abstract set boundaryEnforcer(boundaryEnforcer: AbstractBoundaryEnforcer);
+
     get navigationStateChange(): boolean {
         return this._navigationStateChange;
-    }
-
-    get boundaryEnforcer(): BoudaryEnforcer {
-        return this._boundaryEnforcer;
     }
 
     get transitionEvents(): SequenceOfDifferentialEvents {
@@ -76,9 +78,6 @@ export abstract class NavigationState {
         this._navigationStateChange = navigationStateChange;
     }
 
-    set boundaryEnforcer(boundaryEnforcer: BoudaryEnforcer) {
-        this._boundaryEnforcer = boundaryEnforcer;
-    }
 }
 
 export abstract class OpenCurveNavigationState extends NavigationState{
@@ -149,12 +148,14 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
 
     private _curveAnalyserCurrentCurve: OPenCurveDummyAnalyzer;
     private _curveAnalyserOptimizedCurve: OPenCurveDummyAnalyzer;
+    protected _boundaryEnforcer: BoundaryEnforcerNoShapeSpaceOpenCurve;
 
     constructor(navigationCurveModel: OpenCurveShapeSpaceNavigator) {
         super(navigationCurveModel);
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.optimizedCurve =this.navigationCurveModel.optimizedCurve;
         const curveShapeSpaceNavigator = this.navigationCurveModel.curveShapeSpaceNavigator;
+        this._boundaryEnforcer = new BoundaryEnforcerNoShapeSpaceOpenCurve();
         if(curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces
             || curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationStrictlyInsideShapeSpace) {
             curveShapeSpaceNavigator.navigationState = this;
@@ -174,6 +175,14 @@ export class OCurveNavigationWithoutShapeSpaceMonitoring extends OpenCurveNaviga
 
     get curveAnalyserOptimizedCurve(): OPenCurveDummyAnalyzer {
         return this._curveAnalyserOptimizedCurve;
+    }
+
+    get boundaryEnforcer(): BoundaryEnforcerNoShapeSpaceOpenCurve {
+        return this._boundaryEnforcer;
+    }
+
+    set boundaryEnforcer(boundaryEnforcer: BoundaryEnforcerNoShapeSpaceOpenCurve) {
+        this._boundaryEnforcer = boundaryEnforcer;
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
@@ -212,12 +221,14 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
     private _curveAnalyserCurrentCurve: OpenCurveAnalyzer;
     private _curveAnalyserOptimizedCurve: OpenCurveAnalyzer;
     private readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    protected _boundaryEnforcer: BoundaryEnforcerNestedShapeSpacesOpenCurve;
 
     constructor(navigationCurveModel: OpenCurveShapeSpaceNavigator) {
         super(navigationCurveModel);
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
         this.curveShapeSpaceNavigator = this.navigationCurveModel.curveShapeSpaceNavigator;
+        this._boundaryEnforcer = new BoundaryEnforcerNestedShapeSpacesOpenCurve();
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || this.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             this.curveShapeSpaceNavigator.navigationState = this;
@@ -238,6 +249,14 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
 
     get curveAnalyserOptimizedCurve(): OpenCurveAnalyzer {
         return this._curveAnalyserOptimizedCurve;
+    }
+
+    get boundaryEnforcer(): BoundaryEnforcerNestedShapeSpacesOpenCurve {
+        return this._boundaryEnforcer;
+    }
+
+    set boundaryEnforcer(boundaryEnforcer: BoundaryEnforcerNestedShapeSpacesOpenCurve) {
+        this._boundaryEnforcer = boundaryEnforcer;
     }
 
     setNavigationThroughSimplerShapeSpaces(): void {
@@ -263,8 +282,13 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
+        let spline = new BSplineR1toR2();
+        if(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities) {
+            this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.reset();
+            spline = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline.clone();
+        }
         try {
-            if(this._boundaryEnforcer.isActive()) this._boundaryEnforcer.deactivate();
+            // if(this._boundaryEnforcer.isActive()) this._boundaryEnforcer.deactivate();
             let status: OptimizerReturnStatus = OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
             if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
                 status = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
@@ -275,12 +299,10 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
             // this.navigationCurveModel.optimizedCurve = this.navigationCurveModel.curveControl.optimizationProblem.spline.clone();
             if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
                 let curveModelOptimized = new CurveModel();
-                // curveModelOptimized.setSpline(this.navigationCurveModel.curveControl.optimizationProblem.spline);
                 if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy
                     && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2) {
                     curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
                 }
-
                 this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
                 this.optimizedCurve = curveModelOptimized.spline;
 
@@ -290,24 +312,53 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
                 const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
                 seqComparator.locateNeiboringEvents();
                 this.curveShapeSpaceNavigator.eventStateAtCrvExtremities.monitorEventInsideCurve(seqComparator);
-                if(seqComparator.neighboringEvents.length > 0) {
-                    if(seqComparator.neighboringEvents.length === 1) {
-                        if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) {
-                            console.log("Curvature extremum disappear on the left boundary.");
-                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear) {
-                            console.log("Curvature extremum disappear on the right boundary.");
-                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) {
-                            console.log("Inflection disappear on the left boundary.");
-                        } else if(seqComparator.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear) {
-                            console.log("Inflection disappear on the right boundary.");
-                        } else {
-                            console.log("Cannot process this configuration with this navigation state.");
+                if(seqComparator.neighboringEvents.length > 0 && this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === EventMgmtState.Active) {
+                    const filteredSeqComparator = seqComparator.filterOutneighboringEventsNestedShapeSpacesNavigation(this.curveShapeSpaceNavigator);
+                    if(filteredSeqComparator.neighboringEvents.length === 1) {
+                        if(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities) {
+                            this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.configureBoundaryEnforcer(filteredSeqComparator);
+                            this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
+                            this._curveAnalyserCurrentCurve.updateCurrent();
+                            this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
+                            this.navigationCurveModel.setTargetCurve();
+                            this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.update(spline);
+                            try {
+                                let curveModelOptimized1 = new CurveModel();
+                                if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
+                                    let status = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
+                                    if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy
+                                        && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2) {
+                                        if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
+                                            curveModelOptimized1.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
+                                        }
+                                    }
+                                }
+                                const diffEvExtractor = new OpenCurveDifferentialEventsExtractor(curveModelOptimized1.spline);
+                                const seqComparatorWithConstraintsAtExtremities = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, diffEvExtractor.sequenceOfDifferentialEvents);
+                                seqComparatorWithConstraintsAtExtremities.locateNeiboringEvents();
+                                const filteredSeqComparatorWithConstraints = seqComparatorWithConstraintsAtExtremities.filterOutneighboringEventsNestedShapeSpacesNavigation(this.curveShapeSpaceNavigator);
+                                if(seqComparatorWithConstraintsAtExtremities.neighboringEvents.length === seqComparator.neighboringEvents.length
+                                    && filteredSeqComparatorWithConstraints.neighboringEvents.length === 0) {
+                                    console.log(" No match of events after applying constraints at extremities")
+                                }
+                                this.navigationCurveModel.optimizedCurve = curveModelOptimized1.spline;
+                                this.optimizedCurve = curveModelOptimized1.spline;
+                            } catch(e) {
+                                console.error(e);
+                            }
                         }
-                        this._boundaryEnforcer.activate();
+                        // this._boundaryEnforcer.activate();
                     } else {
                         const error = new ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
                         error.logMessageToConsole();
                     }
+                } else if(this.navigationCurveModel.seqDiffEventsCurrentCurve.length() === this.navigationCurveModel.seqDiffEventsOptimizedCurve.length()
+                    && this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === EventMgmtState.Active) {
+                    const nbInflectionsCurrrent = this.navigationCurveModel.seqDiffEventsCurrentCurve.nbInflections()
+                    const nbInflectionsOpt = this.navigationCurveModel.seqDiffEventsOptimizedCurve.nbInflections()
+                    const nbCurvExtCurrent = this.navigationCurveModel.seqDiffEventsCurrentCurve.nbCurvatureExtrema()
+                    const nbCurvExtOpt = this.navigationCurveModel.seqDiffEventsOptimizedCurve.nbCurvatureExtrema()
+                    console.log("There may be two different events evolving simultaneously nbICur = " + nbInflectionsCurrrent + " nbIOpt = " + nbInflectionsOpt + " nbCECur = " + nbCurvExtCurrent + " nbCEOpt = " + nbCurvExtOpt)
                 }
                 this.curveConstraintsMonitoring();
                 if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy
@@ -325,10 +376,9 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
         }
         catch(e)
         {
-
+            console.error(e);
         }
     }
-
 }
 
 export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigationState {
@@ -336,12 +386,14 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
     private _curveAnalyserCurrentCurve: OpenCurveAnalyzer;
     private _curveAnalyserOptimizedCurve: OpenCurveAnalyzer;
     private readonly curveShapeSpaceNavigator: CurveShapeSpaceNavigator;
+    protected _boundaryEnforcer: BoundaryEnforcerStrictShapeSpacesOpenCurve;
 
     constructor(navigationCurveModel: OpenCurveShapeSpaceNavigator) {
         super(navigationCurveModel);
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
         this.curveShapeSpaceNavigator = this.navigationCurveModel.curveShapeSpaceNavigator;
+        this._boundaryEnforcer = new BoundaryEnforcerStrictShapeSpacesOpenCurve();
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || this.curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             this.curveShapeSpaceNavigator.navigationState = this;
@@ -363,6 +415,14 @@ export class OCurveNavigationStrictlyInsideShapeSpace extends OpenCurveNavigatio
 
     get curveAnalyserOptimizedCurve(): OpenCurveAnalyzer {
         return this._curveAnalyserOptimizedCurve;
+    }
+
+    get boundaryEnforcer(): BoundaryEnforcerStrictShapeSpacesOpenCurve {
+        return this._boundaryEnforcer;
+    }
+
+    set boundaryEnforcer(boundaryEnforcer: BoundaryEnforcerStrictShapeSpacesOpenCurve) {
+        this._boundaryEnforcer = boundaryEnforcer;
     }
 
     setNavigationStrictlyInsideShapeSpace(): void {
@@ -791,12 +851,14 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
 
     private _curveAnalyserCurrentCurve: ClosedCurveDummyAnalyzer;
     private _curveAnalyserOptimizedCurve: ClosedCurveDummyAnalyzer;
+    protected _boundaryEnforcer: BoundaryEnforcerNoShapeSpaceClosedCurve;
 
     constructor(navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(navigationCurveModel);
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
         const curveShapeSpaceNavigator = this.navigationCurveModel.curveShapeSpaceNavigator;
+        this._boundaryEnforcer = new BoundaryEnforcerNoShapeSpaceClosedCurve();
         if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationThroughSimplerShapeSpaces
             || curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationStrictlyInsideShapeSpace) {
             curveShapeSpaceNavigator.navigationState = this;
@@ -816,6 +878,14 @@ export class CCurveNavigationWithoutShapeSpaceMonitoring extends ClosedCurveNavi
 
     get curveAnalyserOptimizedCurve(): ClosedCurveDummyAnalyzer {
         return this._curveAnalyserOptimizedCurve;
+    }
+
+    get boundaryEnforcer(): BoundaryEnforcerNoShapeSpaceClosedCurve {
+        return this._boundaryEnforcer;
+    }
+
+    set boundaryEnforcer(boundaryEnforcer: BoundaryEnforcerNoShapeSpaceClosedCurve) {
+        this._boundaryEnforcer = boundaryEnforcer;
     }
 
     setNavigationWithoutShapeSpaceMonitoring(): void {
@@ -853,12 +923,14 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
 
     private _curveAnalyserCurrentCurve: ClosedCurveAnalyzer;
     private _curveAnalyserOptimizedCurve: ClosedCurveAnalyzer;
+    protected _boundaryEnforcer: BoundaryEnforcerNoShapeSpaceClosedCurve;
 
     constructor(navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(navigationCurveModel);
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
         const curveShapeSpaceNavigator = this.navigationCurveModel.curveShapeSpaceNavigator;
+        this._boundaryEnforcer = new BoundaryEnforcerNoShapeSpaceClosedCurve();
         if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = this;
             this.navigationCurveModel.navigationState = this;
@@ -878,6 +950,14 @@ export class CCurveNavigationThroughSimplerShapeSpaces extends ClosedCurveNaviga
 
     get curveAnalyserOptimizedCurve(): ClosedCurveAnalyzer {
         return this._curveAnalyserOptimizedCurve;
+    }
+
+    get boundaryEnforcer(): BoundaryEnforcerNoShapeSpaceClosedCurve {
+        return this._boundaryEnforcer;
+    }
+
+    set boundaryEnforcer(boundaryEnforcer: BoundaryEnforcerNoShapeSpaceClosedCurve) {
+        this._boundaryEnforcer = boundaryEnforcer;
     }
 
     setNavigationThroughSimplerShapeSpaces(): void {
@@ -929,12 +1009,14 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
 
     private _curveAnalyserCurrentCurve: ClosedCurveAnalyzer;
     private _curveAnalyserOptimizedCurve: ClosedCurveAnalyzer;
+    protected _boundaryEnforcer: BoundaryEnforcerStrictShapeSpacesClosedCurve;
 
     constructor(navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(navigationCurveModel);
         // JCL 09/11/2021 Set up a curve analyzer whenever the navigation state changes
         this.optimizedCurve = this.navigationCurveModel.optimizedCurve;
         const curveShapeSpaceNavigator = this.navigationCurveModel.curveShapeSpaceNavigator;
+        this._boundaryEnforcer = new BoundaryEnforcerStrictShapeSpacesClosedCurve();
         if(curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             curveShapeSpaceNavigator.navigationState = this;
             this.navigationCurveModel.navigationState = this;
@@ -954,6 +1036,14 @@ export class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigat
 
     get curveAnalyserOptimizedCurve(): ClosedCurveAnalyzer {
         return this._curveAnalyserOptimizedCurve;
+    }
+
+    get boundaryEnforcer(): BoundaryEnforcerStrictShapeSpacesClosedCurve {
+        return this._boundaryEnforcer;
+    }
+
+    set boundaryEnforcer(boundaryEnforcer: BoundaryEnforcerStrictShapeSpacesClosedCurve) {
+        this._boundaryEnforcer = boundaryEnforcer;
     }
 
     setNavigationStrictlyInsideShapeSpace(): void {
