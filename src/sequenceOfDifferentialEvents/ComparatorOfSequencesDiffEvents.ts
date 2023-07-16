@@ -475,8 +475,7 @@ export class ComparatorOfSequencesOfDiffEvents {
     filterOutneighboringEvents(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): ComparatorOfSequencesOfDiffEvents {
         const navigationCurveModel = curveShapeSpaceNavigator.navigationCurveModel;
         const filteredSeqComparator = this.clone();
-        const boundaryEnforcer = navigationCurveModel.navigationState.boundaryEnforcer;
-        for(const neighboringEvents of this.neighboringEvents) {
+       for(const neighboringEvents of this.neighboringEvents) {
             if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
                 || neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear) {
                 if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) {
@@ -484,9 +483,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else {
                     console.log("Curvature extremum appear on the left boundary.");
                 }
-                if(curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-                    boundaryEnforcer.curvExtremumEventAtExtremity.start = true;
-                } else {
+                if(!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
                     filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
                 }
             } else if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
@@ -496,9 +493,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else {
                     console.log("Curvature extremum appear on the right boundary.");
                 }
-                if(curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-                    boundaryEnforcer.curvExtremumEventAtExtremity.end = true;
-                } else {
+                if(!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
                     filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
                 }
             } else if(neighboringEvents.type === NeighboringEventsType.neighboringCurvatureExtremaDisappear) {
@@ -528,9 +523,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else {
                     console.log("Two inflections appear at a curvature extremum.");
                 }
-                if(curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections) {
-
-                } else {
+                if(!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections) {
                     filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
                 }
             } else if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
@@ -540,9 +533,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else {
                     console.log("Inflection appear on the left boundary.");
                 }
-                if(curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections) {
-                    boundaryEnforcer.inflectionEventAtExtremity.start = true;
-                } else {
+                if(!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections) {
                     filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
                 }
             } else if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
@@ -552,9 +543,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else {
                     console.log("Inflection appear on the right boundary.");
                 }
-                if(curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections) {
-                    boundaryEnforcer.inflectionEventAtExtremity.end = true;
-                } else {
+                if(!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections) {
                     filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
                 }
             } else {
@@ -566,7 +555,6 @@ export class ComparatorOfSequencesOfDiffEvents {
     }
 
     filterOutneighboringEventsNestedShapeSpacesNavigation(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): ComparatorOfSequencesOfDiffEvents {
-        const navigationCurveModel = curveShapeSpaceNavigator.navigationCurveModel;
         const filteredSeqComparator = this.clone();
         for(const neighboringEvents of this.neighboringEvents) {
             if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear

@@ -20,7 +20,6 @@ import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzer
 import { DiffrentialEventVariation } from "../sequenceOfDifferentialEvents/DifferentialEventVariation";
 import { OpenCurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { AbstractBoundaryEnforcer, BoundaryEnforcerStrictShapeSpacesOpenCurve } from "../curveShapeSpaceNavigation/BoundaryEnforcer";
 
 
 interface intermediateKnotWithNeighborhood {knot: number, left: number, right: number, index: number}
@@ -959,7 +958,7 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     private curveAnalyzerOptimizedCurve: CurveAnalyzerInterface;
     protected _diffEventsVariation: DiffrentialEventVariation;
     private _iteratedCurves: Array<BSplineR1toR2>;
-    private boundaryEnforcer: AbstractBoundaryEnforcer;
+    // private boundaryEnforcer: AbstractBoundaryEnforcer;
 
     public previousSequenceCurvatureExtrema: number[]
     // public currentSequenceCurvatureExtrema: number[]
@@ -979,7 +978,9 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         this.curveAnalyzerCurrentCurve = navigationCurveModel.curveAnalyserCurrentCurve;
         this.curveAnalyzerOptimizedCurve = navigationCurveModel.curveAnalyserOptimizedCurve;
         this._diffEventsVariation = new DiffrentialEventVariation(this.curveAnalyzerCurrentCurve, this.curveAnalyzerOptimizedCurve);
-        this.boundaryEnforcer = navigationCurveModel.navigationState.boundaryEnforcer;
+        // this.boundaryEnforcer = navigationCurveModel.navigationState.boundaryEnforcer;
+        // JCL 15/07/2023 pour cimpatibilite avec nouvelles classe ShapeSpaceBoundaryEnforcer
+        // this.boundaryEnforcer = new BoundaryEnforcerStrictShapeSpacesOpenCurve()
         this._iteratedCurves = [];
 
         // if(shapeSpaceBoundaryConstraintsCurvExtrema !== undefined) {
@@ -1391,15 +1392,14 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) 
             && this.constraintType === ConstraintType.curvatureExtrema) {
 
-            if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start || this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
-            // if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
-                if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start) {
-                    if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(0) !== -1)
-                        inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
-                } else if(this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
-                    if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1) !== -1)
-                        inactiveConstraints.splice(inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1), 1);
-                }
+            // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start || this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start) {
+                //     if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(0) !== -1)
+                //         inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
+                // } else if(this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                //     if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1) !== -1)
+                //         inactiveConstraints.splice(inactiveConstraints.indexOf(this._curvatureExtremaTotalNumberOfConstraints - 1), 1);
+                // }
                 /* JCL 08/03/2021 Add constraint modifications to curvature extrema appearing based on a non null optimum value of B(u) */
                 if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
                     /* to be added: the interval span to be processed */
@@ -1408,24 +1408,23 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                             inactiveConstraints.splice(inactiveConstraints.indexOf(i), 1);
                     }
                 }
-            } else console.log("Null content of shapeSpaceBoundaryConstraintsCurvExtrema.")
+            // } else console.log("Null content of shapeSpaceBoundaryConstraintsCurvExtrema.")
         } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryAppear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryAppear)
             && this.constraintType === ConstraintType.inflection) {
             
-            if(this.boundaryEnforcer.inflectionEventAtExtremity.start || this.boundaryEnforcer.inflectionEventAtExtremity.end) {
-            // if(this.shapeSpaceBoundaryConstraintsInflections.length > 0) {
-                if(this.boundaryEnforcer.inflectionEventAtExtremity.start) {
-                    if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(0) !== -1)
-                        inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
-                } else if(this.boundaryEnforcer.inflectionEventAtExtremity.end) {
-                    if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1) !== -1)
-                        inactiveConstraints.splice(inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1), 1);
-                }
-                /* JCL something to do with this._diffEventsVariation for A(u) extrema ? */
-            }
+            // if(this.boundaryEnforcer.inflectionEventAtExtremity.start || this.boundaryEnforcer.inflectionEventAtExtremity.end) {
+            //    if(this.boundaryEnforcer.inflectionEventAtExtremity.start) {
+            //         if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(0) !== -1)
+            //             inactiveConstraints.splice(inactiveConstraints.indexOf(0), 1);
+            //     } else if(this.boundaryEnforcer.inflectionEventAtExtremity.end) {
+            //         if(inactiveConstraints.length > 0 && inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1) !== -1)
+            //             inactiveConstraints.splice(inactiveConstraints.indexOf(this._inflectionTotalNumberOfConstraints - 1), 1);
+            //     }
+            //     /* JCL something to do with this._diffEventsVariation for A(u) extrema ? */
+            // }
         }
     }
 
@@ -1462,9 +1461,12 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
     revertInequalitiesWithinRangeOfLocalExtremum(): void {
         if(this._diffEventsVariation.neighboringEvents.length === 0) {
             return;
+        // } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
+        //     || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
+        //     && this.constraintType === ConstraintType.curvatureExtrema && (this.updateConstraintBound || this.boundaryEnforcer.hasNewEvent())) {
         } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
-            && this.constraintType === ConstraintType.curvatureExtrema && (this.updateConstraintBound || this.boundaryEnforcer.hasNewEvent())) {
+            && this.constraintType === ConstraintType.curvatureExtrema && (this.updateConstraintBound)) {
 
             const upperBound = this._diffEventsVariation.span;
             const lowerBound = this._diffEventsVariation.span - this._diffEventsVariation.rangeOfInfluence;
@@ -1496,14 +1498,13 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) 
             && this.constraintType === ConstraintType.curvatureExtrema) {
 
-            if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start || this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
-            // if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
-                if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start) {
-                    this.revertCurvatureExtremaConstraints[0] = 1;
-                }
-                if(this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
-                    this.revertCurvatureExtremaConstraints[this._curvatureExtremaTotalNumberOfConstraints - 1] = 1;
-                }
+            // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start || this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start) {
+                //     this.revertCurvatureExtremaConstraints[0] = 1;
+                // }
+                // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                //     this.revertCurvatureExtremaConstraints[this._curvatureExtremaTotalNumberOfConstraints - 1] = 1;
+                // }
                 if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
                     /* to be added: the interval span to be processed */
                     for(let i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i+= 1){
@@ -1517,21 +1518,20 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                         }
                     }
                 }
-            } 
+            // } 
         } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryAppear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryAppear)
             && this.constraintType === ConstraintType.inflection) {
 
-            if(this.boundaryEnforcer.inflectionEventAtExtremity.start || this.boundaryEnforcer.inflectionEventAtExtremity.end) {
-            // if(this.shapeSpaceBoundaryConstraintsInflections.length > 0) {
-                if(this.boundaryEnforcer.inflectionEventAtExtremity.start) {
-                    this.revertInflectionsConstraints[0] = 1;
-                }
-                if(this.boundaryEnforcer.inflectionEventAtExtremity.end) {
-                    this.revertInflectionsConstraints[this._inflectionTotalNumberOfConstraints - 1] = 1;
-                }
+            // if(this.boundaryEnforcer.inflectionEventAtExtremity.start || this.boundaryEnforcer.inflectionEventAtExtremity.end) {
+            //    if(this.boundaryEnforcer.inflectionEventAtExtremity.start) {
+            //         this.revertInflectionsConstraints[0] = 1;
+            //     }
+            //     if(this.boundaryEnforcer.inflectionEventAtExtremity.end) {
+            //         this.revertInflectionsConstraints[this._inflectionTotalNumberOfConstraints - 1] = 1;
+            //     }
                 // if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
                 //     /* to be added: the interval span to be processed */
                 //     for(let i = 1; i < this._inflectionTotalNumberOfConstraints - 1; i+= 1){
@@ -1545,16 +1545,19 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                 //         }
                 //     }
                 // }
-            }
+            // }
         }
     }
 
     updateConstraintBoundsWithinRangeOfLocalExtremum(): void {
         if(this._diffEventsVariation.neighboringEvents.length === 0) {
             return;
+        // } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
+        //     || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
+        //     && this.constraintType === ConstraintType.curvatureExtrema && (this.updateConstraintBound || this.boundaryEnforcer.hasNewEvent())) {
         } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear 
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear)
-            && this.constraintType === ConstraintType.curvatureExtrema && (this.updateConstraintBound || this.boundaryEnforcer.hasNewEvent())) {
+            && this.constraintType === ConstraintType.curvatureExtrema && this.updateConstraintBound) {
 
             const upperBound = this._diffEventsVariation.span;
             const lowerBound = this._diffEventsVariation.span - this._diffEventsVariation.rangeOfInfluence;
@@ -1570,7 +1573,7 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                     }
                 }
             }
-            if(this.boundaryEnforcer.hasNewEvent()) {
+            // if(this.boundaryEnforcer.hasNewEvent()) {
                 this.curvatureExtremaConstraintBounds[0] = 0
                 for(let i = 1; i < this._curvatureExtremaTotalNumberOfConstraints; i+= 1) {
                     if(this.curveAnalyzerCurrentCurve.curvatureDerivativeNumerator.controlPoints[i] > 0) {
@@ -1579,22 +1582,21 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                         this.curvatureExtremaConstraintBounds[i] = 0
                     }
                 }
-            }
+            // }
         } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear) 
             && this.constraintType === ConstraintType.curvatureExtrema) {
 
-            if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start || this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
-            // if(this.shapeSpaceBoundaryConstraintsCurvExtrema.length > 0) {
-                if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start) {
-                    // this.curvatureExtremaConstraintBounds[0] = this.controlPointsFunctionBInit[0] + CONSTRAINT_BOUND_THRESHOLD;
-                    this.curvatureExtremaConstraintBounds[0] = 0;
-                }
-                if(this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
-                    this.curvatureExtremaConstraintBounds[this._curvatureExtremaTotalNumberOfConstraints - 1] = 0;
-                }
+            // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start || this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.start) {
+                //     // this.curvatureExtremaConstraintBounds[0] = this.controlPointsFunctionBInit[0] + CONSTRAINT_BOUND_THRESHOLD;
+                //     this.curvatureExtremaConstraintBounds[0] = 0;
+                // }
+                // if(this.boundaryEnforcer.curvExtremumEventAtExtremity.end) {
+                //     this.curvatureExtremaConstraintBounds[this._curvatureExtremaTotalNumberOfConstraints - 1] = 0;
+                // }
                 if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
                     /* to be added: the interval span to be processed */
                     for(let i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i+= 1){
@@ -1614,22 +1616,21 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                         }
                     }
                 }
-            }
+            // }
         } else if((this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionLeftBoundaryAppear
             || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringInflectionRightBoundaryAppear)
             && this.constraintType === ConstraintType.inflection) {
 
-            if(this.boundaryEnforcer.inflectionEventAtExtremity.start || this.boundaryEnforcer.inflectionEventAtExtremity.end) {
-            // if(this.shapeSpaceBoundaryConstraintsInflections.length > 0) {
-                if(this.boundaryEnforcer.inflectionEventAtExtremity.start) {
-                    // this.curvatureExtremaConstraintBounds[0] = this.controlPointsFunctionBInit[0] + CONSTRAINT_BOUND_THRESHOLD;
-                    this.inflectionsConstraintsBounds[0] = 0;
-                }
-                if(this.boundaryEnforcer.inflectionEventAtExtremity.end) {
-                    this.inflectionsConstraintsBounds[this._inflectionTotalNumberOfConstraints - 1] = 0;
-                }
+            // if(this.boundaryEnforcer.inflectionEventAtExtremity.start || this.boundaryEnforcer.inflectionEventAtExtremity.end) {
+                // if(this.boundaryEnforcer.inflectionEventAtExtremity.start) {
+                //     // this.curvatureExtremaConstraintBounds[0] = this.controlPointsFunctionBInit[0] + CONSTRAINT_BOUND_THRESHOLD;
+                //     this.inflectionsConstraintsBounds[0] = 0;
+                // }
+                // if(this.boundaryEnforcer.inflectionEventAtExtremity.end) {
+                //     this.inflectionsConstraintsBounds[this._inflectionTotalNumberOfConstraints - 1] = 0;
+                // }
                 // if(this._diffEventsVariation.extremumValueOpt !== 0.0 && this._diffEventsVariation.CPvariations !== undefined) {
                 //     /* to be added: the interval span to be processed */
                 //     for(let i = 1; i < this._curvatureExtremaTotalNumberOfConstraints - 1; i+= 1){
@@ -1649,7 +1650,7 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
                 //         }
                 //     }
                 // }
-            }
+            // }
         }
     }
 
@@ -2337,10 +2338,10 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
         let curvatureDerivativeNumerator: number[] = [];
         let curvatureDerivativeEXtrema: number[] = [];
         let curvatureDerivativeEXtremaUpdated: number[] = [];
-        if(this.boundaryEnforcer.isActive()) {
+        // if(this.boundaryEnforcer.isActive()) {
             this._inflectionInactiveConstraints = [];
             this._curvatureExtremaInactiveConstraints = [];
-        }
+        // }
         // if(this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this.neighboringEvent.event === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
         if(this.diffEventsVariation.neighboringEvents.length > 0) {
             if(this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaDisappear || this._diffEventsVariation.neighboringEvents[0].type === NeighboringEventsType.neighboringCurvatureExtremaAppear) {
@@ -2386,8 +2387,8 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
             this.constraintType = ConstraintType.inflection;
             // this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(curvatureNumerator)
-            if(!this.boundaryEnforcer.isActive()) 
-                this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
+            // if(!this.boundaryEnforcer.isActive()) 
+            //     this._inflectionInactiveConstraints = this.computeInactiveConstraints(curvatureNumerator);
             this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
             // if(this.updateConstraintBound) {
             //     this.clearInequalityChanges();
@@ -2401,8 +2402,8 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator)
             this.constraintType = ConstraintType.curvatureExtrema;
             // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(g)
-            if(!this.boundaryEnforcer.isActive())
-                this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
+            // if(!this.boundaryEnforcer.isActive())
+            //     this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(curvatureDerivativeNumerator);
             this.curvatureExtremaNumberOfActiveConstraints = curvatureDerivativeNumerator.length - this.curvatureExtremaInactiveConstraints.length;
         }
 
@@ -2448,8 +2449,8 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
             this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
             this.constraintType = ConstraintType.inflection;
-            if(!this.boundaryEnforcer.hasNewEvent())
-                this._inflectionInactiveConstraints = this.computeInactiveConstraints(this._curvatureNumeratorCP);
+            // if(!this.boundaryEnforcer.hasNewEvent())
+            //     this._inflectionInactiveConstraints = this.computeInactiveConstraints(this._curvatureNumeratorCP);
             this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
         }
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
@@ -2457,8 +2458,8 @@ export class OptProblemBSplineR1toR2WithWeigthingFactorsGeneralNavigation extend
             this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
             this.constraintType = ConstraintType.curvatureExtrema;
-            if(!this.boundaryEnforcer.hasNewEvent())
-                this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this._curvatureDerivativeNumeratorCP);
+            // if(!this.boundaryEnforcer.hasNewEvent())
+            //     this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraints(this._curvatureDerivativeNumeratorCP);
             this.curvatureExtremaNumberOfActiveConstraints = this._curvatureDerivativeNumeratorCP.length - this.curvatureExtremaInactiveConstraints.length;
         }
 

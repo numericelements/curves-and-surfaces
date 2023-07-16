@@ -19,7 +19,6 @@ import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzer
 import { DiffrentialEventVariation } from "../sequenceOfDifferentialEvents/DifferentialEventVariation";
 import { OpenCurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { AbstractBoundaryEnforcer, BoundaryEnforcerStrictShapeSpacesOpenCurve } from "../curveShapeSpaceNavigation/BoundaryEnforcer";
 import { AbstractOptProblemBSplineR1toR2, ConstraintType, ExpensiveComputationResults, convertStepToVector2d } from "./AbstractOptProblemBSplineR1toR2";
 import { NestedShapeSpacesBoundaryEnforcerOpenCurve, StrictShapeSpacesBoundaryEnforcerOpenCurve } from "../curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer";
 

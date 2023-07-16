@@ -222,6 +222,7 @@ export class DiffrentialEventVariation {
         if((curvatureDerivativeZerosLocationsOpt.length - curvatureDerivativeZerosLocations.length) % 2 === 0 
             && curvatureDerivativeZerosLocationsOpt.length !== curvatureDerivativeZerosLocations.length) {
             /* JCL 06/03/2021 Configuration where one or more couples of extrema appeared */
+            let updateExtremumValue = false;
             for(const exLocOpt of curvatureDerivativeExtremaLocationsOpt) {
                 let extremumLocationFound = false;
                 for(let zeroLoc = 0; zeroLoc < curvatureDerivativeZerosLocationsOpt.length - 1; zeroLoc+=1) {
@@ -230,13 +231,15 @@ export class DiffrentialEventVariation {
                         extremumLocationFound = true;
                         const curvatureDerivExtremumOpt =  curvatureDerivativeNumeratorOpt.evaluate(exLocOpt);
                         this._extremumValueOpt = curvatureDerivExtremumOpt;
+                        updateExtremumValue = true;
                     }
                 }
                 if(extremumLocationFound && this._extremumValue * this._extremumValueOpt > 0) {
                     console.log("Inconsistency of function B(u) extrema values functionBExtremum: " + this._extremumValue + " functionBOptimExtremum" + this._extremumValueOpt);
-                } else if(!extremumLocationFound) {
-                    console.log("Extremum has not been correctly located");
                 }
+            }
+            if(!updateExtremumValue) {
+                console.log("Extremum has not been correctly located and not updated.");
             }
         } else {
             let closestExt = curvatureDerivativeNumerator.getExtremumClosestToZero();

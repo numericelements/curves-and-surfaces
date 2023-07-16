@@ -292,8 +292,11 @@ export class CurveSceneController implements SceneControllerInterface {
         this.inflectionsView.renderFrame()
         this.controlPolygonView.renderFrame()
         this.curveKnotsView.renderFrame()
-        if(this._sceneInteractionStrategy instanceof CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied
-            || this._sceneInteractionStrategy instanceof CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary) {
+        if(this._sceneInteractionStrategy instanceof CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied) {
+            this._highlightedControlPolygonView.renderFrame();
+            this._phantomCurveView.renderFrame();
+        } else if(this._sceneInteractionStrategy instanceof CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary
+            && this._sceneInteractionStrategy.displayPhantomEntities) {
             this._highlightedControlPolygonView.renderFrame();
             this._phantomCurveView.renderFrame();
         }

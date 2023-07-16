@@ -1,3 +1,4 @@
+import { OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace } from "../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
 import { CurveConstraintClampedFirstAndLastControlPoint, CurveConstraintClampedFirstControlPoint, CurveConstraintClampedLastControlPoint } from "../curveShapeSpaceNavigation/CurveConstraintStrategy";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { CCurveNavigationStrictlyInsideShapeSpace, CCurveNavigationThroughSimplerShapeSpaces, CCurveNavigationWithoutShapeSpaceMonitoring, OCurveNavigationStrictlyInsideShapeSpace, OCurveNavigationThroughSimplerShapeSpaces, OCurveNavigationWithoutShapeSpaceMonitoring } from "../curveShapeSpaceNavigation/NavigationState";
@@ -716,10 +717,14 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
             }
-            if(this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.isActive()) {
-                console.log("need to change interaction strategy")
-                this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary(this._curveSceneController));
+            // if(this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.isActive()) {
+            if(this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace) {
+                if(this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.isActive()) {
+                    console.log("need to change interaction strategy")
+                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary(this._curveSceneController));
+                }
             }
+
             this.curveModel.notifyObservers();
             this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         }
@@ -760,6 +765,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
     private curvatureExtSplippingOut: number[];
     private inflectionsEntering: number[];
     private inflectionsSplippingOut: number[];
+    private _displayPhantomEntities: boolean;
 
     constructor(curveSceneController: CurveSceneController) {
         super(curveSceneController);
@@ -770,20 +776,33 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
         this.selectedControlPoint = this._curveSceneController.selectedControlPoint;
         this.curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
         this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve = this.curveModel.spline;
-        this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
-        if(this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+        // this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.curveModel.spline;
+        if(this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined && !this.isNeighboringEventAtExtremity()) {
             this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve;
             this._curveSceneController.highlightedControlPolygonView.update(this.adjacentShapeSpaceCurve);
             this._curveSceneController.phantomCurveView.update(this.adjacentShapeSpaceCurve);
         } else {
-            this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+            this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.currentCurve;
+        }
+        if(this.isNeighboringEventAtExtremity()) {
+            this._displayPhantomEntities = false;
+        } else {
+            this._displayPhantomEntities = true;
         }
         this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve.clone());
         this.convertNeighboringEventsIntoDiffEventsToDisplay();
         this.curveModel.notifyObservers();
         this.updateDiffEventsEnteringOnCurveAdjacentToShapeSpace();
         this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
-        this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
+        // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
+        if(this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace) {
+            this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.reset();
+        }
+
+    }
+
+    get displayPhantomEntities(): boolean {
+        return this._displayPhantomEntities;
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
@@ -807,18 +826,23 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
                     console.log("Constraints not satisfied - new interaction Strategy");
                 this.curveModel.setSpline(this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve);
                 this._curveSceneController.curveModelDifferentialEventsExtractor.update(this.curveModel.spline);
-                if(this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.isActive()) {
-                    this.updateCurveAdjacentToShapeSpace();
-                    this.convertNeighboringEventsIntoDiffEventsToDisplay();
-                    this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
-                } else {
-                    console.log("change interaction strategy to drag inside shape space");
-                    this.clearListsOfDiffEvents();
-                    this.updateDiffEventsToDisplay();
-                    this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.reset();
-                    this.curveModel.notifyObservers();
-                    this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
-                    this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve(this._curveSceneController));
+                if(this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace) {
+                    // if(this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.isActive()) {
+                    if(this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.isActive()) {
+                        this.updateCurveAdjacentToShapeSpace();
+                        this.convertNeighboringEventsIntoDiffEventsToDisplay();
+                        // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
+                        this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.reset();
+                    } else {
+                        console.log("change interaction strategy to drag inside shape space");
+                        this.clearListsOfDiffEvents();
+                        this.updateDiffEventsToDisplay();
+                        // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.reset();
+                        this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.reset();
+                        this.curveModel.notifyObservers();
+                        this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
+                        this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve(this._curveSceneController));
+                    }
                 }
             }
             this.curveModel.notifyObservers();
@@ -844,8 +868,12 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
         message.logMessageToConsole();
         this.clearListsOfDiffEvents();
         this.updateDiffEventsToDisplay();
-        this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
-        this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.addTransitionOfEvents(this.curveShapeSpaceNavigator.navigationState.currentNeighboringEvents);
+        // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
+        // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.addTransitionOfEvents(this.curveShapeSpaceNavigator.navigationState.currentNeighboringEvents);
+        if(this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace) {
+            this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.deactivate();
+            this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.addTransitionOfEvents(this.curveShapeSpaceNavigator.navigationState.currentNeighboringEvents);
+        }
         this.curveModel.notifyObservers();
         this._curveSceneController.curveModelDifferentialEventsExtractor.notifyObservers();
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve(this._curveSceneController));
@@ -888,7 +916,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
                 this.curvatureExtSplippingOut.push(eventLocation1.location);
                 const eventLocation2 = this.curveShapeSpaceNavigator.navigationState.transitionEvents.eventAt(1);
                 this.curvatureExtSplippingOut.push(eventLocation2.location);
-            } else if(neighboringEvents.type ===  NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) {
+            } else if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear) {
                 const eventLocation = sequenceOpt.eventAt(neighboringEvents.index).location;
                 this.inflectionsSplippingOut.push(eventLocation);
             } else if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryAppear) {
@@ -904,21 +932,58 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
     }
 
     updateCurveAdjacentToShapeSpace(): void {
-        if(this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+        if(this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined && !this.isNeighboringEventAtExtremity()) {
             this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve;
             this._curveSceneController.highlightedControlPolygonView.update(this.adjacentShapeSpaceCurve);
             this._curveSceneController.phantomCurveView.update(this.adjacentShapeSpaceCurve);
-        } else {
+        } else if(!this.isNeighboringEventAtExtremity()){
             this.adjacentShapeSpaceCurve = this.curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
+        }
+        if(this.isNeighboringEventAtExtremity()) {
+            this._displayPhantomEntities = false;
+        } else {
+            this._displayPhantomEntities = true;
         }
     }
 
     updateDiffEventsEnteringOnCurveAdjacentToShapeSpace(): void {
-        if(this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined) {
+        if(this.curveShapeSpaceNavigator.navigationCurveModel.adjacentShapeSpaceCurve !== undefined && !this.isNeighboringEventAtExtremity()) {
             this._curveSceneController.selectedEnteringCurvatureExtremaView.update(this.adjacentShapeSpaceCurve);
             this._curveSceneController.selectedEnteringInflectionsView.update(this.adjacentShapeSpaceCurve);
             this.updateDiffEventsToDisplay();
         }
+    }
+
+    isNeighboringEventAtExtremity(): boolean {
+        let result = false;
+        const neighboringEvent = this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.currentNeighboringEvents[0];
+        switch(neighboringEvent.type) {
+            case NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringInflectionLeftBoundaryAppear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringInflectionRightBoundaryAppear:
+                result = true;
+                break;
+            case NeighboringEventsType.neighboringInflectionRightBoundaryDisappear:
+                result = true;
+                break;
+        }
+        return result;
     }
 }
 
