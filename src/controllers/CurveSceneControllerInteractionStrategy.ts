@@ -956,33 +956,41 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
 
     isNeighboringEventAtExtremity(): boolean {
         let result = false;
-        const neighboringEvent = this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.currentNeighboringEvents[0];
-        switch(neighboringEvent.type) {
-            case NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringInflectionLeftBoundaryAppear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringInflectionRightBoundaryAppear:
-                result = true;
-                break;
-            case NeighboringEventsType.neighboringInflectionRightBoundaryDisappear:
-                result = true;
-                break;
+        let anyOtherTypeOfEvent = false;
+        for(const neighboringEvent of this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.currentNeighboringEvents) {
+            switch(neighboringEvent.type) {
+                case NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringInflectionLeftBoundaryAppear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringInflectionRightBoundaryAppear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                case NeighboringEventsType.neighboringInflectionRightBoundaryDisappear:
+                    if(!anyOtherTypeOfEvent) result = true;
+                    break;
+                default:
+                    anyOtherTypeOfEvent = true;
+                    result = false;
+                    break;
+            }
         }
+        const neighboringEvent = this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.currentNeighboringEvents[0];
+
         return result;
     }
 }

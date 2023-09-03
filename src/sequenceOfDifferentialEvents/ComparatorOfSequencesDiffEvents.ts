@@ -194,7 +194,7 @@ export class ComparatorOfSequencesOfDiffEvents {
         const nbCurvExtrema1 = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents1.indicesOfInflections.length;
         const nbCurvExtrema2 = this._sequenceDiffEvents2.length() - this._sequenceDiffEvents2.indicesOfInflections.length;
         if(nbCurvExtrema1 === nbCurvExtrema2) {
-            const nbModifiedInflections =  this._sequenceDiffEvents2.indicesOfInflections.length -   this._sequenceDiffEvents1.indicesOfInflections.length;
+            const nbModifiedInflections = this._sequenceDiffEvents2.indicesOfInflections.length -   this._sequenceDiffEvents1.indicesOfInflections.length;
             if(nbModifiedInflections === ONE_INFLECTION_APPEAR_IN_EXTREME_INTERVAL) {
                 this.setModifedInflectionEventInExtremeInterval(this._sequenceDiffEvents2, nbModifiedInflections);
             } else if(nbModifiedInflections === ONE_INFLECTION_DISAPPEAR_IN_EXTREME_INTERVAL) {

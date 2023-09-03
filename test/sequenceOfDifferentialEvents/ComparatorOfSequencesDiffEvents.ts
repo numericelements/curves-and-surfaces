@@ -202,7 +202,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql( NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear);
         });
     
         it('can return the neighboring event when an inflection event disappears alone at the left hand side of a unique interval while there are other curvature events in this interval', () => {
@@ -213,7 +214,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear);
         });
     
         it('can return the neighboring event when an inflection event disappears alone at the right hand side of a unique interval', () => {
@@ -224,7 +226,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionRightBoundaryDisappear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryDisappear);
         });
     
         it('can return the neighboring event when an inflection event disappears alone at the right hand side of a unique interval while there are other curvature events in this interval', () => {
@@ -235,7 +238,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionRightBoundaryDisappear, _index: 2});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(2);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryDisappear);
         });
 
         it('can return the neighboring event when an inflection event disappears alone at the extreme left hand side interval', () => {
@@ -246,7 +250,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear);
         });
     
         it('can return the neighboring event when an inflection event disappears alone at the extreme right hand side interval', () => {
@@ -257,7 +262,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionRightBoundaryDisappear, _index: 3});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(3);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryDisappear);
         });
 
         it('can return the neighboring event when an inflection event appears alone at the left hand side of a unique interval', () => {
@@ -268,7 +274,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionLeftBoundaryAppear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryAppear);
         });
     
         it('can return the neighboring event when an inflection event appears alone at the left hand side of a unique interval while there are other curvature events in this interval', () => {
@@ -279,7 +286,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionLeftBoundaryAppear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryAppear);
         });
 
         it('can return the neighboring event when an inflection event appears alone at the extreme left hand side interval', () => {
@@ -290,7 +298,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionLeftBoundaryAppear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryAppear);
         });
     
         it('can return the neighboring event when an inflection event appears alone at the extreme right hand side interval', () => {
@@ -301,7 +310,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionRightBoundaryAppear, _index: 3});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(3);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryAppear);
         });
 
         it('can return the neighboring event when an inflection event disappears and is adjacent to a unique curvature extremum of the interval', () => {
@@ -312,7 +322,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear);
         });
     
         it('can return the neighboring event when an inflection event disappears and is adjacent to a curvature extremum located at the left hand side of the interval', () => {
@@ -323,7 +334,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 3});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(3);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear);
         });
 
         it('can return the neighboring event when an inflection event appears and is adjacent to a curvature extremum located at the right hand side of the interval', () => {
@@ -334,7 +346,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 1});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionsCurvatureExtremumAppear);
         });
     
         it('can return the neighboring event when an inflection event appears and is adjacent to a curvature extremum located in the middle of the interval with three oscillations', () => {
@@ -345,7 +358,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringInflectionsCurvatureExtremum, _index: 3});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(3);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionsCurvatureExtremumAppear);
         });
 
     });
@@ -389,7 +403,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear);
         });
     
         it('can return the neighboring event when a curvature extremum appears alone in the right extreme interval', () => {
@@ -400,7 +415,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear, _index: 2});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(2);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear);
         });
 
         it('can return the neighboring event when a curvature extremum disappears in the left extreme interval leaving other curvature events in that interval', () => {
@@ -411,7 +427,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear);
         });
     
         it('can return the neighboring event when a curvature extremum disappears in the right extreme interval where there is already a curvature event', () => {
@@ -422,7 +439,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear, _index: 2});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(2);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear);
         });
 
         it('can return the neighboring event when a curvature extremum appears alone at the left hand side of the interval', () => {
@@ -433,7 +451,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear);
         });
     
         it('can return the neighboring event when a curvature extremum appears alone at the right hand side of the interval', () => {
@@ -444,7 +463,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumRightBoundaryAppear);
         });
 
         it('can return the neighboring event when a curvature extremum disappears at the left hand side of the interval and there is already other curvature events', () => {
@@ -455,7 +475,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear);
         });
     
         it('can return the neighboring event when a curvature extremum disappears at the right hand side of the interval where there is already a curvature event', () => {
@@ -466,7 +487,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear, _index: 1});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent: ').to.eql(NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear);
         });
 
         it('can return the neighboring event when two curvature extrema appear together into the unique interval', () => {
@@ -477,7 +499,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurvatureExtrema, _index: 0});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvatureExtremaAppear);
         });
     
         it('can return the neighboring event when two curvature extrema appear together with others into the unique interval', () => {
@@ -488,7 +511,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurvatureExtrema, _index: 1});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvatureExtremaAppear);
         });
 
         it('can return the neighboring event when two curvature extrema disappear into the left interval already populated with others', () => {
@@ -499,7 +523,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurvatureExtrema, _index: 1});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvatureExtremaDisappear);
         });
     
         it('can return the neighboring event when two curvature extrema disappear and are alone into the right interval', () => {
@@ -510,7 +535,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurvatureExtrema, _index: 1});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvatureExtremaDisappear);
         });
     
         it('can return the neighboring event when two curvature extrema disappear into an intermediate interval', () => {
@@ -521,7 +547,8 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             comparator.locateNeiboringEvents();
             expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
-            expect(comparator.neighboringEvents[0], 'neighboringEvent: ').to.eql({_type: NeighboringEventsType.neighboringCurvatureExtrema, _index: 2});
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(2);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvatureExtremaDisappear);
         });
 
     });
