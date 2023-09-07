@@ -7,6 +7,8 @@ export enum NeighboringEventsType {neighboringCurExtremumLeftBoundary, neighbori
     neighboringCurExtremumRightBoundaryAppear, neighboringCurExtremumRightBoundaryDisappear,
     neighboringInflectionLeftBoundaryAppear, neighboringInflectionLeftBoundaryDisappear,
     neighboringInflectionRightBoundaryAppear, neighboringInflectionRightBoundaryDisappear,
+    neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear, neighboringInflectionLeftBoundaryDisappearCurExtremumAppear,
+    neighboringCurvExtremumRightBoundaryDisappearInflectionAppear, neighboringInflectionRightBoundaryDisappearCurExtremumAppear,
     moreThanOneEvent }
 
 export const INITIAL_INTERV_INDEX = -1;

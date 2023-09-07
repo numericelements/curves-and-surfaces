@@ -43,7 +43,8 @@ export class SequenceOfDifferentialEvents {
             }
         } else if(curvatureExtrema === undefined && inflections !== undefined) {
             if(inflections.length > 1) {
-                throw new Error("Unable to generate a sequence of differential events: too many consecutive inflections.");
+                const error = new ErrorLog(this.constructor.name, "constructor", "Unable to generate a sequence of differential events: too many consecutive inflections.");
+                error.logMessageToConsole();
             } else {
                 const event = new InflectionEvent(inflections[0]);
                 this._sequence.push(event);
@@ -104,6 +105,13 @@ export class SequenceOfDifferentialEvents {
 
     insertAt(event: DifferentialEvent, index: number): void {
         this._sequence.splice(index, 0, event);
+        this._indicesOfInflections = this.generateIndicesInflection();
+        this.checkSequenceConsistency();
+    }
+
+    removeAt(index: number): void {
+        this._sequence.splice(index, 1);
+        this._indicesOfInflections = this.generateIndicesInflection();
         this.checkSequenceConsistency();
     }
 
@@ -177,11 +185,13 @@ export class SequenceOfDifferentialEvents {
             j += 1;
         }
         if(indexExtrema > 0) {
-            throw new Error("Inconsistent sequence of differential events because the location of curvature extrema is not stricly increasing at index."
+            const error = new ErrorLog(this.constructor.name, "insertEvents", "Inconsistent sequence of differential events because the location of curvature extrema is not stricly increasing at index."
             + indexExtrema);
+            error.logMessageToConsole();
         }
         if(j < inflections.length) {
-            throw new Error("Inconsistent sequence of differential events that terminates with multiple inflections.");
+            const error = new ErrorLog(this.constructor.name, "insertEvents", "Inconsistent sequence of differential events that terminates with multiple inflections.");
+            error.logMessageToConsole();
         } else if(this._sequence.length !== curvatureExtrema.length + inflections.length) {
             const error = new ErrorLog(this.constructor.name, "insertEvents", "Inconsistent length of sequence of differential events.");
             error.logMessageToConsole();
@@ -250,8 +260,8 @@ export class SequenceOfDifferentialEvents {
             }
         }
         if(index > 0) {
-            let message = "Inconsistent sequence of differential events: two successive inflections at indices " + (index - 1) + " and " + index;
-            let error = new ErrorLog(this.constructor.name, "checkTypeConsistency", message);
+            const message = "Inconsistent sequence of differential events: two successive inflections at indices " + (index - 1) + " and " + index;
+            const error = new ErrorLog(this.constructor.name, "checkTypeConsistency", message);
             error.logMessageToConsole();
         }
     }
@@ -269,9 +279,9 @@ export class SequenceOfDifferentialEvents {
             }
         }
         if(index > 0) {
-            let message = "Inconsistent sequence of differential events: two successive events have non strictly increasing abscissa at indices " + 
+            const message = "Inconsistent sequence of differential events: two successive events have non strictly increasing abscissa at indices " + 
                 (index - 1) + " and " + index + " with values " + this._sequence[index - 1].location + " and " + this._sequence[index].location;
-            let error = new ErrorLog(this.constructor.name, "checkLocationConsistency", message);
+            const error = new ErrorLog(this.constructor.name, "checkLocationConsistency", message);
             error.logMessageToConsole();
         }
     }
@@ -288,20 +298,20 @@ export class SequenceOfDifferentialEvents {
             if(inflectionIndex > 0) {
                 if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED) {
                     /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
-                    let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
+                    const error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
                     error.logMessageToConsole();
                 } else if(nbModifiedEvents === TWO_CURVEXT_EVENTS_DISAPPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED) {
-                    let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
+                    const error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
                     error.logMessageToConsole();
                 }
             }
         }
         else if((inflectionIndex === 0 || inflectionIndex === this._indicesOfInflections.length) && this._indicesOfInflections.length > 0) {
             if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === 0 && this._indicesOfInflections[inflectionIndex] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
-                let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
+                const error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
                 error.logMessageToConsole();
             } else if(nbModifiedEvents === TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === this._indicesOfInflections.length && this._indicesOfInflections.length - this._indicesOfInflections[inflectionIndex - 1] < MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
-                let error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
+                const error = new ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
                 error.logMessageToConsole();
             }
         }
@@ -313,6 +323,7 @@ export class SequenceOfDifferentialEvents {
         {
             sequence.insertAt(this.eventAt(event), event);
         }
+        sequence._indicesOfInflections = sequence.generateIndicesInflection();
         return sequence;
     }
 

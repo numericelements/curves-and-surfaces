@@ -26,7 +26,7 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             // expect( () => comparator.locateIntervalAndNumberOfCurvExEventChanges()).to.throw();
         });
 
-        it('generates the number and interval of curvature events changes when one appears', () => {
+        it('generates the number and interval of curvature events changes when one curvature extremum appears', () => {
             const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([], []);
             const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05], []);
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
@@ -36,7 +36,7 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             expect(comparator.modifiedCurvExEvents[0].nbEvents, 'nb curvEx modified: ').to.eql(1);
         });
 
-        it('generates the number and interval of curvature events changes when one disappears', () => {
+        it('generates the number and interval of curvature events changes when one curvature extremum disappears', () => {
             const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05], []);
             const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([], []);
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
@@ -46,7 +46,7 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             expect(comparator.modifiedCurvExEvents[0].nbEvents, 'nb curvEx modified: ').to.eql(-1);
         });
 
-        it('generates the number and interval of curvature events changes when two disappears between inflections', () => {
+        it('generates the number and interval of curvature events changes when two curvature extrema disappear between inflections', () => {
             const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.25, 0.4, 0.55], [0.1, 0.8]);
             const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.45], [0.15, 0.75]);
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
@@ -55,6 +55,7 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             expect(comparator.modifiedCurvExEvents[0].indexInflection, 'index interval modified: ').to.eql(1);
             expect(comparator.modifiedCurvExEvents[0].nbEvents, 'nb curvEx modified: ').to.eql(-2);
         });
+
     });
 
     describe('checkConsistencyModifiedEvents', () => {
@@ -568,6 +569,86 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
             expect(comparator.modifiedInflectionEvents.length, 'nb inflections modified: ').to.eql(0);
             expect(comparator.modifiedCurvExEvents.length, 'nb curvEx modified: ').to.eql(0);
+        });
+
+        it('behavior when one curvature extremum disappear at the left hand side and is replaced by one inflection at the left hand side when the starting interval is a unique principal interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.95], []);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.94], [0.05]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear);
+        });
+
+        it('behavior when one curvature extremum disappear at the left hand side and is replaced by one inflection at the left hand side when the starting interval is the left hand side interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.2, 0.95], [0.5]);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25, 0.93], [0.05, 0.6]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear);
+        });
+
+        it('behavior when one curvature extremum disappear at the right hand side and is replaced by one inflection at the right hand side when the starting interval is a unique principal interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.95], []);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.04], [0.95]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvExtremumRightBoundaryDisappearInflectionAppear);
+        });
+
+        it('behavior when one curvature extremum disappear at the right hand side and is replaced by one inflection at the right hand side when the starting interval is the right hand side interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.70, 0.95], [0.5]);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.04, 0.75], [0.6, 0.95]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurvExtremumRightBoundaryDisappearInflectionAppear);
+        });
+
+        it('behavior when one inflection disappear at the left hand side and is replaced by one curvature extremum at the left hand side when the starting interval is a unique principal interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.95], [0.05]);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.94], []);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryDisappearCurExtremumAppear);
+        });
+
+        it('behavior when one inflection disappear at the left hand side and is replaced by one curvature extremum at the left hand side when the starting interval is the left hand side interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.2, 0.95], [0.05, 0.5]);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.25, 0.93], [0.6]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionLeftBoundaryDisappearCurExtremumAppear);
+        });
+
+        it('behavior when one inflection disappear at the right hand side and is replaced by one curvature extremum at the right hand side when the starting interval is a unique principal interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05], [0.95]);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.04, 0.92], []);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear);
+        });
+
+        it('behavior when one inflection disappear at the right hand side and is replaced by one curvature extremum at the right hand side when the starting interval is the right hand side interval', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.70], [0.5, 0.95]);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.04, 0.75, 0.95], [0.6]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(1);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear);
         });
     });
 });

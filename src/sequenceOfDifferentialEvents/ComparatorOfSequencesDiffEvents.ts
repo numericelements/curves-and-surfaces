@@ -28,6 +28,8 @@ export const CURVE_INTERVAL_SPAN = UPPER_BOUND_CURVE_INTERVAL - LOWER_BOUND_CURV
 
 export const RETURN_ERROR_CODE = -1;
 
+export const LAST_INDEX = -1;
+
 export const ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL = 1;
 export const ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL = -1;
 export const TWO_CURVEXT_EVENTS_APPEAR = 2;
@@ -139,7 +141,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             } 
         }
         if(!modificationOfInflectionEventExist) {
-            let error = new ErrorLog(this.constructor.name, "setModifedInflectionEventInExtremeInterval", "Inconsistent variation of sequences of differential events.");
+            const error = new ErrorLog(this.constructor.name, "setModifedInflectionEventInExtremeInterval", "Inconsistent variation of sequences of differential events.");
             error.logMessageToConsole();
         }
     }
@@ -345,14 +347,114 @@ export class ComparatorOfSequencesOfDiffEvents {
         return result;
     }
 
+    assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(index: number): void {
+        if(index !== 0 && index !== LAST_INDEX) {
+            const error = new ErrorLog(this.constructor.name, 'assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange', 'invalid index to process sequences of differential events.');
+            error.logMessageToConsole();
+            return;
+        }
+        let orderEventRemoved: number;
+        const sequenceDiffEvents2Temp = this._sequenceDiffEvents2.clone();
+        let neighboringEventsCurvExtDisappearing = new NeighboringEvents();
+        let neighboringEventsInflectionAppearing = new NeighboringEvents();
+        if(index === LAST_INDEX) {
+            orderEventRemoved = this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order;
+            this._sequenceDiffEvents2.removeAt(this._sequenceDiffEvents2.length() - 1);
+        } else {
+            orderEventRemoved = this._sequenceDiffEvents2.eventAt(0).order;
+            this._sequenceDiffEvents2.removeAt(index);
+        }
+        if(orderEventRemoved === ORDER_INFLECTION) {
+            this.locateIntervalAndNumberOfCurvExEventChanges();
+            this.locateNeiboringEventsUnderCurvExEventChanges();
+        } else if(orderEventRemoved === ORDER_CURVATURE_EXTREMUM) {
+            this.locateIntervalAndNumberOfInflectionEventChanges();
+            this.locateNeiboringEventsUnderInflectionEventChanges();
+        }
+        neighboringEventsCurvExtDisappearing = this.neighboringEvents[0];
+        this.modifiedCurvExEvents = [];
+        this.neighboringEvents = [];
+        this._sequenceDiffEvents2 = sequenceDiffEvents2Temp.clone();
+        const sequenceDiffEvents1Temp = this._sequenceDiffEvents1.clone();
+        if(index === LAST_INDEX) {
+            orderEventRemoved = this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order;
+            this._sequenceDiffEvents1.removeAt(this._sequenceDiffEvents1.length() - 1);
+        } else {
+            orderEventRemoved = this._sequenceDiffEvents1.eventAt(0).order;
+            this._sequenceDiffEvents1.removeAt(index);
+        }
+        if(orderEventRemoved === ORDER_CURVATURE_EXTREMUM) {
+            this.locateIntervalAndNumberOfInflectionEventChanges();
+            this.locateNeiboringEventsUnderInflectionEventChanges();
+        } else if(orderEventRemoved === ORDER_INFLECTION) {
+            this.locateIntervalAndNumberOfCurvExEventChanges();
+            this.locateNeiboringEventsUnderCurvExEventChanges();
+        }
+        neighboringEventsInflectionAppearing = this.neighboringEvents[0];
+        this._sequenceDiffEvents1 = sequenceDiffEvents1Temp.clone();
+        this.modifiedInflectionEvents = [];
+        this.neighboringEvents = [];
+        if(orderEventRemoved === ORDER_CURVATURE_EXTREMUM) {
+            if(index === 0) {
+                this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear, 0));
+            } else if(index === LAST_INDEX) {
+                this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.neighboringCurvExtremumRightBoundaryDisappearInflectionAppear, 0));
+            }
+        } else {
+            if(index === 0) {
+                this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.neighboringInflectionLeftBoundaryDisappearCurExtremumAppear, 0));
+            } else if(index === LAST_INDEX) {
+                this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear, 0));
+            }
+        }
+    }
+
+    locateNeighboringEventsUnderInflectionAndCurvatureExChanges(): void {
+        const nbCurvExtrema1 = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents1.indicesOfInflections.length;
+        const nbCurvExtrema2 = this._sequenceDiffEvents2.length() - this._sequenceDiffEvents2.indicesOfInflections.length;
+        const variationNbInflections = this._sequenceDiffEvents2.indicesOfInflections.length - this._sequenceDiffEvents1.indicesOfInflections.length;
+        const variationNbCurvEx = nbCurvExtrema2 - nbCurvExtrema1;
+        if((variationNbInflections === 1 && variationNbCurvEx === -1) || (variationNbInflections === -1 && variationNbCurvEx === 1)) {
+            // A curvature extremum is going out and an inflection is entering or the opposite
+            if(variationNbInflections === 1 && variationNbCurvEx === -1) {
+                if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_CURVATURE_EXTREMUM && this._sequenceDiffEvents2.eventAt(0).order === ORDER_INFLECTION) {
+                    this.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(0);
+                } else if(this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_CURVATURE_EXTREMUM
+                    && this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order === ORDER_INFLECTION) {
+                    this.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(LAST_INDEX);
+                } else {
+                    const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt a curvature extremum being replaced by an inflection.");
+                    error.logMessageToConsole();
+                }
+            } else if(variationNbInflections === -1 && variationNbCurvEx === 1) {
+                if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_INFLECTION && this._sequenceDiffEvents2.eventAt(0).order === ORDER_CURVATURE_EXTREMUM) {
+                    this.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(0);
+                } else if(this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_INFLECTION
+                    && this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order === ORDER_CURVATURE_EXTREMUM) {
+                    this.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(LAST_INDEX);
+                } else {
+                    const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt an inflection being replaced by a curvature extremum     .");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+    }
+
     locateNeiboringEvents(): void {
         this.modifiedCurvExEvents = [];
         this.modifiedInflectionEvents = [];
+        const nbCurvExtrema1 = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents1.indicesOfInflections.length;
+        const nbCurvExtrema2 = this._sequenceDiffEvents2.length() - this._sequenceDiffEvents2.indicesOfInflections.length;
         if(Math.abs(this._sequenceDiffEvents1.length() - this._sequenceDiffEvents2.length()) > 2 ) {
             this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.moreThanOneEvent));
             return;
         }
-        if(!(this._sequenceDiffEvents1.length() === this._sequenceDiffEvents1.indicesOfInflections.length &&
+
+        if(this._sequenceDiffEvents1.indicesOfInflections.length !== this._sequenceDiffEvents2.indicesOfInflections.length &&
+            nbCurvExtrema1 !==  nbCurvExtrema2) {
+            // There are changes of inflections and curvature extremea simultaneously
+            this.locateNeighboringEventsUnderInflectionAndCurvatureExChanges();
+        } else if(!(this._sequenceDiffEvents1.length() === this._sequenceDiffEvents1.indicesOfInflections.length &&
             this._sequenceDiffEvents2.length() === this._sequenceDiffEvents2.indicesOfInflections.length)) {
             this.locateIntervalAndNumberOfCurvExEventChanges();
         }
@@ -448,6 +550,18 @@ export class ComparatorOfSequencesOfDiffEvents {
                 case NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear:
                     if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionsCurvatureExtremumDisappear) indexEvent = index;
                     break;
+                case NeighboringEventsType.neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionLeftBoundaryDisappearCurExtremumAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappearCurExtremumAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringCurvExtremumRightBoundaryDisappearInflectionAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringCurvExtremumRightBoundaryDisappearInflectionAppear) indexEvent = index;
+                    break;
+                case NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear:
+                    if(neighboringEvents.type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear) indexEvent = index;
+                    break;
                 default:
                     if(neighboringEvents.type === NeighboringEventsType.none) {
                         const warning = new WarningLog(this.constructor.name, "removeNeighboringEvents", "The events to remove are of type 'none'. Inconsistent operation." );
@@ -475,7 +589,7 @@ export class ComparatorOfSequencesOfDiffEvents {
     filterOutneighboringEvents(curveShapeSpaceNavigator: CurveShapeSpaceNavigator): ComparatorOfSequencesOfDiffEvents {
         const navigationCurveModel = curveShapeSpaceNavigator.navigationCurveModel;
         const filteredSeqComparator = this.clone();
-       for(const neighboringEvents of this.neighboringEvents) {
+        for(const neighboringEvents of this.neighboringEvents) {
             if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear
                 || neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryAppear) {
                 if(neighboringEvents.type === NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear) {
@@ -605,6 +719,11 @@ export class ComparatorOfSequencesOfDiffEvents {
                 }
                 if(!curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeControlInflections)
                     filteredSeqComparator.removeNeighboringEvents(neighboringEvents);
+            } else if(neighboringEvents.type === NeighboringEventsType.neighboringCurvExtremumLeftBoundaryDisappearInflectionAppear
+                || neighboringEvents.type === NeighboringEventsType.neighboringInflectionLeftBoundaryDisappearCurExtremumAppear
+                || neighboringEvents.type === NeighboringEventsType.neighboringCurvExtremumRightBoundaryDisappearInflectionAppear
+                || neighboringEvents.type === NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear) {
+                console.log("curvature extremum and inflection moving. cannot be removed");
             } else {
                 const error = new ErrorLog(this.constructor.name, "filterOutneighboringEvents", "Incorrect transition of differential events.");
                 error.logMessageToConsole();
