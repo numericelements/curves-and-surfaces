@@ -650,5 +650,15 @@ describe('ComparatorOfSequencesOfDiffEvents', () => {
             expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
             expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringInflectionRightBoundaryDisappearCurExtremumAppear);
         });
+
+        it('behavior when one curvature extremum disappears at the left hand side and one inflection appears at the right hand side', () => {
+            const seqDif1: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.05, 0.2], []);
+            const seqDif2: SequenceOfDifferentialEvents = new SequenceOfDifferentialEvents([0.25], [0.95]);
+            const comparator = new ComparatorOfSequencesOfDiffEvents(seqDif1, seqDif2);
+            comparator.locateNeiboringEvents();
+            expect(comparator.neighboringEvents.length, 'neighboringEvent length: ').to.eql(2);
+            expect(comparator.neighboringEvents[0].index, 'neighboringEvent.index: ').to.eql(0);
+            expect(comparator.neighboringEvents[0].type, 'neighboringEvent.type: ').to.eql(NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear);
+        });
     });
 });

@@ -361,7 +361,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             orderEventRemoved = this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order;
             this._sequenceDiffEvents2.removeAt(this._sequenceDiffEvents2.length() - 1);
         } else {
-            orderEventRemoved = this._sequenceDiffEvents2.eventAt(0).order;
+            orderEventRemoved = this._sequenceDiffEvents2.eventAt(index).order;
             this._sequenceDiffEvents2.removeAt(index);
         }
         if(orderEventRemoved === ORDER_INFLECTION) {
@@ -380,7 +380,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             orderEventRemoved = this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order;
             this._sequenceDiffEvents1.removeAt(this._sequenceDiffEvents1.length() - 1);
         } else {
-            orderEventRemoved = this._sequenceDiffEvents1.eventAt(0).order;
+            orderEventRemoved = this._sequenceDiffEvents1.eventAt(index).order;
             this._sequenceDiffEvents1.removeAt(index);
         }
         if(orderEventRemoved === ORDER_CURVATURE_EXTREMUM) {
@@ -409,6 +409,38 @@ export class ComparatorOfSequencesOfDiffEvents {
         }
     }
 
+    splitEventsInvolvingInflectionAndCurvatureExtremum(): void {
+        const sequenceDiffEvents2Temp = this._sequenceDiffEvents2.clone();
+        let neighboringEventsCurvExt = new NeighboringEvents();
+        let neighboringEventsInflection = new NeighboringEvents();
+        const eventRemoved = this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order;
+        if(eventRemoved === ORDER_INFLECTION) {
+            this._sequenceDiffEvents2.removeAt(this._sequenceDiffEvents2.length() - 1);
+        }
+        this.locateIntervalAndNumberOfCurvExEventChanges();
+        this.locateNeiboringEventsUnderCurvExEventChanges();
+        neighboringEventsCurvExt = this.neighboringEvents[0];
+        this.modifiedCurvExEvents = [];
+        this.neighboringEvents = [];
+        this._sequenceDiffEvents2 = sequenceDiffEvents2Temp.clone();
+        let curvExtEvent = this._sequenceDiffEvents1.eventAt(0);
+        if(curvExtEvent.location < this._sequenceDiffEvents2.eventAt(0).location) {
+            this._sequenceDiffEvents2.insertAt(curvExtEvent, 0);
+        } else {
+            const dummyLocation = this._sequenceDiffEvents2.eventAt(1).location;
+            curvExtEvent.location = dummyLocation / 2.0;
+            this._sequenceDiffEvents2.insertAt(curvExtEvent, 0);
+        }
+        this.locateIntervalAndNumberOfInflectionEventChanges();
+        this.locateNeiboringEventsUnderInflectionEventChanges();
+        neighboringEventsInflection = this.neighboringEvents[0];
+        this._sequenceDiffEvents2 = sequenceDiffEvents2Temp.clone();
+        this.modifiedCurvExEvents = [];
+        this.neighboringEvents = [];
+        this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.neighboringCurExtremumLeftBoundaryDisappear, 0));
+        this.neighboringEvents.push(new NeighboringEvents(NeighboringEventsType.neighboringInflectionRightBoundaryAppear, 0));
+    }
+
     locateNeighboringEventsUnderInflectionAndCurvatureExChanges(): void {
         const nbCurvExtrema1 = this._sequenceDiffEvents1.length() - this._sequenceDiffEvents1.indicesOfInflections.length;
         const nbCurvExtrema2 = this._sequenceDiffEvents2.length() - this._sequenceDiffEvents2.indicesOfInflections.length;
@@ -422,6 +454,12 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else if(this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_CURVATURE_EXTREMUM
                     && this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order === ORDER_INFLECTION) {
                     this.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(LAST_INDEX);
+                } else if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_CURVATURE_EXTREMUM && this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_CURVATURE_EXTREMUM
+                    && this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order === ORDER_INFLECTION) {
+                    this.splitEventsInvolvingInflectionAndCurvatureExtremum();
+                } else if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_CURVATURE_EXTREMUM && this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_CURVATURE_EXTREMUM
+                    && this._sequenceDiffEvents2.eventAt(0).order === ORDER_INFLECTION) {
+
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt a curvature extremum being replaced by an inflection.");
                     error.logMessageToConsole();
@@ -432,6 +470,12 @@ export class ComparatorOfSequencesOfDiffEvents {
                 } else if(this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_INFLECTION
                     && this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order === ORDER_CURVATURE_EXTREMUM) {
                     this.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(LAST_INDEX);
+                } else if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_CURVATURE_EXTREMUM && this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_INFLECTION
+                    && this._sequenceDiffEvents2.eventAt(this._sequenceDiffEvents2.length() - 1).order === ORDER_CURVATURE_EXTREMUM) {
+
+                } else if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_INFLECTION && this._sequenceDiffEvents1.eventAt(this._sequenceDiffEvents1.length() - 1).order === ORDER_CURVATURE_EXTREMUM
+                    && this._sequenceDiffEvents2.eventAt(0).order === ORDER_CURVATURE_EXTREMUM) {
+
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt an inflection being replaced by a curvature extremum     .");
                     error.logMessageToConsole();

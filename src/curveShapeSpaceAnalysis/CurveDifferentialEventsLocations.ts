@@ -3,14 +3,18 @@ import { Vector2d } from "../mathVector/Vector2d";
 export class CurveDifferentialEventsLocations {
 
     private _inflectionParametricLocations: number[];
+    private _curvatureNumeratorExtremaEstimators: number[];
     private _curvatureExtremaParametricLocations: number[];
+    private _curvatureDerivativeNumeratorExtremaEstimators: number[];
     private _inflectionLocationsEuclideanSpace: Vector2d[];
     private _curvatureExtremaLocationsEuclideanSpace: Vector2d[];
     private _transientCurvatureExtremaLocationsEuclideanSpace: Vector2d[];
 
     constructor() {
         this._inflectionParametricLocations = [];
+        this._curvatureNumeratorExtremaEstimators = [];
         this._curvatureExtremaParametricLocations = [];
+        this._curvatureDerivativeNumeratorExtremaEstimators = [];
         this._inflectionLocationsEuclideanSpace = [];
         this._curvatureExtremaLocationsEuclideanSpace = [];
         this._transientCurvatureExtremaLocationsEuclideanSpace = [];
@@ -20,8 +24,16 @@ export class CurveDifferentialEventsLocations {
         return this._inflectionParametricLocations;
     }
 
+    get curvatureNumeratorExtremaEstimators() {
+        return this._curvatureNumeratorExtremaEstimators;
+    }
+
     get curvatureExtremaParametricLocations() {
         return this._curvatureExtremaParametricLocations;
+    }
+
+    get curvatureDerivativeNumeratorExtremaEstimators() {
+        return this._curvatureDerivativeNumeratorExtremaEstimators;
     }
 
     get inflectionLocationsEuclideanSpace() {
@@ -40,8 +52,16 @@ export class CurveDifferentialEventsLocations {
         this._inflectionParametricLocations = parametricLocations;
     }
 
+    set curvatureNumeratorExtremaEstimators(parametricLocations: number[]) {
+        this._curvatureNumeratorExtremaEstimators = parametricLocations;
+    }
+
     set curvatureExtremaParametricLocations(parametricLocations: number[]) {
         this._curvatureExtremaParametricLocations = parametricLocations;
+    }
+
+    set curvatureDerivativeNumeratorExtremaEstimators(parametricLocations: number[]) {
+        this._curvatureDerivativeNumeratorExtremaEstimators = parametricLocations;
     }
 
     set inflectionLocationsEuclideanSpace(euclideanLocations: Vector2d[]) {
@@ -62,7 +82,9 @@ export class CurveDifferentialEventsLocations {
     clone(): CurveDifferentialEventsLocations {
         let crvDiffEventsLocations = new CurveDifferentialEventsLocations();
         crvDiffEventsLocations.inflectionParametricLocations = deepCopyEventsParametricLocations(this._inflectionParametricLocations);
+        crvDiffEventsLocations.curvatureNumeratorExtremaEstimators = deepCopyEventsParametricLocations(this._curvatureNumeratorExtremaEstimators);
         crvDiffEventsLocations.curvatureExtremaParametricLocations = deepCopyEventsParametricLocations(this._curvatureExtremaParametricLocations);
+        crvDiffEventsLocations.curvatureDerivativeNumeratorExtremaEstimators = deepCopyEventsParametricLocations(this._curvatureDerivativeNumeratorExtremaEstimators);
         crvDiffEventsLocations.inflectionLocationsEuclideanSpace = deepCopyEventsEuclideanLocations(this._inflectionLocationsEuclideanSpace);
         crvDiffEventsLocations.curvatureExtremaLocationsEuclideanSpace = deepCopyEventsEuclideanLocations(this._curvatureExtremaLocationsEuclideanSpace);
         crvDiffEventsLocations.transientCurvatureExtremaLocationsEuclideanSpace = deepCopyEventsEuclideanLocations(this._transientCurvatureExtremaLocationsEuclideanSpace);
