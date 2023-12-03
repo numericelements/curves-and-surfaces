@@ -97,6 +97,14 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
                         console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
                         break;
                     }
+                    case NeighboringEventsType.neighboringCurvatureExtremaAppear: {
+                        console.log("Two Curvature extrema appear between two inflections or an extreme interval or a unique interval.");
+                        break;
+                    }
+                    case NeighboringEventsType.neighboringCurvatureExtremaDisappear: {
+                        console.log("Two Curvature extrema disappear between two inflections or an extreme interval or a unique interval.");
+                        break;
+                    }
                     case NeighboringEventsType.neighboringInflectionLeftBoundaryDisappear: {
                         console.log("Inflection disappear on the left boundary.");
                         inflectionLocation.push(seqComparator.sequenceDiffEvents1.eventAt(0).location);

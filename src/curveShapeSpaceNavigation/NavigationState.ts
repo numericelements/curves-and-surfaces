@@ -23,7 +23,11 @@ import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/Se
 import { OpenCurveDifferentialEventsExtractor } from "../curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor";
 import { DiffrentialEventVariation } from "../sequenceOfDifferentialEvents/DifferentialEventVariation";
 import { OptProblemOPenBSplineR1toR2WithWeigthingFactors, OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities, OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints, OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace } from "../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
+import { ExpensiveComputationResults } from "../bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2";
 import { EventMgmtState } from "./ShapeSpaceDiffEventsStructure";
+import { ORDER_CURVATURE_EXTREMUM } from "../sequenceOfDifferentialEvents/DifferentialEvent";
+import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
+import { splineRecomposition } from "../newBsplines/BernsteinDecompositionR1toR1";
 
 export abstract class NavigationState {
 
@@ -248,19 +252,58 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
 
     navigate(selectedControlPoint: number, x: number, y: number): void {
         this.navigationCurveModel.updateCurrentCurve(selectedControlPoint, new Vector2d(x, y));
+        console.log("navigationCurveModel current = "+JSON.stringify(this.navigationCurveModel.currentCurve.controlPoints))
         this._curveAnalyserCurrentCurve.updateCurrent();
         this.navigationCurveModel.curveAnalyserCurrentCurve = this._curveAnalyserCurrentCurve;
         this.navigationCurveModel.seqDiffEventsCurrentCurve = this.navigationCurveModel.curveAnalyserCurrentCurve.sequenceOfDifferentialEvents;
         this.navigationCurveModel.setTargetCurve();
         this.navigationCurveModel.optimizationProblemParam.updateConstraintBounds = false;
         let spline = new BSplineR1toR2();
+
+        let curvatureExtrema_gradients: number[][] = [];
+        let inflection_gradients: number[][] = [];
+        let curvatureDerivative_gradientU = [];
         if(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities) {
             this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.shapeSpaceBoundaryEnforcer.reset();
             spline = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline.clone();
+
+            let curvatureSecondDerivative;
+            curvatureSecondDerivative = this.navigationCurveModel.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.derivative();
+            const nbEvents = this.navigationCurveModel.seqDiffEventsCurrentCurve.length();
+            // let e: ExpensiveComputationResults = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.initExpansiveComputations();
+            // e = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.expensiveComputation(spline);
+            // const gradient_curvatureExtrema = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.compute_curvatureExtremaConstraints_gradient(
+            //     e, this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.curvatureExtremaConstraintsSign, []);
+            const gradient_curvatureExtrema = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.compute_curvatureExtremaConstraints_gradient(
+                this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.curvatureExtremaConstraintsSign, []);
+            console.log("spline current = "+JSON.stringify(spline.controlPoints))
+                for( let i = 0; i < nbEvents; i++) {
+                if(this.navigationCurveModel.seqDiffEventsCurrentCurve.eventAt(i).order === ORDER_CURVATURE_EXTREMUM) {
+                    const zeroLoc = this.navigationCurveModel.seqDiffEventsCurrentCurve.eventAt(i).location;
+                    console.log("zero location[ "+i+" ] = "+zeroLoc);
+                    curvatureDerivative_gradientU.push(curvatureSecondDerivative.evaluate(zeroLoc));
+
+                    if(gradient_curvatureExtrema.shape[0] !== this.navigationCurveModel.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.controlPoints.length) {
+                        console.log('inconsistent sizes of control polygons !!')
+                    }
+                    const curvatureExtrema_gradientperCPComponent = [];
+                    for(let k = 0; k < gradient_curvatureExtrema.shape[1]; k++) {
+                        let gradient = [];
+                        for(let j = 0; j < gradient_curvatureExtrema.shape[0]; j++) {
+                            gradient.push(gradient_curvatureExtrema.get(j ,k));
+                        }
+                        const spline = new BSplineR1toR1(gradient, this.navigationCurveModel.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.knots);
+                        curvatureExtrema_gradientperCPComponent.push(spline.evaluate(zeroLoc));
+                    }
+                    curvatureExtrema_gradients.push(curvatureExtrema_gradientperCPComponent);
+                }
+            }
+
         }
         try {
             let status: OptimizerReturnStatus = OptimizerReturnStatus.SOLUTION_OUTSIDE_SHAPE_SPACE;
             if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy) {
+                this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.init(spline);
                 status = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
             }
             // const status: OptimizerReturnStatus = this.navigationCurveModel.curveControl.optimizer.optimize_using_trust_region(CONVERGENCE_THRESHOLD, MAX_TRUST_REGION_RADIUS, MAX_NB_STEPS_TRUST_REGION_OPTIMIZER);
@@ -270,11 +313,122 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
             if(status === OptimizerReturnStatus.SOLUTION_FOUND) {
                 let curveModelOptimized = new CurveModel();
                 if(this.navigationCurveModel.curveShapeMonitoringStrategy instanceof OCurveShapeMonitoringStrategy
-                    && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2) {
+                    && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline instanceof BSplineR1toR2
+                    && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.previousSpline instanceof BSplineR1toR2
+                    && this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem instanceof OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities) {
                     curveModelOptimized.setSpline(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline);
+                    if(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.spline !== this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.previousSpline) {
+                        console.log("estimate variations of zeros with last iteration of trust region");
+                        // let curvatureExtrema_gradientsPrevious: number[][] = [];
+                        // let curvatureDerivative_gradientUPrevious = [];
+                        // const gradient_curvatureExtremaPrevious = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.compute_curvatureExtremaConstraints_gradientPreviousIteration(
+                        //     this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.curvatureExtremaConstraintsSign, []);
+                        // let curvatureDerivativePrevious = new BSplineR1toR1(this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.curvatureDerivativeNumeratorPreviousIteration(),
+                        //                                     this.navigationCurveModel.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.knots);
+                        // const zerosCuratureDerivPrevious = curvatureDerivativePrevious.zeros();
+                        // let curvatureSecondDerivativePrevious = curvatureDerivativePrevious.derivative();
+                        // for( let i = 0; i < zerosCuratureDerivPrevious.length; i++) {
+                        //     console.log("zero location[ "+i+" ] = "+zerosCuratureDerivPrevious[i]);
+                        //     curvatureDerivative_gradientUPrevious.push(curvatureSecondDerivativePrevious.evaluate(zerosCuratureDerivPrevious[i]));
+                        //     if(gradient_curvatureExtremaPrevious.shape[0] !== this.navigationCurveModel.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.controlPoints.length) {
+                        //         console.log('inconsistent sizes of control polygons !!')
+                        //     }
+                        //     const curvatureExtrema_gradientperCPComponent = [];
+                        //     for(let k = 0; k < gradient_curvatureExtremaPrevious.shape[1]; k++) {
+                        //         let gradient = [];
+                        //         for(let j = 0; j < gradient_curvatureExtremaPrevious.shape[0]; j++) {
+                        //             gradient.push(gradient_curvatureExtremaPrevious.get(j ,k));
+                        //         }
+                        //         const spline = new BSplineR1toR1(gradient, this.navigationCurveModel.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.knots);
+                        //         curvatureExtrema_gradientperCPComponent.push(spline.evaluate(zerosCuratureDerivPrevious[i]));
+                        //     }
+                        //     curvatureExtrema_gradientsPrevious.push(curvatureExtrema_gradientperCPComponent);
+                        // }
+
+                        // const flattenedCPsplinePrevious = this.navigationCurveModel.curveShapeMonitoringStrategy.optimizationProblem.previousSpline.flattenControlPointsArray();
+                        // this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
+                        // this.optimizedCurve = curveModelOptimized.spline;
+                        // const flattenedCPsplineOptim = this.optimizedCurve.flattenControlPointsArray();
+                        // const curvatureDerivativeVariationWrtCP = [];
+                        // let variationCP = [];
+                        // for(let i = 0; i < flattenedCPsplinePrevious.length; i ++) {
+                        //     variationCP.push(flattenedCPsplineOptim[i] - flattenedCPsplinePrevious[i]);
+                        // }
+                        // for(let i = 0; i < curvatureExtrema_gradientsPrevious.length; i++) {
+                        //     let gradient = 0.0;
+                        //     for(let j = 0; j < curvatureExtrema_gradientsPrevious[i].length; j ++) {
+                        //         gradient = gradient + curvatureExtrema_gradientsPrevious[i][j] * variationCP[j];
+                        //     }
+                        //     curvatureDerivativeVariationWrtCP.push(gradient);
+                        // }
+                        // const zerosVariations = [];
+                        // for(let i = 0; i < curvatureDerivativeVariationWrtCP.length; i++) {
+                        //     zerosVariations.push(- (curvatureDerivativeVariationWrtCP[i]) / curvatureDerivative_gradientUPrevious[i]);
+                        // }
+                        const zerosPreviousCurve = [0.0];
+                        const zerosEstimated = [0.0];
+                        // for( let i = 0; i < zerosCuratureDerivPrevious.length; i++) {
+                        //     const zeroLoc = zerosCuratureDerivPrevious[i];
+                        //     zerosPreviousCurve.push(zeroLoc);
+                        //     console.log("estimated zero from previous iter location[ "+i+" ] = "+(zeroLoc + zerosVariations[i])+" variation = "+zerosVariations[i]);
+                        //     zerosEstimated.push(zeroLoc + zerosVariations[i]);
+                        // }
+                        zerosPreviousCurve.push(1.0);
+                        zerosEstimated.push(1.0);
+                        for(let i = 1; i < zerosPreviousCurve.length; i++) {
+                            const interval = (zerosPreviousCurve[i] - zerosPreviousCurve[i - 1]);
+                            const intervalEstimated = (zerosEstimated[i] - zerosEstimated[i - 1]);
+                            const intervalVariation = intervalEstimated - interval;
+                            if(intervalEstimated < 0.0) console.log("estimated interval[ "+i+" ] with zeros crossing");
+                            if(intervalEstimated > interval) console.log("interval[ "+i+" ]"+" shrinks: "+intervalVariation);
+                            if(intervalEstimated < interval) console.log("interval[ "+i+" ]"+" expands: "+intervalVariation);
+                        }
+                    }
                 }
                 this.navigationCurveModel.optimizedCurve = curveModelOptimized.spline;
                 this.optimizedCurve = curveModelOptimized.spline;
+
+                const flattenedCPsplineInit = spline.flattenControlPointsArray();
+                const flattenedCPsplineOptim = this.optimizedCurve.flattenControlPointsArray();
+                const curvatureDerivativeVariationWrtCP = [];
+                let variationCP = [];
+                for(let i = 0; i < flattenedCPsplineInit.length; i ++) {
+                    variationCP.push(flattenedCPsplineOptim[i] - flattenedCPsplineInit[i]);
+                }
+                for(let i = 0; i < curvatureExtrema_gradients.length; i++) {
+                    let gradient = 0.0;
+                    for(let j = 0; j < curvatureExtrema_gradients[i].length; j ++) {
+                        gradient = gradient + curvatureExtrema_gradients[i][j] * variationCP[j];
+                    }
+                    curvatureDerivativeVariationWrtCP.push(gradient);
+                }
+                const zerosVariations = [];
+                for(let i = 0; i < curvatureDerivativeVariationWrtCP.length; i++) {
+                    zerosVariations.push(- (curvatureDerivativeVariationWrtCP[i]) / curvatureDerivative_gradientU[i]);
+                }
+                const zerosCurrentCurve = [0.0];
+                const zerosEstimated = [0.0];
+                const nbEvents = this.navigationCurveModel.seqDiffEventsCurrentCurve.length();
+                console.log("estimation of zeros locations from current curve");
+                for( let i = 0; i < nbEvents; i++) {
+                    if(this.navigationCurveModel.seqDiffEventsCurrentCurve.eventAt(i).order === ORDER_CURVATURE_EXTREMUM) {
+                        const zeroLoc = this.navigationCurveModel.seqDiffEventsCurrentCurve.eventAt(i).location;
+                        zerosCurrentCurve.push(zeroLoc);
+                        console.log("estimated zero location[ "+i+" ] = "+(zeroLoc + zerosVariations[i])+" variation = "+zerosVariations[i]);
+                        zerosEstimated.push(zeroLoc + zerosVariations[i]);
+                    }
+                }
+                zerosCurrentCurve.push(1.0);
+                zerosEstimated.push(1.0);
+                for(let i = 1; i < zerosCurrentCurve.length; i++) {
+                    const interval = (zerosCurrentCurve[i] - zerosCurrentCurve[i - 1]);
+                    const intervalEstimated = (zerosEstimated[i] - zerosEstimated[i - 1]);
+                    const intervalVariation = intervalEstimated - interval;
+                    if(intervalEstimated < 0.0) console.log("estimated interval[ "+i+" ] with zeros crossing");
+                    if(intervalEstimated > interval) console.log("interval[ "+i+" ]"+" shrinks: "+intervalVariation);
+                    if(intervalEstimated < interval) console.log("interval[ "+i+" ]"+" expands: "+intervalVariation);
+                }
+
 
                 this._curveAnalyserOptimizedCurve.updateOptimized();
                 this.navigationCurveModel.curveAnalyserOptimizedCurve = this._curveAnalyserOptimizedCurve;
@@ -282,6 +436,9 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
                 const seqComparator = new ComparatorOfSequencesOfDiffEvents(this.navigationCurveModel.seqDiffEventsCurrentCurve, this.navigationCurveModel.seqDiffEventsOptimizedCurve);
                 seqComparator.locateNeiboringEvents();
                 this.curveShapeSpaceNavigator.eventStateAtCrvExtremities.monitorEventInsideCurve(seqComparator);
+                if(seqComparator.neighboringEvents.length > 0) {
+                    console.log("Nb neighboring events identified = "+seqComparator.neighboringEvents.length);
+                }
                 if(seqComparator.neighboringEvents.length > 0 && this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === EventMgmtState.Active) {
                     const filteredSeqComparator = seqComparator.filterOutneighboringEventsNestedShapeSpacesNavigation(this.curveShapeSpaceNavigator);
                     if(filteredSeqComparator.neighboringEvents.length === 1) {
@@ -317,7 +474,7 @@ export class OCurveNavigationThroughSimplerShapeSpaces extends OpenCurveNavigati
                                 console.error(e);
                             }
                         }
-                    } else {
+                    } else if(filteredSeqComparator.neighboringEvents.length > 1) {
                         const error = new ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
                         error.logMessageToConsole();
                     }

@@ -19,7 +19,7 @@ import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzer
 import { DiffrentialEventVariation } from "../sequenceOfDifferentialEvents/DifferentialEventVariation";
 import { OpenCurveAnalyzer } from "../curveShapeSpaceAnalysis/CurveAnalyzer";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { AbstractOptProblemBSplineR1toR2, ConstraintType, ExpensiveComputationResults, convertStepToVector2d } from "./AbstractOptProblemBSplineR1toR2";
+import { AbstractOptProblemBSplineR1toR2, ConstraintType, ExpensiveComputationResults, convertStepToVector2d, deepCopyAnalyticHighOrderCurveDerivatives } from "./AbstractOptProblemBSplineR1toR2";
 import { NestedShapeSpacesBoundaryEnforcerOpenCurve, StrictShapeSpacesBoundaryEnforcerOpenCurve } from "../curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer";
 
 
@@ -40,6 +40,8 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
     protected Dh6_7xy: BernsteinDecompositionR1toR1[][];
     protected Dh8_9xx: BernsteinDecompositionR1toR1[][];
     protected Dh10_11xy: BernsteinDecompositionR1toR1[][];
+    protected nbZeros: number[];
+    protected curvatureDerivativeBuffer: BSplineR1toR1[];
 
     constructor(splineInitial: BSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
         super(splineInitial, shapeSpaceDiffEventsStructure);
@@ -48,10 +50,13 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
         this.Dh6_7xy = [];
         this.Dh8_9xx = [];
         this.Dh10_11xy = [];
-        let e: ExpensiveComputationResults = this.initExpansiveComputations();
-        e = this.expensiveComputation(this._spline);
+        // let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        this._analyticHighOrderCurveDerivatives = this.initExpansiveComputations();
+        // e = this.expensiveComputation(this._spline);
+        this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            // this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            this._curvatureNumeratorCP = this.curvatureNumerator();
             this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
             this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
             this.constraintType = ConstraintType.inflection;
@@ -59,7 +64,8 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
             this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
         }
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            // this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator();
             this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
             this.constraintType = ConstraintType.curvatureExtrema;
@@ -68,13 +74,17 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
         }
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this._inflectionInactiveConstraints,
             this._curvatureDerivativeNumeratorCP, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints,
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints,
+        //     this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this._inflectionInactiveConstraints,
             this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
         if (this.isComputingHessian) {
             const e = this.expensiveComputation(this.spline)
             this.prepareForHessianComputation(this.dBasisFunctions_du, this.d2BasisFunctions_du2, this.d3BasisFunctions_du3)
             this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
         }
+        this.nbZeros = [];
+        this.curvatureDerivativeBuffer = [];
     }
 
     get f() {
@@ -86,6 +96,10 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
 
     get spline(): BSplineR1toR2 {
         return this._spline as BSplineR1toR2;
+    }
+    
+    get previousSpline(): BSplineR1toR2 {
+        return this._previousSpline as BSplineR1toR2;
     }
 
     set spline(spline: BSplineR1toR2) {
@@ -214,8 +228,10 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
     }
 
     g(): number[] {
-        const e = this.expensiveComputation(this.spline);
-        return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        // const e = this.expensiveComputation(this.spline);
+        // return this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+        this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this.spline);
+        return this.curvatureDerivativeNumerator();
     }
 
     gradient_g(): DenseMatrix {
@@ -276,20 +292,32 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
         return result;
     }
 
-    compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
-                                                    constraintsSign: number[], 
-                                                    inactiveConstraints: number[]): DenseMatrix {
+    // compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
+    //                                                 constraintsSign: number[], 
+    //                                                 inactiveConstraints: number[]): DenseMatrix {
+    compute_curvatureExtremaConstraints_gradient(constraintsSign: number[], 
+                                                inactiveConstraints: number[]): DenseMatrix {
 
-        const sxu = e.bdsxu
-        const sxuu = e.bdsxuu
-        const sxuuu = e.bdsxuuu
-        const syu = e.bdsyu
-        const syuu = e.bdsyuu
-        const syuuu = e.bdsyuuu
-        const h1 = e.h1
-        const h2 = e.h2
-        const h3 = e.h3
-        const h4 = e.h4
+        // const sxu = e.bdsxu
+        // const sxuu = e.bdsxuu
+        // const sxuuu = e.bdsxuuu
+        // const syu = e.bdsyu
+        // const syuu = e.bdsyuu
+        // const syuuu = e.bdsyuuu
+        // const h1 = e.h1
+        // const h2 = e.h2
+        // const h3 = e.h3
+        // const h4 = e.h4
+        const sxu = this._analyticHighOrderCurveDerivatives.bdsxu;
+        const sxuu = this._analyticHighOrderCurveDerivatives.bdsxuu;
+        const sxuuu = this._analyticHighOrderCurveDerivatives.bdsxuuu;
+        const syu = this._analyticHighOrderCurveDerivatives.bdsyu;
+        const syuu =this._analyticHighOrderCurveDerivatives.bdsyuu;
+        const syuuu = this._analyticHighOrderCurveDerivatives.bdsyuuu;
+        const h1 = this._analyticHighOrderCurveDerivatives.h1;
+        const h2 = this._analyticHighOrderCurveDerivatives.h2;
+        const h3 = this._analyticHighOrderCurveDerivatives.h3;
+        const h4 = this._analyticHighOrderCurveDerivatives.h4;
 
         let dgx = [];
         let dgy = [];
@@ -361,14 +389,199 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
         return result;
     }
 
-    compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
-                                            constraintsSign: number[], 
+    compute_curvatureExtremaConstraints_gradientPreviousIteration(constraintsSign: number[], 
+        inactiveConstraints: number[]): DenseMatrix {
+
+        const sxu = this._previousAnalyticHighOrderCurveDerivatives.bdsxu;
+        const sxuu = this._previousAnalyticHighOrderCurveDerivatives.bdsxuu;
+        const sxuuu = this._previousAnalyticHighOrderCurveDerivatives.bdsxuuu;
+        const syu = this._previousAnalyticHighOrderCurveDerivatives.bdsyu;
+        const syuu =this._previousAnalyticHighOrderCurveDerivatives.bdsyuu;
+        const syuuu = this._previousAnalyticHighOrderCurveDerivatives.bdsyuuu;
+        const h1 = this._previousAnalyticHighOrderCurveDerivatives.h1;
+        const h2 = this._previousAnalyticHighOrderCurveDerivatives.h2;
+        const h3 = this._previousAnalyticHighOrderCurveDerivatives.h3;
+        const h4 = this._previousAnalyticHighOrderCurveDerivatives.h4;
+
+        let dgx = [];
+        let dgy = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const totalNumberOfConstraints = this.curvatureExtremaTotalNumberOfConstraints;
+        const degree = this.spline.degree;
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(sxu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(syuuu, start, lessThan);
+            let h7 = syu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan).multiplyByScalar(-1);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan);
+            let h9 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h1_subset = h1.subset(start, lessThan);
+            let h2_subset = h2.subset(start, lessThan);
+            let h3_subset = h3.subset(start, lessThan);
+            let h4_subset = h4.subset(start, lessThan);
+            let h5 = this.dBasisFunctions_du[i].multiplyRange(syu, start, lessThan);
+            let h6 = this.dBasisFunctions_du[i].multiplyRange(sxuuu, start, lessThan).multiplyByScalar(-1);
+            let h7 = sxu.multiplyRange(this.d3BasisFunctions_du3[i], start, lessThan);
+            let h8 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h9 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push((h5.multiply(h2_subset).multiplyByScalar(2)).add(h1_subset.multiply(h6.add(h7))).add(((((h8.add(h9)).multiply(h4_subset))).add((h10.add(h11)).multiply(h3_subset))).multiplyByScalar(-3)));
+        }
+
+        let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+
+            let start = Math.max(0, i - degree) * (4 * degree - 5)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (4 * degree - 5)
+
+            let deltaj = 0
+            for (let i = 0; i < inactiveConstraints.length; i += 1) {
+                if (inactiveConstraints[i] >= start) {
+                    break
+                }
+                deltaj += 1
+            }
+
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                    deltaj += 1
+                } else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j])
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j])
+                }
+            }
+        }
+
+        return result;
+    }
+
+    traceCurvatureExtrema(): void {
+        let curvatureExtrema_gradientsPrevious: number[][] = [];
+        let curvatureDerivative_gradientUPrevious = [];
+        const knotsCurvatureDerivNumerator = this._shapeSpaceDiffEventsStructure.curveShapeSpaceNavigator.navigationState.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.knots;
+        const gradient_curvatureExtremaPrevious = this.compute_curvatureExtremaConstraints_gradientPreviousIteration(this.curvatureExtremaConstraintsSign, []);
+        let curvatureDerivativePrevious = this.bSplineR1toR1Factory(this.curvatureDerivativeNumeratorPreviousIteration(), knotsCurvatureDerivNumerator);
+        // let curvatureDerivativePrevious = new BSplineR1toR1(this.curvatureDerivativeNumeratorPreviousIteration(), knotsCurvatureDerivNumerator);
+        const zerosCuratureDerivPrevious = curvatureDerivativePrevious.zeros();
+        let curvatureDerivative = this.bSplineR1toR1Factory(this.curvatureDerivativeNumerator(), knotsCurvatureDerivNumerator);
+        const zerosCuratureDeriv = curvatureDerivative.zeros();
+        const curveDP = new BSplineR1toR2DifferentialProperties(this.previousSpline)
+        const curvatureDeriv = curveDP.curvatureDerivativeNumerator();
+        const zerosCDeriv = curvatureDeriv.zeros();
+        console.log("zeros from BSplineDifProp = "+zerosCDeriv);
+        const curveDPcurrent = new BSplineR1toR2DifferentialProperties(this.spline)
+        const curvatureDerivCurrent = curveDPcurrent.curvatureDerivativeNumerator();
+        const zerosCDerivCurrent = curvatureDerivCurrent.zeros();
+        console.log("zeros current from BSplineDifProp = "+zerosCDerivCurrent);
+        if(this.nbZeros.length < 2 ) {
+            this.nbZeros.push(zerosCuratureDerivPrevious.length);
+            this.curvatureDerivativeBuffer.push(curvatureDerivativePrevious);
+        } else if(this.nbZeros.length === 2) {
+            this.nbZeros.splice(0,1);
+            this.curvatureDerivativeBuffer.splice(0,1);
+            this.nbZeros.push(zerosCuratureDerivPrevious.length);
+            this.curvatureDerivativeBuffer.push(curvatureDerivativePrevious);
+        }
+        console.log("estimate variations of zeros during optim iteration. nb zeros = "+zerosCuratureDerivPrevious.length);
+        console.log("spline previous = "+JSON.stringify(this.previousSpline.controlPoints))
+        console.log("spline current = "+JSON.stringify(this.spline.controlPoints))
+        if(zerosCuratureDerivPrevious.length === 2 && zerosCuratureDeriv.length === 0) {
+            // console.log("nbZ[0] = "+this.nbZeros[0]+" Bvert = "+this.curvatureDerivativeBuffer[0].controlPoints+" nbZ[1] = "+this.nbZeros[1]+" Bvert = "+this.curvatureDerivativeBuffer[1].controlPoints);
+            console.log("B[0] = "+curvatureDerivative.evaluate(zerosCuratureDerivPrevious[0])+" B[1] = "+curvatureDerivative.evaluate(zerosCuratureDerivPrevious[1]));
+            if(curvatureDerivative.evaluate(zerosCuratureDerivPrevious[0]) < 0.0 && curvatureDerivative.evaluate(zerosCuratureDerivPrevious[1]) < 0.0) {
+                console.log("Two curvature extrema have merged")
+            }
+        }
+        let curvatureSecondDerivativePrevious = curvatureDerivativePrevious.derivative();
+        for(let i = 0; i < zerosCuratureDerivPrevious.length; i++) {
+            console.log("zero location[ "+i+" ] = "+zerosCuratureDerivPrevious[i]);
+            curvatureDerivative_gradientUPrevious.push(curvatureSecondDerivativePrevious.evaluate(zerosCuratureDerivPrevious[i]));
+            if(gradient_curvatureExtremaPrevious.shape[0] !== this._shapeSpaceDiffEventsStructure.curveShapeSpaceNavigator.navigationState.curveAnalyserCurrentCurve.curvatureDerivativeNumerator.controlPoints.length) {
+                console.log('inconsistent sizes of control polygons !!')
+            }
+            const curvatureExtrema_gradientperCPComponent = [];
+            for(let k = 0; k < gradient_curvatureExtremaPrevious.shape[1]; k++) {
+                let gradient = [];
+                for(let j = 0; j < gradient_curvatureExtremaPrevious.shape[0]; j++) {
+                    gradient.push(gradient_curvatureExtremaPrevious.get(j ,k));
+                }
+                const spline = new BSplineR1toR1(gradient, knotsCurvatureDerivNumerator);
+                curvatureExtrema_gradientperCPComponent.push(spline.evaluate(zerosCuratureDerivPrevious[i]));
+            }
+            curvatureExtrema_gradientsPrevious.push(curvatureExtrema_gradientperCPComponent);
+        }
+
+        const flattenedCPsplinePrevious = this.previousSpline.flattenControlPointsArray();
+        const flattenedCPsplineUpdated = this.spline.flattenControlPointsArray();
+        const curvatureDerivativeVariationWrtCP = [];
+        let variationCP = [];
+        for(let i = 0; i < flattenedCPsplinePrevious.length; i ++) {
+            variationCP.push(flattenedCPsplineUpdated[i] - flattenedCPsplinePrevious[i]);
+        }
+        for(let i = 0; i < curvatureExtrema_gradientsPrevious.length; i++) {
+            let gradient = 0.0;
+            for(let j = 0; j < curvatureExtrema_gradientsPrevious[i].length; j ++) {
+                gradient = gradient + curvatureExtrema_gradientsPrevious[i][j] * variationCP[j];
+            }
+            curvatureDerivativeVariationWrtCP.push(gradient);
+        }
+        const zerosVariations = [];
+        for(let i = 0; i < curvatureDerivativeVariationWrtCP.length; i++) {
+            console.log("sum variation B(u) wrt CP at ["+i+"]= "+curvatureDerivativeVariationWrtCP[i]+" gradientUprevious = "+curvatureDerivative_gradientUPrevious[i]);
+            zerosVariations.push(- (curvatureDerivativeVariationWrtCP[i]) / curvatureDerivative_gradientUPrevious[i]);
+        }
+        const zerosPreviousCurve = [0.0];
+        const zerosEstimated = [0.0];
+        for(let i = 0; i < zerosCuratureDerivPrevious.length; i++) {
+            const zeroLoc = zerosCuratureDerivPrevious[i];
+            zerosPreviousCurve.push(zeroLoc);
+            console.log("estimated zero from previous iter location[ "+i+" ] = "+(zeroLoc + zerosVariations[i])+" variation = "+zerosVariations[i]);
+            zerosEstimated.push(zeroLoc + zerosVariations[i]);
+        }
+        zerosPreviousCurve.push(1.0);
+        zerosEstimated.push(1.0);
+        for(let i = 1; i < zerosPreviousCurve.length; i++) {
+            const interval = (zerosPreviousCurve[i] - zerosPreviousCurve[i - 1]);
+            const intervalEstimated = (zerosEstimated[i] - zerosEstimated[i - 1]);
+            const intervalVariation = intervalEstimated - interval;
+            if(intervalEstimated < 0.0) console.log("estimated interval[ "+i+" ] with zeros crossing");
+            if(intervalEstimated < interval) console.log("interval[ "+i+" ]"+" shrinks: "+intervalVariation);
+            if(intervalEstimated > interval) console.log("interval[ "+i+" ]"+" expands: "+intervalVariation);
+        }
+    }
+
+    // compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
+    //                                         constraintsSign: number[], 
+    //                                         inactiveConstraints: number[]): DenseMatrix {
+    compute_inflectionConstraints_gradient(constraintsSign: number[], 
                                             inactiveConstraints: number[]): DenseMatrix {
 
-        const sxu = e.bdsxu
-        const sxuu = e.bdsxuu
-        const syu = e.bdsyu
-        const syuu = e.bdsyuu
+        // const sxu = e.bdsxu
+        // const sxuu = e.bdsxuu
+        // const syu = e.bdsyu
+        // const syuu = e.bdsyuu
+        const sxu = this._analyticHighOrderCurveDerivatives.bdsxu;
+        const sxuu = this._analyticHighOrderCurveDerivatives.bdsxuu;
+        const syu = this._analyticHighOrderCurveDerivatives.bdsyu;
+        const syuu = this._analyticHighOrderCurveDerivatives.bdsyuu;
 
         let dgx = [];
         let dgy = [];
@@ -421,6 +634,67 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
        }
 
        return result;
+    }
+
+    compute_inflectionConstraints_gradientPreviousIteration(constraintsSign: number[], 
+        inactiveConstraints: number[]): DenseMatrix {
+
+        const sxu = this._previousAnalyticHighOrderCurveDerivatives.bdsxu;
+        const sxuu = this._previousAnalyticHighOrderCurveDerivatives.bdsxuu;
+        const syu = this._previousAnalyticHighOrderCurveDerivatives.bdsyu;
+        const syuu = this._previousAnalyticHighOrderCurveDerivatives.bdsyuu;
+
+        let dgx = [];
+        let dgy = [];
+        const controlPointsLength = this.spline.controlPoints.length;
+        const degree = this.spline.degree;
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(syuu, start, lessThan);
+            let h11 = syu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan).multiplyByScalar(-1);
+            dgx.push((h10.add(h11)));
+        }
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let start = Math.max(0, i - degree);
+            let lessThan = Math.min(controlPointsLength - degree, i + 1);
+            let h10 = this.dBasisFunctions_du[i].multiplyRange(sxuu, start, lessThan).multiplyByScalar(-1);
+            let h11 = sxu.multiplyRange(this.d2BasisFunctions_du2[i], start, lessThan);
+            dgy.push(h10.add(h11));
+        }
+
+        const totalNumberOfConstraints = this.inflectionConstraintsSign.length
+
+        let result = new DenseMatrix(totalNumberOfConstraints - inactiveConstraints.length, 2 * controlPointsLength)
+
+        for (let i = 0; i < controlPointsLength; i += 1) {
+            let cpx = dgx[i].flattenControlPointsArray();
+            let cpy = dgy[i].flattenControlPointsArray();
+
+            let start = Math.max(0, i - degree) * (2 * degree - 2)
+            let lessThan = Math.min(controlPointsLength - degree, i + 1) * (2 * degree - 2)
+
+            let deltaj = 0
+            for (let i = 0; i < inactiveConstraints.length; i += 1) {
+                if (inactiveConstraints[i] >= start) {
+                    break
+                }
+                deltaj += 1
+            }
+
+            for (let j = start; j < lessThan; j += 1) {
+                if (j === inactiveConstraints[deltaj]) {
+                deltaj += 1
+                } else {
+                    result.set(j - deltaj, i, cpx[j - start] * constraintsSign[j])
+                    result.set(j - deltaj, controlPointsLength + i, cpy[j - start] * constraintsSign[j])
+                }
+            }
+        }
+
+        return result;
     }
 
     compute_hessian_f( sxu: BernsteinDecompositionR1toR1, 
@@ -691,7 +965,9 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
             this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         // this.checkConstraintConsistency();
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
+        //     this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
             this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
     }
 
@@ -720,20 +996,31 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
     }
 
     step(deltaX: number[]) {
-        let checked: boolean = true
-        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        let checked: boolean = true;
+        // if(this._previousAnalyticHighOrderCurveDerivatives.bdsxu.flattenControlPointsArray().length === 0) {
+        //     this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
+        // }
+        // this._previousAnalyticHighOrderCurveDerivatives = deepCopyAnalyticHighOrderCurveDerivatives(this._analyticHighOrderCurveDerivatives);
+        // let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        this._analyticHighOrderCurveDerivatives = this.initExpansiveComputations();
         let curvatureNumerator: number[] = [];
         let curvatureDerivativeNumerator: number[] = [];
+        // this._previousSpline = this._spline.clone();
         if(this._shapeSpaceBoundaryEnforcer.isActive()) {
             this._inflectionInactiveConstraints = [];
             this._curvatureExtremaInactiveConstraints = [];
         }
         this._spline = this.spline.moveControlPoints(convertStepToVector2d(deltaX));
+
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        e = this.expensiveComputation(this._spline);
+        // e = this.expensiveComputation(this._spline);
+        this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
+        this.traceCurvatureExtrema();
+        this._previousAnalyticHighOrderCurveDerivatives = this.initExpansiveComputations();
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            curvatureNumerator = this.curvatureNumerator(e.h4);
+            // curvatureNumerator = this.curvatureNumerator(e.h4);
+            curvatureNumerator = this.curvatureNumerator();
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
             this.constraintType = ConstraintType.inflection;
             if(!this._shapeSpaceBoundaryEnforcer.isActive()) 
@@ -741,7 +1028,8 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
             this.inflectionNumberOfActiveConstraints = curvatureNumerator.length - this.inflectionInactiveConstraints.length;
         }
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            // curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator)
             this.constraintType = ConstraintType.curvatureExtrema;
             if(!this._shapeSpaceBoundaryEnforcer.isActive())
@@ -755,10 +1043,23 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
         console.log("step : inactive cst: " + this.curvatureExtremaInactiveConstraints + " cst sgn " + this.curvatureExtremaConstraintsSign)
 
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
 
         if(this.isComputingHessian) {
-            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+            // this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+            this._hessian_f = this.compute_hessian_f(this._analyticHighOrderCurveDerivatives.bdsxu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsyu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsxuu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsyuu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsxuuu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsyuuu,
+                                                    this._analyticHighOrderCurveDerivatives.h1,
+                                                    this._analyticHighOrderCurveDerivatives.h2,
+                                                    this._analyticHighOrderCurveDerivatives.h3,
+                                                    this._analyticHighOrderCurveDerivatives.h4,
+                                                    this.curvatureExtremaConstraintsSign,
+                                                    this.curvatureExtremaInactiveConstraints);
         }
         return checked;
     }
@@ -772,10 +1073,13 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
         this._hessian_f0 = identityMatrix(this._numberOfIndependentVariables);
         this._inflectionInactiveConstraints = [];
         this._curvatureExtremaInactiveConstraints = [];
-        let e: ExpensiveComputationResults = this.initExpansiveComputations();
-        e = this.expensiveComputation(this._spline);
+        // let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        this._analyticHighOrderCurveDerivatives = this.initExpansiveComputations();
+        // e = this.expensiveComputation(this._spline);
+        this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            // this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            this._curvatureNumeratorCP = this.curvatureNumerator();
             this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
             this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
             this.constraintType = ConstraintType.inflection;
@@ -783,7 +1087,8 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
             this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
         }
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            // this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator();
             this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
             this.constraintType = ConstraintType.curvatureExtrema;
@@ -796,7 +1101,8 @@ export class OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExt
 
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         // this.checkConstraintConsistency();
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
     }
 
 }
@@ -964,7 +1270,9 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
             this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         this.checkConstraintConsistency();
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
+        //     this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this.inflectionInactiveConstraints,
             this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         
         // if (this.isComputingHessian) {
@@ -1377,20 +1685,32 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         return result;
     }
 
-    compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
-                                                constraintsSign: number[], 
+    // compute_curvatureExtremaConstraints_gradient( e: ExpensiveComputationResults,
+    //                                             constraintsSign: number[], 
+    //                                             inactiveConstraints: number[]): DenseMatrix {
+    compute_curvatureExtremaConstraints_gradient(constraintsSign: number[], 
                                                 inactiveConstraints: number[]): DenseMatrix {
 
-        const sxu = e.bdsxu
-        const sxuu = e.bdsxuu
-        const sxuuu = e.bdsxuuu
-        const syu = e.bdsyu
-        const syuu = e.bdsyuu
-        const syuuu = e.bdsyuuu
-        const h1 = e.h1
-        const h2 = e.h2
-        const h3 = e.h3
-        const h4 = e.h4
+        // const sxu = e.bdsxu
+        // const sxuu = e.bdsxuu
+        // const sxuuu = e.bdsxuuu
+        // const syu = e.bdsyu
+        // const syuu = e.bdsyuu
+        // const syuuu = e.bdsyuuu
+        // const h1 = e.h1
+        // const h2 = e.h2
+        // const h3 = e.h3
+        // const h4 = e.h4
+        const sxu = this._analyticHighOrderCurveDerivatives.bdsxu;
+        const sxuu = this._analyticHighOrderCurveDerivatives.bdsxuu;
+        const sxuuu = this._analyticHighOrderCurveDerivatives.bdsxuuu;
+        const syu = this._analyticHighOrderCurveDerivatives.bdsyu;
+        const syuu = this._analyticHighOrderCurveDerivatives.bdsyuu;
+        const syuuu = this._analyticHighOrderCurveDerivatives.bdsyuuu;
+        const h1 = this._analyticHighOrderCurveDerivatives.h1;
+        const h2 = this._analyticHighOrderCurveDerivatives.h2;
+        const h3 = this._analyticHighOrderCurveDerivatives.h3;
+        const h4 = this._analyticHighOrderCurveDerivatives.h4;
 
         let dgx = []
         let dgy = []
@@ -1463,14 +1783,20 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         return result;
     }
 
-    compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
-        constraintsSign: number[], 
-        inactiveConstraints: number[]): DenseMatrix {
+    // compute_inflectionConstraints_gradient( e: ExpensiveComputationResults,
+    //     constraintsSign: number[], 
+    //     inactiveConstraints: number[]): DenseMatrix {
+    compute_inflectionConstraints_gradient( constraintsSign: number[], 
+                                            inactiveConstraints: number[]): DenseMatrix {
 
-        const sxu = e.bdsxu
-        const sxuu = e.bdsxuu
-        const syu = e.bdsyu
-        const syuu = e.bdsyuu
+        // const sxu = e.bdsxu
+        // const sxuu = e.bdsxuu
+        // const syu = e.bdsyu
+        // const syuu = e.bdsyuu
+        const sxu = this._analyticHighOrderCurveDerivatives.bdsxu;
+        const sxuu = this._analyticHighOrderCurveDerivatives.bdsxuu;
+        const syu = this._analyticHighOrderCurveDerivatives.bdsyu;
+        const syuu = this._analyticHighOrderCurveDerivatives.bdsyuu;
 
         let dgx = [];
         let dgy = [];
@@ -1548,16 +1874,22 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
        return f;
     }
 
-    compute_gradient_f( e: ExpensiveComputationResults,
-                        inflectionConstraintsSign: number[],
+    // compute_gradient_f( e: ExpensiveComputationResults,
+    //                     inflectionConstraintsSign: number[],
+    //                     inflectionInactiveConstraints: number[],
+    //                     curvatureExtremaConstraintsSign: number[], 
+    //                     curvatureExtremaInactiveConstraints: number[]): DenseMatrix {
+    compute_gradient_f( inflectionConstraintsSign: number[],
                         inflectionInactiveConstraints: number[],
                         curvatureExtremaConstraintsSign: number[], 
                         curvatureExtremaInactiveConstraints: number[]): DenseMatrix {
     
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections && this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // const m1 = this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            const m1 = this.compute_curvatureExtremaConstraints_gradient(curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
             // console.log(" grad_fGN: " + curvatureExtremaConstraintsSign + " modifSignConstraints: " + this.revertCurvatureExtremaConstraints + " m1: " + m1)
-            const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            // const m2 = this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            const m2 = this.compute_inflectionConstraints_gradient(inflectionConstraintsSign, inflectionInactiveConstraints)
             const [row_m1, n] = m1.shape
             const [row_m2, ] = m2.shape
 
@@ -1577,9 +1909,11 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
             }
             return result
         } else if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            // return this.compute_curvatureExtremaConstraints_gradient(e, curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
+            return this.compute_curvatureExtremaConstraints_gradient(curvatureExtremaConstraintsSign, curvatureExtremaInactiveConstraints);
         } else if(this._shapeSpaceDiffEventsStructure.activeControlInflections) {
-            return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            // return this.compute_inflectionConstraints_gradient(e, inflectionConstraintsSign, inflectionInactiveConstraints)
+            return this.compute_inflectionConstraints_gradient(inflectionConstraintsSign, inflectionInactiveConstraints);
         } else {
             const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
             warning.logMessageToConsole();
@@ -1589,9 +1923,10 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
     }
 
     step(deltaX: number[]) {
-        let checked: boolean = true
-        let inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints
-        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        let checked: boolean = true;
+        let inactiveCurvatureConstraintsAtStart = this.curvatureExtremaInactiveConstraints;
+        // let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        this._analyticHighOrderCurveDerivatives = this.initExpansiveComputations();
         let curvatureNumerator: number[] = [];
         let curvatureDerivativeNumerator: number[] = [];
         let curvatureDerivativeEXtrema: number[] = [];
@@ -1640,8 +1975,10 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            e = this.expensiveComputation(this._spline);
-            curvatureNumerator = this.curvatureNumerator(e.h4);
+            // e = this.expensiveComputation(this._spline);
+            this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
+            // curvatureNumerator = this.curvatureNumerator(e.h4);
+            curvatureNumerator = this.curvatureNumerator();
             this.inflectionConstraintsSign = this.computeConstraintsSign(curvatureNumerator)
             this.constraintType = ConstraintType.inflection;
             // this._inflectionInactiveConstraints = this.computeInactiveConstraintsGN(curvatureNumerator)
@@ -1656,7 +1993,8 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
             // }
         }
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            // curvatureDerivativeNumerator = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(curvatureDerivativeNumerator)
             this.constraintType = ConstraintType.curvatureExtrema;
             // this._curvatureExtremaInactiveConstraints = this.computeInactiveConstraintsGN(g)
@@ -1680,17 +2018,31 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         this.updateConstraintBound = false;
 
         this._f = this.compute_f(curvatureNumerator, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, curvatureDerivativeNumerator, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
 
         if(this.isComputingHessian) {
-            this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+            // this._hessian_f = this.compute_hessian_f(e.bdsxu, e.bdsyu, e.bdsxuu, e.bdsyuu,e.bdsxuuu, e.bdsyuuu, e.h1, e.h2, e.h3, e.h4, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints)
+            this._hessian_f = this.compute_hessian_f(this._analyticHighOrderCurveDerivatives.bdsxu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsyu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsxuu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsyuu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsxuuu,
+                                                    this._analyticHighOrderCurveDerivatives.bdsyuuu,
+                                                    this._analyticHighOrderCurveDerivatives.h1,
+                                                    this._analyticHighOrderCurveDerivatives.h2,
+                                                    this._analyticHighOrderCurveDerivatives.h3,
+                                                    this._analyticHighOrderCurveDerivatives.h4,
+                                                    this.curvatureExtremaConstraintsSign,
+                                                    this.curvatureExtremaInactiveConstraints);
         }
 
         return checked
     }
 
     update(spline: BSplineR1toR2): void {
-        let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        // let e: ExpensiveComputationResults = this.initExpansiveComputations();
+        this._analyticHighOrderCurveDerivatives = this.initExpansiveComputations();
         this._spline = spline.clone();
         this.computeBasisFunctionsDerivatives();
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
@@ -1702,8 +2054,10 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         this.curveAnalyzerCurrentCurve = this._diffEventsVariation.curveAnalyser1;
         this.curveAnalyzerOptimizedCurve = this._diffEventsVariation.curveAnalyser2;
         if(this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            e = this.expensiveComputation(this._spline);
-            this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            // e = this.expensiveComputation(this._spline);
+            this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
+            // this._curvatureNumeratorCP = this.curvatureNumerator(e.h4);
+            this._curvatureNumeratorCP = this.curvatureNumerator();
             this._inflectionTotalNumberOfConstraints = this._curvatureNumeratorCP.length;
             this.inflectionConstraintsSign = this.computeConstraintsSign(this._curvatureNumeratorCP);
             this.constraintType = ConstraintType.inflection;
@@ -1712,7 +2066,8 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
             this.inflectionNumberOfActiveConstraints = this._curvatureNumeratorCP.length - this.inflectionInactiveConstraints.length;
         }
         if(this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            // this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4);
+            this._curvatureDerivativeNumeratorCP = this.curvatureDerivativeNumerator();
             this._curvatureExtremaTotalNumberOfConstraints = this._curvatureDerivativeNumeratorCP.length;
             this._curvatureExtremaConstraintsSign = this.computeConstraintsSign(this._curvatureDerivativeNumeratorCP);
             this.constraintType = ConstraintType.curvatureExtrema;
@@ -1737,7 +2092,8 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
 
         this._f = this.compute_f(this._curvatureNumeratorCP, this.inflectionConstraintsSign, this.inflectionInactiveConstraints, this._curvatureDerivativeNumeratorCP, this.curvatureExtremaConstraintsSign, this.curvatureExtremaInactiveConstraints);
         this.checkConstraintConsistency();
-        this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        // this._gradient_f = this.compute_gradient_f(e, this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints)
+        this._gradient_f = this.compute_gradient_f(this.inflectionConstraintsSign, this._inflectionInactiveConstraints, this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
     }
 
     cancelEvent() {

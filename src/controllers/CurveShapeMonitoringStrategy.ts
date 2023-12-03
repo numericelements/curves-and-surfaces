@@ -3,10 +3,10 @@ import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EventMgmtState, ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-import { NeighboringEventsType } from "./SlidingStrategy";
+import { NeighboringEventsType } from "../sequenceOfDifferentialEvents/NeighboringEvents";
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
 import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
-import { OpPeriodicBSplineR1toR2, OpPeriodicBSplineR1toR2NoInactiveConstraints } from "../bsplineOptimizationProblems/OpPeriodicBSplineR1toR2";
+import { OptProblemPeriodicBSplineR1toR2, OptProblemPeriodicBSplineR1toR2NoInactiveConstraints } from "../bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
 import { OptimizationProblemInterface } from "../optimizationProblemFacade/OptimizationProblemInterface";
@@ -482,7 +482,7 @@ export abstract class CCurveShapeMonitoringStrategy extends CurveShapeMonitoring
 
     protected currentCurve: PeriodicBSplineR1toR2;
     protected readonly closedCShapeSpaceNavigator: ClosedCurveShapeSpaceNavigator;
-    protected abstract _optimizationProblem: OpPeriodicBSplineR1toR2
+    protected abstract _optimizationProblem: OptProblemPeriodicBSplineR1toR2
     protected abstract _optimizer: Optimizer;
 
     constructor(cCShapeSpaceNavigator: ClosedCurveShapeSpaceNavigator) {
@@ -491,7 +491,7 @@ export abstract class CCurveShapeMonitoringStrategy extends CurveShapeMonitoring
         this.currentCurve = cCShapeSpaceNavigator.currentCurve;
     }
 
-    get optimizationProblem(): OpPeriodicBSplineR1toR2 {
+    get optimizationProblem(): OptProblemPeriodicBSplineR1toR2 {
         return this._optimizationProblem;
     }
 
@@ -499,7 +499,7 @@ export abstract class CCurveShapeMonitoringStrategy extends CurveShapeMonitoring
         return this._optimizer;
     }
 
-    set optimizationProblem(optimizationProblem: OpPeriodicBSplineR1toR2) {
+    set optimizationProblem(optimizationProblem: OptProblemPeriodicBSplineR1toR2) {
         this._optimizationProblem = optimizationProblem;
     }
 
@@ -524,7 +524,7 @@ export abstract class CCurveShapeMonitoringStrategy extends CurveShapeMonitoring
 
 export class CCurveShapeMonitoringStrategyWithInflexionsNoSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -540,20 +540,20 @@ export class CCurveShapeMonitoringStrategyWithInflexionsNoSliding extends CCurve
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
@@ -566,7 +566,7 @@ export class CCurveShapeMonitoringStrategyWithInflexionsNoSliding extends CCurve
 
 export class CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -582,20 +582,20 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends 
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
@@ -608,7 +608,7 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends 
 
 export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -624,20 +624,20 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSl
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
@@ -650,7 +650,7 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSl
 
 export class CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -666,20 +666,20 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends CCurv
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2NoInactiveConstraints): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
     }
@@ -692,7 +692,7 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends CCurv
 
 export class CCurveShapeMonitoringStrategyWithInflexionsSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -708,20 +708,20 @@ export class CCurveShapeMonitoringStrategyWithInflexionsSliding extends CCurveSh
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
@@ -734,7 +734,7 @@ export class CCurveShapeMonitoringStrategyWithInflexionsSliding extends CCurveSh
 
 export class CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -750,20 +750,20 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends CC
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
@@ -776,7 +776,7 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends CC
 
 export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -792,20 +792,20 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }
@@ -818,7 +818,7 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
 
 export class CCurveShapeMonitoringStrategyWithNoDiffEventSliding extends CCurveShapeMonitoringStrategy {
     
-    protected _optimizationProblem: OpPeriodicBSplineR1toR2;
+    protected _optimizationProblem: OptProblemPeriodicBSplineR1toR2;
     protected _optimizer: Optimizer;
     private activeOptimizer: boolean;
     public lastDiffEvent: NeighboringEventsType
@@ -835,20 +835,20 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventSliding extends CCurveS
             error.logMessageToConsole();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
-        this._optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone(), activeControl) */
         this._optimizer = this.newOptimizer(this._optimizationProblem)
         this.lastDiffEvent = NeighboringEventsType.none
     }
 
-    newOptimizer(optimizationProblem: OpPeriodicBSplineR1toR2): Optimizer {
+    newOptimizer(optimizationProblem: OptProblemPeriodicBSplineR1toR2): Optimizer {
         // this.setWeightingFactor(optimizationProblem);
         return new Optimizer(optimizationProblem);
     }
 
     resetCurve(curve: PeriodicBSplineR1toR2): void {
         this.currentCurve = curve;
-        this.optimizationProblem = new OpPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
+        this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
         this._optimizer = this.newOptimizer(this.optimizationProblem)
     }

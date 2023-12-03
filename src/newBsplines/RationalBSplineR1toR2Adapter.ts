@@ -217,6 +217,17 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         }
         return result;
     }
+
+    // to be checked for adequate usage
+    flattenControlPointsArray(): number[] {
+        const controlPointsArray: number[][] = [];
+        for(let i = 0; i < this.controlPoints.length; i++) {
+            controlPointsArray.push([this.controlPoints[i].x, this.controlPoints[i].y])
+        }
+        return controlPointsArray.reduce(function (acc, val) {
+            return acc.concat(val);
+        }, [])
+    }
 }
 
 export function deepCopyControlPoints(controlPoints: Vector3d[]): Vector3d[] {

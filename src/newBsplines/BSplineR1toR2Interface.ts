@@ -44,4 +44,6 @@ export interface BSplineR1toR2Interface {
 
     moveControlPoints(delta: Vector2d[]): BSplineR1toR2Interface;
 
+    flattenControlPointsArray(): number[];
+
 }

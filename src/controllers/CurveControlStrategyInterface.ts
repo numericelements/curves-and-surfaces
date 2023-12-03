@@ -1,5 +1,6 @@
 
-import { OptProblemBSplineR1toR2 } from "../bsplineOptimizationProblems/OptProblemBSplineR1toR2";
+// import { OptProblemBSplineR1toR2 } from "../bsplineOptimizationProblems/OptProblemBSplineR1toR2";
+import { OptProblemOpenBSplineR1toR2 } from "../bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
 import { Optimizer } from "../mathematics/Optimizer";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 
@@ -7,7 +8,8 @@ import { CurveModelInterface } from "../newModels/CurveModelInterface";
 export interface CurveControlStrategyInterface  {
 
     optimizer: Optimizer;
-    optimizationProblem: OptProblemBSplineR1toR2;
+    // optimizationProblem: OptProblemBSplineR1toR2;
+    optimizationProblem: OptProblemOpenBSplineR1toR2;
 
     // toggleControlOfCurvatureExtrema(): void 
     // toggleControlOfInflections(): void

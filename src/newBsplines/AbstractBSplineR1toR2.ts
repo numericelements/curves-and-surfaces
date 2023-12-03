@@ -302,6 +302,16 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     }
 
+    flattenControlPointsArray(): number[] {
+        const controlPointsArray: number[][] = [];
+        for(let i = 0; i < this.controlPoints.length; i++) {
+            controlPointsArray.push([this.controlPoints[i].x, this.controlPoints[i].y])
+        }
+        return controlPointsArray.reduce(function (acc, val) {
+            return acc.concat(val);
+        }, [])
+    }
+
     /**
      * 
      * @param fromU Parametric position where the section start

@@ -1,6 +1,8 @@
 
+import { ExpensiveComputationResults } from "../bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2";
 import { SymmetricMatrixInterface } from "../linearAlgebra/MatrixInterfaces";
 import { MatrixInterface } from "../linearAlgebra/MatrixInterfaces"
+import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 
 
 /**
@@ -70,5 +72,5 @@ export interface OptimizationProblemInterface {
      */
     f0Step(deltaX: number[]): number
 
-
+    init(spline: BSplineR1toR2Interface): void;
 }

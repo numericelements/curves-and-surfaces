@@ -152,12 +152,15 @@ export class BernsteinDecompositionR1toR1 {
         return new BSplineR1toR1(cp, knots);
     }
     
-    
 
     getDegree(): number {
         return this.controlPointsArray[0].length - 1;
     }
 
+    clone(): BernsteinDecompositionR1toR1 {
+        const decompositionCopy = new BernsteinDecompositionR1toR1(this.controlPointsArray.slice());
+        return decompositionCopy;
+    }
 }
 
 export function splineRecomposition(bernsteinDecomposiiton: BernsteinDecompositionR1toR1, distinctKnots: number[]): BSplineR1toR1 {

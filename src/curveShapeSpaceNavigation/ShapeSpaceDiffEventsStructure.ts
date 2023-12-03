@@ -121,8 +121,12 @@ export class ShapeSpaceDiffEventsStructure {
         return this._curveCategory;
     }
 
-    get managementOfEventsAtExtremities():EventMgmtState {
+    get managementOfEventsAtExtremities(): EventMgmtState {
         return this._managementOfEventsAtExtremities;
+    }
+
+    get curveShapeSpaceNavigator(): CurveShapeSpaceNavigator {
+        return this._curveShapeSpaceNavigator;
     }
 
     reset(): void {
