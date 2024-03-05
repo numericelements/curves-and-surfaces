@@ -92,7 +92,7 @@ export class CurveSceneController implements SceneControllerInterface {
         this._curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
 
         this._controlPointsView = new ControlPointsView(this.gl, this.curveModel.spline);
-        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
+        this.controlPolygonView = new ControlPolygonView(this.gl, this.curveModel.spline);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView(this.gl);
         this.curvatureExtremaView = new CurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
@@ -206,7 +206,7 @@ export class CurveSceneController implements SceneControllerInterface {
 
     initCurveSceneView(): void {
         this._controlPointsView = new ControlPointsView(this.gl, this.curveModel.spline);
-        this.controlPolygonView = new ControlPolygonView(this.curveModel.spline, this.gl, false);
+        this.controlPolygonView = new ControlPolygonView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView(this.gl);
         this.curveView = new CurveView(this.gl, this.curveModel.spline);
         this.curveKnotsView = new CurveKnotsView(this.gl, this.curveModel.spline);

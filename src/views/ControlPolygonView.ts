@@ -25,7 +25,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
     private a_Position: number;
     private fColorLocation: WebGLUniformLocation | null;
 
-    constructor(spline: BSplineR1toR2Interface, gl: WebGLRenderingContext, private closed: boolean = false) {
+    constructor(gl: WebGLRenderingContext, spline: BSplineR1toR2Interface) {
 
         this.gl = gl;
         this.lineSegmentShader = new LineSegmentShader(this.gl);

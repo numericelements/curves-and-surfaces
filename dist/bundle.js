@@ -44606,7 +44606,7 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModelDifferentialEventsExtractor = this._shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
         this._curveDiffEventsLocations = this.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
         this._controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
-        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
+        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.gl, this.curveModel.spline);
         this.curveView = new CurveView_1.CurveView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
         this.curvatureExtremaView = new CurvatureExtremaView_1.CurvatureExtremaView(this.gl, this._curveDiffEventsLocations);
@@ -44762,7 +44762,7 @@ var CurveSceneController = /** @class */ (function () {
     });
     CurveSceneController.prototype.initCurveSceneView = function () {
         this._controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
-        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.curveModel.spline, this.gl, false);
+        this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
         this.curveView = new CurveView_1.CurveView(this.gl, this.curveModel.spline);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
@@ -63167,9 +63167,7 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
 var ControlPolygonView = /** @class */ (function () {
-    function ControlPolygonView(spline, gl, closed) {
-        if (closed === void 0) { closed = false; }
-        this.closed = closed;
+    function ControlPolygonView(gl, spline) {
         this.Z = 0;
         this.THICKNESS = 0.003;
         this.RED_COLOR = 216 / 255;
