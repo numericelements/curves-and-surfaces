@@ -53838,7 +53838,7 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                         curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
                 }
-                else if (navigationStateChange) {
+                if (navigationStateChange) {
                     var degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     // this.listener.shapeNavigableCurve.clampedPoints = [];
@@ -53859,7 +53859,7 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                         // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
                     }
                 }
-                else if (shapeSpaceConfigurationChange) {
+                if (shapeSpaceConfigurationChange) {
                     curveCategory.curveModelDifferentialEventsLocations = curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
                 }
             }
@@ -53890,7 +53890,7 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                         curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
                 }
-                else if (navigationStateChange) {
+                if (navigationStateChange) {
                     var degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     this.listener.shapeNavigableCurve.clampedPoints = [];
@@ -53909,7 +53909,7 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                         // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
                     }
                 }
-                else if (shapeSpaceConfigurationChange) {
+                if (shapeSpaceConfigurationChange) {
                     curveCategory.curveModelDifferentialEventsLocations = curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
                 }
             }
@@ -54160,7 +54160,10 @@ var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) 
             }
             else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
                 this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
-                // this.listener.initCurveSceneView();
+                this.listener.removeCurveObservers();
+                this.listener.initCurveSceneView();
+                var navigationState_1 = this.listener.curveShapeSpaceNavigator.navigationState;
+                this.listener.navigationState = navigationState_1;
             }
         }
         this.listener.renderFrame();
@@ -62451,6 +62454,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractMouseSelectablePointView = void 0;
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
 var AbstractMouseSelectableGraphicEntityView_1 = __webpack_require__(/*! ./AbstractMouseSelectableGraphicEntityView */ "./src/views/AbstractMouseSelectableGraphicEntityView.ts");
 var AbstractMouseSelectablePointView = /** @class */ (function (_super) {
     __extends(AbstractMouseSelectablePointView, _super);
@@ -62471,6 +62475,9 @@ var AbstractMouseSelectablePointView = /** @class */ (function (_super) {
         _this.selectedKnotIndex = null;
         _this.spline = spline;
         _this.controlPoints = spline.controlPoints;
+        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            _this.controlPoints = spline.freeControlPoints;
+        }
         _this.knots = spline.getDistinctKnots();
         return _this;
     }
@@ -63019,6 +63026,8 @@ exports.ControlPointsView = void 0;
 var RoundDotTwoLevelsTransparencyShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader */ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var AbstractMouseSelectablePointView_1 = __webpack_require__(/*! ./AbstractMouseSelectablePointView */ "./src/views/AbstractMouseSelectablePointView.ts");
+var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var ControlPointsView = /** @class */ (function (_super) {
     __extends(ControlPointsView, _super);
     function ControlPointsView(gl, spline) {
@@ -63030,6 +63039,9 @@ var ControlPointsView = /** @class */ (function (_super) {
         _this.BLUE_COLOR = 1.0;
         _this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader_1.RoundDotTwoLevelsTransparencyShader(_this.gl);
         _this.pointSequenceToDisplay = spline.controlPoints;
+        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            _this.pointSequenceToDisplay = spline.freeControlPoints;
+        }
         _this.a_Position = -1;
         _this.a_Texture = -1;
         _this.a_Color = -1;
@@ -63114,9 +63126,19 @@ var ControlPointsView = /** @class */ (function (_super) {
     ControlPointsView.prototype.reset = function (spline) {
     };
     ControlPointsView.prototype.update = function (spline) {
-        this.pointSequenceToDisplay = spline.controlPoints;
         this.spline = spline;
-        this.controlPoints = spline.controlPoints;
+        if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
+            this.pointSequenceToDisplay = spline.controlPoints;
+            this.controlPoints = spline.controlPoints;
+        }
+        else if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.pointSequenceToDisplay = spline.freeControlPoints;
+            this.controlPoints = spline.freeControlPoints;
+        }
+        else {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the pointSequenceToDisplay.");
+            error.logMessageToConsole();
+        }
         this.updateVerticesAndIndices();
         this.updateBuffers();
     };
@@ -63162,7 +63184,8 @@ var ControlPolygonView = /** @class */ (function () {
         this.lineSegmentShader = new LineSegmentShader_1.LineSegmentShader(this.gl);
         // this.controlPoints = spline.visibleControlPoints()
         this.controlPoints = spline.controlPoints;
-        if (this.closed) {
+        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+            this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
         }
         this.a_Position = -1;
@@ -63252,18 +63275,16 @@ var ControlPolygonView = /** @class */ (function () {
         this.gl.useProgram(null);
     };
     ControlPolygonView.prototype.update = function (spline) {
-        this.controlPoints = spline.controlPoints;
         if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-            this.closed = false;
+            this.controlPoints = spline.controlPoints;
         }
         else if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
-            this.closed = true;
+            this.controlPoints = spline.freeControlPoints;
+            this.controlPoints.push(this.controlPoints[0]);
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the closed parameter.");
-        }
-        if (this.closed) {
-            this.controlPoints.push(this.controlPoints[0]);
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the controlPoints.");
+            error.logMessageToConsole();
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();

@@ -1,8 +1,10 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { RoundDotTwoLevelsTransparencyShader } from "../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader"
 import { IObserver } from "../newDesignPatterns/Observer";
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
+import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 
 export class ControlPointsView extends AbstractMouseSelectablePointView implements IObserver<BSplineR1toR2Interface> {
@@ -23,6 +25,9 @@ export class ControlPointsView extends AbstractMouseSelectablePointView implemen
         super(gl, spline);
         this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader(this.gl);
         this.pointSequenceToDisplay = spline.controlPoints;
+        if(spline instanceof PeriodicBSplineR1toR2) {
+            this.pointSequenceToDisplay = spline.freeControlPoints;
+        }
         this.a_Position = -1;
         this.a_Texture = -1;
         this.a_Color = -1;
@@ -123,9 +128,17 @@ export class ControlPointsView extends AbstractMouseSelectablePointView implemen
     }
 
     update(spline: BSplineR1toR2Interface): void {
-        this.pointSequenceToDisplay = spline.controlPoints;
         this.spline = spline;
-        this.controlPoints = spline.controlPoints;
+        if(spline instanceof BSplineR1toR2) {
+            this.pointSequenceToDisplay = spline.controlPoints;
+            this.controlPoints = spline.controlPoints;
+        } else if (spline instanceof PeriodicBSplineR1toR2) {
+            this.pointSequenceToDisplay = spline.freeControlPoints;
+            this.controlPoints = spline.freeControlPoints;
+        } else {
+            const error = new ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the pointSequenceToDisplay.");
+            error.logMessageToConsole();
+        }
         this.updateVerticesAndIndices();
         this.updateBuffers();
     }

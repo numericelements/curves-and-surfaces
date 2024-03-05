@@ -31,7 +31,8 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         this.lineSegmentShader = new LineSegmentShader(this.gl);
         // this.controlPoints = spline.visibleControlPoints()
         this.controlPoints = spline.controlPoints;
-        if (this.closed) {
+        if(spline instanceof PeriodicBSplineR1toR2) {
+            this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
         }
         this.a_Position = -1;
@@ -138,16 +139,14 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
     }
 
     update(spline: BSplineR1toR2Interface): void {
-        this.controlPoints = spline.controlPoints;
         if(spline instanceof BSplineR1toR2) {
-            this.closed =  false;
+            this.controlPoints = spline.controlPoints;
         } else if(spline instanceof PeriodicBSplineR1toR2) {
-            this.closed = true;
-        } else {
-            const error = new ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the closed parameter.")
-        }
-        if (this.closed) {
+            this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
+        } else {
+            const error = new ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the controlPoints.");
+            error.logMessageToConsole();
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();

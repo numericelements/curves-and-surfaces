@@ -108,7 +108,8 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
                         curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                         curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
-                } else if(navigationStateChange) {
+                }
+                if(navigationStateChange) {
                     const degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     // this.listener.shapeNavigableCurve.clampedPoints = [];
@@ -127,7 +128,8 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
                         curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                         // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
                     }
-                } else if(shapeSpaceConfigurationChange) {
+                }
+                if(shapeSpaceConfigurationChange) {
                     curveCategory.curveModelDifferentialEventsLocations = curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
                 }
             }
@@ -156,7 +158,8 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
                         curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(curveShapeSpaceNavigator.eventMgmtAtExtremities));
                         curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                     }
-                } else if(navigationStateChange) {
+                }
+                if(navigationStateChange) {
                     const degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     this.listener.shapeNavigableCurve.clampedPoints = [];
@@ -173,7 +176,8 @@ export class CurveModelObserverInCurveModelEventListener extends CurveModelObser
                         curveShapeSpaceNavigator.eventStateAtCrvExtremities = curveShapeSpaceNavigator.eventMgmtAtExtremities.eventStateAtCrvExtremities;
                         // this.listener.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintClampedFirstControlPoint(this.listener.shapeNavigableCurve.curveConstraints));
                     }
-                } else if(shapeSpaceConfigurationChange) {
+                }
+                if(shapeSpaceConfigurationChange) {
                     curveCategory.curveModelDifferentialEventsLocations = curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
                 }
             }
@@ -418,7 +422,10 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
                 // this.listener.initCurveSceneView();
             } else if(message instanceof ClosedCurveModel) {
                 this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
-                // this.listener.initCurveSceneView();
+                this.listener.removeCurveObservers();
+                this.listener.initCurveSceneView();
+                const navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
+                this.listener.navigationState = navigationState;
             }
         }
 
