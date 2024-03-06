@@ -595,6 +595,20 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
         this._shapeNavigableCurve.curveConstraints.curveConstraintStrategy = this._shapeNavigableCurve.crvConstraintAtExtremitiesStgy;
     }
 
+    reinitializeConstraintControl() {
+        if(this.controlOfCurveClamping) {
+            this._toggleButtonCurveClamping.click();
+            this._shapeNavigableCurve.controlOfCurveClamping = false;
+            this._shapeNavigableCurve.clampedPoints = [];
+            this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+            this._shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
+            this.shapeNavigableCurve.changeCurveConstraintStrategy(new CurveConstraintNoConstraint(this.shapeNavigableCurve.curveConstraints));
+            this.storeCurrentConstraintControl();
+        } else {
+            this.storeCurrentConstraintControl();
+        }
+    }
+
     updateCurveDegreeSelector(newCurveDegree: number): void {
         if(newCurveDegree >= DEFAULT_CURVE_DEGREE) {
             const optionNumber = Number(this.currentCurveDegree) - DEFAULT_CURVE_DEGREE + 1;
@@ -838,6 +852,11 @@ export class ShapeSpaceNavigationEventListener {
         const navigationMode = Number(this._inputNavigationMode.value);
         this._currentNavigationMode = this._inputNavigationMode.value;
         this._curveShapeSpaceNavigator.inputSelectNavigationProcess(navigationMode);
+    }
+
+    reinitializeNavigationMode() {
+        this._currentNavigationMode =  "0";
+        this.clickNavigationMode();
     }
 
     updateCurveShapeControlButtons() {

@@ -70,6 +70,8 @@ export class CurveSceneControllerKnotInsertion extends CurveSceneControllerInter
         if(this.curveModel instanceof CurveModel) {
             if(cp === 0) { cp += 1 };
             if(cp === this.curveModel.spline.controlPoints.length -1) { cp -= 1 };
+        } else if(this.curveModel instanceof ClosedCurveModel) {
+
         }
         const grevilleAbscissae = this.curveModel.spline.grevilleAbscissae();
         if(cp != null) {
