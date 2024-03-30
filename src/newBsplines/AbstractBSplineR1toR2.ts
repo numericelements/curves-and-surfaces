@@ -4,8 +4,10 @@ import { BSplineR1toR2Interface as BSplineR1toR2Interface } from "./BSplineR1toR
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 
 export enum curveSegment {BEFORE, AFTER};
+export const TOL_KNOT_COINCIDENCE = 1.0E-8;
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -161,7 +163,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     insertKnot(u: number, times: number = 1): void {
         // Piegl and Tiller, The NURBS book, p: 151
-        if (times <= 0) {
+        if (times <= 0 || times > (this._degree + 1)) {
             return;
         }
         
@@ -267,6 +269,29 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
             result.push(sum / this._degree);
         }
         return result;
+    }
+
+    isAbscissaCoincidingWithKnot(u: number): boolean {
+        let coincident = false;
+        const knots = this.getDistinctKnots();
+        for(let knot of knots) {
+            if(Math.abs(u - knot) < TOL_KNOT_COINCIDENCE) coincident = true;
+        }
+        return coincident;
+    }
+
+    getFirstKnotIndexCoincidentWithAbscissa(u: number): number {
+        let index = RETURN_ERROR_CODE;
+        for(let i = 0; i < this._knots.length; i++) {
+            if(Math.abs(u - this._knots[i]) < TOL_KNOT_COINCIDENCE) {
+                index = i;
+                break;
+            }
+        }
+        if(index < this._degree || index > (this._knots.length - 1 - this._degree)) {
+            index = RETURN_ERROR_CODE;
+        }
+        return index;
     }
 
 

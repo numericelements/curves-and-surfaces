@@ -731,7 +731,8 @@ export class OptProblemPeriodicBSplineR1toR2 extends AbstractOptProblemBSplineR1
         this.d3BasisFunctions_du3 = []
         for (let i = 0; i < m; i += 1) {
             diracControlPoints[i] = 1
-            if (i < this.spline.degree) {
+            if (i < (n - m)) {
+                // the condition (n-m) enables to take into account the multiplicity of the knot at the boundary of the curve interval u=0
                 diracControlPoints[m + i] = 1
             }
             let basisFunction = this.bSplineR1toR1Factory(diracControlPoints.slice(), this.spline.knots.slice())
@@ -742,7 +743,7 @@ export class OptProblemPeriodicBSplineR1toR2 extends AbstractOptProblemBSplineR1
             this.d2BasisFunctions_du2.push(d2BasisFunction_du2.bernsteinDecomposition())
             this.d3BasisFunctions_du3.push(d3BasisFunction_du3.bernsteinDecomposition())
             diracControlPoints[i] = 0
-            if (i < this.spline.degree) {
+            if (i < (n - m)) {
                 diracControlPoints[m + i] = 0
             }
         }

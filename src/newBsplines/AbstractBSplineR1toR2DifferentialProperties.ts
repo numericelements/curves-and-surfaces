@@ -1,5 +1,5 @@
 import { Vector2d } from "../mathVector/Vector2d";
-import { AbstractBSplineR1toR2 } from "./AbstractBSplineR1toR2"
+import { BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
@@ -7,16 +7,16 @@ import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 
 export abstract class AbstractBSplineR1toR2DifferentialProperties {
 
-    protected _spline: AbstractBSplineR1toR2;
+    protected _spline: BSplineR1toR2Interface;
 
     abstract bSplineR1toR1Factory(controlPoints: number[], knots: number[]): BSplineR1toR1Interface;
 
 
-    constructor(spline: AbstractBSplineR1toR2) {
+    constructor(spline: BSplineR1toR2Interface) {
         this._spline = spline.clone();
     }
 
-    protected expensiveComputation(spline: AbstractBSplineR1toR2): {h1 : BernsteinDecompositionR1toR1,
+    protected expensiveComputation(spline: BSplineR1toR2Interface): {h1 : BernsteinDecompositionR1toR1,
                                                                     h2 : BernsteinDecompositionR1toR1,
                                                                     h3 : BernsteinDecompositionR1toR1,
                                                                     h4 : BernsteinDecompositionR1toR1 } {

@@ -1,4 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 
 /**
@@ -53,7 +54,18 @@ export function clampingFindSpan(u: number, knots: Array<number>, degree: number
     }
     // Special case
     if (u === knots[knots.length - degree - 1]) {
-        return knots.length - degree - 1;
+        let sameKnot = knots[knots.length - 1];
+        let returnIndex = knots.length - degree - 1;
+        for(let i = knots.length - 2; i > knots.length - degree - 2; i--) {
+            if(sameKnot === knots[i]) {
+                returnIndex = returnIndex -1;
+            } else {
+                sameKnot = knots[i];
+            }
+        }
+        console.log("findSpan index = " + (knots.length - degree - 1) + " returnIndex = " + returnIndex);
+        // return knots.length - degree - 1;
+        return returnIndex;
     }
     // Do binary search
     let low = degree;
@@ -111,12 +123,30 @@ export function decomposeFunction(spline: BSplineR1toR1): number[][] {
         result.push([]);
     }
 
-    for (let i = 0; i <= spline.degree; i += 1) {
-        result[0][i] = spline.controlPoints[i];
+    let a = 0;
+    let b = 0;
+    let index = findSpan(LOWER_BOUND_CURVE_INTERVAL, spline.knots, spline.degree);
+    if(spline.degree > 0) {
+        for (let i = 0; i <= spline.degree; i += 1) {
+            result[0][i] = spline.controlPoints[i];
+        }
+        a = spline.degree;
+        b = spline.degree + 1;
+    } else if(spline.degree === 0 && spline.knotMultiplicity(index) > 1) {
+        console.log("multiplicity 0:",spline.knotMultiplicity(index));
+        // result[0][0] = spline.controlPoints[0];
+        // a = spline.degree;
+        // b = spline.degree + 1;
+        
+        result[0][0] = spline.controlPoints[1];
+        a = spline.degree + 1;
+        b = spline.degree + 2;
+    } else if(spline.degree === 0 && spline.knotMultiplicity(index) === 1) {
+        result[0][0] = spline.controlPoints[0];
+        a = spline.degree;
+        b = spline.degree + 1;
     }
 
-    let a = spline.degree;
-    let b = spline.degree + 1;
     let bezier_segment = 0;
     let alphas: number[] = [];
     while (b < spline.knots.length - 1) {

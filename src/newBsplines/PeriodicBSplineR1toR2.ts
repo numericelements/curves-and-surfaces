@@ -1,5 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d"
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
@@ -25,7 +26,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
 
 
     get periodicControlPointsLength(): number {
-        return this._controlPoints.length - this._degree;
+        let multiplicityBoundary = this.knotMultiplicity(this._degree);
+        return this._controlPoints.length - this._degree + (multiplicityBoundary - 1);
     }
 
     get freeControlPoints(): Vector2d[] {
@@ -230,6 +232,18 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
         return new PeriodicBSplineR1toR2(newControlPolygon, newKnots);
     }
 
+    grevilleAbscissae(): number[] {
+        let result = [];
+        for (let i = 0; i < this.freeControlPoints.length; i += 1) {
+            let sum = 0;
+            for (let j = i + this._degree - 1; j < i + 2 * this._degree - 1; j += 1) {
+                sum += this._knots[j];
+            }
+            result.push(sum / this._degree);
+        }
+        return result;
+    }
+
     // Probably not compatible with periodic BSplines -> to be modified
     removeKnot(indexFromFindSpan: number, tolerance: number = 10e-5): void {
         //Piegl and Tiller, The NURBS book, p : 185
@@ -301,8 +315,10 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
     }
 
     getDistinctKnots(): number[] {
+        let multiplicityBoundary = this.knotMultiplicity(this.degree);
         const result = super.getDistinctKnots();
-        return result.slice(this.degree, result.length - this.degree);
+        return result.slice(this.degree - (multiplicityBoundary - 1), result.length - this.degree + (multiplicityBoundary - 1));
+        // return result.slice(this.degree, result.length - this.degree);
     }
 
     setControlPointPosition(i: number, value: Vector2d): void {
@@ -320,48 +336,94 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
         
     }
 
+    isKnotlMultiplicityZero(u: number): boolean {
+        let multiplicityZero = true;
+        if(this.isAbscissaCoincidingWithKnot(u)) multiplicityZero = false;
+        return multiplicityZero;
+    }
+
+    findCoincidentKnot(u: number): number {
+        let index = RETURN_ERROR_CODE;
+        if(!this.isKnotlMultiplicityZero(u)) index = this.getFirstKnotIndexCoincidentWithAbscissa(u);
+        return index;
+    }
+
     insertKnot(u: number): void {
-        super.insertKnot(u, 1);
-        if (u < this._knots[2 * this._degree]) {
-            let newKnots : number[] = [];
-            let newControlPoints: Vector2d[]  = [];
-            for (let i = 0; i < this._knots.length - 2 * this._degree ; i += 1) {
-                newKnots.push(this._knots[i]);
-            }
-            const ui = newKnots[newKnots.length - 1];
-            for (let i = 1; i < 2 * this._degree + 1; i += 1 ) {
-                newKnots.push(ui + (this._knots[i] - this._knots[0]));
-            }
-            for (let i = 0; i < this._controlPoints.length - this._degree ; i += 1) {
-                newControlPoints.push(new Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
-            }
-            for (let i = 0; i < this._degree; i += 1 ) {
-                newControlPoints.push(new Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
-            }
-            this._controlPoints = newControlPoints;
-            this._knots = newKnots;
+        let uToInsert = u;
+        let index = RETURN_ERROR_CODE;
+        if(!this.isKnotlMultiplicityZero(u)) {
+            index = this.findCoincidentKnot(u);
+            const indexSpan = findSpan(this._knots[index],this._knots,this._degree);
+            uToInsert = this._knots[indexSpan];
         }
-        if (u > this._knots[this._knots.length - 1 - 2 * this._degree]) {
-            let newKnots : number[] = [];
-            let newControlPoints: Vector2d[]  = [];
-            const periodicIndex = this._knots.length - 1 - 2 * this._degree;
-            const ui = this._knots[periodicIndex];
-            for (let i = 0; i < 2 * this._degree; i += 1) {
-                newKnots.push(this._knots[1] + (this._knots[i + periodicIndex] - ui));
+        if(uToInsert < this._knots[2 * this._degree] || uToInsert > this._knots[this._knots.length - 2 * this._degree - 1]) {
+            const indexSpan = findSpan(uToInsert,this._knots,this._degree);
+            // temporary for test purposes
+            const indexSpan2 = this.findSpanBoehmAlgorithm(u,this._knots,this._degree);
+            const knotMultiplicity = this.knotMultiplicity(indexSpan);
+            if(knotMultiplicity === this._degree) {
+                const error = new ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
+                error.logMessageToConsole();
+            } else {
+                // two knot insertions must take place to preserve the periodic structure of the function basis
+                // unless if uToInsert = uSymmetric. In this case, only one knot insertion is possible
+                const uSymmetric = this._knots[this._knots.length - 1 - indexSpan];
+                super.insertKnot(uToInsert, 1);
+                if(uSymmetric !== uToInsert) super.insertKnot(uSymmetric, 1);
+                if(index === this._degree) {
+                    // the knot inserted is located at the origin of the periodic curve. To obtain the new knot
+                    // sequence, the extreme knots must be removed as well as the corresponding control points
+                    let newKnots : number[] = this._knots.slice(1, this._knots.length - 1);
+                    let newControlPoints: Vector2d[] = this._controlPoints.slice(1, this._controlPoints.length - 1);
+                    this._controlPoints = newControlPoints;
+                    this._knots = newKnots;
+                }
             }
-            for (let i = 2 * this._degree; i < this._knots.length; i += 1 ) {
-                newKnots.push(this._knots[i]);
-            }
-            const cpi = this._controlPoints.length - this._degree;
-            for (let i = 0; i < this._degree; i += 1 ) {
-                newControlPoints.push(new Vector2d(this._controlPoints[cpi + i].x, this._controlPoints[cpi + i].y));
-            }
-            for (let i = this._degree; i < this._controlPoints.length; i += 1) {
-                newControlPoints.push(new Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
-            }
-            this._controlPoints = newControlPoints;
-            this._knots = newKnots;
-        } 
+            return;
+        } else {
+            super.insertKnot(uToInsert, 1);
+        }
+        // super.insertKnot(u, 1);
+        // if (u < this._knots[2 * this._degree]) {
+        //     let newKnots : number[] = [];
+        //     let newControlPoints: Vector2d[]  = [];
+        //     for (let i = 0; i < this._knots.length - 2 * this._degree ; i += 1) {
+        //         newKnots.push(this._knots[i]);
+        //     }
+        //     const ui = newKnots[newKnots.length - 1];
+        //     for (let i = 1; i < 2 * this._degree + 1; i += 1 ) {
+        //         newKnots.push(ui + (this._knots[i] - this._knots[0]));
+        //     }
+        //     for (let i = 0; i < this._controlPoints.length - this._degree ; i += 1) {
+        //         newControlPoints.push(new Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
+        //     }
+        //     for (let i = 0; i < this._degree; i += 1 ) {
+        //         newControlPoints.push(new Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
+        //     }
+        //     this._controlPoints = newControlPoints;
+        //     this._knots = newKnots;
+        // }
+        // if (u > this._knots[this._knots.length - 1 - 2 * this._degree]) {
+        //     let newKnots : number[] = [];
+        //     let newControlPoints: Vector2d[]  = [];
+        //     const periodicIndex = this._knots.length - 1 - 2 * this._degree;
+        //     const ui = this._knots[periodicIndex];
+        //     for (let i = 0; i < 2 * this._degree; i += 1) {
+        //         newKnots.push(this._knots[1] + (this._knots[i + periodicIndex] - ui));
+        //     }
+        //     for (let i = 2 * this._degree; i < this._knots.length; i += 1 ) {
+        //         newKnots.push(this._knots[i]);
+        //     }
+        //     const cpi = this._controlPoints.length - this._degree;
+        //     for (let i = 0; i < this._degree; i += 1 ) {
+        //         newControlPoints.push(new Vector2d(this._controlPoints[cpi + i].x, this._controlPoints[cpi + i].y));
+        //     }
+        //     for (let i = this._degree; i < this._controlPoints.length; i += 1) {
+        //         newControlPoints.push(new Vector2d(this._controlPoints[i].x, this._controlPoints[i].y));
+        //     }
+        //     this._controlPoints = newControlPoints;
+        //     this._knots = newKnots;
+        // } 
     }
 
     scale(factor: number) {

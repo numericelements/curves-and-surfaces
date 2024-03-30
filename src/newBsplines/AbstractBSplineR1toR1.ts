@@ -196,8 +196,18 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         let newControlPoints = []
 
         let multiplicity = 0
+        // if (u === this._knots[index]) {
         if (u === this._knots[index]) {
             multiplicity = this.knotMultiplicity(index);
+        } else if(u === this._knots[index + this._degree]) {
+            let temporary_mult = 0;
+            let tempIndex = this._knots.length - 1;
+            while(tempIndex >= (index + this._degree)) {
+                if(this.knotMultiplicity(tempIndex) > temporary_mult) temporary_mult = this.knotMultiplicity(tempIndex);
+                tempIndex--;
+            }
+            // multiplicity = this.knotMultiplicity(index + this._degree);
+            multiplicity = temporary_mult;
         }
 
         const times = this._degree - multiplicity + 1;
@@ -218,7 +228,6 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
             multiplicity += 1;
             index += 1;
         }
-
     }
 
 
