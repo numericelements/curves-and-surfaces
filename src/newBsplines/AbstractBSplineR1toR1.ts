@@ -2,6 +2,7 @@ import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+import { KnotSequenceOpenCurve } from "./KnotSequence";
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
@@ -12,6 +13,8 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     protected _knots: number[] = [];
     protected _degree: number = 0;
 
+    protected _knotSequence: KnotSequenceOpenCurve;
+
     /**
      * Create a B-Spline
      * @param controlPoints The control points array
@@ -21,6 +24,13 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         this._controlPoints = [...controlPoints];
         this._knots = [...knots];
         this._degree = this.computeDegree();
+
+        // for test purposes
+        this._knotSequence = new KnotSequenceOpenCurve(this._knots, this._degree);
+        for(const knot of this._knotSequence) {
+            console.log(knot.value.abcissa, knot.value.multiplicity)
+            knot.value.incrementMultiplicity()
+        }
     }
 
     computeDegree(): number {

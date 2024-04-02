@@ -8,14 +8,15 @@ export abstract class KnotSequenceCurve {
     protected abstract _increasingSequence: number[];
     protected abstract _strictlyIncreasingSequence: number[];
     protected abstract _knotMultiplicities: number[];
+    protected abstract _knotSequence: Array<Knot>;
     protected _degree: number;
-    protected _start: number;
+    protected _index: number;
     protected _end: number;
     protected interval: number;
 
     constructor(knots: number[], degree: number, multiplicities?: number[]) {
         this._degree = degree;
-        this._start = 0;
+        this._index = 0;
         this._end = Infinity;
         this.interval = 1;
     }
@@ -25,7 +26,7 @@ export abstract class KnotSequenceCurve {
     }
 
     get start() {
-        return this._start;
+        return this._index;
     }
 
     get end() {
@@ -43,17 +44,19 @@ export abstract class KnotSequenceCurve {
     abstract isAbscissaCoincidingWithKnot(u: number): boolean;
 
     [Symbol.iterator]() {
-        let counter = 0;
-        let nextIndex = this.start;
+        // let counter = 0;
+        // let nextIndex = this.start;
         return  {
             next: () => {
-                if ( nextIndex <= this.end ) {
-                    let result = { value: nextIndex,  done: false }
-                    nextIndex += this.interval;
-                    counter++;
+                if ( this._index <= this.end ) {
+                    let result = { value: this._strictlyIncreasingSequence[this._index++],  done: false }
+                    // nextIndex += this.interval;
+                    // counter++;
                     return result;
+                } else {
+                    this._index = 0;
+                    return { done: true };
                 }
-                return { value: counter, done: true };
             }
         }
     }
@@ -94,6 +97,7 @@ export class KnotSequenceOpenCurve extends KnotSequenceCurve {
     protected _increasingSequence: number[];
     protected _strictlyIncreasingSequence: number[];
     protected _knotMultiplicities: number[];
+    protected _knotSequence: Knot[];
 
     constructor(knots: number[], degree: number, multiplicities?: number[]) {
         super(knots, degree, multiplicities);
@@ -112,6 +116,11 @@ export class KnotSequenceOpenCurve extends KnotSequenceCurve {
             this._knotMultiplicities = [...multiplicities];
             this._increasingSequence = this.generateIncreasingSequence();
         }
+        this._knotSequence = [];
+        for(const item of this._strictlyIncreasingSequence) {
+            this._knotSequence.push(new Knot(this._strictlyIncreasingSequence[item], this._knotMultiplicities[item]));
+        }
+        
     }
 
     get increasingSequence() {
@@ -315,6 +324,7 @@ export class KnotSequenceClosedCurve extends KnotSequenceCurve {
     protected _increasingSequence: number[];
     protected _strictlyIncreasingSequence: number[];
     protected _knotMultiplicities: number[];
+    protected _knotSequence: Knot[];
 
     constructor(freeKnots: number[], degree: number, multiplicities?: number[]) {
         super(freeKnots, degree, multiplicities);
@@ -339,6 +349,10 @@ export class KnotSequenceClosedCurve extends KnotSequenceCurve {
             this._strictlyIncreasingSequence = [...freeKnots];
             this._knotMultiplicities = [...multiplicities];
             this._increasingSequence = this.generateIncreasingSequence();
+        }
+        this._knotSequence = [];
+        for(const item of this._strictlyIncreasingSequence) {
+            this._knotSequence.push(new Knot(this._strictlyIncreasingSequence[item], this._knotMultiplicities[item]));
         }
     }
 
@@ -435,6 +449,55 @@ export class KnotSequenceClosedCurve extends KnotSequenceCurve {
             abscissae: knotAbscissae,
             multiplicities: multiplicities
         }
+    }
+}
+
+export class Knot {
+
+    protected _abscissa: number;
+    protected _multiplicity: number;
+
+    constructor(abscissa: number, multiplicity?: number) {
+        this._abscissa = abscissa;
+        if(multiplicity !== undefined) {
+            this._multiplicity = multiplicity;
+            if(multiplicity < 1) {
+                const error = new ErrorLog(this.constructor.name, "constructor", "Knot multiplicity value out of range");
+                error.logMessageToConsole();
+            }
+        } else {
+            this._multiplicity = 1;
+        }
+
+    }
+
+    get abscissa() {
+        return this._abscissa;
+    }
+
+    get multiplicity() {
+        return this._multiplicity;
+    }
+
+    set abscissa(abscissa: number) {
+        this._abscissa = abscissa;
+    }
+
+    set multiplicity(multiplicity: number) {
+        this._multiplicity = multiplicity;
+    }
+
+    incrementMultiplicity(): void {
+        this._multiplicity++;
+        return
+    }
+
+    decrementMultiplicity(): void {
+        this._multiplicity--;
+        if(this._multiplicity < 1) {
+
+        }
+        return
     }
 }
 
