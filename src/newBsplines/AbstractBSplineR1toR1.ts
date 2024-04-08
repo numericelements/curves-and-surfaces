@@ -2,7 +2,8 @@ import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KnotSequenceOpenCurve } from "./KnotSequence";
+import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
+import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
@@ -12,8 +13,6 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     protected _controlPoints: number[] = [];
     protected _knots: number[] = [];
     protected _degree: number = 0;
-
-    protected _knotSequence: KnotSequenceOpenCurve;
 
     /**
      * Create a B-Spline
@@ -26,11 +25,17 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         this._degree = this.computeDegree();
 
         // for test purposes
-        this._knotSequence = new KnotSequenceOpenCurve(this._knots, this._degree);
-        for(const knot of this._knotSequence) {
-            console.log(knot.value.abcissa, knot.value.multiplicity)
-            knot.value.incrementMultiplicity()
+        const strictIncrease = new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, [0.0, 1.0], [4, 4]);
+        const knotSequence1 = new IncreasingOpenKnotSequenceCurve(this._degree, [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
+        for(const knot of strictIncrease) {
+            if (knot !== undefined) console.log(knot.abscissa, knot.multiplicity)
+            // console.log(knot);
+            // knot.incrementMultiplicity()
         }
+        for(const knot of knotSequence1) {
+            console.log(knot)
+        }
+
     }
 
     computeDegree(): number {
