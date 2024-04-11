@@ -1,7 +1,7 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractOpenKnotSequenceCurve } from "./AbstractOpenKnotSequenceCurve";
-import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
 
 
@@ -77,8 +77,10 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
         let abscissa = RETURN_ERROR_CODE;
+        let i = 0;
         for(const knot of this) {
-            if(this._index === index && knot !== undefined) abscissa = knot;
+            if(i === index.knotIndex && knot !== undefined) abscissa = knot;
+            i++;
         }
         return abscissa;
     }

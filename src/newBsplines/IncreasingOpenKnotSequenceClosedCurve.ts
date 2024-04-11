@@ -1,7 +1,7 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
-import { Knot, KnotIndexIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexIncreasingSequence } from "./Knot";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSequenceCurve {
 

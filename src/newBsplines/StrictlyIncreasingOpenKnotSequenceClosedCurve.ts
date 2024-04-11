@@ -1,6 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
 
 export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends StrictlyIncreasingOpenKnotSequenceCurve {

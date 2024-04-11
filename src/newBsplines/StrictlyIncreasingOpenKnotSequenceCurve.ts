@@ -1,7 +1,7 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequenceCurve } from "./AbstractOpenKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 
 export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
@@ -30,7 +30,10 @@ export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSeq
         return  {
             next: () => {
                 if ( this._index.knotIndex <= this._end.knotIndex ) {
-                    return { value: {abscissa: this.knotSequence[this._index.knotIndex++].abscissa, multiplicity: this.knotSequence[this._index.knotIndex++].multiplicity}, 
+                    const abscissa = this.knotSequence[this._index.knotIndex].abscissa;
+                    const multiplicity = this.knotSequence[this._index.knotIndex].multiplicity;
+                    this._index.knotIndex++;
+                    return { value: {abscissa: abscissa, multiplicity: multiplicity}, 
                     done: false };
                 } else {
                     this._index = new KnotIndexStrictlyIncreasingSequence();

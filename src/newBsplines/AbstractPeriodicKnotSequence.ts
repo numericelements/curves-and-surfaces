@@ -1,5 +1,5 @@
 import { AbstractKnotSequenceCurve } from "./AbstractKnotSequenceCurve";
-import { KnotIndexInterface } from "./KnotSequence";
+import { KnotIndexInterface } from "./Knot";
 
 
 export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceCurve {

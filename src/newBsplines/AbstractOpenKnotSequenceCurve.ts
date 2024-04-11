@@ -1,6 +1,6 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractKnotSequenceCurve, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
-import { Knot } from "./KnotSequence";
+import { Knot } from "./Knot";
 
 export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequenceCurve {
 

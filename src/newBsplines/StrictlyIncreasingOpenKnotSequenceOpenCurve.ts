@@ -1,5 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
 
 export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends StrictlyIncreasingOpenKnotSequenceCurve {

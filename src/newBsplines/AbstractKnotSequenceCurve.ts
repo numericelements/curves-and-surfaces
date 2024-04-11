@@ -1,5 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 export const KNOT_COINCIDENCE_TOLERANCE = 10-8;
 

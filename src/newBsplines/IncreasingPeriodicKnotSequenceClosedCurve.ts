@@ -1,5 +1,5 @@
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
-import { Knot, KnotIndexIncreasingSequence } from "./KnotSequence";
+import { Knot, KnotIndexIncreasingSequence } from "./Knot";
 
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
