@@ -1,4 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
 import { Knot, KnotIndexIncreasingSequence } from "./Knot";
 
@@ -32,8 +34,50 @@ export class IncreasingOpenKnotSequenceOpenCurve extends IncreasingOpenKnotSeque
 
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
-            const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this not sequence.");
+            const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
             error.logMessageToConsole();
         }
+    }
+
+    findSpan(u: number): KnotIndexIncreasingSequence {
+        let index = RETURN_ERROR_CODE;
+        if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+            console.log(u);
+            const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
+            error.logMessageToConsole();
+        } else {
+            if(this.isAbscissaCoincidingWithKnot(u)) {
+                index = 0;
+                for(const knot of this.knotSequence) {
+                    index += knot.multiplicity;
+                    if(Math.abs(u - knot.abscissa) < KNOT_COINCIDENCE_TOLERANCE) {
+                        if(knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
+                            index -= this.knotSequence[this.knotSequence.length - 1].multiplicity
+                        }
+                        return new KnotIndexIncreasingSequence(index - 1);
+                    }
+                }
+            }
+            // Do binary search
+            let low = 0;
+            let high = this.knotSequence.length - 1;
+            index = Math.floor((low + high) / 2);
+        
+            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
+                if (u < this.knotSequence[index].abscissa) {
+                    high = index;
+                } else {
+                    low = index;
+                }
+                index = Math.floor((low + high) / 2);
+            }
+            let indexSeq = 0;
+            for(let i = 0; i < (index + 1); i++) {
+                indexSeq += this.knotSequence[i].multiplicity; 
+            }
+            index = indexSeq - 1;
+            return new KnotIndexIncreasingSequence(index);
+        }
+        return new KnotIndexIncreasingSequence(index);
     }
 }

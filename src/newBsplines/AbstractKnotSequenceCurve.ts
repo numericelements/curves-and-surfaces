@@ -1,7 +1,7 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
-export const KNOT_COINCIDENCE_TOLERANCE = 10-8;
+export const KNOT_COINCIDENCE_TOLERANCE = 10E-8;
 
 export abstract class AbstractKnotSequenceCurve {
 
@@ -16,7 +16,7 @@ export abstract class AbstractKnotSequenceCurve {
         return this._degree;
     }
 
-    protected get distinctAbscissae(): number[] {
+    get distinctAbscissae(): number[] {
         let abscissae: number[] = [];
         for(const knot of this.knotSequence) {
             abscissae.push(knot.abscissa);
@@ -24,7 +24,7 @@ export abstract class AbstractKnotSequenceCurve {
         return abscissae;
     }
 
-    protected get multiplicities(): number[] {
+    get multiplicities(): number[] {
         let multiplicities: number[] = [];
         for(const knot of this.knotSequence) {
             multiplicities.push(knot.multiplicity);

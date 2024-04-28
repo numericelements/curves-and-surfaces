@@ -27,9 +27,9 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
                 this.knotSequence.push(new Knot(knots[i], 1));
             }
         }
-        this.checkKnotIntervalConsistency();
         this.checkCurveOrigin();
         this.checkDegreeConsistency();
+        this.checkKnotIntervalConsistency();
     }
 
     get freeKnots(): number [] {
@@ -37,13 +37,15 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
         for(const knot of this) {
             if(knot !== undefined) freeKnots.push(knot);
         }
-        freeKnots.splice(0, this.indexKnotOrigin);
-        freeKnots.splice(this.freeKnots.length - 2 * this.indexKnotOrigin, this.indexKnotOrigin);
-        return this.freeKnots;
+        freeKnots.splice(0, (this.indexKnotOrigin + this.knotSequence[this.indexKnotOrigin].multiplicity));
+        freeKnots.splice(freeKnots.length - (this.indexKnotOrigin + this.knotSequence[this.indexKnotOrigin].multiplicity), (this.indexKnotOrigin + this.knotSequence[this.indexKnotOrigin].multiplicity));
+        return freeKnots;
     }
 
     checkKnotIntervalConsistency(): void {
         let i = 0;
+        if(this.knotSequence[0].multiplicity === (this._degree + 1) && this.knotSequence[this.knotSequence.length - 1].multiplicity === (this._degree + 1)) return;
+
         while(((i + 1) < (this.knotSequence.length - 2 - i) || i < this._degree) && this.knotSequence[i + 1].abscissa !== 0.0) {
             const interval1 = this.knotSequence[i + 1].abscissa - this.knotSequence[i].abscissa;
             const interval2 = this.knotSequence[this.knotSequence.length - i - 2].abscissa - this.knotSequence[this.knotSequence.length - 1 - i].abscissa;
@@ -92,8 +94,8 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
             cumulativeMultiplicity += this.knotSequence[i].multiplicity;
             i++;
         }
-        this.indexKnotOrigin = i;
-        if(this.knotSequence[i].abscissa !== 0.0) {
+        this.indexKnotOrigin = i - 1;
+        if(this.knotSequence[this.indexKnotOrigin].abscissa !== 0.0) {
             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this not sequence.");
             error.logMessageToConsole();
         }

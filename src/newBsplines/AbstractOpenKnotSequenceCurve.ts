@@ -1,4 +1,5 @@
-import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractKnotSequenceCurve, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { Knot } from "./Knot";
 
@@ -13,7 +14,7 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
             }
         }
         if(multiplicity === 0) {
-            const warning = new WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", "knot abscissa does not cannot be found within the knot sequence.");
+            const warning = new WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", "knot abscissa cannot be found within the knot sequence.");
             warning.logMessageToConsole();
         }
         return multiplicity;
@@ -26,6 +27,11 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
             warning.logMessageToConsole();
             insertion = false;
             return insertion;
+        } else if(multiplicity >= (this._degree + 1)) {
+            const warning = new WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree")
+            warning.logMessageToConsole();
+            insertion = false;
+            return insertion;
         }
         if(insertion) {
             const knot = new Knot(abscissa, multiplicity);
@@ -33,54 +39,20 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
                 this.knotSequence.splice(0, 0, knot);
             } else {
                 let i = 0;
-                while(this.knotSequence[i].abscissa < abscissa && (! (abscissa < this.knotSequence[i + 1].abscissa)) && i < (this.knotSequence.length - 1)) {
+                while(i < (this.knotSequence.length - 1)) {
+                    if(this.knotSequence[i].abscissa < abscissa && abscissa < this.knotSequence[i + 1].abscissa) break;
                     i++;
                 }
-                if(i = (this.knotSequence.length - 1)) {
+                if(i === (this.knotSequence.length - 1)) {
                     this.knotSequence.push(knot);
                 } else {
-                    this.knotSequence.splice(i, 0, knot);
+                    this.knotSequence.splice((i + 1), 0, knot);
                 }
             }
         }
         return insertion;
     }
 
-    findSpan(u: number): number {
-        let index = -1;
-        // if (u < this._strictlyIncreasingSequence[0] || u > this._strictlyIncreasingSequence[this._strictlyIncreasingSequence.length - 1]) {
-        //     console.log(u);
-        //     const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-        //     error.logMessageToConsole();
-        // } else {
-        //     if(Math.abs(u - this._strictlyIncreasingSequence[0]) < KNOT_COINCIDENCE_TOLERANCE) {
-        //         index = 0;
-        //         return index;
-        //     } else {
-        //         index = 0;
-        //         for(let j = 1; j < this._strictlyIncreasingSequence.length; j++) {
-        //             index += this._knotMultiplicities[j];
-        //             if(Math.abs(u - this._strictlyIncreasingSequence[j]) < KNOT_COINCIDENCE_TOLERANCE) {
-        //                 return index;
-        //             }
-        //         }
-        //     }
-        //     // Do binary search
-        //     let low = 0;
-        //     let high = this._increasingSequence[this._increasingSequence.length - 1] - 1 - this._degree;
-        //     index = Math.floor((low + high) / 2);
-        
-        //     while (!(this._increasingSequence[index] < u && u < this._increasingSequence[index + 1])) {
-        //         if (u < this._increasingSequence[index]) {
-        //             high = index;
-        //         } else {
-        //             low = index;
-        //         }
-        //         index = Math.floor((low + high) / 2);
-        //     }
-        //     return index;
-        // }
-        return index;
-    }
+    // abstract findSpan(u: number): number
 
 }

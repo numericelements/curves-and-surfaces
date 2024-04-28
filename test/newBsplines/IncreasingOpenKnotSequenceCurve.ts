@@ -128,4 +128,5 @@ describe('InccreasingOpenKnotSequenceCurve', () => {
         multiplicity = seq.knotMultiplicity(indexStrictlyIncSeq)
         expect(multiplicity).to.eql(4)
     });
+
 });
