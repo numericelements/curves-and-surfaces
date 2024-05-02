@@ -4,6 +4,7 @@ import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
+import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
@@ -35,6 +36,8 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         for(const knot of knotSequence1) {
             console.log(knot)
         }
+        // const knots1: number [] = [0, 0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        // const seq = new IncreasingOpenKnotSequenceClosedCurve(3, knots)
 
     }
 

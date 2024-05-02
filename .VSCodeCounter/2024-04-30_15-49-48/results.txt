@@ -1,0 +1,52 @@
+Date : 2024-04-30 15:49:48
+Directory : /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test
+Total : 21 files,  3823 codes, 893 comments, 486 blanks, all 5202 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |         21 |      3,823 |        893 |        486 |      5,202 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                                                 | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                                                    |         21 |      3,823 |        893 |        486 |      5,202 |
+| bsplineOptimizationProblems                                                                                                                                          |          1 |          0 |        530 |         91 |        621 |
+| containers                                                                                                                                                           |          4 |        981 |          4 |         82 |      1,067 |
+| controllers                                                                                                                                                          |          3 |         20 |        114 |         11 |        145 |
+| curveShapeSpaceNavigation                                                                                                                                            |          1 |          4 |        100 |          2 |        106 |
+| mathVector                                                                                                                                                           |          1 |         14 |          0 |          4 |         18 |
+| newBsplines                                                                                                                                                          |          6 |        876 |         40 |         96 |      1,012 |
+| sequenceOfDifferentialEvents                                                                                                                                         |          5 |      1,928 |        105 |        200 |      2,233 |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                                                             | language   | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/bsplineOptimizationProblems/OptProblemBSplineR1toR2.ts           | TypeScript |          0 |        530 |         91 |        621 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/containers/AdjacentOscillatingPolygons.ts                        | TypeScript |        305 |          0 |         16 |        321 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/containers/OscillatingPolygonWithVerticesR1.ts                   | TypeScript |        358 |          0 |         29 |        387 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/containers/PolygonWithVerticesR1.ts                              | TypeScript |        299 |          4 |         34 |        337 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/containers/VertexR1.ts                                           | TypeScript |         19 |          0 |          3 |         22 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/controllers/CurveConstraintSelectionState.ts                     | TypeScript |         10 |          6 |          1 |         17 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/controllers/CurveControlState.ts                                 | TypeScript |         10 |          6 |          1 |         17 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/controllers/SlidingStrategyForTest.ts                            | TypeScript |          0 |        102 |          9 |        111 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/curveShapeSpaceNavigation/ShapeNavigationParameters.ts           | TypeScript |          4 |        100 |          2 |        106 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/mathVector/Vector2d.ts                                           | TypeScript |         14 |          0 |          4 |         18 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/newBsplines/BSplineR1toR1.ts                                     | TypeScript |         57 |          0 |         14 |         71 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/newBsplines/BSplineR1toR2.ts                                     | TypeScript |        207 |         11 |         27 |        245 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts             | TypeScript |        195 |         16 |         15 |        226 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/newBsplines/IncreasingOpenKnotSequenceCurve.ts                   | TypeScript |        119 |          2 |         11 |        132 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts               | TypeScript |        204 |          7 |         19 |        230 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts       | TypeScript |         94 |          4 |         10 |        108 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts  | TypeScript |        586 |         18 |         60 |        664 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts | TypeScript |        110 |          2 |         17 |        129 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts    | TypeScript |      1,042 |         80 |         88 |      1,210 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts     | TypeScript |        136 |          5 |         23 |        164 |
+| /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/test/sequenceOfDifferentialEvents/SequenceOfIntervals.ts              | TypeScript |         54 |          0 |         12 |         66 |
+| Total                                                                                                                                                                |            |      3,823 |        893 |        486 |      5,202 |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

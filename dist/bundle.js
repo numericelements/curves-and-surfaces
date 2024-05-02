@@ -54209,6 +54209,8 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
             }
             finally { if (e_2) throw e_2.error; }
         }
+        // const knots1: number [] = [0, 0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        // const seq = new IncreasingOpenKnotSequenceClosedCurve(3, knots)
     }
     AbstractBSplineR1toR1.prototype.computeDegree = function () {
         var degree = this._knots.length - this._controlPoints.length - 1;

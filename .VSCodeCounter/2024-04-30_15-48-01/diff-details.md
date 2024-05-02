@@ -1,12 +1,12 @@
-# Details
+# Diff Details
 
-Date : 2023-04-27 10:38:25
+Date : 2024-04-30 15:48:01
 
 Directory /Users/jean-claude/Documents/Developpement/developpement_courbes_surfaces/jean_claude_features/src
 
-Total : 178 files,  23211 codes, 4573 comments, 4603 blanks, all 32387 lines
+Total : 211 files,  19972 codes, 10218 comments, 4872 blanks, all 35062 lines
 
-[Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
+[Summary](results.md) / [Details](details.md) / [Diff Summary](diff.md) / Diff Details
 
 ## Files
 | filename | language | code | comment | blank | total |
@@ -19,11 +19,15 @@ Total : 178 files,  23211 codes, 4573 comments, 4603 blanks, all 32387 lines
 | [src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts](/src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts) | TypeScript | 49 | 16 | 11 | 76 |
 | [src/2DgraphicsItems/SquareDotSolidShader.ts](/src/2DgraphicsItems/SquareDotSolidShader.ts) | TypeScript | 29 | 3 | 10 | 42 |
 | [src/bezierCurves/BezierR1toR2.ts](/src/bezierCurves/BezierR1toR2.ts) | TypeScript | 95 | 0 | 11 | 106 |
-| [src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts](/src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts) | TypeScript | 299 | 29 | 46 | 374 |
-| [src/bsplineOptimizationProblems/IOpBSplineR1toR2.ts](/src/bsplineOptimizationProblems/IOpBSplineR1toR2.ts) | TypeScript | 6 | 0 | 2 | 8 |
-| [src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts](/src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts) | TypeScript | 328 | 26 | 74 | 428 |
+| [src/bsplineOptimizationProblems/AbstractGenerateOptimizationConstraints.ts](/src/bsplineOptimizationProblems/AbstractGenerateOptimizationConstraints.ts) | TypeScript | 13 | 0 | 6 | 19 |
+| [src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts](/src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts) | TypeScript | 471 | 52 | 65 | 588 |
+| [src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts](/src/bsplineOptimizationProblems/BaseOpBSplineR1toR2.ts) | TypeScript | 0 | 462 | 56 | 518 |
+| [src/bsplineOptimizationProblems/IOpBSplineR1toR2.ts](/src/bsplineOptimizationProblems/IOpBSplineR1toR2.ts) | TypeScript | 8 | 1 | 1 | 10 |
+| [src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts](/src/bsplineOptimizationProblems/OpPeriodicBSplineR1toR2.ts) | TypeScript | 0 | 357 | 73 | 430 |
+| [src/bsplineOptimizationProblems/OptProblemBSplineR1toR2.ts](/src/bsplineOptimizationProblems/OptProblemBSplineR1toR2.ts) | TypeScript | 0 | 2,290 | 242 | 2,532 |
+| [src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts](/src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts) | TypeScript | 1,698 | 196 | 221 | 2,115 |
+| [src/bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2.ts](/src/bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2.ts) | TypeScript | 562 | 75 | 128 | 765 |
 | [src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts](/src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts) | TypeScript | 30 | 8 | 8 | 46 |
-| [src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts](/src/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts) | TypeScript | 1,410 | 310 | 203 | 1,923 |
 | [src/bsplines/BSplineInterfaces.ts](/src/bsplines/BSplineInterfaces.ts) | TypeScript | 0 | 7 | 5 | 12 |
 | [src/bsplines/BSpline_R1_to_R1.ts](/src/bsplines/BSpline_R1_to_R1.ts) | TypeScript | 0 | 288 | 46 | 334 |
 | [src/bsplines/BSpline_R1_to_R2.ts](/src/bsplines/BSpline_R1_to_R2.ts) | TypeScript | 0 | 287 | 51 | 338 |
@@ -50,38 +54,38 @@ Total : 178 files,  23211 codes, 4573 comments, 4603 blanks, all 32387 lines
 | [src/containers/VertexR1.ts](/src/containers/VertexR1.ts) | TypeScript | 30 | 0 | 8 | 38 |
 | [src/controllers/CurveConstraintSelectionState.ts](/src/controllers/CurveConstraintSelectionState.ts) | TypeScript | 167 | 0 | 25 | 192 |
 | [src/controllers/CurveControlState.ts](/src/controllers/CurveControlState.ts) | TypeScript | 519 | 5 | 73 | 597 |
-| [src/controllers/CurveControlStrategyInterface.ts](/src/controllers/CurveControlStrategyInterface.ts) | TypeScript | 9 | 3 | 7 | 19 |
-| [src/controllers/CurveSceneController.ts](/src/controllers/CurveSceneController.ts) | TypeScript | 327 | 209 | 75 | 611 |
-| [src/controllers/CurveSceneControllerInteractionStrategy.ts](/src/controllers/CurveSceneControllerInteractionStrategy.ts) | TypeScript | 570 | 54 | 96 | 720 |
-| [src/controllers/CurveShapeMonitoringStrategy.ts](/src/controllers/CurveShapeMonitoringStrategy.ts) | TypeScript | 647 | 82 | 136 | 865 |
-| [src/controllers/DummyStrategy.ts](/src/controllers/DummyStrategy.ts) | TypeScript | 109 | 1 | 23 | 133 |
-| [src/controllers/NoSlidingStrategy.ts](/src/controllers/NoSlidingStrategy.ts) | TypeScript | 68 | 63 | 22 | 153 |
+| [src/controllers/CurveControlStrategyInterface.ts](/src/controllers/CurveControlStrategyInterface.ts) | TypeScript | 9 | 5 | 7 | 21 |
+| [src/controllers/CurveSceneController.ts](/src/controllers/CurveSceneController.ts) | TypeScript | 322 | 6 | 54 | 382 |
+| [src/controllers/CurveSceneControllerInteractionStrategy.ts](/src/controllers/CurveSceneControllerInteractionStrategy.ts) | TypeScript | 832 | 69 | 116 | 1,017 |
+| [src/controllers/CurveShapeMonitoringStrategy.ts](/src/controllers/CurveShapeMonitoringStrategy.ts) | TypeScript | 677 | 53 | 130 | 860 |
+| [src/controllers/DummyStrategy.ts](/src/controllers/DummyStrategy.ts) | TypeScript | 0 | 110 | 23 | 133 |
+| [src/controllers/NoSlidingStrategy.ts](/src/controllers/NoSlidingStrategy.ts) | TypeScript | 0 | 132 | 22 | 154 |
 | [src/controllers/SceneControllerInterface.ts](/src/controllers/SceneControllerInterface.ts) | TypeScript | 5 | 10 | 6 | 21 |
-| [src/controllers/SlidingStrategy.ts](/src/controllers/SlidingStrategy.ts) | TypeScript | 711 | 52 | 62 | 825 |
-| [src/controllers/SlidingStrategyForTest.ts](/src/controllers/SlidingStrategyForTest.ts) | TypeScript | 705 | 55 | 63 | 823 |
-| [src/controllers/SlidingStrategyStrictlyInsideShapeSpace.ts](/src/controllers/SlidingStrategyStrictlyInsideShapeSpace.ts) | TypeScript | 1,304 | 246 | 85 | 1,635 |
+| [src/controllers/SlidingStrategy.ts](/src/controllers/SlidingStrategy.ts) | TypeScript | 0 | 760 | 60 | 820 |
+| [src/controllers/SlidingStrategyForTest.ts](/src/controllers/SlidingStrategyForTest.ts) | TypeScript | 0 | 769 | 61 | 830 |
+| [src/controllers/SlidingStrategyStrictlyInsideShapeSpace.ts](/src/controllers/SlidingStrategyStrictlyInsideShapeSpace.ts) | TypeScript | 0 | 1,564 | 86 | 1,650 |
 | [src/curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor.ts](/src/curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor.ts) | TypeScript | 70 | 4 | 15 | 89 |
 | [src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor.ts](/src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor.ts) | TypeScript | 70 | 0 | 15 | 85 |
 | [src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence.ts](/src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence.ts) | TypeScript | 34 | 1 | 5 | 40 |
-| [src/curveShapeSpaceAnalysis/CurveAnalyzer.ts](/src/curveShapeSpaceAnalysis/CurveAnalyzer.ts) | TypeScript | 337 | 31 | 63 | 431 |
-| [src/curveShapeSpaceAnalysis/CurveAnalyzerInterface.ts](/src/curveShapeSpaceAnalysis/CurveAnalyzerInterface.ts) | TypeScript | 15 | 2 | 13 | 30 |
-| [src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts](/src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts) | TypeScript | 69 | 3 | 16 | 88 |
+| [src/curveShapeSpaceAnalysis/CurveAnalyzer.ts](/src/curveShapeSpaceAnalysis/CurveAnalyzer.ts) | TypeScript | 373 | 31 | 65 | 469 |
+| [src/curveShapeSpaceAnalysis/CurveAnalyzerInterface.ts](/src/curveShapeSpaceAnalysis/CurveAnalyzerInterface.ts) | TypeScript | 19 | 2 | 15 | 36 |
+| [src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts](/src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts) | TypeScript | 87 | 3 | 20 | 110 |
 | [src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface.ts](/src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocationsInterface.ts) | TypeScript | 14 | 0 | 9 | 23 |
 | [src/curveShapeSpaceAnalysis/CurveDifferentialEventsSequenceExtractorInterface.ts](/src/curveShapeSpaceAnalysis/CurveDifferentialEventsSequenceExtractorInterface.ts) | TypeScript | 7 | 0 | 4 | 11 |
 | [src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts](/src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts) | TypeScript | 122 | 2 | 17 | 141 |
 | [src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts](/src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts) | TypeScript | 62 | 0 | 12 | 74 |
-| [src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts](/src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts) | TypeScript | 54 | 0 | 10 | 64 |
+| [src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts](/src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts) | TypeScript | 84 | 0 | 14 | 98 |
 | [src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence.ts](/src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence.ts) | TypeScript | 32 | 0 | 4 | 36 |
-| [src/curveShapeSpaceNavigation/BoundaryEnforcer.ts](/src/curveShapeSpaceNavigation/BoundaryEnforcer.ts) | TypeScript | 0 | 0 | 1 | 1 |
 | [src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts](/src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts) | TypeScript | 438 | 14 | 60 | 512 |
 | [src/curveShapeSpaceNavigation/CurveConstraints.ts](/src/curveShapeSpaceNavigation/CurveConstraints.ts) | TypeScript | 324 | 22 | 27 | 373 |
 | [src/curveShapeSpaceNavigation/CurveShapeSpaceDescriptor.ts](/src/curveShapeSpaceNavigation/CurveShapeSpaceDescriptor.ts) | TypeScript | 25 | 1 | 7 | 33 |
-| [src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts](/src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts) | TypeScript | 172 | 8 | 37 | 217 |
-| [src/curveShapeSpaceNavigation/NavigationCurveModel.ts](/src/curveShapeSpaceNavigation/NavigationCurveModel.ts) | TypeScript | 357 | 36 | 83 | 476 |
+| [src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts](/src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts) | TypeScript | 175 | 8 | 38 | 221 |
+| [src/curveShapeSpaceNavigation/NavigationCurveModel.ts](/src/curveShapeSpaceNavigation/NavigationCurveModel.ts) | TypeScript | 404 | 36 | 101 | 541 |
 | [src/curveShapeSpaceNavigation/NavigationCurveModelInterface.ts](/src/curveShapeSpaceNavigation/NavigationCurveModelInterface.ts) | TypeScript | 10 | 3 | 9 | 22 |
-| [src/curveShapeSpaceNavigation/NavigationState.ts](/src/curveShapeSpaceNavigation/NavigationState.ts) | TypeScript | 497 | 55 | 95 | 647 |
-| [src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts](/src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts) | TypeScript | 299 | 95 | 54 | 448 |
-| [src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts](/src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts) | TypeScript | 101 | 22 | 21 | 144 |
+| [src/curveShapeSpaceNavigation/NavigationState.ts](/src/curveShapeSpaceNavigation/NavigationState.ts) | TypeScript | 940 | 134 | 113 | 1,187 |
+| [src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts](/src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts) | TypeScript | 192 | 0 | 47 | 239 |
+| [src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts](/src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsConfigurator.ts) | TypeScript | 304 | 95 | 54 | 453 |
+| [src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts](/src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts) | TypeScript | 103 | 22 | 22 | 147 |
 | [src/designPatterns/CurveConstraintInterface.ts](/src/designPatterns/CurveConstraintInterface.ts) | TypeScript | 12 | 0 | 4 | 16 |
 | [src/designPatterns/IShapeSpaceConfigurator.ts](/src/designPatterns/IShapeSpaceConfigurator.ts) | TypeScript | 4 | 0 | 2 | 6 |
 | [src/designPatterns/Observer.ts](/src/designPatterns/Observer.ts) | TypeScript | 0 | 9 | 4 | 13 |
@@ -104,38 +108,49 @@ Total : 178 files,  23211 codes, 4573 comments, 4603 blanks, all 32387 lines
 | [src/mathVector/Vector3d.ts](/src/mathVector/Vector3d.ts) | TypeScript | 39 | 3 | 19 | 61 |
 | [src/mathVector/VectorInterface.ts](/src/mathVector/VectorInterface.ts) | TypeScript | 13 | 3 | 19 | 35 |
 | [src/mathematics/DifferentialEvent.drawio](/src/mathematics/DifferentialEvent.drawio) | Draw.io | 22 | 0 | 0 | 22 |
-| [src/mathematics/Optimizer.ts](/src/mathematics/Optimizer.ts) | TypeScript | 203 | 61 | 63 | 327 |
+| [src/mathematics/Optimizer.ts](/src/mathematics/Optimizer.ts) | TypeScript | 207 | 61 | 63 | 331 |
 | [src/mathematics/Tagged_Vector_2d.ts](/src/mathematics/Tagged_Vector_2d.ts) | TypeScript | 0 | 43 | 9 | 52 |
 | [src/mathematics/TrustRegionSubproblem.ts](/src/mathematics/TrustRegionSubproblem.ts) | TypeScript | 381 | 148 | 81 | 610 |
 | [src/mathematics/Vector_2d.ts](/src/mathematics/Vector_2d.ts) | TypeScript | 0 | 39 | 10 | 49 |
 | [src/models/CurveModel.ts](/src/models/CurveModel.ts) | TypeScript | 0 | 118 | 36 | 154 |
-| [src/models/CurveModelObserver.ts](/src/models/CurveModelObserver.ts) | TypeScript | 388 | 9 | 36 | 433 |
+| [src/models/CurveModelObserver.ts](/src/models/CurveModelObserver.ts) | TypeScript | 330 | 11 | 34 | 375 |
 | [src/models/CurveModels2D.ts](/src/models/CurveModels2D.ts) | TypeScript | 0 | 93 | 23 | 116 |
-| [src/newBsplines/AbstractBSplineR1toR1.ts](/src/newBsplines/AbstractBSplineR1toR1.ts) | TypeScript | 264 | 22 | 56 | 342 |
-| [src/newBsplines/AbstractBSplineR1toR2.ts](/src/newBsplines/AbstractBSplineR1toR2.ts) | TypeScript | 236 | 34 | 54 | 324 |
+| [src/newBsplines/AbstractBSplineR1toR1.ts](/src/newBsplines/AbstractBSplineR1toR1.ts) | TypeScript | 304 | 29 | 56 | 389 |
+| [src/newBsplines/AbstractBSplineR1toR2.ts](/src/newBsplines/AbstractBSplineR1toR2.ts) | TypeScript | 268 | 34 | 57 | 359 |
 | [src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts](/src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts) | TypeScript | 120 | 0 | 20 | 140 |
 | [src/newBsplines/AbstractBSplineR1toR3.ts](/src/newBsplines/AbstractBSplineR1toR3.ts) | TypeScript | 184 | 29 | 46 | 259 |
+| [src/newBsplines/AbstractKnotSequenceCurve.ts](/src/newBsplines/AbstractKnotSequenceCurve.ts) | TypeScript | 51 | 0 | 11 | 62 |
+| [src/newBsplines/AbstractOpenKnotSequenceCurve.ts](/src/newBsplines/AbstractOpenKnotSequenceCurve.ts) | TypeScript | 51 | 1 | 6 | 58 |
+| [src/newBsplines/AbstractPeriodicKnotSequence.ts](/src/newBsplines/AbstractPeriodicKnotSequence.ts) | TypeScript | 9 | 5 | 7 | 21 |
 | [src/newBsplines/BSplineR1toR1.ts](/src/newBsplines/BSplineR1toR1.ts) | TypeScript | 187 | 16 | 33 | 236 |
-| [src/newBsplines/BSplineR1toR1Interface.ts](/src/newBsplines/BSplineR1toR1Interface.ts) | TypeScript | 11 | 0 | 10 | 21 |
+| [src/newBsplines/BSplineR1toR1Interface.ts](/src/newBsplines/BSplineR1toR1Interface.ts) | TypeScript | 12 | 0 | 11 | 23 |
 | [src/newBsplines/BSplineR1toR2.ts](/src/newBsplines/BSplineR1toR2.ts) | TypeScript | 343 | 40 | 65 | 448 |
 | [src/newBsplines/BSplineR1toR2DifferentialProperties.ts](/src/newBsplines/BSplineR1toR2DifferentialProperties.ts) | TypeScript | 11 | 0 | 4 | 15 |
 | [src/newBsplines/BSplineR1toR2DifferentialPropertiesInterface.ts](/src/newBsplines/BSplineR1toR2DifferentialPropertiesInterface.ts) | TypeScript | 8 | 4 | 10 | 22 |
-| [src/newBsplines/BSplineR1toR2Interface.ts](/src/newBsplines/BSplineR1toR2Interface.ts) | TypeScript | 24 | 0 | 23 | 47 |
+| [src/newBsplines/BSplineR1toR2Interface.ts](/src/newBsplines/BSplineR1toR2Interface.ts) | TypeScript | 25 | 0 | 24 | 49 |
 | [src/newBsplines/BSplineR1toR3.ts](/src/newBsplines/BSplineR1toR3.ts) | TypeScript | 47 | 18 | 27 | 92 |
 | [src/newBsplines/BSplineR1toRxInterface.ts](/src/newBsplines/BSplineR1toRxInterface.ts) | TypeScript | 14 | 0 | 13 | 27 |
 | [src/newBsplines/BSplineR2toCylCoord.ts](/src/newBsplines/BSplineR2toCylCoord.ts) | TypeScript | 58 | 19 | 18 | 95 |
 | [src/newBsplines/BSplineR2toR1.ts](/src/newBsplines/BSplineR2toR1.ts) | TypeScript | 275 | 29 | 88 | 392 |
 | [src/newBsplines/BSplineR2toR2.ts](/src/newBsplines/BSplineR2toR2.ts) | TypeScript | 219 | 46 | 58 | 323 |
-| [src/newBsplines/BernsteinDecompositionR1toR1.ts](/src/newBsplines/BernsteinDecompositionR1toR1.ts) | TypeScript | 128 | 12 | 34 | 174 |
+| [src/newBsplines/BernsteinDecompositionR1toR1.ts](/src/newBsplines/BernsteinDecompositionR1toR1.ts) | TypeScript | 132 | 12 | 33 | 177 |
 | [src/newBsplines/BinomialCoefficient.ts](/src/newBsplines/BinomialCoefficient.ts) | TypeScript | 28 | 1 | 6 | 35 |
-| [src/newBsplines/KnotSequence.ts](/src/newBsplines/KnotSequence.ts) | TypeScript | 248 | 1 | 27 | 276 |
+| [src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts](/src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts) | TypeScript | 184 | 20 | 13 | 217 |
+| [src/newBsplines/IncreasingOpenKnotSequenceCurve.ts](/src/newBsplines/IncreasingOpenKnotSequenceCurve.ts) | TypeScript | 91 | 0 | 9 | 100 |
+| [src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts](/src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts) | TypeScript | 75 | 1 | 7 | 83 |
+| [src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts](/src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts) | TypeScript | 13 | 0 | 3 | 16 |
+| [src/newBsplines/Knot.ts](/src/newBsplines/Knot.ts) | TypeScript | 84 | 0 | 27 | 111 |
 | [src/newBsplines/KnotSequenceIterators.ts](/src/newBsplines/KnotSequenceIterators.ts) | TypeScript | 169 | 3 | 67 | 239 |
-| [src/newBsplines/PeriodicBSplineR1toR1.ts](/src/newBsplines/PeriodicBSplineR1toR1.ts) | TypeScript | 53 | 3 | 11 | 67 |
-| [src/newBsplines/PeriodicBSplineR1toR2.ts](/src/newBsplines/PeriodicBSplineR1toR2.ts) | TypeScript | 320 | 27 | 65 | 412 |
+| [src/newBsplines/PeriodicBSplineR1toR1.ts](/src/newBsplines/PeriodicBSplineR1toR1.ts) | TypeScript | 107 | 6 | 13 | 126 |
+| [src/newBsplines/PeriodicBSplineR1toR2.ts](/src/newBsplines/PeriodicBSplineR1toR2.ts) | TypeScript | 332 | 74 | 68 | 474 |
 | [src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts](/src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts) | TypeScript | 30 | 0 | 8 | 38 |
-| [src/newBsplines/Piegl_Tiller_NURBS_Book.ts](/src/newBsplines/Piegl_Tiller_NURBS_Book.ts) | TypeScript | 111 | 37 | 14 | 162 |
+| [src/newBsplines/Piegl_Tiller_NURBS_Book.ts](/src/newBsplines/Piegl_Tiller_NURBS_Book.ts) | TypeScript | 136 | 41 | 15 | 192 |
 | [src/newBsplines/RationalBSplineR1toR2.ts](/src/newBsplines/RationalBSplineR1toR2.ts) | TypeScript | 22 | 6 | 6 | 34 |
-| [src/newBsplines/RationalBSplineR1toR2Adapter.ts](/src/newBsplines/RationalBSplineR1toR2Adapter.ts) | TypeScript | 178 | 16 | 34 | 228 |
+| [src/newBsplines/RationalBSplineR1toR2Adapter.ts](/src/newBsplines/RationalBSplineR1toR2Adapter.ts) | TypeScript | 187 | 17 | 35 | 239 |
+| [src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts](/src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts) | TypeScript | 114 | 0 | 9 | 123 |
+| [src/newBsplines/StrictlyIncreasingOpenKnotSequenceCurve.ts](/src/newBsplines/StrictlyIncreasingOpenKnotSequenceCurve.ts) | TypeScript | 60 | 0 | 8 | 68 |
+| [src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts](/src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts) | TypeScript | 65 | 1 | 6 | 72 |
+| [src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts](/src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts) | TypeScript | 22 | 10 | 4 | 36 |
 | [src/newDesignPatterns/Observer.ts](/src/newDesignPatterns/Observer.ts) | TypeScript | 13 | 0 | 4 | 17 |
 | [src/newDesignPatterns/RenderFrameObserver.ts](/src/newDesignPatterns/RenderFrameObserver.ts) | TypeScript | 6 | 0 | 6 | 12 |
 | [src/newModels/AbstractCurveModel.ts](/src/newModels/AbstractCurveModel.ts) | TypeScript | 86 | 38 | 15 | 139 |
@@ -150,31 +165,32 @@ Total : 178 files,  23211 codes, 4573 comments, 4603 blanks, all 32387 lines
 | [src/newModels/CurveModelInterface.ts](/src/newModels/CurveModelInterface.ts) | TypeScript | 13 | 2 | 12 | 27 |
 | [src/newModels/CurveModelQuasiNewton.ts](/src/newModels/CurveModelQuasiNewton.ts) | TypeScript | 44 | 18 | 19 | 81 |
 | [src/newModels/SimpleCurveModel.ts](/src/newModels/SimpleCurveModel.ts) | TypeScript | 46 | 10 | 25 | 81 |
-| [src/optimizationProblemFacade/OptimizationProblemInterface.ts](/src/optimizationProblemFacade/OptimizationProblemInterface.ts) | TypeScript | 15 | 42 | 19 | 76 |
+| [src/optimizationProblemFacade/OptimizationProblemInterface.ts](/src/optimizationProblemFacade/OptimizationProblemInterface.ts) | TypeScript | 18 | 42 | 17 | 77 |
 | [src/package.json](/src/package.json) | JSON | 8 | 0 | 0 | 8 |
-| [src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts](/src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts) | TypeScript | 336 | 23 | 28 | 387 |
+| [src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts](/src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts) | TypeScript | 713 | 25 | 40 | 778 |
 | [src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts](/src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts) | TypeScript | 85 | 18 | 13 | 116 |
 | [src/sequenceOfDifferentialEvents/DifferentialEvent.ts](/src/sequenceOfDifferentialEvents/DifferentialEvent.ts) | TypeScript | 45 | 8 | 16 | 69 |
+| [src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts](/src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts) | TypeScript | 239 | 5 | 36 | 280 |
 | [src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts](/src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts) | TypeScript | 643 | 38 | 108 | 789 |
 | [src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts](/src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts) | TypeScript | 31 | 1 | 8 | 40 |
 | [src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts](/src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts) | TypeScript | 69 | 25 | 21 | 115 |
-| [src/sequenceOfDifferentialEvents/NeighboringEvents.ts](/src/sequenceOfDifferentialEvents/NeighboringEvents.ts) | TypeScript | 48 | 8 | 9 | 65 |
-| [src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts](/src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts) | TypeScript | 260 | 19 | 31 | 310 |
+| [src/sequenceOfDifferentialEvents/NeighboringEvents.ts](/src/sequenceOfDifferentialEvents/NeighboringEvents.ts) | TypeScript | 55 | 8 | 8 | 71 |
+| [src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts](/src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts) | TypeScript | 286 | 19 | 36 | 341 |
 | [src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts](/src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts) | TypeScript | 71 | 11 | 11 | 93 |
 | [src/shapeNavigableCurve/CurveCategory.ts](/src/shapeNavigableCurve/CurveCategory.ts) | TypeScript | 162 | 2 | 39 | 203 |
-| [src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts](/src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts) | TypeScript | 71 | 0 | 18 | 89 |
-| [src/shapeNavigableCurve/EventStateAtCurveExtremity.ts](/src/shapeNavigableCurve/EventStateAtCurveExtremity.ts) | TypeScript | 190 | 0 | 21 | 211 |
+| [src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts](/src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts) | TypeScript | 76 | 0 | 18 | 94 |
+| [src/shapeNavigableCurve/EventStateAtCurveExtremity.ts](/src/shapeNavigableCurve/EventStateAtCurveExtremity.ts) | TypeScript | 199 | 0 | 21 | 220 |
 | [src/shapeNavigableCurve/ShapeNavigableCurve.ts](/src/shapeNavigableCurve/ShapeNavigableCurve.ts) | TypeScript | 140 | 6 | 24 | 170 |
-| [src/userInterfaceController/UserInterfaceEventListener.ts](/src/userInterfaceController/UserInterfaceEventListener.ts) | TypeScript | 950 | 79 | 163 | 1,192 |
+| [src/userInterfaceController/UserInterfaceEventListener.ts](/src/userInterfaceController/UserInterfaceEventListener.ts) | TypeScript | 967 | 79 | 165 | 1,211 |
 | [src/views/AbstractGraphicalEntityView.ts](/src/views/AbstractGraphicalEntityView.ts) | TypeScript | 6 | 0 | 2 | 8 |
 | [src/views/AbstractMouseSelectableButtonView.ts](/src/views/AbstractMouseSelectableButtonView.ts) | TypeScript | 79 | 0 | 11 | 90 |
 | [src/views/AbstractMouseSelectableGraphicEntityView.ts](/src/views/AbstractMouseSelectableGraphicEntityView.ts) | TypeScript | 12 | 0 | 5 | 17 |
-| [src/views/AbstractMouseSelectablePointView.ts](/src/views/AbstractMouseSelectablePointView.ts) | TypeScript | 110 | 0 | 15 | 125 |
+| [src/views/AbstractMouseSelectablePointView.ts](/src/views/AbstractMouseSelectablePointView.ts) | TypeScript | 114 | 0 | 15 | 129 |
 | [src/views/AbstractPointView.ts](/src/views/AbstractPointView.ts) | TypeScript | 74 | 0 | 13 | 87 |
 | [src/views/ClampedControlPointView.ts](/src/views/ClampedControlPointView.ts) | TypeScript | 141 | 8 | 25 | 174 |
 | [src/views/ClickButtonView.ts](/src/views/ClickButtonView.ts) | TypeScript | 92 | 6 | 20 | 118 |
-| [src/views/ControlPointsView.ts](/src/views/ControlPointsView.ts) | TypeScript | 106 | 7 | 24 | 137 |
-| [src/views/ControlPolygonView.ts](/src/views/ControlPolygonView.ts) | TypeScript | 135 | 8 | 31 | 174 |
+| [src/views/ControlPointsView.ts](/src/views/ControlPointsView.ts) | TypeScript | 119 | 7 | 24 | 150 |
+| [src/views/ControlPolygonView.ts](/src/views/ControlPolygonView.ts) | TypeScript | 134 | 8 | 31 | 173 |
 | [src/views/CurvatureExtremaView.ts](/src/views/CurvatureExtremaView.ts) | TypeScript | 101 | 7 | 24 | 132 |
 | [src/views/CurveKnotsView.ts](/src/views/CurveKnotsView.ts) | TypeScript | 105 | 7 | 24 | 136 |
 | [src/views/CurveView.ts](/src/views/CurveView.ts) | TypeScript | 130 | 7 | 29 | 166 |
@@ -189,5 +205,22 @@ Total : 178 files,  23211 codes, 4573 comments, 4603 blanks, all 32387 lines
 | [src/views/TransitionCurvatureExtremaView.ts](/src/views/TransitionCurvatureExtremaView.ts) | TypeScript | 101 | 7 | 22 | 130 |
 | [src/webgl/cuon-utils.ts](/src/webgl/cuon-utils.ts) | TypeScript | 43 | 24 | 14 | 81 |
 | [src/webgl/webgl-utils.ts](/src/webgl/webgl-utils.ts) | TypeScript | 85 | 98 | 18 | 201 |
+| [test/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts](/test/bsplineOptimizationProblems/OptimizationProblem_BSpline_R1_to_R2.ts) | TypeScript | -382 | -78 | -98 | -558 |
+| [test/containers/AdjacentOscillatingPolygons.ts](/test/containers/AdjacentOscillatingPolygons.ts) | TypeScript | -305 | 0 | -16 | -321 |
+| [test/containers/OscillatingPolygonWithVerticesR1.ts](/test/containers/OscillatingPolygonWithVerticesR1.ts) | TypeScript | -358 | 0 | -29 | -387 |
+| [test/containers/PolygonWithVerticesR1.ts](/test/containers/PolygonWithVerticesR1.ts) | TypeScript | -299 | -4 | -34 | -337 |
+| [test/containers/VertexR1.ts](/test/containers/VertexR1.ts) | TypeScript | -19 | 0 | -3 | -22 |
+| [test/controllers/CurveConstraintSelectionState.ts](/test/controllers/CurveConstraintSelectionState.ts) | TypeScript | -10 | -6 | -1 | -17 |
+| [test/controllers/CurveControlState.ts](/test/controllers/CurveControlState.ts) | TypeScript | -10 | -6 | -1 | -17 |
+| [test/controllers/SlidingStrategyForTest.ts](/test/controllers/SlidingStrategyForTest.ts) | TypeScript | -85 | -3 | -9 | -97 |
+| [test/curveShapeSpaceNavigation/ShapeNavigationParameters.ts](/test/curveShapeSpaceNavigation/ShapeNavigationParameters.ts) | TypeScript | -4 | -100 | -2 | -106 |
+| [test/mathVector/Vector2d.ts](/test/mathVector/Vector2d.ts) | TypeScript | -14 | 0 | -4 | -18 |
+| [test/newBsplines/BSplineR1toR1.ts](/test/newBsplines/BSplineR1toR1.ts) | TypeScript | -57 | 0 | -14 | -71 |
+| [test/newBsplines/BSplineR1toR2.ts](/test/newBsplines/BSplineR1toR2.ts) | TypeScript | -207 | -11 | -27 | -245 |
+| [test/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts](/test/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts) | TypeScript | -478 | -18 | -50 | -546 |
+| [test/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts](/test/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts) | TypeScript | -110 | -2 | -17 | -129 |
+| [test/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts](/test/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts) | TypeScript | -984 | -80 | -88 | -1,152 |
+| [test/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts](/test/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts) | TypeScript | -136 | -5 | -23 | -164 |
+| [test/sequenceOfDifferentialEvents/SequenceOfIntervals.ts](/test/sequenceOfDifferentialEvents/SequenceOfIntervals.ts) | TypeScript | -54 | 0 | -12 | -66 |
 
-[Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
+[Summary](results.md) / [Details](details.md) / [Diff Summary](diff.md) / Diff Details
