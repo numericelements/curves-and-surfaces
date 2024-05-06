@@ -175,6 +175,21 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         expect(sequence1).to.eql([-0.2, -0.1, 0.0, 0.0, 0.1, 0.2, 0.6, 0.7, 0.8, 0.9, 1, 1, 1.1, 1.2])
     });
 
+    it('can insert a knot into knot sequence', () => {
+        const knots: number [] = [-0.1, 0.0, 0.1, 0.5, 0.6, 0.9, 1, 1.1]
+        const multiplicities: number[] = [1, 3, 1, 1, 1, 1, 3, 1]
+        const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots, multiplicities);
+        expect(seq.insertKnot(0.2, 2)).to.eql(true)
+        expect(seq.distinctAbscissae).to.eql([-0.1, 0.0, 0.1, 0.2, 0.5, 0.6, 0.9, 1, 1.1])
+        expect(seq.multiplicities).to.eql([1, 3, 1, 2, 1, 1, 1, 3, 1])
+        const knots1: number [] = [0.0, 0.5, 0.6, 0.7, 1]
+        const multiplicities1: number[] = [4, 1, 1, 2, 4]
+        const seq1 = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots1, multiplicities1);
+        expect(seq1.insertKnot(0.2, 2)).to.eql(true)
+        expect(seq1.distinctAbscissae).to.eql([0.0, 0.2, 0.5, 0.6, 0.7, 1])
+        expect(seq1.multiplicities).to.eql([4, 2, 1, 1, 2, 4])
+    });
+
     it('can find the span index in the knot sequence from an abscissa for a non uniform B-spline', () => {
         const knots: number [] = [0, 0.5, 0.6, 0.7, 1]
         const multiplicities: number [] = [4, 1, 1, 2, 4];

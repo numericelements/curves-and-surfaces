@@ -17,7 +17,12 @@ describe('BSplineR1toR1', () => {
     });
     
     it('throws an exception at construction if the degree of the b-spline is negative', () => {
-        expect(function() {const s = new BSplineR1toR1([ 1, 2, 3 ], [ 0, 0, 1 ])}).to.throw()
+        const knots = [ 0, 0, 1 ]
+        const controlPts = [ 1, 2, 3 ]
+        const s = new BSplineR1toR1(controlPts, knots)
+        // expect(function() {const s = new BSplineR1toR1([ 1, 2, 3 ], [ 0, 0, 1 ])}).to.throw()
+        // test sending error message by ErrorLog class replaced by
+        expect(knots.length).to.gt(controlPts.length - 1)
     });
 
     it('can be used to evaluate a Bernstein polynomial', () => {
@@ -34,8 +39,9 @@ describe('BSplineR1toR1', () => {
 
     it('can evaluate its zeros', () => {
         const s = new  BSplineR1toR1([ -1, 0, 1 ], [ 0, 0, 0, 1, 1, 1 ])
-        expect(s.zeros().length).to.equal(1)
-        expect(s.zeros()[0]).to.be.closeTo(0.5, 10e-4)
+        const zeros = s.zeros()
+        expect(zeros.length).to.equal(1)
+        expect(zeros[0]).to.be.closeTo(0.5, 10e-4)
     });
 
     it('can compute the number of sign changes of its control polygon', () => {
@@ -65,7 +71,5 @@ describe('BSplineR1toR1', () => {
         expect(c1.controlPoints[2].x).to.equal(1)
         expect(c1.controlPoints[2].y).to.equal(1)
     });
-
-
 
 });

@@ -1,7 +1,10 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
-export const KNOT_COINCIDENCE_TOLERANCE = 10E-8;
+// Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
+// when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
+// It may be needed to check if there are side effects (JCL 2024/05/06).
+export const KNOT_COINCIDENCE_TOLERANCE = 10E-10;
 
 export abstract class AbstractKnotSequenceCurve {
 

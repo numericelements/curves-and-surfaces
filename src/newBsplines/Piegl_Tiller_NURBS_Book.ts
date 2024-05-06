@@ -1,6 +1,8 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
+import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
+import { KnotIndexIncreasingSequence } from "./Knot";
 
 /**
  * Returns the span index
@@ -99,6 +101,24 @@ export function basisFunctions(span: number, u: number, knots: number[], degree:
     for (let j = 1; j <= degree; j += 1) {
         left[j] = u - knots[span + 1 - j];
         right[j] = knots[span + j] - u;
+        let saved = 0.0;
+        for (let r = 0; r < j; r += 1) {
+            let temp = result[r] / (right[r + 1] + left[j - r]);
+            result[r] = saved + right[r + 1] * temp;
+            saved = left[j - r] * temp;
+        }
+        result[j] = saved;
+    }
+    return result;
+}
+export function basisFunctionsFromSequence(span: number, u: number, knotSequence: IncreasingOpenKnotSequenceOpenCurve): number[] {
+    // Bibliographic reference : The NURBS BOOK, p.70
+    let result: Array<number> = [1];
+    let left: Array<number> = [];
+    let right: Array<number> = [];
+    for (let j = 1; j <= knotSequence.degree; j += 1) {
+        left[j] = u - knotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(span + 1 - j));
+        right[j] = knotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(span + j)) - u;
         let saved = 0.0;
         for (let r = 0; r < j; r += 1) {
             let temp = result[r] / (right[r + 1] + left[j - r]);

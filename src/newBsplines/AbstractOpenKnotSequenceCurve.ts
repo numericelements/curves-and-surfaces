@@ -1,7 +1,7 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractKnotSequenceCurve, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
-import { Knot } from "./Knot";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequenceCurve {
 
@@ -51,6 +51,15 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
             }
         }
         return insertion;
+    }
+
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void {
+        if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
+            const error = new ErrorLog(this.constructor.name, "raiseKnotMultiplicity", "Index value is out of range.");
+            error.logMessageToConsole();
+            return;
+        }
+        this.knotSequence[index.knotIndex].multiplicity += multiplicity;
     }
 
     // abstract findSpan(u: number): number

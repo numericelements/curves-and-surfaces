@@ -11,7 +11,7 @@ export class IncreasingOpenKnotSequenceOpenCurve extends IncreasingOpenKnotSeque
     protected _index: KnotIndexIncreasingSequence;
     protected _end: KnotIndexIncreasingSequence;
 
-    constructor(degree: number, knots: number[]) {
+    constructor(degree: number, knots: number[], subsequence: boolean = false) {
         super(degree, knots);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
@@ -28,8 +28,29 @@ export class IncreasingOpenKnotSequenceOpenCurve extends IncreasingOpenKnotSeque
                 this.knotSequence.push(new Knot(knots[i], 1));
             }
         }
-        this.checkCurveOrigin();
+        if(!subsequence) this.checkCurveOrigin();
         this.checkDegreeConsistency();
+    }
+
+    extractSubset(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): IncreasingOpenKnotSequenceOpenCurve {
+        let knots: number[] = [];
+        let sizeSequence = 0;
+        for (const knot of this) {
+            if(knot !== undefined) sizeSequence++;
+        }
+        if(!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= sizeSequence - 1) || !(knotStart.knotIndex < knotEnd.knotIndex)) {
+            const error = new ErrorLog(this.constructor.name, "extractSubset", "start and/or end indices values are out of range. Cannot perform the extraction.");
+            error.logMessageToConsole();
+            return new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots,true);
+        }
+        let index = 0;
+        for(const knot of this) {
+            if(index >= knotStart.knotIndex && index <= knotEnd.knotIndex) {
+                if(knot !== undefined) knots.push(knot)
+            }
+            index++;
+        }
+        return new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots, true);
     }
 
     checkCurveOrigin(): void {

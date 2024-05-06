@@ -17,7 +17,7 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
         this._index = new KnotIndexIncreasingSequence();
         this._end = new KnotIndexIncreasingSequence(Infinity);
         if(knots.length < 1) {
-            const error = new ErrorLog(this.constructor.name, "constructor", "null length knot cannot be processed.");
+            const error = new ErrorLog(this.constructor.name, "constructor", "null length knot sequence cannot be processed.");
             error.logMessageToConsole();
         }
         this.knotSequence.push(new Knot(knots[0], 1));

@@ -1,11 +1,17 @@
-import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book"
+import { findSpan, clampingFindSpan, basisFunctions, basisFunctionsFromSequence } from "./Piegl_Tiller_NURBS_Book"
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
+import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 
+export const CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION = 10e-8;
+export const MAX_ITERATIONS_FOR_ZEROS_COMPUTATION = 1e6;
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
  */
@@ -14,6 +20,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     protected _controlPoints: number[] = [];
     protected _knots: number[] = [];
     protected _degree: number = 0;
+    protected _increasingKnotSequence: IncreasingOpenKnotSequenceOpenCurve;
 
     /**
      * Create a B-Spline
@@ -23,28 +30,25 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         this._controlPoints = [...controlPoints];
         this._knots = [...knots];
-        this._degree = this.computeDegree();
-
-        // for test purposes
-        const strictIncrease = new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, [0.0, 1.0], [4, 4]);
-        const knotSequence1 = new IncreasingOpenKnotSequenceCurve(this._degree, [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]);
-        for(const knot of strictIncrease) {
-            if (knot !== undefined) console.log(knot.abscissa, knot.multiplicity)
-            // console.log(knot);
-            // knot.incrementMultiplicity()
-        }
-        for(const knot of knotSequence1) {
-            console.log(knot)
-        }
-        // const knots1: number [] = [0, 0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
-        // const seq = new IncreasingOpenKnotSequenceClosedCurve(3, knots)
+        this._degree = this.computeDegree(knots.length);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
 
     }
 
-    computeDegree(): number {
-        let degree = this._knots.length - this._controlPoints.length - 1;
+    // computeDegree(): number {
+    //     let degree = this._knots.length - this._controlPoints.length - 1;
+    //     if (degree < 0) {
+    //         const error = new ErrorLog(this.constructor.name, "computeDegree", "Negative degree BSplineR1toR1 are not supported.");
+    //         error.logMessageToConsole();
+    //     }
+    //     return degree;
+    // }
+
+    computeDegree(knotLength: number): number {
+        let degree = knotLength - this._controlPoints.length - 1;
         if (degree < 0) {
-            throw new Error("Negative degree BSplineR1toR1 are not supported");
+            const error = new ErrorLog(this.constructor.name, "computeDegree", "Negative degree BSplineR1toR1 are not supported.");
+            error.logMessageToConsole();
         }
         return degree;
     }
@@ -55,16 +59,22 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
 
     set controlPoints(controlPoints: number[]) {
         this._controlPoints = [...controlPoints];
-        this._degree = this.computeDegree();
+        this._degree = this.computeDegree(this._increasingKnotSequence.distinctAbscissae.length);
     }
 
     get knots() : number[] {
-        return [...this._knots];
+        const knots: number[] = [];
+        for(const knot of this._increasingKnotSequence) {
+            if(knot !== undefined) knots.push(knot);
+        }
+        return knots;
     }
 
     set knots(knots: number[]) {
-        this._knots = [...knots];
-        this._degree = this.computeDegree();
+        // this._knots = [...knots];
+        // this._degree = this.computeDegree();
+        this._degree = this.computeDegree(knots.length);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
     }
 
     get degree() : number {
@@ -78,14 +88,23 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
      * @returns the value of the B-Spline at u
      */
     evaluate(u: number): number {
-        const span = findSpan(u, this._knots, this._degree);
-        const basis = basisFunctions(span, u, this._knots, this._degree);
+        const span = this._increasingKnotSequence.findSpan(u);
+        const basis = basisFunctionsFromSequence(span.knotIndex, u, this._increasingKnotSequence);
         let result = 0;
         for (let i = 0; i < this._degree + 1; i += 1) {
-            result += basis[i] * this._controlPoints[span - this._degree + i];
+            result += basis[i] * this._controlPoints[span.knotIndex - this._degree + i];
         }
         return result; 
     }
+    // evaluate(u: number): number {
+    //     const span = findSpan(u, this._knots, this._degree);
+    //     const basis = basisFunctions(span, u, this._knots, this._degree);
+    //     let result = 0;
+    //     for (let i = 0; i < this._degree + 1; i += 1) {
+    //         result += basis[i] * this._controlPoints[span - this._degree + i];
+    //     }
+    //     return result; 
+    // }
 
     abstract evaluateOutsideRefInterval(u: number): number;
 
@@ -96,18 +115,21 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     abstract bernsteinDecomposition() : BernsteinDecompositionR1toR1;
 
     distinctKnots(): number[] {
-        let result = [this._knots[0]];
-        let temp = result[0];
-        for (let i = 1; i < this._knots.length; i += 1) {
-            if (this._knots[i] !== temp) {
-                result.push(this._knots[i]);
-                temp = this._knots[i];
-            }
-        }
-        return result;
+        return this._increasingKnotSequence.distinctAbscissae;
     }
+    // distinctKnots(): number[] {
+    //     let result = [this._knots[0]];
+    //     let temp = result[0];
+    //     for (let i = 1; i < this._knots.length; i += 1) {
+    //         if (this._knots[i] !== temp) {
+    //             result.push(this._knots[i]);
+    //             temp = this._knots[i];
+    //         }
+    //     }
+    //     return result;
+    // }
 
-    zeros(tolerance: number = 10e-8): number[] {
+    zeros(tolerance: number = CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION): number[] {
         //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
         let spline = this.clone();
         let greville : number[] = [];
@@ -116,7 +138,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
 
         let it = 0;
 
-        while (maxError > tolerance && it < 10e8) {
+        while (maxError > tolerance && it < MAX_ITERATIONS_FOR_ZEROS_COMPUTATION) {
             it += 1
             let maximum = 0
             let newKnots : number[] = []
@@ -140,9 +162,14 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
             }
             maxError = maximum
         }
+        let result: number[] = []
+        if(it === MAX_ITERATIONS_FOR_ZEROS_COMPUTATION) {
+            const error = new ErrorLog(this.constructor.name, "zeros", "Maximum number of iterations reached when computing zeros of BSplineR1toR1");
+            error.logMessageToConsole();
+            return result;
+        }
 
         vertexIndex = findControlPointsFollowingSignChanges(spline)
-        let result = []
         for (let v of vertexIndex) {
             result.push(greville[v])
         }
@@ -153,41 +180,101 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         let result = [];
         for (let i = 0; i < this._controlPoints.length; i += 1) {
             let sum = 0;
-            for (let j = i + 1; j < i + this._degree + 1; j += 1) {
-                sum += this._knots[j];
+            const subSequence = this._increasingKnotSequence.extractSubset(new KnotIndexIncreasingSequence(i + 1),
+                    new KnotIndexIncreasingSequence(i + this._degree));
+            for (const knot of subSequence) {
+                if(knot !== undefined) sum += knot;
             }
             result.push(sum / this._degree);
         }
         return result;
     }
+    // grevilleAbscissae(): number[] {
+    //     let result = [];
+    //     for (let i = 0; i < this._controlPoints.length; i += 1) {
+    //         let sum = 0;
+    //         for (let j = i + 1; j < i + this._degree + 1; j += 1) {
+    //             sum += this._knots[j];
+    //         }
+    //         result.push(sum / this._degree);
+    //     }
+    //     return result;
+    // }
 
     insertKnot(u: number, times: number = 1): void {
         if (times <= 0) {
+            const warning = new WarningLog(this.constructor.name, "insertKnot", "knot multiplicity prescribed equals zero or is negative. No knot insertion.");
+            warning.logMessageToConsole();
             return;
         }
-        let index = findSpan(u, this._knots, this._degree);
+        let index = this._increasingKnotSequence.findSpan(u);
         let multiplicity = 0;
         let newControlPoints = [];
 
-        if (u === this._knots[index]) {
-            multiplicity = this.knotMultiplicity(index);
+        if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
+                && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < KNOT_COINCIDENCE_TOLERANCE) {
+            multiplicity = this._increasingKnotSequence.getMultiplicityOfKnotAt(this._increasingKnotSequence.abscissaAtIndex(index));
+        }
+        if((multiplicity + times) > (this._degree + 1)) {
+            const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
+            console.log("u = ",u, " multiplicity + times = ", (multiplicity + times));
+            // error.logMessageToConsole();
+            // return;
         }
 
+        const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
+        let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
         for (let t = 0; t < times; t += 1) {
-            for (let i = 0; i < index - this._degree + 1; i += 1) {
+            for (let i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
             }
-            for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
-                let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
+            for (let i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
+                let alpha = (u - this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i))) /
+                    (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + this._degree)) -this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i)));
                 newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
             }
-            for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
+            for (let i = index.knotIndex - multiplicity; i < this._controlPoints.length; i += 1) {
                 newControlPoints[i + 1] = this._controlPoints[i];
             }
-            this._knots.splice(index + 1, 0, u);
+            if(multiplicity > 0) {
+                this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+            } else if(multiplicity === 0 && t === 0) {
+                this._increasingKnotSequence.insertKnot(u, 1);
+                const newIndex = this._increasingKnotSequence.findSpan(u);
+                newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
+            } else {
+                this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+            }
             this._controlPoints = newControlPoints.slice();
         }
     }
+    // insertKnot(u: number, times: number = 1): void {
+    //     if (times <= 0) {
+    //         return;
+    //     }
+    //     let index = findSpan(u, this._knots, this._degree);
+    //     let multiplicity = 0;
+    //     let newControlPoints = [];
+
+    //     if (u === this._knots[index]) {
+    //         multiplicity = this.knotMultiplicity(index);
+    //     }
+
+    //     for (let t = 0; t < times; t += 1) {
+    //         for (let i = 0; i < index - this._degree + 1; i += 1) {
+    //             newControlPoints[i] = this._controlPoints[i];
+    //         }
+    //         for (let i = index - this._degree + 1; i <= index - multiplicity; i += 1) {
+    //             let alpha = (u - this._knots[i]) / (this._knots[i + this._degree] - this._knots[i]);
+    //             newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
+    //         }
+    //         for (let i = index - multiplicity; i < this._controlPoints.length; i += 1) {
+    //             newControlPoints[i + 1] = this._controlPoints[i];
+    //         }
+    //         this._knots.splice(index + 1, 0, u);
+    //         this._controlPoints = newControlPoints.slice();
+    //     }
+    // }
 
     knotMultiplicity(indexFromFindSpan: number): number {
         let result = 0;
@@ -289,7 +376,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     }
 
     
-    zerosPolygonVsFunctionDiffViewer(tolerance: number = 10e-8): number[] {
+    zerosPolygonVsFunctionDiffViewer(tolerance: number = CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION): number[] {
         //see : chapter 11 : Computing Zeros of Splines by Tom Lyche and Knut Morken for u_star method
         let spline = this.clone();
         // let spline = new BSpline_R1_to_R1(this.controlPoints.slice(), this.knots.slice())
