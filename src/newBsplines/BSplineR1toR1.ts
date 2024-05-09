@@ -4,12 +4,16 @@ import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1, splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
+import { KnotIndexIncreasingSequence } from "./Knot";
 
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
  */
 export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
+
+    protected _increasingKnotSequence: IncreasingOpenKnotSequenceOpenCurve;
 
     /**
      * Create a B-Spline
@@ -18,6 +22,22 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
      */
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
+    }
+
+    get knots() : number[] {
+        const knots: number[] = [];
+        for(const knot of this._increasingKnotSequence) {
+            if(knot !== undefined) knots.push(knot);
+        }
+        return knots;
+    }
+
+    set knots(knots: number[]) {
+        // this._knots = [...knots];
+        // this._degree = this.computeDegree();
+        this._degree = this.computeDegree(knots.length);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
     }
 
     bernsteinDecomposition(): BernsteinDecompositionR1toR1 {
@@ -33,11 +53,23 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         let newControlPoints = [];
         let newKnots = [];
         for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
-            newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
+            newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / 
+                (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + this._degree + 1)) - this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + 1))));
         }
-        newKnots = this._knots.slice(1, this._knots.length - 1);
+        newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
+        new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 2));
         return new BSplineR1toR1(newControlPoints, newKnots);
     }
+
+    // derivative(): BSplineR1toR1 {
+    //     let newControlPoints = [];
+    //     let newKnots = [];
+    //     for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+    //         newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
+    //     }
+    //     newKnots = this._knots.slice(1, this._knots.length - 1);
+    //     return new BSplineR1toR1(newControlPoints, newKnots);
+    // }
 
     elevateDegree(times: number = 1): void {
         
@@ -133,12 +165,14 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
 
     moveControlPoint(i: number, delta: number): void {
         if (i < 0 || i >= this.controlPoints.length) {
-            throw new Error("Control point indentifier is out of range");
+            const error = new ErrorLog(this.constructor.name, "moveControlPoint", "Control point index is out of range.");
+            error.logMessageToConsole();
+            return;
         }
         this.controlPoints[i] += delta;
     }
 
-    curve(): BSplineR1toR2 {
+    convertTocurve(): BSplineR1toR2 {
         let x = this.grevilleAbscissae();
         let cp: Array<Vector2d> = [];
         for (let i = 0; i < x.length; i +=1) {

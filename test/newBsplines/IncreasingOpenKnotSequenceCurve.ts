@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { IncreasingOpenKnotSequenceCurve } from '../../src/newBsplines/IncreasingOpenKnotSequenceCurve';
 import { KnotIndexIncreasingSequence } from '../../src/newBsplines/Knot';
 
-describe('InccreasingOpenKnotSequenceCurve', () => {
+describe('IncreasingOpenKnotSequenceCurve', () => {
     
     it('cannot be initialized with a null knot sequence', () => {
         const knots: number [] = []
@@ -40,6 +40,15 @@ describe('InccreasingOpenKnotSequenceCurve', () => {
             if(knot !== undefined) seq1.push(knot)
         }
         expect(seq1).to.eql([-2, -1, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1])
+    });
+
+    it('can knot sequence length', () => {
+        const seq = new IncreasingOpenKnotSequenceCurve(3, [-2, -1, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ])
+        expect(seq.degree).to.eql(3)
+        expect(seq.length()).to.eql(12)
+        const seq1 = new IncreasingOpenKnotSequenceCurve(3, [0, 0, 0, 0, 1, 1, 1, 1 ])
+        expect(seq1.degree).to.eql(3)
+        expect(seq1.length()).to.eql(8)
     });
     
     it('can convert an increasing sequence to a strictly increasing knot sequence. Case of non uniform knot sequence', () => {

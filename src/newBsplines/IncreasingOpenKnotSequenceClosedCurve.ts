@@ -10,7 +10,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
     protected _end: KnotIndexIncreasingSequence;
     private indexKnotOrigin: number;
 
-    constructor(degree: number, knots: number[]) {
+    constructor(degree: number, knots: number[], subsequence: boolean = false) {
         super(degree, knots);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
@@ -34,9 +34,9 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval
-        this.checkCurveOrigin();
+        if(!subsequence) this.checkCurveOrigin();
         this.checkDegreeConsistency();
-        this.checkKnotIntervalConsistency();
+        if(!subsequence) this.checkKnotIntervalConsistency();
     }
 
     get freeKnots(): number [] {

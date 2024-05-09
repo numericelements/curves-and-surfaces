@@ -20,19 +20,19 @@ export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Inter
 
     constructor(private chartController: ChartController) {
         
-        this.splineNumerator = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
-        this.splineDenominator = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.splineNumerator = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).convertTocurve();
+        this.splineDenominator = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).convertTocurve();
     }
 
 
 
     update(message: BSplineR1toR2Interface): void {
         if(message instanceof BSplineR1toR2) {
-            this.splineNumerator = new BSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
-            this.splineDenominator = new BSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+            this.splineNumerator = new BSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
+            this.splineDenominator = new BSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         } else if(message instanceof PeriodicBSplineR1toR2) {
-            this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().curve();
-            this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().curve();
+            this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
+            this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         } else {
             const error = new ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
             error.logMessageToConsole();

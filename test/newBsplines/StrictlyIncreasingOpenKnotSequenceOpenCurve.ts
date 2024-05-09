@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 
-describe('InccreasingOpenKnotSequenceCurve', () => {
+describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
     
     it('cannot be initialized with a knot sequence having a length differing from that of the multiplicities', () => {
         const knots: number [] = [0, 0.5, 0.6, 0.7, 1]
@@ -19,23 +19,23 @@ describe('InccreasingOpenKnotSequenceCurve', () => {
         // expect(function() {const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities)}).to.throw()
         const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities);
         // test sending error message by ErrorLog class replaced by
-        expect(seq.distinctAbscissae[0]).not.to.eql(0.0)
+        expect(seq.distinctAbscissae()[0]).not.to.eql(0.0)
     });
 
     it('can be initialized as a description of a non-uniform B-spline', () => {
         const knots: number [] = [0.0, 0.5, 0.6, 0.7, 1]
         const multiplicities: number[] = [4, 1, 1, 2, 4]
         const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities);
-        expect(seq.distinctAbscissae).to.eql([0.0, 0.5, 0.6, 0.7, 1])
-        expect(seq.multiplicities).to.eql([4, 1, 1, 2, 4])
+        expect(seq.distinctAbscissae()).to.eql([0.0, 0.5, 0.6, 0.7, 1])
+        expect(seq.multiplicities()).to.eql([4, 1, 1, 2, 4])
     });
 
     it('can be initialized as a description of a uniform B-spline', () => {
         const knots: number [] = [0.0, 0.5, 0.6, 0.7, 1]
         const multiplicities: number[] = [1, 1, 1, 1, 1]
         const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities);
-        expect(seq.distinctAbscissae).to.eql([0.0, 0.5, 0.6, 0.7, 1])
-        expect(seq.multiplicities).to.eql([1, 1, 1, 1, 1])
+        expect(seq.distinctAbscissae()).to.eql([0.0, 0.5, 0.6, 0.7, 1])
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1])
     });
 
     it('can convert knot sequence to an increasing knot sequence of open curve', () => {
@@ -55,8 +55,8 @@ describe('InccreasingOpenKnotSequenceCurve', () => {
         const multiplicities: number[] = [4, 1, 1, 2, 4]
         const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities);
         expect(seq.insertKnot(0.2, 2)).to.eql(true)
-        expect(seq.distinctAbscissae).to.eql([0.0, 0.2, 0.5, 0.6, 0.7, 1])
-        expect(seq.multiplicities).to.eql([4, 2, 1, 1, 2, 4])
+        expect(seq.distinctAbscissae()).to.eql([0.0, 0.2, 0.5, 0.6, 0.7, 1])
+        expect(seq.multiplicities()).to.eql([4, 2, 1, 1, 2, 4])
     });
 
     it('can check if the knot multiplicity of a knot is zero', () => {

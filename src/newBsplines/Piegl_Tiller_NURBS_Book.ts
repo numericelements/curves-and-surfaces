@@ -1,6 +1,7 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
+import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { KnotIndexIncreasingSequence } from "./Knot";
 
@@ -111,7 +112,7 @@ export function basisFunctions(span: number, u: number, knots: number[], degree:
     }
     return result;
 }
-export function basisFunctionsFromSequence(span: number, u: number, knotSequence: IncreasingOpenKnotSequenceOpenCurve): number[] {
+export function basisFunctionsFromSequence(span: number, u: number, knotSequence: IncreasingOpenKnotSequenceInterface): number[] {
     // Bibliographic reference : The NURBS BOOK, p.70
     let result: Array<number> = [1];
     let left: Array<number> = [];

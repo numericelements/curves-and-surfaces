@@ -4,6 +4,7 @@ import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
+import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { decomposeFunction, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
 
 
@@ -12,9 +13,19 @@ import { decomposeFunction, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
  */
 export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
 
+    protected _increasingKnotSequence: IncreasingOpenKnotSequenceClosedCurve;
 
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree, knots);
+    }
+
+    get knots() : number[] {
+        const knots: number[] = [];
+        for(const knot of this._increasingKnotSequence) {
+            if(knot !== undefined) knots.push(knot);
+        }
+        return knots;
     }
 
     bernsteinDecomposition(): BernsteinDecompositionR1toR1 {

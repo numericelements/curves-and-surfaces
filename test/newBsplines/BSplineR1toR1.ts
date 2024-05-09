@@ -63,7 +63,7 @@ describe('BSplineR1toR1', () => {
 
     it('can produce a curve', () => {
         const s1 = new  BSplineR1toR1([ -1, 1, 1 ], [ 0, 0, 0, 1, 1, 1 ])
-        const c1 = s1.curve()
+        const c1 = s1.convertTocurve()
         expect(c1.controlPoints[0].x).to.equal(0)
         expect(c1.controlPoints[0].y).to.equal(-1)
         expect(c1.controlPoints[1].x).to.equal(0.5)

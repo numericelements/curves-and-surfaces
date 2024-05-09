@@ -32,27 +32,6 @@ export class IncreasingOpenKnotSequenceOpenCurve extends IncreasingOpenKnotSeque
         this.checkDegreeConsistency();
     }
 
-    extractSubset(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): IncreasingOpenKnotSequenceOpenCurve {
-        let knots: number[] = [];
-        let sizeSequence = 0;
-        for (const knot of this) {
-            if(knot !== undefined) sizeSequence++;
-        }
-        if(!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= sizeSequence - 1) || !(knotStart.knotIndex < knotEnd.knotIndex)) {
-            const error = new ErrorLog(this.constructor.name, "extractSubset", "start and/or end indices values are out of range. Cannot perform the extraction.");
-            error.logMessageToConsole();
-            return new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots,true);
-        }
-        let index = 0;
-        for(const knot of this) {
-            if(index >= knotStart.knotIndex && index <= knotEnd.knotIndex) {
-                if(knot !== undefined) knots.push(knot)
-            }
-            index++;
-        }
-        return new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots, true);
-    }
-
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");

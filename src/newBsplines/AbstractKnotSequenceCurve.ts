@@ -19,7 +19,7 @@ export abstract class AbstractKnotSequenceCurve {
         return this._degree;
     }
 
-    get distinctAbscissae(): number[] {
+    distinctAbscissae(): number[] {
         let abscissae: number[] = [];
         for(const knot of this.knotSequence) {
             abscissae.push(knot.abscissa);
@@ -27,7 +27,7 @@ export abstract class AbstractKnotSequenceCurve {
         return abscissae;
     }
 
-    get multiplicities(): number[] {
+    multiplicities(): number[] {
         let multiplicities: number[] = [];
         for(const knot of this.knotSequence) {
             multiplicities.push(knot.multiplicity);

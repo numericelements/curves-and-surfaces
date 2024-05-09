@@ -19,8 +19,8 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         // expect(function() {const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities)}).to.throw()
         const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots, multiplicities);
         // test sending error message by ErrorLog class replaced by
-        expect(seq.distinctAbscissae).to.eql([0, 1])
-        expect(seq.multiplicities).to.eql([4, 4])
+        expect(seq.distinctAbscissae()).to.eql([0, 1])
+        expect(seq.multiplicities()).to.eql([4, 4])
         expect(seq.freeKnots).to.eql([])
     });
 
@@ -30,8 +30,8 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         // expect(function() {const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots, multiplicities)}).to.throw()
         const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots, multiplicities);
         // test sending error message by ErrorLog class replaced by
-        expect(seq.distinctAbscissae).to.eql([0, 0.5, 0.6, 0.7, 1])
-        expect(seq.multiplicities).to.eql([4, 1, 1, 2, 4])
+        expect(seq.distinctAbscissae()).to.eql([0, 0.5, 0.6, 0.7, 1])
+        expect(seq.multiplicities()).to.eql([4, 1, 1, 2, 4])
         expect(seq.freeKnots).to.eql([0.5, 0.6, 0.7])
     });
 
@@ -110,34 +110,34 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         const multiplicities: number[] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(2, knots, multiplicities);
         expect(seq.freeKnots).to.eql([1, 2, 3, 4])
-        expect(seq.distinctAbscissae).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
-        expect(seq.multiplicities).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq.distinctAbscissae()).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     });
 
     it('can get knot multiplicity at curve origin', () => {
         const knots: number [] = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
         const multiplicities: number [] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
         const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(2, knots, multiplicities)
-        expect(seq.distinctAbscissae).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
-        expect(seq.multiplicities).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq.distinctAbscissae()).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         expect(seq.getKnotMultiplicityAtCurveOrigin()).to.eql(1)
         const knots1: number [] = [-0.2, -0.1, 0.0, 0.1, 0.2, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2 ]
         const multiplicities1: number [] = [1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1];
         const seq1 = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots1, multiplicities1)
-        expect(seq1.distinctAbscissae).to.eql([-0.2, -0.1, 0, 0.1, 0.2, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2])
-        expect(seq1.multiplicities).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1])
+        expect(seq1.distinctAbscissae()).to.eql([-0.2, -0.1, 0, 0.1, 0.2, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2])
+        expect(seq1.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1])
         expect(seq1.getKnotMultiplicityAtCurveOrigin()).to.eql(2)
         const knots2: number [] = [-0.1, 0.0, 0.1, 0.6, 0.7, 0.9, 1, 1.1 ]
         const multiplicities2: number [] = [1, 3, 1, 1, 1, 1, 3, 1];
         const seq2 = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots2, multiplicities2)
-        expect(seq2.distinctAbscissae).to.eql([-0.1, 0, 0.1, 0.6, 0.7, 0.9, 1, 1.1])
-        expect(seq2.multiplicities).to.eql([1, 3, 1, 1, 1, 1, 3, 1])
+        expect(seq2.distinctAbscissae()).to.eql([-0.1, 0, 0.1, 0.6, 0.7, 0.9, 1, 1.1])
+        expect(seq2.multiplicities()).to.eql([1, 3, 1, 1, 1, 1, 3, 1])
         expect(seq2.getKnotMultiplicityAtCurveOrigin()).to.eql(3)
         const knots3: number [] = [0, 0.5, 0.6, 0.7, 1]
         const multiplicities3: number [] = [4, 1, 1, 2, 4];
         const seq3 = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots3, multiplicities3)
-        expect(seq3.distinctAbscissae).to.eql([0, 0.5, 0.6, 0.7, 1])
-        expect(seq3.multiplicities).to.eql([4, 1, 1, 2, 4])
+        expect(seq3.distinctAbscissae()).to.eql([0, 0.5, 0.6, 0.7, 1])
+        expect(seq3.multiplicities()).to.eql([4, 1, 1, 2, 4])
         expect(seq3.getKnotMultiplicityAtCurveOrigin()).to.eql(4)
     });
 
@@ -157,7 +157,7 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         const multiplicities: number [] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
         const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(2, knots, multiplicities)
         const seqIncreasing = seq.toIncreasingKnotSequence();
-        expect(seqIncreasing.multiplicities).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seqIncreasing.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         const sequence: number[] = []
         for(const knot of seqIncreasing) {
             if(knot !== undefined) sequence.push(knot)
@@ -167,7 +167,7 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         const multiplicities1: number [] = [1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1];
         const seq1 = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots1, multiplicities1)
         const seqIncreasing1 = seq1.toIncreasingKnotSequence();
-        expect(seqIncreasing1.multiplicities).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1])
+        expect(seqIncreasing1.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1])
         const sequence1: number[] = []
         for(const knot of seqIncreasing1) {
             if(knot !== undefined) sequence1.push(knot)
@@ -180,14 +180,14 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         const multiplicities: number[] = [1, 3, 1, 1, 1, 1, 3, 1]
         const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots, multiplicities);
         expect(seq.insertKnot(0.2, 2)).to.eql(true)
-        expect(seq.distinctAbscissae).to.eql([-0.1, 0.0, 0.1, 0.2, 0.5, 0.6, 0.9, 1, 1.1])
-        expect(seq.multiplicities).to.eql([1, 3, 1, 2, 1, 1, 1, 3, 1])
+        expect(seq.distinctAbscissae()).to.eql([-0.1, 0.0, 0.1, 0.2, 0.5, 0.6, 0.9, 1, 1.1])
+        expect(seq.multiplicities()).to.eql([1, 3, 1, 2, 1, 1, 1, 3, 1])
         const knots1: number [] = [0.0, 0.5, 0.6, 0.7, 1]
         const multiplicities1: number[] = [4, 1, 1, 2, 4]
         const seq1 = new StrictlyIncreasingOpenKnotSequenceClosedCurve(3, knots1, multiplicities1);
         expect(seq1.insertKnot(0.2, 2)).to.eql(true)
-        expect(seq1.distinctAbscissae).to.eql([0.0, 0.2, 0.5, 0.6, 0.7, 1])
-        expect(seq1.multiplicities).to.eql([4, 2, 1, 1, 2, 4])
+        expect(seq1.distinctAbscissae()).to.eql([0.0, 0.2, 0.5, 0.6, 0.7, 1])
+        expect(seq1.multiplicities()).to.eql([4, 2, 1, 1, 2, 4])
     });
 
     it('can find the span index in the knot sequence from an abscissa for a non uniform B-spline', () => {

@@ -34,7 +34,7 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
     [Symbol.iterator]() {
         let knotAmount = 0;
         const knotIndicesKnotAbscissaChange: number[] = [];
-        for(const multiplicity of this.multiplicities) {
+        for(const multiplicity of this.multiplicities()) {
             knotAmount = knotAmount + multiplicity;
             knotIndicesKnotAbscissaChange.push(knotAmount);
         }
@@ -58,7 +58,7 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
 
     checkSizeConsistency(knots: number[]): void {
         let size = 0;
-        for (const multiplicity of this.multiplicities) {
+        for (const multiplicity of this.multiplicities()) {
             size += multiplicity;
         }
         const increasingSequence = [];
@@ -71,8 +71,16 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
         }
     }
 
+    length(): number {
+        let length = 0;
+        for(const knot of this) {
+            if(knot !== undefined) length++;
+        }
+        return length;
+    }
+
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceCurve {
-        return new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae, this.multiplicities);
+        return new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
     }
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
@@ -86,7 +94,7 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
     }
 
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
-        const strictltIncreasingKnotSequence = new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae, this.multiplicities);
+        const strictltIncreasingKnotSequence = new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
         const abscissa = this.abscissaAtIndex(index);
         let i = 0;
         for(const knot of strictltIncreasingKnotSequence) {
@@ -96,5 +104,22 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
             }
         }
         return new KnotIndexStrictlyIncreasingSequence(i);
+    }
+
+    extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[] {
+        let knots: number[] = [];
+        if(!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex < knotEnd.knotIndex)) {
+            const error = new ErrorLog(this.constructor.name, "extractSubset", "start and/or end indices values are out of range. Cannot perform the extraction.");
+            error.logMessageToConsole();
+            return knots;
+        }
+        let index = 0;
+        for(const knot of this) {
+            if(index >= knotStart.knotIndex && index <= knotEnd.knotIndex) {
+                if(knot !== undefined) knots.push(knot)
+            }
+            index++;
+        }
+        return knots;
     }
 }

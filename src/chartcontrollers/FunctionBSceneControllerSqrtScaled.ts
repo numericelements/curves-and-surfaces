@@ -19,14 +19,14 @@ export class FunctionBSceneControllerSqrtScaled implements IObserver<BSplineR1to
 
 
     constructor(private chartController: ChartController) {
-        this.spline = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).curve();
+        this.spline = new BSplineR1toR1([0, 1, 0], [0, 0, 0, 1, 1, 1]).convertTocurve();
     }
 
     update(message: BSplineR1toR2Interface): void {
         if(message instanceof BSplineR1toR2) {
-            this.spline = new BSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+            this.spline = new BSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         } else if(message instanceof PeriodicBSplineR1toR2) {
-            this.spline = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().curve();
+            this.spline = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         } else {
             const error = new ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
             error.logMessageToConsole();

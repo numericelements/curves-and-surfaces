@@ -41,14 +41,14 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
     it('can get the distinct abscissae of a knot sequence', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
-        const abscissae = seq.distinctAbscissae
+        const abscissae = seq.distinctAbscissae()
         expect(abscissae).to.eql([0, 0.5, 0.6, 0.7, 1])
     });
 
     it('can get the multiplicity of each knot of a knot sequence', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
-        const multiplicities = seq.multiplicities
+        const multiplicities = seq.multiplicities()
         expect(multiplicities).to.eql([4, 1, 1, 2, 4])
     });
 
@@ -94,12 +94,12 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
         let originAtZero = true;
-        if(seq.distinctAbscissae[0] !== 0.0) originAtZero = false
+        if(seq.distinctAbscissae()[0] !== 0.0) originAtZero = false
         expect(originAtZero).to.eql(true)
         const knots1: number [] = [0.1, 0.1, 0.1, 0.1, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq1 = new IncreasingOpenKnotSequenceOpenCurve(3, knots1)
         originAtZero = true;
-        if(seq1.distinctAbscissae[0] !== 0.0) originAtZero = false
+        if(seq1.distinctAbscissae()[0] !== 0.0) originAtZero = false
         expect(originAtZero).to.eql(false)
     });
 
@@ -117,16 +117,16 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
         expect(seq.insertKnot(0.3, 3)).to.eql(true)
-        expect(seq.distinctAbscissae).to.eql([0, 0.3, 0.5, 0.6, 0.7, 1])
-        expect(seq.multiplicities).to.eql([4, 3, 1, 1, 2, 4])
+        expect(seq.distinctAbscissae()).to.eql([0, 0.3, 0.5, 0.6, 0.7, 1])
+        expect(seq.multiplicities()).to.eql([4, 3, 1, 1, 2, 4])
         const seq1 = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
         expect(seq1.insertKnot(-0.1, 1)).to.eql(true)
-        expect(seq1.distinctAbscissae).to.eql([-0.1, 0, 0.5, 0.6, 0.7, 1])
-        expect(seq1.multiplicities).to.eql([1, 4, 1, 1, 2, 4])
+        expect(seq1.distinctAbscissae()).to.eql([-0.1, 0, 0.5, 0.6, 0.7, 1])
+        expect(seq1.multiplicities()).to.eql([1, 4, 1, 1, 2, 4])
         const seq2 = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
         expect(seq2.insertKnot(1.2, 2)).to.eql(true)
-        expect(seq2.distinctAbscissae).to.eql([0, 0.5, 0.6, 0.7, 1, 1.2])
-        expect(seq2.multiplicities).to.eql([4, 1, 1, 2, 4, 2])
+        expect(seq2.distinctAbscissae()).to.eql([0, 0.5, 0.6, 0.7, 1, 1.2])
+        expect(seq2.multiplicities()).to.eql([4, 1, 1, 2, 4, 2])
     });
 
     it('cannot insert a new knot in the knot sequence if the new knot abscissa is identical to an existing one', () => {
@@ -232,55 +232,40 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
     it('can extract a subset of an increasing knot sequence of a uniform B-spline', () => {
         const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
-        const subseq = seq.extractSubset(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(3))
-        expect(subseq.distinctAbscissae).to.eql([0, 0.1, 0.2, 0.3])
-        expect(subseq.multiplicities).to.eql([1, 1, 1, 1])
-        const subseq1 = seq.extractSubset(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(5))
-        expect(subseq1.distinctAbscissae).to.eql([0.2, 0.3, 0.4, 0.5])
-        expect(subseq1.multiplicities).to.eql([1, 1, 1, 1])
-        const subseq2 = seq.extractSubset(new KnotIndexIncreasingSequence(5), new KnotIndexIncreasingSequence(8))
-        expect(subseq2.distinctAbscissae).to.eql([0.5, 0.6, 0.7, 0.8])
-        expect(subseq2.multiplicities).to.eql([1, 1, 1, 1])
+        const subseq = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(3))
+        expect(subseq).to.eql([0, 0.1, 0.2, 0.3])
+        const subseq1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(5))
+        expect(subseq1).to.eql([0.2, 0.3, 0.4, 0.5])
+        const subseq2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(5), new KnotIndexIncreasingSequence(8))
+        expect(subseq2).to.eql([0.5, 0.6, 0.7, 0.8])
     });
 
     it('can extract a subset of an increasing knot sequence of a non uniform B-spline', () => {
         const knots: number [] = [0, 0, 0, 0, 1, 1, 1, 1]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
-        const subseq = seq.extractSubset(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(3))
-        let abscissae: number[] = []
-        for(const knot of subseq) {
-            if(knot !== undefined) abscissae.push(knot)
-        }
-        expect(abscissae).to.eql([0, 0, 0])
-        const subseq1 = seq.extractSubset(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(4))
-        abscissae = []
-        for(const knot of subseq1) {
-            if(knot !== undefined) abscissae.push(knot)
-        }
-        expect(abscissae).to.eql([0, 0, 1])
-        const subseq2 = seq.extractSubset(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(5))
-        abscissae = []
-        for(const knot of subseq2) {
-            if(knot !== undefined) abscissae.push(knot)
-        }
-        expect(abscissae).to.eql([0, 1, 1])
+        const subseq = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(3))
+        expect(subseq).to.eql([0, 0, 0])
+        const subseq1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(4))
+        expect(subseq1).to.eql([0, 0, 1])
+        const subseq2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(5))
+        expect(subseq2).to.eql([0, 1, 1])
     });
 
     it('cannot extract a subset of an increasing knot sequence when indices are out of range', () => {
         const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
         let Istart = 0
-        const subseq = seq.extractSubset(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Istart))
+        const subseq = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Istart))
         // expect(function() {const subseq = seq.extractSubset(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Istart))}).to.throw()
         // test sending error message by ErrorLog class replaced by
         expect(Istart).to.eql(Istart)
         Istart = 6
         let Iend = 9
-        const subseq1 = seq.extractSubset(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))
+        const subseq1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))
         // expect(function() {const subseq1 = seq.extractSubset(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))}).to.throw()
         // test sending error message by ErrorLog class replaced by
-        expect(Iend).to.gt(seq.distinctAbscissae.length - 1)
-        const subseq2 = seq.extractSubset(new KnotIndexIncreasingSequence(Iend), new KnotIndexIncreasingSequence(Istart))
+        expect(Iend).to.gt(seq.distinctAbscissae().length - 1)
+        const subseq2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Iend), new KnotIndexIncreasingSequence(Istart))
         // expect(function() {const subseq2 = seq.extractSubset(new KnotIndexIncreasingSequence(Iend), new KnotIndexIncreasingSequence(Istart))}).to.throw()
         // test sending error message by ErrorLog class replaced by
         expect(Iend).to.gt(Istart)
@@ -292,9 +277,9 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         const index = seq.findSpan(0.2)
         const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
         seq.raiseKnotMultiplicity(indexStrictInc, 1)
-        expect(seq.multiplicities).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1])
+        expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1])
         seq.raiseKnotMultiplicity(indexStrictInc, 2)
-        expect(seq.multiplicities).to.eql([1, 1, 4, 1, 1, 1, 1, 1, 1])
+        expect(seq.multiplicities()).to.eql([1, 1, 4, 1, 1, 1, 1, 1, 1])
     });
 
     it('cannot raise the multiplicity of an existing knot to more than (degree + 1)', () => {
