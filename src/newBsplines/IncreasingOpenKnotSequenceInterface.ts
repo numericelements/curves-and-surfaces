@@ -1,16 +1,12 @@
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
-export interface IncreasingOpenKnotSequenceInterface {
-
-    degree: number;
-    distinctAbscissae(): number[];
-    multiplicities(): number[];
-    length(): number;
+export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterface{
 
     // checkDegreeConsistency(): void;
     isAbscissaCoincidingWithKnot(abscissa: number): boolean;
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number;
-    getMultiplicityOfKnotAt(abcissa: number): number;
+    KnotMultiplicityAtAbscissa(abcissa: number): number;
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence;
     findSpan(u: number): KnotIndexIncreasingSequence;
     insertKnot(abscissa: number, multiplicity: number): boolean;

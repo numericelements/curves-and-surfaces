@@ -1,5 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
 // Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
@@ -62,4 +63,20 @@ export abstract class AbstractKnotSequenceCurve {
         const result = this.knotSequence[index.knotIndex].multiplicity;
         return result;
     }
+
+    revertKnots(): void {
+        const sequence: Array<Knot> = [];
+        for(const knot of this.knotSequence) {
+            sequence.push(new Knot(0.0))
+        }
+        let i = 0;
+        for(const knot of this.knotSequence) {
+            sequence[this.knotSequence.length - i - 1].abscissa = this.knotSequence[this.knotSequence.length - 1].abscissa - (knot.abscissa - this.knotSequence[0].abscissa);
+            sequence[this.knotSequence.length - i - 1].multiplicity = knot.multiplicity;
+            i++;
+        }
+        this.knotSequence = sequence.slice();
+        return
+    }
+
 }

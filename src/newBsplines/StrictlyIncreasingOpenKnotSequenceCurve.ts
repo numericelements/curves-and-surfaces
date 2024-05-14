@@ -43,6 +43,20 @@ export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSeq
         }
     }
 
+    revertSequence(): number[] {
+        const seq = this.deepCopy();
+        seq.revertKnots();
+        return seq.distinctAbscissae();
+    }
+
+    length(): number {
+        return this.knotSequence.length;
+    }
+
+    deepCopy(): StrictlyIncreasingOpenKnotSequenceCurve {
+        return new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+    }
+
     incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
         let increment = true;
         if(index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {

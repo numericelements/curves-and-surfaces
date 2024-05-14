@@ -5,6 +5,7 @@ import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
+import { KnotIndexIncreasingSequence } from "./Knot";
 import { decomposeFunction, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
 
 
@@ -36,7 +37,8 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
         if(degree === 0) {
             const index = clampingFindSpan(s.knots[0], s.knots, s.degree);
             let multiplicity = 0;
-            if (s.knots[0] === s.knots[index]) multiplicity = this.knotMultiplicity(index);
+            const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(index));
+            if (s.knots[0] === s.knots[index]) multiplicity = this.knotMultiplicity(indexStrictInc);
             if(multiplicity > 1) {
                 newControlPoints = s.controlPoints.slice(multiplicity - 1, s.controlPoints.length - multiplicity + 1);
                 newKnots = s.knots.slice(multiplicity - 1, s.knots.length - multiplicity + 1);
@@ -45,7 +47,8 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
                 newKnots = s.knots;
             }
         } else {
-            let multiplicityBoundary = this.knotMultiplicity(this._degree);
+            const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(this._degree));
+            let multiplicityBoundary = this.knotMultiplicity(indexStrictInc);
             if(multiplicityBoundary > 1) {
                 for(let i = 1; i < multiplicityBoundary; i++) {
                     const firstKnot = s._knots[0];
@@ -103,7 +106,8 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
         let spanWithMultiplicityDegreePlusOne: Array<boolean> = [];
         for (let i = 0; i < this._controlPoints.length - 1; i++) {
             spanWithMultiplicityDegreePlusOne.push(false);
-            const multiplicity = this.knotMultiplicity((i + 1));
+            const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(i + 1));
+            const multiplicity = this.knotMultiplicity(indexStrictInc);
             if(multiplicity >= (this.degree + 1)) {
                 spanWithMultiplicityDegreePlusOne[i - this.degree] = true;
             }

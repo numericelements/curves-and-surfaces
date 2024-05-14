@@ -6,7 +6,7 @@ import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequenceCurve {
 
 
-    getMultiplicityOfKnotAt(abcissa: number): number {
+    KnotMultiplicityAtAbscissa(abcissa: number): number {
         let multiplicity = 0;
         for(const knot of this.knotSequence) {
             if(Math.abs(abcissa - knot.abscissa) < KNOT_COINCIDENCE_TOLERANCE) {
@@ -62,6 +62,25 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
         this.knotSequence[index.knotIndex].multiplicity += multiplicity;
     }
 
-    // abstract findSpan(u: number): number
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
+        if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
+            const error = new ErrorLog(this.constructor.name, "decrementKnotMultiplicity", "Index value is out of range.");
+            error.logMessageToConsole();
+            return;
+        }
+        this.knotSequence[index.knotIndex].multiplicity--;
+        if(this.knotSequence[index.knotIndex].multiplicity === 0) {
+            const abscissae = this.distinctAbscissae();
+            const multiplicities = this.multiplicities();
+            abscissae.splice(index.knotIndex, 1);
+            multiplicities.splice(index.knotIndex, 1);
+            this.knotSequence = [];
+            let i = 0;
+            for(const abscissa of abscissae) {
+                const knot = new Knot(abscissa, multiplicities[i]);
+                this.knotSequence.push(knot);
+            }
+        }
+    }
 
 }

@@ -106,11 +106,11 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
     it('can get the order of multiplicity of a knot from its abscissa', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
-        expect(seq.getMultiplicityOfKnotAt(0)).to.eql(4)
-        expect(seq.getMultiplicityOfKnotAt(0.5)).to.eql(1)
-        expect(seq.getMultiplicityOfKnotAt(0.7)).to.eql(2)
-        expect(seq.getMultiplicityOfKnotAt(1)).to.eql(4)
-        expect(seq.getMultiplicityOfKnotAt(0.1)).to.eql(0)
+        expect(seq.KnotMultiplicityAtAbscissa(0)).to.eql(4)
+        expect(seq.KnotMultiplicityAtAbscissa(0.5)).to.eql(1)
+        expect(seq.KnotMultiplicityAtAbscissa(0.7)).to.eql(2)
+        expect(seq.KnotMultiplicityAtAbscissa(1)).to.eql(4)
+        expect(seq.KnotMultiplicityAtAbscissa(0.1)).to.eql(0)
     });
 
     it('can insert a new knot in the knot sequence if the new knot abscissa is distinct from the existing ones', () => {
@@ -293,5 +293,73 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         // expect(function() {seq.raiseKnotMultiplicity(indexStrictInc, 4)}).to.throw()
         // test sending error message by ErrorLog class replaced by
         expect(mult + 1).to.gt(degree + 1)
+    });
+
+    it('can decrement the multiplicity of an existing knot', () => {
+        const knots: number [] = [0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
+        const abscissa = 0.2
+        const index = seq.findSpan(abscissa)
+        const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
+        expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1])
+        seq.decrementKnotMultiplicity(indexStrictInc)
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq.length()).to.eql(9)
+        seq.decrementKnotMultiplicity(indexStrictInc)
+        expect(seq.length()).to.eql(8)
+        expect(seq.isKnotlMultiplicityZero(abscissa)).to.eql(true)
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1])
+    });
+
+    it('can revert the knot sequence for a uniform B-spline', () => {
+        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
+        const seqRef = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
+        seq.revertKnots();
+        const tolerance = 1e-10;
+        let i = 0;
+        for(const knot of seq) {
+            const index = new KnotIndexIncreasingSequence(i);
+            expect(knot).to.approximately(seqRef.abscissaAtIndex(index), tolerance);
+            i++;
+        }
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
+        const knots1: number [] = [0, 0.05, 0.2, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const seq1 = new IncreasingOpenKnotSequenceOpenCurve(3, knots1)
+        const seqRef1 = new IncreasingOpenKnotSequenceOpenCurve(3, [0, 0.1, 0.2, 0.3, 0.4, 0.45, 0.6, 0.75, 0.8])
+        seq1.revertKnots();
+        i = 0;
+        for(const knot of seq1) {
+            const index = new KnotIndexIncreasingSequence(i);
+            expect(knot).to.approximately(seqRef1.abscissaAtIndex(index), tolerance);
+            i++;
+        }
+        expect(seq1.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
+    });
+
+    it('can revert the knot sequence for a non uniform B-spline', () => {
+        const knots: number [] = [0, 0, 0, 0.3, 0.4, 0.5, 0.8, 0.8, 0.8]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(2, knots)
+        const seqRef = new IncreasingOpenKnotSequenceOpenCurve(2, knots)
+        seq.revertKnots();
+        const tolerance = 1e-10;
+        let i = 0;
+        for(const knot of seq) {
+            const index = new KnotIndexIncreasingSequence(i);
+            expect(knot).to.approximately(seqRef.abscissaAtIndex(index), tolerance);
+            i++;
+        }
+        expect(seq.multiplicities()).to.eql([3, 1, 1, 1,3])
+        const knots1: number [] = [0, 0, 0, 0.2, 0.5, 0.5, 0.8, 0.8, 0.8]
+        const seq1 = new IncreasingOpenKnotSequenceOpenCurve(2, knots1)
+        const seqRef1 = new IncreasingOpenKnotSequenceOpenCurve(2, [0, 0, 0, 0.3, 0.3, 0.6, 0.8, 0.8, 0.8])
+        seq1.revertKnots();
+        i = 0;
+        for(const knot of seq1) {
+            const index = new KnotIndexIncreasingSequence(i);
+            expect(knot).to.approximately(seqRef1.abscissaAtIndex(index), tolerance);
+            i++;
+        }
+        expect(seq1.multiplicities()).to.eql([3, 2, 1, 3])
     });
 });

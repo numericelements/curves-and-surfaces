@@ -196,19 +196,19 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
             warning.logMessageToConsole();
             return;
         }
-        let index = this._increasingKnotSequence.findSpan(u);
+        const index = this._increasingKnotSequence.findSpan(u);
         let multiplicity = 0;
-        let newControlPoints = [];
+        const newControlPoints = [];
 
         if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
                 && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < KNOT_COINCIDENCE_TOLERANCE) {
-            multiplicity = this._increasingKnotSequence.getMultiplicityOfKnotAt(this._increasingKnotSequence.abscissaAtIndex(index));
+            multiplicity = this._increasingKnotSequence.KnotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
         }
         if((multiplicity + times) > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ",u, " multiplicity + times = ", (multiplicity + times));
-            // error.logMessageToConsole();
-            // return;
+            error.logMessageToConsole();
+            return;
         }
 
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
@@ -217,9 +217,11 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
             for (let i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
             }
+            const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
+                new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
             for (let i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
-                let alpha = (u - this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i))) /
-                    (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + this._degree)) -this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i)));
+                const offset = index.knotIndex - this._degree + 1;
+                const alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
                 newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
             }
             for (let i = index.knotIndex - multiplicity; i < this._controlPoints.length; i += 1) {
@@ -265,18 +267,36 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     //     }
     // }
 
-    knotMultiplicity(indexFromFindSpan: number): number {
-        let result = 0;
-        let i = 0;
-        while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
-            i -= 1;
-            result += 1;
-            if (indexFromFindSpan + i < 0) {
-                break;
-            }
-        }
+    knotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): number {
+        const result = this._increasingKnotSequence.knotMultiplicity(index);
         return result;
     }
+
+    // knotMultiplicity(indexFromFindSpan: number): number {
+    //     let result = 0;
+    //     let i = 0;
+    //     while (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(indexFromFindSpan + i)) === this._knots[indexFromFindSpan]) {
+    //         i -= 1;
+    //         result += 1;
+    //         if (indexFromFindSpan + i < 0) {
+    //             break;
+    //         }
+    //     }
+    //     return result;
+    // }
+
+    // knotMultiplicity(indexFromFindSpan: number): number {
+    //     let result = 0;
+    //     let i = 0;
+    //     while (this._knots[indexFromFindSpan + i] === this._knots[indexFromFindSpan]) {
+    //         i -= 1;
+    //         result += 1;
+    //         if (indexFromFindSpan + i < 0) {
+    //             break;
+    //         }
+    //     }
+    //     return result;
+    // }
 
     /**
      * Return a deep copy of this b-spline
@@ -286,21 +306,22 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     clamp(u: number): void {
         // Piegl and Tiller, The NURBS book, p: 151
 
-        let index = this._increasingKnotSequence.findSpan(u);
-        let newControlPoints = [];
+        const index = this._increasingKnotSequence.findSpan(u);
+        const newControlPoints = [];
         let multiplicity = 0;
-        let indexPlusDegree = new KnotIndexIncreasingSequence(index.knotIndex + this.degree);
+        const indexPlusDegree = new KnotIndexIncreasingSequence(index.knotIndex + this.degree);
 
         if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
                 && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < KNOT_COINCIDENCE_TOLERANCE) {
-            multiplicity = this._increasingKnotSequence.getMultiplicityOfKnotAt(this._increasingKnotSequence.abscissaAtIndex(index));
+            multiplicity = this._increasingKnotSequence.KnotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
         } else if(this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
             && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(indexPlusDegree)) < KNOT_COINCIDENCE_TOLERANCE) {
             let temporary_mult = 0;
-            let tempIndex = this._increasingKnotSequence.length() - 1;
-            while(tempIndex >= (index.knotIndex + this._degree)) {
-                if(this.knotMultiplicity(tempIndex) > temporary_mult) temporary_mult = this.knotMultiplicity(tempIndex);
-                tempIndex--;
+            let tempIndex = new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1);
+            while(tempIndex.knotIndex >= (index.knotIndex + this._degree)) {
+                const tempIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(tempIndex);
+                if(this.knotMultiplicity(tempIndexStrictInc) > temporary_mult) temporary_mult = this.knotMultiplicity(tempIndexStrictInc);
+                tempIndex.knotIndex--;
             }
             // multiplicity = this.knotMultiplicity(index + this._degree);
             multiplicity = temporary_mult;
@@ -313,9 +334,11 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
             for (let i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
             }
+            const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
+            new KnotIndexIncreasingSequence(index.knotIndex - multiplicity));
             for (let i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
-                let alpha = (u - this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i))) /
-                    (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + this._degree)) - this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i)));
+                const offset = index.knotIndex - this._degree + 1;
+                const alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
                 newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
             }
             for (let i = index.knotIndex - multiplicity; i < this._controlPoints.length; i += 1) {
@@ -508,8 +531,8 @@ function findControlPointsFollowingSignChanges(spline: AbstractBSplineR1toR1) {
         cpLeft = cpRight
     }
 
-    if (spline.controlPoints[spline.controlPoints.length-1] == 0) {
-        vertexIndex.push(spline.controlPoints.length-1)
+    if (spline.controlPoints[spline.controlPoints.length - 1] == 0) {
+        vertexIndex.push(spline.controlPoints.length - 1)
     }
 
     return vertexIndex

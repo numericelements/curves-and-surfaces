@@ -146,15 +146,17 @@ export function decomposeFunction(spline: BSplineR1toR1): number[][] {
 
     let a = 0;
     let b = 0;
-    let index = findSpan(LOWER_BOUND_CURVE_INTERVAL, spline.knots, spline.degree);
+    const index = findSpan(LOWER_BOUND_CURVE_INTERVAL, spline.knots, spline.degree);
+    const indexIncSeq = new KnotIndexIncreasingSequence(index);
+    const indexStrictIncSeq = spline.increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq);
     if(spline.degree > 0) {
         for (let i = 0; i <= spline.degree; i += 1) {
             result[0][i] = spline.controlPoints[i];
         }
         a = spline.degree;
         b = spline.degree + 1;
-    } else if(spline.degree === 0 && spline.knotMultiplicity(index) > 1) {
-        console.log("multiplicity 0:",spline.knotMultiplicity(index));
+    } else if(spline.degree === 0 && spline.knotMultiplicity(indexStrictIncSeq) > 1) {
+        console.log("multiplicity 0:",spline.knotMultiplicity(indexStrictIncSeq));
         // result[0][0] = spline.controlPoints[0];
         // a = spline.degree;
         // b = spline.degree + 1;
@@ -162,7 +164,7 @@ export function decomposeFunction(spline: BSplineR1toR1): number[][] {
         result[0][0] = spline.controlPoints[1];
         a = spline.degree + 1;
         b = spline.degree + 2;
-    } else if(spline.degree === 0 && spline.knotMultiplicity(index) === 1) {
+    } else if(spline.degree === 0 && spline.knotMultiplicity(indexStrictIncSeq) === 1) {
         result[0][0] = spline.controlPoints[0];
         a = spline.degree;
         b = spline.degree + 1;

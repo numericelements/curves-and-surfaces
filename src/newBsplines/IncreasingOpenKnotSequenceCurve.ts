@@ -31,6 +31,14 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
         this.checkSizeConsistency(knots);
     }
 
+    get allAbscissae(): number[] {
+        const abscissae: number[] = [];
+        for(const knot of this) {
+            if(knot !== undefined) abscissae.push(knot);
+        }
+        return abscissae;
+    }
+
     [Symbol.iterator]() {
         let knotAmount = 0;
         const knotIndicesKnotAbscissaChange: number[] = [];
@@ -56,6 +64,12 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
         }
     }
 
+    revertSequence(): number[] {
+        const seq = this.deepCopy();
+        seq.revertKnots();
+        return seq.allAbscissae;
+    }
+
     checkSizeConsistency(knots: number[]): void {
         let size = 0;
         for (const multiplicity of this.multiplicities()) {
@@ -77,6 +91,10 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
             if(knot !== undefined) length++;
         }
         return length;
+    }
+
+    deepCopy(): IncreasingOpenKnotSequenceCurve {
+        return new IncreasingOpenKnotSequenceCurve(this._degree, this.allAbscissae);
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceCurve {

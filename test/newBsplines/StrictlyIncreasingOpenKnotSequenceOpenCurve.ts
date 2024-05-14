@@ -38,6 +38,17 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
         expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1])
     });
 
+    it('can get the length of a knot sequence', () => {
+        const knots: number [] = [0.0, 0.5, 0.6, 0.7, 1]
+        const multiplicities: number[] = [1, 1, 1, 1, 1]
+        const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities);
+        expect(seq.length()).to.eql(5)
+        const knots1: number [] = [0.0, 1]
+        const multiplicities1: number[] = [3, 3]
+        const seq1 = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots1, multiplicities1);
+        expect(seq1.length()).to.eql(2)
+    });
+
     it('can convert knot sequence to an increasing knot sequence of open curve', () => {
         const knots: number [] = [0.0, 0.5, 0.6, 0.7, 1]
         const multiplicities: number[] = [4, 1, 1, 2, 4]
