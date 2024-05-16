@@ -47,8 +47,12 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
     }
 
     clone(): BSplineR1toR1 {
-        return new BSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+        return new BSplineR1toR1(this._controlPoints.slice(), this._increasingKnotSequence.allAbscissae.slice());
     }
+
+    // clone(): BSplineR1toR1 {
+    //     return new BSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+    // }
 
     derivative(): BSplineR1toR1 {
         let newControlPoints = [];
@@ -247,7 +251,8 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const index = indexFromFindSpan;
 
         // end knots are not removed
-        if (index > this._degree && index < this._knots.length - this._degree - 1) {
+        // if (index > this._degree && index < this._knots.length - this._degree - 1) {
+        if (index > this._degree && index < this._increasingKnotSequence.length() - this._degree - 1) {
             throw new Error("index out of range");
         }
         

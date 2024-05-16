@@ -54174,10 +54174,10 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         if (controlPoints === void 0) { controlPoints = [0]; }
         if (knots === void 0) { knots = [0, 1]; }
         this._controlPoints = [];
-        this._knots = [];
+        // protected _knots: number[] = [];
         this._degree = 0;
         this._controlPoints = __spread(controlPoints);
-        this._knots = __spread(knots);
+        // this._knots = [...knots];
         this._degree = this.computeDegree(knots.length);
         // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
     }
@@ -54458,11 +54458,19 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
             for (var i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
             }
-            var subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new Knot_1.KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1), new Knot_1.KnotIndexIncreasingSequence(index.knotIndex - multiplicity));
-            for (var i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
-                var offset = index.knotIndex - this._degree + 1;
-                var alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
-                newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
+            if ((index.knotIndex - this._degree + 1) <= (index.knotIndex - multiplicity)) {
+                var subSequence = [];
+                if ((index.knotIndex - multiplicity) > (index.knotIndex + 1)) {
+                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new Knot_1.KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1), new Knot_1.KnotIndexIncreasingSequence(index.knotIndex - multiplicity));
+                }
+                else {
+                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new Knot_1.KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1), new Knot_1.KnotIndexIncreasingSequence(index.knotIndex + 1));
+                }
+                for (var i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
+                    var offset = index.knotIndex - this._degree + 1;
+                    var alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
+                    newControlPoints[i] = this._controlPoints[i - 1] * (1 - alpha) + this._controlPoints[i] * alpha;
+                }
             }
             for (var i = index.knotIndex - multiplicity; i < this._controlPoints.length; i += 1) {
                 newControlPoints[i + 1] = this._controlPoints[i];
@@ -55631,8 +55639,11 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(this));
     };
     BSplineR1toR1.prototype.clone = function () {
-        return new BSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+        return new BSplineR1toR1(this._controlPoints.slice(), this._increasingKnotSequence.allAbscissae.slice());
     };
+    // clone(): BSplineR1toR1 {
+    //     return new BSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+    // }
     BSplineR1toR1.prototype.derivative = function () {
         var newControlPoints = [];
         var newKnots = [];
@@ -55812,7 +55823,8 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         if (tolerance === void 0) { tolerance = exports.KNOT_REMOVAL_TOLERANCE; }
         var index = indexFromFindSpan;
         // end knots are not removed
-        if (index > this._degree && index < this._knots.length - this._degree - 1) {
+        // if (index > this._degree && index < this._knots.length - this._degree - 1) {
+        if (index > this._degree && index < this._increasingKnotSequence.length() - this._degree - 1) {
             throw new Error("index out of range");
         }
         var indexIncSeq = new Knot_1.KnotIndexIncreasingSequence(index);
@@ -56983,6 +56995,9 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             error.logMessageToConsole();
         }
     };
+    IncreasingOpenKnotSequenceClosedCurve.prototype.getIndexKnotOrigin = function () {
+        return new Knot_1.KnotIndexIncreasingSequence(this.indexKnotOrigin);
+    };
     IncreasingOpenKnotSequenceClosedCurve.prototype.isAbscissaCoincidingWithKnot = function (abscissa) {
         var e_3, _a;
         var coincident = false;
@@ -57032,7 +57047,8 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
                         var knot = _c.value;
                         index += knot.multiplicity;
                         if (Math.abs(u - knot.abscissa) < AbstractKnotSequenceCurve_1.KNOT_COINCIDENCE_TOLERANCE) {
-                            if (knot.abscissa === this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].abscissa) {
+                            if (knot.abscissa === this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].abscissa
+                                && this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].multiplicity === (this._degree + 1)) {
                                 index -= this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].multiplicity;
                             }
                             return new Knot_1.KnotIndexIncreasingSequence(index - 1);
@@ -57311,7 +57327,7 @@ var IncreasingOpenKnotSequenceCurve = /** @class */ (function (_super) {
     IncreasingOpenKnotSequenceCurve.prototype.extractSubsetOfAbscissae = function (knotStart, knotEnd) {
         var e_8, _a;
         var knots = [];
-        if (!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex < knotEnd.knotIndex)) {
+        if (!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubset", "start and/or end indices values are out of range. Cannot perform the extraction.");
             error.logMessageToConsole();
             return knots;
@@ -57690,58 +57706,88 @@ var PeriodicBSplineR1toR1 = /** @class */ (function (_super) {
         var newControlPoints = [];
         var newKnots = [];
         if (degree === 0) {
-            var index = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(s.knots[0], s.knots, s.degree);
-            var multiplicity = 0;
-            var indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new Knot_1.KnotIndexIncreasingSequence(index));
-            if (s.knots[0] === s.knots[index])
-                multiplicity = this.knotMultiplicity(indexStrictInc);
-            if (multiplicity > 1) {
-                newControlPoints = s.controlPoints.slice(multiplicity - 1, s.controlPoints.length - multiplicity + 1);
-                newKnots = s.knots.slice(multiplicity - 1, s.knots.length - multiplicity + 1);
-            }
-            else {
-                newControlPoints = s.controlPoints;
-                newKnots = s.knots;
-            }
+            // const index = s._increasingKnotSequence.findSpan(s.knots[0]);
+            // let multiplicity = 0;
+            // const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
+            // if (s.knots[0] === s.knots[index.knotIndex]) multiplicity = this.knotMultiplicity(indexStrictInc);
+            // if(multiplicity > 1) {
+            //     newControlPoints = s.controlPoints.slice(multiplicity - 1, s.controlPoints.length - multiplicity + 1);
+            //     newKnots = s.knots.slice(multiplicity - 1, s.knots.length - multiplicity + 1);
+            // } else {
+            //     newControlPoints = s.controlPoints;
+            //     newKnots = s.knots;
+            // }
+            newControlPoints = s.controlPoints;
+            newKnots = s.knots;
         }
         else {
-            var indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new Knot_1.KnotIndexIncreasingSequence(this._degree));
-            var multiplicityBoundary = this.knotMultiplicity(indexStrictInc);
-            if (multiplicityBoundary > 1) {
-                for (var i_1 = 1; i_1 < multiplicityBoundary; i_1++) {
-                    var firstKnot = s._knots[0];
-                    s._knots.splice(0, 0, firstKnot - 1);
-                    var lastKnot = s._knots[s._knots.length - 1];
-                    s._knots.splice(s._knots.length, 0, lastKnot + 1);
-                    s._controlPoints.splice(0, 0, 0.0);
-                    s._controlPoints.splice(s._controlPoints.length, 0, 0.0);
-                }
-            }
             s.clamp(s.knots[degree]);
-            // s.clamp(s.knots[s.knots.length - (i - 1) - 1]);
             s.clamp(s.knots[s.knots.length - degree - 1]);
-            if (multiplicityBoundary > 1) {
-                s._knots.splice(0, (multiplicityBoundary - 1));
-                s._knots.splice(s._knots.length - (multiplicityBoundary - 1), (multiplicityBoundary - 1));
-                s._controlPoints.splice(0, (multiplicityBoundary - 1));
-                s._controlPoints.splice(s._controlPoints.length - (multiplicityBoundary - 1), (multiplicityBoundary - 1));
-            }
-            var currentKnot = s.knots[0];
-            var i = 1;
-            while (currentKnot !== s.knots[i] && i <= s.degree) {
-                currentKnot = s.knots[i];
-                i++;
-            }
-            // newControlPoints = s.controlPoints.slice(degree, s.controlPoints.length - degree);
-            // newKnots = s.knots.slice(degree, s.knots.length - degree);
-            newControlPoints = s.controlPoints.slice((i - 1), s.controlPoints.length - (i - 1));
-            newKnots = s.knots.slice((i - 1), s.knots.length - (i - 1));
+            var indexKnotOrigin = s._increasingKnotSequence.getIndexKnotOrigin();
+            var lastIndex = new Knot_1.KnotIndexIncreasingSequence(s._increasingKnotSequence.length() - indexKnotOrigin.knotIndex - 1);
+            newControlPoints = s.controlPoints.slice(indexKnotOrigin.knotIndex, s.controlPoints.length - indexKnotOrigin.knotIndex);
+            newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexKnotOrigin, lastIndex);
         }
         return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(new BSplineR1toR1_1.BSplineR1toR1(newControlPoints, newKnots)));
     };
+    // bernsteinDecomposition(): BernsteinDecompositionR1toR1 {
+    //     const s = this.clone();
+    //     const degree = this._degree;
+    //     let newControlPoints = [];
+    //     let newKnots = [];
+    //     if(degree === 0) {
+    //         const index = clampingFindSpan(s.knots[0], s.knots, s.degree);
+    //         let multiplicity = 0;
+    //         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(index));
+    //         if (s.knots[0] === s.knots[index]) multiplicity = this.knotMultiplicity(indexStrictInc);
+    //         if(multiplicity > 1) {
+    //             newControlPoints = s.controlPoints.slice(multiplicity - 1, s.controlPoints.length - multiplicity + 1);
+    //             newKnots = s.knots.slice(multiplicity - 1, s.knots.length - multiplicity + 1);
+    //         } else {
+    //             newControlPoints = s.controlPoints;
+    //             newKnots = s.knots;
+    //         }
+    //     } else {
+    //         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(this._degree));
+    //         let multiplicityBoundary = this.knotMultiplicity(indexStrictInc);
+    //         if(multiplicityBoundary > 1) {
+    //             for(let i = 1; i < multiplicityBoundary; i++) {
+    //                 const firstKnot = s._knots[0];
+    //                 s._knots.splice(0, 0, firstKnot - 1);
+    //                 const lastKnot = s._knots[s._knots.length - 1];
+    //                 s._knots.splice(s._knots.length, 0, lastKnot + 1);
+    //                 s._controlPoints.splice(0, 0, 0.0);
+    //                 s._controlPoints.splice(s._controlPoints.length, 0, 0.0);
+    //             }
+    //         }
+    //         s.clamp(s.knots[degree]);
+    //         // s.clamp(s.knots[s.knots.length - (i - 1) - 1]);
+    //         s.clamp(s.knots[s.knots.length - degree - 1]);
+    //         if(multiplicityBoundary > 1) {
+    //             s._knots.splice(0, (multiplicityBoundary - 1));
+    //             s._knots.splice(s._knots.length - (multiplicityBoundary - 1), (multiplicityBoundary - 1));
+    //             s._controlPoints.splice(0, (multiplicityBoundary - 1));
+    //             s._controlPoints.splice(s._controlPoints.length - (multiplicityBoundary - 1), (multiplicityBoundary - 1));
+    //         }
+    //         let currentKnot = s.knots[0];
+    //         let i = 1;
+    //         while(currentKnot !== s.knots[i] && i <= s.degree) {
+    //             currentKnot = s.knots[i];
+    //             i++;
+    //         }
+    //         // newControlPoints = s.controlPoints.slice(degree, s.controlPoints.length - degree);
+    //         // newKnots = s.knots.slice(degree, s.knots.length - degree);
+    //         newControlPoints = s.controlPoints.slice((i - 1), s.controlPoints.length - (i - 1));
+    //         newKnots = s.knots.slice((i - 1), s.knots.length - (i - 1));
+    //     }
+    //     return new BernsteinDecompositionR1toR1(decomposeFunction(new BSplineR1toR1(newControlPoints, newKnots)));
+    // }
     PeriodicBSplineR1toR1.prototype.clone = function () {
-        return new PeriodicBSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+        return new PeriodicBSplineR1toR1(this._controlPoints.slice(), this._increasingKnotSequence.allAbscissae.slice());
     };
+    // clone(): PeriodicBSplineR1toR1 {
+    //     return new PeriodicBSplineR1toR1(this._controlPoints.slice(), this._knots.slice());
+    // }
     PeriodicBSplineR1toR1.prototype.derivative = function () {
         var newControlPoints = [];
         var newKnots = [];
@@ -57751,12 +57797,27 @@ var PeriodicBSplineR1toR1 = /** @class */ (function (_super) {
                 newControlPoints[i] = 0.0;
             }
             else {
-                newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
+                newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree /
+                    (this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(i + this._degree + 1)) - this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(i + 1))));
             }
         }
-        newKnots = this._knots.slice(1, this._knots.length - 1);
+        newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(new Knot_1.KnotIndexIncreasingSequence(1), new Knot_1.KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 2));
         return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
     };
+    // derivative(): PeriodicBSplineR1toR1 {
+    //     let newControlPoints = [];
+    //     let newKnots = [];
+    //     const spanWithMultiplicityDegreePlusOne = this.getBasisFunctionSpanWithKnotMultiplicityEqualDegreePlusOne();
+    //     for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+    //         if(spanWithMultiplicityDegreePlusOne[i]) {
+    //             newControlPoints[i] = 0.0;
+    //         } else {
+    //             newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / (this._knots[i + this._degree + 1] - this._knots[i + 1]));
+    //         }
+    //     }
+    //     newKnots = this._knots.slice(1, this._knots.length - 1);
+    //     return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
+    // }
     PeriodicBSplineR1toR1.prototype.getBasisFunctionSpanWithKnotMultiplicityEqualDegreePlusOne = function () {
         var spanWithMultiplicityDegreePlusOne = [];
         for (var i = 0; i < this._controlPoints.length - 1; i++) {
@@ -57775,8 +57836,16 @@ var PeriodicBSplineR1toR1 = /** @class */ (function (_super) {
         for (var i = 0; i < x.length; i += 1) {
             cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
         }
-        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._knots.slice());
+        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._increasingKnotSequence.allAbscissae);
     };
+    // curve(): BSplineR1toR2 {
+    //     let x = this.grevilleAbscissae();
+    //     let cp: Array<Vector2d> = [];
+    //     for (let i = 0; i < x.length; i +=1) {
+    //         cp.push(new Vector2d(x[i], this._controlPoints[i]));
+    //     }
+    //     return new BSplineR1toR2(cp, this._knots.slice());
+    // }
     PeriodicBSplineR1toR1.prototype.evaluateOutsideRefInterval = function (u) {
         var result = 0.0;
         var knots = this.distinctKnots().slice();

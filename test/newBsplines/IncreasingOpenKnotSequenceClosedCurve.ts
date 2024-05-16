@@ -188,7 +188,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         index = seq.findSpan(0.9)
         expect(index.knotIndex).to.eql(11)
         index = seq.findSpan(1.0)
-        expect(index.knotIndex).to.eql(11)
+        expect(index.knotIndex).to.eql(13)
     });
 
     it('comparison with the former clampingFindSpan function devoted to periodic uniform B-splines with a periodic uniform B-Spline', () => {
@@ -258,4 +258,5 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         // indexCompare = clampingFindSpan(1.0, knots, 3);
         // expect(index.knotIndex).to.eql(indexCompare)
     });
+
 });

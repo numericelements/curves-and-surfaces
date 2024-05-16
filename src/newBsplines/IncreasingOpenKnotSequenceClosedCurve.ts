@@ -135,6 +135,10 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
         }
     }
 
+    getIndexKnotOrigin(): KnotIndexIncreasingSequence {
+        return new KnotIndexIncreasingSequence(this.indexKnotOrigin);
+    }
+
     isAbscissaCoincidingWithKnot(abscissa: number): boolean {
         let coincident = false;
         let indexCoincidentKnot = 0;
@@ -172,7 +176,8 @@ export class IncreasingOpenKnotSequenceClosedCurve extends IncreasingOpenKnotSeq
                 for(const knot of this.knotSequence) {
                     index += knot.multiplicity;
                     if(Math.abs(u - knot.abscissa) < KNOT_COINCIDENCE_TOLERANCE) {
-                        if(knot.abscissa === this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].abscissa) {
+                        if(knot.abscissa === this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].abscissa
+                        && this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].multiplicity === (this._degree + 1)) {
                             index -= this.knotSequence[this.knotSequence.length - this.indexKnotOrigin - 1].multiplicity
                         }
                         return new KnotIndexIncreasingSequence(index - 1);

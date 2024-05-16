@@ -126,7 +126,7 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
 
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[] {
         let knots: number[] = [];
-        if(!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex < knotEnd.knotIndex)) {
+        if(!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
             const error = new ErrorLog(this.constructor.name, "extractSubset", "start and/or end indices values are out of range. Cannot perform the extraction.");
             error.logMessageToConsole();
             return knots;
