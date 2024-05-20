@@ -6,6 +6,7 @@ import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 
 export const KNOT_REMOVAL_TOLERANCE = 10e-5
 
@@ -145,6 +146,17 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
             // if(times > )
         }
         let multiplicity = 0;
+        if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
+            && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < KNOT_COINCIDENCE_TOLERANCE) {
+            multiplicity = this._increasingKnotSequence.KnotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
+        }
+        if((multiplicity + times) > (this._degree + 1)) {
+            const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
+            console.log("u = ",u, " multiplicity + times = ", (multiplicity + times));
+            error.logMessageToConsole();
+            return;
+        }
+
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
         let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
         for (let t = 0; t < times; t += 1) {

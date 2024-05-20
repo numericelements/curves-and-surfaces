@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 import { BSplineR1toR1 } from '../../src/newBsplines/BSplineR1toR1';
 
+export const TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1 = 1e-10;
+
 describe('BSplineR1toR1', () => {
     
     it('can be initialized without an initializer', () => {
@@ -70,6 +72,50 @@ describe('BSplineR1toR1', () => {
         expect(c1.controlPoints[1].y).to.equal(1)
         expect(c1.controlPoints[2].x).to.equal(1)
         expect(c1.controlPoints[2].y).to.equal(1)
+    });
+
+    it('can increment the degree of non-uniform B-spline with end knots only', () => {
+        const s1 = new BSplineR1toR1([ -1, 0, 1 ], [ 0, 0, 0, 1, 1, 1 ])
+        expect(s1.degree).to.eql(2)
+        const s = s1.degreeIncrement();
+        expect(s.degree).to.eql(3)
+        expect(s.knots).to.eql([0, 0, 0, 0, 1, 1, 1, 1])
+        const cpSolution = [-1, -0.33333333333333333, 0.33333333333333333, 1];
+        for(let i = 0; i < s.controlPoints.length; i++) {
+            expect(s.controlPoints[i]).to.be.closeTo(cpSolution[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
+        }
+    });
+
+    it('can increment the degree of non-uniform B-spline with arbitrary knot sequence', () => {
+        const s1 = new BSplineR1toR1([ 1, 1, 1, 1 ], [ 0, 0, 0, 1, 2, 2, 2])
+        expect(s1.degree).to.eql(2)
+        const s = s1.degreeIncrement();
+        expect(s.degree).to.eql(3)
+        expect(s.knots).to.eql([0, 0, 0, 0, 1, 1, 2, 2, 2, 2])
+        const cpSolution = [1, 1, 1, 1, 1, 1];
+        for(let i = 0; i < s.controlPoints.length; i++) {
+            expect(s.controlPoints[i]).to.be.closeTo(cpSolution[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
+        }
+        const s2 = new BSplineR1toR1([ 0, 1, 2, 3 ], [ 0, 0, 0, 1, 2, 2, 2])
+        expect(s2.degree).to.eql(2)
+        const s3 = s2.degreeIncrement();
+        expect(s3.degree).to.eql(3)
+        const cpSolution1 = [0, 0.666666666666666, 1.166666666666666, 1.833333333333333, 2.3333333333333333, 3];
+        for(let i = 0; i < s3.controlPoints.length; i++) {
+            expect(s3.controlPoints[i]).to.be.closeTo(cpSolution1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
+        }
+    });
+
+    it('can compute the derivative of non-uniform B-spline with end knots only', () => {
+        const s1 = new BSplineR1toR1([1, 1, 1 ], [ 0, 0, 0, 1, 1, 1 ])
+        expect(s1.degree).to.eql(2)
+        const s = s1.derivative();
+        expect(s.degree).to.eql(1)
+        expect(s.knots).to.eql([0, 0, 1, 1])
+        const cpSolution = [0, 0];
+        for(let i = 0; i < s.controlPoints.length; i++) {
+            expect(s.controlPoints[i]).to.be.closeTo(cpSolution[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
+        }
     });
 
 });

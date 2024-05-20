@@ -5,6 +5,7 @@ import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2"
+import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1";
 import { clampingFindSpan, findSpan } from "./Piegl_Tiller_NURBS_Book"
 
@@ -14,6 +15,7 @@ import { clampingFindSpan, findSpan } from "./Piegl_Tiller_NURBS_Book"
  */
 export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
 
+    protected _increasingKnotSequence: IncreasingOpenKnotSequenceClosedCurve;
 
     /**
      * Create a B-Spline
@@ -22,8 +24,16 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
      */
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree, knots);
     }
 
+    get knots() : number[] {
+        const knots: number[] = [];
+        for(const knot of this._increasingKnotSequence) {
+            if(knot !== undefined) knots.push(knot);
+        }
+        return knots;
+    }
 
     get periodicControlPointsLength(): number {
         let multiplicityBoundary = this.knotMultiplicity(this._degree);
@@ -144,8 +154,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
             }
         }
 
-        this.controlPoints = newSpline.controlPoints;
-        this.knots = newSpline.knots;
+        this._controlPoints = newSpline.controlPoints;
+        this._knots = newSpline.knots;
         this._degree = newSpline.degree;
     }
 

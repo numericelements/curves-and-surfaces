@@ -4,13 +4,14 @@ import { AbstractBSplineR1toR2, curveSegment, deepCopyControlPoints } from "./Ab
 import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
 import { ErrorLog } from "../errorProcessing/ErrorLoging"
+import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve"
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
 export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
 
-
+    protected _increasingKnotSequence: IncreasingOpenKnotSequenceOpenCurve;
 
     /**
      * Create a B-Spline
@@ -19,11 +20,26 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
      */
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
     }
 
+    get knots() : number[] {
+        return this._increasingKnotSequence.allAbscissae;
+    }
+
+    get increasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
+        return this._increasingKnotSequence;
+    }
 
     get freeControlPoints(): Vector2d[] {
         return this.controlPoints;
+    }
+
+    set knots(knots: number[]) {
+        // this._knots = [...knots];
+        // this._degree = this.computeDegree();
+        this._degree = this.computeDegree(knots.length);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
     }
 
     // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
@@ -314,16 +330,15 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     }
 
     splitAt(u: number, segmentLocation: curveSegment): BSplineR1toR2 {
-        const result = this.clone();
-        const knotValues = result.getDistinctKnots();
-        if(knotValues.indexOf(u) !== -1) {
+        let result = this.clone();
+        if(result.increasingKnotSequence.isAbscissaCoincidingWithKnot(u)) {
             const error = new ErrorLog(this.constructor.name, "splitAt", "Method not configured to split a curve at an existing knot");
             error.logMessageToConsole();
         } else {
             result.insertKnot(u, result._degree + 1);
-            const knotSequence = result._knots;
-            let newControlPolygon: Vector2d[] = [];
-            let newKnots: number[] = [];
+            const knotSequence = result.knots;
+            const newControlPolygon: Vector2d[] = [];
+            const newKnots: number[] = [];
             let knotIndex = result._degree + 1;
             while(knotSequence[knotIndex] !== u && knotIndex < knotSequence.length) {
                 knotIndex++;
@@ -334,24 +349,26 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                     newControlPolygon.push(result._controlPoints[i]);
                 }
                 for(let i = 0; i < indexBound; i++) {
-                    newKnots.push(result._knots[i]);
+                    newKnots.push(result.knots[i]);
                 }
-                result._controlPoints = newControlPolygon;
-                result._knots = newKnots;
+                // result._controlPoints = newControlPolygon;
+                // result._knots = newKnots;
+                result = new BSplineR1toR2(newControlPolygon, newKnots);
             } else if(segmentLocation === curveSegment.AFTER) {
                 for(let i = knotIndex; i < result._controlPoints.length; i++) {
                     newControlPolygon.push(result._controlPoints[i]);
                 }
-                for(let i = knotIndex; i < result._knots.length; i++) {
-                    newKnots.push(result._knots[i]);
+                for(let i = knotIndex; i < result.knots.length; i++) {
+                    newKnots.push(result.knots[i]);
                 }
                 const offset = u;
                 for(let i = 0; i < newKnots.length; i++) {
                     // newKnots[i] = newKnots[newKnots.length - 1] - (newKnots[newKnots.length - 1] - newKnots[i]) / intervalSpan;
                     newKnots[i] = newKnots[i] - offset;
                 }
-                result._controlPoints = newControlPolygon;
-                result._knots = newKnots;
+                // result._controlPoints = newControlPolygon;
+                // result._knots = newKnots;
+                result = new BSplineR1toR2(newControlPolygon, newKnots);
             } else {
                 const error = new ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
                 error.logMessageToConsole();
@@ -359,6 +376,52 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
         return result;
     }
+    // splitAt(u: number, segmentLocation: curveSegment): BSplineR1toR2 {
+    //     const result = this.clone();
+    //     const knotValues = result.getDistinctKnots();
+    //     if(knotValues.indexOf(u) !== -1) {
+    //         const error = new ErrorLog(this.constructor.name, "splitAt", "Method not configured to split a curve at an existing knot");
+    //         error.logMessageToConsole();
+    //     } else {
+    //         result.insertKnot(u, result._degree + 1);
+    //         const knotSequence = result._knots;
+    //         let newControlPolygon: Vector2d[] = [];
+    //         let newKnots: number[] = [];
+    //         let knotIndex = result._degree + 1;
+    //         while(knotSequence[knotIndex] !== u && knotIndex < knotSequence.length) {
+    //             knotIndex++;
+    //         }
+    //         const indexBound = knotIndex + result._degree + 1;
+    //         if(segmentLocation === curveSegment.BEFORE) {
+    //             for(let i = 0; i < knotIndex; i++) {
+    //                 newControlPolygon.push(result._controlPoints[i]);
+    //             }
+    //             for(let i = 0; i < indexBound; i++) {
+    //                 newKnots.push(result._knots[i]);
+    //             }
+    //             result._controlPoints = newControlPolygon;
+    //             result._knots = newKnots;
+    //         } else if(segmentLocation === curveSegment.AFTER) {
+    //             for(let i = knotIndex; i < result._controlPoints.length; i++) {
+    //                 newControlPolygon.push(result._controlPoints[i]);
+    //             }
+    //             for(let i = knotIndex; i < result._knots.length; i++) {
+    //                 newKnots.push(result._knots[i]);
+    //             }
+    //             const offset = u;
+    //             for(let i = 0; i < newKnots.length; i++) {
+    //                 // newKnots[i] = newKnots[newKnots.length - 1] - (newKnots[newKnots.length - 1] - newKnots[i]) / intervalSpan;
+    //                 newKnots[i] = newKnots[i] - offset;
+    //             }
+    //             result._controlPoints = newControlPolygon;
+    //             result._knots = newKnots;
+    //         } else {
+    //             const error = new ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
+    //             error.logMessageToConsole();
+    //         }
+    //     }
+    //     return result;
+    // }
 
     evaluateOutsideRefInterval(u: number): Vector2d {
         let result = new Vector2d();

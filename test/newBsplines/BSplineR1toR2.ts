@@ -1,10 +1,12 @@
- import { expect } from 'chai';
- import { BSplineR1toR2 } from '../../src/newBsplines/BSplineR1toR2';
- import { create_BSplineR1toR2V2d } from '../../src/newBsplines/BSplineR1toR2';
- import { Vector2d } from '../../src/mathVector/Vector2d';
+import { expect } from 'chai';
+import { BSplineR1toR2 } from '../../src/newBsplines/BSplineR1toR2';
+import { create_BSplineR1toR2V2d } from '../../src/newBsplines/BSplineR1toR2';
+import { Vector2d } from '../../src/mathVector/Vector2d';
 import { curveSegment } from '../../src/newBsplines/AbstractBSplineR1toR2';
 
- describe('BSplineR1toR2', () => {
+export const TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 = 1e-10
+
+describe('BSplineR1toR2', () => {
     
     it('can be initialized without an initializer', () => {
         const s = new BSplineR1toR2();
@@ -240,6 +242,58 @@ import { curveSegment } from '../../src/newBsplines/AbstractBSplineR1toR2';
         const s2 = s1.splitAt(0.8, curveSegment.BEFORE);
         expect(s2.controlPoints.length).to.eql(5)
         expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.6666666, 0.8, 0.8, 0.8, 0.8])
+    })
+
+    it('can increment the curve degree of a non uniform B-spline without intermediate knots', () => {
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(0, 8)
+        const cp2 = new Vector2d(0.5, 0)
+        const cp3 = new Vector2d(1.0, 1.0)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3 ], [ 0, 0, 0, 0, 1, 1, 1, 1])
+        const sInc = s1.degreeIncrement();
+        expect(sInc.degree).to.eql(4)
+        expect(sInc.knots).to.eql([ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        const cpSolutionX = [-0.5, -0.125, 0.25, 0.625, 1];
+        const cpSolutionY = [0, 6, 4, 0.25, 1];
+        for(let i = 0; i < sInc.controlPoints.length; i++) {
+            expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+    })
+
+    it('can increment the curve degree of a non uniform B-spline with arbitrary knot sequence', () => {
+        const cp0 = new Vector2d(0, 1)
+        const cp1 = new Vector2d(1, 1)
+        const cp2 = new Vector2d(2, 1)
+        const cp3 = new Vector2d(3, 1)
+        const cp4 = new Vector2d(4, 1)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const sInc = s1.degreeIncrement();
+        expect(sInc.degree).to.eql(4)
+        expect(sInc.knots).to.eql([ 0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 1, 1, 1])
+        const cpSolutionX = [0, 0.75, 1.25, 2, 2.75, 3.25, 4];
+        const cpSolutionY = [1, 1, 1, 1, 1, 1, 1];
+        for(let i = 0; i < sInc.controlPoints.length; i++) {
+            expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+    })
+
+    it('can increment the curve degree of a non uniform B-spline v2', () => {
+        const cp0 = new Vector2d(0, 1)
+        const cp1 = new Vector2d(1, 1)
+        const cp2 = new Vector2d(2, 1)
+        const cp3 = new Vector2d(3, 1)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3], [ 0, 0, 0, 1, 2, 2, 2])
+        const sInc = s1.degreeIncrement();
+        expect(sInc.degree).to.eql(3)
+        expect(sInc.knots).to.eql([ 0, 0, 0, 0, 1, 1, 2, 2, 2, 2])
+        const cpSolutionX = [0, 0.666666666666666, 1.166666666666666, 1.833333333333333, 2.3333333333333333, 3];
+        const cpSolutionY = [1, 1, 1, 1, 1, 1];
+        for(let i = 0; i < sInc.controlPoints.length; i++) {
+            expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
     })
 
  });
