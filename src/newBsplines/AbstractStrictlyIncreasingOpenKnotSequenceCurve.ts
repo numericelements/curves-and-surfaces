@@ -1,14 +1,17 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequenceCurve } from "./AbstractOpenKnotSequenceCurve";
-import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
+import { AbstractIncreasingOpenKnotSequenceCurve } from "./AbstractIncreasingOpenKnotSequenceCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
+import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 
 
-export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
+export abstract class AbstractStrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
 
     protected knotSequence: Knot[];
     protected _index: KnotIndexStrictlyIncreasingSequence;
     protected _end: KnotIndexStrictlyIncreasingSequence;
+    protected _isNonUniform: boolean;
 
     constructor(degree: number, knots: number[], multiplicities: number[]) {
         super(degree);
@@ -22,8 +25,20 @@ export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSeq
         for(let i = 0; i < knots.length; i++) {
             this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
         }
+        this._isNonUniform = false;
     }
 
+    get allAbscissae(): number[] {
+        const abscissae: number[] = [];
+        for(const knot of this) {
+            if(knot !== undefined) abscissae.push(knot.abscissa);
+        }
+        return abscissae;
+    }
+
+    get isNonUniform(): boolean {
+        return this._isNonUniform;
+    }
 
     [Symbol.iterator]() {
         this._end = new KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
@@ -43,6 +58,10 @@ export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSeq
         }
     }
 
+    checkNonUniformStructure(): void {
+        this._isNonUniform = false;
+    }
+
     revertSequence(): number[] {
         const seq = this.deepCopy();
         seq.revertKnots();
@@ -51,10 +70,6 @@ export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSeq
 
     length(): number {
         return this.knotSequence.length;
-    }
-
-    deepCopy(): StrictlyIncreasingOpenKnotSequenceCurve {
-        return new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
     }
 
     incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
@@ -70,13 +85,7 @@ export class StrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSeq
         return increment;
     }
 
-    toIncreasingKnotSequence(): IncreasingOpenKnotSequenceCurve {
-        const knotAbscissae: number[] = [];
-        for (const knot of this.knotSequence) {
-            for(let i = 0; i < knot.multiplicity; i++) {
-                knotAbscissae.push(knot.abscissa);
-            }
-        }
-        return new IncreasingOpenKnotSequenceCurve(this._degree, knotAbscissae);
-    }
+    abstract deepCopy(): StrictlyIncreasingOpenKnotSequenceInterface;
+
+    abstract toIncreasingKnotSequence(): IncreasingOpenKnotSequenceInterface;
 }

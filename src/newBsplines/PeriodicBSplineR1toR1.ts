@@ -29,6 +29,10 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
         return knots;
     }
 
+    get increasingKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
+        return this._increasingKnotSequence;
+    }
+
     bernsteinDecomposition(): BernsteinDecompositionR1toR1 {
         const s = this.clone();
         const degree = this._degree;

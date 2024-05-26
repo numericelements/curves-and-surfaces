@@ -1,20 +1,17 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
+import { AbstractStrictlyIncreasingOpenKnotSequenceCurve } from "./AbstractStrictlyIncreasingOpenKnotSequenceCurve";
 
-export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends StrictlyIncreasingOpenKnotSequenceCurve {
+export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequenceCurve {
 
     protected knotSequence: Knot[];
-    protected _index: KnotIndexStrictlyIncreasingSequence;
-    protected _end: KnotIndexStrictlyIncreasingSequence;
 
     constructor(degree: number, knots: number[], multiplicities: number[]) {
         super(degree, knots, multiplicities);
         this.knotSequence = [];
-        this._index = new KnotIndexStrictlyIncreasingSequence();
-        this._end = new KnotIndexStrictlyIncreasingSequence(Infinity);
         if(knots.length !== multiplicities.length) {
             const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not match the size of knot abscissae array.");
             error.logMessageToConsole();
@@ -24,6 +21,8 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends StrictlyIncreas
         }
         this.checkCurveOrigin();
         this.checkDegreeConsistency();
+        this.checkNonUniformStructure();
+        this.checkUniformity();
     }
 
     checkCurveOrigin(): void {
@@ -31,6 +30,26 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends StrictlyIncreas
             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
             error.logMessageToConsole();
         }
+    }
+
+    checkNonUniformStructure(): void {
+        this._isNonUniform = false;
+        if(this.knotSequence[0].multiplicity === (this._degree + 1) &&
+            this.knotSequence[this.knotSequence.length - 1].multiplicity === (this._degree + 1)) this._isNonUniform = true;
+    }
+
+    deepCopy(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
+        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+    }
+
+    toIncreasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
+        const knotAbscissae: number[] = [];
+        for (const knot of this.knotSequence) {
+            for(let i = 0; i < knot.multiplicity; i++) {
+                knotAbscissae.push(knot.abscissa);
+            }
+        }
+        return new IncreasingOpenKnotSequenceOpenCurve(this._degree, knotAbscissae);
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {

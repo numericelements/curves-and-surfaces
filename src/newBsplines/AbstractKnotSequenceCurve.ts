@@ -11,13 +11,19 @@ export abstract class AbstractKnotSequenceCurve {
 
     protected abstract knotSequence: Array<Knot>;
     protected _degree: number;
+    protected _isUniform: boolean;
 
     constructor(degree: number) {
         this._degree = degree;
+        this._isUniform = true;
     }
 
     get degree() {
         return this._degree;
+    }
+
+    get isUniform() {
+        return this._isUniform;
     }
 
     distinctAbscissae(): number[] {
@@ -43,6 +49,14 @@ export abstract class AbstractKnotSequenceCurve {
                 error.logMessageToConsole();
             }
         }
+    }
+
+    checkUniformity(): void {
+        this._isUniform = true;
+        for(const knot of this.knotSequence) {
+            if(knot.multiplicity !== 1) this._isUniform = false;
+        }
+        return;
     }
 
     isAbscissaCoincidingWithKnot(abscissa: number): boolean {

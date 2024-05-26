@@ -1,24 +1,28 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractOpenKnotSequenceCurve } from "./AbstractOpenKnotSequenceCurve";
+import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
+import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 
 
-export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
+export abstract class AbstractIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
 
     protected knotSequence: Knot[];
     protected _index: KnotIndexIncreasingSequence;
     protected _end: KnotIndexIncreasingSequence;
+    protected _isNonUniform: boolean;
 
     constructor(degree: number, knots: number[]) {
         super(degree);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
         this._end = new KnotIndexIncreasingSequence(Infinity);
+        this._isNonUniform = false;
         if(knots.length < 1) {
             const error = new ErrorLog(this.constructor.name, "constructor", "null length knot sequence cannot be processed.");
             error.logMessageToConsole();
+            return;
         }
         this.knotSequence.push(new Knot(knots[0], 1));
         for(let i = 1; i < knots.length; i++) {
@@ -37,6 +41,10 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
             if(knot !== undefined) abscissae.push(knot);
         }
         return abscissae;
+    }
+
+    get isNonUniform(): boolean {
+        return this._isNonUniform;
     }
 
     [Symbol.iterator]() {
@@ -63,6 +71,8 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
             }
         }
     }
+
+    abstract checkNonUniformStructure(): void;
 
     revertSequence(): number[] {
         const seq = this.deepCopy();
@@ -93,13 +103,9 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
         return length;
     }
 
-    deepCopy(): IncreasingOpenKnotSequenceCurve {
-        return new IncreasingOpenKnotSequenceCurve(this._degree, this.allAbscissae);
-    }
+    abstract deepCopy(): IncreasingOpenKnotSequenceInterface;
 
-    toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceCurve {
-        return new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
-    }
+    abstract toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceInterface;
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
         let abscissa = RETURN_ERROR_CODE;
@@ -112,12 +118,13 @@ export class IncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCur
     }
 
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
-        const strictltIncreasingKnotSequence = new StrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+        const strictlyIncreasingKnotSequence = this.toStrictlyIncreasingKnotSequence();
+        // const strictltIncreasingKnotSequence = new AbstractStrictlyIncreasingOpenKnotSequenceCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
         const abscissa = this.abscissaAtIndex(index);
         let i = 0;
-        for(const knot of strictltIncreasingKnotSequence) {
+        for(const knot of strictlyIncreasingKnotSequence.allAbscissae) {
             if(knot !== undefined) {
-                if(knot.abscissa === abscissa) break;
+                if(knot === abscissa) break;
                 i++;
             }
         }

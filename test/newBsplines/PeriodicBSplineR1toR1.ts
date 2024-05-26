@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { PeriodicBSplineR1toR1 } from "../../src/newBsplines/PeriodicBSplineR1toR1";
+import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from "./BSplineR1toR1";
 
 describe('PeriodicBSplineR1toR1', () => {
     
@@ -34,6 +35,18 @@ describe('PeriodicBSplineR1toR1', () => {
         expect(s.controlPoints).to.eql(ctrlPts);
         expect(s.knots).to.eql(knots);
         expect(s.degree).to.eql(2);
+    });
+
+    it('can evaluate a B-Spline with a uniform knot sequence', () => {
+        const ctrlPts = [1, 2, 3, 4, 5, 6, 7, 8];
+        const knots = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
+        const s = new PeriodicBSplineR1toR1(ctrlPts, knots);
+        expect(s.degree).to.eql(2);
+        expect(s.evaluate(0)).to.eql(1.5);
+        expect(s.evaluate(1)).to.be.closeTo(2.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1);
+        const spanIndex = s.increasingKnotSequence.findSpan(6);
+        expect(spanIndex.knotIndex).to.eql(7);
+        expect(s.evaluate(6)).to.be.closeTo(7.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1);
     });
 
     it('can compute a Bernstein decomposition of uniform periodic B-Spline', () => {

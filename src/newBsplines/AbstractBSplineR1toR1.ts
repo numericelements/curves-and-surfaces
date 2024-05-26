@@ -2,8 +2,8 @@ import { findSpan, clampingFindSpan, basisFunctions, basisFunctionsFromSequence 
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
-import { IncreasingOpenKnotSequenceCurve } from "./IncreasingOpenKnotSequenceCurve";
+import { AbstractStrictlyIncreasingOpenKnotSequenceCurve } from "./AbstractStrictlyIncreasingOpenKnotSequenceCurve";
+import { AbstractIncreasingOpenKnotSequenceCurve } from "./AbstractIncreasingOpenKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
@@ -29,6 +29,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
      * @param knots The knot vector
      */
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
+    // constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         this._controlPoints = [...controlPoints];
         // this._knots = [...knots];
         this._degree = this.computeDegree(knots.length);

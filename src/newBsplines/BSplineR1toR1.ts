@@ -8,7 +8,7 @@ import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenc
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 
-export const KNOT_REMOVAL_TOLERANCE = 10e-5
+export const KNOT_REMOVAL_TOLERANCE = 10e-5;
 
 /**
  * A B-Spline function from a one dimensional real space to a one dimensional real space
@@ -56,14 +56,36 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
     // }
 
     derivative(): BSplineR1toR1 {
-        let newControlPoints = [];
-        let newKnots = [];
-        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
-            newControlPoints[i] = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / 
-                (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + this._degree + 1)) - this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(i + 1))));
+        const newControlPoints = [];
+        const knotIdx_MultDegPlusOne: number[] = [];
+        const strictlyIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        const strictlyIncSeq_Mult = strictlyIncSeq.multiplicities();
+        for(let i = 0; i < strictlyIncSeq_Mult.length; i++) {
+            if(strictlyIncSeq_Mult[i] === (this._degree + 1) && i !== 0 && i !== (strictlyIncSeq.length() - 1)) knotIdx_MultDegPlusOne.push(i);
         }
-        newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
-        new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 2));
+        for (let i = 0; i < this._controlPoints.length - 1; i += 1) {
+            const indexIncSeq1 = new KnotIndexIncreasingSequence(i + this._degree + 1);
+            const indexStrictIncSeq1 = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq1);
+            const indexIncSeq2 = new KnotIndexIncreasingSequence(i + 1);
+            const indexStrictIncSeq2 = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq2);
+            if(indexStrictIncSeq1.knotIndex !== indexStrictIncSeq2.knotIndex) {
+                const newCtrlPt = (this._controlPoints[i + 1] - (this._controlPoints[i])) * (this._degree / 
+                (this._increasingKnotSequence.abscissaAtIndex(indexIncSeq1) - this._increasingKnotSequence.abscissaAtIndex(indexIncSeq2)));
+                newControlPoints.push(newCtrlPt);
+            }
+        }
+        for(const multiplicity of knotIdx_MultDegPlusOne) {
+            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
+        }
+        const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
+        const newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
+            new KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
+        if(newKnots[0] !== 0.0) {
+            const offset = newKnots[0];
+            for(let i = 0; i < newKnots.length; i++) {
+                newKnots[i] -= offset;
+            }
+        }
         return new BSplineR1toR1(newControlPoints, newKnots);
     }
 

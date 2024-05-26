@@ -103,7 +103,21 @@ describe('BSplineR1toR2', () => {
         expect(Math.abs(spline.evaluate(0.3).x - spline1.evaluate(0.3).x)).to.be.below(10e-6)
         expect(Math.abs(spline.evaluate(0.3).y - spline1.evaluate(0.3).y)).to.be.below(10e-6)
         expect(spline1.knots).to.eql([0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1])
+    });
 
+    it('can insert a new knot with multiplicity greater than one', () => {
+        /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(0, 8)
+        const cp2 = new Vector2d(0.5, 0)
+        const cp3 = new Vector2d(1.0, -2)
+        let s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3], [ 0, 0, 0, 0, 1, 1, 1, 1] )
+        //let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
+        let s2 = s1.clone()
+        s2.insertKnot(0.5, 2);
+        expect(s2.knots).to.eql([0, 0, 0, 0, 0.5, 0.5, 1, 1, 1, 1])
+        expect(Math.abs(s1.evaluate(0.5).x - s2.evaluate(0.5).x)).to.be.below(10e-6)
+        expect(Math.abs(s1.evaluate(0.5).y - s2.evaluate(0.5).y)).to.be.below(10e-6)
     });
 
     it('can return a section of a curve', () => {

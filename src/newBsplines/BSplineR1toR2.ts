@@ -52,8 +52,12 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
      */
     clone() : BSplineR1toR2 {
         let cloneControlPoints = deepCopyControlPoints(this._controlPoints);
-        return new BSplineR1toR2(cloneControlPoints, this._knots.slice());
+        return new BSplineR1toR2(cloneControlPoints, this.knots.slice());
     }
+    // clone() : BSplineR1toR2 {
+    //     let cloneControlPoints = deepCopyControlPoints(this._controlPoints);
+    //     return new BSplineR1toR2(cloneControlPoints, this._knots.slice());
+    // }
 
 
     optimizerStep(step: number[]): void {

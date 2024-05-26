@@ -5,6 +5,7 @@ import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequenceCurve {
 
+    abstract checkNonUniformStructure(): void;
 
     KnotMultiplicityAtAbscissa(abcissa: number): number {
         let multiplicity = 0;
@@ -49,6 +50,8 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
                     this.knotSequence.splice((i + 1), 0, knot);
                 }
             }
+            this.checkUniformity();
+            this.checkNonUniformStructure();
         }
         return insertion;
     }
@@ -60,6 +63,8 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
             return;
         }
         this.knotSequence[index.knotIndex].multiplicity += multiplicity;
+        this.checkUniformity();
+        this.checkNonUniformStructure();
     }
 
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
@@ -81,6 +86,8 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
                 this.knotSequence.push(knot);
             }
         }
+        this.checkUniformity();
+        this.checkNonUniformStructure();
     }
 
 }

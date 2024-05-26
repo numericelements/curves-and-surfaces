@@ -69,8 +69,12 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
      */
     clone() : PeriodicBSplineR1toR2 {
         let cloneControlPoints = deepCopyControlPoints(this._controlPoints);
-        return new PeriodicBSplineR1toR2(cloneControlPoints, this._knots.slice());
+        return new PeriodicBSplineR1toR2(cloneControlPoints, this.knots.slice());
     }
+    // clone() : PeriodicBSplineR1toR2 {
+    //     let cloneControlPoints = deepCopyControlPoints(this._controlPoints);
+    //     return new PeriodicBSplineR1toR2(cloneControlPoints, this._knots.slice());
+    // }
 
     optimizerStep(step: number[]): void {
         
@@ -86,14 +90,12 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
             throw new Error("Control point indentifier is out of range");
         }
         
-        
         super.moveControlPoint(i, deltaX, deltaY);
 
         let n = this.periodicControlPointsLength;
         if (i < this.degree) {
             super.setControlPointPosition(n + i, this.getControlPoint(i));
         }
-
     }
 
     /**
@@ -437,7 +439,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
     }
 
     scale(factor: number) {
-        let cp: Array<Vector2d> = []
+        const cp: Array<Vector2d> = []
         this._controlPoints.forEach(element => {
             cp.push(element.multiply(factor))
         });
@@ -445,7 +447,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
     }
 
     scaleY(factor: number) {
-        let cp: Array<Vector2d> = []
+        const cp: Array<Vector2d> = []
         this._controlPoints.forEach(element => {
             cp.push(new Vector2d(element.x, element.y * factor))
         });
@@ -453,7 +455,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
     }
 
     scaleX(factor: number) {
-        let cp: Array<Vector2d> = []
+        const cp: Array<Vector2d> = []
         this._controlPoints.forEach(element => {
             cp.push(new Vector2d(element.x * factor, element.y))
         });
@@ -476,8 +478,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
 }
 
 export function create_PeriodicBSplineR1toR2(controlPoints: number[][], knots: number[]): PeriodicBSplineR1toR2 {
-    let newControlPoints: Vector2d[] = [];
-    for (let cp of controlPoints) {
+    const newControlPoints: Vector2d[] = [];
+    for (const cp of controlPoints) {
         newControlPoints.push(new Vector2d(cp[0], cp[1]));
     }
     return new PeriodicBSplineR1toR2(newControlPoints, knots);

@@ -3,6 +3,8 @@ import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
 export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterface{
 
+    allAbscissae: number[];
+
     // checkDegreeConsistency(): void;
     isAbscissaCoincidingWithKnot(abscissa: number): boolean;
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number;
@@ -12,4 +14,5 @@ export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterfa
     insertKnot(abscissa: number, multiplicity: number): boolean;
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[];
+    revertKnots():void;
 }

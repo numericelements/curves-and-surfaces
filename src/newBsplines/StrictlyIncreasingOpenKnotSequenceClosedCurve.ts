@@ -1,21 +1,18 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { StrictlyIncreasingOpenKnotSequenceCurve } from "./StrictlyIncreasingOpenKnotSequenceCurve";
+import { AbstractStrictlyIncreasingOpenKnotSequenceCurve } from "./AbstractStrictlyIncreasingOpenKnotSequenceCurve";
 
-export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends StrictlyIncreasingOpenKnotSequenceCurve {
+export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequenceCurve {
 
     protected knotSequence: Knot[];
-    protected _index: KnotIndexStrictlyIncreasingSequence;
-    protected _end: KnotIndexStrictlyIncreasingSequence;
     protected indexKnotOrigin: number;
 
     constructor(degree: number, knots: number[], multiplicities: number[]) {
         super(degree, knots, multiplicities);
         this.knotSequence = [];
-        this._index = new KnotIndexStrictlyIncreasingSequence();
-        this._end = new KnotIndexStrictlyIncreasingSequence(Infinity);
         this.indexKnotOrigin = RETURN_ERROR_CODE;
         if(knots.length !== multiplicities.length) {
             const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not match the size of knot abscissae array.");
@@ -37,6 +34,8 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends StrictlyIncre
         this.checkCurveOrigin();
         this.checkDegreeConsistency();
         this.checkKnotIntervalConsistency();
+        this.checkUniformity();
+        this.checkNonUniformStructure();
     }
 
     get freeKnots(): number [] {
@@ -47,6 +46,10 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends StrictlyIncre
         freeKnots.splice(0, this.indexKnotOrigin + 1);
         freeKnots.splice(freeKnots.length - this.indexKnotOrigin - 1, this.indexKnotOrigin + 1);
         return freeKnots;
+    }
+
+    checkNonUniformStructure(): void {
+        this._isNonUniform = false;
     }
 
     checkKnotIntervalConsistency(): void {
@@ -158,6 +161,20 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends StrictlyIncre
     getKnotMultiplicityAtCurveOrigin(): number {
         const multiplicity = this.knotSequence[this.indexKnotOrigin].multiplicity;
         return multiplicity;
+    }
+
+    toIncreasingKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
+        const knotAbscissae: number[] = [];
+        for (const knot of this.knotSequence) {
+            for(let i = 0; i < knot.multiplicity; i++) {
+                knotAbscissae.push(knot.abscissa);
+            }
+        }
+        return new IncreasingOpenKnotSequenceClosedCurve(this._degree, knotAbscissae);
+    }
+
+    deepCopy(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
+        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {
