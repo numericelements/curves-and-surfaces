@@ -125,10 +125,10 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         }
         let tempHigherDegCP: number[] = [];
         for(let j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
-            tempHigherDegCP[j] = splineHigherDegree.controlPoints[j] * (1/(this.degree + 1));
+            tempHigherDegCP[j] = splineHigherDegree.controlPoints[j] * (1 / (this.degree + 1));
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
-        console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence);
+        console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence.allAbscissae);
         return new BSplineR1toR1(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
     }
 
@@ -297,7 +297,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const first = index - this.degree;
         const offset = first - 1;
         //std::vector<vectorType> local(2*degree+1);
-        let local: number[] = [];
+        const local: number[] = [];
         local[0] = this.controlPoints[offset];
         local[last + 1 - offset] = this.controlPoints[last + 1];
         let i = first;
@@ -329,7 +329,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
             }
         }
         else {
-            const alpha_i = (this._increasingKnotSequence.abscissaAtIndex(indexIncSeq) - subSequence[i - offset_i]) / (subSequence[i + this.degree + 1 - offset_i] - subSequence[i - offset_i]) ;
+            const alpha_i = (this._increasingKnotSequence.abscissaAtIndex(indexIncSeq) - subSequence[i - offset_i]) / (subSequence[i + this.degree + 1 - offset_i] - subSequence[i - offset_i]);
             // const alpha_i = (this._knots[index] - this._knots[i]) / (this._knots[i + this.degree + 1] - this._knots[i]) ;
             if ( ((this.controlPoints[i] - (local[ii + 1] * (alpha_i))) + (local[ii - 1] * (1.0 - alpha_i))) <= tolerance) {
                 removable = true;
@@ -420,7 +420,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
             }
             let tempCtrlPoly = tempCurve._controlPoints;
             let tempKnots = tempCurve._increasingKnotSequence.allAbscissae;
-            let vertices: Array<Array<number>> = [];
+            const vertices: Array<Array<number>> = [];
             for(let i= 1; i < this._degree + 1; i++) {
                 let controlPolygon = [];
                 controlPolygon.push(tempCtrlPoly[i]);
@@ -504,9 +504,9 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
     // }
 
     revertCurve(): BSplineR1toR1 {
-        let vertices = [];
+        const vertices = [];
         for(let i = 0; i < this._controlPoints.length; i++) {
-            vertices.push(this._controlPoints[this._controlPoints.length - 1 -i]);
+            vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
         const result = new BSplineR1toR1(vertices, this._increasingKnotSequence.revertSequence());
         return result;

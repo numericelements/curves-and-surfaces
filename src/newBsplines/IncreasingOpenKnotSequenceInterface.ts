@@ -1,9 +1,10 @@
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
 export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterface{
 
     allAbscissae: number[];
+    // [Symbol.iterator](): Iterator<Knot[], number, number>;
 
     // checkDegreeConsistency(): void;
     isAbscissaCoincidingWithKnot(abscissa: number): boolean;

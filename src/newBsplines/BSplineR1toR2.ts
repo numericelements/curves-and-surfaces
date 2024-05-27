@@ -1,10 +1,11 @@
 import { clampingFindSpan, findSpan } from "./Piegl_Tiller_NURBS_Book"
 import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, curveSegment, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
-import { BSplineR1toR1 } from "./BSplineR1toR1"
+import { BSplineR1toR1, KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
 import { ErrorLog } from "../errorProcessing/ErrorLoging"
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve"
+import { KnotIndexIncreasingSequence } from "./Knot"
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -50,8 +51,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     /**
      * Return a deep copy of this b-spline
      */
-    clone() : BSplineR1toR2 {
-        let cloneControlPoints = deepCopyControlPoints(this._controlPoints);
+    clone(): BSplineR1toR2 {
+        const cloneControlPoints = deepCopyControlPoints(this._controlPoints);
         return new BSplineR1toR2(cloneControlPoints, this.knots.slice());
     }
     // clone() : BSplineR1toR2 {
@@ -82,15 +83,15 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         spline.clamp(toU);
 
 
-        const newFromSpan = clampingFindSpan(fromU, spline._knots, spline._degree);
-        const newToSpan = clampingFindSpan(toU, spline._knots, spline._degree);
+        const newFromSpan = clampingFindSpan(fromU, spline.knots, spline._degree);
+        const newToSpan = clampingFindSpan(toU, spline.knots, spline._degree);
 
         let newKnots : number[] = [];
         let newControlPoints : Vector2d[] = [];
 
 
         for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline._knots[i]);
+            newKnots.push(spline.knots[i]);
         }
 
         for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
@@ -99,6 +100,30 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
 
         return new BSplineR1toR2(newControlPoints, newKnots);
     }
+    // extract(fromU: number, toU: number): BSplineR1toR2 {
+
+    //     let spline = this.clone();
+    //     spline.clamp(fromU);
+    //     spline.clamp(toU);
+
+
+    //     const newFromSpan = clampingFindSpan(fromU, spline._knots, spline._degree);
+    //     const newToSpan = clampingFindSpan(toU, spline._knots, spline._degree);
+
+    //     let newKnots : number[] = [];
+    //     let newControlPoints : Vector2d[] = [];
+
+
+    //     for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
+    //         newKnots.push(spline._knots[i]);
+    //     }
+
+    //     for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
+    //         newControlPoints.push(new Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+    //     }
+
+    //     return new BSplineR1toR2(newControlPoints, newKnots);
+    // }
 
     elevateDegree(times: number = 1): void {
         const sx = new BSplineR1toR1(this.getControlPointsX(), this.knots);
@@ -114,57 +139,90 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const sxNew = splineRecomposition(bdsx, knots);
         const syNew = splineRecomposition(bdsy, knots);
 
-        let newcp: Vector2d[] = [];
+        const newcp: Vector2d[] = [];
         for (let i = 0; i < sxNew.controlPoints.length; i += 1) {
             newcp.push(new Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
         }
-        let newSpline = new BSplineR1toR2(newcp, sxNew.knots);
+        const newSpline = new BSplineR1toR2(newcp, sxNew.knots);
 
         for (let i = 0; i < knots.length; i += 1) {
-            let m = this.knotMultiplicity(findSpan(knots[i], this.knots, this.degree));
+            let m = this.knotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.findSpan(knots[i])));
             for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
                 newSpline.removeKnot(findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
             }
         }
 
         this.controlPoints = newSpline.controlPoints;
-        this.knots = newSpline.knots;
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(newSpline.degree, newSpline.knots);
         this._degree = newSpline.degree;
     }
+    // elevateDegree(times: number = 1): void {
+    //     const sx = new BSplineR1toR1(this.getControlPointsX(), this.knots);
+    //     const sy = new BSplineR1toR1(this.getControlPointsY(), this.knots);
+    //     const bdsx = sx.bernsteinDecomposition();
+    //     const bdsy = sy.bernsteinDecomposition();
+    //     bdsx.elevateDegree();
+    //     bdsy.elevateDegree();
 
-    removeKnot(indexFromFindSpan: number, tolerance: number = 10e-5): void {
+    //     const knots = this.getDistinctKnots();
+
+
+    //     const sxNew = splineRecomposition(bdsx, knots);
+    //     const syNew = splineRecomposition(bdsy, knots);
+
+    //     let newcp: Vector2d[] = [];
+    //     for (let i = 0; i < sxNew.controlPoints.length; i += 1) {
+    //         newcp.push(new Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
+    //     }
+    //     let newSpline = new BSplineR1toR2(newcp, sxNew.knots);
+
+    //     for (let i = 0; i < knots.length; i += 1) {
+    //         let m = this.knotMultiplicity(findSpan(knots[i], this.knots, this.degree));
+    //         for (let j = 0; j < newSpline.degree - m - 1; j += 1) {
+    //             newSpline.removeKnot(findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
+    //         }
+    //     }
+
+    //     this.controlPoints = newSpline.controlPoints;
+    //     this.knots = newSpline.knots;
+    //     this._degree = newSpline.degree;
+    // }
+
+    removeKnot(indexFromFindSpan: number, tolerance: number = KNOT_REMOVAL_TOLERANCE): void {
         //Piegl and Tiller, The NURBS book, p : 185
     
         const index = indexFromFindSpan;
 
         // end knots are not removed
-        if (index > this._degree && index < this.knots.length-this._degree - 1) {
+        if (index > this._degree && index < this._increasingKnotSequence.length() - this._degree - 1) {
             throw new Error("index out of range");
         }
         
-        //const double tolerance = 1;
-        
-        const multiplicity = this.knotMultiplicity(index);
+        const indexIncSeq = new KnotIndexIncreasingSequence(index);
+        const multiplicity = this.knotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
         
         const last = index - multiplicity;
         const first = index -this.degree;
-        const offset = first -1;
+        const offset = first - 1;
         //std::vector<vectorType> local(2*degree+1);
-        let local: Vector2d[] = [];
+        const local: Vector2d[] = [];
         local[0] = this.controlPoints[offset];
-        local[last+1-offset] = this.controlPoints[last+1];
+        local[last + 1 - offset] = this.controlPoints[last + 1];
         let i = first;
         let j = last;
         let ii = 1;
         let jj = last - offset;
         let removable = false;
         
+        const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(first), new KnotIndexIncreasingSequence(last + this.degree + 1));
         // Compute new control point for one removal step
-        while (j>i){
-            let alpha_i = (this.knots[index] - this.knots[i])/(this.knots[i+this.degree+1]-this.knots[i]);
-            let alpha_j = (this.knots[index] - this.knots[j])/(this.knots[j+this.degree+1] - this.knots[j]);
-            local[ii] = (this.controlPoints[i].substract(local[ii-1].multiply(1.0-alpha_i))).multiply(1 / alpha_i ) 
-            local[jj] = (this.controlPoints[j].substract(local[jj+1].multiply(alpha_j))).multiply(1 / (1.0-alpha_j) )
+        const offset_i = first;
+        while (j > i){
+            const offset_j = last;
+            const alpha_i = (this._increasingKnotSequence.abscissaAtIndex(indexIncSeq) - subSequence[i - offset_i])/(subSequence[i + this.degree + 1 - offset_i] - subSequence[i - offset_i]);
+            const alpha_j = (this._increasingKnotSequence.abscissaAtIndex(indexIncSeq) - subSequence[j - offset_j])/(subSequence[j + this.degree + 1 - offset_j] - subSequence[j - offset_j]);
+            local[ii] = (this.controlPoints[i].substract(local[ii - 1].multiply(1.0 - alpha_i))).multiply(1 / alpha_i );
+            local[jj] = (this.controlPoints[j].substract(local[jj + 1].multiply(alpha_j))).multiply(1 / (1.0 - alpha_j));
             ++i;
             ++ii;
             --j;
@@ -177,7 +235,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             }
         }
         else {
-            const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i+this.degree+1]-this.knots[i]) ;
+            const alpha_i = (this._increasingKnotSequence.abscissaAtIndex(indexIncSeq) - subSequence[i - offset_i]) / (subSequence[i + this.degree + 1 - offset_i] - subSequence[i - offset_i]) ;
             if ( ((this.controlPoints[i].substract((local[ii+1].multiply(alpha_i)))).add (local[ii-1].multiply(1.0- alpha_i))).norm() <= tolerance) {
                 removable = true;
             }
@@ -188,18 +246,87 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             let indInc = first;
             let indDec = last;
             while (indDec > indInc) {
-                this.controlPoints[indInc] = local[indInc-offset];
-                this.controlPoints[indDec] = local[indDec-offset];
+                this.controlPoints[indInc] = local[indInc - offset];
+                this.controlPoints[indDec] = local[indDec - offset];
                 ++indInc;
                 --indDec;
             }
         }
         
-        this.knots.splice(index, 1);
+        // this.knots.splice(index, 1);
+        this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
         
-        const fout = (2*index - multiplicity - this.degree) / 2;
+        const fout = (2 * index - multiplicity - this.degree) / 2;
         this._controlPoints.splice(fout, 1);
     }
+    // removeKnot(indexFromFindSpan: number, tolerance: number = 10e-5): void {
+    //     //Piegl and Tiller, The NURBS book, p : 185
+    
+    //     const index = indexFromFindSpan;
+
+    //     // end knots are not removed
+    //     if (index > this._degree && index < this.knots.length-this._degree - 1) {
+    //         throw new Error("index out of range");
+    //     }
+        
+    //     //const double tolerance = 1;
+        
+    //     const multiplicity = this.knotMultiplicity(index);
+        
+    //     const last = index - multiplicity;
+    //     const first = index -this.degree;
+    //     const offset = first -1;
+    //     //std::vector<vectorType> local(2*degree+1);
+    //     let local: Vector2d[] = [];
+    //     local[0] = this.controlPoints[offset];
+    //     local[last+1-offset] = this.controlPoints[last+1];
+    //     let i = first;
+    //     let j = last;
+    //     let ii = 1;
+    //     let jj = last - offset;
+    //     let removable = false;
+        
+    //     // Compute new control point for one removal step
+    //     while (j>i){
+    //         let alpha_i = (this.knots[index] - this.knots[i])/(this.knots[i+this.degree+1]-this.knots[i]);
+    //         let alpha_j = (this.knots[index] - this.knots[j])/(this.knots[j+this.degree+1] - this.knots[j]);
+    //         local[ii] = (this.controlPoints[i].substract(local[ii-1].multiply(1.0-alpha_i))).multiply(1 / alpha_i ) 
+    //         local[jj] = (this.controlPoints[j].substract(local[jj+1].multiply(alpha_j))).multiply(1 / (1.0-alpha_j) )
+    //         ++i;
+    //         ++ii;
+    //         --j;
+    //         --jj;
+    //     }
+        
+    //     if (j < i) {
+    //         if ((local[ii-1].substract(local[jj+1])).norm() <= tolerance){
+    //             removable = true;
+    //         }
+    //     }
+    //     else {
+    //         const alpha_i = (this.knots[index] - this.knots[i]) / (this.knots[i+this.degree+1]-this.knots[i]) ;
+    //         if ( ((this.controlPoints[i].substract((local[ii+1].multiply(alpha_i)))).add (local[ii-1].multiply(1.0- alpha_i))).norm() <= tolerance) {
+    //             removable = true;
+    //         }
+    //     }
+        
+    //     if (!removable) return;
+    //     else {
+    //         let indInc = first;
+    //         let indDec = last;
+    //         while (indDec > indInc) {
+    //             this.controlPoints[indInc] = local[indInc-offset];
+    //             this.controlPoints[indDec] = local[indDec-offset];
+    //             ++indInc;
+    //             --indDec;
+    //         }
+    //     }
+        
+    //     this.knots.splice(index, 1);
+        
+    //     const fout = (2*index - multiplicity - this.degree) / 2;
+    //     this._controlPoints.splice(fout, 1);
+    // }
 
     /* JCL 2020/10/06 increase the degree of the spline while preserving its shape (Prautzsch algorithm) */
     degreeIncrement(): BSplineR1toR2 {
@@ -208,12 +335,12 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         for(let i = 1; i <= this.degree; i += 1) {
             let splineTemp = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
             let j = 0, k = 0;
-            while(j < splineHigherDegree.knots.length) {
-                if(splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
-                    // splineTemp.insertKnot(splineHigherDegree.knots[j]);
-                    splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree.knots[j], 1);
-                } else if(splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
-                    // splineHigherDegree.insertKnot(splineTemp.knots[k]);
+            while(j < splineHigherDegree._increasingKnotSequence.length()) {
+                if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
+                    && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) < splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
+                    splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)), 1);
+                } else if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
+                    && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) > splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
                     splineHigherDegree.insertKnotBoehmAlgorithm(splineTemp.knots[k], 1);
                 }
                 j += 1;
@@ -230,33 +357,88 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             tempHigherDegCP[j] = splineHigherDegree.controlPoints[j].multiply(1/(this.degree + 1));
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
-        console.log("degreeIncrease: " + splineHigherDegree.knots);
-        return new BSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
+        console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
     }
+    // degreeIncrement(): BSplineR1toR2 {
+    //     const intermSplKnotsAndCPs = this.generateIntermediateSplinesForDegreeElevation();
+    //     let splineHigherDegree = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
+    //     for(let i = 1; i <= this.degree; i += 1) {
+    //         let splineTemp = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
+    //         let j = 0, k = 0;
+    //         while(j < splineHigherDegree.knots.length) {
+    //             if(splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] < splineTemp.knots[k]) {
+    //                 // splineTemp.insertKnot(splineHigherDegree.knots[j]);
+    //                 splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree.knots[j], 1);
+    //             } else if(splineHigherDegree.knots[j] !== splineTemp.knots[k] && splineHigherDegree.knots[j] > splineTemp.knots[k]) {
+    //                 // splineHigherDegree.insertKnot(splineTemp.knots[k]);
+    //                 splineHigherDegree.insertKnotBoehmAlgorithm(splineTemp.knots[k], 1);
+    //             }
+    //             j += 1;
+    //             k += 1;
+    //         }
+    //         let tempCPs: Vector2d[] = [];
+    //         for(let ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
+    //             tempCPs[ind] = splineHigherDegree.controlPoints[ind].add(splineTemp.controlPoints[ind]);
+    //         }
+    //         splineHigherDegree.controlPoints = tempCPs;
+    //     }
+    //     let tempHigherDegCP: Vector2d[] = [];
+    //     for(let j = 0; j < splineHigherDegree.controlPoints.length; j += 1) {
+    //         tempHigherDegCP[j] = splineHigherDegree.controlPoints[j].multiply(1/(this.degree + 1));
+    //     }
+    //     splineHigherDegree.controlPoints = tempHigherDegCP;
+    //     console.log("degreeIncrease: " + splineHigherDegree.knots);
+    //     return new BSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree.knots);
+    // }
     
     generateIntermediateSplinesForDegreeElevation(): {knotVectors: number[][], CPs: Array<Vector2d[]>} {
-        const knotVectors: number[][] = [];
+        const knotSequences: number[][] = [];
         const controlPolygons: Array<Vector2d[]> = [];
-        for(let i = 0; i <= this.degree; i += 1) {
-            let knotVector = this.knots.slice();
-            let controlPolygon = this.controlPoints.slice();
+        for(let i = 0; i <= this._degree; i += 1) {
+            const knotSequence = this._increasingKnotSequence.deepCopy();
+            let controlPolygon = this._controlPoints.slice();
             let k = 0;
-            for(let j = i; j < this.knots.length; j += this.degree + 1) {
-                knotVector.splice((j + k), 0, this.knots[j]);
-                if(j < this.controlPoints.length) {
-                    let controlPoint = this.controlPoints[j];
+            for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
+                const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
+                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
+                if(j < this._controlPoints.length) {
+                    let controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotVectors.push(knotVector);
+            knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
         return {
-            knotVectors : knotVectors,
+            knotVectors : knotSequences,
             CPs : controlPolygons
         };
     }
+    // generateIntermediateSplinesForDegreeElevation(): {knotVectors: number[][], CPs: Array<Vector2d[]>} {
+    //     const knotVectors: number[][] = [];
+    //     const controlPolygons: Array<Vector2d[]> = [];
+    //     for(let i = 0; i <= this.degree; i += 1) {
+    //         let knotVector = this.knots.slice();
+    //         let controlPolygon = this.controlPoints.slice();
+    //         let k = 0;
+    //         for(let j = i; j < this.knots.length; j += this.degree + 1) {
+    //             knotVector.splice((j + k), 0, this.knots[j]);
+    //             if(j < this.controlPoints.length) {
+    //                 let controlPoint = this.controlPoints[j];
+    //                 controlPolygon.splice((j + k), 0, controlPoint);
+    //             }
+    //             k += 1;
+    //         }
+    //         knotVectors.push(knotVector);
+    //         controlPolygons.push(controlPolygon);
+    //     }
+    //     return {
+    //         knotVectors : knotVectors,
+    //         CPs : controlPolygons
+    //     };
+    // }
 
     scale(factor: number): BSplineR1toR2 {
         let cp: Array<Vector2d> = []
@@ -300,8 +482,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 u = uAbsc;
             }
             let tempCtrlPoly = tempCurve._controlPoints;
-            let tempKnots = tempCurve._knots;
-            let vertices: Array<Array<Vector2d>> = [];
+            let tempKnots = tempCurve.increasingKnotSequence.allAbscissae;
+            const vertices: Array<Array<Vector2d>> = [];
             for(let i= 1; i < this._degree + 1; i++) {
                 let controlPolygon: Array<Vector2d> = [];
                 controlPolygon.push(tempCtrlPoly[i]);
@@ -446,18 +628,26 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     }
 
     revertCurve(): BSplineR1toR2 {
-        let vertices: Array<Vector2d> = [];
+        const vertices: Array<Vector2d> = [];
         for(let i = 0; i < this._controlPoints.length; i++) {
-            vertices.push(this._controlPoints[this._controlPoints.length - 1 -i]);
+            vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        let revertedKnotSequence: number[] = [];
-        const intervalSpan = this._knots[this._knots.length - 1] - this._knots[0];
-        for(let j = 0; j < this._knots.length; j++) {
-            revertedKnotSequence.push(intervalSpan - this._knots[this._knots.length - 1 - j]);
-        }
-        let result = new BSplineR1toR2(vertices, revertedKnotSequence);
+        let result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertSequence());
         return result;
     }
+    // revertCurve(): BSplineR1toR2 {
+    //     let vertices: Array<Vector2d> = [];
+    //     for(let i = 0; i < this._controlPoints.length; i++) {
+    //         vertices.push(this._controlPoints[this._controlPoints.length - 1 -i]);
+    //     }
+    //     let revertedKnotSequence: number[] = [];
+    //     const intervalSpan = this._knots[this._knots.length - 1] - this._knots[0];
+    //     for(let j = 0; j < this._knots.length; j++) {
+    //         revertedKnotSequence.push(intervalSpan - this._knots[this._knots.length - 1 - j]);
+    //     }
+    //     let result = new BSplineR1toR2(vertices, revertedKnotSequence);
+    //     return result;
+    // }
 
     /**
      * 
@@ -474,15 +664,15 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         //const newFromSpan = findSpan(from, spline._knots, spline._degree)
         //const newToSpan = findSpan(to, spline._knots, spline._degree)
 
-        const newFromSpan = clampingFindSpan(from, spline._knots, spline._degree)
-        const newToSpan = clampingFindSpan(to, spline._knots, spline._degree)
+        const newFromSpan = clampingFindSpan(from, spline.knots, spline._degree)
+        const newToSpan = clampingFindSpan(to, spline.knots, spline._degree)
 
         let newKnots : number[] = []
         let newControlPoints : Vector2d[] = []
 
 
         for (let i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline._knots[i])
+            newKnots.push(spline.knots[i])
         }
 
         for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {

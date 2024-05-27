@@ -167,7 +167,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     }
 
     grevilleAbscissae(): number[] {
-        let result = [];
+        const result = [];
         for (let i = 0; i < this._controlPoints.length; i += 1) {
             let sum = 0;
             const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(i + 1),
@@ -272,19 +272,6 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         const result = this._increasingKnotSequence.knotMultiplicity(index);
         return result;
     }
-
-    // knotMultiplicity(indexFromFindSpan: number): number {
-    //     let result = 0;
-    //     let i = 0;
-    //     while (this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(indexFromFindSpan + i)) === this._knots[indexFromFindSpan]) {
-    //         i -= 1;
-    //         result += 1;
-    //         if (indexFromFindSpan + i < 0) {
-    //             break;
-    //         }
-    //     }
-    //     return result;
-    // }
 
     // knotMultiplicity(indexFromFindSpan: number): number {
     //     let result = 0;
