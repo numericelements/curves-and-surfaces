@@ -116,4 +116,15 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
         multiplicity = seq.knotMultiplicity(index)
         expect(multiplicity).to.eql(2);
     });
+
+    it('can get the knot abscissa from a knot index of the strictly increasing sequence', () => {
+        const knots: number [] = [0.0, 0.5, 0.6, 0.7, 1]
+        const multiplicities: number[] = [4, 1, 1, 2, 4]
+        const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(3, knots, multiplicities)
+        for(let i = 0; i < seq.length(); i++) {
+            const index = new KnotIndexStrictlyIncreasingSequence(i);
+            const abscissa = seq.abscissaAtIndex(index);
+            expect(abscissa).to.eql(knots[i]);
+        }
+    });
 });

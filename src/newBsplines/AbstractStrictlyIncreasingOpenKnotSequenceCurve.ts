@@ -4,6 +4,7 @@ import { AbstractIncreasingOpenKnotSequenceCurve } from "./AbstractIncreasingOpe
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 
 
 export abstract class AbstractStrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
@@ -70,6 +71,16 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequenceCurve extends Ab
 
     length(): number {
         return this.knotSequence.length;
+    }
+
+    abscissaAtIndex(index: KnotIndexStrictlyIncreasingSequence): number {
+        let abscissa = RETURN_ERROR_CODE;
+        let i = 0;
+        for(const knot of this) {
+            if(i === index.knotIndex && knot !== undefined) abscissa = knot.abscissa;
+            i++;
+        }
+        return abscissa;
     }
 
     incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {

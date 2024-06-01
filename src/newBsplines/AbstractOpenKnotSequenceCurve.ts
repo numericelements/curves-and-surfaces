@@ -1,11 +1,15 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractKnotSequenceCurve, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+
+export const OPEN_KNOT_SEQUENCE_ORIGIN = 0.0;
 
 export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequenceCurve {
 
     abstract checkNonUniformStructure(): void;
+
+    abstract abscissaAtIndex(index: KnotIndexInterface): number;
 
     KnotMultiplicityAtAbscissa(abcissa: number): number {
         let multiplicity = 0;

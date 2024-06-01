@@ -3,6 +3,8 @@ import { BSplineR1toR2 } from '../../src/newBsplines/BSplineR1toR2';
 import { create_BSplineR1toR2V2d } from '../../src/newBsplines/BSplineR1toR2';
 import { Vector2d } from '../../src/mathVector/Vector2d';
 import { curveSegment } from '../../src/newBsplines/AbstractBSplineR1toR2';
+import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from './BSplineR1toR1';
+import { KnotIndexIncreasingSequence } from '../../src/newBsplines/Knot';
 
 export const TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 = 1e-10
 
@@ -78,14 +80,14 @@ describe('BSplineR1toR2', () => {
         const cp0 = new Vector2d(-0.5, 0)
         const cp1 = new Vector2d(0, 8)
         const cp2 = new Vector2d(0.5, 0)
-        let s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1] )
+        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1] )
         //let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
-        let s2 = s1.clone()
+        const s2 = s1.clone()
         s2.insertKnot(0.5)
         s2.insertKnot(0.25)
         s2.insertKnot(0.75)
-        expect(Math.abs(s2.evaluate(0.3).x - s1.evaluate(0.3).x)).to.be.below(10e-6)
-        expect(Math.abs(s2.evaluate(0.3).y - s1.evaluate(0.3).y)).to.be.below(10e-6)
+        expect(Math.abs(s2.evaluate(0.3).x - s1.evaluate(0.3).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(s2.evaluate(0.3).y - s1.evaluate(0.3).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
         expect(s2.knots).to.eql([0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1])
 
         /* JCL 2020/10/19 Take into account the modification of create_BSpline_R1_to_R2 */
@@ -95,13 +97,13 @@ describe('BSplineR1toR2', () => {
         const cp6 = new Vector2d(0.5, 0)
         const cp = [ cp3, cp4, cp5, cp6 ]
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
-        let spline = create_BSplineR1toR2V2d(cp, knots)
-        let spline1 = spline.clone()
+        const spline = create_BSplineR1toR2V2d(cp, knots)
+        const spline1 = spline.clone()
         spline1.insertKnot(0.5)
         spline1.insertKnot(0.25)
         spline1.insertKnot(0.75)
-        expect(Math.abs(spline.evaluate(0.3).x - spline1.evaluate(0.3).x)).to.be.below(10e-6)
-        expect(Math.abs(spline.evaluate(0.3).y - spline1.evaluate(0.3).y)).to.be.below(10e-6)
+        expect(Math.abs(spline.evaluate(0.3).x - spline1.evaluate(0.3).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(spline.evaluate(0.3).y - spline1.evaluate(0.3).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
         expect(spline1.knots).to.eql([0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1])
     });
 
@@ -116,8 +118,8 @@ describe('BSplineR1toR2', () => {
         let s2 = s1.clone()
         s2.insertKnot(0.5, 2);
         expect(s2.knots).to.eql([0, 0, 0, 0, 0.5, 0.5, 1, 1, 1, 1])
-        expect(Math.abs(s1.evaluate(0.5).x - s2.evaluate(0.5).x)).to.be.below(10e-6)
-        expect(Math.abs(s1.evaluate(0.5).y - s2.evaluate(0.5).y)).to.be.below(10e-6)
+        expect(Math.abs(s1.evaluate(0.5).x - s2.evaluate(0.5).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(s1.evaluate(0.5).y - s2.evaluate(0.5).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
     });
 
     it('can return a section of a curve', () => {
@@ -127,23 +129,24 @@ describe('BSplineR1toR2', () => {
         const cp2 = new Vector2d(0.5, 0)
         let s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2], [ 0, 0, 0, 1, 1, 1] )
         //let s1 = create_BSpline_R1_to_R2( [[-0.5, 0], [0, 8], [0.5, 0]], [ 0, 0, 0, 1, 1, 1] )
-        let s2 = s1.section(0.2, 0.5)
-        let s3 = s1.section(0, 1)
+        let s2 = s1.extract(0.2, 0.5)
+        let s3 = s1.extract(0, 1)
+        const offset = 0.2;
+        expect(s2.increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(0))).to.eql(0.0);
+        expect(Math.abs(s1.evaluate(0.2).x - s2.evaluate(0.2 - offset).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(s1.evaluate(0.2).y - s2.evaluate(0.2 - offset).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
 
-        expect(Math.abs(s1.evaluate(0.2).x - s2.evaluate(0.2).x)).to.be.below(10e-8)
-        expect(Math.abs(s1.evaluate(0.2).y - s2.evaluate(0.2).y)).to.be.below(10e-8)
+        expect(Math.abs(s1.evaluate(0.3).x - s2.evaluate(0.3 - offset).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(s1.evaluate(0.3).y - s2.evaluate(0.3 - offset).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
 
-        expect(Math.abs(s1.evaluate(0.3).x - s2.evaluate(0.3).x)).to.be.below(10e-8)
-        expect(Math.abs(s1.evaluate(0.3).y - s2.evaluate(0.3).y)).to.be.below(10e-8)
-
-        expect(Math.abs(s1.evaluate(0.5).x - s2.evaluate(0.5).x)).to.be.below(10e-8)
-        expect(Math.abs(s1.evaluate(0.5).y - s2.evaluate(0.5).y)).to.be.below(10e-8)
+        expect(Math.abs(s1.evaluate(0.5).x - s2.evaluate(0.5 - offset).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(s1.evaluate(0.5).y - s2.evaluate(0.5 - offset).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
 
         expect(s2.knots.length).to.equal(6)
         expect(s3.knots.length).to.equal(6)
 
-        expect(Math.abs(s1.evaluate(0.5).x - s3.evaluate(0.5).x)).to.be.below(10e-8)
-        expect(Math.abs(s1.evaluate(0.5).y - s3.evaluate(0.5).y)).to.be.below(10e-8)
+        expect(Math.abs(s1.evaluate(0.5).x - s3.evaluate(0.5).x)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(Math.abs(s1.evaluate(0.5).y - s3.evaluate(0.5).y)).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
 
     });
 
