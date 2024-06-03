@@ -2,7 +2,7 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { AbstractIncreasingOpenKnotSequenceCurve } from "./AbstractIncreasingOpenKnotSequenceCurve";
-import { Knot, KnotIndexIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequenceCurve {
@@ -218,6 +218,29 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             return new KnotIndexIncreasingSequence(index);
         }
         return new KnotIndexIncreasingSequence(index);
+    }
+
+    decrementDegree(): IncreasingOpenKnotSequenceClosedCurve {
+        const strictlyIncSeq = this.toStrictlyIncreasingKnotSequence();
+        const strictlyIncSeq_Mult = strictlyIncSeq.multiplicities();
+        const knotIdx_MultDegPlusOne: number[] = [];
+        for(let i = 0; i < strictlyIncSeq_Mult.length; i++) {
+            if(strictlyIncSeq_Mult[i] === (this._degree + 1)) knotIdx_MultDegPlusOne.push(i);
+        }
+        for(const multiplicity of knotIdx_MultDegPlusOne) {
+            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
+        }
+        let newKnots: number[] = [];
+        if(this._degree > 1 || (this._degree === 1 && 
+            (knotIdx_MultDegPlusOne.length > 0 && knotIdx_MultDegPlusOne[0] !== this.indexKnotOrigin ||
+            knotIdx_MultDegPlusOne.length === 0))) {
+            const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
+            newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
+                new KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
+        } else {
+            newKnots = new IncreasingOpenKnotSequenceClosedCurve(0, strictlyIncSeq.allAbscissae).allAbscissae;
+        }
+        return new IncreasingOpenKnotSequenceClosedCurve(this._degree - 1, newKnots);
     }
 
 }

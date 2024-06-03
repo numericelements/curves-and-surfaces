@@ -394,4 +394,56 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         // expect(index.knotIndex).to.eql(indexCompare)
     });
 
+    it('can decrement the degree of a knot sequence of degree 3 without knots of multiplicity greater than one', () => {
+        const knots: number [] = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(3, knots);
+        const newSeq = seq.decrementDegree();
+        const newKnots: number [] = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        expect(newSeq.degree).to.eql(2)
+        let i = 0
+        for(const knot of newSeq) {
+            expect(knot).to.eql(newKnots[i])
+            i++
+        }
+    });
+
+    it('can decrement the degree of a knot sequence of degree 2 with knots of multiplicity greater than two', () => {
+        const knots: number [] = [-2, -1, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(2, knots);
+        const newSeq = seq.decrementDegree();
+        const newKnots: number [] = [-1, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8]
+        expect(newSeq.degree).to.eql(1)
+        let i = 0
+        for(const knot of newSeq) {
+            expect(knot).to.eql(newKnots[i])
+            i++
+        }
+    });
+
+    it('can decrement the degree of a knot sequence of degree 1 with knots of multiplicity greater than one', () => {
+        const knots: number [] = [-1, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8]
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(1, knots);
+        const newSeq = seq.decrementDegree();
+        const newKnots: number [] = [0, 1, 2, 3, 4, 5, 6, 7]
+        expect(newSeq.degree).to.eql(0)
+        let i = 0
+        for(const knot of newSeq) {
+            expect(knot).to.eql(newKnots[i])
+            i++
+        }
+    });
+
+    it('can decrement the degree of a knot sequence of degree 1 with a knot of multiplicity greater than one at sequence origin', () => {
+        const knots: number [] = [0, 0, 1, 2, 3, 4, 5, 6, 7, 7]
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(1, knots);
+        const newSeq = seq.decrementDegree();
+        const newKnots: number [] = [0, 1, 2, 3, 4, 5, 6, 7]
+        expect(newSeq.degree).to.eql(0)
+        let i = 0
+        for(const knot of newSeq) {
+            expect(knot).to.eql(newKnots[i])
+            i++
+        }
+    });
+
 });

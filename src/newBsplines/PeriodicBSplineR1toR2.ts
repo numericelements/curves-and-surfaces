@@ -579,8 +579,6 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
 
             const indexSpan = this._increasingKnotSequence.findSpan(uToInsert);
             const indexStrictIncSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexSpan);
-            // temporary for test purposes
-            const indexSpan2 = this.findSpanBoehmAlgorithm(u);
             const knotMultiplicity = this.knotMultiplicity(indexStrictIncSeq);
             if(knotMultiplicity === this._degree) {
                 const error = new ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
@@ -589,34 +587,23 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
                 // two knot insertions must take place to preserve the periodic structure of the function basis
                 // unless if uToInsert = uSymmetric. In this case, only one knot insertion is possible
                 const uSymmetric = this.findKnotAbscissaeRightBound() + knotAbscResetOrigin[indexOrigin.knotIndex];
-                // const uSymmetric = this.knots[this.knots.length - 1 - indexSpan.knotIndex];
-                // super.insertKnot(uToInsert, 1);
                 sameSplineOpenCurve.insertKnot(newUToInsert, 1);
-                if(this.isKnotlMultiplicityZero(uToInsert)) sameSplineOpenCurve.insertKnot(newUToInsert - 2 * uToInsert, 1);
-                // if(uSymmetric !== uToInsert) super.insertKnot(uSymmetric, 1);
                 if((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
-                    if(this.isKnotlMultiplicityZero(uToInsert)) sameSplineOpenCurve.insertKnot(uSymmetric + uToInsert, 1);
                 }
                 let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
                 for(let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }
-                newKnotAbsc = newKnotAbsc.slice(1, newKnotAbsc.length - 1);
-                const newCtrlPts: Array<Vector2d> = [];
-                for(let i = 1; i < sameSplineOpenCurve.controlPoints.length - 1; i++) {
-                    newCtrlPts.push(sameSplineOpenCurve.controlPoints[i]);
+                let newCtrlPts: Array<Vector2d> = sameSplineOpenCurve.controlPoints;
+                if(indexSpan.knotIndex === indexOrigin.knotIndex) {
+                    // the knot inserted is located at the origin of the periodic curve. To obtain the new knot
+                    // sequence, the extreme knots must be removed as well as the corresponding control points
+                    newKnotAbsc = newKnotAbsc.slice(1, newKnotAbsc.length - 1);
+                    newCtrlPts = sameSplineOpenCurve.controlPoints.slice(1, sameSplineOpenCurve.controlPoints.length - 1);
                 }
                 this._controlPoints = newCtrlPts;
                 this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree, newKnotAbsc);
-                // if(index.knotIndex === this._degree) {
-                //     // the knot inserted is located at the origin of the periodic curve. To obtain the new knot
-                //     // sequence, the extreme knots must be removed as well as the corresponding control points
-                //     let newKnots : number[] = this.knots.slice(1, this.knots.length - 1);
-                //     let newControlPoints: Vector2d[] = this._controlPoints.slice(1, this._controlPoints.length - 1);
-                //     this._controlPoints = newControlPoints;
-                //     this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree, newKnots);
-                // }
             }
             return;
         } else {
