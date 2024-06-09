@@ -253,8 +253,11 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
             // if(times > )
         }
         let multiplicity = 0;
-
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
+        if (this._increasingKnotSequence.KnotMultiplicityAtAbscissa(u) !== 0) {
+            multiplicity = this.knotMultiplicity(indexStrictInc);
+        }
+
         let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
         for (let t = 0; t < times; t += 1) {
             const newControlPoints = [];

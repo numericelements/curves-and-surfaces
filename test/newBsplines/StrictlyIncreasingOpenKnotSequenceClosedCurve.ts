@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { clampingFindSpan } from "../../src/newBsplines/Piegl_Tiller_NURBS_Book";
+import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 
 describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
 
@@ -212,6 +213,41 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         expect(index.knotIndex).to.eql(3)
         index = seq.findSpan(1.0)
         expect(index.knotIndex).to.eql(3)
+    });
+
+    it('can transform an index of strictly increasing sequence into an index of the associated increasing sequence. Case of uniform knot sequence', () => {
+        const knots: number [] = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
+        const multiplicities: number [] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+        const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(2, knots, multiplicities)
+        const incSeq = seq.toIncreasingKnotSequence();
+        let indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(0));
+        expect(indexIncSeq.knotIndex).to.eql(0);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(0))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
+        indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(1));
+        expect(indexIncSeq.knotIndex).to.eql(1);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(1))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
+        indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(knots.length - 1));
+        expect(indexIncSeq.knotIndex).to.eql(knots.length - 1);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(knots.length - 1))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
+    });
+
+    it('can transform an index of strictly increasing sequence into an index of the associated increasing sequence. Case of arbitrary knot multiplicities', () => {
+        const knots: number [] = [-1, 0, 1, 2, 3, 4, 5, 6]
+        const multiplicities: number [] = [1, 2, 1, 1, 1, 1, 2, 1];
+        const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(2, knots, multiplicities)
+        const incSeq = seq.toIncreasingKnotSequence();
+        let indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(0));
+        expect(indexIncSeq.knotIndex).to.eql(0);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(0))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
+        indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(1));
+        expect(indexIncSeq.knotIndex).to.eql(1);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(1))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
+        indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(knots.length - 1));
+        expect(indexIncSeq.knotIndex).to.eql(incSeq.length() - 1);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(knots.length - 1))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
+        indexIncSeq = seq.toKnotIndexIncreasingSequence(new KnotIndexStrictlyIncreasingSequence(2));
+        expect(indexIncSeq.knotIndex).to.eql(3);
+        expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(2))).to.eql(incSeq.abscissaAtIndex(indexIncSeq));
     });
 
 });

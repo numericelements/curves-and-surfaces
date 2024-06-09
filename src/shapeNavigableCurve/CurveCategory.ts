@@ -191,6 +191,7 @@ export class ClosedPlanarCurve extends CurveCategory {
                     let tempSpline = spline.degreeIncrement();
                     spline = tempSpline.clone();
                 }
+                this.curveModel.setSpline(spline);
             }
             this.curveModel.notifyObservers();
             this._shapeNavigableCurve.notifyObservers();

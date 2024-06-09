@@ -261,6 +261,65 @@ describe('BSplineR1toR2', () => {
         expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.6666666, 0.8, 0.8, 0.8, 0.8])
     })
 
+    it('can generate the intermediate splines required to increment the degree of a non uniform B-spline without intermediate knots', () => {
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(0, 8)
+        const cp2 = new Vector2d(0.5, 0)
+        const cp3 = new Vector2d(1.0, 1.0)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3 ], [ 0, 0, 0, 0, 1, 1, 1, 1])
+        const intermSplines = s1.generateIntermediateSplinesForDegreeElevation();
+        expect(intermSplines.knotVectors.length).to.eql(4)
+        expect(intermSplines.CPs.length).to.eql(4)
+        for(let i = 0; i < s1.degree; i++) {
+            expect(intermSplines.knotVectors[i]).to.eql([ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+        }
+        expect(intermSplines.CPs[0].length).to.eql(5)
+        expect(intermSplines.CPs[0]).to.eql([cp0, cp0, cp1, cp2, cp3])
+        expect(intermSplines.CPs[1]).to.eql([cp0, cp1, cp1, cp2, cp3])
+        expect(intermSplines.CPs[2]).to.eql([cp0, cp1, cp2, cp2, cp3])
+        expect(intermSplines.CPs[3]).to.eql([cp0, cp1, cp2, cp3, cp3])
+    })
+
+    it('can generate the intermediate splines required to increment the degree of a non uniform B-spline with intermediate knots', () => {
+        const cp0 = new Vector2d(0, 1)
+        const cp1 = new Vector2d(1, 1)
+        const cp2 = new Vector2d(2, 1)
+        const cp3 = new Vector2d(3, 1)
+        const cp4 = new Vector2d(4, 1)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const intermSplines = s1.generateIntermediateSplinesForDegreeElevation();
+        expect(intermSplines.knotVectors.length).to.eql(4)
+        expect(intermSplines.CPs.length).to.eql(4)
+        expect(intermSplines.knotVectors[0]).to.eql([ 0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 1, 1, 1])
+        expect(intermSplines.knotVectors[1]).to.eql([ 0, 0, 0, 0, 0, 0.5, 1, 1, 1, 1, 1])
+        expect(intermSplines.knotVectors[2]).to.eql([ 0, 0, 0, 0, 0, 0.5, 1, 1, 1, 1, 1])
+        expect(intermSplines.knotVectors[3]).to.eql([ 0, 0, 0, 0, 0, 0.5, 1, 1, 1, 1, 1])
+        expect(intermSplines.CPs[0].length).to.eql(7)
+        expect(intermSplines.CPs[0]).to.eql([cp0, cp0, cp1, cp2, cp3, cp4, cp4])
+        expect(intermSplines.CPs[1]).to.eql([cp0, cp1, cp1, cp2, cp3, cp4])
+        expect(intermSplines.CPs[2]).to.eql([cp0, cp1, cp2, cp2, cp3, cp4])
+        expect(intermSplines.CPs[3]).to.eql([cp0, cp1, cp2, cp3, cp3, cp4])
+    })
+
+    it('can generate the intermediate splines required to increment the degree of a non uniform B-spline with intermediate knots with multiplicity greater than 1', () => {
+        const cp0 = new Vector2d(0, 1)
+        const cp1 = new Vector2d(1, 1)
+        const cp2 = new Vector2d(2, 1)
+        const cp3 = new Vector2d(3, 1)
+        const cp4 = new Vector2d(4, 1)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0.5, 0.5, 1, 1, 1])
+        const intermSplines = s1.generateIntermediateSplinesForDegreeElevation();
+        expect(intermSplines.knotVectors.length).to.eql(3)
+        expect(intermSplines.CPs.length).to.eql(3)
+        expect(intermSplines.knotVectors[0]).to.eql([ 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1, 1])
+        expect(intermSplines.knotVectors[1]).to.eql([ 0, 0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1, 1])
+        expect(intermSplines.knotVectors[2]).to.eql([ 0, 0, 0, 0, 0.5, 0.5, 1, 1, 1, 1])
+        expect(intermSplines.CPs[0].length).to.eql(7)
+        expect(intermSplines.CPs[0]).to.eql([cp0, cp0, cp1, cp2, cp3, cp3, cp4])
+        expect(intermSplines.CPs[1]).to.eql([cp0, cp1, cp1, cp2, cp3, cp4, cp4])
+        expect(intermSplines.CPs[2]).to.eql([cp0, cp1, cp2, cp2, cp3, cp4])
+    })
+
     it('can increment the curve degree of a non uniform B-spline without intermediate knots', () => {
         const cp0 = new Vector2d(-0.5, 0)
         const cp1 = new Vector2d(0, 8)
@@ -307,6 +366,49 @@ describe('BSplineR1toR2', () => {
         expect(sInc.knots).to.eql([ 0, 0, 0, 0, 1, 1, 2, 2, 2, 2])
         const cpSolutionX = [0, 0.666666666666666, 1.166666666666666, 1.833333333333333, 2.3333333333333333, 3];
         const cpSolutionY = [1, 1, 1, 1, 1, 1];
+        for(let i = 0; i < sInc.controlPoints.length; i++) {
+            expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+    })
+
+    it('can generate the intermediate splines of a non uniform B-spline with coinciding extremities, i.e., closed', () => {
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const cp4 = new Vector2d(0, 0)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ 0, 0, 1, 2, 3, 4, 4])
+        const intermSplines = s1.generateIntermediateSplinesForDegreeElevation();
+        expect(intermSplines.knotVectors[0]).to.eql([0, 0, 0, 1, 1, 2, 3, 3, 4, 4, 4])
+        expect(intermSplines.knotVectors[1]).to.eql([0, 0, 0, 1, 2, 2, 3, 4, 4, 4])
+        const CP0x = [0, 0, 0, 1, 1, 1, 0, 0]
+        const CP0y = [0, 0, 1, 1, 1, 0, 0, 0]
+        for(let i = 0; i < intermSplines.CPs[0].length; i++) {
+            expect(intermSplines.CPs[0][i].x).to.eql(CP0x[i])
+            expect(intermSplines.CPs[0][i].y).to.eql(CP0y[i])
+        }
+        const CP1x = [0, 0, 0, 1, 1, 1, 0]
+        const CP1y = [0, 1, 1, 1, 0, 0, 0]
+        for(let i = 0; i < intermSplines.CPs[1].length; i++) {
+            expect(intermSplines.CPs[1][i].x).to.eql(CP1x[i])
+            expect(intermSplines.CPs[1][i].y).to.eql(CP1y[i])
+        }
+    })
+
+    it('can increment the curve degree of a non uniform B-spline with coinciding extremities, i.e., closed', () => {
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const cp4 = new Vector2d(0, 0)
+        const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ 0, 0, 1, 2, 3, 4, 4])
+        const sInc = s1.degreeIncrement();
+        expect(sInc.knots).to.eql([ 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4])
+        expect(sInc.degree).to.eql(2)
+        expect(sInc.knots).to.eql([ 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4])
+        const cpSolutionX = [0, 0, 0, 0.5, 1.0, 1.0, 1.0, 0.5, 0];
+        const cpSolutionY = [0, 0.5, 1, 1, 1, 0.5, 0, 0, 0];
         for(let i = 0; i < sInc.controlPoints.length; i++) {
             expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
             expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)

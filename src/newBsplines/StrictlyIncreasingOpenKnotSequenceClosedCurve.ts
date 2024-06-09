@@ -2,7 +2,7 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequenceCurve } from "./AbstractStrictlyIncreasingOpenKnotSequenceCurve";
 
 export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequenceCurve {
@@ -123,6 +123,10 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         }
     }
 
+    getIndexKnotOrigin(): KnotIndexStrictlyIncreasingSequence {
+        return new KnotIndexStrictlyIncreasingSequence(this.indexKnotOrigin);
+    }
+
     checkCurveOrigin(): void {
         let i = 0;
         let cumulativeMultiplicity = 0;
@@ -171,6 +175,17 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
             }
         }
         return new IncreasingOpenKnotSequenceClosedCurve(this._degree, knotAbscissae);
+    }
+
+    // This index transformation is not unique. The convention followed here is the assignment of the first index of the increasing
+    // sequence where the abscissa at index (sttrictly increasing sequence) appears
+    toKnotIndexIncreasingSequence(index: KnotIndexStrictlyIncreasingSequence): KnotIndexIncreasingSequence {
+        let indexIncSeq = 0;
+        for(let i = 0; i < index.knotIndex; i++) {
+            indexIncSeq += this.knotSequence[i].multiplicity;
+        }
+        // if(index.knotIndex !== 0) indexIncSeq++;
+        return new KnotIndexIncreasingSequence(indexIncSeq);
     }
 
     deepCopy(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
