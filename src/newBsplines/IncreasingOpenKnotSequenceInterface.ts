@@ -9,7 +9,7 @@ export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterfa
     // checkDegreeConsistency(): void;
     isAbscissaCoincidingWithKnot(abscissa: number): boolean;
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number;
-    KnotMultiplicityAtAbscissa(abcissa: number): number;
+    knotMultiplicityAtAbscissa(abcissa: number): number;
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence;
     findSpan(u: number): KnotIndexIncreasingSequence;
     insertKnot(abscissa: number, multiplicity: number): boolean;

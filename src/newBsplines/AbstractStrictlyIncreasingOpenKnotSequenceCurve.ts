@@ -1,6 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequenceCurve } from "./AbstractOpenKnotSequenceCurve";
-import { AbstractIncreasingOpenKnotSequenceCurve } from "./AbstractIncreasingOpenKnotSequenceCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";

@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { PeriodicBSplineR1toR2 } from "../../src/newBsplines/PeriodicBSplineR1toR2";
 import { Vector2d } from "../../src/mathVector/Vector2d";
+import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "./BSplineR1toR2";
 
 describe('PeriodicBSplineR1toR2', () => {
     
@@ -38,6 +39,57 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s.knots).to.eql(knots)
         expect(s.degree).to.equal(3)
     });
+
+    it('can generate the intermediate splines of a uniform B-spline (configuration similar to an open non uniform B-Spline with coinciding extremities)', () => {
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const cp4 = new Vector2d(0, 0)
+        const s1 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ -1, 0, 1, 2, 3, 4, 5])
+        expect(s1.freeControlPoints.length).to.eql(4)
+        const CPx = [0, 0, 1, 1, 0]
+        const CPy = [0, 1, 1, 0, 0]
+        for(let i = 0; i < s1.freeControlPoints.length; i++) {
+            expect(s1.freeControlPoints[i].x).to.eql(CPx[i])
+            expect(s1.freeControlPoints[i].y).to.eql(CPy[i])
+        }
+        const intermSplines = s1.generateIntermediateSplinesForDegreeElevation();
+        expect(intermSplines.knotVectors[0]).to.eql([-1, -1, 0, 1, 1, 2, 3, 3, 4, 5, 5])
+        expect(intermSplines.knotVectors[1]).to.eql([-1, 0, 0, 1, 2, 2, 3, 4, 4, 5])
+        const CP0x = [0, 0, 0, 1, 1, 1, 0, 0]
+        const CP0y = [0, 0, 1, 1, 1, 0, 0, 0]
+        for(let i = 0; i < intermSplines.CPs[0].length; i++) {
+            expect(intermSplines.CPs[0][i].x).to.eql(CP0x[i])
+            expect(intermSplines.CPs[0][i].y).to.eql(CP0y[i])
+        }
+        const CP1x = [0, 0, 0, 1, 1, 1, 0]
+        const CP1y = [0, 1, 1, 1, 0, 0, 0]
+        for(let i = 0; i < intermSplines.CPs[1].length; i++) {
+            expect(intermSplines.CPs[1][i].x).to.eql(CP1x[i])
+            expect(intermSplines.CPs[1][i].y).to.eql(CP1y[i])
+        }
+    })
+
+    it('can increment the curve degree of a uniform B-spline (configuration similar to an open non uniform B-Spline with coinciding extremities)', () => {
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const cp4 = new Vector2d(0, 0)
+        const s1 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ -1, 0, 1, 2, 3, 4, 5])
+        const sInc = s1.degreeIncrement();
+        expect(sInc.knots).to.eql([ -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5])
+        expect(sInc.degree).to.eql(2)
+        expect(sInc.controlPoints.length).to.eql(10)
+        expect(sInc.freeControlPoints.length).to.eql(8)
+        const cpSolutionX = [0, 0, 0, 0.5, 1.0, 1.0, 1.0, 0.5, 0];
+        const cpSolutionY = [0, 0.5, 1, 1, 1, 0.5, 0, 0, 0];
+        for(let i = 0; i < sInc.controlPoints.length; i++) {
+            expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+    })
 
     it('can generate intermediate splines for degree elevation. Case of curve with uniform knot sequence', () => {
         const cp0 = new Vector2d(-0.27, -0.35)

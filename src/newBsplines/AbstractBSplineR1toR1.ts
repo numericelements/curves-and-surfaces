@@ -153,7 +153,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
 
         if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
                 && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < KNOT_COINCIDENCE_TOLERANCE) {
-            multiplicity = this._increasingKnotSequence.KnotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
+            multiplicity = this._increasingKnotSequence.knotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
         }
         if((multiplicity + times) > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
@@ -211,7 +211,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
 
         if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
                 && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < KNOT_COINCIDENCE_TOLERANCE) {
-            multiplicity = this._increasingKnotSequence.KnotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
+            multiplicity = this._increasingKnotSequence.knotMultiplicityAtAbscissa(this._increasingKnotSequence.abscissaAtIndex(index));
         } else if(this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
             && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(indexPlusDegree)) < KNOT_COINCIDENCE_TOLERANCE) {
             let temporary_mult = 0;

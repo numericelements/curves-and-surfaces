@@ -11,7 +11,7 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
 
     abstract abscissaAtIndex(index: KnotIndexInterface): number;
 
-    KnotMultiplicityAtAbscissa(abcissa: number): number {
+    knotMultiplicityAtAbscissa(abcissa: number): number {
         let multiplicity = 0;
         for(const knot of this.knotSequence) {
             if(Math.abs(abcissa - knot.abscissa) < KNOT_COINCIDENCE_TOLERANCE) {

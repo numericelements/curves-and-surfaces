@@ -175,7 +175,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
         let multiplicity = 0;
 
-        if (this._increasingKnotSequence.KnotMultiplicityAtAbscissa(u) !== 0) {
+        if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u) !== 0) {
             multiplicity = this.knotMultiplicity(indexStrictInc);
         }
         if((multiplicity + times) > (this._degree + 1)) {
@@ -254,7 +254,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         }
         let multiplicity = 0;
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        if (this._increasingKnotSequence.KnotMultiplicityAtAbscissa(u) !== 0) {
+        if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u) !== 0) {
             multiplicity = this.knotMultiplicity(indexStrictInc);
         }
 
@@ -264,12 +264,35 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
             for (let i = 0; i < index.knotIndex; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
             }
-            const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
-            new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
+            let subSequence: number[] = [];
+            if((index.knotIndex - this._degree + 1) >= 0) {
+                if(index.knotIndex - multiplicity + this._degree < this._increasingKnotSequence.length()) {
+                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
+                        new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
+                } else{
+                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
+                        new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1));
+                }
+            } else {
+                subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0),
+                // new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
+                new KnotIndexIncreasingSequence(2 * this._degree - multiplicity - 1));
+            }
+
+            // const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
+            // new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
             for (let i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
                 const offset = index.knotIndex - this._degree + 1;
                 const alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
-                newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+                if((i - 1) >= 0 && i < (this._controlPoints.length - 1)) {
+                    newControlPoints[i] = (this._controlPoints[i - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+                } else if(i < (this._controlPoints.length - 1)) {
+                    newControlPoints[i] = this._controlPoints[i].multiply(alpha);
+                } else if((i - 1) >= 0) {
+                    newControlPoints[i] = this._controlPoints[i - 1].multiply(1 - alpha);
+                } else {
+
+                }
             }
             for (let i = index.knotIndex - multiplicity; i < this._controlPoints.length; i += 1) {
                 newControlPoints[i + 1] = this._controlPoints[i];

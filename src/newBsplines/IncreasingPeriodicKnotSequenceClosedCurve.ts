@@ -1,16 +1,192 @@
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
-import { Knot, KnotIndexIncreasingSequence } from "./Knot";
+import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
+import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceOpenCurve";
 
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
     protected knotSequence: Knot[];
     protected _index: KnotIndexIncreasingSequence;
     protected _end: KnotIndexIncreasingSequence;
+    protected _period: number;
 
-    constructor(degree: number, freeKnots: number[]) {
+    constructor(degree: number, knots: number[], subsequence: boolean = false) {
         super(degree);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
         this._end = new KnotIndexIncreasingSequence(Infinity);
+        this._period = RETURN_ERROR_CODE;
+        this.knotSequence.push(new Knot(knots[0], 1));
+        for(let i = 1; i < knots.length; i++) {
+            if(knots[i] === this.knotSequence[this.knotSequence.length - 1].abscissa) {
+                this.knotSequence[this.knotSequence.length - 1].multiplicity++;
+            } else {
+                this.knotSequence.push(new Knot(knots[i], 1));
+            }
+        }
+        this._period = this.knotSequence[this.knotSequence.length - 1].abscissa - this.knotSequence[0].abscissa;
+        if(knots.length < (this._degree + 2)) {
+            const error = new ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
+            error.logMessageToConsole();
+            return;
+        }
+        if(!subsequence) this.checkCurveOrigin();
+        if(!subsequence) this.checkMultiplicityAtEndKnots();
+        this.checkDegreeConsistency();
+    }
+
+    get allAbscissae(): number[] {
+        const abscissae: number[] = [];
+        for(const knot of this) {
+            if(knot !== undefined) abscissae.push(knot);
+        }
+        return abscissae;
+    }
+
+    [Symbol.iterator]() {
+        let knotAmount = 0;
+        const knotIndicesKnotAbscissaChange: number[] = [];
+        for(const multiplicity of this.multiplicities()) {
+            knotAmount = knotAmount + multiplicity;
+            knotIndicesKnotAbscissaChange.push(knotAmount);
+        }
+        this._end = new KnotIndexIncreasingSequence(knotAmount - 1);
+        let indexAbscissaChange = new KnotIndexIncreasingSequence();
+        return  {
+            next: () => {
+                if ( this._index.knotIndex <= this._end.knotIndex ) {
+                    if(this._index.knotIndex === knotIndicesKnotAbscissaChange[indexAbscissaChange.knotIndex]) {
+                        indexAbscissaChange.knotIndex++;
+                    }
+                    this._index.knotIndex++;
+                    return { value: this.knotSequence[indexAbscissaChange.knotIndex].abscissa,  done: false };
+                } else {
+                    this._index = new KnotIndexIncreasingSequence();
+                    return { done: true };
+                }
+            }
+        }
+    }
+
+
+    deepCopy(): IncreasingPeriodicKnotSequenceClosedCurve {
+        return new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.allAbscissae);
+    }
+
+    toStrictlyIncreasingKnotSequence(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
+        return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+    }
+
+    length(): number {
+        return this.knotSequence.length;
+    }
+
+    toOpenKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
+        const knotsOpenSequence: number[] = [];
+        let knotNumber = 1;
+        for( let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+            for(let j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
+                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                    knotsOpenSequence.splice(0, 0,(this.knotSequence[this.knotSequence.length - 1 - i].abscissa - this.knotSequence[this.knotSequence.length - 1].abscissa));
+                else break;
+                knotNumber++;
+            }
+            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1))) break;
+        }
+        for(const knot of this) {
+            if(knot !== undefined) knotsOpenSequence.push(knot);
+        }
+        knotNumber = 1;
+        for(let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+            for(let j = 0; j < this.knotSequence[0 + i].multiplicity; j++) {
+                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                    knotsOpenSequence.push(this.knotSequence[this.knotSequence.length - 1].abscissa + (this.knotSequence[i].abscissa - this.knotSequence[0].abscissa));
+                else break;
+                knotNumber++;
+            }
+            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1))) break;
+        }
+        return new IncreasingOpenKnotSequenceClosedCurve(this._degree, knotsOpenSequence);
+    }
+
+    incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
+        let increment = true;
+        if(index.knotIndex < 0) {
+            increment = false
+            const error =  new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "negative index value. It cannot be processed");
+            error.logMessageToConsole();
+            return increment;
+        }
+        const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+        this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
+        if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+        this.checkDegreeConsistency();
+        return increment;
+    }
+
+    abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
+        let abscissa = RETURN_ERROR_CODE;
+        const indexPeriod =  new KnotIndexIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
+        let i = 0;
+        for(const knot of this) {
+            if(i === indexPeriod.knotIndex && knot !== undefined) abscissa = knot;
+            i++;
+        }
+        return abscissa;
+    }
+
+    toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
+        const strictlyIncreasingKnotSequence = this.toStrictlyIncreasingKnotSequence();
+        const lastIdxStrictIncSeq = strictlyIncreasingKnotSequence.allAbscissae.length - 1;
+        const abscissa = this.abscissaAtIndex(index);
+        let i = 0;
+        for(const knot of strictlyIncreasingKnotSequence.allAbscissae) {
+            if(knot !== undefined) {
+                if(knot === abscissa) break;
+                i++;
+            }
+        }
+        if(index.knotIndex > (this.allAbscissae.length - 1)) i = i + lastIdxStrictIncSeq;
+        return new KnotIndexStrictlyIncreasingSequence(i);
+    }
+
+    extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[] {
+        let knots: number[] = [];
+        if(!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
+            const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
+            error.logMessageToConsole();
+            return knots;
+        }
+        const strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
+        const strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
+        const indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
+        const indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
+        if((this.knotSequence[indexEndInPeriod].abscissa - this.knotSequence[indexStartInPeriod].abscissa) > this._period) {
+            const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence.");
+            error.logMessageToConsole();
+            return knots;
+        }
+        let index = 0;
+        const lasIndex = this.allAbscissae.length - 1;
+        if(knotEnd.knotIndex > (this.knotSequence.length - 1)) {
+            knotEnd.knotIndex = knotEnd.knotIndex % lasIndex;
+        }
+        for(const knot of this) {
+            if((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
+                (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex && index !== lasIndex)) {
+                if(knot !== undefined) knots.push(knot);
+            }
+            index++;
+        }
+        index = 0;
+        if(knotEnd.knotIndex < knotStart.knotIndex || knotEnd.knotIndex === lasIndex) {
+            for(const knot of this) {
+                if(knot !== undefined && index <= knotEnd.knotIndex) knots.push(knot);
+                index++;
+            }
+        }
+        return knots;
     }
 }

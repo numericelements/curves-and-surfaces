@@ -167,7 +167,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     degreeIncrement(): BSplineR1toR2 {
         const intermSplKnotsAndCPs = this.generateIntermediateSplinesForDegreeElevation();
         const splineHigherDegree = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
-        // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
         for(let i = 1; i <= this._degree; i += 1) {
             const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
             const splineTemp = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);

@@ -254,11 +254,11 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
     it('can get the order of multiplicity of a knot from its abscissa', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
-        expect(seq.KnotMultiplicityAtAbscissa(0)).to.eql(4)
-        expect(seq.KnotMultiplicityAtAbscissa(0.5)).to.eql(1)
-        expect(seq.KnotMultiplicityAtAbscissa(0.7)).to.eql(2)
-        expect(seq.KnotMultiplicityAtAbscissa(1)).to.eql(4)
-        expect(seq.KnotMultiplicityAtAbscissa(0.1)).to.eql(0)
+        expect(seq.knotMultiplicityAtAbscissa(0)).to.eql(4)
+        expect(seq.knotMultiplicityAtAbscissa(0.5)).to.eql(1)
+        expect(seq.knotMultiplicityAtAbscissa(0.7)).to.eql(2)
+        expect(seq.knotMultiplicityAtAbscissa(1)).to.eql(4)
+        expect(seq.knotMultiplicityAtAbscissa(0.1)).to.eql(0)
     });
 
     it('can insert a new knot in the knot sequence if the new knot abscissa is distinct from the existing ones', () => {

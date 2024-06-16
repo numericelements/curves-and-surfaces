@@ -286,7 +286,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
             let knotSequence = this._increasingKnotSequence.deepCopy();
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
-            for(let j = i + indexOrigin.knotIndex; j < this._increasingKnotSequence.length() - indexOrigin.knotIndex; j += this._degree + 1) {
+            for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
+            // for(let j = i + indexOrigin.knotIndex; j < this._increasingKnotSequence.length() - indexOrigin.knotIndex; j += this._degree + 1) {
                 const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
                 knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
                 if(j < this._controlPoints.length) {
@@ -296,33 +297,33 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
                 k += 1;
             }
             const strictIncKnotSequence = knotSequence.toStrictlyIncreasingKnotSequence();
-            k = 0;
-            for(let idx = indexOrigin.knotIndex; idx <= (indexOrigin.knotIndex + strictIncKnotSequence.degree + 1); idx++) {
-                if(strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(idx))) >
-                    strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(lastIndex.knotIndex - idx + indexOrigin.knotIndex)))) {
-                    const idxStrctIncSeq = new KnotIndexStrictlyIncreasingSequence(lastIndex.knotIndex - idx + indexOrigin.knotIndex);
-                    strictIncKnotSequence.raiseKnotMultiplicity(idxStrctIncSeq, 1);
-                    const indexCtrlPt = strictIncKnotSequence.toKnotIndexIncreasingSequence(idxStrctIncSeq).knotIndex;
-                    if(indexCtrlPt < controlPolygon.length) {
-                        const controlPoint = controlPolygon[indexCtrlPt];
-                        controlPolygon.splice(indexCtrlPt, 0, controlPoint);
-                    }
-                    k += 1;
-                } else if(strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(idx))) <
-                    strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(lastIndex.knotIndex - idx + indexOrigin.knotIndex)))) {
-                    const idxStrctIncSeq = new KnotIndexStrictlyIncreasingSequence(idx);
-                    strictIncKnotSequence.raiseKnotMultiplicity(idxStrctIncSeq, 1);
-                    const indexCtrlPt = strictIncKnotSequence.toKnotIndexIncreasingSequence(idxStrctIncSeq).knotIndex;
-                    if(indexCtrlPt < controlPolygon.length) {
-                        const controlPoint = controlPolygon[indexCtrlPt];
-                        controlPolygon.splice(indexCtrlPt, 0, controlPoint);
-                    }
-                    k += 1;
-                }
-            }
-            if(i === 0) {
-                controlPolygon.splice(controlPolygon.length, 0, this._controlPoints[this._degree]);
-            }
+            // k = 0;
+            // for(let idx = indexOrigin.knotIndex; idx <= (indexOrigin.knotIndex + strictIncKnotSequence.degree + 1); idx++) {
+            //     if(strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(idx))) >
+            //         strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(lastIndex.knotIndex - idx + indexOrigin.knotIndex)))) {
+            //         const idxStrctIncSeq = new KnotIndexStrictlyIncreasingSequence(lastIndex.knotIndex - idx + indexOrigin.knotIndex);
+            //         strictIncKnotSequence.raiseKnotMultiplicity(idxStrctIncSeq, 1);
+            //         const indexCtrlPt = strictIncKnotSequence.toKnotIndexIncreasingSequence(idxStrctIncSeq).knotIndex;
+            //         if(indexCtrlPt < controlPolygon.length) {
+            //             const controlPoint = controlPolygon[indexCtrlPt];
+            //             controlPolygon.splice(indexCtrlPt, 0, controlPoint);
+            //         }
+            //         k += 1;
+            //     } else if(strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(idx))) <
+            //         strictIncKnotSequence.KnotMultiplicityAtAbscissa(strictIncKnotSequence.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(lastIndex.knotIndex - idx + indexOrigin.knotIndex)))) {
+            //         const idxStrctIncSeq = new KnotIndexStrictlyIncreasingSequence(idx);
+            //         strictIncKnotSequence.raiseKnotMultiplicity(idxStrctIncSeq, 1);
+            //         const indexCtrlPt = strictIncKnotSequence.toKnotIndexIncreasingSequence(idxStrctIncSeq).knotIndex;
+            //         if(indexCtrlPt < controlPolygon.length) {
+            //             const controlPoint = controlPolygon[indexCtrlPt];
+            //             controlPolygon.splice(indexCtrlPt, 0, controlPoint);
+            //         }
+            //         k += 1;
+            //     }
+            // }
+            // if(i === 0) {
+            //     controlPolygon.splice(controlPolygon.length, 0, this._controlPoints[this._degree]);
+            // }
             knotSequence = strictIncKnotSequence.toIncreasingKnotSequence();
             knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
@@ -341,16 +342,19 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2  {
             const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
             const splineTemp = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
             const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            for(let j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
+            // for(let j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
+            for(let j = 0; j < strictIncSeq_splineHigherDegree.length(); j++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(j);
-                if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index)
-                    && splineTemp._increasingKnotSequence.knotMultiplicity(index) !== splineHigherDegree._increasingKnotSequence.knotMultiplicity(index))
-                    // splineTemp.insertKnotBoehmAlgorithm(strictIncSeq_splineTemp.abscissaAtIndex(index));
-                    splineTemp.insertKnotIntoTempSpline(strictIncSeq_splineTemp.abscissaAtIndex(index));
-                if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index)
-                    && splineTemp._increasingKnotSequence.knotMultiplicity(index) !== splineHigherDegree._increasingKnotSequence.knotMultiplicity(index))
-                    // splineHigherDegree.insertKnotBoehmAlgorithm(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
-                    splineHigherDegree.insertKnotIntoTempSpline(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
+                if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
+                // if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index)
+                //     && splineTemp._increasingKnotSequence.knotMultiplicity(index) !== splineHigherDegree._increasingKnotSequence.knotMultiplicity(index))
+                    splineTemp.insertKnotBoehmAlgorithm(strictIncSeq_splineTemp.abscissaAtIndex(index));
+                    // splineTemp.insertKnotIntoTempSpline(strictIncSeq_splineTemp.abscissaAtIndex(index));
+                if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index))
+                // if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index)
+                //     && splineTemp._increasingKnotSequence.knotMultiplicity(index) !== splineHigherDegree._increasingKnotSequence.knotMultiplicity(index))
+                    splineHigherDegree.insertKnotBoehmAlgorithm(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
+                    // splineHigherDegree.insertKnotIntoTempSpline(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
             }
             let tempCPs: Vector2d[] = [];
             for(let ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
