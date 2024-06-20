@@ -1,4 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractKnotSequenceCurve } from "./AbstractKnotSequenceCurve";
 import { KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
@@ -35,6 +36,11 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceC
                 error.logMessageToConsole();
             }
         }
+    }
+
+    getPeriod(): number {
+        let period = RETURN_ERROR_CODE;
+         return period = this.knotSequence[this.knotSequence.length - 1].abscissa - this.knotSequence[0].abscissa;
     }
 
     length(): number {

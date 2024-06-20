@@ -51623,12 +51623,12 @@ var ErrorLog = /** @class */ (function (_super) {
     }
     ErrorLog.prototype.logMessageToConsole = function () {
         console.log(this.className + ", " + this.functionName + ":");
-        try {
-            throw new Error(this.message);
-        }
-        catch (e) {
-            console.error(e);
-        }
+        // try {
+        //     throw new Error(this.message);
+        // } catch(e) {
+        //     console.error(e);
+        // }
+        console.error(new Error(this.message));
     };
     return ErrorLog;
 }(ErrorProcessing));

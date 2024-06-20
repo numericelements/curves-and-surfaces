@@ -68,6 +68,26 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq.allAbscissae).to.eql(knots)
     });
 
+    it('can get the length of an increasing knot sequence', () => {
+        const knots = [0, 1, 2, 3, 4];
+        const degree = 2;
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const length = seq.length()
+        expect(length).to.eql(5)
+
+        const knots1 = [0, 1, 1, 2, 3, 4];
+        const degree1 = 2;
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, knots1);
+        const length1 = seq1.length()
+        expect(length1).to.eql(6)
+
+        const knots2 = [0, 0, 1, 2, 3, 4, 4];
+        const degree2 = 2;
+        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(degree2, knots2);
+        const length2 = seq2.length()
+        expect(length2).to.eql(7)
+    });
+
     it('can generate a strictly increasing knot sequence from an increasing sequence', () => {
         const knots = [0, 1, 1, 2, 3, 4];
         const degree = 2;
@@ -262,5 +282,60 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq1.allAbscissae.length).to.eql(8)
         const abscissae1 = seq1.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(6), new KnotIndexIncreasingSequence(9));
         expect(abscissae1).to.eql([5, 0, 1, 1])
+    });
+
+    it('can find the span index in the knot sequence from an abscissa for a non uniform periodic B-spline with multiplicity greater than one at its origin', () => {
+        const knots: number [] = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1]
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        let index = seq.findSpan(0.0)
+        expect(index.knotIndex).to.eql(2)
+        index = seq.findSpan(0.1)
+        expect(index.knotIndex).to.eql(2)
+        index = seq.findSpan(0.5)
+        expect(index.knotIndex).to.eql(3)
+        index = seq.findSpan(0.55)
+        expect(index.knotIndex).to.eql(3)
+        index = seq.findSpan(0.6)
+        expect(index.knotIndex).to.eql(4)
+        index = seq.findSpan(0.65)
+        expect(index.knotIndex).to.eql(4)
+        index = seq.findSpan(0.7)
+        expect(index.knotIndex).to.eql(6)
+        index = seq.findSpan(0.9)
+        expect(index.knotIndex).to.eql(6)
+        index = seq.findSpan(1.0)
+        expect(index.knotIndex).to.eql(6)
+    });
+
+    it('can find the span index in the knot sequence from an abscissa for an arbitrary periodic B-spline', () => {
+        const knots: number [] = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1]
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        let index = seq.findSpan(0.0)
+        expect(index.knotIndex).to.eql(2)
+        index = seq.findSpan(1.0)
+        expect(index.knotIndex).to.eql(6)
+        const knots1: number [] = [0, 0, 0.5, 0.6, 0.7, 0.7, 1, 2.0, 2.0 ]
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots1)
+        let index1 = seq1.findSpan(0.0)
+        expect(index1.knotIndex).to.eql(1)
+        index1 = seq1.findSpan(2.0)
+        expect(index1.knotIndex).to.eql(6)
+    });
+
+    it('can find the span index in the knot sequence from an abscissa for a uniform periodic B-spline', () => {
+        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        let index = seq.findSpan(0.0)
+        expect(index.knotIndex).to.eql(0)
+        index = seq.findSpan(0.05)
+        expect(index.knotIndex).to.eql(0)
+        index = seq.findSpan(0.1)
+        expect(index.knotIndex).to.eql(1)
+        index = seq.findSpan(0.7)
+        expect(index.knotIndex).to.eql(7)
+        index = seq.findSpan(0.75)
+        expect(index.knotIndex).to.eql(7)
+        index = seq.findSpan(0.8)
+        expect(index.knotIndex).to.eql(7)
     });
 });
