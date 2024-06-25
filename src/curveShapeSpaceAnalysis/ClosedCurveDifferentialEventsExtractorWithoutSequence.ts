@@ -1,7 +1,7 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
 import { IObserver } from "../newDesignPatterns/Observer";
 import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents";
@@ -12,7 +12,7 @@ export class ClosedCurveDifferentialEventsExtractorWithoutSequence extends Close
 
     protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
 
-    constructor(curveToAnalyze: PeriodicBSplineR1toR2) {
+    constructor(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence) {
         super(curveToAnalyze);
         this.curve = curveToAnalyze;
         this._sequenceOfDifferentialEvents = new SequenceOfDifferentialEvents();
@@ -29,7 +29,7 @@ export class ClosedCurveDifferentialEventsExtractorWithoutSequence extends Close
         return this._sequenceOfDifferentialEvents;
     }
 
-    update(curveToAnalyze: PeriodicBSplineR1toR2): void {
+    update(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.curve = curveToAnalyze;
         this.curveDiffProperties = new PeriodicBSplineR1toR2DifferentialProperties(this.curve);
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();

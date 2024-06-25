@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
+import { KNOT_COINCIDENCE_TOLERANCE } from "../../src/newBsplines/AbstractKnotSequenceCurve";
 
 describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     
@@ -337,5 +338,46 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(index.knotIndex).to.eql(7)
         index = seq.findSpan(0.8)
         expect(index.knotIndex).to.eql(7)
+    });
+
+    it('can raise the order of multiplicity of a knot in the knot sequence of a periodic B-spline', () => {
+        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
+        let index = seq.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(1))
+        seq.raiseKnotMultiplicity(index, 1)
+        expect(seq.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq.knotMultiplicity(index)).to.eql(2)
+        index = seq.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(0))
+        seq.raiseKnotMultiplicity(index, 1)
+        expect(seq.multiplicities()).to.eql([2, 2, 1, 1, 1, 1, 1, 1, 2])
+        expect(seq.knotMultiplicity(index)).to.eql(2)
+    });
+
+    it('can obtain the order of multiplicity of a knot from an abscissa of a periodic B-spline', () => {
+        const knots: number [] = [0, 0.1, 0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        expect(seq.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1])
+        expect(seq.knotMultiplicityAtAbscissa(0)).to.eql(1)
+        expect(seq.knotMultiplicityAtAbscissa(0.1)).to.eql(2)
+        expect(seq.knotMultiplicityAtAbscissa(0.1 + 1.1 * KNOT_COINCIDENCE_TOLERANCE)).to.eql(0)
+    });
+
+    it('can insert a knot into a knot sequence of a periodic B-spline', () => {
+        const knots = [0, 1, 2, 3, 4, 5];
+        const degree = 2;
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        expect(seq.degree).to.eql(2)
+        expect(seq.allAbscissae.length).to.eql(6)
+        let status = seq.insertKnot(-0.1);
+        expect(status).to.eql(false)
+        status = seq.insertKnot(6);
+        expect(status).to.eql(false)
+        status = seq.insertKnot(2);
+        expect(status).to.eql(false)
+        status = seq.insertKnot(1.5);
+        expect(status).to.eql(true)
+        expect(seq.allAbscissae.length).to.eql(7)
+        expect(seq.allAbscissae).to.eql([0, 1, 1.5, 2, 3, 4, 5])
     });
 });

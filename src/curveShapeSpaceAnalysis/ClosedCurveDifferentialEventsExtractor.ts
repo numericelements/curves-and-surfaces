@@ -1,7 +1,7 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
 import { IObserver } from "../newDesignPatterns/Observer";
 import { SequenceOfDifferentialEvents } from "../sequenceOfDifferentialEvents/SequenceOfDifferentialEvents";
@@ -12,7 +12,7 @@ export class ClosedCurveDifferentialEventsExtractor extends AbstractCurveDiffere
                                                     implements IObserver<BSplineR1toR2Interface> {
 
     protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
-    protected curve: PeriodicBSplineR1toR2;
+    protected curve: PeriodicBSplineR1toR2withOpenKnotSequence;
     protected _curvatureNumerator: BSplineR1toR1;
     protected _curvatureDerivativeNumerator: BSplineR1toR1;
     protected curveDiffProperties: PeriodicBSplineR1toR2DifferentialProperties;
@@ -23,7 +23,7 @@ export class ClosedCurveDifferentialEventsExtractor extends AbstractCurveDiffere
     protected _transientCurvatureExtremaLocationsEuclideanSpace: Vector2d[];
 
 
-    constructor(curveToAnalyze: PeriodicBSplineR1toR2) {
+    constructor(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence) {
         super(curveToAnalyze);
         this.curve = curveToAnalyze;
         this._inflectionLocationsEuclideanSpace = [];
@@ -74,7 +74,7 @@ export class ClosedCurveDifferentialEventsExtractor extends AbstractCurveDiffere
         return this._sequenceOfDifferentialEvents;
     }
 
-    update(curveToAnalyze: PeriodicBSplineR1toR2): void {
+    update(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.curve = curveToAnalyze;
         this.curveDiffProperties = new PeriodicBSplineR1toR2DifferentialProperties(this.curve);
         this._curvatureNumerator = this.curveDiffProperties.curvatureNumerator();

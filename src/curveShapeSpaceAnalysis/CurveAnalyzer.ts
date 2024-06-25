@@ -11,7 +11,7 @@ import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExt
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { CurveDifferentialEventsSequenceExtractorInterface } from "./CurveDifferentialEventsSequenceExtractorInterface";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { ClosedCurveDifferentialEventsExtractor } from "./ClosedCurveDifferentialEventsExtractor";
 import { OpenCurveDifferentialEventsExtractorWithoutSequence } from "./OpenCurveDifferentialEventsExtractorWithoutSequence";
 import { ClosedCurveDifferentialEventsExtractorWithoutSequence } from "./ClosedCurveDifferentialEventsExtractorWithoutSequence";
@@ -324,7 +324,7 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
 
 export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
 
-    protected curve: PeriodicBSplineR1toR2;
+    protected curve: PeriodicBSplineR1toR2withOpenKnotSequence;
     protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     protected globalExtremumOffAxisCurvaturePoly: ExtremumLocation;
     protected globalExtremumOffAxisCurvatureDerivPoly: ExtremumLocation;
@@ -335,7 +335,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
     protected _curvatureNumerator: BSplineR1toR1Interface;
     protected _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
-    constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
+    constructor(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();
@@ -408,7 +408,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
 
 export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
 
-    protected curve: PeriodicBSplineR1toR2;
+    protected curve: PeriodicBSplineR1toR2withOpenKnotSequence;
     protected _sequenceOfDifferentialEvents: SequenceOfDifferentialEvents;
     protected navigationCurveModel: ClosedCurveShapeSpaceNavigator;
     protected globalExtremumOffAxisCurvaturePoly: ExtremumLocation;
@@ -419,7 +419,7 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     protected _curvatureNumerator: BSplineR1toR1Interface;
     protected _curvatureDerivativeNumerator: BSplineR1toR1Interface;
 
-    constructor(curveToAnalyze: PeriodicBSplineR1toR2, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
+    constructor(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessageToConsole();

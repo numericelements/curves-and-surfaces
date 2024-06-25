@@ -9,7 +9,7 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { ClosedCurveModel } from "../newModels/ClosedCurveModel";
 import { CurveModel } from "../newModels/CurveModel";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
@@ -362,12 +362,12 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
     private _selectedControlPoint?: number;
     private locationSelectedCP: Vector2d;
     protected _navigationState: NavigationState;
-    protected _currentCurve: PeriodicBSplineR1toR2;
+    protected _currentCurve: PeriodicBSplineR1toR2withOpenKnotSequence;
     private currentControlPolygon: Vector2d[];
     protected _displacementCurrentCurveControlPolygon: Vector2d[] = [];
-    protected _optimizedCurve: PeriodicBSplineR1toR2;
-    protected _targetCurve: PeriodicBSplineR1toR2;
-    protected _adjacentShapeSpaceCurve: PeriodicBSplineR1toR2 | undefined;
+    protected _optimizedCurve: PeriodicBSplineR1toR2withOpenKnotSequence;
+    protected _targetCurve: PeriodicBSplineR1toR2withOpenKnotSequence;
+    protected _adjacentShapeSpaceCurve: PeriodicBSplineR1toR2withOpenKnotSequence | undefined;
     public curveAnalyserCurrentCurve: CurveAnalyzerInterface;
     public curveAnalyserOptimizedCurve: CurveAnalyzerInterface;
     protected _seqDiffEventsCurrentCurve: SequenceOfDifferentialEvents;
@@ -419,19 +419,19 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         return this._seqDiffEventsOptimizedCurve;
     }
 
-    get currentCurve(): PeriodicBSplineR1toR2 {
+    get currentCurve(): PeriodicBSplineR1toR2withOpenKnotSequence {
         return this._currentCurve.clone();
     }
 
-    get targetCurve(): PeriodicBSplineR1toR2 {
+    get targetCurve(): PeriodicBSplineR1toR2withOpenKnotSequence {
         return this._targetCurve.clone();
     }
 
-    get optimizedCurve(): PeriodicBSplineR1toR2 {
+    get optimizedCurve(): PeriodicBSplineR1toR2withOpenKnotSequence {
         return this._optimizedCurve.clone();
     }
 
-    get adjacentShapeSpaceCurve(): PeriodicBSplineR1toR2 | undefined {
+    get adjacentShapeSpaceCurve(): PeriodicBSplineR1toR2withOpenKnotSequence | undefined {
         return this._adjacentShapeSpaceCurve?.clone();
     }
 
@@ -460,15 +460,15 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         return this._curveModel;
     }
 
-    set currentCurve(curve: PeriodicBSplineR1toR2) {
+    set currentCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence) {
         this._currentCurve = curve.clone();
     }
 
-    set optimizedCurve(aBSpline: PeriodicBSplineR1toR2) {
+    set optimizedCurve(aBSpline: PeriodicBSplineR1toR2withOpenKnotSequence) {
         this._optimizedCurve = aBSpline.clone();
     }
 
-    set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: PeriodicBSplineR1toR2 | undefined) {
+    set adjacentShapeSpaceCurve(adjacentShapeSpaceCurve: PeriodicBSplineR1toR2withOpenKnotSequence | undefined) {
         this._adjacentShapeSpaceCurve = adjacentShapeSpaceCurve;
     }
 

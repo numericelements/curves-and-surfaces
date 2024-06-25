@@ -1,4 +1,4 @@
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
@@ -68,7 +68,6 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         }
     }
 
-
     deepCopy(): IncreasingPeriodicKnotSequenceClosedCurve {
         return new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.allAbscissae);
     }
@@ -113,6 +112,18 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         return new IncreasingOpenKnotSequenceClosedCurve(this._degree, knotsOpenSequence);
     }
 
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void {
+        if(index.knotIndex < 0) {
+            const error = new ErrorLog(this.constructor.name, "raiseKnotMultiplicity", "Index value is out of range.");
+            error.logMessageToConsole();
+            return;
+        }
+        const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+        this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
+        if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+        this.checkUniformity();
+    }
+
     incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
         let increment = true;
         if(index.knotIndex < 0) {
@@ -126,6 +137,50 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
         this.checkDegreeConsistency();
         return increment;
+    }
+
+    knotMultiplicityAtAbscissa(abcissa: number): number {
+        let multiplicity = 0;
+        for(const knot of this.knotSequence) {
+            if(Math.abs(abcissa - knot.abscissa) < KNOT_COINCIDENCE_TOLERANCE) {
+                multiplicity = knot.multiplicity;
+            }
+        }
+        if(multiplicity === 0) {
+            const warning = new WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", "knot abscissa cannot be found within the knot sequence.");
+            warning.logMessageToConsole();
+        }
+        return multiplicity;
+    }
+
+    insertKnot(abscissa: number, multiplicity: number = 1): boolean {
+        let insertion = true;
+        if(this.isAbscissaCoincidingWithKnot(abscissa)) {
+            const warning = new WarningLog(this.constructor.name, "insertKnot", "abscissa is too close from an existing knot: raise multiplicity of an existing knot.");
+            warning.logMessageToConsole();
+            insertion = false;
+            return insertion;
+        } else if(multiplicity >= this._degree) {
+            const warning = new WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree")
+            warning.logMessageToConsole();
+            insertion = false;
+            return insertion;
+        } else if(abscissa < this.knotSequence[0].abscissa || abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+            const warning = new WarningLog(this.constructor.name, "insertKnot", "the abscissa is out of the range of the knot sequence interval");
+            warning.logMessageToConsole();
+            insertion = false;
+        }
+        if(insertion) {
+            const knot = new Knot(abscissa, multiplicity);
+            let i = 0;
+            while(i < (this.knotSequence.length - 1)) {
+                if(this.knotSequence[i].abscissa < abscissa && abscissa < this.knotSequence[i + 1].abscissa) break;
+                i++;
+            }
+            this.knotSequence.splice((i + 1), 0, knot);
+            this.checkUniformity();
+        }
+        return insertion;
     }
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {

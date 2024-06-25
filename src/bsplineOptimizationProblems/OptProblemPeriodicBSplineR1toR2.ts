@@ -1,4 +1,4 @@
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2"
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence"
 import { zeroVector} from "../linearAlgebra/MathVectorBasicOperations"
 import { PeriodicBSplineR1toR1 } from "../newBsplines/PeriodicBSplineR1toR1"
 import { DenseMatrix } from "../linearAlgebra/DenseMatrix"
@@ -10,7 +10,7 @@ import { AbstractOptProblemBSplineR1toR2, ConstraintType, ExpensiveComputationRe
 
 export class OptProblemPeriodicBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2 {
 
-    constructor(splineInitial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    constructor(splineInitial: PeriodicBSplineR1toR2withOpenKnotSequence, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
         super(splineInitial, shapeSpaceDiffEventsStructure);
 
         // let e: ExpensiveComputationResults = this.initExpansiveComputations();
@@ -43,19 +43,19 @@ export class OptProblemPeriodicBSplineR1toR2 extends AbstractOptProblemBSplineR1
             this._curvatureExtremaConstraintsSign, this._curvatureExtremaInactiveConstraints);
     }
 
-    get spline(): PeriodicBSplineR1toR2 {
-        return this._spline as PeriodicBSplineR1toR2;
+    get spline(): PeriodicBSplineR1toR2withOpenKnotSequence {
+        return this._spline as PeriodicBSplineR1toR2withOpenKnotSequence;
     }
 
-    get previousSpline(): PeriodicBSplineR1toR2 {
-        return this._previousSpline as PeriodicBSplineR1toR2;
+    get previousSpline(): PeriodicBSplineR1toR2withOpenKnotSequence {
+        return this._previousSpline as PeriodicBSplineR1toR2withOpenKnotSequence;
     }
 
     bSplineR1toR1Factory(controlPoints: number[], knots: number[]): PeriodicBSplineR1toR1 {
         return new PeriodicBSplineR1toR1(controlPoints, knots)
     }
 
-    setTargetSpline(spline: PeriodicBSplineR1toR2) {
+    setTargetSpline(spline: PeriodicBSplineR1toR2withOpenKnotSequence) {
         this._target = spline.clone()
         this._gradient_f0 = this.compute_gradient_f0(this.spline)
         this._f0 = this.compute_f0(this._gradient_f0) 
@@ -755,7 +755,7 @@ export class OptProblemPeriodicBSplineR1toR2 extends AbstractOptProblemBSplineR1
 
 export class OptProblemPeriodicBSplineR1toR2NoInactiveConstraints extends OptProblemPeriodicBSplineR1toR2 {
 
-    constructor(splineInitial: PeriodicBSplineR1toR2, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
+    constructor(splineInitial: PeriodicBSplineR1toR2withOpenKnotSequence, shapeSpaceDiffEventsStructure: ShapeSpaceDiffEventsStructure) {
         super(splineInitial, shapeSpaceDiffEventsStructure);
     }
 

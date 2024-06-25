@@ -6,6 +6,7 @@ import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfS
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequenceCurve";
+import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
 
 export enum curveSegment {BEFORE, AFTER};
 export const TOL_KNOT_COINCIDENCE = 1.0E-8;
@@ -17,7 +18,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     protected _controlPoints: Vector2d[];
     protected _degree: number;
-    protected abstract _increasingKnotSequence: IncreasingOpenKnotSequenceInterface;
+    protected abstract _increasingKnotSequence: IncreasingKnotSequenceInterface;
+    // protected abstract _increasingKnotSequence: IncreasingOpenKnotSequenceInterface;
 
     /**
      * Create a B-Spline

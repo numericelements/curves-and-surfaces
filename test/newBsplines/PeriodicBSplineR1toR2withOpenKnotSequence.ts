@@ -1,12 +1,12 @@
 import { expect } from "chai";
-import { PeriodicBSplineR1toR2 } from "../../src/newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../../src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { Vector2d } from "../../src/mathVector/Vector2d";
 import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "./BSplineR1toR2";
 
-describe('PeriodicBSplineR1toR2', () => {
+describe('PeriodicBSplineR1toR2withOpenKnotSequence', () => {
     
     it('can be initialized without an initializer', () => {
-        const s = new PeriodicBSplineR1toR2();
+        const s = new PeriodicBSplineR1toR2withOpenKnotSequence();
         expect(s.controlPoints[0]).to.eql(new Vector2d(0, 0))
         expect(s.knots).to.eql([0, 1])
     });
@@ -34,7 +34,7 @@ describe('PeriodicBSplineR1toR2', () => {
                     [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4], 
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
+        const s = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
         expect(s.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ])
         expect(s.knots).to.eql(knots)
         expect(s.degree).to.equal(3)
@@ -46,7 +46,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, 0)
         const cp4 = new Vector2d(0, 0)
-        const s1 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ -1, 0, 1, 2, 3, 4, 5])
+        const s1 = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp0, cp1, cp2, cp3, cp4], [ -1, 0, 1, 2, 3, 4, 5])
         expect(s1.freeControlPoints.length).to.eql(4)
         const CPx = [0, 0, 1, 1, 0]
         const CPy = [0, 1, 1, 0, 0]
@@ -77,7 +77,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, 0)
         const cp4 = new Vector2d(0, 0)
-        const s1 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4], [ -1, 0, 1, 2, 3, 4, 5])
+        const s1 = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp0, cp1, cp2, cp3, cp4], [ -1, 0, 1, 2, 3, 4, 5])
         const sInc = s1.degreeIncrement();
         expect(sInc.knots).to.eql([ -1, -1, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5])
         expect(sInc.degree).to.eql(2)
@@ -114,7 +114,7 @@ describe('PeriodicBSplineR1toR2', () => {
                     [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4], 
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
+        const s = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
         const intermSplines = s.generateIntermediateSplinesForDegreeElevation();
         expect(intermSplines.knotVectors.length).to.eql(4)
         expect(intermSplines.CPs.length).to.eql(4)
@@ -167,7 +167,7 @@ describe('PeriodicBSplineR1toR2', () => {
                     [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4], 
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
+        const s = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
         const splineHigherDegree = s.degreeIncrement();
         expect(splineHigherDegree.degree).to.eql(4)
         const newKnots = [-3, -2, -1, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15]
@@ -198,18 +198,18 @@ describe('PeriodicBSplineR1toR2', () => {
                     [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4], 
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         let knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        let s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
+        let s = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11, cp12, cp13, cp14 ], knots)
         expect(s.degree).to.eql(3)
         let rBound = s.findKnotAbscissaeRightBound();
         expect(rBound).to.eql(12)
         const cp = new Vector2d(0.0, 1.0)
         knots = [-3, -2, -1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 14, 15]
-        s = new PeriodicBSplineR1toR2([ cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp], knots)
+        s = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp], knots)
         expect(s.degree).to.eql(3)
         rBound = s.findKnotAbscissaeRightBound();
         expect(rBound).to.eql(12)
         knots = [-2, -1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 14]
-        s = new PeriodicBSplineR1toR2([ cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp], knots)
+        s = new PeriodicBSplineR1toR2withOpenKnotSequence([ cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp, cp], knots)
         expect(s.degree).to.eql(3)
         rBound = s.findKnotAbscissaeRightBound();
         expect(rBound).to.eql(12)

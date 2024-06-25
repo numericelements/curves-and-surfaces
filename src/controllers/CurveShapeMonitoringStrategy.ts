@@ -5,7 +5,7 @@ import { EventMgmtState, ShapeSpaceDiffEventsStructure } from "../curveShapeSpac
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { NeighboringEventsType } from "../sequenceOfDifferentialEvents/NeighboringEvents";
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/NavigationCurveModel";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { OptProblemPeriodicBSplineR1toR2, OptProblemPeriodicBSplineR1toR2NoInactiveConstraints } from "../bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2";
 import { CurveShapeSpaceNavigator } from "../curveShapeSpaceNavigation/CurveShapeSpaceNavigator";
 import { EventSlideOutsideCurve, EventStayInsideCurve, NoEventToManageForCurve } from "../shapeNavigableCurve/EventStateAtCurveExtremity";
@@ -480,7 +480,7 @@ export class OCurveShapeMonitoringStrategyWithNoDiffEventSliding extends OCurveS
 
 export abstract class CCurveShapeMonitoringStrategy extends CurveShapeMonitoringStrategy {
 
-    protected currentCurve: PeriodicBSplineR1toR2;
+    protected currentCurve: PeriodicBSplineR1toR2withOpenKnotSequence;
     protected readonly closedCShapeSpaceNavigator: ClosedCurveShapeSpaceNavigator;
     protected abstract _optimizationProblem: OptProblemPeriodicBSplineR1toR2
     protected abstract _optimizer: Optimizer;
@@ -519,7 +519,7 @@ export abstract class CCurveShapeMonitoringStrategy extends CurveShapeMonitoring
         this.resetCurve(this.closedCShapeSpaceNavigator.curveModel.spline);
     }
 
-    abstract resetCurve(curve: PeriodicBSplineR1toR2): void;
+    abstract resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void;
 }
 
 export class CCurveShapeMonitoringStrategyWithInflexionsNoSliding extends CCurveShapeMonitoringStrategy {
@@ -551,7 +551,7 @@ export class CCurveShapeMonitoringStrategyWithInflexionsNoSliding extends CCurve
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -593,7 +593,7 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends 
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -635,7 +635,7 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSl
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -677,7 +677,7 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends CCurv
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -719,7 +719,7 @@ export class CCurveShapeMonitoringStrategyWithInflexionsSliding extends CCurveSh
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -761,7 +761,7 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends CC
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -803,7 +803,7 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */
@@ -846,7 +846,7 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventSliding extends CCurveS
         return new Optimizer(optimizationProblem);
     }
 
-    resetCurve(curve: PeriodicBSplineR1toR2): void {
+    resetCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve;
         this.optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
         /*this.optimizationProblem = new  OptProblemBSplineR1toR2WithWeigthingFactorsDedicatedToCubics(this.curveModel.spline.clone(), this.curveModel.spline.clone()) */

@@ -1,4 +1,4 @@
-import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2"
+import { PeriodicBSplineR1toR2withOpenKnotSequence, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence"
 import { Vector2d } from "../mathVector/Vector2d"
 // import { Optimizer } from "../optimizers/Optimizer"
 import { AbstractCurveModel } from "./AbstractCurveModel"
@@ -6,7 +6,7 @@ import { AbstractCurveModel } from "./AbstractCurveModel"
 
 export class ClosedCurveModelQuasiNewton extends AbstractCurveModel {
 
-    protected _spline: PeriodicBSplineR1toR2
+    protected _spline: PeriodicBSplineR1toR2withOpenKnotSequence
     // protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2QuasiNewton
 
     constructor() {
@@ -34,7 +34,7 @@ export class ClosedCurveModelQuasiNewton extends AbstractCurveModel {
 
     }
 
-    get spline(): PeriodicBSplineR1toR2 {
+    get spline(): PeriodicBSplineR1toR2withOpenKnotSequence {
         return this._spline.clone()
     }
 
@@ -53,7 +53,7 @@ export class ClosedCurveModelQuasiNewton extends AbstractCurveModel {
     }
 
 
-    setSpline(spline: PeriodicBSplineR1toR2) {
+    setSpline(spline: PeriodicBSplineR1toR2withOpenKnotSequence) {
         this._spline = spline
         this.notifyObservers()
     }

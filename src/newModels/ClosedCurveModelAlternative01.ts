@@ -2,14 +2,14 @@ import { Vector2d } from "../mathVector/Vector2d"
 // import { Optimizer } from "../optimizers/Optimizer"
 // import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
 import { AbstractCurveModel } from "./AbstractCurveModel"
-import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2"
+import { PeriodicBSplineR1toR2withOpenKnotSequence, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence"
 // import { OptimizationProblemPeriodicBSplineR1toR2QuasiNewton } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton"
 
 
 export class ClosedCurveModelAlternative01 extends AbstractCurveModel {
 
-    private _splineTarget: PeriodicBSplineR1toR2
-    protected _spline: PeriodicBSplineR1toR2
+    private _splineTarget: PeriodicBSplineR1toR2withOpenKnotSequence
+    protected _spline: PeriodicBSplineR1toR2withOpenKnotSequence
     // protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2QuasiNewton
 
 
@@ -35,7 +35,7 @@ export class ClosedCurveModelAlternative01 extends AbstractCurveModel {
 
     }
 
-    get spline(): PeriodicBSplineR1toR2 {
+    get spline(): PeriodicBSplineR1toR2withOpenKnotSequence {
         return this._spline.clone()
     }
 
@@ -91,7 +91,7 @@ export class ClosedCurveModelAlternative01 extends AbstractCurveModel {
     //     }
     // }
     
-    setSpline(spline: PeriodicBSplineR1toR2) {
+    setSpline(spline: PeriodicBSplineR1toR2withOpenKnotSequence) {
         this._spline = spline
         this.notifyObservers()
     }

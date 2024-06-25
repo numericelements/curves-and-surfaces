@@ -1,5 +1,5 @@
 import { Vector2d } from "../mathVector/Vector2d";
-import { PeriodicBSplineR1toR2, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2"
+import { PeriodicBSplineR1toR2withOpenKnotSequence, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence"
 // import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
 // import { Optimizer } from "../optimizers/Optimizer"
 import { AbstractCurveModel } from "./AbstractCurveModel"
@@ -8,7 +8,7 @@ import { AbstractCurveModel } from "./AbstractCurveModel"
 
 export class ClosedCurveModel extends AbstractCurveModel {
 
-    protected _spline: PeriodicBSplineR1toR2;
+    protected _spline: PeriodicBSplineR1toR2withOpenKnotSequence;
     // protected optimizationProblem: OptimizationProblemPeriodicBSplineR1toR2;
 
     constructor() {
@@ -38,11 +38,11 @@ export class ClosedCurveModel extends AbstractCurveModel {
         return true;
     }
 
-    get spline(): PeriodicBSplineR1toR2 {
+    get spline(): PeriodicBSplineR1toR2withOpenKnotSequence {
         return this._spline.clone();
     }
     
-    setSpline(spline: PeriodicBSplineR1toR2): void {
+    setSpline(spline: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this._spline = spline;
         this.notifyObservers();
     }

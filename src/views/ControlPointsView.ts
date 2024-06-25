@@ -3,7 +3,7 @@ import { RoundDotTwoLevelsTransparencyShader } from "../2DgraphicsItems/RoundDot
 import { IObserver } from "../newDesignPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractMouseSelectablePointView } from "./AbstractMouseSelectablePointView";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 
 
@@ -25,7 +25,7 @@ export class ControlPointsView extends AbstractMouseSelectablePointView implemen
         super(gl, spline);
         this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader(this.gl);
         this.pointSequenceToDisplay = spline.controlPoints;
-        if(spline instanceof PeriodicBSplineR1toR2) {
+        if(spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.pointSequenceToDisplay = spline.freeControlPoints;
         }
         this.a_Position = -1;
@@ -132,7 +132,7 @@ export class ControlPointsView extends AbstractMouseSelectablePointView implemen
         if(spline instanceof BSplineR1toR2) {
             this.pointSequenceToDisplay = spline.controlPoints;
             this.controlPoints = spline.controlPoints;
-        } else if (spline instanceof PeriodicBSplineR1toR2) {
+        } else if (spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.pointSequenceToDisplay = spline.freeControlPoints;
             this.controlPoints = spline.freeControlPoints;
         } else {

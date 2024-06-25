@@ -4,7 +4,7 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { CurveConstraintNoConstraint, TOL_LOCATION_CURVE_REFERENCE_POINTS } from "./CurveConstraintStrategy";
 import { NO_CONSTRAINT, ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { BSplineR1toR1 } from "../newBsplines/BSplineR1toR1";
 import { cpuUsage } from "process";
 import { curveSegment } from "../newBsplines/AbstractBSplineR1toR2";
@@ -166,7 +166,7 @@ export class CurveConstraints {
                             console.log("Inconsistent knot sequence")
                         }
                     }
-                } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2) {
+                } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
     
                 }
             } else {
@@ -270,7 +270,7 @@ export class CurveConstraints {
                     sy = new BSplineR1toR1(optimizedSpline.getControlPointsY(), optimizedSpline.knots);
                     syu = sy.derivative();
                     // console.log(' ctrlPts'+JSON.stringify(optimizedSpline.controlPoints)+' knots '+optimizedSpline.knots);
-                } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2) {
+                } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
                     const error = new ErrorLog(this.constructor.name, "computeAbscissae", "something to do there");
                     error.logMessageToConsole();
                 }

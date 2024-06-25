@@ -11,7 +11,7 @@ import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve"
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { CurveModel } from "../newModels/CurveModel";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzerInterface";
 import { ClosedCurveShapeSpaceNavigator, NavigationCurveModel, OpenCurveShapeSpaceNavigator } from "./NavigationCurveModel";
 import { CurveConstraintClampedFirstControlPoint, CurveConstraintNoConstraint } from "./CurveConstraintStrategy";
@@ -915,8 +915,8 @@ export abstract class ClosedCurveNavigationState extends NavigationState{
 
     protected navigationCurveModel: ClosedCurveShapeSpaceNavigator;
     protected readonly shapeNavigableCurve: ShapeNavigableCurve;
-    protected currentCurve: PeriodicBSplineR1toR2;
-    protected optimizedCurve: PeriodicBSplineR1toR2;
+    protected currentCurve: PeriodicBSplineR1toR2withOpenKnotSequence;
+    protected optimizedCurve: PeriodicBSplineR1toR2withOpenKnotSequence;
 
     constructor(navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super();
@@ -928,7 +928,7 @@ export abstract class ClosedCurveNavigationState extends NavigationState{
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent object type to initialize the currentCurve.");
             error.logMessageToConsole();
-            this.currentCurve = new PeriodicBSplineR1toR2;
+            this.currentCurve = new PeriodicBSplineR1toR2withOpenKnotSequence;
         }
         this.navigationCurveModel.currentCurve = this.currentCurve;
         this.optimizedCurve = this.currentCurve.clone();
@@ -967,7 +967,7 @@ export abstract class ClosedCurveNavigationState extends NavigationState{
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
     }
 
-    setCurrentCurve(curve: PeriodicBSplineR1toR2): void {
+    setCurrentCurve(curve: PeriodicBSplineR1toR2withOpenKnotSequence): void {
         this.currentCurve = curve.clone();
     }
 

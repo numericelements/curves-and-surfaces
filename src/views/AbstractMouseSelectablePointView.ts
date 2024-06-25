@@ -1,6 +1,6 @@
 import { Vector2d } from "../mathVector/Vector2d";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { AbstractMouseSelectableGraphicEntityView } from "./AbstractMouseSelectableGraphicEntityView";
 
 export abstract class AbstractMouseSelectablePointView extends AbstractMouseSelectableGraphicEntityView{
@@ -33,7 +33,7 @@ export abstract class AbstractMouseSelectablePointView extends AbstractMouseSele
         this.selectedKnotIndex = null;
         this.spline = spline;
         this.controlPoints = spline.controlPoints;
-        if(spline instanceof PeriodicBSplineR1toR2) {
+        if(spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.controlPoints = spline.freeControlPoints;
         }
         this.knots = spline.getDistinctKnots();

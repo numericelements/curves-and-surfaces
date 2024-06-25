@@ -41694,7 +41694,7 @@ var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ ".
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var AbsCurvatureSceneController = /** @class */ (function () {
     function AbsCurvatureSceneController(chartController) {
@@ -41708,7 +41708,7 @@ var AbsCurvatureSceneController = /** @class */ (function () {
             this.splineNumerator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
             this.splineDenominator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         }
-        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (message instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
             this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         }
@@ -42429,7 +42429,7 @@ var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ ".
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var CurvatureSceneController = /** @class */ (function () {
@@ -42444,7 +42444,7 @@ var CurvatureSceneController = /** @class */ (function () {
             this.splineNumerator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
             this.splineDenominator = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         }
-        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (message instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.splineNumerator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
             this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         }
@@ -42502,7 +42502,7 @@ var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ ".
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FunctionASceneController = /** @class */ (function () {
@@ -42515,7 +42515,7 @@ var FunctionASceneController = /** @class */ (function () {
         if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
             this.spline = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
         }
-        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (message instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.spline = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
         }
         else {
@@ -42571,7 +42571,7 @@ var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ ".
 var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FunctionBSceneController = /** @class */ (function () {
@@ -42584,7 +42584,7 @@ var FunctionBSceneController = /** @class */ (function () {
         if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
             this.spline = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         }
-        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (message instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.spline = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         }
         else {
@@ -42640,7 +42640,7 @@ var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ ".
 var BSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2DifferentialProperties */ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts");
 var ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 var PeriodicBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2DifferentialProperties */ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
     function FunctionBSceneControllerSqrtScaled(chartController) {
@@ -42652,7 +42652,7 @@ var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
         if (message instanceof BSplineR1toR2_1.BSplineR1toR2) {
             this.spline = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         }
-        else if (message instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (message instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.spline = new PeriodicBSplineR1toR2DifferentialProperties_1.PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         }
         else {
@@ -48727,7 +48727,7 @@ var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ ".
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ShapeNavigableCurve_1 = __webpack_require__(/*! ../shapeNavigableCurve/ShapeNavigableCurve */ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts");
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var BSplineR1toR1_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
 var AbstractBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
 var ConstraintType;
@@ -48907,7 +48907,7 @@ var CurveConstraints = /** @class */ (function () {
                         }
                     }
                 }
-                else if (this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+                else if (this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
                 }
             }
             else {
@@ -49017,7 +49017,7 @@ var CurveConstraints = /** @class */ (function () {
                     syu = sy.derivative();
                     // console.log(' ctrlPts'+JSON.stringify(optimizedSpline.controlPoints)+' knots '+optimizedSpline.knots);
                 }
-                else if (this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+                else if (this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "something to do there");
                     error.logMessageToConsole();
                 }
@@ -49973,7 +49973,7 @@ var CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAn
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var CurveConstraintStrategy_1 = __webpack_require__(/*! ./CurveConstraintStrategy */ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts");
 var ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 var Optimizer_1 = __webpack_require__(/*! ../mathematics/Optimizer */ "./src/mathematics/Optimizer.ts");
@@ -50870,7 +50870,7 @@ var ClosedCurveNavigationState = /** @class */ (function (_super) {
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent object type to initialize the currentCurve.");
             error.logMessageToConsole();
-            _this.currentCurve = new PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2;
+            _this.currentCurve = new PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence;
         }
         _this.navigationCurveModel.currentCurve = _this.currentCurve;
         _this.optimizedCurve = _this.currentCurve.clone();
@@ -54606,6 +54606,7 @@ exports.TOL_KNOT_COINCIDENCE = 1.0E-8;
  * A B-Spline function from a one dimensional real space to a two dimensional real space
  */
 var AbstractBSplineR1toR2 = /** @class */ (function () {
+    // protected abstract _increasingKnotSequence: IncreasingOpenKnotSequenceInterface;
     /**
      * Create a B-Spline
      * @param controlPoints The control points array
@@ -58038,10 +58039,10 @@ exports.PeriodicBSplineR1toR1 = PeriodicBSplineR1toR1;
 
 /***/ }),
 
-/***/ "./src/newBsplines/PeriodicBSplineR1toR2.ts":
-/*!**************************************************!*\
-  !*** ./src/newBsplines/PeriodicBSplineR1toR2.ts ***!
-  \**************************************************/
+/***/ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts":
+/*!************************************************************************!*\
+  !*** ./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts ***!
+  \************************************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -58071,7 +58072,86 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.create_PeriodicBSplineR1toR2 = exports.PeriodicBSplineR1toR2 = void 0;
+exports.PeriodicBSplineR1toR2DifferentialProperties = void 0;
+var AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
+var PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ./PeriodicBSplineR1toR1 */ "./src/newBsplines/PeriodicBSplineR1toR1.ts");
+var PeriodicBSplineR1toR2DifferentialProperties = /** @class */ (function (_super) {
+    __extends(PeriodicBSplineR1toR2DifferentialProperties, _super);
+    function PeriodicBSplineR1toR2DifferentialProperties(spline) {
+        return _super.call(this, spline) || this;
+    }
+    PeriodicBSplineR1toR2DifferentialProperties.prototype.bSplineR1toR1Factory = function (controlPoints, knots) {
+        return new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(controlPoints, knots);
+    };
+    PeriodicBSplineR1toR2DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
+        var e_1, _a;
+        if (!curvatureDerivativeNumerator) {
+            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
+        }
+        var zeros = curvatureDerivativeNumerator.zeros(10e-3);
+        var result = [];
+        try {
+            for (var zeros_1 = __values(zeros), zeros_1_1 = zeros_1.next(); !zeros_1_1.done; zeros_1_1 = zeros_1.next()) {
+                var z = zeros_1_1.value;
+                result.push(this._spline.evaluate(z));
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (zeros_1_1 && !zeros_1_1.done && (_a = zeros_1.return)) _a.call(zeros_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        var a = curvatureDerivativeNumerator.controlPoints[0];
+        var b = curvatureDerivativeNumerator.controlPoints[curvatureDerivativeNumerator.controlPoints.length - 1];
+        if (a * b < 0) { // a and b have different sign
+            var u = curvatureDerivativeNumerator.knots[curvatureDerivativeNumerator.knots.length - 1];
+            result.push(this._spline.evaluate(u));
+        }
+        return result;
+    };
+    return PeriodicBSplineR1toR2DifferentialProperties;
+}(AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties));
+exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2DifferentialProperties;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts":
+/*!**********************************************************************!*\
+  !*** ./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts ***!
+  \**********************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.create_PeriodicBSplineR1toR2 = exports.PeriodicBSplineR1toR2withOpenKnotSequence = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
 var AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
@@ -58085,21 +58165,21 @@ var Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Boo
 /**
  * A B-Spline function from a one dimensional real periodic space to a two dimensional real space
  */
-var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
-    __extends(PeriodicBSplineR1toR2, _super);
+var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super) {
+    __extends(PeriodicBSplineR1toR2withOpenKnotSequence, _super);
     /**
      * Create a B-Spline
      * @param controlPoints The control points array
      * @param knots The knot vector
      */
-    function PeriodicBSplineR1toR2(controlPoints, knots) {
+    function PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, knots) {
         if (controlPoints === void 0) { controlPoints = [new Vector2d_1.Vector2d(0, 0)]; }
         if (knots === void 0) { knots = [0, 1]; }
         var _this = _super.call(this, controlPoints, knots) || this;
         _this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(_this._degree, knots);
         return _this;
     }
-    Object.defineProperty(PeriodicBSplineR1toR2.prototype, "knots", {
+    Object.defineProperty(PeriodicBSplineR1toR2withOpenKnotSequence.prototype, "knots", {
         get: function () {
             var e_1, _a;
             var knots = [];
@@ -58122,7 +58202,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(PeriodicBSplineR1toR2.prototype, "periodicControlPointsLength", {
+    Object.defineProperty(PeriodicBSplineR1toR2withOpenKnotSequence.prototype, "periodicControlPointsLength", {
         get: function () {
             var indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.getIndexKnotOrigin());
             var multiplicityBoundary = this.knotMultiplicity(indexOrigin);
@@ -58131,7 +58211,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(PeriodicBSplineR1toR2.prototype, "freeControlPoints", {
+    Object.defineProperty(PeriodicBSplineR1toR2withOpenKnotSequence.prototype, "freeControlPoints", {
         get: function () {
             var periodicControlPoints = [];
             for (var i = 0; i < this.periodicControlPointsLength; i += 1) {
@@ -58143,12 +58223,12 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         configurable: true
     });
     // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
-    PeriodicBSplineR1toR2.prototype.factory = function (controlPoints, knots) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.factory = function (controlPoints, knots) {
         if (controlPoints === void 0) { controlPoints = [new Vector2d_1.Vector2d(0, 0)]; }
         if (knots === void 0) { knots = [0, 1]; }
-        return new PeriodicBSplineR1toR2(controlPoints, knots);
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, knots);
     };
-    PeriodicBSplineR1toR2.prototype.getClampSpline = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.getClampSpline = function () {
         var s = this.clone();
         var degree = this._degree;
         s.clamp(s.knots[degree]);
@@ -58160,17 +58240,17 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     /**
      * Return a deep copy of this b-spline
      */
-    PeriodicBSplineR1toR2.prototype.clone = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.clone = function () {
         var cloneControlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._controlPoints);
-        return new PeriodicBSplineR1toR2(cloneControlPoints, this._increasingKnotSequence.allAbscissae.slice());
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(cloneControlPoints, this._increasingKnotSequence.allAbscissae.slice());
     };
-    PeriodicBSplineR1toR2.prototype.optimizerStep = function (step) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.optimizerStep = function (step) {
         var n = this.periodicControlPointsLength;
         for (var i = 0; i < n; i += 1) {
             this.moveControlPoint(i, step[i], step[i + n]);
         }
     };
-    PeriodicBSplineR1toR2.prototype.moveControlPoint = function (i, deltaX, deltaY) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.moveControlPoint = function (i, deltaX, deltaY) {
         if (i < 0 || i >= this.periodicControlPointsLength) {
             throw new Error("Control point indentifier is out of range");
         }
@@ -58186,7 +58266,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
      * @param toU Parametric position where the section end
      * @retrun the BSpline_R1_to_R2 section
      */
-    PeriodicBSplineR1toR2.prototype.extract = function (fromU, toU) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.extract = function (fromU, toU) {
         var spline = this.clone();
         spline.clamp(fromU);
         spline.clamp(toU);
@@ -58202,7 +58282,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         }
         return new BSplineR1toR2_1.BSplineR1toR2(newControlPoints, newKnots);
     };
-    PeriodicBSplineR1toR2.prototype.elevateDegree = function (times) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.elevateDegree = function (times) {
         if (times === void 0) { times = 1; }
         var sx = new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(this.getControlPointsX(), this.knots);
         var sy = new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(this.getControlPointsY(), this.knots);
@@ -58217,7 +58297,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         for (var i = 0; i < sxNew.controlPoints.length; i += 1) {
             newcp.push(new Vector2d_1.Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
         }
-        var newSpline = new PeriodicBSplineR1toR2(newcp, sxNew.knots);
+        var newSpline = new PeriodicBSplineR1toR2withOpenKnotSequence(newcp, sxNew.knots);
         for (var i = 0; i < knots.length; i += 1) {
             var m = this.knotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.findSpan(knots[i])));
             for (var j = 0; j < newSpline.degree - m - 1; j += 1) {
@@ -58228,7 +58308,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(newSpline.degree, newSpline.knots);
         this._degree = newSpline.degree;
     };
-    PeriodicBSplineR1toR2.prototype.generateKnotSequenceOfBSplineR1toR2 = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateKnotSequenceOfBSplineR1toR2 = function () {
         var knotSequence = this._increasingKnotSequence.allAbscissae;
         var distinctKnots = this.getDistinctKnots();
         var knotMultiplicity = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
@@ -58279,7 +58359,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     //     let result =  knotToAddAtOrigin.concat(knotSequence).concat(knotToAddAtExtremity);
     //     return result;
     // }
-    PeriodicBSplineR1toR2.prototype.generateKnotSequenceOfPeriodicBSplineR1toR2 = function (bSplineDegreeUp) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateKnotSequenceOfPeriodicBSplineR1toR2 = function (bSplineDegreeUp) {
         var knotSequenceDegreeUp = bSplineDegreeUp.increasingKnotSequence.allAbscissae;
         while (knotSequenceDegreeUp[0] !== this._increasingKnotSequence.allAbscissae[0]) {
             knotSequenceDegreeUp.splice(0, 1);
@@ -58299,7 +58379,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     //     }
     //     return knotSequenceDegreeUp;
     // }
-    PeriodicBSplineR1toR2.prototype.generateControlPolygonOfBSplineR1toR2 = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateControlPolygonOfBSplineR1toR2 = function () {
         var result = [];
         var knotMultiplicity = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
         if (knotMultiplicity[0] === (this._degree + 1)) {
@@ -58334,16 +58414,16 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     //     }
     //     return result;
     // }
-    PeriodicBSplineR1toR2.prototype.generateControlPolygonOfPeriodicBSplineR1toR2 = function (bSplineDegreeUp) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateControlPolygonOfPeriodicBSplineR1toR2 = function (bSplineDegreeUp) {
         var controlPolygonDegreeUp = bSplineDegreeUp.controlPoints;
         controlPolygonDegreeUp.splice(0, bSplineDegreeUp.degree);
         controlPolygonDegreeUp.splice((controlPolygonDegreeUp.length - 1), 1);
         return controlPolygonDegreeUp;
     };
-    PeriodicBSplineR1toR2.prototype.generateBSplineR1toR2 = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateBSplineR1toR2 = function () {
         return new BSplineR1toR2_1.BSplineR1toR2(this._controlPoints, this._increasingKnotSequence.allAbscissae);
     };
-    PeriodicBSplineR1toR2.prototype.generateIntermediateSplinesForDegreeElevation = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateIntermediateSplinesForDegreeElevation = function () {
         var knotSequences = [];
         var controlPolygons = [];
         var strictIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
@@ -58400,13 +58480,13 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             CPs: controlPolygons
         };
     };
-    PeriodicBSplineR1toR2.prototype.degreeIncrement = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.degreeIncrement = function () {
         var intermSplKnotsAndCPs = this.generateIntermediateSplinesForDegreeElevation();
-        var splineHigherDegree = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
+        var splineHigherDegree = new PeriodicBSplineR1toR2withOpenKnotSequence(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
         // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
         for (var i = 1; i <= this._degree; i += 1) {
             var strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            var splineTemp = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
+            var splineTemp = new PeriodicBSplineR1toR2withOpenKnotSequence(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
             var strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
             // for(let j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
             for (var j = 0; j < strictIncSeq_splineHigherDegree.length(); j++) {
@@ -58434,7 +58514,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         }
         splineHigherDegree.controlPoints = tempHigherDegCP.slice(0, tempHigherDegCP.length - 1);
         console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence.allAbscissae);
-        return new PeriodicBSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
     };
     // degreeIncrement(): PeriodicBSplineR1toR2 {
     //     const bSpline = this.generateBSplineR1toR2();
@@ -58443,7 +58523,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     //     const newControlPolygon = this.generateControlPolygonOfPeriodicBSplineR1toR2(bSplineDegreeUp);
     //     return new PeriodicBSplineR1toR2(newControlPolygon, newKnots);
     // }
-    PeriodicBSplineR1toR2.prototype.grevilleAbscissae = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.grevilleAbscissae = function () {
         var e_2, _a;
         var result = [];
         for (var i = 0; i < this.freeControlPoints.length; i += 1) {
@@ -58467,7 +58547,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         return result;
     };
     // Probably not compatible with periodic BSplines -> to be modified
-    PeriodicBSplineR1toR2.prototype.removeKnot = function (indexFromFindSpan, tolerance) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.removeKnot = function (indexFromFindSpan, tolerance) {
         //Piegl and Tiller, The NURBS book, p : 185
         if (tolerance === void 0) { tolerance = BSplineR1toR1_1.KNOT_REMOVAL_TOLERANCE; }
         var index = indexFromFindSpan;
@@ -58589,13 +58669,13 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     //     const fout = (2*index - multiplicity - this.degree) / 2;
     //     this._controlPoints.splice(fout, 1);
     // }
-    PeriodicBSplineR1toR2.prototype.getDistinctKnots = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.getDistinctKnots = function () {
         var indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.getIndexKnotOrigin());
         var multiplicityBoundary = this.knotMultiplicity(indexStrctInc);
         var result = _super.prototype.getDistinctKnots.call(this);
         return result.slice(this.degree - (multiplicityBoundary - 1), result.length - this.degree + (multiplicityBoundary - 1));
     };
-    PeriodicBSplineR1toR2.prototype.setControlPointPosition = function (i, value) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.setControlPointPosition = function (i, value) {
         if (i < 0 || i >= this.periodicControlPointsLength) {
             throw new Error("Control point indentifier is out of range");
         }
@@ -58605,19 +58685,19 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             _super.prototype.setControlPointPosition.call(this, j, value.clone());
         }
     };
-    PeriodicBSplineR1toR2.prototype.isKnotlMultiplicityZero = function (u) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.isKnotlMultiplicityZero = function (u) {
         var multiplicityZero = true;
         if (this.isAbscissaCoincidingWithKnot(u))
             multiplicityZero = false;
         return multiplicityZero;
     };
-    PeriodicBSplineR1toR2.prototype.findCoincidentKnot = function (u) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.findCoincidentKnot = function (u) {
         var index = new Knot_1.KnotIndexIncreasingSequence();
         if (!this.isKnotlMultiplicityZero(u))
             index = this.getFirstKnotIndexCoincidentWithAbscissa(u);
         return index;
     };
-    PeriodicBSplineR1toR2.prototype.insertKnot = function (u) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.insertKnot = function (u) {
         var uToInsert = u;
         var index = new Knot_1.KnotIndexIncreasingSequence();
         if (!this.isKnotlMultiplicityZero(u)) {
@@ -58666,7 +58746,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             _super.prototype.insertKnot.call(this, uToInsert, 1);
         }
     };
-    PeriodicBSplineR1toR2.prototype.insertKnotIntoTempSpline = function (u) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.insertKnotIntoTempSpline = function (u) {
         var uToInsert = u;
         var index = new Knot_1.KnotIndexIncreasingSequence();
         if (!this.isKnotlMultiplicityZero(u)) {
@@ -58715,7 +58795,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             _super.prototype.insertKnot.call(this, uToInsert, 1);
         }
     };
-    PeriodicBSplineR1toR2.prototype.findKnotAbscissaeRightBound = function () {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.findKnotAbscissaeRightBound = function () {
         var result = 0.0;
         var cumulativeMultiplicity = 0;
         var strictIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
@@ -58732,28 +58812,28 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             result = strictIncSeq.abscissaAtIndex(new Knot_1.KnotIndexStrictlyIncreasingSequence(strictIncSeq.length() - indexOrigin.knotIndex - 1));
         return result;
     };
-    PeriodicBSplineR1toR2.prototype.scale = function (factor) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.scale = function (factor) {
         var cp = [];
         this._controlPoints.forEach(function (element) {
             cp.push(element.multiply(factor));
         });
-        return new PeriodicBSplineR1toR2(cp, this.knots.slice());
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(cp, this.knots.slice());
     };
-    PeriodicBSplineR1toR2.prototype.scaleY = function (factor) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.scaleY = function (factor) {
         var cp = [];
         this._controlPoints.forEach(function (element) {
             cp.push(new Vector2d_1.Vector2d(element.x, element.y * factor));
         });
-        return new PeriodicBSplineR1toR2(cp, this.knots.slice());
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(cp, this.knots.slice());
     };
-    PeriodicBSplineR1toR2.prototype.scaleX = function (factor) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.scaleX = function (factor) {
         var cp = [];
         this._controlPoints.forEach(function (element) {
             cp.push(new Vector2d_1.Vector2d(element.x * factor, element.y));
         });
-        return new PeriodicBSplineR1toR2(cp, this.knots.slice());
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(cp, this.knots.slice());
     };
-    PeriodicBSplineR1toR2.prototype.evaluateOutsideRefInterval = function (u) {
+    PeriodicBSplineR1toR2withOpenKnotSequence.prototype.evaluateOutsideRefInterval = function (u) {
         var result = new Vector2d_1.Vector2d();
         var knots = this.getDistinctKnots();
         if (u >= knots[0] && u <= knots[knots.length - 1]) {
@@ -58766,9 +58846,9 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         }
         return result;
     };
-    return PeriodicBSplineR1toR2;
+    return PeriodicBSplineR1toR2withOpenKnotSequence;
 }(AbstractBSplineR1toR2_1.AbstractBSplineR1toR2));
-exports.PeriodicBSplineR1toR2 = PeriodicBSplineR1toR2;
+exports.PeriodicBSplineR1toR2withOpenKnotSequence = PeriodicBSplineR1toR2withOpenKnotSequence;
 function create_PeriodicBSplineR1toR2(controlPoints, knots) {
     var e_3, _a;
     var newControlPoints = [];
@@ -58785,88 +58865,9 @@ function create_PeriodicBSplineR1toR2(controlPoints, knots) {
         }
         finally { if (e_3) throw e_3.error; }
     }
-    return new PeriodicBSplineR1toR2(newControlPoints, knots);
+    return new PeriodicBSplineR1toR2withOpenKnotSequence(newControlPoints, knots);
 }
 exports.create_PeriodicBSplineR1toR2 = create_PeriodicBSplineR1toR2;
-
-
-/***/ }),
-
-/***/ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts":
-/*!************************************************************************!*\
-  !*** ./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts ***!
-  \************************************************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PeriodicBSplineR1toR2DifferentialProperties = void 0;
-var AbstractBSplineR1toR2DifferentialProperties_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2DifferentialProperties */ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts");
-var PeriodicBSplineR1toR1_1 = __webpack_require__(/*! ./PeriodicBSplineR1toR1 */ "./src/newBsplines/PeriodicBSplineR1toR1.ts");
-var PeriodicBSplineR1toR2DifferentialProperties = /** @class */ (function (_super) {
-    __extends(PeriodicBSplineR1toR2DifferentialProperties, _super);
-    function PeriodicBSplineR1toR2DifferentialProperties(spline) {
-        return _super.call(this, spline) || this;
-    }
-    PeriodicBSplineR1toR2DifferentialProperties.prototype.bSplineR1toR1Factory = function (controlPoints, knots) {
-        return new PeriodicBSplineR1toR1_1.PeriodicBSplineR1toR1(controlPoints, knots);
-    };
-    PeriodicBSplineR1toR2DifferentialProperties.prototype.curvatureExtrema = function (curvatureDerivativeNumerator) {
-        var e_1, _a;
-        if (!curvatureDerivativeNumerator) {
-            curvatureDerivativeNumerator = this.curvatureDerivativeNumerator();
-        }
-        var zeros = curvatureDerivativeNumerator.zeros(10e-3);
-        var result = [];
-        try {
-            for (var zeros_1 = __values(zeros), zeros_1_1 = zeros_1.next(); !zeros_1_1.done; zeros_1_1 = zeros_1.next()) {
-                var z = zeros_1_1.value;
-                result.push(this._spline.evaluate(z));
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (zeros_1_1 && !zeros_1_1.done && (_a = zeros_1.return)) _a.call(zeros_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        var a = curvatureDerivativeNumerator.controlPoints[0];
-        var b = curvatureDerivativeNumerator.controlPoints[curvatureDerivativeNumerator.controlPoints.length - 1];
-        if (a * b < 0) { // a and b have different sign
-            var u = curvatureDerivativeNumerator.knots[curvatureDerivativeNumerator.knots.length - 1];
-            result.push(this._spline.evaluate(u));
-        }
-        return result;
-    };
-    return PeriodicBSplineR1toR2DifferentialProperties;
-}(AbstractBSplineR1toR2DifferentialProperties_1.AbstractBSplineR1toR2DifferentialProperties));
-exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2DifferentialProperties;
 
 
 /***/ }),
@@ -59777,7 +59778,7 @@ var __values = (this && this.__values) || function(o) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClosedCurveModel = void 0;
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 // import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
 // import { Optimizer } from "../optimizers/Optimizer"
 var AbstractCurveModel_1 = __webpack_require__(/*! ./AbstractCurveModel */ "./src/newModels/AbstractCurveModel.ts");
@@ -59808,7 +59809,7 @@ var ClosedCurveModel = /** @class */ (function (_super) {
             finally { if (e_1) throw e_1.error; }
         }
         var knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        _this._spline = PeriodicBSplineR1toR2_1.create_PeriodicBSplineR1toR2(cp1, knots);
+        _this._spline = PeriodicBSplineR1toR2withOpenKnotSequence_1.create_PeriodicBSplineR1toR2(cp1, knots);
         // this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
         console.log("end constructor ClosedCurveModel");
@@ -65149,7 +65150,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractMouseSelectablePointView = void 0;
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var AbstractMouseSelectableGraphicEntityView_1 = __webpack_require__(/*! ./AbstractMouseSelectableGraphicEntityView */ "./src/views/AbstractMouseSelectableGraphicEntityView.ts");
 var AbstractMouseSelectablePointView = /** @class */ (function (_super) {
     __extends(AbstractMouseSelectablePointView, _super);
@@ -65170,7 +65171,7 @@ var AbstractMouseSelectablePointView = /** @class */ (function (_super) {
         _this.selectedKnotIndex = null;
         _this.spline = spline;
         _this.controlPoints = spline.controlPoints;
-        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        if (spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             _this.controlPoints = spline.freeControlPoints;
         }
         _this.knots = spline.getDistinctKnots();
@@ -65721,7 +65722,7 @@ exports.ControlPointsView = void 0;
 var RoundDotTwoLevelsTransparencyShader_1 = __webpack_require__(/*! ../2DgraphicsItems/RoundDotTwoLevelsTransparencyShader */ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var AbstractMouseSelectablePointView_1 = __webpack_require__(/*! ./AbstractMouseSelectablePointView */ "./src/views/AbstractMouseSelectablePointView.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 var ControlPointsView = /** @class */ (function (_super) {
     __extends(ControlPointsView, _super);
@@ -65734,7 +65735,7 @@ var ControlPointsView = /** @class */ (function (_super) {
         _this.BLUE_COLOR = 1.0;
         _this.roundDotTwoLevelsTransparencyShader = new RoundDotTwoLevelsTransparencyShader_1.RoundDotTwoLevelsTransparencyShader(_this.gl);
         _this.pointSequenceToDisplay = spline.controlPoints;
-        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        if (spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             _this.pointSequenceToDisplay = spline.freeControlPoints;
         }
         _this.a_Position = -1;
@@ -65826,7 +65827,7 @@ var ControlPointsView = /** @class */ (function (_super) {
             this.pointSequenceToDisplay = spline.controlPoints;
             this.controlPoints = spline.controlPoints;
         }
-        else if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.pointSequenceToDisplay = spline.freeControlPoints;
             this.controlPoints = spline.freeControlPoints;
         }
@@ -65860,7 +65861,7 @@ exports.ControlPolygonView = void 0;
 var LineSegmentShader_1 = __webpack_require__(/*! ../2DgraphicsItems/LineSegmentShader */ "./src/2DgraphicsItems/LineSegmentShader.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
-var PeriodicBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2 */ "./src/newBsplines/PeriodicBSplineR1toR2.ts");
+var PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
 var ControlPolygonView = /** @class */ (function () {
     function ControlPolygonView(gl, spline) {
         this.Z = 0;
@@ -65877,7 +65878,7 @@ var ControlPolygonView = /** @class */ (function () {
         this.lineSegmentShader = new LineSegmentShader_1.LineSegmentShader(this.gl);
         // this.controlPoints = spline.visibleControlPoints()
         this.controlPoints = spline.controlPoints;
-        if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        if (spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
         }
@@ -65971,7 +65972,7 @@ var ControlPolygonView = /** @class */ (function () {
         if (spline instanceof BSplineR1toR2_1.BSplineR1toR2) {
             this.controlPoints = spline.controlPoints;
         }
-        else if (spline instanceof PeriodicBSplineR1toR2_1.PeriodicBSplineR1toR2) {
+        else if (spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
         }

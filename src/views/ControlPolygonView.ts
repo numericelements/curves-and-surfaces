@@ -4,7 +4,7 @@ import { LineSegmentShader } from "../2DgraphicsItems/LineSegmentShader"
 import { IObserver } from "../newDesignPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 
 
 export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
@@ -31,7 +31,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         this.lineSegmentShader = new LineSegmentShader(this.gl);
         // this.controlPoints = spline.visibleControlPoints()
         this.controlPoints = spline.controlPoints;
-        if(spline instanceof PeriodicBSplineR1toR2) {
+        if(spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
         }
@@ -141,7 +141,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
     update(spline: BSplineR1toR2Interface): void {
         if(spline instanceof BSplineR1toR2) {
             this.controlPoints = spline.controlPoints;
-        } else if(spline instanceof PeriodicBSplineR1toR2) {
+        } else if(spline instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.controlPoints = spline.freeControlPoints;
             this.controlPoints.push(this.controlPoints[0]);
         } else {

@@ -2,13 +2,13 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { AbstractBSplineR1toR2DifferentialProperties } from "./AbstractBSplineR1toR2DifferentialProperties"
 import { BSplineR1toR1 } from "./BSplineR1toR1"
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1"
-import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2"
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence"
 
 
 
 export class PeriodicBSplineR1toR2DifferentialProperties extends AbstractBSplineR1toR2DifferentialProperties {
 
-    constructor(spline: PeriodicBSplineR1toR2) {
+    constructor(spline: PeriodicBSplineR1toR2withOpenKnotSequence) {
         super(spline);
     }
 

@@ -6,7 +6,7 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { ChartController } from "./ChartController";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES, NB_CURVE_POINTS } from "./ChartSceneController";
 import { IObserver } from "../newDesignPatterns/Observer";
-import { PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { PeriodicBSplineR1toR2DifferentialProperties } from "../newBsplines/PeriodicBSplineR1toR2DifferentialProperties";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
@@ -25,7 +25,7 @@ export class FunctionASceneController implements IObserver<BSplineR1toR2Interfac
     update(message: BSplineR1toR2Interface): void {
         if(message instanceof BSplineR1toR2) {
             this.spline = new BSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
-        } else if(message instanceof PeriodicBSplineR1toR2) {
+        } else if(message instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
             this.spline = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureNumerator().convertTocurve();
         } else {
             const error = new ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
