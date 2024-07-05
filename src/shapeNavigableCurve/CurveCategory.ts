@@ -127,7 +127,12 @@ export class OpenPlanarCurve extends CurveCategory {
                 let spline = this.curveModel.spline;
                 while(spline.degree !== curveDegree) {
                     let tempSpline = spline.degreeIncrement();
-                    spline = tempSpline.clone();
+                    if(tempSpline !== undefined) {
+                        spline = tempSpline.clone();
+                    } else {
+                        const warning = new WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
+                        warning.logMessageToConsole();
+                    }
                 }
                 this.curveModel.setSpline(spline);
             }
@@ -189,7 +194,12 @@ export class ClosedPlanarCurve extends CurveCategory {
                 // this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
                 while(spline.degree !== curveDegree) {
                     let tempSpline = spline.degreeIncrement();
-                    spline = tempSpline.clone();
+                    if(tempSpline !== undefined) {
+                        spline = tempSpline.clone();
+                    } else {
+                        const warning = new WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
+                        warning.logMessageToConsole();
+                    }
                 }
                 this.curveModel.setSpline(spline);
             }

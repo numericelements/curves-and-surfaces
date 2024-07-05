@@ -105,7 +105,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     abstract scaleY(factor: number): AbstractBSplineR1toR2;
 
-    abstract degreeIncrement(): AbstractBSplineR1toR2;
+    abstract degreeIncrement(): AbstractBSplineR1toR2 | undefined;
 
     getControlPointsX(): number[] {
         let result: number[] = [];

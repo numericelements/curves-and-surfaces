@@ -63171,7 +63171,13 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
                 var spline = this.curveModel.spline;
                 while (spline.degree !== curveDegree) {
                     var tempSpline = spline.degreeIncrement();
-                    spline = tempSpline.clone();
+                    if (tempSpline !== undefined) {
+                        spline = tempSpline.clone();
+                    }
+                    else {
+                        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
+                        warning.logMessageToConsole();
+                    }
                 }
                 this.curveModel.setSpline(spline);
             }
@@ -63229,7 +63235,13 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
                 // this.curveModel.spline.elevateDegree(curveDegree - this.curveModel.spline.degree);
                 while (spline.degree !== curveDegree) {
                     var tempSpline = spline.degreeIncrement();
-                    spline = tempSpline.clone();
+                    if (tempSpline !== undefined) {
+                        spline = tempSpline.clone();
+                    }
+                    else {
+                        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
+                        warning.logMessageToConsole();
+                    }
                 }
                 this.curveModel.setSpline(spline);
             }
@@ -68089,12 +68101,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.main = void 0;
 var UserInterfaceEventListener_1 = __webpack_require__(/*! ./userInterfaceController/UserInterfaceEventListener */ "./src/userInterfaceController/UserInterfaceEventListener.ts");
 function main() {
-    var curveModelDefinitionEventListener = new UserInterfaceEventListener_1.CurveModelDefinitionEventListener();
-    var shapeSpaceNavigationEventListener = new UserInterfaceEventListener_1.ShapeSpaceNavigationEventListener(curveModelDefinitionEventListener);
-    var curveSceneEventListener = new UserInterfaceEventListener_1.CurveSceneEventListener(curveModelDefinitionEventListener, shapeSpaceNavigationEventListener);
-    var chartEventListener = new UserInterfaceEventListener_1.ChartEventListener(curveModelDefinitionEventListener.shapeNavigableCurve);
-    var fileEventListener = new UserInterfaceEventListener_1.FileEventListener(curveModelDefinitionEventListener, curveSceneEventListener.curveSceneController);
-    curveSceneEventListener.curveSceneController.renderFrame();
+    try {
+        var curveModelDefinitionEventListener = new UserInterfaceEventListener_1.CurveModelDefinitionEventListener();
+        var shapeSpaceNavigationEventListener = new UserInterfaceEventListener_1.ShapeSpaceNavigationEventListener(curveModelDefinitionEventListener);
+        var curveSceneEventListener = new UserInterfaceEventListener_1.CurveSceneEventListener(curveModelDefinitionEventListener, shapeSpaceNavigationEventListener);
+        var chartEventListener = new UserInterfaceEventListener_1.ChartEventListener(curveModelDefinitionEventListener.shapeNavigableCurve);
+        var fileEventListener = new UserInterfaceEventListener_1.FileEventListener(curveModelDefinitionEventListener, curveSceneEventListener.curveSceneController);
+        curveSceneEventListener.curveSceneController.renderFrame();
+    }
+    catch (error) {
+        console.error(error);
+    }
 }
 exports.main = main;
 main();

@@ -40,7 +40,7 @@ export interface BSplineR1toR2Interface {
 
     scaleY(factor: number): BSplineR1toR2Interface;
 
-    degreeIncrement(): BSplineR1toR2Interface;
+    degreeIncrement(): BSplineR1toR2Interface | undefined;
 
     moveControlPoints(delta: Vector2d[]): BSplineR1toR2Interface;
 
