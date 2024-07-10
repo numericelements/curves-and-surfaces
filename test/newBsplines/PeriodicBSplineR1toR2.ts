@@ -129,6 +129,7 @@ describe('PeriodicBSplineR1toR2', () => {
     });
 
     it('can insert a knot using Boehm algorithm ', () => {
+        // rectangular control polygon
         const cp0 = new Vector2d(0, 0)
         const cp1 = new Vector2d(0, 1)
         const cp2 = new Vector2d(1, 1)
@@ -252,6 +253,20 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(newSpline?.knots.length).to.eql(26)
         expect(newSpline?.knots).to.eql([0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12])
         expect(newSpline?.freeControlPoints.length).to.eql(23)
-        // expect(newSpline?.CPs[3]).to.eql([cp0, cp1, cp2, cp3, cp3, cp4, cp5, cp6, cp7, cp7, cp8, cp9, cp10, cp11, cp11])
+        const cpX = [-0.27, -0.275, -0.28, -0.2704166666666667, -0.23625000000000002, -0.19500000000000003,
+            -0.12875, -0.037500000000000006, 0.04375, 0.11666666666666667, 0.18125, 0.21791666666666668,
+            0.255, 0.28125, 0.29125, 0.26875000000000004, 0.235, 0.18305555555555558,
+            0.14416666666666667, 0.09666666666666666, 0.05, -0.027083333333333327, -0.08124999999999999]
+        const cpY = [-0.35, -0.2916666666666666, 0.02916666666666666, 0.21041666666666664, 0.3604166666666666, 0.48624999999999996,
+            0.6041666666666666, 0.6666666666666666, 0.685, 0.6052777777777778, 0.5108333333333333, 0.42652777777777784,
+            0.28541666666666665, 0.14166666666666666, -0.04375, -0.25277777777777777, -0.4229166666666666, -0.5222222222222221,
+            -0.5854166666666667, -0.63625, -0.6799999999999999, -0.6583333333333333, -0.6549999999999999]
+        if(newSpline !== undefined) {
+            for( let i = 0; i < newSpline.freeControlPoints.length; i++) {
+                expect(newSpline.freeControlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(newSpline.freeControlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
     });
+    
 });

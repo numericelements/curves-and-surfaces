@@ -184,6 +184,28 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         return new KnotIndexIncreasingSequence(i);
     }
 
+    regularizeKnotIntervalsOfSubsquence(index: KnotIndexIncreasingSequence, subSequence: number[]): void {
+        if((index.knotIndex - this._degree + 1) >= 0) {
+            if(subSequence.find((knot) => knot === 0.0) === 0.0 && subSequence[0] !== 0.0) {
+                let subSeqIndex = subSequence.length - 1;
+                while(subSeqIndex > 0 && subSequence[subSeqIndex] !== 0.0) {
+                    subSequence[subSeqIndex] = subSequence[subSeqIndex] + this._increasingKnotSequence.getPeriod();
+                    subSeqIndex--;
+                }
+                while(subSeqIndex > 0 && subSequence[subSeqIndex] === 0.0) {
+                    subSequence[subSeqIndex] = this._increasingKnotSequence.getPeriod();
+                    subSeqIndex--;
+                }
+            }
+        } else {
+            let subSeqIndex = 0;
+            while(subSeqIndex < subSequence.length && subSequence[subSeqIndex] !== 0.0) {
+                subSequence[subSeqIndex] = subSequence[subSeqIndex] - this._increasingKnotSequence.getPeriod();
+                subSeqIndex++;
+            }
+        }
+    }
+
     insertKnotBoehmAlgorithm(u: number, times: number = 1): void {
         // Uses Boehm algorithm without restriction on the structure of the knot sequence,
         //i.e. applicable to non uniform or arbitrary knot sequences
@@ -222,25 +244,14 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     
                 let subSequence: number[] = [];
                 if((index.knotIndex - this._degree + 1) >= 0) {
-                    if(index.knotIndex - multiplicity + this._degree < this._increasingKnotSequence.length()) {
-                        subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
-                            new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
-                    } else{
-                        subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
-                            new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1));
-                    }
+                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
+                        new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
+                    this.regularizeKnotIntervalsOfSubsquence(index, subSequence);
                 } else {
                     subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 + (index.knotIndex - this._degree + 1)),
                         new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 + index.knotIndex - multiplicity + this._degree));
-                    let subSeqIndex = 0;
-                    while(subSeqIndex < subSequence.length && subSequence[subSeqIndex] !== 0.0) {
-                        subSequence[subSeqIndex] = subSequence[subSeqIndex] - this._increasingKnotSequence.getPeriod();
-                        subSeqIndex++;
-                    }
+                    this.regularizeKnotIntervalsOfSubsquence(index, subSequence);
                 }
-    
-                // const subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(index.knotIndex - this._degree + 1),
-                // new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
                 for (let i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
                     const offset = index.knotIndex - this._degree + 1;
                     const alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
@@ -287,24 +298,16 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     degreeIncrement(): PeriodicBSplineR1toR2 | undefined {
         const intermSplKnotsAndCPs = this.generateIntermediateSplinesForDegreeElevation();
         const splineHigherDegree = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0], (this._degree + 1));
-        // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
         for(let i = 1; i <= this._degree; i += 1) {
             const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
             const splineTemp = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i], (this._degree + 1));
             const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            // for(let j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
             for(let j = 0; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(j);
                 if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
-                // if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index)
-                //     && splineTemp._increasingKnotSequence.knotMultiplicity(index) !== splineHigherDegree._increasingKnotSequence.knotMultiplicity(index))
                     splineTemp.insertKnotBoehmAlgorithm(strictIncSeq_splineTemp.abscissaAtIndex(index));
-                    // splineTemp.insertKnotIntoTempSpline(strictIncSeq_splineTemp.abscissaAtIndex(index));
                 if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index))
-                // if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index)
-                //     && splineTemp._increasingKnotSequence.knotMultiplicity(index) !== splineHigherDegree._increasingKnotSequence.knotMultiplicity(index))
                     splineHigherDegree.insertKnotBoehmAlgorithm(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
-                    // splineHigherDegree.insertKnotIntoTempSpline(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
             }
             let tempCPs: Vector2d[] = [];
             for(let ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
