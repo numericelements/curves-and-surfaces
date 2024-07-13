@@ -85,7 +85,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     moveControlPoint(i: number, deltaX: number, deltaY: number): void {
         
         if (i < 0 || i >= this.periodicControlPointsLength) {
-            throw new Error("Control point indentifier is out of range");
+            const error = new ErrorLog(this.constructor.name, "moveControlPoint", "Control point indentifier is out of range.");
+            throw(error);
         }
         super.moveControlPoint(i, deltaX, deltaY);
 

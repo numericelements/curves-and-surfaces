@@ -1,5 +1,6 @@
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KnotSequenceInterface } from "./KnotSequenceInterface";
+import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 
 export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterface{
 
@@ -16,4 +17,6 @@ export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterfa
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[];
     revertKnots():void;
+    
+    // toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceInterface;
 }

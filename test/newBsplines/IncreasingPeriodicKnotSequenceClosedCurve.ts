@@ -205,7 +205,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq1.allAbscissae).to.eql([0, 0, 1, 2, 3, 4, 4])
     });
 
-    it('can obtain the knot abscissa given the knot index', () => {
+    it('can obtain the knot abscissa given the knot index for a uniform knot sequence', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
@@ -215,6 +215,21 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(1))).to.eql(1)
         expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(5))).to.eql(0)
         expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(8))).to.eql(3)
+    });
+
+    it('can obtain the knot abscissa given the knot index for a knot sequence with arbitrary multiplicities', () => {
+        const knots = [0, 0, 1, 2, 3, 4, 5, 5];
+        const degree = 2;
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        expect(seq.degree).to.eql(2)
+        expect(seq.allAbscissae.length).to.eql(8)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(0))).to.eql(0)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(1))).to.eql(0)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(2))).to.eql(1)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(6))).to.eql(0)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(7))).to.eql(0)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(8))).to.eql(1)
+        expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(10))).to.eql(3)
     });
 
     it('can generate the knot index of the strictly increasing sequence from the knot index of the increasing sequence', () => {

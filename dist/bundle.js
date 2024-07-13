@@ -55688,6 +55688,38 @@ var AbstractKnotSequenceCurve = /** @class */ (function () {
         this.knotSequence = sequence.slice();
         return;
     };
+    AbstractKnotSequenceCurve.prototype.decrementKnotMultiplicity = function (index) {
+        var e_8, _a;
+        if (index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "decrementKnotMultiplicity", "Index value is out of range.");
+            error.logMessageToConsole();
+            return;
+        }
+        this.knotSequence[index.knotIndex].multiplicity--;
+        if (this.knotSequence[index.knotIndex].multiplicity === 0) {
+            var abscissae = this.distinctAbscissae();
+            var multiplicities = this.multiplicities();
+            abscissae.splice(index.knotIndex, 1);
+            multiplicities.splice(index.knotIndex, 1);
+            this.knotSequence = [];
+            var i = 0;
+            try {
+                for (var abscissae_1 = __values(abscissae), abscissae_1_1 = abscissae_1.next(); !abscissae_1_1.done; abscissae_1_1 = abscissae_1.next()) {
+                    var abscissa = abscissae_1_1.value;
+                    var knot = new Knot_1.Knot(abscissa, multiplicities[i]);
+                    this.knotSequence.push(knot);
+                }
+            }
+            catch (e_8_1) { e_8 = { error: e_8_1 }; }
+            finally {
+                try {
+                    if (abscissae_1_1 && !abscissae_1_1.done && (_a = abscissae_1.return)) _a.call(abscissae_1);
+                }
+                finally { if (e_8) throw e_8.error; }
+            }
+        }
+        this.checkUniformity();
+    };
     return AbstractKnotSequenceCurve;
 }());
 exports.AbstractKnotSequenceCurve = AbstractKnotSequenceCurve;
@@ -55812,41 +55844,119 @@ var AbstractOpenKnotSequenceCurve = /** @class */ (function (_super) {
         this.checkNonUniformStructure();
     };
     AbstractOpenKnotSequenceCurve.prototype.decrementKnotMultiplicity = function (index) {
-        var e_2, _a;
-        if (index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "decrementKnotMultiplicity", "Index value is out of range.");
-            error.logMessageToConsole();
-            return;
-        }
-        this.knotSequence[index.knotIndex].multiplicity--;
-        if (this.knotSequence[index.knotIndex].multiplicity === 0) {
-            var abscissae = this.distinctAbscissae();
-            var multiplicities = this.multiplicities();
-            abscissae.splice(index.knotIndex, 1);
-            multiplicities.splice(index.knotIndex, 1);
-            this.knotSequence = [];
-            var i = 0;
-            try {
-                for (var abscissae_1 = __values(abscissae), abscissae_1_1 = abscissae_1.next(); !abscissae_1_1.done; abscissae_1_1 = abscissae_1.next()) {
-                    var abscissa = abscissae_1_1.value;
-                    var knot = new Knot_1.Knot(abscissa, multiplicities[i]);
-                    this.knotSequence.push(knot);
-                }
-            }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (abscissae_1_1 && !abscissae_1_1.done && (_a = abscissae_1.return)) _a.call(abscissae_1);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-        }
-        this.checkUniformity();
+        _super.prototype.decrementKnotMultiplicity.call(this, index);
         this.checkNonUniformStructure();
     };
     return AbstractOpenKnotSequenceCurve;
 }(AbstractKnotSequenceCurve_1.AbstractKnotSequenceCurve));
 exports.AbstractOpenKnotSequenceCurve = AbstractOpenKnotSequenceCurve;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/AbstractPeriodicKnotSequence.ts":
+/*!*********************************************************!*\
+  !*** ./src/newBsplines/AbstractPeriodicKnotSequence.ts ***!
+  \*********************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractPeriodicKnotSequence = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var AbstractKnotSequenceCurve_1 = __webpack_require__(/*! ./AbstractKnotSequenceCurve */ "./src/newBsplines/AbstractKnotSequenceCurve.ts");
+var AbstractPeriodicKnotSequence = /** @class */ (function (_super) {
+    __extends(AbstractPeriodicKnotSequence, _super);
+    function AbstractPeriodicKnotSequence(degree) {
+        return _super.call(this, degree) || this;
+    }
+    AbstractPeriodicKnotSequence.prototype.checkCurveOrigin = function () {
+        if (this.knotSequence[0].abscissa !== 0.0) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCurveOrigin", "Inconsistent knot sequence origin. First knot abscissa must be 0.0");
+            error.logMessageToConsole;
+        }
+    };
+    AbstractPeriodicKnotSequence.prototype.checkMultiplicityAtEndKnots = function () {
+        if (this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkMultiplicityAtEndKnots", "Multiplicities at end knots of the sequence differ. They must be equal to define a periodic sequence structure.");
+            error.logMessageToConsole();
+        }
+    };
+    AbstractPeriodicKnotSequence.prototype.checkDegreeConsistency = function () {
+        var e_1, _a;
+        try {
+            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (knot.multiplicity > this._degree) {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed degree.");
+                    error.logMessageToConsole();
+                }
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+    };
+    AbstractPeriodicKnotSequence.prototype.getPeriod = function () {
+        var period = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        return period = this.knotSequence[this.knotSequence.length - 1].abscissa - this.knotSequence[0].abscissa;
+    };
+    AbstractPeriodicKnotSequence.prototype.length = function () {
+        return this.knotSequence.length;
+    };
+    AbstractPeriodicKnotSequence.prototype.incrementKnotMultiplicity = function (index, multiplicity) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        var increment = true;
+        if (index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
+            error.logMessageToConsole();
+            increment = false;
+        }
+        else {
+            this.knotSequence[index.knotIndex].multiplicity += multiplicity;
+            if (index.knotIndex === 0) {
+                this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+            }
+            else if (index.knotIndex === (this.knotSequence.length - 1)) {
+                this.knotSequence[0].multiplicity += multiplicity;
+            }
+            this.checkDegreeConsistency();
+        }
+        return increment;
+    };
+    return AbstractPeriodicKnotSequence;
+}(AbstractKnotSequenceCurve_1.AbstractKnotSequenceCurve));
+exports.AbstractPeriodicKnotSequence = AbstractPeriodicKnotSequence;
 
 
 /***/ }),
@@ -57744,6 +57854,472 @@ exports.IncreasingOpenKnotSequenceOpenCurve = IncreasingOpenKnotSequenceOpenCurv
 
 /***/ }),
 
+/***/ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts":
+/*!**********************************************************************!*\
+  !*** ./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts ***!
+  \**********************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.IncreasingPeriodicKnotSequenceClosedCurve = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var AbstractKnotSequenceCurve_1 = __webpack_require__(/*! ./AbstractKnotSequenceCurve */ "./src/newBsplines/AbstractKnotSequenceCurve.ts");
+var AbstractPeriodicKnotSequence_1 = __webpack_require__(/*! ./AbstractPeriodicKnotSequence */ "./src/newBsplines/AbstractPeriodicKnotSequence.ts");
+var IncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./IncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts");
+var Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
+var StrictlyIncreasingPeriodicKnotSequenceOpenCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingPeriodicKnotSequenceOpenCurve */ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceOpenCurve.ts");
+var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super) {
+    __extends(IncreasingPeriodicKnotSequenceClosedCurve, _super);
+    function IncreasingPeriodicKnotSequenceClosedCurve(degree, knots, subsequence) {
+        if (subsequence === void 0) { subsequence = false; }
+        var _this = _super.call(this, degree) || this;
+        _this.knotSequence = [];
+        _this._index = new Knot_1.KnotIndexIncreasingSequence();
+        _this._end = new Knot_1.KnotIndexIncreasingSequence(Infinity);
+        _this.knotSequence.push(new Knot_1.Knot(knots[0], 1));
+        for (var i = 1; i < knots.length; i++) {
+            if (knots[i] === _this.knotSequence[_this.knotSequence.length - 1].abscissa) {
+                _this.knotSequence[_this.knotSequence.length - 1].multiplicity++;
+            }
+            else {
+                _this.knotSequence.push(new Knot_1.Knot(knots[i], 1));
+            }
+        }
+        if (knots.length < (_this._degree + 2)) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
+            error.logMessageToConsole();
+            return _this;
+        }
+        if (!subsequence)
+            _this.checkCurveOrigin();
+        if (!subsequence)
+            _this.checkMultiplicityAtEndKnots();
+        _this.checkDegreeConsistency();
+        return _this;
+    }
+    Object.defineProperty(IncreasingPeriodicKnotSequenceClosedCurve.prototype, "allAbscissae", {
+        get: function () {
+            var e_1, _a;
+            var abscissae = [];
+            try {
+                for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var knot = _c.value;
+                    if (knot !== undefined)
+                        abscissae.push(knot);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return abscissae;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype[Symbol.iterator] = function () {
+        var e_2, _a;
+        var _this = this;
+        var knotAmount = 0;
+        var knotIndicesKnotAbscissaChange = [];
+        try {
+            for (var _b = __values(this.multiplicities()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var multiplicity = _c.value;
+                knotAmount = knotAmount + multiplicity;
+                knotIndicesKnotAbscissaChange.push(knotAmount);
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        this._end = new Knot_1.KnotIndexIncreasingSequence(knotAmount - 1);
+        var indexAbscissaChange = new Knot_1.KnotIndexIncreasingSequence();
+        return {
+            next: function () {
+                if (_this._index.knotIndex <= _this._end.knotIndex) {
+                    if (_this._index.knotIndex === knotIndicesKnotAbscissaChange[indexAbscissaChange.knotIndex]) {
+                        indexAbscissaChange.knotIndex++;
+                    }
+                    _this._index.knotIndex++;
+                    return { value: _this.knotSequence[indexAbscissaChange.knotIndex].abscissa, done: false };
+                }
+                else {
+                    _this._index = new Knot_1.KnotIndexIncreasingSequence();
+                    return { done: true };
+                }
+            }
+        };
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.deepCopy = function () {
+        return new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.allAbscissae);
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.toStrictlyIncreasingKnotSequence = function () {
+        return new StrictlyIncreasingPeriodicKnotSequenceOpenCurve_1.StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.length = function () {
+        var e_3, _a;
+        var length = 0;
+        try {
+            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (knot !== undefined)
+                    length++;
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
+        return length;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.toOpenKnotSequence = function () {
+        var e_4, _a;
+        var knotsOpenSequence = [];
+        var knotNumber = 1;
+        for (var i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+            for (var j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
+                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                    knotsOpenSequence.splice(0, 0, (this.knotSequence[this.knotSequence.length - 1 - i].abscissa - this.knotSequence[this.knotSequence.length - 1].abscissa));
+                else
+                    break;
+                knotNumber++;
+            }
+            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                break;
+        }
+        try {
+            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (knot !== undefined)
+                    knotsOpenSequence.push(knot);
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
+        knotNumber = 1;
+        for (var i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+            for (var j = 0; j < this.knotSequence[0 + i].multiplicity; j++) {
+                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                    knotsOpenSequence.push(this.knotSequence[this.knotSequence.length - 1].abscissa + (this.knotSequence[i].abscissa - this.knotSequence[0].abscissa));
+                else
+                    break;
+                knotNumber++;
+            }
+            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                break;
+        }
+        return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(this._degree, knotsOpenSequence);
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.raiseKnotMultiplicity = function (index, multiplicity) {
+        if (index.knotIndex < 0) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "raiseKnotMultiplicity", "Index value is out of range.");
+            error.logMessageToConsole();
+            return;
+        }
+        var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+        this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
+        if (indexWithinPeriod === 0)
+            this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+        this.checkUniformity();
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.incrementKnotMultiplicity = function (index, multiplicity) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        var increment = true;
+        if (index.knotIndex < 0) {
+            increment = false;
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "negative index value. It cannot be processed");
+            error.logMessageToConsole();
+            return increment;
+        }
+        var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+        this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
+        if (indexWithinPeriod === 0)
+            this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+        this.checkDegreeConsistency();
+        return increment;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.knotMultiplicityAtAbscissa = function (abcissa) {
+        var e_5, _a;
+        var multiplicity = 0;
+        try {
+            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (Math.abs(abcissa - knot.abscissa) < AbstractKnotSequenceCurve_1.KNOT_COINCIDENCE_TOLERANCE) {
+                    multiplicity = knot.multiplicity;
+                }
+            }
+        }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_5) throw e_5.error; }
+        }
+        if (multiplicity === 0) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "knotMultiplicityAtAbscissa", "knot abscissa cannot be found within the knot sequence.");
+            warning.logMessageToConsole();
+        }
+        return multiplicity;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.insertKnot = function (abscissa, multiplicity) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        var insertion = true;
+        if (this.isAbscissaCoincidingWithKnot(abscissa)) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "abscissa is too close from an existing knot: raise multiplicity of an existing knot.");
+            warning.logMessageToConsole();
+            insertion = false;
+            return insertion;
+        }
+        else if (multiplicity >= this._degree) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree");
+            warning.logMessageToConsole();
+            insertion = false;
+            return insertion;
+        }
+        else if (abscissa < this.knotSequence[0].abscissa || abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "the abscissa is out of the range of the knot sequence interval");
+            warning.logMessageToConsole();
+            insertion = false;
+        }
+        if (insertion) {
+            var knot = new Knot_1.Knot(abscissa, multiplicity);
+            var i = 0;
+            while (i < (this.knotSequence.length - 1)) {
+                if (this.knotSequence[i].abscissa < abscissa && abscissa < this.knotSequence[i + 1].abscissa)
+                    break;
+                i++;
+            }
+            this.knotSequence.splice((i + 1), 0, knot);
+            this.checkUniformity();
+        }
+        return insertion;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.abscissaAtIndex = function (index) {
+        var e_6, _a;
+        var abscissa = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        var multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
+        var indexPeriod = new Knot_1.KnotIndexIncreasingSequence(index.knotIndex % (this.allAbscissae.length - multLastKnot));
+        var i = 0;
+        try {
+            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (i === indexPeriod.knotIndex && knot !== undefined)
+                    abscissa = knot;
+                i++;
+            }
+        }
+        catch (e_6_1) { e_6 = { error: e_6_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_6) throw e_6.error; }
+        }
+        return abscissa;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.toKnotIndexStrictlyIncreasingSequence = function (index) {
+        var e_7, _a;
+        var strictlyIncreasingKnotSequence = this.toStrictlyIncreasingKnotSequence();
+        var lastIdxStrictIncSeq = strictlyIncreasingKnotSequence.allAbscissae.length - 1;
+        var abscissa = this.abscissaAtIndex(index);
+        var i = 0;
+        try {
+            for (var _b = __values(strictlyIncreasingKnotSequence.allAbscissae), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (knot !== undefined) {
+                    if (knot === abscissa)
+                        break;
+                    i++;
+                }
+            }
+        }
+        catch (e_7_1) { e_7 = { error: e_7_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_7) throw e_7.error; }
+        }
+        if (index.knotIndex > (this.allAbscissae.length - 1))
+            i = i + lastIdxStrictIncSeq;
+        return new Knot_1.KnotIndexStrictlyIncreasingSequence(i);
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.extractSubsetOfAbscissae = function (knotStart, knotEnd) {
+        var e_8, _a, e_9, _b;
+        var knots = [];
+        var lasIndex = this.allAbscissae.length - 1;
+        var multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
+        var indexPeriod = lasIndex - multLastKnot + 1;
+        if (!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
+            error.logMessageToConsole();
+            return knots;
+        }
+        if ((knotEnd.knotIndex - knotStart.knotIndex + 1) > lasIndex) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence. No extraction is performed.");
+            error.logMessageToConsole();
+            return knots;
+        }
+        var strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
+        var strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
+        var indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
+        var indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
+        var index = 0;
+        if (strictIncIdxEnd.knotIndex > (this.knotSequence.length - 1)) {
+            knotEnd.knotIndex = knotEnd.knotIndex % indexPeriod;
+        }
+        if (strictIncIdxStart.knotIndex === 0 && !(knotStart.knotIndex >= 0 && knotStart.knotIndex <= (this.knotSequence[0].multiplicity - 1))) {
+            knotStart.knotIndex = knotStart.knotIndex - indexPeriod;
+        }
+        try {
+            for (var _c = __values(this), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var knot = _d.value;
+                if (((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
+                    (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex)) && index < (lasIndex - multLastKnot + 1)) {
+                    if (knot !== undefined)
+                        knots.push(knot);
+                }
+                index++;
+            }
+        }
+        catch (e_8_1) { e_8 = { error: e_8_1 }; }
+        finally {
+            try {
+                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            }
+            finally { if (e_8) throw e_8.error; }
+        }
+        index = 0;
+        if (indexEndInPeriod === 0) {
+            knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
+        }
+        if (indexEndInPeriod < indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
+            try {
+                for (var _e = __values(this), _f = _e.next(); !_f.done; _f = _e.next()) {
+                    var knot = _f.value;
+                    if (knot !== undefined && index <= knotEnd.knotIndex)
+                        knots.push(knot);
+                    index++;
+                }
+            }
+            catch (e_9_1) { e_9 = { error: e_9_1 }; }
+            finally {
+                try {
+                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                }
+                finally { if (e_9) throw e_9.error; }
+            }
+        }
+        return knots;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.findSpan = function (u) {
+        var e_10, _a;
+        var index = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        if (u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+            u = u % this.getPeriod();
+        }
+        if (u < this.knotSequence[0].abscissa) {
+            console.log(u);
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
+            error.logMessageToConsole();
+        }
+        else {
+            if (this.isAbscissaCoincidingWithKnot(u)) {
+                index = 0;
+                try {
+                    for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var knot = _c.value;
+                        index += knot.multiplicity;
+                        if (Math.abs(u - knot.abscissa) < AbstractKnotSequenceCurve_1.KNOT_COINCIDENCE_TOLERANCE) {
+                            if (knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
+                                index -= this.knotSequence[this.knotSequence.length - 1].multiplicity;
+                            }
+                            if (this.isUniform && index === (this.knotSequence.length - this._degree))
+                                index -= 1;
+                            return new Knot_1.KnotIndexIncreasingSequence(index - 1);
+                        }
+                    }
+                }
+                catch (e_10_1) { e_10 = { error: e_10_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_10) throw e_10.error; }
+                }
+            }
+            // Do binary search
+            var low = 0;
+            var high = this.knotSequence.length - 1;
+            index = Math.floor((low + high) / 2);
+            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
+                if (u < this.knotSequence[index].abscissa) {
+                    high = index;
+                }
+                else {
+                    low = index;
+                }
+                index = Math.floor((low + high) / 2);
+            }
+            var indexSeq = 0;
+            for (var i = 0; i < (index + 1); i++) {
+                indexSeq += this.knotSequence[i].multiplicity;
+            }
+            index = indexSeq - 1;
+            return new Knot_1.KnotIndexIncreasingSequence(index);
+        }
+        return new Knot_1.KnotIndexIncreasingSequence(index);
+    };
+    return IncreasingPeriodicKnotSequenceClosedCurve;
+}(AbstractPeriodicKnotSequence_1.AbstractPeriodicKnotSequence));
+exports.IncreasingPeriodicKnotSequenceClosedCurve = IncreasingPeriodicKnotSequenceClosedCurve;
+
+
+/***/ }),
+
 /***/ "./src/newBsplines/Knot.ts":
 /*!*********************************!*\
   !*** ./src/newBsplines/Knot.ts ***!
@@ -58252,7 +58828,8 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
     };
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.moveControlPoint = function (i, deltaX, deltaY) {
         if (i < 0 || i >= this.periodicControlPointsLength) {
-            throw new Error("Control point indentifier is out of range");
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "moveControlPoint", "Control point indentifier is out of range.");
+            throw (error);
         }
         _super.prototype.moveControlPoint.call(this, i, deltaX, deltaY);
         var n = this.periodicControlPointsLength;
@@ -58884,6 +59461,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decomposeFunction = exports.basisFunctionsFromSequence = exports.basisFunctions = exports.clampingFindSpan = exports.findSpan = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./IncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts");
 var Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
 /**
  * Returns the span index
@@ -58999,9 +59577,32 @@ function basisFunctionsFromSequence(span, u, knotSequence) {
     var result = [1];
     var left = [];
     var right = [];
+    var strictIncSeqMaxIndex = knotSequence.distinctAbscissae().length - 1;
+    var incSeqMaxIndex = knotSequence.allAbscissae.length - 1;
     for (var j = 1; j <= knotSequence.degree; j += 1) {
-        left[j] = u - knotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(span + 1 - j));
-        right[j] = knotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(span + j)) - u;
+        var indexRight = new Knot_1.KnotIndexIncreasingSequence(span + j);
+        var indexLeft = new Knot_1.KnotIndexIncreasingSequence(span + 1 - j);
+        var knotRight = knotSequence.abscissaAtIndex(indexRight);
+        var knotLeft = knotSequence.abscissaAtIndex(indexLeft);
+        if (knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve) {
+            var strictIncIndexRight = knotSequence.toKnotIndexStrictlyIncreasingSequence(indexRight);
+            if (strictIncIndexRight.knotIndex > strictIncSeqMaxIndex) {
+                strictIncIndexRight.knotIndex = strictIncIndexRight.knotIndex % strictIncSeqMaxIndex;
+            }
+            var multiplicityRight = knotSequence.knotMultiplicity(strictIncIndexRight);
+            if (indexLeft.knotIndex < 0) {
+                indexLeft.knotIndex = incSeqMaxIndex + indexLeft.knotIndex - multiplicityRight + 1;
+                knotLeft = knotSequence.abscissaAtIndex(indexLeft);
+            }
+            if ((span + j) >= (knotSequence.allAbscissae.length - multiplicityRight)) {
+                knotRight = knotSequence.getPeriod() + knotRight;
+            }
+            if ((span + 1 - j) < 0) {
+                knotLeft = -(knotSequence.getPeriod() - knotLeft);
+            }
+        }
+        left[j] = u - knotLeft;
+        right[j] = knotRight - u;
         var saved = 0.0;
         for (var r = 0; r < j; r += 1) {
             var temp = result[r] / (right[r + 1] + left[j - r]);
@@ -59554,6 +60155,286 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
     return StrictlyIncreasingOpenKnotSequenceOpenCurve;
 }(AbstractStrictlyIncreasingOpenKnotSequenceCurve_1.AbstractStrictlyIncreasingOpenKnotSequenceCurve));
 exports.StrictlyIncreasingOpenKnotSequenceOpenCurve = StrictlyIncreasingOpenKnotSequenceOpenCurve;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceOpenCurve.ts":
+/*!****************************************************************************!*\
+  !*** ./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceOpenCurve.ts ***!
+  \****************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.StrictlyIncreasingPeriodicKnotSequenceClosedCurve = void 0;
+var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
+var AbstractKnotSequenceCurve_1 = __webpack_require__(/*! ./AbstractKnotSequenceCurve */ "./src/newBsplines/AbstractKnotSequenceCurve.ts");
+var AbstractPeriodicKnotSequence_1 = __webpack_require__(/*! ./AbstractPeriodicKnotSequence */ "./src/newBsplines/AbstractPeriodicKnotSequence.ts");
+var IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./IncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts");
+var Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
+var StrictlyIncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts");
+var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super) {
+    __extends(StrictlyIncreasingPeriodicKnotSequenceClosedCurve, _super);
+    function StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities, subsequence) {
+        if (subsequence === void 0) { subsequence = false; }
+        var _this = _super.call(this, degree) || this;
+        _this.knotSequence = [];
+        _this._index = new Knot_1.KnotIndexIncreasingSequence();
+        _this._end = new Knot_1.KnotIndexIncreasingSequence(Infinity);
+        for (var i = 0; i < knots.length; i++) {
+            _this.knotSequence.push(new Knot_1.Knot(knots[i], multiplicities[i]));
+        }
+        if (knots.length < (_this._degree + 2)) {
+            var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
+            error.logMessageToConsole();
+            return _this;
+        }
+        if (!subsequence)
+            _this.checkCurveOrigin();
+        if (!subsequence)
+            _this.checkMultiplicityAtEndKnots();
+        _this.checkDegreeConsistency();
+        return _this;
+    }
+    Object.defineProperty(StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype, "allAbscissae", {
+        get: function () {
+            var e_1, _a;
+            var abscissae = [];
+            try {
+                for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                    var knot = _c.value;
+                    if (knot !== undefined)
+                        abscissae.push(knot.abscissa);
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            return abscissae;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype[Symbol.iterator] = function () {
+        var _this = this;
+        this._end = new Knot_1.KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
+        return {
+            next: function () {
+                if (_this._index.knotIndex <= _this._end.knotIndex) {
+                    var abscissa = _this.knotSequence[_this._index.knotIndex].abscissa;
+                    var multiplicity = _this.knotSequence[_this._index.knotIndex].multiplicity;
+                    _this._index.knotIndex++;
+                    return { value: { abscissa: abscissa, multiplicity: multiplicity },
+                        done: false };
+                }
+                else {
+                    _this._index = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+                    return { done: true };
+                }
+            }
+        };
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.length = function () {
+        return this.knotSequence.length;
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.deepCopy = function () {
+        return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.abscissaAtIndex = function (index) {
+        var e_2, _a;
+        var abscissa = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        var indexPeriod = new Knot_1.KnotIndexStrictlyIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
+        var i = 0;
+        try {
+            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (i === indexPeriod.knotIndex && knot !== undefined)
+                    abscissa = knot.abscissa;
+                i++;
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        return abscissa;
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.incrementKnotMultiplicity = function (index, multiplicity) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        var increment = true;
+        var indexPeriod = new Knot_1.KnotIndexStrictlyIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
+        if (indexPeriod.knotIndex < 0) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
+            error.logMessageToConsole();
+            increment = false;
+        }
+        else {
+            var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+            this.knotSequence[indexPeriod.knotIndex].multiplicity += multiplicity;
+            if (indexWithinPeriod === 0)
+                this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+            this.checkDegreeConsistency();
+        }
+        return increment;
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.toIncreasingKnotSequence = function () {
+        var e_3, _a;
+        var knotAbscissae = [];
+        try {
+            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                for (var i = 0; i < knot.multiplicity; i++) {
+                    knotAbscissae.push(knot.abscissa);
+                }
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
+        return new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve(this._degree, knotAbscissae);
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.toOpenKnotSequence = function () {
+        var e_4, _a;
+        var knotsOpenSequence = [];
+        var multiplicitiesOpenSequence = [];
+        var knotNumber = 1;
+        for (var i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+            for (var j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
+                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1))) {
+                    knotsOpenSequence.splice(0, 0, (this.knotSequence[this.knotSequence.length - 1 - i].abscissa - this.knotSequence[this.knotSequence.length - 1].abscissa));
+                    multiplicitiesOpenSequence.push(this.knotSequence[this.knotSequence.length - 1 - i].multiplicity);
+                }
+                else
+                    break;
+                knotNumber++;
+            }
+            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                break;
+        }
+        try {
+            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var knot = _c.value;
+                if (knot !== undefined) {
+                    knotsOpenSequence.push(knot.abscissa);
+                    multiplicitiesOpenSequence.push(knot.multiplicity);
+                }
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
+        knotNumber = 1;
+        for (var i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+            for (var j = 0; j < this.knotSequence[0 + i].multiplicity; j++) {
+                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1))) {
+                    knotsOpenSequence.push(this.knotSequence[this.knotSequence.length - 1].abscissa + (this.knotSequence[i].abscissa - this.knotSequence[0].abscissa));
+                    multiplicitiesOpenSequence.push(this.knotSequence[i].multiplicity);
+                }
+                else
+                    break;
+                knotNumber++;
+            }
+            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                break;
+        }
+        return new StrictlyIncreasingOpenKnotSequenceClosedCurve_1.StrictlyIncreasingOpenKnotSequenceClosedCurve(this._degree, knotsOpenSequence, multiplicitiesOpenSequence);
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.findSpan = function (u) {
+        var e_5, _a;
+        var index = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        if (u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+            u = u % this.getPeriod();
+        }
+        if (u < this.knotSequence[0].abscissa) {
+            console.log(u);
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
+            error.logMessageToConsole();
+        }
+        else {
+            if (this.isAbscissaCoincidingWithKnot(u)) {
+                index = 0;
+                try {
+                    for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var knot = _c.value;
+                        index++;
+                        if (Math.abs(u - knot.abscissa) < AbstractKnotSequenceCurve_1.KNOT_COINCIDENCE_TOLERANCE) {
+                            if (knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
+                                index = this.knotSequence.length - 1;
+                            }
+                            return new Knot_1.KnotIndexStrictlyIncreasingSequence(index - 1);
+                        }
+                    }
+                }
+                catch (e_5_1) { e_5 = { error: e_5_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_5) throw e_5.error; }
+                }
+            }
+            // Do binary search
+            var low = 0;
+            var high = this.knotSequence.length - 1;
+            index = Math.floor((low + high) / 2);
+            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
+                if (u < this.knotSequence[index].abscissa) {
+                    high = index;
+                }
+                else {
+                    low = index;
+                }
+                index = Math.floor((low + high) / 2);
+            }
+            return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
+        }
+        return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
+    };
+    return StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
+}(AbstractPeriodicKnotSequence_1.AbstractPeriodicKnotSequence));
+exports.StrictlyIncreasingPeriodicKnotSequenceClosedCurve = StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
 
 
 /***/ }),

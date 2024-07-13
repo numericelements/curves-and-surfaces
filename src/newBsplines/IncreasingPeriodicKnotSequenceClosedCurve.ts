@@ -147,7 +147,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
             }
         }
         if(multiplicity === 0) {
-            const warning = new WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", "knot abscissa cannot be found within the knot sequence.");
+            const warning = new WarningLog(this.constructor.name, "knotMultiplicityAtAbscissa", "knot abscissa cannot be found within the knot sequence.");
             warning.logMessageToConsole();
         }
         return multiplicity;
@@ -185,7 +185,8 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
         let abscissa = RETURN_ERROR_CODE;
-        const indexPeriod =  new KnotIndexIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
+        const multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
+        const indexPeriod =  new KnotIndexIncreasingSequence(index.knotIndex % (this.allAbscissae.length - multLastKnot));
         let i = 0;
         for(const knot of this) {
             if(i === indexPeriod.knotIndex && knot !== undefined) abscissa = knot;

@@ -93,4 +93,26 @@ export abstract class AbstractKnotSequenceCurve {
         return
     }
 
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
+        if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
+            const error = new ErrorLog(this.constructor.name, "decrementKnotMultiplicity", "Index value is out of range.");
+            error.logMessageToConsole();
+            return;
+        }
+        this.knotSequence[index.knotIndex].multiplicity--;
+        if(this.knotSequence[index.knotIndex].multiplicity === 0) {
+            const abscissae = this.distinctAbscissae();
+            const multiplicities = this.multiplicities();
+            abscissae.splice(index.knotIndex, 1);
+            multiplicities.splice(index.knotIndex, 1);
+            this.knotSequence = [];
+            let i = 0;
+            for(const abscissa of abscissae) {
+                const knot = new Knot(abscissa, multiplicities[i]);
+                this.knotSequence.push(knot);
+            }
+        }
+        this.checkUniformity();
+    }
+
 }
