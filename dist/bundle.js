@@ -54884,7 +54884,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
                 this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
             }
             this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
+            multiplicity++;
+            index.knotIndex++;
         }
     };
     AbstractBSplineR1toR2.prototype.findSpanBoehmAlgorithm = function (u) {
@@ -58277,8 +58278,6 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
                             if (knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
                                 index -= this.knotSequence[this.knotSequence.length - 1].multiplicity;
                             }
-                            if (this.isUniform && index === (this.knotSequence.length - this._degree))
-                                index -= 1;
                             return new Knot_1.KnotIndexIncreasingSequence(index - 1);
                         }
                     }
@@ -59579,6 +59578,7 @@ function basisFunctionsFromSequence(span, u, knotSequence) {
     var right = [];
     var strictIncSeqMaxIndex = knotSequence.distinctAbscissae().length - 1;
     var incSeqMaxIndex = knotSequence.allAbscissae.length - 1;
+    var multiplicityLastKnot = knotSequence.knotMultiplicity(new Knot_1.KnotIndexStrictlyIncreasingSequence(strictIncSeqMaxIndex));
     for (var j = 1; j <= knotSequence.degree; j += 1) {
         var indexRight = new Knot_1.KnotIndexIncreasingSequence(span + j);
         var indexLeft = new Knot_1.KnotIndexIncreasingSequence(span + 1 - j);
@@ -59591,10 +59591,11 @@ function basisFunctionsFromSequence(span, u, knotSequence) {
             }
             var multiplicityRight = knotSequence.knotMultiplicity(strictIncIndexRight);
             if (indexLeft.knotIndex < 0) {
-                indexLeft.knotIndex = incSeqMaxIndex + indexLeft.knotIndex - multiplicityRight + 1;
+                indexLeft.knotIndex = incSeqMaxIndex + indexLeft.knotIndex - multiplicityLastKnot + 1;
                 knotLeft = knotSequence.abscissaAtIndex(indexLeft);
             }
-            if ((span + j) >= (knotSequence.allAbscissae.length - multiplicityRight)) {
+            if ((span + j) >= (knotSequence.allAbscissae.length - multiplicityLastKnot)) {
+                // if((span + j) >= (knotSequence.allAbscissae.length - multiplicityRight)) {
                 knotRight = knotSequence.getPeriod() + knotRight;
             }
             if ((span + 1 - j) < 0) {

@@ -4,7 +4,7 @@ import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { KnotIndexIncreasingSequence } from "./Knot";
+import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 /**
  * Returns the span index
@@ -120,6 +120,7 @@ export function basisFunctionsFromSequence(span: number, u: number, knotSequence
     let right: Array<number> = [];
     const strictIncSeqMaxIndex = knotSequence.distinctAbscissae().length - 1;
     const incSeqMaxIndex = knotSequence.allAbscissae.length - 1;
+    const multiplicityLastKnot = knotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(strictIncSeqMaxIndex));
     for (let j = 1; j <= knotSequence.degree; j += 1) {
         const indexRight = new KnotIndexIncreasingSequence(span + j);
         let indexLeft = new KnotIndexIncreasingSequence(span + 1 - j);
@@ -132,10 +133,11 @@ export function basisFunctionsFromSequence(span: number, u: number, knotSequence
             }
             const multiplicityRight = knotSequence.knotMultiplicity(strictIncIndexRight);
             if(indexLeft.knotIndex < 0) {
-                indexLeft.knotIndex = incSeqMaxIndex + indexLeft.knotIndex - multiplicityRight + 1;
+                indexLeft.knotIndex = incSeqMaxIndex + indexLeft.knotIndex - multiplicityLastKnot + 1;
                 knotLeft = knotSequence.abscissaAtIndex(indexLeft);
             }
-            if((span + j) >= (knotSequence.allAbscissae.length - multiplicityRight)) {
+            if((span + j) >= (knotSequence.allAbscissae.length - multiplicityLastKnot)) {
+            // if((span + j) >= (knotSequence.allAbscissae.length - multiplicityRight)) {
                 knotRight = knotSequence.getPeriod() + knotRight;
             }
             if((span + 1 - j) < 0) {

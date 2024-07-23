@@ -320,6 +320,98 @@ describe('BSplineR1toR2', () => {
         expect(intermSplines.CPs[2]).to.eql([cp0, cp1, cp2, cp2, cp3, cp4])
     })
 
+    it('can insert a knot using Boehm algorithm with comparison with insertKnot method', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const cp4 = new Vector2d(1, -1)
+        const cp5 = new Vector2d(0, -1)
+        const cp6 = new Vector2d(0, 0)
+        const knots = [0, 0, 1, 2, 3, 4, 5, 6, 6]
+        const s = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots)
+        const sp = s.clone()
+        expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5, cp6])
+        expect(s?.degree).to.eql(1)
+        expect(s?.evaluate(4)).to.eql(cp4)
+        s?.insertKnotBoehmAlgorithm(4);
+        expect(s?.controlPoints.length).to.eql(8)
+        expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp4, cp5, cp6])
+        expect(s?.knots.length).to.eql(10)
+        expect(s?.knots).to.eql([0, 0, 1, 2, 3, 4, 4, 5, 6, 6])
+        expect(s?.evaluate(4)).to.eql(cp4)
+        sp.insertKnot(4)
+        expect(s.knots).to.eql(sp.knots)
+        expect(s.controlPoints).to.eql(sp.controlPoints)
+
+        const knots1 = [0, 0, 0, 1, 2, 3, 4, 5, 5, 5]
+        const sp1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots1)
+        const sp2 = sp1.clone()
+        expect(sp1?.degree).to.eql(2)
+        expect(sp1?.evaluate(4)).to.eql(new Vector2d(0.5, -1))
+        sp1?.insertKnotBoehmAlgorithm(4);
+        expect(sp1?.knots.length).to.eql(11)
+        expect(sp1?.knots).to.eql([0, 0, 0, 1, 2, 3, 4, 4, 5, 5, 5])
+        expect(sp1?.controlPoints.length).to.eql(8)
+        expect(sp1?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, new Vector2d(0.5, -1), cp5, cp6])
+        sp2.insertKnot(4)
+        expect(sp1.knots).to.eql(sp2.knots)
+        expect(sp1.controlPoints).to.eql(sp2.controlPoints)
+
+        const knots2 = [0, 0, 0, 1, 2, 3, 4, 5, 5, 5]
+        const sp3 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots2)
+        const sp4 = sp3.clone()
+        expect(sp3?.evaluate(3)).to.eql(new Vector2d(1, -0.5))
+        sp3?.insertKnotBoehmAlgorithm(3);
+        expect(sp3?.knots.length).to.eql(11)
+        expect(sp3?.knots).to.eql([0, 0, 0, 1, 2, 3, 3, 4, 5, 5, 5])
+        expect(sp3?.controlPoints.length).to.eql(8)
+        expect(sp3?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, new Vector2d(1, -0.5), cp4, cp5, cp6])
+        sp4.insertKnot(3)
+        expect(sp3.knots).to.eql(sp4.knots)
+        expect(sp3.controlPoints).to.eql(sp4.controlPoints)
+
+        const knots3 = [0, 0, 0, 1, 2, 3, 4, 5, 5, 5]
+        const sp5 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots3)
+        const sp6 = sp5.clone()
+        expect(sp5?.evaluate(2)).to.eql(new Vector2d(1, 0.5))
+        sp5?.insertKnotBoehmAlgorithm(2);
+        expect(sp5?.knots.length).to.eql(11)
+        expect(sp5?.knots).to.eql([0, 0, 0, 1, 2, 2, 3, 4, 5, 5, 5])
+        expect(sp5?.controlPoints.length).to.eql(8)
+        expect(sp5?.controlPoints).to.eql([ cp0, cp1, cp2, new Vector2d(1, 0.5), cp3, cp4, cp5, cp6])
+        sp6.insertKnot(2)
+        expect(sp5.knots).to.eql(sp6.knots)
+        expect(sp5.controlPoints).to.eql(sp6.controlPoints)
+
+        const knots4 = [0, 0, 0, 1, 2, 3, 4, 5, 5, 5]
+        const sp7 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots4)
+        const sp8 = sp7.clone()
+        expect(sp7?.evaluate(1)).to.eql(new Vector2d(0.5, 1))
+        sp7?.insertKnotBoehmAlgorithm(1);
+        expect(sp7?.knots.length).to.eql(11)
+        expect(sp7?.knots).to.eql([0, 0, 0, 1, 1, 2, 3, 4, 5, 5, 5])
+        expect(sp7?.controlPoints.length).to.eql(8)
+        expect(sp7?.controlPoints).to.eql([ cp0, cp1, new Vector2d(0.5, 1), cp2, cp3, cp4, cp5, cp6])
+        sp8.insertKnot(1)
+        expect(sp7.knots).to.eql(sp8.knots)
+        expect(sp7.controlPoints).to.eql(sp8.controlPoints)
+
+        const knots5 = [0, 0, 0, 1, 2, 3, 4, 5, 5, 5]
+        const sp9 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots5)
+        const sp10 = sp9.clone()
+        expect(sp9?.evaluate(3.5)).to.eql(new Vector2d(0.875, -0.875))
+        sp9?.insertKnotBoehmAlgorithm(3.5);
+        expect(sp9?.knots.length).to.eql(11)
+        expect(sp9?.knots).to.eql([0, 0, 0, 1, 2, 3, 3.5, 4, 5, 5, 5])
+        expect(sp9?.controlPoints.length).to.eql(8)
+        expect(sp9?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, new Vector2d(1, -0.75), new Vector2d(0.75, -1), cp5, cp6])
+        sp10.insertKnot(3.5)
+        expect(sp9.knots).to.eql(sp10.knots)
+        expect(sp9.controlPoints).to.eql(sp10.controlPoints)
+    })
+
     it('can insert a knot into a non uniform B-spline with arbitrary knot sequence using Boehm algorithm', () => {
         const cp0 = new Vector2d(0, 1)
         const cp1 = new Vector2d(1, 1)
@@ -363,6 +455,132 @@ describe('BSplineR1toR2', () => {
         for(let i = 0; i < s1.controlPoints.length; i++) {
             expect(s1.controlPoints[i].x).to.be.closeTo(cpSolutionX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
             expect(s1.controlPoints[i].y).to.be.closeTo(cpSolutionY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+    })
+
+    it('can insert knots repeatedly into a cubic B-spline using Boehm algorithm (knot on symmetry axis) (for comparison with periodic B-Splines', () => {
+        const cp0 = new Vector2d(-1, 0)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(-1, 2)
+        const cp3 = new Vector2d(0, 2)
+        const cp4 = new Vector2d(1, 2)
+        const cp5 = new Vector2d(1, 1)
+        const cp6 = new Vector2d(1, 0)
+        const spl = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], [ 0, 0, 0, 0, 1, 2, 3, 4, 4, 4, 4])
+        const spl1 = spl.clone()
+        expect(spl.degree).to.eql(3)
+        expect(spl.knots).to.eql([ 0, 0, 0, 0, 1, 2, 3, 4, 4, 4, 4])
+        expect(spl.evaluate(2).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        spl.insertKnotBoehmAlgorithm(2);
+        expect(spl.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 3, 4, 4, 4, 4])
+        expect(spl.controlPoints.length).to.eql(8)
+        expect(spl.evaluate(2).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        let cpSolutionX = [-1, -1, -1, -0.333333333333, 0.333333333333, 1, 1, 1];
+        let cpSolutionY = [0, 1, 2, 2, 2, 2, 1, 0];
+        for(let i = 0; i < spl.controlPoints.length; i++) {
+            expect(spl.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+        spl.insertKnotBoehmAlgorithm(2);
+        expect(spl.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4])
+        expect(spl.controlPoints.length).to.eql(9)
+        expect(spl.evaluate(2).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        cpSolutionX = [-1, -1, -1, -0.333333333333, 0, 0.333333333333, 1, 1, 1];
+        cpSolutionY = [0, 1, 2, 2, 2, 2, 2, 1, 0];
+        for(let i = 0; i < spl.controlPoints.length; i++) {
+            expect(spl.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+
+        const spl2 = spl1.clone()
+        spl2.insertKnot(2, 2);
+        expect(spl2.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4])
+        expect(spl2.controlPoints.length).to.eql(9)
+        expect(spl2.evaluate(2).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        cpSolutionX = [-1, -1, -1, -0.333333333333, 0, 0.333333333333, 1, 1, 1];
+        cpSolutionY = [0, 1, 2, 2, 2, 2, 2, 1, 0];
+        for(let i = 0; i < spl2.controlPoints.length; i++) {
+            expect(spl2.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl2.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+        spl1.insertKnotBoehmAlgorithm(2, 2);
+        expect(spl1.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 4, 4, 4])
+        expect(spl1.controlPoints.length).to.eql(9)
+        expect(spl1.evaluate(2).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        cpSolutionX = [-1, -1, -1, -0.333333333333, 0, 0.333333333333, 1, 1, 1];
+        cpSolutionY = [0, 1, 2, 2, 2, 2, 2, 1, 0];
+        for(let i = 0; i < spl1.controlPoints.length; i++) {
+            expect(spl1.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl1.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+    })
+
+    it('can insert knots repeatedly into a cubic B-spline using Boehm algorithm (knot off symmetry axis) (for comparison with periodic B-Splines', () => {
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(-0.5, 1)
+        const cp2 = new Vector2d(-0.5, 2)
+        const cp3 = new Vector2d(-0.5, 3)
+        const cp4 = new Vector2d(0.5, 3)
+        const cp5 = new Vector2d(0.5, 2)
+        const cp6 = new Vector2d(0.5, 1)
+        const cp7 = new Vector2d(0.5, 0)
+        const spl = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7], [ 0, 0, 0, 0, 1, 2, 3, 4, 5, 5, 5, 5])
+        const spl1 = spl.clone()
+        expect(spl.degree).to.eql(3)
+        expect(spl.knots).to.eql([ 0, 0, 0, 0, 1, 2, 3, 4, 5, 5, 5, 5])
+        expect(spl.evaluate(2).x).to.be.closeTo(-0.333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2.833333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        spl.insertKnotBoehmAlgorithm(2);
+        expect(spl.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 3, 4, 5, 5, 5, 5])
+        expect(spl.controlPoints.length).to.eql(9)
+        expect(spl.evaluate(2).x).to.be.closeTo(-0.333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2.833333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        let cpSolutionX = [-0.5, -0.5, -0.5, -0.5, -0.16666666666666, 0.5, 0.5, 0.5, 0.5];
+        let cpSolutionY = [0, 1, 2, 2.66666666666, 3, 3, 2, 1, 0];
+        for(let i = 0; i < spl.controlPoints.length; i++) {
+            expect(spl.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+        spl.insertKnotBoehmAlgorithm(2);
+        expect(spl.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 5, 5, 5])
+        expect(spl.controlPoints.length).to.eql(10)
+        expect(spl.evaluate(2).x).to.be.closeTo(-0.333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2.833333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        cpSolutionX = [-0.5, -0.5, -0.5, -0.5, -0.3333333333333, -0.16666666666666, 0.5, 0.5, 0.5, 0.5];
+        cpSolutionY = [0, 1, 2, 2.66666666666, 2.8333333333333, 3, 3, 2, 1, 0];
+        for(let i = 0; i < spl.controlPoints.length; i++) {
+            expect(spl.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+
+        const spl2 = spl1.clone()
+        spl2.insertKnot(2, 2);
+        expect(spl2.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 5, 5, 5])
+        expect(spl2.controlPoints.length).to.eql(10)
+        expect(spl2.evaluate(2).x).to.be.closeTo(-0.333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(2).y).to.be.closeTo(2.833333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        cpSolutionX = [-0.5, -0.5, -0.5, -0.5, -0.3333333333333, -0.16666666666666, 0.5, 0.5, 0.5, 0.5];
+        cpSolutionY = [0, 1, 2, 2.66666666666, 2.8333333333333, 3, 3, 2, 1, 0];
+        for(let i = 0; i < spl2.controlPoints.length; i++) {
+            expect(spl2.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl2.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+
+        spl1.insertKnotBoehmAlgorithm(2, 2);
+        expect(spl1.knots).to.eql([ 0, 0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 5, 5, 5])
+        expect(spl1.controlPoints.length).to.eql(10)
+        expect(spl1.evaluate(2).x).to.be.closeTo(-0.333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(2).y).to.be.closeTo(2.833333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        cpSolutionX = [-0.5, -0.5, -0.5, -0.5, -0.3333333333333, -0.16666666666666, 0.5, 0.5, 0.5, 0.5];
+        cpSolutionY = [0, 1, 2, 2.66666666666, 2.8333333333333, 3, 3, 2, 1, 0];
+        for(let i = 0; i < spl1.controlPoints.length; i++) {
+            expect(spl1.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(spl1.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         }
     })
 
@@ -416,6 +634,55 @@ describe('BSplineR1toR2', () => {
             expect(sInc.controlPoints[i].x).to.be.closeTo(cpSolutionX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
             expect(sInc.controlPoints[i].y).to.be.closeTo(cpSolutionY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         }
+    })
+
+    it('can increment the degree of a closed degree one B-Spline with a rectangular control polygon', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const cp4 = new Vector2d(1, -1)
+        const cp5 = new Vector2d(0, -1)
+        const cp6 = new Vector2d(0, 0)
+        const knots = [0, 0, 1, 2, 3, 4, 5, 6, 6]
+        const s = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots)
+        const sp = s.clone()
+        expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5, cp6])
+        expect(s?.degree).to.eql(1)
+        const sInc = s.degreeIncrement();
+        expect(sInc.degree).to.eql(2)
+        expect(sInc?.knots.length).to.eql(16)
+        expect(sInc.knots).to.eql([ 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6])
+        expect(sInc?.controlPoints.length).to.eql(13)
+        expect(sInc?.controlPoints).to.eql([ cp0, new Vector2d(0, 0.5), cp1, new Vector2d(0.5, 1), cp2, new Vector2d(1, 0.5), cp3, new Vector2d(1, -0.5), cp4, new Vector2d(0.5, -1), cp5, new Vector2d(0, -0.5), cp6])
+        expect(s.evaluate(1)).to.eql(sInc.evaluate(1))
+
+        const sInc1 = sInc.degreeIncrement();
+        expect(sInc1.degree).to.eql(3)
+        expect(sInc1?.knots.length).to.eql(23)
+        expect(sInc1.knots).to.eql([ 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6])
+        expect(sInc1?.controlPoints.length).to.eql(19)
+        const cp7 = new Vector2d(0, 0.3333333333333)
+        const cp8 = new Vector2d(0, 0.6666666666666)
+        const cp9 = new Vector2d(0.3333333333333, 1)
+        const cp10 = new Vector2d(0.6666666666666, 1)
+        const cp11 = new Vector2d(1, 0.6666666666666)
+        const cp12 = new Vector2d(1, 0.3333333333333)
+        const cp13 = new Vector2d(1, -0.3333333333333)
+        const cp14 = new Vector2d(1, -0.6666666666666)
+        const cp15 = new Vector2d(0.6666666666666, -1)
+        const cp16 = new Vector2d(0.3333333333333, -1)
+        const cp17 = new Vector2d(0, -0.6666666666666)
+        const cp18 = new Vector2d(0, -0.3333333333333)
+        const cpInc1 = [cp0, cp7, cp8, cp1, cp9, cp10, cp2, cp11, cp12, cp3,
+            cp13, cp14, cp4, cp15, cp16, cp5, cp17, cp18, cp6]
+        for( let cp = 0; cp <  sInc1?.controlPoints.length; cp++) {
+            expect(sInc1?.controlPoints[cp].x).to.be.closeTo(cpInc1[cp].x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(sInc1?.controlPoints[cp].y).to.be.closeTo(cpInc1[cp].y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        }
+        expect(s.evaluate(1)).to.eql(sInc1.evaluate(1))
+        expect(sInc.evaluate(1)).to.eql(sInc1.evaluate(1))
     })
 
     it('can generate the intermediate splines of a non uniform B-spline with coinciding extremities, i.e., closed', () => {

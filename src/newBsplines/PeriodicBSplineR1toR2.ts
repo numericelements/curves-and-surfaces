@@ -104,15 +104,16 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
      */
     evaluate(u: number) : Vector2d {
         const span = this._increasingKnotSequence.findSpan(u);
+        const multiplicityFirstKnot = this._increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
         const basis = basisFunctionsFromSequence(span.knotIndex, u, this._increasingKnotSequence);
         let result = new Vector2d(0, 0);
         for (let i = 0; i < this._degree + 1; i += 1) {
             if(basis[i] !== 0.0) {
                 let indexCP;
-                if((span.knotIndex - this._degree + i) < 0) {
-                    indexCP = this._controlPoints.length + (span.knotIndex - this._degree + i);
-                } else if((span.knotIndex - this._degree + i) >= 0 && (span.knotIndex - this._degree + i) < this._controlPoints.length) {
-                    indexCP = span.knotIndex - this._degree + i;
+                if(((span.knotIndex - this._degree + i) - (multiplicityFirstKnot - 1)) < 0) {
+                    indexCP = this._controlPoints.length + (span.knotIndex - this._degree + i) - (multiplicityFirstKnot - 1);
+                } else if(((span.knotIndex - this._degree + i) - (multiplicityFirstKnot - 1)) >= 0 && (span.knotIndex - this._degree + i) < this._controlPoints.length) {
+                    indexCP = span.knotIndex - this._degree + i - (multiplicityFirstKnot - 1);
                 } else {
                     indexCP = span.knotIndex - this._degree + i - this._controlPoints.length;
                 }
@@ -196,7 +197,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     findSpanBoehmAlgorithm(u: number): KnotIndexIncreasingSequence {
         // Special case
         if (u === this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1))) {
-            return new KnotIndexIncreasingSequence(0);
+            const multiplicityAtOrigin = this._increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
+            return new KnotIndexIncreasingSequence(multiplicityAtOrigin - 1);
         }
         // Do binary search
         let low = 0;
@@ -256,6 +258,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                 throw(error);
             }
             let index = this.findSpanBoehmAlgorithm(u);
+            let multiplicityAtOrigin = this.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
             if(u > this._increasingKnotSequence.abscissaAtIndex(index)
                 && u < this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(index.knotIndex + 1))) {
                 // if(times > )
@@ -268,16 +271,16 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     
             let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
             for (let t = 0; t < times; t += 1) {
-                const newControlPoints = [];
-                if((index.knotIndex - this._degree + 1) > 0) {
-                    for (let i = 0; i < index.knotIndex; i += 1) {
+                const newControlPoints: Vector2d[] = [];
+                if((index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) > 0) {
+                // if((index.knotIndex - this._degree + 1) > 0) {
+                    // for (let i = 0; i < index.knotIndex; i += 1) {
+                    for (let i = 0; i < index.knotIndex - (multiplicityAtOrigin - 1); i += 1) {
                         newControlPoints[i] = this._controlPoints[i];
                     }
-                } else if((index.knotIndex - this._degree + 1) <= 0) {
-                    let higherIndex = this._controlPoints.length;
-                    if((index.knotIndex - this._degree + 1) < 0) {
-                        higherIndex = this._controlPoints.length + (index.knotIndex - this._degree + 1);
-                    }
+                } else if((index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) < 0) {
+                // } else if((index.knotIndex - this._degree + 1) < 0) {
+                    let higherIndex = this._controlPoints.length + (index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1));
                     for (let i = 0; i < higherIndex; i += 1) {
                         newControlPoints[i] = this._controlPoints[i];
                     }
@@ -289,37 +292,55 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                         new KnotIndexIncreasingSequence(index.knotIndex - multiplicity + this._degree));
                     this.regularizeKnotIntervalsOfSubsquence(index, subSequence);
                 } else {
-                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 + (index.knotIndex - this._degree + 1)),
-                        new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 + index.knotIndex - multiplicity + this._degree));
+                    subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 + (index.knotIndex - this._degree + 1) - (multiplicityAtOrigin - 1)),
+                        new KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 - (multiplicityAtOrigin - 1) + index.knotIndex - multiplicity + this._degree));
                     this.regularizeKnotIntervalsOfSubsquence(index, subSequence);
                 }
                 for (let i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
                     const offset = index.knotIndex - this._degree + 1;
                     const alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
+                    // let indexCP = i + 1;
                     let indexCP = i;
-                    if((i - 1) >= 0) {
-                        newControlPoints[indexCP] = (this._controlPoints[indexCP - 1].multiply(1 - alpha)).add(this._controlPoints[indexCP].multiply(alpha));
+                    let indexCPo = indexCP - (multiplicityAtOrigin - 1);
+                    if((i - 1 - (multiplicityAtOrigin - 1)) >= 0) {
+                    // if((i - 1) >= 0) {
+                        // newControlPoints[indexCP] = (this._controlPoints[indexCP - 1].multiply(1 - alpha)).add(this._controlPoints[indexCP].multiply(alpha));
+                        newControlPoints[indexCPo] = (this._controlPoints[indexCPo - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPo].multiply(alpha));
                     } else {
                         indexCP = this._controlPoints.length + i;
-                        if(i === 0) {
-                            newControlPoints[indexCP] = (this._controlPoints[indexCP - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+                        indexCPo = indexCP - (multiplicityAtOrigin - 1);
+                        if(i - (multiplicityAtOrigin - 1) === 0) {
+                        // if(i === 0) {
+                            // newControlPoints[i] = (this._controlPoints[indexCP - 1].multiply(1 - alpha)).add(this._controlPoints[i].multiply(alpha));
+                            newControlPoints[0] = (this._controlPoints[indexCPo - 1].multiply(1 - alpha)).add(this._controlPoints[0].multiply(alpha));
                         } else {
-                            newControlPoints[indexCP] = (this._controlPoints[indexCP].multiply(1 - alpha)).add(this._controlPoints[indexCP - 1].multiply(alpha));
+                            // newControlPoints[indexCP] = (this._controlPoints[indexCP - 1].multiply(1 - alpha)).add(this._controlPoints[indexCP].multiply(alpha));
+                            newControlPoints[indexCPo] = (this._controlPoints[indexCPo - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPo].multiply(alpha));
                         }
                     }
                 }
-                if((index.knotIndex - this._degree + 1) > 0) {
-                    for (let i = index.knotIndex - multiplicity; i < this._controlPoints.length; i += 1) {
+                if((index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) >= 0) {
+                // if((index.knotIndex - this._degree + 1) >= 0) {
+                    for (let i = index.knotIndex - multiplicity - (multiplicityAtOrigin - 1); i < this._controlPoints.length; i += 1) {
                         newControlPoints[i + 1] = this._controlPoints[i];
                     }
-                } else if((index.knotIndex - this._degree + 1) < 0) {
-                    let lowerIndex = this._controlPoints.length + (index.knotIndex - this._degree + 1)
+                } else if((index.knotIndex - multiplicity - (multiplicityAtOrigin - 1)) < 0) {
+                // } else if((index.knotIndex - multiplicity) < 0) {
+                    // let lowerIndex = this._controlPoints.length + (index.knotIndex - multiplicity)
+                    let lowerIndex = this._controlPoints.length + (index.knotIndex - multiplicity) - (multiplicityAtOrigin - 1);
                     for (let i = lowerIndex; i < this._controlPoints.length; i += 1) {
                         newControlPoints[i + 1] = this._controlPoints[i];
                     }
                 }
                 if(multiplicity > 0) {
                     this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                    // if(indexStrictInc.knotIndex === 0) {
+                    //     const tempCP = newControlPoints[newControlPoints.length - 1];
+                    //     for(let j = (newControlPoints.length - 2); j >= 0; j--) {
+                    //         newControlPoints[j + 1] = newControlPoints[j];
+                    //     }
+                    //     newControlPoints[0] = tempCP;
+                    // }
                 } else if(multiplicity === 0 && t === 0) {
                     this._increasingKnotSequence.insertKnot(u, 1);
                     const newIndex = this._increasingKnotSequence.findSpan(u);
@@ -328,7 +349,9 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                     this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
                 }
                 this._controlPoints = newControlPoints.slice();
-                multiplicity += 1;
+                multiplicity++;
+                index.knotIndex++;
+                if(index.knotIndex === 0) multiplicityAtOrigin;
             }
         } catch(error) {
             console.error(error);

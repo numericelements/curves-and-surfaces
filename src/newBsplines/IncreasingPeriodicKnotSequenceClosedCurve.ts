@@ -274,7 +274,6 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
                         if(knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
                             index -= this.knotSequence[this.knotSequence.length - 1].multiplicity
                         }
-                        if(this.isUniform && index === (this.knotSequence.length - this._degree)) index -= 1;
                         return new KnotIndexIncreasingSequence(index - 1);
                     }
                 }

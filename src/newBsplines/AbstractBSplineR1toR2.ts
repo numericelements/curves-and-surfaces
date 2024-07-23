@@ -309,7 +309,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
                 this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
             }
             this._controlPoints = newControlPoints.slice();
-            multiplicity += 1;
+            multiplicity++;
+            index.knotIndex++;
         }
     }
 
