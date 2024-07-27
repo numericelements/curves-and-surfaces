@@ -709,7 +709,7 @@ describe('BSplineR1toR2', () => {
         }
     })
 
-    it('can increment the curve degree of a non uniform B-spline with coinciding extremities, i.e., closed', () => {
+    it('can increment the curve degree of a non uniform B-spline with coinciding extremities, i.e., closed (for comparison with periodic B-Splines)', () => {
         const cp0 = new Vector2d(0, 0)
         const cp1 = new Vector2d(0, 1)
         const cp2 = new Vector2d(1, 1)
@@ -728,4 +728,70 @@ describe('BSplineR1toR2', () => {
         }
     })
 
+    it('evaluate intermediate B-Spline parameterization during degree elevation (for comparison with periodic B-Splines)', () => {
+        const cp0 = new Vector2d(-1, 0)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(-1, 2)
+        const cp3 = new Vector2d(0, 2)
+        const cp4 = new Vector2d(1, 2)
+        const cp5 = new Vector2d(1, 1)
+        const cp6 = new Vector2d(1, 0)
+        const spl = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], [ 0, 0, 0, 1, 2, 3, 4, 5, 5, 5])
+        expect(spl.degree).to.eql(2)
+        expect(spl.knots).to.eql([ 0, 0, 0, 1, 2, 3, 4, 5, 5, 5])
+        expect(spl.evaluate(1).x).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(1).y).to.be.closeTo(1.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).x).to.be.closeTo(-0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2.5).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl.evaluate(2.5).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const intermSplines = spl.generateIntermediateSplinesForDegreeElevation();
+        expect(intermSplines.knotVectors[0]).to.eql([0, 0, 0, 0, 1, 1, 2, 3, 4, 4, 5, 5, 5, 5])
+        expect(intermSplines.knotVectors[1]).to.eql([0, 0, 0, 0, 1, 2, 2, 3, 4, 5, 5, 5, 5])
+        expect(intermSplines.knotVectors[2]).to.eql([0, 0, 0, 0, 1, 2, 3, 3, 4, 5, 5, 5, 5])
+        const CP0x = [-1, -1, -1, -1, 0, 0, 1, 1, 1, 1]
+        const CP0y = [0, 0, 1, 2, 2, 2, 2, 1, 0, 0]
+        for(let i = 0; i < intermSplines.CPs[0].length; i++) {
+            expect(intermSplines.CPs[0][i].x).to.eql(CP0x[i])
+            expect(intermSplines.CPs[0][i].y).to.eql(CP0y[i])
+        }
+        const spl1 = new BSplineR1toR2([ cp0, cp0, cp1, cp2, cp3, cp3, cp4, cp5, cp6, cp6], [0, 0, 0, 0, 1, 1, 2, 3, 4, 4, 5, 5, 5, 5])
+        expect(spl1.evaluate(1).x).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(1).y).to.be.closeTo(1.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(2).x).to.be.closeTo(-0.25, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(2.5).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl1.evaluate(2.5).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const CP1x = [-1, -1, -1, -1, 0, 1, 1, 1, 1]
+        const CP1y = [0, 1, 1, 2, 2, 2, 2, 1, 0]
+        for(let i = 0; i < intermSplines.CPs[1].length; i++) {
+            expect(intermSplines.CPs[1][i].x).to.eql(CP1x[i])
+            expect(intermSplines.CPs[1][i].y).to.eql(CP1y[i])
+        }
+        const spl2 = new BSplineR1toR2([ cp0, cp1, cp1, cp2, cp3, cp4, cp4, cp5, cp6], [0, 0, 0, 0, 1, 2, 2, 3, 4, 5, 5, 5, 5])
+        expect(spl2.evaluate(1).x).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(1).y).to.be.closeTo(1.25, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(2).x).to.be.closeTo(-0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(2.5).x).to.be.closeTo(0.21875, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl2.evaluate(2.5).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+
+        const CP2x = [-1, -1, -1, -1, 0, 1, 1, 1, 1]
+        const CP2y = [0, 1, 2, 2, 2, 2, 1, 1, 0]
+        for(let i = 0; i < intermSplines.CPs[2].length; i++) {
+            expect(intermSplines.CPs[2][i].x).to.eql(CP2x[i])
+            expect(intermSplines.CPs[2][i].y).to.eql(CP2y[i])
+        }
+        const spl3 = new BSplineR1toR2([ cp0, cp1, cp2, cp2, cp3, cp4, cp5, cp5, cp6], [0, 0, 0, 0, 1, 2, 3, 3, 4, 5, 5, 5, 5])
+        expect(spl3.evaluate(1).x).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl3.evaluate(1).y).to.be.closeTo(1.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl3.evaluate(2).x).to.be.closeTo(-0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl3.evaluate(2).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl3.evaluate(2.5).x).to.be.closeTo(-0.21875, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(spl3.evaluate(2.5).y).to.be.closeTo(2, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+    })
  });
