@@ -51630,6 +51630,10 @@ var ErrorLog = /** @class */ (function (_super) {
         // }
         console.error(new Error(this.message));
     };
+    ErrorLog.prototype.logMessage = function () {
+        var message = this.className + ", " + this.functionName + ":" + this.message;
+        return message;
+    };
     return ErrorLog;
 }(ErrorProcessing));
 exports.ErrorLog = ErrorLog;
@@ -58192,69 +58196,97 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         var e_8, _a, e_9, _b;
         var knots = [];
         var lasIndex = this.allAbscissae.length - 1;
+        var multFirstKnot = this.knotSequence[0].multiplicity;
         var multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
         var indexPeriod = lasIndex - multLastKnot + 1;
-        if (!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
-            error.logMessageToConsole();
-            return knots;
-        }
-        if ((knotEnd.knotIndex - knotStart.knotIndex + 1) > lasIndex) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence. No extraction is performed.");
-            error.logMessageToConsole();
-            return knots;
-        }
-        var strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
-        var strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
-        var indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
-        var indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
-        var index = 0;
-        if (strictIncIdxEnd.knotIndex > (this.knotSequence.length - 1)) {
-            knotEnd.knotIndex = knotEnd.knotIndex % indexPeriod;
-        }
-        if (strictIncIdxStart.knotIndex === 0 && !(knotStart.knotIndex >= 0 && knotStart.knotIndex <= (this.knotSequence[0].multiplicity - 1))) {
-            knotStart.knotIndex = knotStart.knotIndex - indexPeriod;
-        }
         try {
-            for (var _c = __values(this), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var knot = _d.value;
-                if (((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
-                    (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex)) && index < (lasIndex - multLastKnot + 1)) {
-                    if (knot !== undefined)
-                        knots.push(knot);
-                }
-                index++;
+            if (!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
+                throw (error.logMessage());
             }
-        }
-        catch (e_8_1) { e_8 = { error: e_8_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            if ((knotEnd.knotIndex - knotStart.knotIndex) > lasIndex && (knotStart.knotIndex === 0 || knotStart.knotIndex % lasIndex === 0)) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence. No extraction is performed.");
+                throw (error.logMessageToConsole());
             }
-            finally { if (e_8) throw e_8.error; }
-        }
-        index = 0;
-        if (indexEndInPeriod === 0) {
-            knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
-        }
-        if (indexEndInPeriod < indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
+            if (knotStart.knotIndex > lasIndex) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start indicex is out of range. No extraction is performed.");
+                throw (error.logMessageToConsole());
+            }
+            var addLast = false;
+            if (knotStart.knotIndex >= lasIndex) {
+                // if(knotStart.knotIndex % lasIndex === 0) {
+                knotStart.knotIndex = knotStart.knotIndex - lasIndex;
+                knotEnd.knotIndex = knotEnd.knotIndex - lasIndex;
+                // } else {
+                //     knotStart.knotIndex = knotStart.knotIndex - lasIndex + (multFirstKnot - 1);
+                //     knotEnd.knotIndex = knotEnd.knotIndex - lasIndex + (multFirstKnot - 1);
+                // }
+            }
+            var strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
+            var strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
+            var indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
+            var indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
+            if (indexEndInPeriod === indexStartInPeriod) {
+                addLast = true;
+                if (strictIncIdxStart.knotIndex === 0)
+                    strictIncIdxEnd.knotIndex = 0;
+            }
+            var index = 0;
+            if (strictIncIdxEnd.knotIndex > (this.knotSequence.length - 1)) {
+                knotEnd.knotIndex = knotEnd.knotIndex % indexPeriod;
+                if (addLast)
+                    knotEnd.knotIndex--;
+            }
+            if (strictIncIdxStart.knotIndex === 0 && !(knotStart.knotIndex >= 0 && knotStart.knotIndex <= (this.knotSequence[0].multiplicity - 1))) {
+                knotStart.knotIndex = knotStart.knotIndex - indexPeriod;
+            }
             try {
-                for (var _e = __values(this), _f = _e.next(); !_f.done; _f = _e.next()) {
-                    var knot = _f.value;
-                    if (knot !== undefined && index <= knotEnd.knotIndex)
-                        knots.push(knot);
+                for (var _c = __values(this), _d = _c.next(); !_d.done; _d = _c.next()) {
+                    var knot = _d.value;
+                    if (((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
+                        (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex)) && index < (lasIndex - multLastKnot + 1)) {
+                        if (knot !== undefined)
+                            knots.push(knot);
+                    }
                     index++;
                 }
             }
-            catch (e_9_1) { e_9 = { error: e_9_1 }; }
+            catch (e_8_1) { e_8 = { error: e_8_1 }; }
             finally {
                 try {
-                    if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
                 }
-                finally { if (e_9) throw e_9.error; }
+                finally { if (e_8) throw e_8.error; }
             }
+            index = 0;
+            if (indexEndInPeriod === 0) {
+                knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
+            }
+            if (indexEndInPeriod <= indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
+                if (addLast && indexEndInPeriod !== 0)
+                    knotEnd.knotIndex++;
+                try {
+                    for (var _e = __values(this), _f = _e.next(); !_f.done; _f = _e.next()) {
+                        var knot = _f.value;
+                        if (knot !== undefined && index <= knotEnd.knotIndex)
+                            knots.push(knot);
+                        index++;
+                    }
+                }
+                catch (e_9_1) { e_9 = { error: e_9_1 }; }
+                finally {
+                    try {
+                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
+                    }
+                    finally { if (e_9) throw e_9.error; }
+                }
+            }
+            return knots;
         }
-        return knots;
+        catch (error) {
+            console.error(error);
+            return knots;
+        }
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.findSpan = function (u) {
         var e_10, _a;

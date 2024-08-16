@@ -14,7 +14,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
 
     it('cannot initialize a periodic knot sequence if end knot multiplicities differ', () => {
         const knots = [0, 0, 1, 2, 3, 4];
-        // const seq = new IncreasingPeriodicKnotSequenceClosedCurve(2, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(2, knots);
          const knotSequence = [new Knot(knots[0], 1)];
         for(let i = 1; i < knots.length; i++) {
             if(knots[i] === knotSequence[knotSequence.length - 1].abscissa) {
@@ -24,7 +24,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
             }
         }
         expect(knotSequence[0].multiplicity).to.not.eql(knotSequence[knotSequence.length - 1].multiplicity)
-        // expect(seq.checkMultiplicityAtEndKnots()).to.throw()
+        // expect(() => seq.checkMultiplicityAtEndKnots()).to.throw()
         // expect(() => new IncreasingPeriodicKnotSequenceClosedCurve(2, knots)).to.throw()
     });
 
@@ -267,8 +267,8 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
         expect(seq.degree).to.eql(2)
         expect(seq.allAbscissae.length).to.eql(6)
+        // extractSubsetOfAbscissae throws an error message
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(0));
-        // expect(() => seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(0))).to.throw()
         expect(abscissae.length).to.eql(0)
     });
 
@@ -351,7 +351,52 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(15), new KnotIndexIncreasingSequence(21));
         expect(abscissae).to.eql([0, 0, 1, 2, 3, 4, 4])
         const abscissae1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(16), new KnotIndexIncreasingSequence(22));
-        expect(abscissae1).to.eql([0, 1, 2, 3, 4, 4, 5])
+        expect(abscissae1).to.eql([0, 0, 1, 2, 3, 4, 4])
+    });
+
+    it('can extract a subsequence from a knot sequence when indices cover the period of the B-Spline and knots are of multiplicity one.', () => {
+        const knots = [0, 1, 2, 3, 4];
+        const degree = 3;
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        expect(seq.degree).to.eql(3)
+        expect(seq.allAbscissae.length).to.eql(5)
+        const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(5));
+        expect(abscissae).to.eql([1, 2, 3, 0, 1])
+        const abscissae1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(6));
+        expect(abscissae1).to.eql([2, 3, 0, 1, 2])
+        const abscissae2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(7));
+        expect(abscissae2).to.eql([3, 0, 1, 2, 3])
+        const abscissae3 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(4));
+        expect(abscissae3).to.eql([0, 1, 2, 3, 0])
+        const abscissae4 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(4), new KnotIndexIncreasingSequence(8));
+        expect(abscissae4).to.eql([0, 1, 2, 3, 0])
+        const abscissae5 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(5), new KnotIndexIncreasingSequence(9));
+        expect(abscissae5.length).to.eql(0)
+        // expect(abscissae5).to.eql([1, 2, 3, 0, 1])
+    });
+
+    it('can extract a subsequence from a knot sequence when indices cover the period of the B-Spline and end knots are of multiplicity greater than one.', () => {
+        const knots = [0, 0, 1, 2, 3, 4, 4];
+        const degree = 3;
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        expect(seq.degree).to.eql(3)
+        expect(seq.allAbscissae.length).to.eql(7)
+        const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(7));
+        expect(abscissae).to.eql([1, 2, 3, 0, 0, 1])
+        const abscissae1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(8));
+        expect(abscissae1).to.eql([2, 3, 0, 0, 1, 2])
+        const abscissae2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(4), new KnotIndexIncreasingSequence(9));
+        expect(abscissae2).to.eql([3, 0, 0, 1, 2, 3])
+        const abscissae3 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(6));
+        expect(abscissae3).to.eql([0, 1, 2, 3, 0, 0])
+        const abscissae4 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(6));
+        expect(abscissae4).to.eql([0, 0, 1, 2, 3, 0, 0])
+        const abscissae5 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(6), new KnotIndexIncreasingSequence(12));
+        expect(abscissae5).to.eql([0, 0, 1, 2, 3, 0, 0])
+        const abscissae6 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(7), new KnotIndexIncreasingSequence(12));
+        expect(abscissae6.length).to.eql(0)
+        // const abscissae7 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(8), new KnotIndexIncreasingSequence(13));
+        // expect(abscissae7).to.eql([1, 2, 3, 0, 0, 1])
     });
 
     it('can find the span index in the knot sequence from an abscissa for a non uniform periodic B-spline with multiplicity greater than one at its origin', () => {

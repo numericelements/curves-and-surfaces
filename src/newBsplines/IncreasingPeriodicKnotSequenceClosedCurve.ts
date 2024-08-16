@@ -213,47 +213,72 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[] {
         let knots: number[] = [];
         const lasIndex = this.allAbscissae.length - 1;
+        const multFirstKnot = this.knotSequence[0].multiplicity;
         const multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
         const indexPeriod = lasIndex - multLastKnot + 1;
-        if(!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
-            const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
-            error.logMessageToConsole();
-            return knots;
-        }
-        if((knotEnd.knotIndex - knotStart.knotIndex + 1) > lasIndex) {
-            const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence. No extraction is performed.");
-            error.logMessageToConsole();
-            return knots;
-        }
-        const strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
-        const strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
-        const indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
-        const indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
-        let index = 0;
-        if(strictIncIdxEnd.knotIndex > (this.knotSequence.length - 1)) {
-            knotEnd.knotIndex = knotEnd.knotIndex % indexPeriod;
-        }
-        if(strictIncIdxStart.knotIndex === 0 && !(knotStart.knotIndex >= 0 && knotStart.knotIndex <= (this.knotSequence[0].multiplicity - 1))) {
-            knotStart.knotIndex = knotStart.knotIndex - indexPeriod;
-        }
-        for(const knot of this) {
-            if(((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
-                (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex)) && index < (lasIndex - multLastKnot + 1)) {
-                if(knot !== undefined) knots.push(knot);
+        try{
+            if(!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
+                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
+                throw(error.logMessage());
             }
-            index++;
-        }
-        index = 0;
-        if(indexEndInPeriod === 0) {
-            knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
-        }
-        if(indexEndInPeriod < indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
+            if((knotEnd.knotIndex - knotStart.knotIndex) > lasIndex && (knotStart.knotIndex === 0 || knotStart.knotIndex % lasIndex === 0)) {
+                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence. No extraction is performed.");
+                throw(error.logMessageToConsole());
+            }
+            if(knotStart.knotIndex > lasIndex) {
+                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start indicex is out of range. No extraction is performed.");
+                throw(error.logMessageToConsole());
+            }
+            let addLast = false;
+            if(knotStart.knotIndex >= lasIndex) {
+                // if(knotStart.knotIndex % lasIndex === 0) {
+                    knotStart.knotIndex = knotStart.knotIndex - lasIndex;
+                    knotEnd.knotIndex = knotEnd.knotIndex - lasIndex;
+                // } else {
+                //     knotStart.knotIndex = knotStart.knotIndex - lasIndex + (multFirstKnot - 1);
+                //     knotEnd.knotIndex = knotEnd.knotIndex - lasIndex + (multFirstKnot - 1);
+                // }
+            }
+            const strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
+            const strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
+            const indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
+            const indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
+            if(indexEndInPeriod === indexStartInPeriod) {
+                addLast = true;
+                if(strictIncIdxStart.knotIndex === 0) strictIncIdxEnd.knotIndex = 0;
+            }
+            let index = 0;
+            if(strictIncIdxEnd.knotIndex > (this.knotSequence.length - 1)) {
+                knotEnd.knotIndex = knotEnd.knotIndex % indexPeriod;
+                if(addLast) knotEnd.knotIndex--;
+            }
+            if(strictIncIdxStart.knotIndex === 0 && !(knotStart.knotIndex >= 0 && knotStart.knotIndex <= (this.knotSequence[0].multiplicity - 1))) {
+                knotStart.knotIndex = knotStart.knotIndex - indexPeriod;
+            }
             for(const knot of this) {
-                if(knot !== undefined && index <= knotEnd.knotIndex) knots.push(knot);
+                if(((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
+                    (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex)) && index < (lasIndex - multLastKnot + 1)) {
+                    if(knot !== undefined) knots.push(knot);
+                }
                 index++;
             }
+            index = 0;
+            if(indexEndInPeriod === 0) {
+                knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
+            }
+            if(indexEndInPeriod <= indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
+                if(addLast && indexEndInPeriod !== 0) knotEnd.knotIndex++;
+                for(const knot of this) {
+                    if(knot !== undefined && index <= knotEnd.knotIndex) knots.push(knot);
+                    index++;
+                }
+            }
+            return knots;
+        } catch(error) {
+            console.error(error);
+            return knots;
         }
-        return knots;
+
     }
 
     findSpan(u: number): KnotIndexIncreasingSequence {

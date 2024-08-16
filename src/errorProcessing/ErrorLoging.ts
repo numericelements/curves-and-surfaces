@@ -27,6 +27,11 @@ export class ErrorLog extends ErrorProcessing {
         // }
         console.error( new Error(this.message));
     }
+
+    logMessage(): string {
+        const message = this.className + ", " + this.functionName + ":" + this.message;
+        return message;
+    }
 }
 
 export class WarningLog extends ErrorProcessing {
