@@ -58213,6 +58213,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
                 throw (error.logMessageToConsole());
             }
             var addLast = false;
+            var updateKnotEnd = false;
             if (knotStart.knotIndex >= lasIndex) {
                 // if(knotStart.knotIndex % lasIndex === 0) {
                 knotStart.knotIndex = knotStart.knotIndex - lasIndex;
@@ -58261,6 +58262,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
             index = 0;
             if (indexEndInPeriod === 0) {
                 knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
+                updateKnotEnd = true;
             }
             if (indexEndInPeriod <= indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
                 if (addLast && indexEndInPeriod !== 0)
@@ -58268,8 +58270,14 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
                 try {
                     for (var _e = __values(this), _f = _e.next(); !_f.done; _f = _e.next()) {
                         var knot = _f.value;
-                        if (knot !== undefined && index <= knotEnd.knotIndex)
-                            knots.push(knot);
+                        if (knot !== undefined && index <= knotEnd.knotIndex) {
+                            if (updateKnotEnd && knot === this.knotSequence[0].abscissa) {
+                                knots.push(knot + this.knotSequence[this.knotSequence.length - 1].abscissa);
+                            }
+                            else {
+                                knots.push(knot);
+                            }
+                        }
                         index++;
                     }
                 }

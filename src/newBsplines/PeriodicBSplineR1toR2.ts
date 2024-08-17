@@ -276,7 +276,6 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u) !== 0) {
                 multiplicity = this.knotMultiplicity(indexStrictInc);
             }
-            const nbNewCPs = this._degree - multiplicity;
             let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
             for (let t = 0; t < times; t += 1) {
                 const newControlPoints: Vector2d[] = [];

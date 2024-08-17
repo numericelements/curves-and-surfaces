@@ -331,7 +331,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq3.degree).to.eql(3)
         expect(seq3.allAbscissae.length).to.eql(9)
         const abscissae3 = seq3.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(7));
-        expect(abscissae3).to.eql([2, 3, 4, 5, 0])
+        expect(abscissae3).to.eql([2, 3, 4, 5, 6])
 
         const knots4 = [0, 0, 1, 2, 3, 4, 5, 6, 6];
         const degree4 = 3;
@@ -339,7 +339,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq4.degree).to.eql(3)
         expect(seq4.allAbscissae.length).to.eql(9)
         const abscissae4 = seq4.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(4), new KnotIndexIncreasingSequence(8));
-        expect(abscissae4).to.eql([3, 4, 5, 0, 0])
+        expect(abscissae4).to.eql([3, 4, 5, 6, 6])
     });
 
     it('can extract a subsequence from a knot sequence with various knot multiplicities.', () => {
@@ -367,9 +367,9 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const abscissae2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(7));
         expect(abscissae2).to.eql([3, 0, 1, 2, 3])
         const abscissae3 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(4));
-        expect(abscissae3).to.eql([0, 1, 2, 3, 0])
+        expect(abscissae3).to.eql([0, 1, 2, 3, 4])
         const abscissae4 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(4), new KnotIndexIncreasingSequence(8));
-        expect(abscissae4).to.eql([0, 1, 2, 3, 0])
+        expect(abscissae4).to.eql([0, 1, 2, 3, 4])
         const abscissae5 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(5), new KnotIndexIncreasingSequence(9));
         expect(abscissae5.length).to.eql(0)
         // expect(abscissae5).to.eql([1, 2, 3, 0, 1])
@@ -388,11 +388,11 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const abscissae2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(4), new KnotIndexIncreasingSequence(9));
         expect(abscissae2).to.eql([3, 0, 0, 1, 2, 3])
         const abscissae3 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(6));
-        expect(abscissae3).to.eql([0, 1, 2, 3, 0, 0])
+        expect(abscissae3).to.eql([0, 1, 2, 3, 4, 4])
         const abscissae4 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(6));
-        expect(abscissae4).to.eql([0, 0, 1, 2, 3, 0, 0])
+        expect(abscissae4).to.eql([0, 0, 1, 2, 3, 4, 4])
         const abscissae5 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(6), new KnotIndexIncreasingSequence(12));
-        expect(abscissae5).to.eql([0, 0, 1, 2, 3, 0, 0])
+        expect(abscissae5).to.eql([0, 0, 1, 2, 3, 4, 4])
         const abscissae6 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(7), new KnotIndexIncreasingSequence(12));
         expect(abscissae6.length).to.eql(0)
         // const abscissae7 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(8), new KnotIndexIncreasingSequence(13));

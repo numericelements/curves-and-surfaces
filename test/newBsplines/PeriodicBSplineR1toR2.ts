@@ -839,6 +839,67 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(sp22?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
     });
 
+    it('can insert a knot using Boehm algorithm for a minimal cubic B-Spline with an initial sequence having a maximal knot multiplicity at the origin', () => {
+        // triangular control polygon
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        // const cp3 = new Vector2d(1, -1)
+        const knots = [0, 0, 0, 1, 1, 1]
+        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2], knots, 3)
+        expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2])
+        expect(s?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        expect(s?.evaluate(0.5).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0.5).y).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const s05 = s?.clone();
+        s05?.insertKnotBoehmAlgorithm(0.5);
+        expect(s05?.freeControlPoints.length).to.eql(4)
+        expect(s05?.knots.length).to.eql(7)
+        expect(s05?.knots).to.eql([0, 0, 0, 0.5, 1, 1, 1])
+        const cpX = [0.5, 0.0, -0.5, 0.0]
+        const cpY = [0.5, 0.0, 0.5, 1] 
+        if(s05 !== undefined) {
+            for( let i = 0; i < s05.freeControlPoints.length; i++) {
+                expect(s05.freeControlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(s05.freeControlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(s05?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05?.evaluate(1).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05?.evaluate(1).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        expect(s05?.evaluate(0.5).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05?.evaluate(0.5).y).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        // console.log("p05 = " + s?.evaluate(0.5).x + "  " + s?.evaluate(0.5).y);
+
+        const s05_2 = s05?.clone();
+        s05_2?.insertKnotBoehmAlgorithm(0.5);
+        expect(s05_2?.freeControlPoints.length).to.eql(5)
+        expect(s05_2?.knots.length).to.eql(8)
+        expect(s05_2?.knots).to.eql([0, 0, 0, 0.5, 0.5, 1, 1, 1])
+        const cpX2 = [0.25, 0.5, 0.0, -0.5, -0.25]
+        const cpY2 = [0.75, 0.5, 0.0, 0.5, 0.75] 
+        if(s05_2 !== undefined) {
+            for( let i = 0; i < s05_2.freeControlPoints.length; i++) {
+                expect(s05_2.freeControlPoints[i].x).to.be.closeTo(cpX2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(s05_2.freeControlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(s05_2?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05_2?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05_2?.evaluate(1).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05_2?.evaluate(1).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        expect(s05_2?.evaluate(0.5).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s05_2?.evaluate(0.5).y).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    });
+
     it('can evaluate a periodic B-Spline with uniform knot sequence at a point u', () => {
         // control polygon
         const cp0 = new Vector2d(0, 0)
@@ -1358,18 +1419,6 @@ describe('PeriodicBSplineR1toR2', () => {
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, 3)
-        console.log("p0 = " + s?.evaluate(0).x + "  " + s?.evaluate(0).y);
-        console.log("p1 = " + s?.evaluate(1).x + "  " + s?.evaluate(1).y);
-        console.log("p2 = " + s?.evaluate(2).x + "  " + s?.evaluate(2).y);
-        console.log("p3 = " + s?.evaluate(3).x + "  " + s?.evaluate(3).y);
-        console.log("p4 = " + s?.evaluate(4).x + "  " + s?.evaluate(4).y);
-        console.log("p5 = " + s?.evaluate(5).x + "  " + s?.evaluate(5).y);
-        console.log("p6 = " + s?.evaluate(6).x + "  " + s?.evaluate(6).y);
-        console.log("p7 = " + s?.evaluate(7).x + "  " + s?.evaluate(7).y);
-        console.log("p8 = " + s?.evaluate(8).x + "  " + s?.evaluate(8).y);
-        console.log("p9 = " + s?.evaluate(9).x + "  " + s?.evaluate(9).y);
-        console.log("p10 = " + s?.evaluate(10).x + "  " + s?.evaluate(10).y);
-        console.log("p11 = " + s?.evaluate(11).x + "  " + s?.evaluate(11).y);
         expect(s?.evaluate(0).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(-0.68, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(1).x).to.be.closeTo(-0.145, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1400,20 +1449,18 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(newSpline?.knots.length).to.eql(26)
         expect(newSpline?.knots).to.eql([0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12])
         expect(newSpline?.freeControlPoints.length).to.eql(24)
-        // const cpX = [-0.27, -0.275, -0.28, -0.2704166666666667, -0.23625000000000002, -0.19500000000000003,
-        //     -0.12875, -0.037500000000000006, 0.04375, 0.11666666666666667, 0.18125, 0.21791666666666668,
-        //     0.255, 0.28125, 0.29125, 0.26875000000000004, 0.235, 0.18305555555555558,
-        //     0.14416666666666667, 0.09666666666666666, 0.05, -0.027083333333333327, -0.08124999999999999]
-        // const cpY = [-0.35, -0.2916666666666666, 0.02916666666666666, 0.21041666666666664, 0.3604166666666666, 0.48624999999999996,
-        //     0.6041666666666666, 0.6666666666666666, 0.685, 0.6052777777777778, 0.5108333333333333, 0.42652777777777784,
-        //     0.28541666666666665, 0.14166666666666666, -0.04375, -0.25277777777777777, -0.4229166666666666, -0.5222222222222221,
-        //     -0.5854166666666667, -0.63625, -0.6799999999999999, -0.6583333333333333, -0.6549999999999999]
-        // if(newSpline !== undefined) {
-        //     for( let i = 0; i < newSpline.freeControlPoints.length; i++) {
-        //         expect(newSpline.freeControlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
-        //         expect(newSpline.freeControlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
-        //     }
-        // }
+        const cpX = [-0.21, -0.2625, -0.285, -0.295, -0.285, -0.2625, -0.21, -0.1475,
+                -0.075, 0.0, 0.075, 0.1475, 0.21, 0.2625, 0.285, 0.295,
+                0.285, 0.2625, 0.21, 0.1475, 0.075, 0.0, -0.075, -0.1475]
+        const cpY = [-0.475, -0.3416666666666666, -0.175, 0.0, 0.175, 0.3416666666666666, 0.475, 0.58916666666666666666,
+            0.66, 0.7, 0.66, 0.58916666666666666666, 0.475, 0.34166666666666666, 0.175, 0.0,
+            -0.175, -0.3416666666666666, -0.475, -0.58916666666666666666, -0.66, -0.7, -0.66, -0.58916666666666666666]
+        if(newSpline !== undefined) {
+            for( let i = 0; i < newSpline.freeControlPoints.length; i++) {
+                expect(newSpline.freeControlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(newSpline.freeControlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
         expect(newSpline?.evaluate(0).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(newSpline?.evaluate(0).y).to.be.closeTo(-0.68, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(newSpline?.evaluate(1).x).to.be.closeTo(-0.145, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1438,6 +1485,19 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(newSpline?.evaluate(10).y).to.be.closeTo(-0.3333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(newSpline?.evaluate(11).x).to.be.closeTo(0.145, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(newSpline?.evaluate(11).y).to.be.closeTo(-0.5783333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        // console.log("p0 = " + s?.evaluate(0).x + "  " + s?.evaluate(0).y);
+        // console.log("p1 = " + s?.evaluate(1).x + "  " + s?.evaluate(1).y);
+        // console.log("p2 = " + s?.evaluate(2).x + "  " + s?.evaluate(2).y);
+        // console.log("p3 = " + s?.evaluate(3).x + "  " + s?.evaluate(3).y);
+        // console.log("p4 = " + s?.evaluate(4).x + "  " + s?.evaluate(4).y);
+        // console.log("p5 = " + s?.evaluate(5).x + "  " + s?.evaluate(5).y);
+        // console.log("p6 = " + s?.evaluate(6).x + "  " + s?.evaluate(6).y);
+        // console.log("p7 = " + s?.evaluate(7).x + "  " + s?.evaluate(7).y);
+        // console.log("p8 = " + s?.evaluate(8).x + "  " + s?.evaluate(8).y);
+        // console.log("p9 = " + s?.evaluate(9).x + "  " + s?.evaluate(9).y);
+        // console.log("p10 = " + s?.evaluate(10).x + "  " + s?.evaluate(10).y);
+        // console.log("p11 = " + s?.evaluate(11).x + "  " + s?.evaluate(11).y);
     });
     
 });
