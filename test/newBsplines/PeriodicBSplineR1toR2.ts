@@ -4,6 +4,7 @@ import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "./BSplineR1toR2";
 import { PeriodicBSplineR1toR2 } from "../../src/newBsplines/PeriodicBSplineR1toR2";
 import { basisFunctionsFromSequence } from "../../src/newBsplines/Piegl_Tiller_NURBS_Book";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../../src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 
 describe('PeriodicBSplineR1toR2', () => {
 
@@ -844,7 +845,6 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp0 = new Vector2d(0, 0)
         const cp1 = new Vector2d(-1, 1)
         const cp2 = new Vector2d(1, 1)
-        // const cp3 = new Vector2d(1, -1)
         const knots = [0, 0, 0, 1, 1, 1]
         const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2], knots, 3)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2])
@@ -1273,7 +1273,6 @@ describe('PeriodicBSplineR1toR2', () => {
         }
 
         const s1 = PeriodicBSplineR1toR2.create([cp0, cp1, cp1, cp2, cp3, cp4, cp4, cp5], knots1, 3)
-        // const s1 = PeriodicBSplineR1toR2.create([cp1, cp1, cp2, cp3, cp4, cp4, cp5, cp0], knots1, 3)
         expect(s1?.evaluate(0).x).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s1?.evaluate(0).y).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s1?.evaluate(1).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1485,19 +1484,188 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(newSpline?.evaluate(10).y).to.be.closeTo(-0.3333333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(newSpline?.evaluate(11).x).to.be.closeTo(0.145, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(newSpline?.evaluate(11).y).to.be.closeTo(-0.5783333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
-
-        // console.log("p0 = " + s?.evaluate(0).x + "  " + s?.evaluate(0).y);
-        // console.log("p1 = " + s?.evaluate(1).x + "  " + s?.evaluate(1).y);
-        // console.log("p2 = " + s?.evaluate(2).x + "  " + s?.evaluate(2).y);
-        // console.log("p3 = " + s?.evaluate(3).x + "  " + s?.evaluate(3).y);
-        // console.log("p4 = " + s?.evaluate(4).x + "  " + s?.evaluate(4).y);
-        // console.log("p5 = " + s?.evaluate(5).x + "  " + s?.evaluate(5).y);
-        // console.log("p6 = " + s?.evaluate(6).x + "  " + s?.evaluate(6).y);
-        // console.log("p7 = " + s?.evaluate(7).x + "  " + s?.evaluate(7).y);
-        // console.log("p8 = " + s?.evaluate(8).x + "  " + s?.evaluate(8).y);
-        // console.log("p9 = " + s?.evaluate(9).x + "  " + s?.evaluate(9).y);
-        // console.log("p10 = " + s?.evaluate(10).x + "  " + s?.evaluate(10).y);
-        // console.log("p11 = " + s?.evaluate(11).x + "  " + s?.evaluate(11).y);
     });
     
+    it('can convert a periodic BSpline into a non periodic BSpline with open knot sequence. Case of curve equivalent to a Bézier curve', () => {
+        // triangular control polygon
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const knots = [0, 0, 0, 1, 1, 1]
+        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2], knots, 3)
+        expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2])
+        expect(s?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        expect(s?.evaluate(0.5).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0.5).y).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const sOpen = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
+        expect(sOpen?.degree).to.eql(3);
+        expect(sOpen?.controlPoints.length).to.eql(4)
+        expect(sOpen?.controlPoints).to.eql([cp0, cp1, cp2, cp0]);
+        expect(sOpen?.knots.length).to.eql(8);
+        expect(sOpen?.knots).to.eql([-1, 0, 0, 0, 1, 1, 1, 2]);
+        expect(sOpen?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sOpen?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sOpen?.evaluate(1).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sOpen?.evaluate(1).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        expect(sOpen?.evaluate(0.5).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sOpen?.evaluate(0.5).y).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    });
+
+    it('can convert a periodic B-Spline with a uniform knot sequence to a periodic BSpline with open knot sequence', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+        expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(3).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0.5).x).to.be.closeTo(0.916666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0.5).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const sPer = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
+        expect(sPer?.degree).to.eql(3)
+        expect(sPer?.freeControlPoints.length).to.eql(4)
+        const cpX = [-1, 1, 1, -1, -1, 1, 1]
+        const cpY = [1, 1, -1, -1, 1, 1, -1]
+        if(sPer !== undefined) {
+            for( let i = 0; i < sPer.freeControlPoints.length; i++) {
+                expect(sPer.freeControlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(sPer.freeControlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(sPer?.controlPoints.length).to.eql(7)
+        if(sPer !== undefined) {
+            for( let i = 0; i < sPer.controlPoints.length; i++) {
+                expect(sPer.controlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(sPer.controlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        // expect(sPer?.controlPoints).to.eql([cp1, cp2, cp3, cp0, cp1, cp2, cp3])
+        expect(sPer?.knots.length).to.eql(11)
+        expect(sPer?.knots).to.eql([-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
+
+        expect(sPer?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(3).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(4).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(4).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(0.5).x).to.be.closeTo(0.916666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(0.5).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    });
+
+    it('can convert a periodic B-Spline with a knot multiplicity at origin greater than one to a periodic BSpline with open knot sequence', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+        s?.insertKnotBoehmAlgorithm(0);
+        expect(s?.knots).to.eql([0, 0, 1, 2, 3, 4, 4])
+        expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(3).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const cp4 = new Vector2d(0.3333333333333333, 1)
+        const cp5 = new Vector2d(1, 0.3333333333333333)
+        const sPer = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
+        expect(sPer?.degree).to.eql(3)
+        expect(sPer?.freeControlPoints.length).to.eql(5)
+        // expect(sPer?.freeControlPoints).to.eql([cp4, cp5, cp3, cp0, cp1])
+        const cpX = [0.3333333333333333, 1, 1, -1, -1, 0.3333333333333333, 1]
+        const cpY = [1, 0.3333333333333333, -1, -1, 1, 1, 0.3333333333333333]
+        if(sPer !== undefined) {
+            for( let i = 0; i < sPer.freeControlPoints.length; i++) {
+                expect(sPer.freeControlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(sPer.freeControlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(sPer?.controlPoints.length).to.eql(7)
+        // expect(sPer?.controlPoints).to.eql([cp4, cp5, cp3, cp0, cp1, cp4, cp5])
+        if(sPer !== undefined) {
+            for( let i = 0; i < sPer.controlPoints.length; i++) {
+                expect(sPer.controlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(sPer.controlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(sPer?.knots.length).to.eql(11)
+        expect(sPer?.knots).to.eql([-2, -1, 0, 0, 1, 2, 3, 4, 4, 5, 6])
+
+        expect(sPer?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(3).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        s?.insertKnotBoehmAlgorithm(0);
+        expect(s?.knots).to.eql([0, 0, 0, 1, 2, 3, 4, 4, 4])
+        expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(3).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        const cp6 = new Vector2d(0.66666666666666, 0.66666666666666)
+        const sPer1 = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
+        expect(sPer1?.degree).to.eql(3)
+        expect(sPer1?.freeControlPoints.length).to.eql(6)
+        // expect(sPer1?.freeControlPoints).to.eql([cp4, cp5, cp3, cp0, cp1])
+        const cpX1 = [0.66666666666666, 1, 1, -1, -1, 0.3333333333333333, 0.66666666666666]
+        const cpY1 = [0.66666666666666, 0.3333333333333333, -1, -1, 1, 1, 0.66666666666666]
+        if(sPer1 !== undefined) {
+            for( let i = 0; i < sPer1.freeControlPoints.length; i++) {
+                expect(sPer1.freeControlPoints[i].x).to.be.closeTo(cpX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(sPer1.freeControlPoints[i].y).to.be.closeTo(cpY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(sPer1?.controlPoints.length).to.eql(7)
+        // expect(sPer1?.controlPoints).to.eql([cp4, cp5, cp3, cp0, cp1, cp4, cp5])
+        expect(sPer1?.knots.length).to.eql(11)
+        expect(sPer1?.knots).to.eql([-1, 0, 0, 0, 1, 2, 3, 4, 4, 4, 5])
+        console.log("p0 = " + sPer1?.evaluate(0).x + "  " + sPer1?.evaluate(0).y);
+        console.log("p1 = " + sPer1?.evaluate(1).x + "  " + sPer1?.evaluate(1).y);
+        console.log("p2 = " + sPer1?.evaluate(2).x + "  " + sPer1?.evaluate(2).y);
+        console.log("p3 = " + sPer1?.evaluate(3).x + "  " + sPer1?.evaluate(3).y);
+
+        expect(sPer1?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(3).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sPer1?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    });
 });

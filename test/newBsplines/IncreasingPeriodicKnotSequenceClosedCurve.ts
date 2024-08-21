@@ -115,7 +115,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(strictIncSeq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
     });
 
-    it('can convert a non uniform periodic increasing sequence with maximal multiplicities at its boundary to an open increasing knot sequence', () => {
+    it('can convert a non uniform periodic increasing sequence with multiplicity order of degree at its boundary to an open increasing knot sequence', () => {
         const knots = [0, 0, 1, 2, 3, 4, 4];
         const degree = 2;
         const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
@@ -124,6 +124,17 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(strictIncSeq.allAbscissae.length).to.eql(9)
         expect(strictIncSeq.allAbscissae).to.eql([-1, 0, 0, 1, 2, 3, 4, 4, 5])
         expect(strictIncSeq.multiplicities()).to.eql([1, 2, 1, 1, 1, 2, 1])
+    });
+
+    it('can convert a non uniform periodic increasing sequence with multiplicities greater than one at its boundary to an open increasing knot sequence', () => {
+        const knots = [0, 0, 0.5, 2, 3, 4, 4];
+        const degree = 3;
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const strictIncSeq = seq.toOpenKnotSequence()
+        expect(strictIncSeq.degree).to.eql(3)
+        expect(strictIncSeq.allAbscissae.length).to.eql(11)
+        expect(strictIncSeq.allAbscissae).to.eql([-2, -1, 0, 0, 0.5, 2, 3, 4, 4, 4.5, 6])
+        expect(strictIncSeq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 2, 1, 1])
     });
 
     it('can convert a non uniform periodic increasing sequence with maximal multiplicities inside its interval to an open increasing knot sequence', () => {

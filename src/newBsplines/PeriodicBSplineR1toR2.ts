@@ -6,6 +6,7 @@ import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence";
 import { basisFunctionsFromSequence, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
 
 /**
@@ -578,5 +579,18 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         const warning = new WarningLog(this.constructor.name, "evaluateOutsideRefInterval", "Cannot evaluate periodic B-Spline outside its interval of definition.");
         warning.logMessageToConsole();
         return new Vector2d()
+    }
+
+    toPeriodicBSplineR1toR2withOpenKnotSequence(): PeriodicBSplineR1toR2withOpenKnotSequence {
+        const knots = this._increasingKnotSequence.toOpenKnotSequence();
+        let controlPoints = [];
+        const multiplicityOrigin = this._increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
+        for(let i = 0; i < this._degree; i++) {
+            controlPoints[i] = this._controlPoints[this._controlPoints.length - this._degree + i];
+        }
+        for(let cp = 0; cp < this._controlPoints.length - (multiplicityOrigin - 1); cp++) {
+            controlPoints.push(this._controlPoints[cp]);
+        }
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, knots.allAbscissae);
     }
 }

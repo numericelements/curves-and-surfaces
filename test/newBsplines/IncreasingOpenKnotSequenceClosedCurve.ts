@@ -446,4 +446,19 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         }
     });
 
+    it('can convert the knot sequence to a periodic knot sequence. Initial knot sequence with maximal multiplicity at curve origin', () => {
+        const knots: number [] = [-1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 8]
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(2, knots);
+        const pSeq = seq.toPeriodicKnotSequence();
+        expect(pSeq.length()).to.eql(10)
+        expect(pSeq.allAbscissae).to.eql([0, 0, 1, 2, 3, 4, 5, 6, 7, 7])
+    });
+
+    it('can convert the knot sequence to a periodic knot sequence. Initial knot sequence with uniform multiplicity one', () => {
+        const knots: number [] = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(2, knots);
+        const pSeq = seq.toPeriodicKnotSequence();
+        expect(pSeq.length()).to.eql(8)
+        expect(pSeq.allAbscissae).to.eql([0, 1, 2, 3, 4, 5, 6, 7])
+    });
 });

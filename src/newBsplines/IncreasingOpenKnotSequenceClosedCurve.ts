@@ -4,6 +4,7 @@ import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
 import { AbstractIncreasingOpenKnotSequenceCurve } from "./AbstractIncreasingOpenKnotSequenceCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
+import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequenceCurve {
 
@@ -243,4 +244,11 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         return new IncreasingOpenKnotSequenceClosedCurve(this._degree - 1, newKnots);
     }
 
+    toPeriodicKnotSequence(): IncreasingPeriodicKnotSequenceClosedCurve {
+        const indexOrigin = this.getIndexKnotOrigin();
+        const knotAbscissae = this.allAbscissae;
+        knotAbscissae.splice(knotAbscissae.length - 1 - (indexOrigin.knotIndex - 1), indexOrigin.knotIndex);
+        knotAbscissae.splice(0, indexOrigin.knotIndex);
+        return new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, knotAbscissae);
+    }
 }

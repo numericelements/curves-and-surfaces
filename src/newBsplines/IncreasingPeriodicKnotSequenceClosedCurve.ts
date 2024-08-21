@@ -86,6 +86,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
 
     toOpenKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
         const knotsOpenSequence: number[] = [];
+        const multiplicityAtOrigin = this.knotSequence[0].multiplicity;
         let knotNumber = 1;
         for( let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
             for(let j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
