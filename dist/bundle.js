@@ -58202,102 +58202,38 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(i);
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.extractSubsetOfAbscissae = function (knotStart, knotEnd) {
-        var e_8, _a, e_9, _b;
         var knots = [];
+        var sequence = this.allAbscissae;
         var lasIndex = this.allAbscissae.length - 1;
         var multFirstKnot = this.knotSequence[0].multiplicity;
-        var multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
-        var indexPeriod = lasIndex - multLastKnot + 1;
         try {
-            if (!(knotStart.knotIndex >= 0) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and/or end indices values are out of range. Cannot perform the extraction.");
+            if (knotStart.knotIndex < 0) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index must be positive or null. Cannot perform the extraction.");
                 throw (error.logMessage());
             }
-            if ((knotEnd.knotIndex - knotStart.knotIndex) > lasIndex && (knotStart.knotIndex === 0 || knotStart.knotIndex % lasIndex === 0)) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than the period of the sequence. No extraction is performed.");
-                throw (error.logMessageToConsole());
+            if (knotEnd.knotIndex <= knotStart.knotIndex) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index must be strictly lower than the end one. Cannot perform the extraction.");
+                throw (error.logMessage());
             }
             if (knotStart.knotIndex > lasIndex) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start indicex is out of range. No extraction is performed.");
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index is out of range. No extraction is performed.");
                 throw (error.logMessageToConsole());
             }
-            var addLast = false;
-            var updateKnotEnd = false;
-            if (knotStart.knotIndex >= lasIndex) {
-                // if(knotStart.knotIndex % lasIndex === 0) {
-                knotStart.knotIndex = knotStart.knotIndex - lasIndex;
-                knotEnd.knotIndex = knotEnd.knotIndex - lasIndex;
-                // } else {
-                //     knotStart.knotIndex = knotStart.knotIndex - lasIndex + (multFirstKnot - 1);
-                //     knotEnd.knotIndex = knotEnd.knotIndex - lasIndex + (multFirstKnot - 1);
-                // }
+            if ((knotEnd.knotIndex - knotStart.knotIndex) > (2 * lasIndex)) {
+                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than twice the period of the sequence. No extraction is performed.");
+                throw (error.logMessageToConsole());
             }
-            var strictIncIdxStart = this.toKnotIndexStrictlyIncreasingSequence(knotStart);
-            var strictIncIdxEnd = this.toKnotIndexStrictlyIncreasingSequence(knotEnd);
-            var indexStartInPeriod = strictIncIdxStart.knotIndex % (this.knotSequence.length - 1);
-            var indexEndInPeriod = strictIncIdxEnd.knotIndex % (this.knotSequence.length - 1);
-            if (indexEndInPeriod === indexStartInPeriod) {
-                addLast = true;
-                if (strictIncIdxStart.knotIndex === 0)
-                    strictIncIdxEnd.knotIndex = 0;
-            }
-            var index = 0;
-            if (strictIncIdxEnd.knotIndex > (this.knotSequence.length - 1)) {
-                knotEnd.knotIndex = knotEnd.knotIndex % indexPeriod;
-                if (addLast)
-                    knotEnd.knotIndex--;
-            }
-            if (strictIncIdxStart.knotIndex === 0 && !(knotStart.knotIndex >= 0 && knotStart.knotIndex <= (this.knotSequence[0].multiplicity - 1))) {
-                knotStart.knotIndex = knotStart.knotIndex - indexPeriod;
-            }
-            try {
-                for (var _c = __values(this), _d = _c.next(); !_d.done; _d = _c.next()) {
-                    var knot = _d.value;
-                    if (((index >= knotStart.knotIndex && index <= knotEnd.knotIndex) ||
-                        (index >= knotStart.knotIndex && knotEnd.knotIndex < knotStart.knotIndex)) && index < (lasIndex - multLastKnot + 1)) {
-                        if (knot !== undefined)
-                            knots.push(knot);
-                    }
-                    index++;
+            if (knotEnd.knotIndex > lasIndex) {
+                for (var i = multFirstKnot; i < this.allAbscissae.length; i++) {
+                    sequence.push(this.allAbscissae[i] + this.allAbscissae[lasIndex]);
                 }
             }
-            catch (e_8_1) { e_8 = { error: e_8_1 }; }
-            finally {
-                try {
-                    if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-                }
-                finally { if (e_8) throw e_8.error; }
-            }
-            index = 0;
-            if (indexEndInPeriod === 0) {
-                knotEnd.knotIndex = knotEnd.knotIndex - (lasIndex - multLastKnot + 1);
-                updateKnotEnd = true;
-            }
-            if (indexEndInPeriod <= indexStartInPeriod || indexEndInPeriod === 0 || (indexStartInPeriod === 0 && indexStartInPeriod !== strictIncIdxStart.knotIndex)) {
-                if (addLast && indexEndInPeriod !== 0)
-                    knotEnd.knotIndex++;
-                try {
-                    for (var _e = __values(this), _f = _e.next(); !_f.done; _f = _e.next()) {
-                        var knot = _f.value;
-                        if (knot !== undefined && index <= knotEnd.knotIndex) {
-                            if (updateKnotEnd && knot === this.knotSequence[0].abscissa) {
-                                knots.push(knot + this.knotSequence[this.knotSequence.length - 1].abscissa);
-                            }
-                            else {
-                                knots.push(knot);
-                            }
-                        }
-                        index++;
-                    }
-                }
-                catch (e_9_1) { e_9 = { error: e_9_1 }; }
-                finally {
-                    try {
-                        if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-                    }
-                    finally { if (e_9) throw e_9.error; }
+            if (knotEnd.knotIndex >= (2 * lasIndex)) {
+                for (var i = multFirstKnot; i < this.allAbscissae.length; i++) {
+                    sequence.push(this.allAbscissae[i] + 2 * this.allAbscissae[lasIndex]);
                 }
             }
+            knots = sequence.slice(knotStart.knotIndex, knotEnd.knotIndex + 1);
             return knots;
         }
         catch (error) {
@@ -58306,7 +58242,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         }
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.findSpan = function (u) {
-        var e_10, _a;
+        var e_8, _a;
         var index = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
         if (u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
             u = u % this.getPeriod();
@@ -58331,12 +58267,12 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
                         }
                     }
                 }
-                catch (e_10_1) { e_10 = { error: e_10_1 }; }
+                catch (e_8_1) { e_8 = { error: e_8_1 }; }
                 finally {
                     try {
                         if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                     }
-                    finally { if (e_10) throw e_10.error; }
+                    finally { if (e_8) throw e_8.error; }
                 }
             }
             // Do binary search
@@ -58821,61 +58757,154 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
      */
     PeriodicBSplineR1toR2.prototype.evaluate = function (u) {
         var span = this._increasingKnotSequence.findSpan(u);
-        var multiplicityFirstKnot = this._increasingKnotSequence.knotMultiplicity(new Knot_1.KnotIndexStrictlyIncreasingSequence(0));
         var basis = Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence(span.knotIndex, u, this._increasingKnotSequence);
         var result = new Vector2d_1.Vector2d(0, 0);
         for (var i = 0; i < this._degree + 1; i += 1) {
             if (basis[i] !== 0.0) {
-                var indexCP = void 0;
-                if (((span.knotIndex - this._degree + i) - (multiplicityFirstKnot - 1)) < 0) {
-                    indexCP = this._controlPoints.length + (span.knotIndex - this._degree + i) - (multiplicityFirstKnot - 1);
-                }
-                else if (((span.knotIndex - this._degree + i) - (multiplicityFirstKnot - 1)) >= 0 && (span.knotIndex - this._degree + i) < this._controlPoints.length) {
-                    indexCP = span.knotIndex - this._degree + i - (multiplicityFirstKnot - 1);
-                }
-                else {
-                    indexCP = span.knotIndex - this._degree + i - this._controlPoints.length;
-                }
+                var indexCP = this.fromIncKnotSeqIndexToControlPointIndex(span, i);
                 result.x += basis[i] * this._controlPoints[indexCP].x;
                 result.y += basis[i] * this._controlPoints[indexCP].y;
             }
         }
         return result;
     };
+    PeriodicBSplineR1toR2.prototype.fromIncKnotSeqIndexToControlPointIndex = function (indexKSeq, offset) {
+        if (offset === void 0) { offset = 0; }
+        var indexCP;
+        var multiplicityFirstKnot = this._increasingKnotSequence.knotMultiplicity(new Knot_1.KnotIndexStrictlyIncreasingSequence(0));
+        if (((indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1)) < 0) {
+            indexCP = this._controlPoints.length + (indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1);
+        }
+        else if (((indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1)) >= 0 && (indexKSeq.knotIndex - this._degree + offset) < this._controlPoints.length) {
+            indexCP = indexKSeq.knotIndex - this._degree + offset - (multiplicityFirstKnot - 1);
+        }
+        else {
+            indexCP = indexKSeq.knotIndex - this._degree + offset - this._controlPoints.length;
+        }
+        return indexCP;
+    };
     /**
      *
-     * @param fromU Parametric position where the section starts
-     * @param toU Parametric position where the section ends
-     * @retrun the BSpline_R1_to_R2 section
+     * @param fromU Parametric position where the section starts. A value inside the interval span of the curve.
+     * @param toU Parametric position where the section ends. A positive value greater than or equal to fromU but not larger than
+     * @retrun the BSpline_R1_to_R2 section as open curve.
      */
+    // extract(fromU: number, toU: number): BSplineR1toR2 | undefined {
+    PeriodicBSplineR1toR2.prototype.extractInParamAssessment = function (fromU, toU) {
+        if (fromU < this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(0))) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa is negative. Positive abscissa only are valid.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+        else if (toU < this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(ComparatorOfSequencesDiffEvents_1.LOWER_BOUND_CURVE_INTERVAL))) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "Second abscissa is negative. Positive abscissa only are valid.");
+            warning.logMessageToConsole();
+            throw (warning);
+        }
+        else if (toU < (fromU - AbstractBSplineR1toR2_1.TOL_KNOT_COINCIDENCE)) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "Second abscissa must be greater than the first one. Cannot proceed.");
+            warning.logMessageToConsole();
+        }
+        else if (Math.abs(toU - fromU) > this._increasingKnotSequence.getPeriod()) {
+            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "First and second abscissae span an interval larger than the period of the knot sequence. Extraction cannot be performed.");
+            warning.logMessageToConsole();
+            throw (warning);
+        }
+        return;
+    };
     PeriodicBSplineR1toR2.prototype.extract = function (fromU, toU) {
         var spline = this.clone();
-        if (Math.abs(fromU - toU) < AbstractBSplineR1toR2_1.TOL_KNOT_COINCIDENCE) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "The bounding abscissa are either identical or close enough to each other. No curve interval can be extracted. The curve is open at the user prescribed abscissa.");
-            warning.logMessageToConsole();
-            spline.clamp(fromU);
-        }
-        else if (fromU < this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(0))) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "First abscissa is negative. Positive abscissa only are valid.");
-            warning.logMessageToConsole();
-        }
-        if (toU > this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(this._increasingKnotSequence.length()))) {
-            toU = toU - toU % this._increasingKnotSequence.getPeriod();
-        }
-        // need to redefine clamp for periodic b-splines
-        spline.clamp(fromU);
-        spline.clamp(toU);
-        var newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(fromU, spline.knots, spline._degree);
-        var newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(toU, spline.knots, spline._degree);
         var newKnots = [];
         var newControlPoints = [];
-        for (var i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
-            newKnots.push(spline.knots[i]);
+        try {
+            this.extractInParamAssessment(fromU, toU);
+            if (Math.abs(fromU - toU) < AbstractBSplineR1toR2_1.TOL_KNOT_COINCIDENCE) {
+                var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "The bounding abscissa are either identical or close enough to each other. No curve interval can be extracted. The curve is opened at the prescribed abscissa.");
+                warning.logMessageToConsole();
+                var index = this.findSpanBoehmAlgorithm(fromU);
+                if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(fromU) !== 0) {
+                    fromU = this._increasingKnotSequence.abscissaAtIndex(index);
+                }
+                spline.clamp(fromU);
+                index = spline.findSpanBoehmAlgorithm(fromU);
+                for (var i = index.knotIndex - spline._degree + 1; i < spline.knots.length; i += 1) {
+                    newKnots.push(spline.knots[i]);
+                }
+                if ((index.knotIndex - spline._degree + 1) !== 0) {
+                    for (var i = 0; i < index.knotIndex - spline._degree + 1; i += 1) {
+                        newKnots.push(spline.knots[i]);
+                    }
+                }
+                newKnots = this.resetKnotAbscissaToOrigin(newKnots);
+                newKnots.splice(0, 0, newKnots[0]);
+                newKnots.splice(newKnots.length, 0, newKnots[newKnots.length - 1]);
+                var indexCPfromU = spline.fromIncKnotSeqIndexToControlPointIndex(index);
+                for (var i = indexCPfromU; i < spline._controlPoints.length; i += 1) {
+                    newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+                }
+                if (indexCPfromU !== 0) {
+                    for (var i = 0; i <= indexCPfromU; i += 1) {
+                        newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+                    }
+                }
+                return new BSplineR1toR2_1.BSplineR1toR2(newControlPoints, newKnots);
+            }
+            else {
+                var secondSegment = false;
+                if (toU < fromU) {
+                    secondSegment = true;
+                }
+                if (toU > this._increasingKnotSequence.allAbscissae[this._increasingKnotSequence.allAbscissae.length - 1]) {
+                    toU = toU - toU % this._increasingKnotSequence.getPeriod();
+                }
+                spline.clamp(fromU);
+                spline.clamp(toU);
+                var newFromSpan = spline.findSpanBoehmAlgorithm(fromU);
+                var newToSpan = spline.findSpanBoehmAlgorithm(toU);
+                for (var i = newFromSpan.knotIndex - spline._degree + 1; i < newToSpan.knotIndex + 1; i += 1) {
+                    newKnots.push(spline.knots[i]);
+                }
+                newKnots = this.resetKnotAbscissaToOrigin(newKnots);
+                var nbCtrlPts = newKnots.length - (this._degree - 1);
+                newKnots.splice(0, 0, newKnots[0]);
+                newKnots.splice(newKnots.length, 0, newKnots[newKnots.length - 1]);
+                var indexCPfromU = spline.fromIncKnotSeqIndexToControlPointIndex(newFromSpan);
+                var indexCPtoU = spline.fromIncKnotSeqIndexToControlPointIndex(newToSpan);
+                var highIndex = spline._controlPoints.length;
+                var spanAllIndices = false;
+                if ((indexCPfromU + nbCtrlPts) <= spline._controlPoints.length) {
+                    spanAllIndices = true;
+                    highIndex = indexCPfromU + nbCtrlPts;
+                }
+                for (var i = indexCPfromU; i < highIndex; i += 1) {
+                    newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+                }
+                if (!spanAllIndices) {
+                    highIndex = indexCPtoU + 1;
+                    for (var i = 0; i < highIndex; i += 1) {
+                        newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+                    }
+                }
+            }
         }
-        for (var i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
-            newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
+        catch (error) {
+            if (error instanceof RangeError) {
+                console.error(error);
+            }
         }
         return new BSplineR1toR2_1.BSplineR1toR2(newControlPoints, newKnots);
+    };
+    PeriodicBSplineR1toR2.prototype.clamp = function (u) {
+        var index = this.findSpanBoehmAlgorithm(u);
+        var indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
+        var newControlPoints = [];
+        var multiplicity = 0;
+        if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(u)
+            && Math.abs(u - this._increasingKnotSequence.abscissaAtIndex(index)) < AbstractBSplineR1toR2_1.TOL_KNOT_COINCIDENCE) {
+            multiplicity = this.knotMultiplicity(indexStrictInc);
+        }
+        var times = this._degree - multiplicity;
+        this.insertKnotBoehmAlgorithm(u, times);
     };
     PeriodicBSplineR1toR2.prototype.elevateDegree = function (times) {
         if (times === void 0) { times = 1; }
@@ -58978,7 +59007,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         // Uses Boehm's algorithm without restriction on the structure of the knot sequence,
         //i.e. applicable to non uniform or arbitrary knot sequences
         try {
-            if (times <= 0 || times > (this._degree + 1)) {
+            if (times <= 0 || times > (this._degree)) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithm", "The knot multiplicity prescribed is incompatible with the curve degree. No insrtion is perfomed.");
                 throw (error);
             }
@@ -58989,23 +59018,21 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u) !== 0) {
                 multiplicity = this.knotMultiplicity(indexStrictInc);
             }
-            var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence();
             for (var t = 0; t < times; t += 1) {
                 var newControlPoints = [];
-                var CPoffset = 0;
-                if ((index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) > 0) {
-                    var higherIndex = index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1);
-                    for (var i = 0; i < higherIndex; i += 1) {
-                        newControlPoints[i] = this._controlPoints[i];
-                    }
+                var firstIndex = 0;
+                var lastIndex = 0;
+                if (index.knotIndex !== (multiplicity - 1)) {
+                    firstIndex = (this._controlPoints.length + 1 + index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) % (this._controlPoints.length + 1);
+                    lastIndex = (this._controlPoints.length + 1 + index.knotIndex - multiplicity - (multiplicityAtOrigin - 1)) % (this._controlPoints.length + 1);
                 }
-                else if ((index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) < 0) {
-                    if ((index.knotIndex - multiplicity) >= 0) {
-                        CPoffset = index.knotIndex - multiplicity + 1 - (multiplicityAtOrigin - 1);
-                    }
-                    var higherIndex = this._controlPoints.length + (index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1));
-                    for (var i = 0; i < higherIndex; i += 1) {
-                        newControlPoints[i + CPoffset] = this._controlPoints[i];
+                else {
+                    firstIndex = this._controlPoints.length + index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1);
+                    lastIndex = this._controlPoints.length + index.knotIndex - multiplicity - (multiplicityAtOrigin - 1);
+                }
+                if (firstIndex > 0 && lastIndex > 0 && lastIndex >= firstIndex) {
+                    for (var i = 0; i < firstIndex; i += 1) {
+                        newControlPoints[i] = this._controlPoints[i];
                     }
                 }
                 var subSequence = [];
@@ -59017,35 +59044,40 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
                     subSequence = this._increasingKnotSequence.extractSubsetOfAbscissae(new Knot_1.KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 + (index.knotIndex - this._degree + 1) - (multiplicityAtOrigin - 1)), new Knot_1.KnotIndexIncreasingSequence(this._increasingKnotSequence.length() - 1 - (multiplicityAtOrigin - 1) + index.knotIndex - multiplicity + this._degree));
                     this.regularizeKnotIntervalsOfSubsquence(index, subSequence);
                 }
+                var indexCPn = 0;
                 var offset = index.knotIndex - this._degree + 1;
                 for (var i = index.knotIndex - this._degree + 1; i <= index.knotIndex - multiplicity; i += 1) {
                     var alpha = (u - subSequence[i - offset]) / (subSequence[i + this._degree - offset] - subSequence[i - offset]);
-                    var indexCP = i;
-                    var indexCPo = indexCP - (multiplicityAtOrigin - 1);
-                    if ((i - 1 - (multiplicityAtOrigin - 1)) >= 0) {
-                        newControlPoints[indexCPo] = (this._controlPoints[indexCPo - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPo].multiply(alpha));
+                    indexCPn = (this._controlPoints.length + 1 + i - (multiplicityAtOrigin - 1)) % (this._controlPoints.length + 1);
+                    if (index.knotIndex === (multiplicity - 1)) {
+                        indexCPn = (this._controlPoints.length + i - (multiplicityAtOrigin - 1));
                     }
-                    else {
-                        indexCP = this._controlPoints.length + i;
-                        indexCPo = indexCP - (multiplicityAtOrigin - 1);
-                        if (i - (multiplicityAtOrigin - 1) === 0) {
-                            newControlPoints[0] = (this._controlPoints[indexCPo - 1].multiply(1 - alpha)).add(this._controlPoints[0].multiply(alpha));
+                    if (indexCPn > 0 && indexCPn < this._controlPoints.length && lastIndex > firstIndex) {
+                        newControlPoints[indexCPn] = (this._controlPoints[indexCPn - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPn].multiply(alpha));
+                    }
+                    else if (indexCPn > 0 && indexCPn <= this._controlPoints.length && lastIndex < firstIndex) {
+                        if (indexCPn >= firstIndex) {
+                            newControlPoints[indexCPn] = (this._controlPoints[indexCPn - 2].multiply(1 - alpha)).add(this._controlPoints[indexCPn - 1].multiply(alpha));
                         }
                         else {
-                            newControlPoints[indexCPo + CPoffset] = (this._controlPoints[indexCPo - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPo].multiply(alpha));
+                            newControlPoints[indexCPn] = (this._controlPoints[indexCPn - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPn].multiply(alpha));
                         }
                     }
-                }
-                if ((index.knotIndex - this._degree + 1 - (multiplicityAtOrigin - 1)) >= 0) {
-                    for (var i = index.knotIndex - multiplicity - (multiplicityAtOrigin - 1); i < this._controlPoints.length; i += 1) {
-                        newControlPoints[i + 1] = this._controlPoints[i];
+                    else if (indexCPn === 0) {
+                        newControlPoints[0] = (this._controlPoints[this._controlPoints.length - 1].multiply(1 - alpha)).add(this._controlPoints[0].multiply(alpha));
+                        // } else if(indexCPn === this._controlPoints.length && lastIndex >= firstIndex) {
+                        //     // this configuration cannot occur given the equations of firstIndex and lastIndex
+                        //     newControlPoints[this._controlPoints.length] = (this._controlPoints[this._controlPoints.length - 2].multiply(1 - alpha)).add(this._controlPoints[this._controlPoints.length - 1].multiply(alpha));
+                    }
+                    else if (indexCPn === firstIndex && firstIndex === lastIndex) {
+                        newControlPoints[indexCPn] = (this._controlPoints[indexCPn - 1].multiply(1 - alpha)).add(this._controlPoints[indexCPn].multiply(alpha));
                     }
                 }
-                else if ((index.knotIndex - multiplicity - (multiplicityAtOrigin - 1)) < 0) {
-                    var lowerIndex = this._controlPoints.length + (index.knotIndex - multiplicity) - (multiplicityAtOrigin - 1);
-                    for (var i = lowerIndex; i < this._controlPoints.length; i += 1) {
-                        newControlPoints[i + 1] = this._controlPoints[i];
-                    }
+                var lastCP = this._controlPoints.length;
+                if ((firstIndex - 1) < this._controlPoints.length && firstIndex > lastIndex)
+                    lastCP = firstIndex - 1;
+                for (var j = indexCPn; j < lastCP; j++) {
+                    newControlPoints[j + 1] = this._controlPoints[j];
                 }
                 if (multiplicity > 0) {
                     this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
@@ -59053,16 +59085,13 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
                 else if (multiplicity === 0 && t === 0) {
                     this._increasingKnotSequence.insertKnot(u, 1);
                     var newIndex = this._increasingKnotSequence.findSpan(u);
-                    newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
-                }
-                else {
-                    this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                    indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
                 }
                 this._controlPoints = newControlPoints.slice();
+                if (index.knotIndex === 0 && multiplicity !== 0)
+                    multiplicityAtOrigin++;
                 multiplicity++;
                 index.knotIndex++;
-                if (index.knotIndex === 0)
-                    multiplicityAtOrigin;
             }
         }
         catch (error) {
