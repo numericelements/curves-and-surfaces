@@ -1807,7 +1807,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
-            expect(periodicSpl.extractInParamAssessment.bind(periodicSpl, -0.1, 1)).to.throw(RangeError);
+            expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, -0.1, 1)).to.throw(RangeError);
             const error = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is negative. Positive abscissa only are valid.");
             // expect(periodicSpl?.extract(-0.1, 1)).to.eql(error.logMessage());
         }
@@ -1846,9 +1846,46 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(openBSpline?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(openBSpline?.evaluate(4).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(openBSpline?.evaluate(4).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        const openBSpline1 = periodicSpl?.extract(0.5, 0.5);
+        expect(openBSpline1?.degree).to.eql(3)
+        expect(openBSpline1?.knots).to.eql([0, 0, 0, 0, 0.5, 1.5, 2.5, 3.5, 4, 4, 4, 4])
+        const cpX1 = [0.9166666666666666, 0.9166666666666666, 0.66666666666666, -1, -1, 0.66666666666666, 0.9166666666666666, 0.9166666666666666]
+        const cpY1 = [0.0, -0.25, -1, -1, 1, 1, 0.25, 0.0]
+        if(openBSpline1 !== undefined) {
+            for( let i = 0; i < openBSpline1.controlPoints.length; i++) {
+                expect(openBSpline1.controlPoints[i].x).to.be.closeTo(cpX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline1.controlPoints[i].y).to.be.closeTo(cpY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(openBSpline1?.evaluate(0).x).to.be.closeTo(0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(2).x).to.be.closeTo(-0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(2).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(4).x).to.be.closeTo(0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(4).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    
+        periodicSpl?.insertKnotBoehmAlgorithm(0);
+        const openBSpline2 = periodicSpl?.extract(2, 2);
+        expect(openBSpline2?.degree).to.eql(3)
+        expect(openBSpline2?.knots).to.eql([0, 0, 0, 0, 1, 2, 2, 3, 4, 4, 4, 4])
+        const cpX2 = [-0.66666666666666, -1, -1, 0.33333333333333, 1, 1, -0.33333333333333, -0.66666666666666]
+        const cpY2 = [-0.66666666666666, -0.33333333333333, 1, 1, 0.33333333333333, -1, -1, -0.66666666666666]
+        if(openBSpline2 !== undefined) {
+            for( let i = 0; i < openBSpline2.controlPoints.length; i++) {
+                expect(openBSpline2.controlPoints[i].x).to.be.closeTo(cpX2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline2.controlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(openBSpline2?.evaluate(0).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(0).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(2).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(2).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(4).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(4).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
     });
 
-    it('can extract a B-Spline from a periodic B-Spline when start and end abscissae fall within the reference knot sequence', () => {
+    it('can extract a B-Spline from a periodic B-Spline when  u1 and u2 abscissae fall within the reference knot sequence with u1 < u2', () => {
         // rectangular control polygon
         const cp0 = new Vector2d(-1, -1)
         const cp1 = new Vector2d(-1, 1)
@@ -1862,7 +1899,9 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(periodicSpl?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
 
-        const openBSpline = periodicSpl?.extract(0, 1);
+        let u1 = 0;
+        let u2 = 1;
+        const openBSpline = periodicSpl?.extract(u1, u2);
         expect(openBSpline?.degree).to.eql(3)
         expect(openBSpline?.knots).to.eql([0, 0, 0, 0, 1, 1, 1, 1])
         const cpX = [0.66666666666666, 1, 1, 0.66666666666666]
@@ -1878,7 +1917,9 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(openBSpline?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(openBSpline?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
 
-        const openBSpline1 = periodicSpl?.extract(1, 3);
+        u1 = 1;
+        u2 = 3;
+        const openBSpline1 = periodicSpl?.extract(u1, u2);
         expect(openBSpline1?.degree).to.eql(3)
         expect(openBSpline1?.knots).to.eql([0, 0, 0, 0, 1, 2, 2, 2, 2])
         const cpX1 = [0.66666666666666, 0.3333333333333333, -1, -1, -0.66666666666666]
@@ -1894,7 +1935,9 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(openBSpline1?.evaluate(2).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(openBSpline1?.evaluate(2).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
 
-        const openBSpline2 = periodicSpl?.extract(1.5, 2.5);
+        u1 = 1.5;
+        u2 = 2.5;
+        const openBSpline2 = periodicSpl?.extract(u1, u2);
         expect(openBSpline2?.degree).to.eql(3)
         expect(openBSpline2?.knots).to.eql([0, 0, 0, 0, 0.5, 1, 1, 1, 1])
         const cpX2 = [0.0, -0.25, -0.75, -0.9166666666666666, -0.9166666666666666]
@@ -1909,9 +1952,272 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(openBSpline2?.evaluate(0).y).to.be.closeTo(-0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(openBSpline2?.evaluate(1).x).to.be.closeTo(-0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(openBSpline2?.evaluate(1).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    });
+
+    it('can extract a B-Spline from a periodic B-Spline when u1 and u2 abscissae fall within the reference knot sequence with u1 > u2 ', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+
+        let u1 = 1;
+        let u2 = 0;
+        const openBSpline = periodicSpl?.extract(u1, u2);
+        expect(openBSpline?.degree).to.eql(3)
+        expect(openBSpline?.knots).to.eql([0, 0, 0, 0, 1, 2, 3, 3, 3, 3])
+        const cpX = [0.66666666666666, 0.3333333333333333, -1, -1, 0.3333333333333333, 0.66666666666666]
+        const cpY = [-0.66666666666666, -1, -1, 1, 1, 0.66666666666666]
+        if(openBSpline !== undefined) {
+            for( let i = 0; i < openBSpline.controlPoints.length; i++) {
+                expect(openBSpline.controlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline.controlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(openBSpline?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline?.evaluate(0).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline?.evaluate(3).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        u1 = 3;
+        u2 = 1;
+        const openBSpline1 = periodicSpl?.extract(u1, u2);
+        expect(openBSpline1?.degree).to.eql(3)
+        expect(openBSpline1?.knots).to.eql([0, 0, 0, 0, 1, 2, 2, 2, 2])
+        const cpX1 = [-0.66666666666666, -0.3333333333333333, 1, 1, 0.66666666666666]
+        const cpY1 = [0.66666666666666, 1, 1, -0.3333333333333333, -0.66666666666666]
+        if(openBSpline1 !== undefined) {
+            for( let i = 0; i < openBSpline1.controlPoints.length; i++) {
+                expect(openBSpline1.controlPoints[i].x).to.be.closeTo(cpX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline1.controlPoints[i].y).to.be.closeTo(cpY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(openBSpline1?.evaluate(0).x).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(2).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline1?.evaluate(2).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        u1 = 2.5;
+        u2 = 1.5;
+        const openBSpline2 = periodicSpl?.extract(u1, u2);
+        expect(openBSpline2?.degree).to.eql(3)
+        expect(openBSpline2?.knots).to.eql([0, 0, 0, 0, 0.5, 1.5, 2.5, 3, 3, 3, 3])
+        const cpX2 = [-0.9166666666666666, -0.9166666666666666, -0.66666666666666, 1, 1, 0.25, 0.0]
+        const cpY2 = [0.0, 0.25, 1, 1, -0.66666666666666, -0.9166666666666666, -0.9166666666666666]
+        if(openBSpline2 !== undefined) {
+            for( let i = 0; i < openBSpline2.controlPoints.length; i++) {
+                expect(openBSpline2.controlPoints[i].x).to.be.closeTo(cpX2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline2.controlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+        expect(openBSpline2?.evaluate(0).x).to.be.closeTo(-0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(3).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(openBSpline2?.evaluate(3).y).to.be.closeTo(-0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         // console.log("p0 = " + openBSpline?.evaluate(0).x + "  " + openBSpline?.evaluate(0).y);
         // console.log("p1 = " + openBSpline?.evaluate(1).x + "  " + openBSpline?.evaluate(1).y);
         // console.log("p2 = " + openBSpline?.evaluate(2).x + "  " + openBSpline?.evaluate(2).y);
         // console.log("p3 = " + openBSpline?.evaluate(3).x + "  " + openBSpline?.evaluate(3).y);
+    });
+
+
+    it('can open a periodic B-Spline when u1 and u2 abscissae fall within the reference knot sequence with u1 < u2', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+
+        let u1 = 0;
+        let u2 = 1;
+        const periodicSpl1 = periodicSpl?.clone();
+        periodicSpl1?.clamp(u1);
+        periodicSpl1?.clamp(u2);
+        const openBSpline = periodicSpl1?.toOpenBSpline(u1, u2);
+        expect(openBSpline?.degree).to.eql(3)
+        expect(openBSpline?.knots).to.eql([0, 0, 0, 0, 1, 1, 1, 1])
+        const cpX = [0.66666666666666, 1, 1, 0.66666666666666]
+        const cpY = [0.66666666666666, 0.3333333333333333, -0.3333333333333333, -0.66666666666666]
+        if(openBSpline !== undefined) {
+            for( let i = 0; i < openBSpline.controlPoints.length; i++) {
+                expect(openBSpline.controlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline.controlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+
+        u1 = 1;
+        u2 = 3;
+        const periodicSpl2 = periodicSpl?.clone();
+        periodicSpl2?.clamp(u1);
+        periodicSpl2?.clamp(u2);
+        const openBSpline1 = periodicSpl2?.toOpenBSpline(u1, u2);
+        expect(openBSpline1?.degree).to.eql(3)
+        expect(openBSpline1?.knots).to.eql([0, 0, 0, 0, 1, 2, 2, 2, 2])
+        const cpX1 = [0.66666666666666, 0.3333333333333333, -1, -1, -0.66666666666666]
+        const cpY1 = [-0.66666666666666, -1, -1, 0.3333333333333333, 0.66666666666666]
+        if(openBSpline1 !== undefined) {
+            for( let i = 0; i < openBSpline1.controlPoints.length; i++) {
+                expect(openBSpline1.controlPoints[i].x).to.be.closeTo(cpX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline1.controlPoints[i].y).to.be.closeTo(cpY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+
+        u1 = 1.5;
+        u2 = 2.5;
+        const periodicSpl3 = periodicSpl?.clone();
+        periodicSpl3?.clamp(u1);
+        periodicSpl3?.clamp(u2);
+        const openBSpline2 = periodicSpl3?.toOpenBSpline(u1, u2);
+        expect(openBSpline2?.degree).to.eql(3)
+        expect(openBSpline2?.knots).to.eql([0, 0, 0, 0, 0.5, 1, 1, 1, 1])
+        const cpX2 = [0.0, -0.25, -0.75, -0.9166666666666666, -0.9166666666666666]
+        const cpY2 = [-0.9166666666666666, -0.9166666666666666, -0.75, -0.25, 0.0]
+        if(openBSpline2 !== undefined) {
+            for( let i = 0; i < openBSpline2.controlPoints.length; i++) {
+                expect(openBSpline2.controlPoints[i].x).to.be.closeTo(cpX2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline2.controlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+    });
+
+    it('can open a periodic B-Spline when u1 and u2 abscissae fall within the reference knot sequence with u1 > u2 ', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+
+        let u1 = 1;
+        let u2 = 0;
+        const periodicSpl1 = periodicSpl?.clone();
+        periodicSpl1?.clamp(u1);
+        periodicSpl1?.clamp(u2);
+        const openBSpline = periodicSpl1?.toOpenBSpline(u1, u2);
+        expect(openBSpline?.degree).to.eql(3)
+        expect(openBSpline?.knots).to.eql([0, 0, 0, 0, 1, 2, 3, 3, 3, 3])
+        const cpX = [0.66666666666666, 0.3333333333333333, -1, -1, 0.3333333333333333, 0.66666666666666]
+        const cpY = [-0.66666666666666, -1, -1, 1, 1, 0.66666666666666]
+        if(openBSpline !== undefined) {
+            for( let i = 0; i < openBSpline.controlPoints.length; i++) {
+                expect(openBSpline.controlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline.controlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+
+        u1 = 3;
+        u2 = 1;
+        const periodicSpl2 = periodicSpl?.clone();
+        periodicSpl2?.clamp(u1);
+        periodicSpl2?.clamp(u2);
+        const openBSpline1 = periodicSpl2?.toOpenBSpline(u1, u2);
+        expect(openBSpline1?.degree).to.eql(3)
+        expect(openBSpline1?.knots).to.eql([0, 0, 0, 0, 1, 2, 2, 2, 2])
+        const cpX1 = [-0.66666666666666, -0.3333333333333333, 1, 1, 0.66666666666666]
+        const cpY1 = [0.66666666666666, 1, 1, -0.3333333333333333, -0.66666666666666]
+        if(openBSpline1 !== undefined) {
+            for( let i = 0; i < openBSpline1.controlPoints.length; i++) {
+                expect(openBSpline1.controlPoints[i].x).to.be.closeTo(cpX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline1.controlPoints[i].y).to.be.closeTo(cpY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+
+        u1 = 2.5;
+        u2 = 1.5;
+        const periodicSpl3 = periodicSpl?.clone();
+        periodicSpl3?.clamp(u1);
+        periodicSpl3?.clamp(u2);
+        const openBSpline2 = periodicSpl3?.toOpenBSpline(u1, u2);
+        expect(openBSpline2?.degree).to.eql(3)
+        expect(openBSpline2?.knots).to.eql([0, 0, 0, 0, 0.5, 1.5, 2.5, 3, 3, 3, 3])
+        const cpX2 = [-0.9166666666666666, -0.9166666666666666, -0.66666666666666, 1, 1, 0.25, 0.0]
+        const cpY2 = [0.0, 0.25, 1, 1, -0.66666666666666, -0.9166666666666666, -0.9166666666666666]
+        if(openBSpline2 !== undefined) {
+            for( let i = 0; i < openBSpline2.controlPoints.length; i++) {
+                expect(openBSpline2.controlPoints[i].x).to.be.closeTo(cpX2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline2.controlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+    });
+
+    it('can open a periodic B-Spline when start and end abscissae coincide', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.evaluate(1).y).to.be.closeTo(-0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(periodicSpl?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+
+        let u1 = 0.0;
+        const periodicSpl1 = periodicSpl?.clone();
+        periodicSpl1?.clamp(u1);
+        const openBSpline = periodicSpl1?.toOpenBSpline(u1, u1);
+        expect(openBSpline?.degree).to.eql(3)
+        expect(openBSpline?.knots).to.eql([0, 0, 0, 0, 1, 2, 3, 4, 4, 4, 4])
+        const cpX = [0.66666666666666, 1, 1, -1, -1, 0.3333333333333333, 0.66666666666666]
+        const cpY = [0.66666666666666, 0.3333333333333333, -1, -1, 1, 1, 0.66666666666666]
+        if(openBSpline !== undefined) {
+            for( let i = 0; i < openBSpline.controlPoints.length; i++) {
+                expect(openBSpline.controlPoints[i].x).to.be.closeTo(cpX[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline.controlPoints[i].y).to.be.closeTo(cpY[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+
+        u1 = 0.5;
+        const periodicSpl2 = periodicSpl?.clone();
+        periodicSpl2?.clamp(u1);
+        const openBSpline1 = periodicSpl2?.toOpenBSpline(u1, u1);
+        expect(openBSpline1?.degree).to.eql(3)
+        expect(openBSpline1?.knots).to.eql([0, 0, 0, 0, 0.5, 1.5, 2.5, 3.5, 4, 4, 4, 4])
+        const cpX1 = [0.9166666666666666, 0.9166666666666666, 0.66666666666666, -1, -1, 0.66666666666666, 0.9166666666666666, 0.9166666666666666]
+        const cpY1 = [0.0, -0.25, -1, -1, 1, 1, 0.25, 0.0]
+        if(openBSpline1 !== undefined) {
+            for( let i = 0; i < openBSpline1.controlPoints.length; i++) {
+                expect(openBSpline1.controlPoints[i].x).to.be.closeTo(cpX1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline1.controlPoints[i].y).to.be.closeTo(cpY1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
+    
+        u1 = 2;
+        const periodicSpl3 = periodicSpl?.clone();
+        periodicSpl3?.insertKnotBoehmAlgorithm(0);
+        periodicSpl3?.clamp(u1);
+        const openBSpline2 = periodicSpl3?.toOpenBSpline(u1, u1);
+        expect(openBSpline2?.degree).to.eql(3)
+        expect(openBSpline2?.knots).to.eql([0, 0, 0, 0, 1, 2, 2, 3, 4, 4, 4, 4])
+        const cpX2 = [-0.66666666666666, -1, -1, 0.33333333333333, 1, 1, -0.33333333333333, -0.66666666666666]
+        const cpY2 = [-0.66666666666666, -0.33333333333333, 1, 1, 0.33333333333333, -1, -1, -0.66666666666666]
+        if(openBSpline2 !== undefined) {
+            for( let i = 0; i < openBSpline2.controlPoints.length; i++) {
+                expect(openBSpline2.controlPoints[i].x).to.be.closeTo(cpX2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+                expect(openBSpline2.controlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            }
+        }
     });
 });

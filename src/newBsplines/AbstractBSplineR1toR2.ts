@@ -433,11 +433,11 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     /**
      * 
-     * @param fromU Parametric position where the section start
-     * @param toU Parametric position where the section end
+     * @param u1 Parametric position where the section start
+     * @param u2 Parametric position where the section end
      * @retrun the BSplineR1toR2 section
      */
-    abstract extract(fromU: number, toU: number) : AbstractBSplineR1toR2;
+    abstract extract(u1: number, u2: number) : AbstractBSplineR1toR2 | undefined;
 
 }
 

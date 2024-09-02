@@ -213,7 +213,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
 
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[] {
         let knots: number[] = [];
-        const sequence = this.allAbscissae;
+        const sequence = this.allAbscissae.slice();
         const lasIndex = this.allAbscissae.length - 1;
         const multFirstKnot = this.knotSequence[0].multiplicity;
         try{
