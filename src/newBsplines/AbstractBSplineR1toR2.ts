@@ -99,13 +99,21 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
 
     abstract optimizerStep(step: number[]) : void;
 
-    abstract scale(factor: number): AbstractBSplineR1toR2;
+    abstract scale(factor: number): AbstractBSplineR1toR2 | undefined;
 
-    abstract scaleX(factor: number): AbstractBSplineR1toR2;
+    abstract scaleX(factor: number): AbstractBSplineR1toR2 | undefined;
 
-    abstract scaleY(factor: number): AbstractBSplineR1toR2;
+    abstract scaleY(factor: number): AbstractBSplineR1toR2 | undefined;
 
     abstract degreeIncrement(): AbstractBSplineR1toR2 | undefined;
+
+    scaleInputParamAssessment(factor: number): void {
+        if(factor <= 0) {
+            const error = new ErrorLog(this.constructor.name, "scaleInputParamAssessment", "Scale factor is negative or null. Cannot generate the scaled curve.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
 
     getControlPointsX(): number[] {
         let result: number[] = [];
@@ -127,12 +135,16 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         return this._increasingKnotSequence.distinctAbscissae();
     }
 
-    moveControlPoint(i: number, deltaX: number, deltaY: number): void {
-        if (i < 0 || i >= this._controlPoints.length - this._degree) {
-            throw new Error("Control point indentifier is out of range");
+    moveControlPoint(CPindex: number, deltaX: number, deltaY: number): void {
+        try{
+            this.controlPointIndexInputParamAssessment(CPindex, "moveControlPoint");
+            this._controlPoints[CPindex].x += deltaX;
+            this._controlPoints[CPindex].y += deltaY;
+        }catch(error) {
+            if(error instanceof RangeError) {
+                console.error(error);
+            }
         }
-        this._controlPoints[i].x += deltaX;
-        this._controlPoints[i].y += deltaY;
     }
 
     moveControlPoints(delta: Vector2d[]): BSplineR1toR2Interface {
@@ -147,8 +159,23 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         return this.factory(controlPoints, this.knots);
     }
 
+    controlPointIndexInputParamAssessment(index: number, methodName: string) {
+        if (index < 0 || index >= this._controlPoints.length) {
+            const error = new ErrorLog(this.constructor.name, methodName, "Control point index is out of range: control point location cannot be prescribed.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
+
     setControlPointPosition(index: number, value: Vector2d): void {
-        this._controlPoints[index] =  value;
+        try {
+            this.controlPointIndexInputParamAssessment(index, "setControlPointPosition");
+            this._controlPoints[index] =  value;
+        } catch(error) {
+            if(error instanceof RangeError) {
+                console.error(error);
+            }
+        }
     }
 
     resetKnotAbscissaToOrigin(knotAbscissa: number[]): number[] {

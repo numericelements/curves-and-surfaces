@@ -84,6 +84,18 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         return length;
     }
 
+    knotIndexInputParamAssessment(index: KnotIndexIncreasingSequence, methodName: string): void {
+        if(index.knotIndex < 0) {
+            const error = new ErrorLog(this.constructor.name, methodName, "The knot index cannot be negative. The corresponding method is not applied.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        } else if(index.knotIndex > (this.allAbscissae.length - 1)) {
+            const error = new ErrorLog(this.constructor.name, methodName, "The knot index cannot be greater than the last knot index.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
+
     toOpenKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
         const knotsOpenSequence: number[] = [];
         const multiplicityAtOrigin = this.knotSequence[0].multiplicity;

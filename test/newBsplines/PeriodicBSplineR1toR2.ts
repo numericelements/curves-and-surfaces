@@ -6,6 +6,7 @@ import { basisFunctionsFromSequence } from "../../src/newBsplines/Piegl_Tiller_N
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../../src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { ErrorLog } from "../../src/errorProcessing/ErrorLoging";
+import { KnotIndexIncreasingSequence } from "../../src/newBsplines/Knot";
 
 describe('PeriodicBSplineR1toR2', () => {
 
@@ -898,6 +899,22 @@ describe('PeriodicBSplineR1toR2', () => {
 
         expect(s05_2?.evaluate(0.5).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s05_2?.evaluate(0.5).y).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+    });
+
+    it('cannot evaluate a periodic B-Spline outside the interval defined by its periodic knot sequence', () => {
+        // control polygon
+        const cp0 = new Vector2d(0, 0)
+        const cp1 = new Vector2d(0, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, 0)
+        const knots = [0, 1, 2, 3, 4]
+        const spline = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3], knots, 1);
+
+        if(spline !== undefined) {
+            expect(spline.evaluate(-0.1)).to.eql(new Vector2d(Infinity, Infinity));
+            const abscissa = 4 + TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2;
+            expect(spline.evaluate(abscissa)).to.eql(new Vector2d(Infinity, Infinity));
+        }
     });
 
     it('can evaluate a periodic B-Spline with uniform knot sequence at a point u', () => {
@@ -1809,10 +1826,23 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, -0.1, 1)).to.throw(RangeError);
             const error = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is negative. Positive abscissa only are valid.");
-            // expect(periodicSpl?.extract(-0.1, 1)).to.eql(error.logMessage());
+            error.logMessageToConsole();
+            expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 1, -0.1)).to.throw(RangeError);
+            const error1 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "Second abscissa is negative. Positive abscissa only are valid.");
+            error1.logMessageToConsole();
+            expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 1, 4.1)).to.throw(RangeError);
+            const error2 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "Second abscissa is greater than or equal to the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
+            error2.logMessageToConsole();
+            expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 4.1, 2.5)).to.throw(RangeError);
+            const error3 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is greater than the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
+            error3.logMessageToConsole();
+            expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 1, 4.0)).to.throw(RangeError);
+            const error4 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "Second abscissa is greater than or equal to the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
+            error4.logMessageToConsole();
+            expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 4.0, 2.5)).to.throw(RangeError);
+            const error5 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is greater than the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
+            error5.logMessageToConsole();
         }
-        // expect(openBSpline?.degree).to.eql(3)
-        // expect(openBSpline?.knots).to.eql([0, 0, 0, 0, 1, 1, 1, 1])
     });
 
     it('can extract a B-Spline from a periodic B-Spline when start and end abscissae coincide', () => {
@@ -2219,5 +2249,258 @@ describe('PeriodicBSplineR1toR2', () => {
                 expect(openBSpline2.controlPoints[i].y).to.be.closeTo(cpY2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
             }
         }
+    });
+
+    it('can validate the necessary conditions of a periodic B-Spline to open a periodic B-Spline at a knot', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const periodicSpl1 = periodicSpl?.clone();
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.toOpenBSplineInputParamAssessment.bind(periodicSpl, 0.5, 1)).to.throw(TypeError);
+            const error = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "First abscissa is not a knot. Curve opening process cannot take place.");
+            error.logMessageToConsole();
+            periodicSpl.insertKnotBoehmAlgorithm(1);
+            expect(periodicSpl.toOpenBSplineInputParamAssessment.bind(periodicSpl, 1, 2)).to.throw(RangeError);
+            const error1 = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "First abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
+            error1.logMessageToConsole();
+            periodicSpl1?.clamp(1);
+            expect(periodicSpl1?.toOpenBSplineInputParamAssessment.bind(periodicSpl1, 1, 3.5)).to.throw(TypeError);
+            const error2 = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "Second abscissa is not a knot. Curve opening process cannot take place.");
+            error2.logMessageToConsole();
+            periodicSpl1?.insertKnotBoehmAlgorithm(3)
+            expect(periodicSpl1?.toOpenBSplineInputParamAssessment.bind(periodicSpl1, 1, 3)).to.throw(RangeError);
+            const error3 = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "Second abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
+            error3.logMessageToConsole();
+        }
+    });
+
+    it('can evaluate a periodic B-Spline outside its interval defining its period', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            const pt1 = periodicSpl.evaluateOutsideRefInterval(0.5);
+            expect(pt1.x).to.be.closeTo(0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(pt1.y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            const pt2 = periodicSpl.evaluateOutsideRefInterval(-0.5);
+            expect(pt2.x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(pt2.y).to.be.closeTo(0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            const pt3 = periodicSpl.evaluateOutsideRefInterval(4.5);
+            expect(pt3.x).to.be.closeTo(0.9166666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+            expect(pt3.y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+
+        }
+    });
+
+    it('can validate the necessary conditions of a valid abscissa value', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, -0.1, "testMethod")).to.throw(RangeError);
+            const error = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be negative. The corresponding method is not applied.");
+            error.logMessageToConsole();
+            expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, 4.1, "testMethod")).to.throw(RangeError);
+            const error1 = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
+            error1.logMessageToConsole();
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, [0, 1, 2, 3, 4]);
+            const abscissa = seq.getPeriod() + TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2;
+            expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, abscissa, "testMethod")).to.throw(RangeError);
+            const error2 = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
+            error2.logMessageToConsole();
+        }
+    });
+
+    it('can validate the necessary conditions of an abscissa to evaluate a periodic B-Spline outside its interval of definition', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            const u4 = -0.5 - periodicSpl.knots[knots.length - 1];
+            expect(periodicSpl.evaluateOutsideRefIntervalInputParamAssessment.bind(periodicSpl, u4)).to.throw(RangeError);
+            const error = new ErrorLog("PeriodicBSplineR1toR2", "evaluateOutsideRefIntervalInputParamAssessment", "Abscissa is negative. Its value is lower than the knot sequence period. No evaluation takes place.");
+            error.logMessageToConsole();
+        }
+    });
+
+    it('can validate the necessary conditions of a valid scale factor', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            const factor1 = 0;
+            expect(periodicSpl.scaleInputParamAssessment.bind(periodicSpl, factor1)).to.throw(RangeError);
+            const factor2 = -1;
+            expect(periodicSpl.scaleInputParamAssessment.bind(periodicSpl, factor2)).to.throw(RangeError);
+        }
+    });
+
+    it('can validate the necessary conditions of a valid knot insertion', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+
+            expect(periodicSpl.insertKnotBoehmAlgorithmInputParamAssessment.bind(periodicSpl, 0.1, 0)).to.throw(RangeError);
+            const error3 = new ErrorLog("PeriodicBSplineR1toR2", "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
+            error3.logMessageToConsole();
+            expect(periodicSpl.insertKnotBoehmAlgorithmInputParamAssessment.bind(periodicSpl, 0.1, -1)).to.throw(RangeError);
+            const error4 = new ErrorLog("PeriodicBSplineR1toR2", "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
+            error4.logMessageToConsole();
+            expect(periodicSpl.insertKnotBoehmAlgorithmInputParamAssessment.bind(periodicSpl, 0.1, periodicSpl.degree + 1)).to.throw(RangeError);
+            const error5 = new ErrorLog("PeriodicBSplineR1toR2", "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
+            error5.logMessageToConsole();
+        }
+    });
+
+    it('cannot return a correct span index when the input abscissa is outside the knot sequence interval', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.findSpanBoehmAlgorithm(- TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)).to.eql(new KnotIndexIncreasingSequence(Infinity));
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots);
+            expect(periodicSpl.findSpanBoehmAlgorithm(seq.getPeriod() + TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)).to.eql(new KnotIndexIncreasingSequence(Infinity));
+        }
+    });
+
+    it('can return a correct span index when the input abscissa is inside the knot sequence interval', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.findSpanBoehmAlgorithm(0)).to.eql(new KnotIndexIncreasingSequence(0));
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots);
+            expect(periodicSpl.findSpanBoehmAlgorithm(seq.getPeriod())).to.eql(new KnotIndexIncreasingSequence(0));
+            expect(periodicSpl.findSpanBoehmAlgorithm(0.5)).to.eql(new KnotIndexIncreasingSequence(0));
+            expect(periodicSpl.findSpanBoehmAlgorithm(1)).to.eql(new KnotIndexIncreasingSequence(1));
+            expect(periodicSpl.findSpanBoehmAlgorithm(3.5)).to.eql(new KnotIndexIncreasingSequence(3));
+            expect(periodicSpl.findSpanBoehmAlgorithm(3)).to.eql(new KnotIndexIncreasingSequence(3));
+        }
+    });
+
+    it('cannot return a correct control point index when the input knot index is outside the knot sequence index range', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(seq.allAbscissae.length))).to.eql(Infinity);
+
+            periodicSpl.insertKnotBoehmAlgorithm(0)
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
+            const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(3, periodicSpl.knots);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(seq1.allAbscissae.length))).to.eql(Infinity);
+        }
+
+    });
+
+        it('can return a correct control point index when the input knot index is inside the knot sequence index range', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.controlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0))).to.eql(1);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1))).to.eql(2);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2))).to.eql(3);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3))).to.eql(0);
+
+            periodicSpl.insertKnotBoehmAlgorithm(0)
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0))).to.eql(1);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1))).to.eql(2);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2))).to.eql(3);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3))).to.eql(4);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(4))).to.eql(0);
+        }
+
+        // rectangular control polygon
+        const cp01 = new Vector2d(0, 0)
+        const cp11 = new Vector2d(0, 1)
+        const cp21 = new Vector2d(1, 1)
+        const cp31 = new Vector2d(1, 0)
+        const cp41 = new Vector2d(1, -1)
+        const cp51 = new Vector2d(0, -1)
+        const knots1 = [0, 1, 2, 3, 4, 5, 6]
+        const degree = 2;
+        const spl = PeriodicBSplineR1toR2.create([ cp01, cp11, cp21, cp31, cp41, cp51], knots1, degree)
+        if(spl !== undefined) {
+            expect(spl.controlPoints).to.eql([cp01, cp11, cp21, cp31, cp41, cp51])
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0))).to.eql(4);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1))).to.eql(5);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2))).to.eql(0);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3))).to.eql(1);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(4))).to.eql(2);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5))).to.eql(3);
+
+            spl.insertKnotBoehmAlgorithm(0)
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0))).to.eql(4);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1))).to.eql(5);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2))).to.eql(6);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3))).to.eql(0);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(4))).to.eql(1);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5))).to.eql(2);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(6))).to.eql(3);
+
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), degree)).to.eql(6);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1), degree)).to.eql(0);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2), degree)).to.eql(1);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3), degree)).to.eql(2);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(4), degree)).to.eql(3);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5), degree)).to.eql(4);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(6), degree)).to.eql(5);
+        }
+
+
     });
 });
