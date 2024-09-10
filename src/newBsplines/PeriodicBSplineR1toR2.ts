@@ -126,10 +126,19 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
     }
 
+    fromIncKnotSeqIndexToControlPointIndexInputParamAssessment(indexKSeq: KnotIndexIncreasingSequence, offset: number, methodName: string): void {
+        this._increasingKnotSequence.knotIndexInputParamAssessment(indexKSeq, methodName);
+        if(offset < 0 || offset > this._degree) {
+            const error = new ErrorLog(this.constructor.name, methodName, "Offset value is out of range: must be positive or null and smaller or equal to the curve degree. Control point index cannot be defined.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
+
     fromIncKnotSeqIndexToControlPointIndex(indexKSeq: KnotIndexIncreasingSequence, offset: number = 0): number {
         try {
-            this._increasingKnotSequence.knotIndexInputParamAssessment(indexKSeq, "fromIncKnotSeqIndexToControlPointIndex");
-            let indexCP;
+            this.fromIncKnotSeqIndexToControlPointIndexInputParamAssessment(indexKSeq, offset, "fromIncKnotSeqIndexToControlPointIndex");
+            let indexCP = Infinity;
             const multiplicityFirstKnot = this._increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
             if(((indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1)) < 0) {
                 indexCP = this._controlPoints.length + (indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1);

@@ -58821,11 +58821,19 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             return new Vector2d_1.Vector2d(Infinity, Infinity);
         }
     };
+    PeriodicBSplineR1toR2.prototype.fromIncKnotSeqIndexToControlPointIndexInputParamAssessment = function (indexKSeq, offset, methodName) {
+        this._increasingKnotSequence.knotIndexInputParamAssessment(indexKSeq, methodName);
+        if (offset < 0 || offset > this._degree) {
+            var error_7 = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "Offset value is out of range: must be positive or null and smaller or equal to the curve degree. Control point index cannot be defined.");
+            console.log(error_7.logMessage());
+            throw new RangeError(error_7.logMessage());
+        }
+    };
     PeriodicBSplineR1toR2.prototype.fromIncKnotSeqIndexToControlPointIndex = function (indexKSeq, offset) {
         if (offset === void 0) { offset = 0; }
         try {
-            this._increasingKnotSequence.knotIndexInputParamAssessment(indexKSeq, "fromIncKnotSeqIndexToControlPointIndex");
-            var indexCP = void 0;
+            this.fromIncKnotSeqIndexToControlPointIndexInputParamAssessment(indexKSeq, offset, "fromIncKnotSeqIndexToControlPointIndex");
+            var indexCP = Infinity;
             var multiplicityFirstKnot = this._increasingKnotSequence.knotMultiplicity(new Knot_1.KnotIndexStrictlyIncreasingSequence(0));
             if (((indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1)) < 0) {
                 indexCP = this._controlPoints.length + (indexKSeq.knotIndex - this._degree + offset) - (multiplicityFirstKnot - 1);
@@ -58856,24 +58864,24 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     PeriodicBSplineR1toR2.prototype.extractInputParamAssessment = function (u1, u2) {
         var abscissae = this._increasingKnotSequence.allAbscissae;
         if (u1 < abscissae[0]) {
-            var error_7 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa is negative. Positive abscissa only are valid.");
-            console.log(error_7.logMessage());
-            throw new RangeError(error_7.logMessage());
-        }
-        else if (u1 >= abscissae[abscissae.length - 1]) {
-            var error_8 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
+            var error_8 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa is negative. Positive abscissa only are valid.");
             console.log(error_8.logMessage());
             throw new RangeError(error_8.logMessage());
         }
-        if (u2 < abscissae[0]) {
-            var error_9 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "Second abscissa is negative. Positive abscissa only are valid.");
+        else if (u1 >= abscissae[abscissae.length - 1]) {
+            var error_9 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
             console.log(error_9.logMessage());
             throw new RangeError(error_9.logMessage());
         }
-        else if (u2 >= abscissae[abscissae.length - 1]) {
-            var error_10 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "Second abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
+        if (u2 < abscissae[0]) {
+            var error_10 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "Second abscissa is negative. Positive abscissa only are valid.");
             console.log(error_10.logMessage());
             throw new RangeError(error_10.logMessage());
+        }
+        else if (u2 >= abscissae[abscissae.length - 1]) {
+            var error_11 = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "Second abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
+            console.log(error_11.logMessage());
+            throw new RangeError(error_11.logMessage());
         }
         return;
     };
@@ -59031,14 +59039,14 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     PeriodicBSplineR1toR2.prototype.insertKnotBoehmAlgorithmInputParamAssessment = function (u, times) {
         this.abcsissaInputParamAssessment(u, "insertKnotBoehmAlgorithmInputParamAssessment");
         if (times <= 0) {
-            var error_11 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
-            console.log(error_11.logMessage());
-            throw new RangeError(error_11.logMessage());
-        }
-        else if (times > this._degree) {
-            var error_12 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be greater than the curve degree. No insertion is perfomed.");
+            var error_12 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
             console.log(error_12.logMessage());
             throw new RangeError(error_12.logMessage());
+        }
+        else if (times > this._degree) {
+            var error_13 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be greater than the curve degree. No insertion is perfomed.");
+            console.log(error_13.logMessage());
+            throw new RangeError(error_13.logMessage());
         }
     };
     PeriodicBSplineR1toR2.prototype.insertKnotBoehmAlgorithm = function (u, times) {
@@ -59307,8 +59315,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             var indexStrictIncSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexSpan);
             var knotMultiplicity = this.knotMultiplicity(indexStrictIncSeq);
             if (knotMultiplicity === this._degree) {
-                var error_13 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
-                throw (error_13);
+                var error_14 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
+                throw (error_14);
             }
             else {
                 // two knot insertions must take place to preserve the periodic structure of the function basis
@@ -59336,8 +59344,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             return;
         }
         else {
-            var error_14 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "Cannot insert a knot outside the period of the knot sequence.");
-            throw (error_14);
+            var error_15 = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "Cannot insert a knot outside the period of the knot sequence.");
+            throw (error_15);
         }
     };
     PeriodicBSplineR1toR2.prototype.scale = function (factor) {
@@ -59390,9 +59398,9 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     };
     PeriodicBSplineR1toR2.prototype.evaluateOutsideRefIntervalInputParamAssessment = function (u) {
         if (u < (-this._increasingKnotSequence.getPeriod())) {
-            var error_15 = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefIntervalInputParamAssessment", "Abscissa is negative. Its value is lower than the knot sequence period. No evaluation takes place.");
-            console.log(error_15.logMessage());
-            throw new RangeError(error_15.logMessage());
+            var error_16 = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefIntervalInputParamAssessment", "Abscissa is negative. Its value is lower than the knot sequence period. No evaluation takes place.");
+            console.log(error_16.logMessage());
+            throw new RangeError(error_16.logMessage());
         }
     };
     PeriodicBSplineR1toR2.prototype.evaluateOutsideRefInterval = function (u) {
@@ -59414,9 +59422,9 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
                 return this.evaluate(uInInterval);
             }
             else {
-                var error_16 = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Abscissa has not fallen into any predefined sub interval. No evaluation can take place.");
-                console.log(error_16.logMessage());
-                throw new EvalError(error_16.logMessage());
+                var error_17 = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Abscissa has not fallen into any predefined sub interval. No evaluation can take place.");
+                console.log(error_17.logMessage());
+                throw new EvalError(error_17.logMessage());
             }
         }
         catch (error) {
@@ -59444,24 +59452,24 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     };
     PeriodicBSplineR1toR2.prototype.toOpenBSplineInputParamAssessment = function (u1, u2) {
         if (this.isKnotlMultiplicityZero(u1)) {
-            var error_17 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa is not a knot. Curve opening process cannot take place.");
-            console.log(error_17.logMessage());
-            throw new TypeError(error_17.logMessage());
+            var error_18 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa is not a knot. Curve opening process cannot take place.");
+            console.log(error_18.logMessage());
+            throw new TypeError(error_18.logMessage());
         }
         else if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== this._degree) {
-            var error_18 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            console.log(error_18.logMessage());
-            throw new RangeError(error_18.logMessage());
+            var error_19 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
+            console.log(error_19.logMessage());
+            throw new RangeError(error_19.logMessage());
         }
         if (this.isKnotlMultiplicityZero(u2)) {
-            var error_19 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa is not a knot. Curve opening process cannot take place.");
-            console.log(error_19.logMessage());
-            throw new TypeError(error_19.logMessage());
+            var error_20 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa is not a knot. Curve opening process cannot take place.");
+            console.log(error_20.logMessage());
+            throw new TypeError(error_20.logMessage());
         }
         else if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u2) !== this._degree) {
-            var error_20 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            console.log(error_20.logMessage());
-            throw new RangeError(error_20.logMessage());
+            var error_21 = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
+            console.log(error_21.logMessage());
+            throw new RangeError(error_21.logMessage());
         }
         return;
     };

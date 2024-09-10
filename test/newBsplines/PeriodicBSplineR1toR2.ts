@@ -2441,7 +2441,27 @@ describe('PeriodicBSplineR1toR2', () => {
 
     });
 
-        it('can return a correct control point index when the input knot index is inside the knot sequence index range', () => {
+    it('cannot return a correct control point index when the offset parameter is negative or greater than the curve degree', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), -1)).to.eql(Infinity);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), periodicSpl.degree + 1)).to.eql(Infinity);
+
+            periodicSpl.insertKnotBoehmAlgorithm(0)
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), -1)).to.eql(Infinity);
+            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1), periodicSpl.degree + 1)).to.eql(Infinity);
+        }
+
+    });
+
+    it('can return a correct control point index when the input knot index is inside the knot sequence index range', () => {
         // rectangular control polygon
         const cp0 = new Vector2d(-1, -1)
         const cp1 = new Vector2d(-1, 1)
@@ -2500,7 +2520,24 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5), degree)).to.eql(4);
             expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(6), degree)).to.eql(5);
         }
-
-
     });
+
+    it('cannot move a control point when its index is negative of greater than the number of control points of the curve', () => {
+        // rectangular control polygon
+        const cp0 = new Vector2d(-1, -1)
+        const cp1 = new Vector2d(-1, 1)
+        const cp2 = new Vector2d(1, 1)
+        const cp3 = new Vector2d(1, -1)
+        const knots = [0, 1, 2, 3, 4]
+        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        if(periodicSpl !== undefined) {
+            expect(periodicSpl.controlPoints).to.eql([ cp0, cp1, cp2, cp3])
+            const periodicSpl1 = periodicSpl.clone()
+            periodicSpl1.moveControlPoint(-1, -1, 1)
+            expect(periodicSpl1.controlPoints).to.eql(periodicSpl.controlPoints);
+            periodicSpl.moveControlPoint(4, -1, 1);
+            expect(periodicSpl1.controlPoints).to.eql(periodicSpl.controlPoints);
+        }
+    });
+
 });
