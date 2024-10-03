@@ -9,8 +9,8 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
 
     protected knotSequence: Knot[];
 
-    constructor(degree: number, knots: number[], multiplicities: number[]) {
-        super(degree, knots, multiplicities);
+    constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[]) {
+        super(maxMultiplicityOrder, knots, multiplicities);
         this.knotSequence = [];
         if(knots.length !== multiplicities.length) {
             const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not match the size of knot abscissae array.");
@@ -34,12 +34,12 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
 
     checkNonUniformStructure(): void {
         this._isNonUniform = false;
-        if(this.knotSequence[0].multiplicity === (this._degree + 1) &&
-            this.knotSequence[this.knotSequence.length - 1].multiplicity === (this._degree + 1)) this._isNonUniform = true;
+        if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
+            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isNonUniform = true;
     }
 
     deepCopy(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
-        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
     }
 
     toIncreasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
@@ -49,7 +49,7 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        return new IncreasingOpenKnotSequenceOpenCurve(this._degree, knotAbscissae);
+        return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, knotAbscissae);
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {

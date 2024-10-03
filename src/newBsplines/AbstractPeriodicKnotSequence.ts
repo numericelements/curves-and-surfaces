@@ -10,8 +10,8 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceC
     protected abstract _index: KnotIndexInterface;
     protected abstract _end: KnotIndexInterface;
 
-    constructor(degree: number) {
-        super(degree);
+    constructor(maxMultiplicityOrder: number) {
+        super(maxMultiplicityOrder);
 
     }
 
@@ -31,8 +31,8 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceC
 
     checkDegreeConsistency(): void {
         for (const knot of this.knotSequence) {
-            if(knot.multiplicity > this._degree) {
-                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed degree.");
+            if(knot.multiplicity >= this._maxMultiplicityOrder) {
+                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed maximum order of multiplicity.");
                 error.logMessageToConsole();
             }
         }

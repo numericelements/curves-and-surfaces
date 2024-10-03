@@ -10,8 +10,8 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
     protected knotSequence: Knot[];
     protected indexKnotOrigin: number;
 
-    constructor(degree: number, knots: number[], multiplicities: number[]) {
-        super(degree, knots, multiplicities);
+    constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[]) {
+        super(maxMultiplicityOrder, knots, multiplicities);
         this.knotSequence = [];
         this.indexKnotOrigin = RETURN_ERROR_CODE;
         if(knots.length !== multiplicities.length) {
@@ -54,9 +54,9 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
 
     checkKnotIntervalConsistency(): void {
         let i = 0;
-        if(this.knotSequence[0].multiplicity >= (this._degree + 1) && this.knotSequence[this.knotSequence.length - 1].multiplicity >= (this._degree + 1)) return;
+        if(this.knotSequence[0].multiplicity >= this._maxMultiplicityOrder && this.knotSequence[this.knotSequence.length - 1].multiplicity >= this._maxMultiplicityOrder) return;
 
-        while(((i + 1) < (this.knotSequence.length - 2 - i) || i < this._degree) && this.knotSequence[i].abscissa !== 0.0
+        while(((i + 1) < (this.knotSequence.length - 2 - i) || i < (this._maxMultiplicityOrder - 1)) && this.knotSequence[i].abscissa !== 0.0
             && i < this.knotSequence.length - 1) {
             const interval1 = this.knotSequence[i + 1].abscissa - this.knotSequence[i].abscissa;
             const interval2 = this.knotSequence[this.knotSequence.length - i - 2].abscissa - this.knotSequence[this.knotSequence.length - 1 - i].abscissa;
@@ -115,7 +115,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
             return;
         }
         for(const knot of this.knotSequence) {
-            if(knot.multiplicity > (this._degree + 1)) {
+            if(knot.multiplicity > this._maxMultiplicityOrder) {
                 const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity of a knot.");
                 error.logMessageToConsole();
                 return;
@@ -130,7 +130,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
     checkCurveOrigin(): void {
         let i = 0;
         let cumulativeMultiplicity = 0;
-        while(cumulativeMultiplicity < (this._degree + 1)) {
+        while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
             cumulativeMultiplicity += this.knotSequence[i].multiplicity;
             i++;
         }
@@ -174,7 +174,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        return new IncreasingOpenKnotSequenceClosedCurve(this._degree, knotAbscissae);
+        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, knotAbscissae);
     }
 
     // This index transformation is not unique. The convention followed here is the assignment of the first index of the increasing
@@ -189,7 +189,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
     }
 
     deepCopy(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
-        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {

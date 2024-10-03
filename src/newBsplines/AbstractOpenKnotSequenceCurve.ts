@@ -32,7 +32,7 @@ export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequence
             warning.logMessageToConsole();
             insertion = false;
             return insertion;
-        } else if(multiplicity >= (this._degree + 1)) {
+        } else if(multiplicity >= this._maxMultiplicityOrder) {
             const warning = new WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree")
             warning.logMessageToConsole();
             insertion = false;

@@ -12,8 +12,8 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
     protected _index: KnotIndexIncreasingSequence;
     protected _end: KnotIndexIncreasingSequence;
 
-    constructor(degree: number, knots: number[], subsequence: boolean = false) {
-        super(degree);
+    constructor(maxMultiplicityOrder: number, knots: number[], subsequence: boolean = false) {
+        super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
         this._end = new KnotIndexIncreasingSequence(Infinity);
@@ -25,7 +25,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
                 this.knotSequence.push(new Knot(knots[i], 1));
             }
         }
-        if(knots.length < (this._degree + 2)) {
+        if(knots.length < (this._maxMultiplicityOrder + 2)) {
             const error = new ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
             error.logMessageToConsole();
             return;
@@ -69,11 +69,11 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
     }
 
     deepCopy(): IncreasingPeriodicKnotSequenceClosedCurve {
-        return new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.allAbscissae);
+        return new IncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.allAbscissae);
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
-        return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+        return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
     }
 
     length(): number {
@@ -100,29 +100,29 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         const knotsOpenSequence: number[] = [];
         const multiplicityAtOrigin = this.knotSequence[0].multiplicity;
         let knotNumber = 1;
-        for( let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+        for( let i = 1; i <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)); i++) {
             for(let j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
-                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                if (knotNumber <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)))
                     knotsOpenSequence.splice(0, 0,(this.knotSequence[this.knotSequence.length - 1 - i].abscissa - this.knotSequence[this.knotSequence.length - 1].abscissa));
                 else break;
                 knotNumber++;
             }
-            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1))) break;
+            if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
         }
         for(const knot of this) {
             if(knot !== undefined) knotsOpenSequence.push(knot);
         }
         knotNumber = 1;
-        for(let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+        for(let i = 1; i <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)); i++) {
             for(let j = 0; j < this.knotSequence[0 + i].multiplicity; j++) {
-                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1)))
+                if (knotNumber <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)))
                     knotsOpenSequence.push(this.knotSequence[this.knotSequence.length - 1].abscissa + (this.knotSequence[i].abscissa - this.knotSequence[0].abscissa));
                 else break;
                 knotNumber++;
             }
-            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1))) break;
+            if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
         }
-        return new IncreasingOpenKnotSequenceClosedCurve(this._degree, knotsOpenSequence);
+        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder + 1, knotsOpenSequence);
     }
 
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void {
@@ -173,7 +173,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
             warning.logMessageToConsole();
             insertion = false;
             return insertion;
-        } else if(multiplicity >= this._degree) {
+        } else if(multiplicity >= this._maxMultiplicityOrder) {
             const warning = new WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree")
             warning.logMessageToConsole();
             insertion = false;

@@ -12,15 +12,15 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
     protected _index: KnotIndexIncreasingSequence;
     protected _end: KnotIndexIncreasingSequence;
 
-    constructor(degree: number, knots: number[], multiplicities: number[], subsequence: boolean = false) {
-        super(degree);
+    constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[], subsequence: boolean = false) {
+        super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
         this._end = new KnotIndexIncreasingSequence(Infinity);
         for(let i = 0; i < knots.length; i++) {
             this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
         }
-        if(knots.length < (this._degree + 2)) {
+        if(knots.length < (this._maxMultiplicityOrder + 2)) {
             const error = new ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
             error.logMessageToConsole();
             return;
@@ -61,7 +61,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
     }
 
     deepCopy(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
-        return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+        return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
     }
 
     abscissaAtIndex(index: KnotIndexStrictlyIncreasingSequence): number {
@@ -98,22 +98,22 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        return new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, knotAbscissae);
+        return new IncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, knotAbscissae);
     }
 
     toOpenKnotSequence(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
         const knotsOpenSequence: number[] = [];
         const multiplicitiesOpenSequence: number[] = [];
         let knotNumber = 1;
-        for( let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+        for( let i = 1; i <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)); i++) {
             for(let j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
-                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1))) {
+                if (knotNumber <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) {
                     knotsOpenSequence.splice(0, 0,(this.knotSequence[this.knotSequence.length - 1 - i].abscissa - this.knotSequence[this.knotSequence.length - 1].abscissa));
                     multiplicitiesOpenSequence.push(this.knotSequence[this.knotSequence.length - 1 - i].multiplicity);
                 } else break;
                 knotNumber++;
             }
-            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1))) break;
+            if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
         }
         for(const knot of this) {
             if(knot !== undefined) {
@@ -122,17 +122,17 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
             }
         }
         knotNumber = 1;
-        for(let i = 1; i <= (this._degree - (this.knotSequence[0].multiplicity - 1)); i++) {
+        for(let i = 1; i <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)); i++) {
             for(let j = 0; j < this.knotSequence[0 + i].multiplicity; j++) {
-                if (knotNumber <= (this._degree - (this.knotSequence[0].multiplicity - 1))) {
+                if (knotNumber <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) {
                     knotsOpenSequence.push(this.knotSequence[this.knotSequence.length - 1].abscissa + (this.knotSequence[i].abscissa - this.knotSequence[0].abscissa));
                     multiplicitiesOpenSequence.push(this.knotSequence[i].multiplicity);
                 } else break;
                 knotNumber++;
             }
-            if (knotNumber > (this._degree - (this.knotSequence[0].multiplicity - 1))) break;
+            if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
         }
-        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._degree, knotsOpenSequence, multiplicitiesOpenSequence);
+        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, knotsOpenSequence, multiplicitiesOpenSequence);
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {

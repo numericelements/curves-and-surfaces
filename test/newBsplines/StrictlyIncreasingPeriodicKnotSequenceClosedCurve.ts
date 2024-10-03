@@ -8,7 +8,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4];
         const multiplicities = [1, 1, 1, 1, 1];
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(2, knots, multiplicities);
-        expect(seq.degree).to.eql(2)
+        expect(seq.maxMultiplicityOrder).to.eql(2)
         expect(seq.allAbscissae).to.eql(knots)
     });
 
@@ -155,7 +155,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const multiplicities = [2, 1, 1, 1, 2];
         const degree = 2;
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities);
-        expect(seq.degree).to.eql(2)
+        expect(seq.maxMultiplicityOrder).to.eql(2)
         expect(seq.allAbscissae.length).to.eql(5)
         seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1));
         expect(seq.multiplicities()).to.eql([2, 2, 1, 1, 2])
@@ -167,7 +167,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const multiplicities = [2, 1, 1, 1, 2];
         const degree = 2;
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities);
-        expect(seq.degree).to.eql(2)
+        expect(seq.maxMultiplicityOrder).to.eql(2)
         expect(seq.allAbscissae.length).to.eql(5)
         const valid = seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(-1));
         expect(valid).to.eql(false)
@@ -178,7 +178,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const multiplicities = [1, 1, 1, 1, 1];
         const degree = 2;
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities);
-        expect(seq.degree).to.eql(2)
+        expect(seq.maxMultiplicityOrder).to.eql(2)
         expect(seq.allAbscissae.length).to.eql(5)
         let valid = seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
         expect(valid).to.eql(true)
@@ -186,7 +186,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq.allAbscissae).to.eql([0, 1, 2, 3, 4])
 
         const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities);
-        expect(seq1.degree).to.eql(2)
+        expect(seq1.maxMultiplicityOrder).to.eql(2)
         expect(seq1.allAbscissae.length).to.eql(5)
         valid = seq1.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(4));
         expect(valid).to.eql(true)

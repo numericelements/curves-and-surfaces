@@ -18,7 +18,8 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
 
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree, knots);
+        const maxMultiplicityOrder = this._degree + 1;
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
     }
 
     get knots() : number[] {

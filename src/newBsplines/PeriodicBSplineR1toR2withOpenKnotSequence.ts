@@ -26,7 +26,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
      */
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree, knots);
+        const maxMultiplicityOrder = this._degree + 1;
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
     }
 
     get knots() : number[] {
@@ -55,7 +56,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     }
 
     // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
-    protected factory(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]): PeriodicBSplineR1toR2withOpenKnotSequence {
+    protected create(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]): PeriodicBSplineR1toR2withOpenKnotSequence {
         return new PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, knots);
     }
 
@@ -293,7 +294,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         for(let i = 0; i < (multiplicityOrigin - 1); i++) {
             controlPoints.splice(controlPoints.length, 0, this._controlPoints[i + this._degree - (multiplicityOrigin - 1)]);
         }
-        const periodicBSpline = PeriodicBSplineR1toR2.create(controlPoints, increasingKnotAbscissae, this._degree);
+        const periodicBSpline = new PeriodicBSplineR1toR2(controlPoints, increasingKnotAbscissae, this._degree);
         if(periodicBSpline === undefined) {
             return undefined;
         } else {

@@ -23,13 +23,15 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
      * @param controlPoints The control points array
      * @param knots The knot vector
      */
-    private constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1], degree: number) {
+    // constructor(controlPoints: Vector2d[], increasingKnotSequence: IncreasingPeriodicKnotSequenceClosedCurve);
+    constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1], degree: number) {
         super(controlPoints, knots);
         this._degree = degree;
+        this.constructorInputParamAssessment(controlPoints, knots, degree);
         const maxMultiplicity = this._degree;
         // after modification of IncreasingPeriodicKnotSequenceClosedCurve, must set to correctly refer to max order of multiplicity:
         // const maxMultiplicity = this._degree - 1;
-        this._increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, knots);
+        this._increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicity, knots);
     }
 
     get knots() : number[] {
@@ -44,31 +46,41 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         return this._controlPoints;
     }
 
-    protected factory(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]): PeriodicBSplineR1toR2 {
+    protected create(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]): PeriodicBSplineR1toR2 {
         return new PeriodicBSplineR1toR2(controlPoints, knots, this._degree);
     }
 
-    static create(controlPoints: Vector2d[], knots: number[], degree: number): PeriodicBSplineR1toR2 | undefined {
-        try{
-            const increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
-            if(degree < 0) {
-                const error = new ErrorLog(this.constructor.name, "create", "Negative degree for periodic B-Spline cannot be processed.");
-                throw(error);
-            } else if(degree === 0) {
-                const error = new ErrorLog("function", "buildPeriodicBSplineR1toR2", "A degree 0 periodic B-Spline cannot be defined. Please, use a non-uniform non periodic B-Spline.");
-                throw(error);
-            } else if(degree > 0 && (knots.length - controlPoints.length) !== increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0))) {
-                const error = new ErrorLog("function", "buildPeriodicBSplineR1toR2", "Inconsistent numbers of knots and control points.");
-                throw(error);
-            } else if(knots.length < (degree + 1)) {
-                const error = new ErrorLog("function", "buildPeriodicBSplineR1toR2", "Inconsistent numbers of control points. Not enough control points to define a basis of B-Splines");
-                throw(error);
-            }
-            return new PeriodicBSplineR1toR2(controlPoints, knots, degree);
-        } catch(error) {
-            console.error(error);
-            return undefined;
-        } 
+    // static create(controlPoints: Vector2d[], knots: number[], degree: number): PeriodicBSplineR1toR2 | undefined {
+    //     try{
+
+    //         return new PeriodicBSplineR1toR2(controlPoints, knots, degree);
+    //     } catch(error) {
+    //         console.error(error);
+    //         return undefined;
+    //     } 
+    // }
+
+    constructorInputParamAssessment(controlPoints: Vector2d[], knots: number[], degree: number): void {
+        const increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        let invalid = false;
+        if(degree < 0) {
+            error.addMessage("Negative degree for periodic B-Spline cannot be processed.");
+            invalid = true;
+        } else if(degree === 0) {
+            error.addMessage("A degree 0 periodic B-Spline cannot be defined. Please, use a non-uniform non periodic B-Spline.");
+            invalid = true;
+        } else if(degree > 0 && (knots.length - controlPoints.length) !== increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0))) {
+            error.addMessage("Inconsistent numbers of knots and control points.");
+            invalid = true;
+        } else if(knots.length < (degree + 1)) {
+            error.addMessage("Inconsistent numbers of control points. Not enough control points to define a basis of B-Splines");
+            invalid = true;
+        }
+        if(invalid) {
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
     }
 
     /**

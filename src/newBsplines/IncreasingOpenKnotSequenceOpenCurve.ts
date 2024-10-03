@@ -10,8 +10,8 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
 
     protected knotSequence: Knot[];
 
-    constructor(degree: number, knots: number[], subsequence: boolean = false) {
-        super(degree, knots);
+    constructor(maxMultiplicityOrder: number, knots: number[], subsequence: boolean = false) {
+        super(maxMultiplicityOrder, knots);
         this.knotSequence = [];
         if(knots.length < 1) {
             const error = new ErrorLog(this.constructor.name, "constructor", "null length knot sequence cannot be processed.");
@@ -41,16 +41,16 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
 
     checkNonUniformStructure(): void {
         this._isNonUniform = false;
-        if(this.knotSequence[0].multiplicity === (this._degree + 1) &&
-            this.knotSequence[this.knotSequence.length - 1].multiplicity === (this._degree + 1)) this._isNonUniform = true;
+        if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
+            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isNonUniform = true;
     }
 
     deepCopy(): IncreasingOpenKnotSequenceOpenCurve {
-        return new IncreasingOpenKnotSequenceOpenCurve(this._degree, this.allAbscissae);
+        return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.allAbscissae);
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
-        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._degree, this.distinctAbscissae(), this.multiplicities());
+        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
     }
 
     findSpan(u: number): KnotIndexIncreasingSequence {
@@ -68,7 +68,8 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
                         if(knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
                             index -= this.knotSequence[this.knotSequence.length - 1].multiplicity
                         }
-                        if(this.isUniform && index === (this.knotSequence.length - this._degree)) index -= 1;
+                        const curveDegree = this._maxMultiplicityOrder - 1;
+                        if(this.isUniform && index === (this.knotSequence.length - curveDegree)) index -= 1;
                         return new KnotIndexIncreasingSequence(index - 1);
                     }
                 }

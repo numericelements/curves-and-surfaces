@@ -7,8 +7,8 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
     protected _index: KnotIndexIncreasingSequence;
     protected _end: KnotIndexIncreasingSequence;
 
-    constructor(degree: number, freeKnots: number[]) {
-        super(degree);
+    constructor(maxMultiplicityOrder: number, freeKnots: number[]) {
+        super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
         this._end = new KnotIndexIncreasingSequence(Infinity);

@@ -2,7 +2,7 @@ import { KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 export interface KnotSequenceInterface {
 
-    degree: number;
+    maxMultiplicityOrder: number;
     isUniform: boolean;
     distinctAbscissae(): number[];
     multiplicities(): number[];

@@ -21,10 +21,12 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
      */
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
+        const maxMultiplicityOrder = this._degree + 1;
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, knots);
+        this.constructorInputParamAssessment(controlPoints, knots);
     }
 
-    get knots() : number[] {
+    get knots(): number[] {
         return this._increasingKnotSequence.allAbscissae;
     }
 
@@ -41,8 +43,25 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
     }
 
+    constructorInputParamAssessment(controlPoints: Vector2d[], knots: number[]): void {
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        let invalid = false;
+        if((knots.length - controlPoints.length) < (this._degree + 1)) {
+            error.addMessage("Inconsistent numbers of control points. Not enough control points to define a basis of B-Splines");
+            invalid = true;
+        } else if((knots.length - controlPoints.length) !== (this._degree + 1) ) {
+            error.addMessage("Inconsistent numbers of knots and control points.");
+            invalid = true;
+        }
+
+        if(invalid) {
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
+
     // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
-    protected factory(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
+    protected create(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         return new BSplineR1toR2(controlPoints, knots)
     }
 

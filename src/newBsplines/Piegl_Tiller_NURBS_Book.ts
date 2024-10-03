@@ -121,7 +121,9 @@ export function basisFunctionsFromSequence(span: number, u: number, knotSequence
     const strictIncSeqMaxIndex = knotSequence.distinctAbscissae().length - 1;
     const incSeqMaxIndex = knotSequence.allAbscissae.length - 1;
     const multiplicityLastKnot = knotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(strictIncSeqMaxIndex));
-    for (let j = 1; j <= knotSequence.degree; j += 1) {
+    let degree = knotSequence.maxMultiplicityOrder - 1;
+    if(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve) degree = knotSequence.maxMultiplicityOrder
+    for (let j = 1; j <= degree; j += 1) {
         const indexRight = new KnotIndexIncreasingSequence(span + j);
         let indexLeft = new KnotIndexIncreasingSequence(span + 1 - j);
         let knotRight = knotSequence.abscissaAtIndex(indexRight);

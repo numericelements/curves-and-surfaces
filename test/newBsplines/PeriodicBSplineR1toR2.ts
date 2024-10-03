@@ -29,8 +29,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(0, 1)
         const knots = [0, 1, 2, 3, 4, 5]
         const degree = -2
-        const s = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp4], knots, degree);
-        expect(s).to.eql(undefined)
+        expect(() => new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp4], knots, degree)).to.throw()
     });
 
     it('cannot be initialized with a null degree', () => {
@@ -41,8 +40,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(0, 1)
         const knots = [0, 1, 2, 3, 4, 5]
         const degree = 0
-        const s = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp4], knots, degree);
-        expect(s).to.eql(undefined)
+        expect(() => new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp4], knots, degree)).to.throw()
     });
 
     it('cannot be initialized with a positive degree and sizes of knot sequence and control points array differing by more than one', () => {
@@ -53,16 +51,14 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(0, 1)
         const knots = [0, 1, 2, 3, 4]
         const degree = 2
-        const s = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp4], knots, degree);
-        expect(s).to.eql(undefined)
+        expect(() => new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp4], knots, degree)).to.throw()
     });
 
     it('cannot be initialized with a knot sequence size equal or smaller to (degree + 1)', () => {
         const cp0 = new Vector2d(0, 0)
         const knots = [0, 1]
         const degree = 2
-        const s = PeriodicBSplineR1toR2.create([cp0], knots, degree);
-        expect(s).to.eql(undefined)
+        expect(() => new PeriodicBSplineR1toR2([cp0], knots, degree)).to.throw()
     });
     
     it('can be initialized with an initializer', () => {
@@ -89,10 +85,11 @@ describe('PeriodicBSplineR1toR2', () => {
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         const knots1 = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, 3)
+        const curveDegree =  3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, curveDegree)
         expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11])
         expect(s?.knots).to.eql(knots)
-        expect(s?.degree).to.equal(3)
+        expect(s?.degree).to.equal(curveDegree)
     });
 
     it('can generate intermediate Splines for degree elevation of periodic BSpline', () => {
@@ -119,7 +116,8 @@ describe('PeriodicBSplineR1toR2', () => {
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         const knots1 = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, 3)
+        const curveDegree =  3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, curveDegree)
         const intermSplKnotsAndCPs = s?.generateIntermediateSplinesForDegreeElevation();
         expect(intermSplKnotsAndCPs?.CPs.length).to.eql(4)
         expect(intermSplKnotsAndCPs?.knotVectors.length).to.eql(4)
@@ -142,7 +140,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(1, -1)
         const cp5 = new Vector2d(0, -1)
         const knots = [0, 1, 2, 3, 4, 5, 6]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        const curveDegree =  2;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s?.evaluate(0)).to.eql(new Vector2d(0.5, -1))
         expect(s?.evaluate(1)).to.eql(new Vector2d(0, -0.5))
@@ -165,7 +164,7 @@ describe('PeriodicBSplineR1toR2', () => {
         }
         expect(s?.evaluate(4)).to.eql(new Vector2d(1, 0.5))
 
-        const s1 = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        const s1 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s1?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s1?.evaluate(3)).to.eql(new Vector2d(0.5, 1))
         s1?.insertKnotBoehmAlgorithm(3);
@@ -198,7 +197,7 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s1?.evaluate(3)).to.eql(new Vector2d(0.5, 1))
         expect(s1?.evaluate(4)).to.eql(new Vector2d(1, 0.5))
 
-        const s2 = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        const s2 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s2?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s2?.evaluate(2)).to.eql(new Vector2d(0, 0.5))
         s2?.insertKnotBoehmAlgorithm(2);
@@ -232,7 +231,7 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s2?.evaluate(3)).to.eql(new Vector2d(0.5, 1))
         expect(s2?.evaluate(4)).to.eql(new Vector2d(1, 0.5))
 
-        const s3 = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        const s3 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s3?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s3?.evaluate(1)).to.eql(new Vector2d(0, -0.5))
         s3?.insertKnotBoehmAlgorithm(1);
@@ -269,7 +268,7 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s3?.evaluate(4)).to.eql(new Vector2d(1, 0.5))
 
 
-        const s4 = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        const s4 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s4?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s4?.evaluate(5)).to.eql(new Vector2d(1, -0.5))
         s4?.insertKnotBoehmAlgorithm(5);
@@ -308,7 +307,7 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s4?.evaluate(5)).to.eql(new Vector2d(1, -0.5))
 
 
-        const s5 = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        const s5 = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s5?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s5?.evaluate(0)).to.eql(new Vector2d(0.5, -1))
         s5?.insertKnotBoehmAlgorithm(0);
@@ -358,7 +357,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(1, -1)
         const cp5 = new Vector2d(0, -1)
         const knots = [0, 1, 2, 3, 4, 5, 6]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 3)
+        const curveDegree =  3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s?.evaluate(0).x).to.be.closeTo(0.83333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(-0.83333333333333, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -433,7 +433,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree =  3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -633,7 +634,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -740,8 +742,9 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp1 = new Vector2d(-1, 1)
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
+        const curveDegree = 3;
         const knots = [0, 1, 2, 3, 4]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -848,7 +851,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp1 = new Vector2d(-1, 1)
         const cp2 = new Vector2d(1, 1)
         const knots = [0, 0, 0, 1, 1, 1]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2], knots, 3)
+        const curveDegree = 3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2])
         expect(s?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -908,7 +912,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, 0)
         const knots = [0, 1, 2, 3, 4]
-        const spline = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3], knots, 1);
+        const curveDegree = 1;
+        const spline = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree);
 
         if(spline !== undefined) {
             expect(spline.evaluate(-0.1)).to.eql(new Vector2d(Infinity, Infinity));
@@ -924,8 +929,10 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, 0)
         const knots = [0, 1, 2, 3, 4]
-        const spline = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3], knots, 1)
-        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(1, knots)
+        let curveDegree = 1;
+        let maxMultiplicityOrder = curveDegree;
+        const spline = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree)
+        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
         expect(basisFunctionsFromSequence(0, 0, incSequence)).to.eql(basisFunctionsFromSequence(1, 1, incSequence))
         expect(basisFunctionsFromSequence(1, 1, incSequence)).to.eql(basisFunctionsFromSequence(2, 2, incSequence))
         expect(basisFunctionsFromSequence(2, 2, incSequence)).to.eql(basisFunctionsFromSequence(3, 3, incSequence))
@@ -938,8 +945,10 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(spline?.evaluate(1)).to.eql(cp0)
         expect(spline?.evaluate(2)).to.eql(cp1)
         expect(spline?.evaluate(3)).to.eql(cp2)
-        const spline2 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3], knots, 2)
-        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(2, knots)
+        curveDegree = 2;
+        maxMultiplicityOrder = curveDegree;
+        const spline2 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree)
+        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
         expect(basisFunctionsFromSequence(0, 0, incSequence2)).to.eql(basisFunctionsFromSequence(1, 1, incSequence2))
         expect(basisFunctionsFromSequence(1, 1, incSequence2)).to.eql(basisFunctionsFromSequence(2, 2, incSequence2))
         expect(basisFunctionsFromSequence(2, 2, incSequence2)).to.eql(basisFunctionsFromSequence(3, 3, incSequence2))
@@ -951,8 +960,10 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(spline2?.evaluate(1)).to.eql(new Vector2d(0.5, 0))
         expect(spline2?.evaluate(2)).to.eql(new Vector2d(0, 0.5))
         expect(spline2?.evaluate(3)).to.eql(new Vector2d(0.5, 1))
-        const spline3 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3], knots, 3)
-        const incSequence3 = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        curveDegree = 3;
+        maxMultiplicityOrder = curveDegree;
+        const spline3 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree)
+        const incSequence3 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
         expect(basisFunctionsFromSequence(0, 0, incSequence3)).to.eql(basisFunctionsFromSequence(1, 1, incSequence3))
         expect(basisFunctionsFromSequence(1, 1, incSequence3)).to.eql(basisFunctionsFromSequence(2, 2, incSequence3))
         expect(basisFunctionsFromSequence(2, 2, incSequence3)).to.eql(basisFunctionsFromSequence(3, 3, incSequence3))
@@ -979,8 +990,10 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp3 = new Vector2d(1, 0)
         const cp4 = new Vector2d(0.5, -0.5)
         const knots = [0, 0, 1, 2, 3, 4, 4]
-        const spline = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp4], knots, 2)
-        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(2, knots)
+        const curveDegree = 2;
+        const maxMultiplicityOrder = curveDegree;
+        const spline = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp4], knots, curveDegree)
+        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
         expect(basisFunctionsFromSequence(2, 1, incSequence)).to.eql(basisFunctionsFromSequence(4, 3, incSequence))
         expect(basisFunctionsFromSequence(1, 0.5, incSequence)[0]).to.eql(basisFunctionsFromSequence(4, 3.5, incSequence)[2])
         expect(basisFunctionsFromSequence(1, 0.5, incSequence)[1]).to.eql(basisFunctionsFromSequence(4, 3.5, incSequence)[1])
@@ -1005,9 +1018,11 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(1, -1)
         const cp5 = new Vector2d(0, -1)
         const knots = [0, 1, 2, 3, 4, 5, 6]
-        const spline = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 3)
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree;
+        const spline = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(spline?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
-        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots)
+        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
         for(let i = 0; i < (incSequence.length() - 2); i++) {
             let basis = basisFunctionsFromSequence(i, i, incSequence)
             expect(basis[0]).to.be.closeTo(0.1666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1022,9 +1037,9 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp6 = new Vector2d(1, -0.66666666666666)
         const cp7 = new Vector2d(0.66666666666666, -1)
         const knots1 = [0, 0, 1, 2, 3, 4, 5, 6, 6]
-        const spline1 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp6, cp7, cp5], knots1, 3)
+        const spline1 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp6, cp7, cp5], knots1, curveDegree)
         expect(spline1?.freeControlPoints).to.eql([cp0, cp1, cp2, cp3, cp6, cp7, cp5])
-        const incSequence1 = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots1)
+        const incSequence1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots1)
         let basis1 = basisFunctionsFromSequence(1, 0, incSequence1)
         expect(basis1[0]).to.be.closeTo(0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(basis1[1]).to.be.closeTo(0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1047,9 +1062,9 @@ describe('PeriodicBSplineR1toR2', () => {
 
         const cp8 = new Vector2d(0.83333333333333, -0.83333333333333)
         const knots2 = [0, 0, 0, 1, 2, 3, 4, 5, 6, 6, 6]
-        const spline2 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp6, cp8, cp7, cp5], knots2, 3)
+        const spline2 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp6, cp8, cp7, cp5], knots2, curveDegree)
         expect(spline2?.freeControlPoints).to.eql([cp0, cp1, cp2, cp3, cp6, cp8, cp7, cp5])
-        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots2)
+        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots2)
         let basis2 = basisFunctionsFromSequence(2, 0, incSequence2)
         expect(basis2[0]).to.be.closeTo(1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(basis2[1]).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1068,7 +1083,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(1, -1)
         const cp5 = new Vector2d(0, -1)
         const knots = [0, 1, 2, 3, 4, 5, 6]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 1)
+        let curveDegree = 1;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s?.evaluate(0).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1103,7 +1119,8 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(intermSplineKnots?.CPs[0]).to.eql([cp0, cp1, cp2, cp2, cp3, cp4, cp4, cp5, cp0])
         expect(intermSplineKnots?.CPs[1]).to.eql([cp0, cp1, cp1, cp2, cp3, cp3, cp4, cp5, cp5])
 
-        const s0 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp2, cp3, cp4, cp4, cp5, cp0], knots0, 2)
+        curveDegree = 2;
+        const s0 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp2, cp3, cp4, cp4, cp5, cp0], knots0, curveDegree)
         s0?.insertKnotBoehmAlgorithm(1)
         s0?.insertKnotBoehmAlgorithm(3)
         s0?.insertKnotBoehmAlgorithm(5)
@@ -1131,7 +1148,7 @@ describe('PeriodicBSplineR1toR2', () => {
             }
         }
 
-        const s1 = PeriodicBSplineR1toR2.create([cp0, cp1, cp1, cp2, cp3, cp3, cp4, cp5, cp5], knots1, 2)
+        const s1 = new PeriodicBSplineR1toR2([cp0, cp1, cp1, cp2, cp3, cp3, cp4, cp5, cp5], knots1, curveDegree)
         s1?.insertKnotBoehmAlgorithm(0)
         s1?.insertKnotBoehmAlgorithm(2)
         s1?.insertKnotBoehmAlgorithm(4)
@@ -1209,7 +1226,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(1, -1)
         const cp5 = new Vector2d(0, -1)
         const knots = [0, 1, 2, 3, 4, 5, 6]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5], knots, 2)
+        let curveDegree = 2;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
         expect(s?.evaluate(0).x).to.be.closeTo(0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1248,7 +1266,8 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(intermSplineKnots?.CPs[1]).to.eql([cp0, cp1, cp1, cp2, cp3, cp4, cp4, cp5])
         expect(intermSplineKnots?.CPs[2]).to.eql([cp0, cp1, cp2, cp2, cp3, cp4, cp5, cp5])
 
-        const s0 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp3, cp3, cp4, cp5, cp0], knots0, 3)
+        curveDegree = 3;
+        const s0 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp3, cp4, cp5, cp0], knots0, curveDegree)
         expect(s0?.evaluate(0).x).to.be.closeTo(0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s0?.evaluate(0).y).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s0?.evaluate(1).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1289,7 +1308,7 @@ describe('PeriodicBSplineR1toR2', () => {
             }
         }
 
-        const s1 = PeriodicBSplineR1toR2.create([cp0, cp1, cp1, cp2, cp3, cp4, cp4, cp5], knots1, 3)
+        const s1 = new PeriodicBSplineR1toR2([cp0, cp1, cp1, cp2, cp3, cp4, cp4, cp5], knots1, curveDegree)
         expect(s1?.evaluate(0).x).to.be.closeTo(0.75, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s1?.evaluate(0).y).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s1?.evaluate(1).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1330,7 +1349,7 @@ describe('PeriodicBSplineR1toR2', () => {
             }
         }
 
-        const s2 = PeriodicBSplineR1toR2.create([cp0, cp1, cp2, cp2, cp3, cp4, cp5, cp5], knots2, 3)
+        const s2 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp2, cp3, cp4, cp5, cp5], knots2, curveDegree)
         expect(s2?.evaluate(0).x).to.be.closeTo(0.25, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s2?.evaluate(0).y).to.be.closeTo(-1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s2?.evaluate(1).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1424,9 +1443,6 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp9 = new Vector2d(0.15, -0.6)
         const cp10 = new Vector2d(0, -0.72)
         const cp11 = new Vector2d(-0.15, -0.6)
-        const cp12 = new Vector2d(-0.27, -0.35)
-        const cp13 = new Vector2d(-0.3, 0)
-        const cp14 = new Vector2d(-0.27, 0.35)
         const px0 = 0, px1 = 0.15, px2 = 0.27, px3 = 0.3;
         const py0 = 0, py2 = 0.35, py4 = 0.6, py5 = 0.72;
         const cp = [ [-px2, -py2], [-px3, py0], [-px2, py2], [-px1, py4], 
@@ -1434,7 +1450,8 @@ describe('PeriodicBSplineR1toR2', () => {
                     [px2, -py2], [px1, -py4], [px0, -py5], [-px1, -py4], 
                     [-px2, -py2], [-px3, py0], [-px2, py2] ];
         const knots = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, 3)
+        const curveDegree = 3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10, cp11], knots, curveDegree)
         expect(s?.evaluate(0).x).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(-0.68, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(1).x).to.be.closeTo(-0.145, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1509,7 +1526,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp1 = new Vector2d(-1, 1)
         const cp2 = new Vector2d(1, 1)
         const knots = [0, 0, 0, 1, 1, 1]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2], knots, 3)
+        const curveDegree = 3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2])
         expect(s?.evaluate(0).x).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1541,7 +1559,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         expect(s?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(s?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1597,7 +1616,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const s = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const s = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(s?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         s?.insertKnotBoehmAlgorithm(0);
         expect(s?.knots).to.eql([0, 0, 1, 2, 3, 4, 4])
@@ -1689,7 +1709,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const sPer = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const sPer = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(sPer?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         expect(sPer?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(sPer?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1719,7 +1740,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const sPer = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const sPer = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(sPer?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
         expect(sPer?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(sPer?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1821,7 +1843,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, -0.1, 1)).to.throw(RangeError);
@@ -1852,7 +1875,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1922,7 +1946,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1991,7 +2016,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -2065,7 +2091,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -2131,7 +2158,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -2197,7 +2225,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         expect(periodicSpl?.evaluate(0).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(0).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(periodicSpl?.evaluate(1).x).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -2258,7 +2287,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         const periodicSpl1 = periodicSpl?.clone();
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
@@ -2287,7 +2317,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             const pt1 = periodicSpl.evaluateOutsideRefInterval(0.5);
@@ -2310,7 +2341,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, -0.1, "testMethod")).to.throw(RangeError);
@@ -2334,7 +2366,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             const u4 = -0.5 - periodicSpl.knots[knots.length - 1];
             expect(periodicSpl.evaluateOutsideRefIntervalInputParamAssessment.bind(periodicSpl, u4)).to.throw(RangeError);
@@ -2350,7 +2383,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             const factor1 = 0;
@@ -2367,7 +2401,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
 
@@ -2390,7 +2425,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.findSpanBoehmAlgorithm(- TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)).to.eql(new KnotIndexIncreasingSequence(Infinity));
@@ -2406,11 +2442,13 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.findSpanBoehmAlgorithm(0)).to.eql(new KnotIndexIncreasingSequence(0));
-            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots);
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
             expect(periodicSpl.findSpanBoehmAlgorithm(seq.getPeriod())).to.eql(new KnotIndexIncreasingSequence(0));
             expect(periodicSpl.findSpanBoehmAlgorithm(0.5)).to.eql(new KnotIndexIncreasingSequence(0));
             expect(periodicSpl.findSpanBoehmAlgorithm(1)).to.eql(new KnotIndexIncreasingSequence(1));
@@ -2426,16 +2464,18 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
-            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots);
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(seq.allAbscissae.length))).to.eql(Infinity);
 
             periodicSpl.insertKnotBoehmAlgorithm(0)
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
-            const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(3, periodicSpl.knots);
+            const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, periodicSpl.knots);
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(seq1.allAbscissae.length))).to.eql(Infinity);
         }
 
@@ -2448,7 +2488,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), -1)).to.eql(Infinity);
@@ -2468,7 +2509,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        let curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.controlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0))).to.eql(1);
@@ -2492,8 +2534,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp41 = new Vector2d(1, -1)
         const cp51 = new Vector2d(0, -1)
         const knots1 = [0, 1, 2, 3, 4, 5, 6]
-        const degree = 2;
-        const spl = PeriodicBSplineR1toR2.create([ cp01, cp11, cp21, cp31, cp41, cp51], knots1, degree)
+        curveDegree = 2;
+        const spl = new PeriodicBSplineR1toR2([ cp01, cp11, cp21, cp31, cp41, cp51], knots1, curveDegree)
         if(spl !== undefined) {
             expect(spl.controlPoints).to.eql([cp01, cp11, cp21, cp31, cp41, cp51])
             expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0))).to.eql(4);
@@ -2512,13 +2554,13 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5))).to.eql(2);
             expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(6))).to.eql(3);
 
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), degree)).to.eql(6);
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1), degree)).to.eql(0);
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2), degree)).to.eql(1);
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3), degree)).to.eql(2);
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(4), degree)).to.eql(3);
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5), degree)).to.eql(4);
-            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(6), degree)).to.eql(5);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(0), curveDegree)).to.eql(6);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(1), curveDegree)).to.eql(0);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(2), curveDegree)).to.eql(1);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(3), curveDegree)).to.eql(2);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(4), curveDegree)).to.eql(3);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(5), curveDegree)).to.eql(4);
+            expect(spl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(6), curveDegree)).to.eql(5);
         }
     });
 
@@ -2529,7 +2571,8 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp2 = new Vector2d(1, 1)
         const cp3 = new Vector2d(1, -1)
         const knots = [0, 1, 2, 3, 4]
-        const periodicSpl = PeriodicBSplineR1toR2.create([ cp0, cp1, cp2, cp3], knots, 3)
+        const curveDegree = 3;
+        const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.controlPoints).to.eql([ cp0, cp1, cp2, cp3])
             const periodicSpl1 = periodicSpl.clone()

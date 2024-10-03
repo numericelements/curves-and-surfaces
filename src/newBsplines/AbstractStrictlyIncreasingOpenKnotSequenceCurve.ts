@@ -13,8 +13,8 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequenceCurve extends Ab
     protected _end: KnotIndexStrictlyIncreasingSequence;
     protected _isNonUniform: boolean;
 
-    constructor(degree: number, knots: number[], multiplicities: number[]) {
-        super(degree);
+    constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[]) {
+        super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._index = new KnotIndexStrictlyIncreasingSequence();
         this._end = new KnotIndexStrictlyIncreasingSequence(Infinity);

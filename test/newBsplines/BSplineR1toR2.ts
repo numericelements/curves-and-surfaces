@@ -39,14 +39,19 @@ describe('BSplineR1toR2', () => {
         expect(s.degree).to.equal(2)
     });
     
-    it('throws an exception at construction if the degree of the b-spline is negative', () => {
+    it('throws an exception at construction if the degree of the B-spline is negative', () => {
         const cp0 = new Vector2d(-0.5, 0)
         const cp1 = new Vector2d(0, 8)
         const cp2 = new Vector2d(0.5, 0)
-        const s = new BSplineR1toR2([ cp0, cp1, cp2 ], [ 0, 0, 1 ])
-        expect(s.degree).to.equal(-1)
-        // error is thrown by ErrorLog class
-        // expect(function() {const s = new BSplineR1toR2([ cp0, cp1, cp2 ], [ 0, 0, 1 ])}).to.throw()
+        expect(() => new BSplineR1toR2([ cp0, cp1, cp2 ], [ 0, 0, 1 ])).to.throw()
+    });
+
+    it('throws an exception at construction if the number of knots differs from the number of CPs by less than the degree', () => {
+        const cp0 = new Vector2d(-0.5, 0)
+        const cp1 = new Vector2d(0, 8)
+        const cp2 = new Vector2d(0.5, 0)
+        const knots = [ 0, 0, 1, 1 ]
+        expect(() => new BSplineR1toR2([ cp0, cp1, cp2 ], knots)).to.throw()
     });
 
     it('can be used to evaluate a Bezier curve', () => {

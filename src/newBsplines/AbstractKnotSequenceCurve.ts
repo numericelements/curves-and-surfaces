@@ -10,16 +10,16 @@ export const KNOT_COINCIDENCE_TOLERANCE = 10E-10;
 export abstract class AbstractKnotSequenceCurve {
 
     protected abstract knotSequence: Array<Knot>;
-    protected _degree: number;
+    protected _maxMultiplicityOrder: number;
     protected _isUniform: boolean;
 
-    constructor(degree: number) {
-        this._degree = degree;
+    constructor(maxMultiplicityOrder: number) {
+        this._maxMultiplicityOrder = maxMultiplicityOrder;
         this._isUniform = true;
     }
 
-    get degree() {
-        return this._degree;
+    get maxMultiplicityOrder() {
+        return this._maxMultiplicityOrder;
     }
 
     get isUniform() {
@@ -44,9 +44,10 @@ export abstract class AbstractKnotSequenceCurve {
 
     checkDegreeConsistency(): void {
         for (const knot of this.knotSequence) {
-            if(knot.multiplicity > (this._degree + 1)) {
-                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity: too large.");
-                error.logMessageToConsole();
+            if(knot.multiplicity > (this._maxMultiplicityOrder)) {
+                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity: some knot has a multiplicity greater than (degree + 1).");
+                console.log(error.logMessage());
+                throw new RangeError(error.logMessage());
             }
         }
     }

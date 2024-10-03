@@ -14,17 +14,16 @@ export abstract class ErrorProcessing {
 
     abstract logMessageToConsole(): void;
 
+    addMessage(message: string): void {
+        this.message = this.message + " " + message;
+    }
+
 }
 
 export class ErrorLog extends ErrorProcessing {
 
     logMessageToConsole(): void {
         console.log(this.className + ", " + this.functionName + ":");
-        // try {
-        //     throw new Error(this.message);
-        // } catch(e) {
-        //     console.error(e);
-        // }
         console.error( new Error(this.message));
     }
 

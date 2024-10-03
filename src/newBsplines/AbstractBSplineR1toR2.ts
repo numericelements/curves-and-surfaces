@@ -29,6 +29,23 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         this._controlPoints = deepCopyControlPoints(controlPoints);
         this._degree = this.computeDegree(knots.length);
+        this.abstractConstructorInputParamAssessment(knots);
+    }
+
+    abstractConstructorInputParamAssessment(knots: number[]): void {
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        let invalid = false;
+        if(this.degree < 0) {
+            error.addMessage("Negative degree for periodic B-Spline cannot be processed.");
+            invalid = true;
+        } else if(knots.length < (this.degree + 1)) {
+            error.addMessage("Inconsistent numbers of control points. Not enough control points to define a basis of B-Splines");
+            invalid = true;
+        }
+        if(invalid) {
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
     }
 
     computeDegree(knotLength: number): number {
@@ -91,7 +108,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
      */
     // hereunder former version of the method
     // protected abstract factory(controlPoints: readonly Vector2d[], knots: readonly number[]): AbstractBSplineR1toR2;
-    protected abstract factory(controlPoints: Vector2d[], knots: number[]): AbstractBSplineR1toR2;
+    protected abstract create(controlPoints: Vector2d[], knots: number[]): AbstractBSplineR1toR2;
 
     abstract evaluateOutsideRefInterval(u: number): Vector2d;
 
@@ -156,7 +173,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         for (let i = 0; i < n; i += 1) {
             controlPoints[i] = controlPoints[i].add(delta[i]);
         }
-        return this.factory(controlPoints, this.knots);
+        return this.create(controlPoints, this.knots);
     }
 
     controlPointIndexInputParamAssessment(index: number, methodName: string) {
