@@ -1,13 +1,12 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Knot, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
 // Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // It may be needed to check if there are side effects (JCL 2024/05/06).
 export const KNOT_COINCIDENCE_TOLERANCE = 10E-10;
 
-export abstract class AbstractKnotSequenceCurve {
+export abstract class AbstractKnotSequence {
 
     protected abstract knotSequence: Array<Knot>;
     protected _maxMultiplicityOrder: number;
@@ -42,10 +41,10 @@ export abstract class AbstractKnotSequenceCurve {
         return multiplicities;
     }
 
-    checkDegreeConsistency(): void {
+    checkMaxMultiplicityOrderConsistency(): void {
         for (const knot of this.knotSequence) {
             if(knot.multiplicity > (this._maxMultiplicityOrder)) {
-                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity: some knot has a multiplicity greater than (degree + 1).");
+                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity: some knot has a multiplicity greater than the maximum order of multiplicity specified for the sequence.");
                 console.log(error.logMessage());
                 throw new RangeError(error.logMessage());
             }

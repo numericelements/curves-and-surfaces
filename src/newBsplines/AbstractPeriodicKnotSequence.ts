@@ -1,19 +1,14 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { AbstractKnotSequenceCurve } from "./AbstractKnotSequenceCurve";
+import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 
-export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceCurve {
+export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence {
 
-    // protected _knotSequence: Knot[];
     protected abstract _index: KnotIndexInterface;
     protected abstract _end: KnotIndexInterface;
 
-    constructor(maxMultiplicityOrder: number) {
-        super(maxMultiplicityOrder);
-
-    }
 
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
@@ -29,7 +24,7 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceC
         }
     }
 
-    checkDegreeConsistency(): void {
+    checkMaxMultiplicityOrderConsistency(): void {
         for (const knot of this.knotSequence) {
             if(knot.multiplicity >= this._maxMultiplicityOrder) {
                 const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed maximum order of multiplicity.");
@@ -64,7 +59,7 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequenceC
             } else if(index.knotIndex === (this.knotSequence.length - 1)) {
                 this.knotSequence[0].multiplicity += multiplicity;
             }
-            this.checkDegreeConsistency();
+            this.checkMaxMultiplicityOrderConsistency();
         }
         return increment;
     }

@@ -5,7 +5,7 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequenceCurve";
+import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequence";
 import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
 
 export enum curveSegment {BEFORE, AFTER};

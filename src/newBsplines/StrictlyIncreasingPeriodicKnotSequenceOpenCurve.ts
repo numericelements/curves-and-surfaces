@@ -1,6 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
@@ -27,7 +27,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         }
         if(!subsequence) this.checkCurveOrigin();
         if(!subsequence) this.checkMultiplicityAtEndKnots();
-        this.checkDegreeConsistency();
+        this.checkMaxMultiplicityOrderConsistency();
     }
 
     get allAbscissae(): number[] {
@@ -86,7 +86,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
             const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
             this.knotSequence[indexPeriod.knotIndex].multiplicity += multiplicity;
             if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
-            this.checkDegreeConsistency();
+            this.checkMaxMultiplicityOrderConsistency();
         }
         return increment;
     }

@@ -1,9 +1,10 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceOpenCurve";
 
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
@@ -32,7 +33,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         }
         if(!subsequence) this.checkCurveOrigin();
         if(!subsequence) this.checkMultiplicityAtEndKnots();
-        this.checkDegreeConsistency();
+        this.checkMaxMultiplicityOrderConsistency();
     }
 
     get allAbscissae(): number[] {
@@ -122,7 +123,8 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
             }
             if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
         }
-        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder + 1, knotsOpenSequence);
+        // return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder + 1, knotsOpenSequence);
+        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotsOpenSequence});
     }
 
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void {
@@ -148,7 +150,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
         this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
         if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
-        this.checkDegreeConsistency();
+        this.checkMaxMultiplicityOrderConsistency();
         return increment;
     }
 

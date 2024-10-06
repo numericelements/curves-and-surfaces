@@ -1,11 +1,11 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { AbstractKnotSequenceCurve, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { AbstractKnotSequence, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { Knot, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 export const OPEN_KNOT_SEQUENCE_ORIGIN = 0.0;
 
-export abstract class AbstractOpenKnotSequenceCurve extends AbstractKnotSequenceCurve {
+export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
 
     abstract checkNonUniformStructure(): void;
 

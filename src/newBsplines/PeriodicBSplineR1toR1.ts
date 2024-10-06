@@ -6,6 +6,7 @@ import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { decomposeFunction, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
 
 
@@ -19,7 +20,8 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
         const maxMultiplicityOrder = this._degree + 1;
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
     }
 
     get knots() : number[] {
@@ -71,7 +73,7 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
                     newControlPoints.push(newCtrlPt);
             }
         }
-        const newKnots = this._increasingKnotSequence.decrementDegree().allAbscissae;
+        const newKnots = this._increasingKnotSequence.decrementMaxMultiplicityOrder().allAbscissae;
         return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
     }
 

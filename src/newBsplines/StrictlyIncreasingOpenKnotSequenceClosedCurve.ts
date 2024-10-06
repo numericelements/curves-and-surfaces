@@ -1,11 +1,12 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { AbstractStrictlyIncreasingOpenKnotSequenceCurve } from "./AbstractStrictlyIncreasingOpenKnotSequenceCurve";
+import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
+import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 
-export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequenceCurve {
+export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
     protected knotSequence: Knot[];
     protected indexKnotOrigin: number;
@@ -32,7 +33,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval
         this.checkCurveOrigin();
-        this.checkDegreeConsistency();
+        this.checkMaxMultiplicityOrderConsistency();
         this.checkKnotIntervalConsistency();
         this.checkUniformity();
         this.checkNonUniformStructure();
@@ -92,7 +93,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         }
     }
 
-    checkDegreeConsistency(): void {
+    checkMaxMultiplicityOrderConsistency(): void {
         let i = 0;
         let cumulativeMultiplicity = 0;
         while(i !== this.indexKnotOrigin) {
@@ -174,7 +175,8 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, knotAbscissae);
+        // return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, knotAbscissae);
+        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotAbscissae});
     }
 
     // This index transformation is not unique. The convention followed here is the assignment of the first index of the increasing

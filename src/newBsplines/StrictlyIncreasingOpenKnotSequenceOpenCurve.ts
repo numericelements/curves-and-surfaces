@@ -1,11 +1,12 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { AbstractStrictlyIncreasingOpenKnotSequenceCurve } from "./AbstractStrictlyIncreasingOpenKnotSequenceCurve";
+import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
+import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 
-export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequenceCurve {
+export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
     protected knotSequence: Knot[];
 
@@ -20,7 +21,7 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
             this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
         }
         this.checkCurveOrigin();
-        this.checkDegreeConsistency();
+        this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformStructure();
         this.checkUniformity();
     }
@@ -49,7 +50,8 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, knotAbscissae);
+        // return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, knotAbscissae);
+        return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knotAbscissae});
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {

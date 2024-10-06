@@ -1,12 +1,12 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { AbstractOpenKnotSequenceCurve } from "./AbstractOpenKnotSequenceCurve";
+import { AbstractOpenKnotSequence } from "./AbstractOpenKnotSequence";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 
 
-export abstract class AbstractStrictlyIncreasingOpenKnotSequenceCurve extends AbstractOpenKnotSequenceCurve {
+export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
     protected knotSequence: Knot[];
     protected _index: KnotIndexStrictlyIncreasingSequence;
@@ -90,7 +90,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequenceCurve extends Ab
             increment = false;
         } else {
             this.knotSequence[index.knotIndex].multiplicity += multiplicity;
-            this.checkDegreeConsistency();
+            this.checkMaxMultiplicityOrderConsistency();
         }
         return increment;
     }

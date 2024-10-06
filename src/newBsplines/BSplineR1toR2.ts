@@ -6,6 +6,7 @@ import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging"
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve"
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot"
+import { INCREASINGOPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface"
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -22,7 +23,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
         const maxMultiplicityOrder = this._degree + 1;
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, knots);
+        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});
         this.constructorInputParamAssessment(controlPoints, knots);
     }
 
@@ -40,7 +42,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
 
     set knots(knots: number[]) {
         this._degree = this.computeDegree(knots.length);
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree, knots);
+        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree + 1, knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree + 1, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});
     }
 
     constructorInputParamAssessment(controlPoints: Vector2d[], knots: number[]): void {
@@ -108,7 +111,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
 
         this.controlPoints = newSpline.controlPoints;
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(newSpline.degree, newSpline.knots);
+        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(newSpline.degree + 1, newSpline.knots);
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(newSpline.degree + 1, {type: INCREASINGOPENKNOTSEQUENCE, knots: newSpline.knots});
         this._degree = newSpline.degree;
     }
 

@@ -1574,7 +1574,7 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s?.evaluate(0.5).y).to.be.closeTo(0.0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
 
         const sPer = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
-        expect(sPer?.degree).to.eql(3)
+        expect(sPer?.degree).to.eql(curveDegree)
         expect(sPer?.freeControlPoints.length).to.eql(4)
         const cpX = [-1, 1, 1, -1, -1, 1, 1]
         const cpY = [1, 1, -1, -1, 1, 1, -1]
@@ -1633,7 +1633,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const cp4 = new Vector2d(0.3333333333333333, 1)
         const cp5 = new Vector2d(1, 0.3333333333333333)
         const sPer = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
-        expect(sPer?.degree).to.eql(3)
+        expect(sPer?.degree).to.eql(curveDegree)
         expect(sPer?.freeControlPoints.length).to.eql(5)
         // expect(sPer?.freeControlPoints).to.eql([cp4, cp5, cp3, cp0, cp1])
         const cpX = [0.3333333333333333, 1, 1, -1, -1, 0.3333333333333333, 1]
@@ -1676,7 +1676,7 @@ describe('PeriodicBSplineR1toR2', () => {
         expect(s?.evaluate(3).y).to.be.closeTo(0.66666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         const cp6 = new Vector2d(0.66666666666666, 0.66666666666666)
         const sPer1 = s?.toPeriodicBSplineR1toR2withOpenKnotSequence();
-        expect(sPer1?.degree).to.eql(3)
+        expect(sPer1?.degree).to.eql(curveDegree)
         expect(sPer1?.freeControlPoints.length).to.eql(6)
         // expect(sPer1?.freeControlPoints).to.eql([cp4, cp5, cp3, cp0, cp1])
         const cpX1 = [0.66666666666666, 1, 1, -1, -1, 0.3333333333333333, 0.66666666666666]

@@ -4,7 +4,7 @@ import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequenceCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 
 export const CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION = 10e-8;

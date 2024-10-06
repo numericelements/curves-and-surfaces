@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
-import { KNOT_COINCIDENCE_TOLERANCE } from "../../src/newBsplines/AbstractKnotSequenceCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "../../src/newBsplines/AbstractKnotSequence";
 
 describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     
