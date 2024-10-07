@@ -10,19 +10,34 @@ export abstract class AbstractKnotSequence {
 
     protected abstract knotSequence: Array<Knot>;
     protected _maxMultiplicityOrder: number;
-    protected _isUniform: boolean;
+    protected _isKnotSpacingUniform: boolean;
+    protected _isKnotMultiplicityUniform: boolean;
 
     constructor(maxMultiplicityOrder: number) {
         this._maxMultiplicityOrder = maxMultiplicityOrder;
-        this._isUniform = true;
+        this._isKnotSpacingUniform = true;
+        this._isKnotMultiplicityUniform = true;
     }
 
     get maxMultiplicityOrder() {
         return this._maxMultiplicityOrder;
     }
 
-    get isUniform() {
-        return this._isUniform;
+    get isKnotSpacingUniform() {
+        return this._isKnotSpacingUniform;
+    }
+
+    get isKnotMultiplicityUniform() {
+        return this._isKnotMultiplicityUniform;
+    }
+
+    constructorInputMultOrderAssessment(minValue: number): void {
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        if(this._maxMultiplicityOrder < minValue) {
+            error.addMessage("Maximal value of knot multiplicity order is too small for this category of knot sequence. Cannot proceed.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
     }
 
     distinctAbscissae(): number[] {
@@ -51,10 +66,22 @@ export abstract class AbstractKnotSequence {
         }
     }
 
-    checkUniformity(): void {
-        this._isUniform = true;
+    checkUniformityOfKnotSpacing(): void {
+        this._isKnotSpacingUniform = true;
+        if(this.knotSequence.length > 1) {
+            const spacing = this.knotSequence[1].abscissa - this.knotSequence[0].abscissa;
+            for(let i = 1; i < (this.knotSequence.length - 1); i++) {
+                const spacingAdjKnots = this.knotSequence[i + 1].abscissa - this.knotSequence[i].abscissa;
+                if(spacingAdjKnots > (spacing + KNOT_COINCIDENCE_TOLERANCE) || spacingAdjKnots < (spacing - KNOT_COINCIDENCE_TOLERANCE)) this._isKnotSpacingUniform = false;
+            }
+        }
+        return;
+    }
+
+    checkUniformityOfKnotMultiplicity(): void {
+        this._isKnotMultiplicityUniform = true;
         for(const knot of this.knotSequence) {
-            if(knot.multiplicity !== 1) this._isUniform = false;
+            if(knot !== undefined && knot.multiplicity !== 1) this._isKnotMultiplicityUniform = false;
         }
         return;
     }
@@ -112,7 +139,7 @@ export abstract class AbstractKnotSequence {
                 this.knotSequence.push(knot);
             }
         }
-        this.checkUniformity();
+        this.checkUniformityOfKnotSpacing();
     }
 
 }

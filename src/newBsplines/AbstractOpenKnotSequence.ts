@@ -7,7 +7,7 @@ export const OPEN_KNOT_SEQUENCE_ORIGIN = 0.0;
 
 export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
 
-    abstract checkNonUniformStructure(): void;
+    abstract checkNonUniformKnotMultiplicityOrder(): void;
 
     abstract abscissaAtIndex(index: KnotIndexInterface): number;
 
@@ -54,8 +54,9 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
                     this.knotSequence.splice((i + 1), 0, knot);
                 }
             }
-            this.checkUniformity();
-            this.checkNonUniformStructure();
+            this.checkUniformityOfKnotSpacing();
+            this.checkUniformityOfKnotMultiplicity();
+            this.checkNonUniformKnotMultiplicityOrder();
         }
         return insertion;
     }
@@ -67,13 +68,14 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
             return;
         }
         this.knotSequence[index.knotIndex].multiplicity += multiplicity;
-        this.checkUniformity();
-        this.checkNonUniformStructure();
+        this.checkUniformityOfKnotMultiplicity();
+        this.checkNonUniformKnotMultiplicityOrder();
     }
 
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
         super.decrementKnotMultiplicity(index);
-        this.checkNonUniformStructure();
+        this.checkUniformityOfKnotMultiplicity();
+        this.checkNonUniformKnotMultiplicityOrder();
     }
 
 }

@@ -35,8 +35,8 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         this.checkCurveOrigin();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkKnotIntervalConsistency();
-        this.checkUniformity();
-        this.checkNonUniformStructure();
+        this.checkUniformityOfKnotSpacing();
+        this.checkNonUniformKnotMultiplicityOrder();
     }
 
     get freeKnots(): number [] {
@@ -49,7 +49,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         return freeKnots;
     }
 
-    checkNonUniformStructure(): void {
+    checkNonUniformKnotMultiplicityOrder(): void {
         this._isNonUniform = false;
     }
 

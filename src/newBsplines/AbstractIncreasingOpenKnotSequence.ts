@@ -11,57 +11,51 @@ import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicK
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
     protected knotSequence: Knot[];
-    protected _index: KnotIndexIncreasingSequence;
-    protected _end: KnotIndexIncreasingSequence;
-    protected _isNonUniform: boolean;
+    protected _indexKnotOrigin: number;
+    protected _uMax: number;
+    protected _isKnotMultiplicityNonUniform: boolean;
 
     // constructor(maxMultiplicityOrder: number, knots: number[]) {
     constructor(maxMultiplicityOrder: number, knotParameters: AbstractIncreasingOpenKnotSequence_type) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
-        this._index = new KnotIndexIncreasingSequence();
-        this._end = new KnotIndexIncreasingSequence(Infinity);
-        this._isNonUniform = false;
-        let knots: number[] = [];
+        this._indexKnotOrigin = RETURN_ERROR_CODE;
+        this._isKnotMultiplicityNonUniform = false;
         if(knotParameters.type === NO_KNOT_OPEN_CURVE) {
+            this.constructorInputMultOrderAssessment(1);
             this.knotSequence.push(new Knot(0, this._maxMultiplicityOrder));
             this.knotSequence.push(new Knot(1, this._maxMultiplicityOrder));
-            for(let i = 0; i < this._maxMultiplicityOrder; i++) {
-                knots.push(0);
-            }
-            for(let i = 0; i < this._maxMultiplicityOrder; i++) {
-                knots.push(1);
-            }
+            this._uMax = 1;
+            this._indexKnotOrigin = this._maxMultiplicityOrder - 1;
         } else if(knotParameters.type === NO_KNOT_CLOSED_CURVE) {
-            // test nbCtrlPoints >= this._maxMultiplicityOrder
+            this.constructorInputMultOrderAssessment(2);
             for(let i = - (this._maxMultiplicityOrder - 1); i < 2 * (this._maxMultiplicityOrder - 1); i++) {
                 this.knotSequence.push(new Knot(i, 1));
-                knots.push(i);
             }
+            this._uMax = this._maxMultiplicityOrder;
+            this._indexKnotOrigin = this._maxMultiplicityOrder - 1;
         } else if(knotParameters.type === UNIFORM_OPENKNOTSEQUENCE) {
-            // test nbCtrlPoints >= this._maxMultiplicityOrder
-            for(let i = - (this._maxMultiplicityOrder - 1); i < (knotParameters.nbCtrlPoints + this._maxMultiplicityOrder - 2); i++) {
+            this.constructorInputMultOrderAssessment(2);
+            this.constructorInputNbCPAssessment(knotParameters);
+            for(let i = - (this._maxMultiplicityOrder - 1); i < (knotParameters.nbCtrlPoints + this._maxMultiplicityOrder - 1); i++) {
                 this.knotSequence.push(new Knot(i, 1));
-                knots.push(i);
             }
+            this._uMax = knotParameters.nbCtrlPoints - 1;
+            this._indexKnotOrigin = this._maxMultiplicityOrder - 1;
         } else if(knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
-            // test nbCtrlPoints > this._maxMultiplicityOrder
+            this.constructorInputMultOrderAssessment(2);
+            this.constructorInputNbCPAssessment(knotParameters);
             this.knotSequence.push(new Knot(0, this._maxMultiplicityOrder));
-            for(let i = 0; i < this._maxMultiplicityOrder; i++) {
-                knots.push(0);
-            }
             for(let i = 0; i < knotParameters.nbCtrlPoints - this._maxMultiplicityOrder; i++) {
                 this.knotSequence.push(new Knot((i + 1), 1));
-                knots.push(i + 1);
             }
-            this.knotSequence.push(new Knot((knotParameters.nbCtrlPoints - this._maxMultiplicityOrder), this._maxMultiplicityOrder));
-            for(let i = 0; i < this._maxMultiplicityOrder; i++) {
-                knots.push(knotParameters.nbCtrlPoints - this._maxMultiplicityOrder);
-            }
+            this.knotSequence.push(new Knot((knotParameters.nbCtrlPoints - this._maxMultiplicityOrder + 1), this._maxMultiplicityOrder));
+            this._uMax = knotParameters.nbCtrlPoints - this._maxMultiplicityOrder + 1;
+            this._indexKnotOrigin = this._maxMultiplicityOrder - 1;
         } else if(knotParameters.type === INCREASINGOPENKNOTSEQUENCE || knotParameters.type === INCREASINGOPENKNOTSUBSEQUENCE
             || knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS || knotParameters.type === INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE) {
-            this.constructorInputParamAssessment(knotParameters.knots);
-            knots = knotParameters.knots;
+            this.constructorInputMultOrderAssessment(1);
+            this.constructorInputArrayAssessment(knotParameters.knots);
             this.knotSequence.push(new Knot(knotParameters.knots[0], 1));
             for(let i = 1; i < knotParameters.knots.length; i++) {
                 if(knotParameters.knots[i] === this.knotSequence[this.knotSequence.length - 1].abscissa) {
@@ -70,14 +64,19 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
                     this.knotSequence.push(new Knot(knotParameters.knots[i], 1));
                 }
             }
+            this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
+            this.checkSizeConsistency(knotParameters.knots);
         } else if(knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+            this.constructorInputMultOrderAssessment(1);
+            this.constructorInputArrayAssessment(knotParameters.freeknots);
             const periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve((this._maxMultiplicityOrder - 1), knotParameters.freeknots);
             const openSequence = periodicSeq.toOpenKnotSequence();
-            knots = openSequence.distinctAbscissae();
+            const knots = openSequence.distinctAbscissae();
             const multiplicities = openSequence.multiplicities();
             for(let i = 0; i < knots.length; i++) {
                 this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
             }
+            this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "knot sequence specification is outside the range of acceptable configurations. Cannot generate the knot sequence.");
             console.log(error.logMessage());
@@ -97,7 +96,6 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         //     }
         // }
         // this.checkSizeConsistency(knots);
-        this.checkSizeConsistency(this.allAbscissae);
     }
 
     get allAbscissae(): number[] {
@@ -108,38 +106,47 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         return abscissae;
     }
 
-    get isNonUniform(): boolean {
-        return this._isNonUniform;
+    get isKnotMultiplicityNonUniform(): boolean {
+        return this._isKnotMultiplicityNonUniform;
+    }
+
+    get uMax(): number {
+        return this._uMax;
+    }
+
+    get indexKnotOrigin(): KnotIndexIncreasingSequence {
+        return new KnotIndexIncreasingSequence(this._indexKnotOrigin);
     }
 
     [Symbol.iterator]() {
-        let knotAmount = 0;
+        let nbKnots = 0;
         const knotIndicesKnotAbscissaChange: number[] = [];
         for(const multiplicity of this.multiplicities()) {
-            knotAmount = knotAmount + multiplicity;
-            knotIndicesKnotAbscissaChange.push(knotAmount);
+            nbKnots = nbKnots + multiplicity;
+            knotIndicesKnotAbscissaChange.push(nbKnots);
         }
-        this._end = new KnotIndexIncreasingSequence(knotAmount - 1);
-        let indexAbscissaChange = new KnotIndexIncreasingSequence();
+        const lastIndex = nbKnots - 1;
+        let indexAbscissaChange = 0;
+        let index = 0;
         return  {
             next: () => {
-                if ( this._index.knotIndex <= this._end.knotIndex ) {
-                    if(this._index.knotIndex === knotIndicesKnotAbscissaChange[indexAbscissaChange.knotIndex]) {
-                        indexAbscissaChange.knotIndex++;
+                if (index <= lastIndex ) {
+                    if(index === knotIndicesKnotAbscissaChange[indexAbscissaChange]) {
+                        indexAbscissaChange++;
                     }
-                    this._index.knotIndex++;
-                    return { value: this.knotSequence[indexAbscissaChange.knotIndex].abscissa,  done: false };
+                    index++;
+                    return { value: this.knotSequence[indexAbscissaChange].abscissa, done: false };
                 } else {
-                    this._index = new KnotIndexIncreasingSequence();
+                    index = 0;
                     return { done: true };
                 }
             }
         }
     }
 
-    abstract checkNonUniformStructure(): void;
+    abstract checkNonUniformKnotMultiplicityOrder(): void;
 
-    constructorInputParamAssessment(knots: number[]): void {
+    constructorInputArrayAssessment(knots: number[]): void {
         const error = new ErrorLog(this.constructor.name, "constructor");
         if((knots.length) === 0) {
             error.addMessage("Knot sequence with null length encountered. Cannot proceed.");
@@ -148,8 +155,19 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         }
     }
 
+    constructorInputNbCPAssessment(knotParameters: AbstractIncreasingOpenKnotSequence_type): void {
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        if(knotParameters.type ===  UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
+            if(knotParameters.nbCtrlPoints < this._maxMultiplicityOrder) {
+                error.addMessage("Knot sequence cannot be generated. Not enough control points to generate a B-Spline basis. Cannot proceed.");
+                console.log(error.logMessage());
+                throw new RangeError(error.logMessage());
+            }
+        }
+    }
+
     revertSequence(): number[] {
-        const seq = this.deepCopy();
+        const seq = this.clone();
         seq.revertKnots();
         return seq.allAbscissae;
     }
@@ -177,7 +195,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         return length;
     }
 
-    abstract deepCopy(): IncreasingOpenKnotSequenceInterface;
+    abstract clone(): IncreasingOpenKnotSequenceInterface;
 
     abstract toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceInterface;
 

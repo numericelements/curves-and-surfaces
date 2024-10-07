@@ -125,7 +125,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const knotSequences: number[][] = [];
         const controlPolygons: number[][] = [];
         for(let i = 0; i <= this._degree; i += 1) {
-            let knotSequence = this._increasingKnotSequence.deepCopy();
+            let knotSequence = this._increasingKnotSequence.clone();
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
             for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {

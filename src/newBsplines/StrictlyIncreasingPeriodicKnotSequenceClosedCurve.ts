@@ -5,13 +5,13 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
 
     protected knotSequence: Knot[];
     protected _index: KnotIndexIncreasingSequence;
-    protected _end: KnotIndexIncreasingSequence;
+    protected _uMax: number;
 
     constructor(maxMultiplicityOrder: number, freeKnots: number[]) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
-        this._end = new KnotIndexIncreasingSequence(Infinity);
+        this._uMax = 0;
     }
 
     generateStrictlyIncreasingSequence(): {abscissae: number[], multiplicities: number[]} {

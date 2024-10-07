@@ -56,7 +56,7 @@ describe('BSplineR1toR1', () => {
     it('can evaluate a uniform B-Spline', () => {
         const s = new  BSplineR1toR1([ -1, 0, 1 ], [0, 1, 2, 3, 4, 5])
         expect(s.degree).to.equal(2)
-        expect(s.increasingKnotSequence.isUniform).to.eql(true)
+        expect(s.increasingKnotSequence.isKnotSpacingUniform).to.eql(true)
         let spanIndex = s.increasingKnotSequence.findSpan(2);
         expect(spanIndex.knotIndex).to.eql(2)
         expect(s.evaluate(2)).to.be.closeTo(-0.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)

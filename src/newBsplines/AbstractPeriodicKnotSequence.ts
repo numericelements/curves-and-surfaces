@@ -7,7 +7,7 @@ import { KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncre
 export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence {
 
     protected abstract _index: KnotIndexInterface;
-    protected abstract _end: KnotIndexInterface;
+    protected abstract _uMax: number;
 
 
     checkCurveOrigin(): void {

@@ -22,8 +22,8 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         }
         this.checkCurveOrigin();
         this.checkMaxMultiplicityOrderConsistency();
-        this.checkNonUniformStructure();
-        this.checkUniformity();
+        this.checkNonUniformKnotMultiplicityOrder();
+        this.checkUniformityOfKnotSpacing();
     }
 
     checkCurveOrigin(): void {
@@ -33,7 +33,7 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         }
     }
 
-    checkNonUniformStructure(): void {
+    checkNonUniformKnotMultiplicityOrder(): void {
         this._isNonUniform = false;
         if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
             this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isNonUniform = true;

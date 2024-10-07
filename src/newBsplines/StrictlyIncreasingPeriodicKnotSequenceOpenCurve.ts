@@ -10,13 +10,13 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
 
     protected knotSequence: Knot[];
     protected _index: KnotIndexIncreasingSequence;
-    protected _end: KnotIndexIncreasingSequence;
+    protected _uMax: number;
 
     constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[], subsequence: boolean = false) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._index = new KnotIndexIncreasingSequence();
-        this._end = new KnotIndexIncreasingSequence(Infinity);
+        this._uMax = 0;
         for(let i = 0; i < knots.length; i++) {
             this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
         }
@@ -39,10 +39,10 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
     }
 
     [Symbol.iterator]() {
-        this._end = new KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
+        const lastIndex = new KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
         return  {
             next: () => {
-                if ( this._index.knotIndex <= this._end.knotIndex ) {
+                if ( this._index.knotIndex <= lastIndex.knotIndex ) {
                     const abscissa = this.knotSequence[this._index.knotIndex].abscissa;
                     const multiplicity = this.knotSequence[this._index.knotIndex].multiplicity;
                     this._index.knotIndex++;

@@ -5,6 +5,7 @@ import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnot
 import { Knot, KnotIndexIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
+import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
 
 export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenKnotSequence {
@@ -32,24 +33,39 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         // if(!subsequence) this.checkCurveOrigin();
         if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCE) this.checkCurveOrigin();
         this.checkMaxMultiplicityOrderConsistency();
-        this.checkNonUniformStructure();
-        this.checkUniformity();
+        this.checkNonUniformKnotMultiplicityOrder();
+        this.checkUniformityOfKnotMultiplicity();
+        this.checkUniformityOfKnotSpacing();
     }
 
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
+            let i = 0;
+            let cumulativeMultiplicity = 0;
+            while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
+                cumulativeMultiplicity += this.knotSequence[i].multiplicity;
+                i++;
+            }
+            // this.indexKnotOrigin = i - 1;
+            if(this.knotSequence[0].abscissa !== 0.0) {
+                const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
+                error.logMessageToConsole();
+            }
+
             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
             error.logMessageToConsole();
+        } else {
+            // this.indexKnotOrigin = 0;
         }
     }
 
-    checkNonUniformStructure(): void {
-        this._isNonUniform = false;
+    checkNonUniformKnotMultiplicityOrder(): void {
+        this._isKnotMultiplicityNonUniform = false;
         if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
-            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isNonUniform = true;
+            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isKnotMultiplicityNonUniform = true;
     }
 
-    deepCopy(): IncreasingOpenKnotSequenceOpenCurve {
+    clone(): IncreasingOpenKnotSequenceOpenCurve {
         // return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.allAbscissae);
         return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: this.allAbscissae});
     }
@@ -74,7 +90,7 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
                             index -= this.knotSequence[this.knotSequence.length - 1].multiplicity
                         }
                         const curveDegree = this._maxMultiplicityOrder - 1;
-                        if(this.isUniform && index === (this.knotSequence.length - curveDegree)) index -= 1;
+                        if(this.isKnotMultiplicityUniform && index === (this.knotSequence.length - curveDegree)) index -= 1;
                         return new KnotIndexIncreasingSequence(index - 1);
                     }
                 }
@@ -102,4 +118,9 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         return new KnotIndexIncreasingSequence(index);
     }
 
+}
+
+export function deepCopyIncreasingKnotSequenceOpenCurve(knotSeq: IncreasingOpenKnotSequenceOpenCurve): number[] {
+    const abscissae = knotSeq.allAbscissae;
+    return abscissae;
 }
