@@ -47,9 +47,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 1, 1, 2, 3];
         const multiplicities = [1, 3, 1, 1];
         const degree = 2;
-        const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities);
-        // expect(() => new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(2, knots, multiplicities)).to.throw()
-        expect(seq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1))).to.above(degree)
+        expect(() => new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, knots, multiplicities)).to.throw()
     });
 
     it('can get the list of knot abscissae in increasing order using the accessor and iterator', () => {

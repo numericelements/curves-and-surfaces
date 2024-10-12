@@ -4,6 +4,7 @@ import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+import { AbstractStrictlyIncreasingOpenKnotSequence_type, STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE } from "./KnotSequenceConstructorInterface";
 
 
 export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
@@ -11,21 +12,31 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
     protected knotSequence: Knot[];
     protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
     protected _uMax: number;
-    protected _isNonUniform: boolean;
+    protected _isKnotMultiplicityNonUniform: boolean;
 
-    constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[]) {
+    constructor(maxMultiplicityOrder: number, knotParameters: AbstractStrictlyIncreasingOpenKnotSequence_type) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
         this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence();
         this._uMax = 0;
-        if(knots.length !== multiplicities.length) {
-            const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not the size of knot abscissae array.");
-            error.logMessageToConsole();
+        this._isKnotMultiplicityNonUniform = false;
+        if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCE) {
+            if(knotParameters.knots.length !== knotParameters.multiplicities.length) {
+                const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not the size of knot abscissae array.");
+                error.logMessageToConsole();
+            }
+            for(let i = 0; i < knotParameters.knots.length; i++) {
+                this.knotSequence.push(new Knot(knotParameters.knots[i], knotParameters.multiplicities[i]));
+            }
+        } else if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+            if(knotParameters.periodicKnots.length !== knotParameters.multiplicities.length) {
+                const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not the size of knot abscissae array.");
+                error.logMessageToConsole();
+            }
+            for(let i = 0; i < knotParameters.periodicKnots.length; i++) {
+                this.knotSequence.push(new Knot(knotParameters.periodicKnots[i], knotParameters.multiplicities[i]));
+            }
         }
-        for(let i = 0; i < knots.length; i++) {
-            this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
-        }
-        this._isNonUniform = false;
     }
 
     get allAbscissae(): number[] {
@@ -36,22 +47,23 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         return abscissae;
     }
 
-    get isNonUniform(): boolean {
-        return this._isNonUniform;
+    get isKnotMultiplicityNonUniform(): boolean {
+        return this._isKnotMultiplicityNonUniform;
     }
 
     [Symbol.iterator]() {
-        const lastIndex = new KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
+        const lastIndex = this.knotSequence.length - 1;
+        let index = 0;
         return  {
             next: () => {
-                if ( this._indexKnotOrigin.knotIndex <= lastIndex.knotIndex ) {
-                    const abscissa = this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa;
-                    const multiplicity = this.knotSequence[this._indexKnotOrigin.knotIndex].multiplicity;
-                    this._indexKnotOrigin.knotIndex++;
+                if (index <= lastIndex ) {
+                    const abscissa = this.knotSequence[index].abscissa;
+                    const multiplicity = this.knotSequence[index].multiplicity;
+                    index++;
                     return { value: {abscissa: abscissa, multiplicity: multiplicity}, 
                     done: false };
                 } else {
-                    this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence();
+                    index = 0;
                     return { done: true };
                 }
             }
@@ -59,11 +71,11 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
     }
 
     checkNonUniformKnotMultiplicityOrder(): void {
-        this._isNonUniform = false;
+        this._isKnotMultiplicityNonUniform = false;
     }
 
     revertSequence(): number[] {
-        const seq = this.deepCopy();
+        const seq = this.clone();
         seq.revertKnots();
         return seq.distinctAbscissae();
     }
@@ -95,7 +107,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         return increment;
     }
 
-    abstract deepCopy(): StrictlyIncreasingOpenKnotSequenceInterface;
+    abstract clone(): StrictlyIncreasingOpenKnotSequenceInterface;
 
     abstract toIncreasingKnotSequence(): IncreasingOpenKnotSequenceInterface;
 }

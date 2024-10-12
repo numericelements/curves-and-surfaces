@@ -47,9 +47,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('cannot initialize a periodic knot sequence if a knot multiplicity is greater than the curve degree', () => {
         const knots = [0, 1, 1, 1, 2, 3];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
-        // expect(() => new IncreasingPeriodicKnotSequenceClosedCurve(2, knots)).to.throw()
-        expect(seq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1))).to.above(degree)
+        expect(() => new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots)).to.throw()
     });
 
     it('can get the list of knot abscissae in increasing order using the accessor and iterator', () => {
@@ -63,7 +61,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4];
         const degree = 2;
         const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
-        const newSeq = seq.deepCopy()
+        const newSeq = seq.clone()
         newSeq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1))
         expect(newSeq.allAbscissae).to.eql([0, 1, 1, 2, 3, 4])
         expect(seq.allAbscissae).to.eql(knots)

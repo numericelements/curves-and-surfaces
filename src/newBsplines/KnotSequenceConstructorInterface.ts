@@ -10,6 +10,7 @@ export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnot
 export const INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSubSequenceClosedCurve';
 export const STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSequence';
 export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasingOpenKnotSequenceClosedCurve';
+export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots';
 
 export const UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
 export const INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
@@ -26,12 +27,12 @@ export interface OpenKnotSequenceClosedCurve {
 
 export interface Uniform_OpenKnotSequence {
     type: 'Uniform_OpenKnotSequence';
-    nbCtrlPoints: number;
+    BsplBasisSize: number;
 }
 
 export interface UniformlySpreadInterKnots_OpenKnotSequence {
     type: 'UniformlySpreadInterKnots_OpenKnotSequence';
-    nbCtrlPoints: number;
+    BsplBasisSize: number;
 }
 
 export interface IncreasingOpenKnotSequence {
@@ -46,7 +47,7 @@ export interface IncreasingOpenKnotSubSequence {
 
 export interface IncreasingOpenKnotSequenceCCurve {
     type: 'IncreasingOpenKnotSequenceClosedCurve';
-    freeknots: number[];
+    periodicKnots: number[];
 }
 
 export interface IncreasingOpenKnotSequenceCCurve_allKnots {
@@ -67,14 +68,20 @@ export interface StrictlyIncreasingOpenKnotSequence {
 
 export interface StrictlyIncreasingOpenKnotSequenceCCurve {
     type: 'StrictlyIncreasingOpenKnotSequenceClosedCurve';
-    freeknots: number[];
+    periodicKnots: number[];
+    multiplicities: number[];
+}
+
+export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
+    type: 'StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots';
+    knots: number[];
     multiplicities: number[];
 }
 
 export type IncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | IncreasingOpenKnotSequence | IncreasingOpenKnotSubSequence;
 export type IncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSubSequenceCCurve | IncreasingOpenKnotSequenceCCurve_allKnots;
 export type StrictlyIncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | StrictlyIncreasingOpenKnotSequence;
-export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = Uniform_OpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve;
+export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = Uniform_OpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots;
 export type AbstractIncreasingOpenKnotSequence_type = IncreasingOpenKnotSequenceOpenCurve_type | IncreasingOpenKnotSequenceClosedCurve_type;
 export type AbstractStrictlyIncreasingOpenKnotSequence_type = StrictlyIncreasingOpenKnotSequenceOpenCurve_type | StrictlyIncreasingOpenKnotSequenceClosedCurve_type;
 
@@ -84,7 +91,7 @@ export interface PeriodicKnotSequence {
 
 export interface Uniform_PeriodicKnotSequence {
     type: 'Uniform_PeriodicKnotSequence';
-    nbCtrlPoints: number;
+    BsplBasisSize: number;
 }
 
 export interface IncreasingPeriodicKnotSequence {

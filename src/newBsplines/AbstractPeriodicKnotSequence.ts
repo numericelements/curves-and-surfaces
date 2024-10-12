@@ -24,14 +24,16 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         }
     }
 
-    checkMaxMultiplicityOrderConsistency(): void {
-        for (const knot of this.knotSequence) {
-            if(knot.multiplicity >= this._maxMultiplicityOrder) {
-                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed maximum order of multiplicity.");
-                error.logMessageToConsole();
-            }
-        }
-    }
+    // checkMaxMultiplicityOrderConsistency(): void {
+    //     const error = new ErrorLog(this.constructor.name, "checkMaxMultiplicityOrderConsistency");
+    //     for (const knot of this.knotSequence) {
+    //         if(knot.multiplicity > this._maxMultiplicityOrder) {
+    //             error.addMessage(" Inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed maximum order of multiplicity.");
+    //             console.log(error.logMessage());
+    //             throw new RangeError(error.logMessage());
+    //         }
+    //     }
+    // }
 
     getPeriod(): number {
         let period = RETURN_ERROR_CODE;

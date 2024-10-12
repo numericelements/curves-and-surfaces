@@ -41,7 +41,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     }
 
     get periodicControlPointsLength(): number {
-        const indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.getIndexKnotOrigin());
+        const indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
         let multiplicityBoundary = this.knotMultiplicity(indexOrigin);
         if(multiplicityBoundary === (this._degree + 1)) {
             multiplicityBoundary--;
@@ -461,7 +461,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     // }
 
     getDistinctKnots(): number[] {
-        const indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.getIndexKnotOrigin());
+        const indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
         const multiplicityBoundary = this.knotMultiplicity(indexStrctInc);
         const result = super.getDistinctKnots();
         return result.slice(this.degree - (multiplicityBoundary - 1), result.length - this.degree + (multiplicityBoundary - 1));
@@ -502,7 +502,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         }
         if(uToInsert < this.knots[2 * this._degree] || uToInsert > this.knots[this.knots.length - 2 * this._degree - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
-            const indexOrigin = this._increasingKnotSequence.getIndexKnotOrigin();
+            const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
@@ -552,7 +552,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         }
         if(uToInsert < this.knots[2 * this._degree] || uToInsert > this.knots[this.knots.length - 2 * this._degree - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
-            const indexOrigin = this._increasingKnotSequence.getIndexKnotOrigin();
+            const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
@@ -596,7 +596,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         let result = 0.0;
         let cumulativeMultiplicity = 0;
         const strictIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-        const indexOrigin = this._increasingKnotSequence.getIndexKnotOrigin();
+        const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
         for(let j = 0; j < indexOrigin.knotIndex; j++) {
             cumulativeMultiplicity += strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(j));
         }

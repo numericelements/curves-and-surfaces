@@ -48,7 +48,7 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
             s.clamp(s.knots[degree]);
             s.clamp(s.knots[s.knots.length - degree - 1]);
 
-            const indexKnotOrigin = s._increasingKnotSequence.getIndexKnotOrigin();
+            const indexKnotOrigin = s._increasingKnotSequence.indexKnotOrigin;
             const lastIndex = new KnotIndexIncreasingSequence(s._increasingKnotSequence.length() - indexKnotOrigin.knotIndex - 1);
             newControlPoints = s.controlPoints.slice(indexKnotOrigin.knotIndex, s.controlPoints.length - indexKnotOrigin.knotIndex);
             newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexKnotOrigin, lastIndex);

@@ -4,22 +4,12 @@ import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
-import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
 
 export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
-    protected knotSequence: Knot[];
-
-    constructor(maxMultiplicityOrder: number, knots: number[], multiplicities: number[]) {
-        super(maxMultiplicityOrder, knots, multiplicities);
-        this.knotSequence = [];
-        if(knots.length !== multiplicities.length) {
-            const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not match the size of knot abscissae array.");
-            error.logMessageToConsole();
-        }
-        for(let i = 0; i < knots.length; i++) {
-            this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
-        }
+    constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceOpenCurve_type) {
+        super(maxMultiplicityOrder, knotParameters);
         this.checkCurveOrigin();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformKnotMultiplicityOrder();
@@ -34,13 +24,14 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     }
 
     checkNonUniformKnotMultiplicityOrder(): void {
-        this._isNonUniform = false;
+        this._isKnotMultiplicityNonUniform = false;
         if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
-            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isNonUniform = true;
+            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isKnotMultiplicityNonUniform = true;
     }
 
-    deepCopy(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
-        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
+    clone(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
+        // return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
+        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
     }
 
     toIncreasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
@@ -50,7 +41,6 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        // return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, knotAbscissae);
         return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knotAbscissae});
     }
 

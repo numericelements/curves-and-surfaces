@@ -69,7 +69,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         }
     }
 
-    deepCopy(): IncreasingPeriodicKnotSequenceClosedCurve {
+    clone(): IncreasingPeriodicKnotSequenceClosedCurve {
         return new IncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.allAbscissae);
     }
 

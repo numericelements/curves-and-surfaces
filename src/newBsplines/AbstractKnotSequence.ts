@@ -1,5 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Knot, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 // Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
@@ -56,13 +56,18 @@ export abstract class AbstractKnotSequence {
         return multiplicities;
     }
 
+    maxMultiplicityOrderInputParamAssessment(multiplicity: number, methodName: string): void {
+        const error = new ErrorLog(this.constructor.name, methodName);
+        if(multiplicity > this._maxMultiplicityOrder) {
+            error.addMessage("Knot multiplicity is greater than the maximum multiplicity order set for the knot sequence.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
+
     checkMaxMultiplicityOrderConsistency(): void {
         for (const knot of this.knotSequence) {
-            if(knot.multiplicity > (this._maxMultiplicityOrder)) {
-                const error = new ErrorLog(this.constructor.name, "checkDegreeConsistency", "inconsistent order of multiplicity: some knot has a multiplicity greater than the maximum order of multiplicity specified for the sequence.");
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
-            }
+            this.maxMultiplicityOrderInputParamAssessment(knot.multiplicity, "checkMaxMultiplicityOrderConsistency");
         }
     }
 
@@ -101,6 +106,7 @@ export abstract class AbstractKnotSequence {
     }
 
     knotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): number {
+        this.strictlyIncKnotIndexInputParamAssessment(index, "knotMultiplicity");
         const result = this.knotSequence[index.knotIndex].multiplicity;
         return result;
     }
@@ -120,12 +126,17 @@ export abstract class AbstractKnotSequence {
         return
     }
 
-    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
+    strictlyIncKnotIndexInputParamAssessment(index: KnotIndexStrictlyIncreasingSequence, methodName: string): void {
+        const error = new ErrorLog(this.constructor.name, methodName);
         if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
-            const error = new ErrorLog(this.constructor.name, "decrementKnotMultiplicity", "Index value is out of range.");
-            error.logMessageToConsole();
-            return;
+            error.addMessage("Knot index value in strictly increasing knot sequence is out of range.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
         }
+    }
+
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
+        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
         this.knotSequence[index.knotIndex].multiplicity--;
         if(this.knotSequence[index.knotIndex].multiplicity === 0) {
             const abscissae = this.distinctAbscissae();

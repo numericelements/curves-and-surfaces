@@ -252,7 +252,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         const knotSequences: number[][] = [];
         const controlPolygons: Array<Vector2d[]> = [];
         for(let i = 0; i <= this._degree; i += 1) {
-            let knotSequence = this._increasingKnotSequence.deepCopy();
+            let knotSequence = this._increasingKnotSequence.clone();
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
             for(let j = i; j < (this._increasingKnotSequence.length() - 1); j += this._degree + 1) {
