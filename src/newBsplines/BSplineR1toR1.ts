@@ -78,12 +78,12 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
         const newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
             new KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
-        if(newKnots[0] !== 0.0) {
-            const offset = newKnots[0];
-            for(let i = 0; i < newKnots.length; i++) {
-                newKnots[i] -= offset;
-            }
-        }
+        // if(newKnots[0] !== 0.0) {
+        //     const offset = newKnots[0];
+        //     for(let i = 0; i < newKnots.length; i++) {
+        //         newKnots[i] -= offset;
+        //     }
+        // }
         return new BSplineR1toR1(newControlPoints, newKnots);
     }
 

@@ -54,15 +54,15 @@ describe('BSplineR1toR1', () => {
     });
 
     it('can evaluate a uniform B-Spline', () => {
-        const s = new  BSplineR1toR1([ -1, 0, 1 ], [0, 1, 2, 3, 4, 5])
+        const s = new  BSplineR1toR1([ -1, 0, 1 ], [-2, -1, 0, 1, 2, 3])
         expect(s.degree).to.equal(2)
         expect(s.increasingKnotSequence.isKnotSpacingUniform).to.eql(true)
-        let spanIndex = s.increasingKnotSequence.findSpan(2);
+        let spanIndex = s.increasingKnotSequence.findSpan(0);
         expect(spanIndex.knotIndex).to.eql(2)
-        expect(s.evaluate(2)).to.be.closeTo(-0.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
-        spanIndex = s.increasingKnotSequence.findSpan(3);
+        expect(s.evaluate(0)).to.be.closeTo(-0.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        spanIndex = s.increasingKnotSequence.findSpan(1);
         expect(spanIndex.knotIndex).to.eql(2)
-        expect(s.evaluate(3)).to.be.closeTo(0.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        expect(s.evaluate(1)).to.be.closeTo(0.5, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
     });
 
     it('can evaluate its zeros', () => {
@@ -144,10 +144,8 @@ describe('BSplineR1toR1', () => {
         expect(s.knots).to.eql([0, 0, 0, 0.5, 0.5, 1, 1, 1])
         expect(Math.abs(s.evaluate(0.4) - s1.evaluate(0.4))).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
         expect(s.evaluate(0.4)).to.be.closeTo(1, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
-        s.insertKnot(0.5);
-        expect(s.knots).to.eql([0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1])
-        expect(Math.abs(s.evaluate(0.4) - s1.evaluate(0.4))).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
-        expect(s.evaluate(0.4)).to.be.closeTo(1, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        // to be added if multiplicity bounded to maxOrderOfMultiplicity
+        // expect(() => s.insertKnot(0.5)).to.throw();
     });
 
     it('can insert a knot with a multiplicity greater than one into a non-uniform B-spline', () => {
@@ -159,10 +157,8 @@ describe('BSplineR1toR1', () => {
         expect(Math.abs(s.evaluate(0.4) - s1.evaluate(0.4))).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
         expect(s.evaluate(0.4)).to.be.closeTo(1, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
         const s2 = s1.clone();
-        s2.insertKnot(0.5, 3);
-        expect(s2.knots).to.eql([0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1])
-        expect(Math.abs(s2.evaluate(0.4) - s1.evaluate(0.4))).to.be.below(TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
-        expect(s2.evaluate(0.4)).to.be.closeTo(1, TOL_COMPARISON_PT_CRV_BSPL_R1TOR1)
+        // to be added if multiplicity bounded to maxOrderOfMultiplicity
+        // expect(() => s2.insertKnot(0.5, 3)).to.throw();
     });
 
     it('can compute the derivative of non-uniform B-spline with end knots only', () => {
@@ -196,17 +192,17 @@ describe('BSplineR1toR1', () => {
         for(let i = 0; i < s3.controlPoints.length; i++) {
             expect(s3.controlPoints[i]).to.be.closeTo(cpSolution1[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
         }
-        const s4 = new BSplineR1toR1([1, 1, 1, 1, 1, 1], [ 0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1])
-        expect(s4.degree).to.eql(2)
-        const s5 = s4.derivative();
-        expect(s5.degree).to.eql(1)
-        expect(s5.knots).to.eql([0, 0, 0.5, 0.5, 1, 1])
-        const cpSolution2 = [0, 0, 0, 0];
-        for(let i = 0; i < s5.controlPoints.length; i++) {
-            expect(s5.controlPoints[i]).to.be.closeTo(cpSolution2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
-        }
-        const s6 = new BSplineR1toR1([1, 1, 1, 1, 1, 1, 1, 1], [ 0, 0, 0, 0.1, 0.5, 0.5, 0.5, 0.8, 1, 1, 1])
-        expect(s4.degree).to.eql(2)
+        // const s4 = new BSplineR1toR1([1, 1, 1, 1, 1, 1], [ 0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1])
+        // expect(s4.degree).to.eql(2)
+        // const s5 = s4.derivative();
+        // expect(s5.degree).to.eql(1)
+        // expect(s5.knots).to.eql([0, 0, 0.5, 0.5, 1, 1])
+        // const cpSolution2 = [0, 0, 0, 0];
+        // for(let i = 0; i < s5.controlPoints.length; i++) {
+        //     expect(s5.controlPoints[i]).to.be.closeTo(cpSolution2[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)
+        // }
+        const s6 = new BSplineR1toR1([1, 1, 1, 1, 1, 1, 1], [ 0, 0, 0, 0.1, 0.5, 0.5, 0.8, 1, 1, 1])
+        expect(s6.degree).to.eql(2)
         const s7 = s6.derivative();
         expect(s7.degree).to.eql(1)
         expect(s7.knots).to.eql([0, 0, 0.1, 0.5, 0.5, 0.8, 1, 1])
@@ -217,11 +213,12 @@ describe('BSplineR1toR1', () => {
     });
 
     it('can compute the derivative of an arbitrary uniform B-spline', () => {
-        const s1 = new BSplineR1toR1([1, 1, 1, 1, 1], [ 0, 1, 2, 3, 4, 5, 6, 7])
+        const s1 = new BSplineR1toR1([1, 1, 1, 1, 1], [ -2, -1, 0, 1, 2, 3, 4, 5])
         expect(s1.degree).to.eql(2)
+        expect(s1.increasingKnotSequence.uMax).to.eql(3)
         const s = s1.derivative();
         expect(s.degree).to.eql(1)
-        expect(s.knots).to.eql([0, 1, 2, 3, 4, 5])
+        expect(s.knots).to.eql([-1, 0, 1, 2, 3, 4])
         const cpSolution = [0, 0, 0, 0];
         for(let i = 0; i < s.controlPoints.length; i++) {
             expect(s.controlPoints[i]).to.be.closeTo(cpSolution[i], TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1)

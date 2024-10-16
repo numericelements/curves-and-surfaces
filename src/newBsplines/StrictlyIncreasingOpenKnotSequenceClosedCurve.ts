@@ -2,15 +2,17 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
-import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, StrictlyIncreasingOpenKnotSequenceClosedCurve_type } from "./KnotSequenceConstructorInterface";
 
 export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
+    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
+
     constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-
+        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval
@@ -131,7 +133,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
     }
 
     // This index transformation is not unique. The convention followed here is the assignment of the first index of the increasing
-    // sequence where the abscissa at index (sttrictly increasing sequence) appears
+    // sequence where the abscissa at index (strictly increasing sequence) appears
     toKnotIndexIncreasingSequence(index: KnotIndexStrictlyIncreasingSequence): KnotIndexIncreasingSequence {
         let indexIncSeq = 0;
         for(let i = 0; i < index.knotIndex; i++) {

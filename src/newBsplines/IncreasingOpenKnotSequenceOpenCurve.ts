@@ -2,42 +2,54 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnotSequence";
-import { Knot, KnotIndexIncreasingSequence } from "./Knot";
+import { KnotIndexIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSequenceOpenCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
+import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequence";
 
 
 export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenKnotSequence {
 
+    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
+
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceOpenCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-        if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCE) this.checkCurveOrigin();
+        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
+        if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCE) this.checkOriginOfNormalizedBasis();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformKnotMultiplicityOrder();
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
     }
 
-    checkCurveOrigin(): void {
-        if(this.knotSequence[0].abscissa !== 0.0) {
-            let i = 0;
-            let cumulativeMultiplicity = 0;
-            while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
-                cumulativeMultiplicity += this.knotSequence[i].multiplicity;
-                i++;
-            }
-            // this.indexKnotOrigin = i - 1;
-            if(this.knotSequence[0].abscissa !== 0.0) {
-                const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-                error.logMessageToConsole();
-            }
-
-            const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-            error.logMessageToConsole();
-        } else {
-            // this.indexKnotOrigin = 0;
-        }
+    get enableMaxMultiplicityOrderAtIntermediateKnots(): boolean {
+        return this._enableMaxMultiplicityOrderAtIntermediateKnots;
     }
+
+    set enableMaxMultiplicityOrderAtIntermediateKnots(value: boolean) {
+        this._enableMaxMultiplicityOrderAtIntermediateKnots = value;
+    }
+
+    // checkCurveOrigin(): void {
+    //     if(this.knotSequence[0].abscissa !== 0.0) {
+    //         let i = 0;
+    //         let cumulativeMultiplicity = 0;
+    //         while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
+    //             cumulativeMultiplicity += this.knotSequence[i].multiplicity;
+    //             i++;
+    //         }
+    //         // this.indexKnotOrigin = i - 1;
+    //         if(this.knotSequence[0].abscissa !== 0.0) {
+    //             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
+    //             error.logMessageToConsole();
+    //         }
+
+    //         const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
+    //         error.logMessageToConsole();
+    //     } else {
+    //         // this.indexKnotOrigin = 0;
+    //     }
+    // }
 
     checkNonUniformKnotMultiplicityOrder(): void {
         this._isKnotMultiplicityNonUniform = false;
@@ -50,16 +62,19 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
-        // return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
         return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
     }
 
     findSpan(u: number): KnotIndexIncreasingSequence {
         let index = RETURN_ERROR_CODE;
-        if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
-            console.log(u);
-            const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+        // if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+        if(u < OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
+            // console.log(u);
+            const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside the valid knot sequence span.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+            // const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
+            // error.logMessageToConsole();
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

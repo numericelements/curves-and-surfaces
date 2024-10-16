@@ -604,7 +604,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
     });
 
     it('can decrement the degree of a knot sequence of degree 2 with knots of multiplicity greater than two', () => {
-        const knots: number [] = [-2, -1, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const knots: number [] = [-2, -1, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         const curveDegree = 2
         const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
         const newSeq = seq.decrementMaxMultiplicityOrder();

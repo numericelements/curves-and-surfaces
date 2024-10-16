@@ -430,6 +430,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 newToSpan = clampingFindSpan(to, spline.knots, spline._degree);
             }
         } else {
+            spline._increasingKnotSequence.enableMaxMultiplicityOrderAtIntermediateKnots = true;
             spline.clamp(to);
             newToSpan = clampingFindSpan(to, spline.knots, spline._degree);
         }

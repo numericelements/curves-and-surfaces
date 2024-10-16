@@ -2,19 +2,22 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnotSequence";
-import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE } from "./KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequence {
 
+    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
+
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-
+        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval
+        this.checkNonUniformKnotMultiplicityOrder();
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
         if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE && knotParameters.type !== INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) this.checkCurveOrigin();
@@ -107,8 +110,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
-        // return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
-        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
     }
 
     isAbscissaCoincidingWithKnot(abscissa: number): boolean {

@@ -12,6 +12,7 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSeq
 export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasingOpenKnotSequenceClosedCurve';
 export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots';
 
+export const NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
 export const UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
 export const INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
 export const STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicKnotSequence';
@@ -81,12 +82,13 @@ export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
 export type IncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | IncreasingOpenKnotSequence | IncreasingOpenKnotSubSequence;
 export type IncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSubSequenceCCurve | IncreasingOpenKnotSequenceCCurve_allKnots;
 export type StrictlyIncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | StrictlyIncreasingOpenKnotSequence;
-export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = Uniform_OpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots;
+export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots;
 export type AbstractIncreasingOpenKnotSequence_type = IncreasingOpenKnotSequenceOpenCurve_type | IncreasingOpenKnotSequenceClosedCurve_type;
 export type AbstractStrictlyIncreasingOpenKnotSequence_type = StrictlyIncreasingOpenKnotSequenceOpenCurve_type | StrictlyIncreasingOpenKnotSequenceClosedCurve_type;
+export type AbstractOpenKnotSequence_type = AbstractIncreasingOpenKnotSequence_type | AbstractStrictlyIncreasingOpenKnotSequence_type;
 
 export interface PeriodicKnotSequence {
-    type: 'No_Knot_OpenCurve';
+    type: 'No_Knot_PeriodicCurve';
 }
 
 export interface Uniform_PeriodicKnotSequence {

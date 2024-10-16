@@ -1,5 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
+export const DEFAULT_KNOT_INDEX = Infinity;
 
 export class Knot {
 
@@ -55,9 +56,17 @@ export abstract class AbstractKnotIndex {
     protected _knotIndex: number;
 
     constructor(value?: number) {
-        this._knotIndex = 0;
-        if(value !== undefined) {
-            this._knotIndex = value;
+        if(value === undefined) {
+            this._knotIndex = 0;
+        } else {
+            const error = new ErrorLog(this.constructor.name, "constructor");
+            // if(value < 0) {
+            //     error.addMessage("Knot index is negative. Must be positive or null. Cannot proceed.");
+            //     console.log(error.logMessage());
+            //     throw new RangeError(error.logMessage());
+            // } else {
+                this._knotIndex = value;
+            // }
         }
     }
 
@@ -83,13 +92,6 @@ export class KnotIndexIncreasingSequence extends AbstractKnotIndex {
     constructor(value?: number) {
         super(value);
 
-    }
-}
-
-export class KnotIndexLastKnotInIncreasingSequence extends AbstractKnotIndex {
-
-    constructor(value?: number) {
-        super(value);
     }
 }
 

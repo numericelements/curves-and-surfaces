@@ -1,5 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { INCREASINGOPENKNOTSEQUENCE, IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSubSequence, IncreasingOpenKnotSubSequenceCCurve, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, StrictlyIncreasingOpenKnotSequence, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, Uniform_OpenKnotSequence, UNIFORM_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 
 // Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
@@ -65,6 +66,54 @@ export abstract class AbstractKnotSequence {
         }
     }
 
+    constructorInputArrayAssessment(knotParameters: IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceCCurve_allKnots | IncreasingOpenKnotSubSequence |
+        IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSubSequenceCCurve | StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve |
+        StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots): void {
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        let message = "";
+        const messageKnots = "Knot sequence with null length encountered. Cannot proceed.";
+        const messageMultiplicities = "Knot multiplicity array with null length encountered. Cannot proceed.";
+        const messageKnotLengthVsMultitplicityLength = "Knot sequence with length not equal to the multiplicity array length. Cannot proceed.";
+        if(knotParameters.type === INCREASINGOPENKNOTSEQUENCE || knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+            || knotParameters.type === INCREASINGOPENKNOTSUBSEQUENCE || knotParameters.type === INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE) {
+            if(knotParameters.knots.length === 0) message = messageKnots;
+        } else if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCE || knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS) {
+            if(knotParameters.knots.length === 0) {
+                message = messageKnots;
+            } else if(knotParameters.multiplicities.length === 0) {
+                message = messageMultiplicities;
+            } else if(knotParameters.knots.length !== knotParameters.multiplicities.length) {
+                message = messageKnotLengthVsMultitplicityLength;
+            }
+        } else if(knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+            if((knotParameters.periodicKnots.length) === 0) message = messageKnots;
+        } else if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+            if(knotParameters.periodicKnots.length === 0) {
+                message = messageKnots;
+            } else if(knotParameters.multiplicities.length === 0) {
+                message = messageMultiplicities;
+            } else if(knotParameters.periodicKnots.length !== knotParameters.multiplicities.length) {
+                message = messageKnotLengthVsMultitplicityLength;
+            }
+        }
+        if(message !== "") {
+            error.addMessage(message);
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
+    }
+
+    constructorInputBspBasisSizeAssessment(knotParameters: Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence): void {
+        const error = new ErrorLog(this.constructor.name, "constructor");
+        if(knotParameters.type ===  UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
+            if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder) {
+                error.addMessage("Knot sequence cannot be generated. Not enough control points to generate a B-Spline basis. Cannot proceed.");
+                console.log(error.logMessage());
+                throw new RangeError(error.logMessage());
+            }
+        }
+    }
+
     checkMaxMultiplicityOrderConsistency(): void {
         for (const knot of this.knotSequence) {
             this.maxMultiplicityOrderInputParamAssessment(knot.multiplicity, "checkMaxMultiplicityOrderConsistency");
@@ -89,6 +138,18 @@ export abstract class AbstractKnotSequence {
             if(knot !== undefined && knot.multiplicity !== 1) this._isKnotMultiplicityUniform = false;
         }
         return;
+    }
+
+    checkMaxKnotMultiplicityAtIntermediateKnots(): void {
+        let maxMultiplicityOrderReached = false;
+        for(let knot = 1; knot < (this.knotSequence.length - 1); knot++) {
+            if(this.knotSequence[knot].multiplicity === this._maxMultiplicityOrder) maxMultiplicityOrderReached = true;
+        }
+        if(maxMultiplicityOrderReached) {
+            const error = new ErrorLog(this.constructor.name, "checkMaxKnotMultiplicityAtIntermediateKnots", "Maximal knot multiplicity reached at an intermediate knot. Please, split the curve at these knots to describe elementary B-splines.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        }
     }
 
     isAbscissaCoincidingWithKnot(abscissa: number): boolean {

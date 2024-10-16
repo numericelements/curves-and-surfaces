@@ -288,8 +288,11 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         // extractSubsetOfAbscissae throws an error message
-        const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(0));
+        let Istart = 1
+        let Iend = 0
+        const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend));
         expect(abscissae.length).to.eql(0)
+        // expect(() =>  seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))).to.throw()
         const abscissae1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(1));
         expect(abscissae1.length).to.eql(0)
     });

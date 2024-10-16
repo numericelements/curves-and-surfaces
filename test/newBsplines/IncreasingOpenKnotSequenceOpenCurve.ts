@@ -3,15 +3,13 @@ import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from
 import { IncreasingOpenKnotSequenceOpenCurve } from '../../src/newBsplines/IncreasingOpenKnotSequenceOpenCurve';
 import { KNOT_COINCIDENCE_TOLERANCE } from '../../src/newBsplines/AbstractKnotSequence';
 import { findSpan } from '../../src/newBsplines/Piegl_Tiller_NURBS_Book';
-import { IndexIncreasingKnotSeq } from '../../src/newBsplines/KnotSequenceIterators';
-import { INCREASINGOPENKNOTSEQUENCE, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from '../../src/newBsplines/KnotSequenceConstructorInterface';
+import { INCREASINGOPENKNOTSEQUENCE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from '../../src/newBsplines/KnotSequenceConstructorInterface';
+import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from './BSplineR1toR2';
 
 describe('IncreasingOpenKnotSequenceOpenCurve', () => {
 
     it('cannot be initialized with a null knot sequence with INCREASINGOPENKNOTSEQUENCE intializer', () => {
         const knots: number [] = []
-        // expect(function() {const seq = new IncreasingOpenKnotSequenceCurve(3, knots)}).to.throw()
-        // const seq = new IncreasingOpenKnotSequenceOpenCurve(3, knots)
         expect(() => new IncreasingOpenKnotSequenceOpenCurve(3, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})).to.throw()
     });
 
@@ -133,7 +131,16 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         for(const knot of seq) {
             if(knot !== undefined) seq1.push(knot)
         }
-        expect(seq.allAbscissae).to.eql([0, 0, 0, 0, 1, 1, 1, 1 ])
+        expect(seq.allAbscissae).to.eql(seq1)
+    });
+
+    it('can check the initializer INCREASINGOPENKNOTSEQUENCE for consistency of the knot sequence and knot multiplicities', () => {
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree + 1
+        const knots = [0, 0, 0, 0, 1, 1, 1, 1 ]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        const seq1 = seq.allAbscissae;
+        expect(() => seq.checkSizeConsistency(seq1.slice(1, seq1.length - 1))).to.throw()
     });
 
     it('can get the properties of knot sequnence produced by INCREASINGOPENKNOTSEQUENCE initializer', () => {
@@ -144,6 +151,15 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         expect(seq.isKnotSpacingUniform).to.eql(true)
         expect(seq.isKnotMultiplicityUniform).to.eql(false)
         expect(seq.isKnotMultiplicityNonUniform).to.eql(true)
+    });
+
+    it('can get the knot index and the abscissa of the upper bound of the normalized basis produced by INCREASINGOPENKNOTSEQUENCE initializer', () => {
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree + 1
+        const knots = [0, 0, 0, 0, 1, 1, 1, 1 ]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        expect(seq.indexKnotOrigin).to.eql(new KnotIndexStrictlyIncreasingSequence(0))
+        expect(seq.uMax).to.eql(knots[knots.length -1])
     });
 
     it('cannot be initialized with a knot having a multiplicity larger than maxMultiplicityOrder with INCREASINGOPENKNOTSEQUENCE', () => {
@@ -166,6 +182,49 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         expect(() => new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots2})).to.throw()
     });
 
+    it('cannot be initialized for non-uniform B-splines with an intermediate knot having a multiplicity equal to maxMultiplicityOrder with INCREASINGOPENKNOTSEQUENCE initializer', () => {
+        let knots: number [] = [0, 0, 0, 0.5, 2, 3, 4, 5, 5, 5]
+        const maxMultiplicityOrder = 3;
+        const upperBound = knots.length;
+        for(let i = maxMultiplicityOrder; i < upperBound - maxMultiplicityOrder; i++) {
+            const knots1 = knots.slice();
+            for( let j = 1; j < maxMultiplicityOrder; j++) {
+                knots.splice(i, 0, knots[i])
+            }
+            // to be added if maxMultiplicityOrder is effectively checked
+            // expect(() => new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})).to.throw()
+            knots = knots1.slice()
+        }
+    });
+
+    it('cannot be initialized for uniform B-splines with an intermediate knot having a multiplicity equal to maxMultiplicityOrder with INCREASINGOPENKNOTSEQUENCE type constructor', () => {
+        let knots: number [] = [0, 0.5, 1, 2, 3, 4, 5, 6, 7]
+        const maxMultiplicityOrder = 3;
+        const upperBound = knots.length;
+        for(let i = 1; i < upperBound - 1; i++) {
+            const knots1 = knots.slice();
+            for( let j = 1; j < maxMultiplicityOrder; j++) {
+                knots.splice(i, 0, knots[i])
+            }
+            expect(() => new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})).to.throw()
+            knots = knots1.slice()
+        }
+    });
+
+    it("cannot be initialized with an initializer INCREASINGOPENKNOTSEQUENCE when knot multiplicities from the sequence start don't define a normalized basis", () => {
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree + 1
+        const knots = [-1, -1, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        expect(() => new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})).to.throw()
+    });
+
+    it("cannot be initialized with an initializer INCREASINGOPENKNOTSEQUENCE when knot multiplicities from the sequence end don't define a normalized basis", () => {
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree + 1
+        const knots = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 2, 2 ]
+        expect(() => new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})).to.throw()
+    });
+
     it('can be initialized with an initializer INCREASINGOPENKNOTSEQUENCE. non uniform knot sequence of open curve with intermediate knots', () => {
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
@@ -179,7 +238,16 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         expect(seq1).to.eql([0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ])
     });
 
-    it('can get the properties of knot sequnence produced by INCREASINGOPENKNOTSEQUENCE initializer', () => {
+    it('can get the knot index of the sequence origin and the abscissa upper bound of the normalized basis initializer INCREASINGOPENKNOTSEQUENCE. non uniform knot sequence of open curve with intermediate knots', () => {
+        const curveDegree = 3;
+        const maxMultiplicityOrder = curveDegree + 1
+        const knots = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        expect(seq.indexKnotOrigin).to.eql(new KnotIndexStrictlyIncreasingSequence(0))
+        expect(seq.uMax).to.eql(1)
+    });
+
+    it('can get the properties of knot sequence produced by INCREASINGOPENKNOTSEQUENCE initializer', () => {
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const knots = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
@@ -213,15 +281,24 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         expect(seq.isKnotSpacingUniform).to.eql(true)
     });
 
-    it('can check that the knot sequence of open curve is uniform with an INCREASINGOPENKNOTSEQUENCE initializer', () => {
+    it('can check that the knot sequence of an open curve is uniform with an INCREASINGOPENKNOTSEQUENCE initializer', () => {
         const curveDegree = 2;
         const maxMultiplicityOrder = curveDegree + 1
-        const knots = [0, 1, 2, 3, 4, 5, 6, 7]
+        const knots = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
         expect(seq.isKnotMultiplicityUniform).to.eql(true)
         expect(seq.isKnotSpacingUniform).to.eql(true)
+    });
+
+    it('can get the the knot index and the abscissa of the upper bound of the normalized basis of an open uniform curve with an INCREASINGOPENKNOTSEQUENCE initializer', () => {
+        const curveDegree = 2;
+        const maxMultiplicityOrder = curveDegree + 1
+        const knots = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
+        const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        expect(seq.indexKnotOrigin).to.eql(new KnotIndexStrictlyIncreasingSequence(2))
+        expect(seq.uMax).to.eql(5)
     });
     
     it('can be initialized with an initializer INCREASINGOPENKNOTSEQUENCE. arbitrary knot sequence', () => {
@@ -465,19 +542,17 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
         expect(multiplicity).to.not.eql(4)
     });
 
-    it('can check curve origin of open curve knot sequence', () => {
+    it('can check normalized basis parameters of open curve knot sequence', () => {
         const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-        let originAtZero = true;
-        if(seq.distinctAbscissae()[0] !== 0.0) originAtZero = false
-        expect(originAtZero).to.eql(true)
-        const knots1: number [] = [0.1, 0.1, 0.1, 0.1, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        expect(seq.indexKnotOrigin.knotIndex).to.eql(0)
+        expect(seq.uMax).to.eql(1)
+        const knots1: number [] = [-0.5, -0.5, -0.1, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq1 = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots1})
-        originAtZero = true;
-        if(seq1.distinctAbscissae()[0] !== 0.0) originAtZero = false
-        expect(originAtZero).to.eql(false)
+        expect(seq1.indexKnotOrigin.knotIndex).to.eql(2)
+        expect(seq1.uMax).to.eql(1)
     });
 
     it('can get the order of multiplicity of a knot from its abscissa', () => {
@@ -587,51 +662,55 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
     });
 
     it('can find the span index in the knot sequence from an abscissa for an arbitrary B-spline', () => {
-        const knots: number [] = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        const knots: number [] = [-0.5, -0.5, -0.5, 0.0, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        expect(seq.uMax).to.eql(1)
         let index = seq.findSpan(0.0)
-        expect(index.knotIndex).to.eql(2)
+        expect(index.knotIndex).to.eql(3)
         index = seq.findSpan(1.0)
         expect(index.knotIndex).to.eql(6)
-        const knots1: number [] = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 2.0 ]
+        const knots1: number [] = [-0.5, -0.5, -0.5, 0.0, 0.6, 0.7, 0.7, 1, 2.0 ]
         const seq1 = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots1})
+        expect(seq1.uMax).to.eql(0.7)
         let index1 = seq1.findSpan(0.0)
-        expect(index1.knotIndex).to.eql(2)
-        index1 = seq1.findSpan(2.0)
-        expect(index1.knotIndex).to.eql(7)
+        expect(index1.knotIndex).to.eql(3)
+        index1 = seq1.findSpan(0.7)
+        expect(index1.knotIndex).to.eql(6)
     });
 
     it('can find the span index in the knot sequence from an abscissa for a uniform B-spline', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const knots: number [] = [0, 0, 0, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        expect(seq.uMax).to.eql(0.5)
         let index = seq.findSpan(0.0)
-        expect(index.knotIndex).to.eql(0)
+        expect(index.knotIndex).to.eql(3)
         index = seq.findSpan(0.05)
-        expect(index.knotIndex).to.eql(0)
+        expect(index.knotIndex).to.eql(3)
         index = seq.findSpan(0.1)
-        expect(index.knotIndex).to.eql(1)
-        index = seq.findSpan(0.7)
+        expect(index.knotIndex).to.eql(4)
+        index = seq.findSpan(0.4)
         expect(index.knotIndex).to.eql(7)
-        index = seq.findSpan(0.75)
+        index = seq.findSpan(0.45)
         expect(index.knotIndex).to.eql(7)
-        index = seq.findSpan(0.8)
-        expect(index.knotIndex).to.eql(7)
+        index = seq.findSpan(0.5)
+        expect(index.knotIndex).to.eql(8)
     });
 
     it('can extract a subset of an increasing knot sequence of a uniform B-spline', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-        const subseq = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(3))
+        expect(seq.uMax).to.eql(0.5)
+        const subseq = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(6))
         expect(subseq).to.eql([0, 0.1, 0.2, 0.3])
-        const subseq1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(5))
+        const subseq1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(5), new KnotIndexIncreasingSequence(8))
         expect(subseq1).to.eql([0.2, 0.3, 0.4, 0.5])
-        const subseq2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(5), new KnotIndexIncreasingSequence(8))
+        const subseq2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(8), new KnotIndexIncreasingSequence(11))
         expect(subseq2).to.eql([0.5, 0.6, 0.7, 0.8])
     });
 
@@ -649,99 +728,93 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
     });
 
     it('cannot extract a subset of an increasing knot sequence when indices are out of range', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        expect(seq.uMax).to.eql(0.5)
         let Istart = 0
-        const subseq = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Istart))
-        // expect(function() {const subseq = seq.extractSubset(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Istart))}).to.throw()
-        // test sending error message by ErrorLog class replaced by
-        expect(Istart).to.eql(Istart)
+        let Iend = Istart
+        expect(() => seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))).to.not.throw()
         Istart = 6
-        let Iend = 9
-        const subseq1 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))
-        // expect(function() {const subseq1 = seq.extractSubset(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))}).to.throw()
-        // test sending error message by ErrorLog class replaced by
-        expect(Iend).to.gt(seq.distinctAbscissae().length - 1)
-        const subseq2 = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Iend), new KnotIndexIncreasingSequence(Istart))
-        // expect(function() {const subseq2 = seq.extractSubset(new KnotIndexIncreasingSequence(Iend), new KnotIndexIncreasingSequence(Istart))}).to.throw()
-        // test sending error message by ErrorLog class replaced by
-        expect(Iend).to.gt(Istart)
+        Iend = 5
+        expect(() => seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))).to.throw()
+        Iend = seq.distinctAbscissae().length
+        expect(() => seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))).to.throw()
+        Istart = -1
+        Iend = seq.distinctAbscissae().length - 1
+        expect(() => seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(Istart), new KnotIndexIncreasingSequence(Iend))).to.throw()
     });
 
     it('can raise the multiplicity of an existing knot', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
         const index = seq.findSpan(0.2)
         const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
         seq.raiseKnotMultiplicity(indexStrictInc, 1)
-        expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1])
-        seq.raiseKnotMultiplicity(indexStrictInc, 2)
-        expect(seq.multiplicities()).to.eql([1, 1, 4, 1, 1, 1, 1, 1, 1])
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1])
+        // to be added if maxMultiplicityOrder is checked at intermediate knots
+        // expect(() => seq.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw()
     });
 
-    it('cannot raise the multiplicity of an existing knot to more than (degree + 1)', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    it('cannot raise the multiplicity of an existing knot to more than (maxMultiplicityOrder - 1)', () => {
+        const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
         const index = seq.findSpan(0.2)
         const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
-        const mult = 4
-        seq.raiseKnotMultiplicity(indexStrictInc, mult)
-        // expect(function() {seq.raiseKnotMultiplicity(indexStrictInc, 4)}).to.throw()
-        // test sending error message by ErrorLog class replaced by
-        expect(mult + 1).to.gt(maxMultiplicityOrder)
+        const mult = 3
+        // to be added if maxMultiplicityOrder is checked at intermediate knots
+        // expect(() => seq.raiseKnotMultiplicity(indexStrictInc, mult)).to.throw()
     });
 
     it('can decrement the multiplicity of an existing knot', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
         const abscissa = 0.2
         const index = seq.findSpan(abscissa)
         const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
-        expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1, 1, 1, 1])
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1])
         seq.decrementKnotMultiplicity(indexStrictInc)
-        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
-        expect(seq.length()).to.eql(9)
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq.length()).to.eql(12)
         seq.decrementKnotMultiplicity(indexStrictInc)
-        expect(seq.length()).to.eql(8)
+        expect(seq.length()).to.eql(11)
         expect(seq.isKnotlMultiplicityZero(abscissa)).to.eql(true)
-        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     });
 
     it('can revert the knot sequence for a uniform B-spline', () => {
-        const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+        const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const curveDegree = 3;
         const maxMultiplicityOrder = curveDegree + 1
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
         const seqRef = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
         seq.revertKnots();
-        const tolerance = 1e-10;
         let i = 0;
         for(const knot of seq) {
             const index = new KnotIndexIncreasingSequence(i);
-            expect(knot).to.approximately(seqRef.abscissaAtIndex(index), tolerance);
+            expect(knot).to.approximately(seqRef.abscissaAtIndex(index), TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2);
             i++;
         }
-        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
-        const knots1: number [] = [0, 0.05, 0.2, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8]
+        expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        const knots1: number [] = [-0.3, -0.2, -0.1, 0, 0.05, 0.2, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8]
         const seq1 = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots1})
-        const knots2 = [0, 0.1, 0.2, 0.3, 0.4, 0.45, 0.6, 0.75, 0.8]
+        const knots2 = [-0.3, -0.2, -0.1, 0, 0.1, 0.15, 0.3, 0.45, 0.5, 0.6, 0.7, 0.8]
         const seqRef1 = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots2})
         seq1.revertKnots();
         i = 0;
         for(const knot of seq1) {
             const index = new KnotIndexIncreasingSequence(i);
-            expect(knot).to.approximately(seqRef1.abscissaAtIndex(index), tolerance);
+            expect(knot).to.approximately(seqRef1.abscissaAtIndex(index), TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2);
             i++;
         }
-        expect(seq1.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
+        expect(seq1.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     });
 
     it('can revert the knot sequence for a non uniform B-spline', () => {

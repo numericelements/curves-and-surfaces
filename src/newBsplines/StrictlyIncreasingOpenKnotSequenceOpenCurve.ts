@@ -2,24 +2,51 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
 import { INCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
 
 export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
+    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
+
     constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceOpenCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
+        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
         this.checkCurveOrigin();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformKnotMultiplicityOrder();
+        this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
     }
 
+    get enableMaxMultiplicityOrderAtIntermediateKnots(): boolean {
+        return this._enableMaxMultiplicityOrderAtIntermediateKnots;
+    }
+
+    set enableMaxMultiplicityOrderAtIntermediateKnots(value: boolean) {
+        this._enableMaxMultiplicityOrderAtIntermediateKnots = value;
+    }
+
     checkCurveOrigin(): void {
-        if(this.knotSequence[0].abscissa !== 0.0) {
-            const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-            error.logMessageToConsole();
+        const error = new ErrorLog(this.constructor.name,  "checkCurveOrigin");
+        if(this.knotSequence[0].abscissa !== 0.0 && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
+            error.addMessage("Curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
+            console.log(error.logMessage());
+            throw new RangeError(error.logMessage());
+        } else if(this.knotSequence[0].abscissa !== 0.0) {
+            let i = 0;
+            let cumulativeMultiplicity = 0;
+            while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
+                cumulativeMultiplicity += this.knotSequence[i].multiplicity;
+                i++;
+            }
+            if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
+                error.addMessage("No curve origin can be defined. The distribution of multiplicities at the beginning of the sequence does not enable the definition of consistent basis of B-spline functions. Not able to proceed.");
+                console.log(error.logMessage());
+                throw new RangeError(error.logMessage());
+            }
+            this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(i - 1);
         }
     }
 
@@ -30,7 +57,6 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     }
 
     clone(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
-        // return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
         return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
     }
 
