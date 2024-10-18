@@ -2,19 +2,20 @@ import { expect } from "chai";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "../../src/newBsplines/AbstractKnotSequence";
+import { INCREASINGPERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
 
 describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     
     it('can be initialized with degree and increasing knot sequence', () => {
         const knots = [0, 1, 2, 3, 4];
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(2, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(2, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(2)
         expect(seq.allAbscissae).to.eql(knots)
     });
 
     it('cannot initialize a periodic knot sequence if end knot multiplicities differ', () => {
         const knots = [0, 0, 1, 2, 3, 4];
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(2, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(2, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
          const knotSequence = [new Knot(knots[0], 1)];
         for(let i = 1; i < knots.length; i++) {
             if(knots[i] === knotSequence[knotSequence.length - 1].abscissa) {
@@ -47,20 +48,20 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('cannot initialize a periodic knot sequence if a knot multiplicity is greater than the curve degree', () => {
         const knots = [0, 1, 1, 1, 2, 3];
         const degree = 2;
-        expect(() => new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots)).to.throw()
+        expect(() => new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})).to.throw()
     });
 
     it('can get the list of knot abscissae in increasing order using the accessor and iterator', () => {
         const knots = [0, 1, 1, 2, 3, 4];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.allAbscissae).to.eql(knots)
     });
 
     it('can generate a deep copy of an increasing knot sequence', () => {
         const knots = [0, 1, 2, 3, 4];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const newSeq = seq.clone()
         newSeq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1))
         expect(newSeq.allAbscissae).to.eql([0, 1, 1, 2, 3, 4])
@@ -70,19 +71,19 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can get the length of an increasing knot sequence', () => {
         const knots = [0, 1, 2, 3, 4];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const length = seq.length()
         expect(length).to.eql(5)
 
         const knots1 = [0, 1, 1, 2, 3, 4];
         const degree1 = 2;
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, knots1);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         const length1 = seq1.length()
         expect(length1).to.eql(6)
 
         const knots2 = [0, 0, 1, 2, 3, 4, 4];
         const degree2 = 2;
-        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(degree2, knots2);
+        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(degree2, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots2});
         const length2 = seq2.length()
         expect(length2).to.eql(7)
     });
@@ -90,13 +91,13 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can generate a strictly increasing knot sequence from an increasing sequence', () => {
         const knots = [0, 1, 1, 2, 3, 4];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const strictIncSeq = seq.toStrictlyIncreasingKnotSequence()
         expect(strictIncSeq.allAbscissae).to.eql([0, 1, 2, 3, 4])
         expect(strictIncSeq.multiplicities()).to.eql([1, 2, 1, 1, 1])
         const knots1 = [0, 0, 1, 2, 3, 4, 4];
         const degree1 = 2;
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, knots1);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         const strictIncSeq1 = seq1.toStrictlyIncreasingKnotSequence()
         expect(strictIncSeq1.allAbscissae).to.eql([0, 1, 2, 3, 4])
         expect(strictIncSeq1.multiplicities()).to.eql([2, 1, 1, 1, 2])
@@ -105,7 +106,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can convert a uniform periodic increasing sequence to an open increasing knot sequence', () => {
         const knots = [0, 1, 2, 3, 4];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const strictIncSeq = seq.toOpenKnotSequence()
         const maxMultiplicityOrder = degree + 1;
         expect(strictIncSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
@@ -117,7 +118,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can convert a non uniform periodic increasing sequence with multiplicity order of degree at its boundary to an open increasing knot sequence', () => {
         const knots = [0, 0, 1, 2, 3, 4, 4];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const strictIncSeq = seq.toOpenKnotSequence()
         const maxMultiplicityOrder = degree + 1;
         expect(strictIncSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
@@ -129,7 +130,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can convert a non uniform periodic increasing sequence with multiplicities greater than one at its boundary to an open increasing knot sequence', () => {
         const knots = [0, 0, 0.5, 2, 3, 4, 4];
         const degree = 3;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const strictIncSeq = seq.toOpenKnotSequence()
         const maxMultiplicityOrder = degree + 1;
         expect(strictIncSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
@@ -141,7 +142,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can convert a non uniform periodic increasing sequence with maximal multiplicities inside its interval to an open increasing knot sequence', () => {
         const knots = [0, 1, 1, 2, 3, 4, 5];
         const degree = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const strictIncSeq = seq.toOpenKnotSequence()
         const maxMultiplicityOrder = degree + 1;
         expect(strictIncSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
@@ -151,7 +152,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
 
         const knots1 = [0, 1, 2, 2, 3, 4, 5];
         const degree1 = 2;
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, knots1);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         const strictIncSeq1 = seq1.toOpenKnotSequence()
         expect(strictIncSeq1.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(strictIncSeq1.allAbscissae.length).to.eql(11)
@@ -160,7 +161,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
 
         const knots2 = [0, 1, 2, 3, 3, 4, 5];
         const degree2 = 2;
-        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(degree2, knots2);
+        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(degree2, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots2});
         const strictIncSeq2 = seq2.toOpenKnotSequence()
         expect(strictIncSeq2.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(strictIncSeq2.allAbscissae.length).to.eql(11)
@@ -169,7 +170,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
 
         const knots3 = [0, 1, 2, 3, 3, 4, 5, 6];
         const degree3 = 2;
-        const seq3 = new IncreasingPeriodicKnotSequenceClosedCurve(degree3, knots3);
+        const seq3 = new IncreasingPeriodicKnotSequenceClosedCurve(degree3, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots3});
         const strictIncSeq3 = seq3.toOpenKnotSequence()
         expect(strictIncSeq3.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(strictIncSeq3.allAbscissae.length).to.eql(12)
@@ -181,7 +182,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 1, 2, 3, 4, 4];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(7)
         seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1));
@@ -193,18 +194,17 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 1, 2, 3, 4, 4];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(7)
-        const valid = seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(-1));
-        expect(valid).to.eql(false)
+        expect(() => seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(-1))).to.throw();
     });
 
     it('can increment the knot multiplicity at the first and last indices of the sequence', () => {
         const knots = [0, 1, 2, 3, 4];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(5)
         let valid = seq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
@@ -212,7 +212,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(seq.multiplicities()).to.eql([2, 1, 1, 1, 2])
         expect(seq.allAbscissae).to.eql([0, 0, 1, 2, 3, 4, 4])
 
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq1.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq1.allAbscissae.length).to.eql(5)
         valid = seq1.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(4));
@@ -225,7 +225,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(0))).to.eql(0)
@@ -238,7 +238,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 1, 2, 3, 4, 5, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(8)
         expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(0))).to.eql(0)
@@ -254,7 +254,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         let index = seq.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(0));
@@ -267,7 +267,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         expect(index.knotIndex).to.eql(8)
 
         const knots1 = [0, 1, 1, 2, 3, 3, 4, 5];
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots1);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         expect(seq1.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq1.allAbscissae.length).to.eql(8)
         index = seq1.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(0));
@@ -284,7 +284,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         // extractSubsetOfAbscissae throws an error message
@@ -301,19 +301,20 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         // extractSubsetOfAbscissae throws an error message
-        const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(-1), new KnotIndexIncreasingSequence(0));
-        expect(abscissae.length).to.eql(0)
+        // const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(-1), new KnotIndexIncreasingSequence(0));
+        expect(() => seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(-1), new KnotIndexIncreasingSequence(0))).to.throw();
+        // expect(abscissae.length).to.eql(0)
     });
 
     it('cannot extract a subsequence of a knot sequence when start index is greater than the last index of the increasing knot sequence', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         // extractSubsetOfAbscissae throws an error message
@@ -325,7 +326,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         // extractSubsetOfAbscissae throws an error message
@@ -339,7 +340,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(3));
@@ -350,7 +351,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const degree = 2;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(6)
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(6));
@@ -359,7 +360,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots1 = [0, 1, 1, 2, 3, 4, 5, 6];
         const degree1 = 2;
         const maxMultiplicityOrder1 = degree1
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder1, knots1);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         expect(seq1.maxMultiplicityOrder).to.eql(maxMultiplicityOrder1)
         expect(seq1.allAbscissae.length).to.eql(8)
         const abscissae1 = seq1.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(6), new KnotIndexIncreasingSequence(9));
@@ -370,7 +371,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 1, 2, 3, 4, 5];
         const degree = 3;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(7)
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(4));
@@ -379,7 +380,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots1 = [0, 1, 1, 2, 3, 4, 5, 6];
         const degree1 = 3;
         const maxMultiplicityOrder1 = degree1
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder1, knots1);
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         expect(seq1.maxMultiplicityOrder).to.eql(maxMultiplicityOrder1)
         expect(seq1.allAbscissae.length).to.eql(8)
         const abscissae1 = seq1.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(6));
@@ -388,7 +389,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots2 = [0, 0, 1, 2, 3, 4, 5, 6, 6];
         const degree2 = 3;
         const maxMultiplicityOrder2 = degree2
-        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder2, knots2);
+        const seq2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder2, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots2});
         expect(seq2.maxMultiplicityOrder).to.eql(maxMultiplicityOrder2)
         expect(seq2.allAbscissae.length).to.eql(9)
         const abscissae2 = seq2.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(0), new KnotIndexIncreasingSequence(4));
@@ -397,7 +398,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots3 = [0, 0, 1, 2, 3, 4, 5, 6, 6];
         const degree3 = 3;
         const maxMultiplicityOrder3 = degree3
-        const seq3 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder3, knots3);
+        const seq3 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder3, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots3});
         expect(seq3.maxMultiplicityOrder).to.eql(maxMultiplicityOrder3)
         expect(seq3.allAbscissae.length).to.eql(9)
         const abscissae3 = seq3.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(3), new KnotIndexIncreasingSequence(7));
@@ -406,7 +407,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots4 = [0, 0, 1, 2, 3, 4, 5, 6, 6];
         const degree4 = 3;
         const maxMultiplicityOrder4 = degree4
-        const seq4 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder4, knots4);
+        const seq4 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder4, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots4});
         expect(seq4.maxMultiplicityOrder).to.eql(maxMultiplicityOrder4)
         expect(seq4.allAbscissae.length).to.eql(9)
         const abscissae4 = seq4.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(4), new KnotIndexIncreasingSequence(8));
@@ -417,7 +418,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 8, 9, 10, 11, 12, 12];
         const degree = 4;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(17)
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(15), new KnotIndexIncreasingSequence(21));
@@ -430,7 +431,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 1, 2, 3, 4];
         const degree = 3;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(5)
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence(5));
@@ -447,7 +448,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 1, 2, 3, 4, 4];
         const degree = 3;
         const maxMultiplicityOrder = degree
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(seq.allAbscissae.length).to.eql(7)
         const abscissae = seq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(2), new KnotIndexIncreasingSequence(7));
@@ -467,7 +468,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can find the span index in the knot sequence from an abscissa for a non uniform periodic B-spline with multiplicity greater than one at its origin', () => {
         const knots: number [] = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1]
         const maxMultiplicityOrder = 3;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         let index = seq.findSpan(0.0)
         expect(index.knotIndex).to.eql(2)
         index = seq.findSpan(0.1)
@@ -491,13 +492,13 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can find the span index in the knot sequence from an abscissa for an arbitrary periodic B-spline', () => {
         const knots: number [] = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1]
         const maxMultiplicityOrder = 3;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         let index = seq.findSpan(0.0)
         expect(index.knotIndex).to.eql(2)
         index = seq.findSpan(1.0)
         expect(index.knotIndex).to.eql(6)
         const knots1: number [] = [0, 0, 0.5, 0.6, 0.7, 0.7, 1, 2.0, 2.0 ]
-        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots1)
+        const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1})
         let index1 = seq1.findSpan(0.0)
         expect(index1.knotIndex).to.eql(1)
         index1 = seq1.findSpan(2.0)
@@ -507,7 +508,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can find the span index in the knot sequence from an abscissa for a uniform periodic B-spline', () => {
         const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const maxMultiplicityOrder = 3;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         let index = seq.findSpan(0.0)
         expect(index.knotIndex).to.eql(0)
         index = seq.findSpan(0.05)
@@ -525,7 +526,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can raise the order of multiplicity of a knot in the knot sequence of a periodic B-spline', () => {
         const knots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const maxMultiplicityOrder = 3;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
         let index = seq.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(1))
         seq.raiseKnotMultiplicity(index, 1)
@@ -540,7 +541,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can obtain the order of multiplicity of a knot from an abscissa of a periodic B-spline', () => {
         const knots: number [] = [0, 0.1, 0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
         const maxMultiplicityOrder = 3;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         expect(seq.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1])
         expect(seq.knotMultiplicityAtAbscissa(0)).to.eql(1)
         expect(seq.knotMultiplicityAtAbscissa(0.1)).to.eql(2)
@@ -550,7 +551,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     it('can insert a knot into a knot sequence of a periodic B-spline', () => {
         const knots = [0, 1, 2, 3, 4, 5];
         const maxMultiplicityOrder = 2;
-        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+        const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         expect(seq.maxMultiplicityOrder).to.eql(2)
         expect(seq.allAbscissae.length).to.eql(6)
         let status = seq.insertKnot(-0.1);

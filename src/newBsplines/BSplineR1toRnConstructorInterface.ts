@@ -4,66 +4,66 @@ import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenc
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
 
-export interface CST_BSpline2D_CParray {
-    type: 'CParray';
+export interface BSpline2D_CParray {
+    type: 'CParray_No_KnotSequence';
     controlPoints: Vector2d[];
 }
 
-export interface CST_BSpline2D_CParrayDeg {
+export interface BSpline2D_CParrayDeg {
     type: 'CParray_Degree';
     controlPoints: Vector2d[];
     degree: number;
 }
 
-export interface CST_BSpline2D_KCParray {
+export interface BSpline2D_KCParray {
     type: 'knotArray_increasingSequence_CParray';
     controlPoints: Vector2d[];
     knots: number[];
 }
 
-export interface CST_BSpline2D_CParrayIncS {
+export interface BSpline2D_CParrayIncS {
     type: 'increasingSequence_CParray';
     controlPoints: Vector2d[];
     increasingKnotSequence: IncreasingOpenKnotSequenceOpenCurve;
 }
 
-export interface CST_BSpline2D_CParrayStIncS {
+export interface BSpline2D_CParrayStIncS {
     type: 'strIncreasingSequence_CParray';
     controlPoints: Vector2d[];
     increasingKnotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
 }
 
-export type CST_BSpline2D = CST_BSpline2D_CParray | CST_BSpline2D_KCParray | CST_BSpline2D_CParrayIncS | CST_BSpline2D_CParrayStIncS | CST_BSpline2D_CParrayDeg;
+export type BSpline2D_type = BSpline2D_CParray | BSpline2D_KCParray | BSpline2D_CParrayIncS | BSpline2D_CParrayStIncS | BSpline2D_CParrayDeg;
 
-export interface CST_BSpline3D_CParray {
+export interface BSpline3D_CParray {
     type: 'CParray';
     controlPoints: Vector3d[];
 }
 
-export interface CST_BSpline3D_CParrayDeg {
+export interface BSpline3D_CParrayDeg {
     type: 'CParray_Degree';
     controlPoints: Vector3d[];
     degree: number;
 }
 
-export interface CST_BSpline3D_KCParray {
+export interface BSpline3D_KCParray {
     type: 'knotArray_increasingSequence_CParray';
     controlPoints: Vector3d[];
     knots: number[];
 }
 
-export interface CST_BSpline3D_CParrayIncS {
+export interface BSpline3D_CParrayIncS {
     type: 'increasingSequence_CParray';
     controlPoints: Vector3d[];
     increasingKnotSequence: IncreasingOpenKnotSequenceOpenCurve;
 }
 
-export interface CST_BSpline3D_CParrayStIncS {
+export interface BSpline3D_CParrayStIncS {
     type: 'strIncreasingSequence_CParray';
     controlPoints: Vector3d[];
     increasingKnotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
 }
 
-export type CST_BSpline3D = CST_BSpline3D_CParray | CST_BSpline3D_KCParray | CST_BSpline3D_CParrayIncS | CST_BSpline3D_CParrayStIncS | CST_BSpline3D_CParrayDeg;
+export type BSpline3D_type = BSpline3D_CParray | BSpline3D_KCParray | BSpline3D_CParrayIncS | BSpline3D_CParrayStIncS | BSpline3D_CParrayDeg;
 
-export type CST_BSpline = CST_BSpline2D | CST_BSpline3D;
+export type CST_BSpline = BSpline2D_type | BSpline3D_type;

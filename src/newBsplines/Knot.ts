@@ -60,13 +60,13 @@ export abstract class AbstractKnotIndex {
             this._knotIndex = 0;
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor");
-            // if(value < 0) {
-            //     error.addMessage("Knot index is negative. Must be positive or null. Cannot proceed.");
-            //     console.log(error.logMessage());
-            //     throw new RangeError(error.logMessage());
-            // } else {
+            if(value < 0) {
+                error.addMessage("Knot index is negative. Must be positive or null. Cannot proceed.");
+                console.log(error.logMessage());
+                throw new RangeError(error.logMessage());
+            } else {
                 this._knotIndex = value;
-            // }
+            }
         }
     }
 

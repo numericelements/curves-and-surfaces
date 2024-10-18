@@ -19,7 +19,6 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     protected _controlPoints: Vector2d[];
     protected _degree: number;
     protected abstract _increasingKnotSequence: IncreasingKnotSequenceInterface;
-    // protected abstract _increasingKnotSequence: IncreasingOpenKnotSequenceInterface;
 
     /**
      * Create a B-Spline

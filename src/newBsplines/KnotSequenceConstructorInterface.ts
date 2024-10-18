@@ -15,6 +15,7 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIn
 export const NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
 export const UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
 export const INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
+export const INCREASINGPERIODICKNOTSUBSEQUENCE = 'IncreasingPeriodicKnotSubSequence';
 export const STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicKnotSequence';
 
 
@@ -98,13 +99,19 @@ export interface Uniform_PeriodicKnotSequence {
 
 export interface IncreasingPeriodicKnotSequence {
     type: 'IncreasingPeriodicKnotSequence';
-    knots: number[];
+    periodicKnots: number[];
+}
+
+export interface IncreasingPeriodicKnotSubSequence {
+    type: 'IncreasingPeriodicKnotSubSequence';
+    periodicKnots: number[];
 }
 
 export interface StrictIncreasingPeriodicKnotSequence {
     type: 'StrictIncreasingPeriodicKnotSequence';
-    knots: number[];
+    periodicKnots: number[];
+    multiplicities: number[];
 }
 
-export type IncreasingPeriodicKnotSequenceClosedCurve_type = PeriodicKnotSequence | Uniform_PeriodicKnotSequence | IncreasingPeriodicKnotSequence;
+export type IncreasingPeriodicKnotSequenceClosedCurve_type = PeriodicKnotSequence | Uniform_PeriodicKnotSequence | IncreasingPeriodicKnotSubSequence | IncreasingPeriodicKnotSequence;
 export type StrictIncreasingPeriodicKnotSequenceClosedCurve_type =  PeriodicKnotSequence | Uniform_PeriodicKnotSequence | StrictIncreasingPeriodicKnotSequence;

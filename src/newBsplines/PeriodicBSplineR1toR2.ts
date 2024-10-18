@@ -1,4 +1,3 @@
-import { error } from "console";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
@@ -7,6 +6,7 @@ import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { INCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence";
 import { basisFunctionsFromSequence, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
 
@@ -23,15 +23,12 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
      * @param controlPoints The control points array
      * @param knots The knot vector
      */
-    // constructor(controlPoints: Vector2d[], increasingKnotSequence: IncreasingPeriodicKnotSequenceClosedCurve);
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1], degree: number) {
         super(controlPoints, knots);
         this._degree = degree;
         this.constructorInputParamAssessment(controlPoints, knots, degree);
         const maxMultiplicity = this._degree;
-        // after modification of IncreasingPeriodicKnotSequenceClosedCurve, must set to correctly refer to max order of multiplicity:
-        // const maxMultiplicity = this._degree - 1;
-        this._increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicity, knots);
+        this._increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicity, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
     }
 
     get knots() : number[] {
@@ -61,7 +58,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     // }
 
     constructorInputParamAssessment(controlPoints: Vector2d[], knots: number[], degree: number): void {
-        const increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(degree, knots);
+        const increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         const error = new ErrorLog(this.constructor.name, "constructor");
         let invalid = false;
         if(degree < 0) {
@@ -175,7 +172,6 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
      * @param u2 Parametric position where the section ends. A positive value greater than or equal to fromU but not larger than
      * @retrun the BSpline_R1_to_R2 section as open curve.
      */
-    // extract(fromU: number, toU: number): BSplineR1toR2 | undefined {
 
     extractInputParamAssessment(u1: number, u2: number): void {
         const abscissae = this._increasingKnotSequence.allAbscissae;
@@ -645,7 +641,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                     newCtrlPts = sameSplineOpenCurve.controlPoints.slice(1, sameSplineOpenCurve.controlPoints.length - 1);
                 }
                 this._controlPoints = newCtrlPts;
-                this._increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, newKnotAbsc);
+                this._increasingKnotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(this._degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: newKnotAbsc});
             }
             return;
         } else {

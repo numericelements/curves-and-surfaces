@@ -28,7 +28,6 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
         const maxMultiplicityOrder = this._degree + 1;
-        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
     }
 
@@ -161,7 +160,6 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         }
 
         this._controlPoints = newSpline.controlPoints;
-        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(newSpline.degree + 1, newSpline.knots);
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(newSpline.degree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots:newSpline.knots});
         this._degree = newSpline.degree;
     }
@@ -533,7 +531,6 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
                     newCtrlPts = sameSplineOpenCurve.controlPoints.slice(1, sameSplineOpenCurve.controlPoints.length - 1);
                 }
                 this._controlPoints = newCtrlPts;
-                // this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree + 1, newKnotAbsc);
                 this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: newKnotAbsc});
             }
             return;
@@ -583,7 +580,6 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
                 //     newCtrlPts = sameSplineOpenCurve.controlPoints.slice(1, sameSplineOpenCurve.controlPoints.length - 1);
                 // }
                 this._controlPoints = newCtrlPts;
-                // this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree + 1, newKnotAbsc);
                 this._increasingKnotSequence = new IncreasingOpenKnotSequenceClosedCurve(this._degree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: newKnotAbsc});
             }
             return;

@@ -1,14 +1,28 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
-import { KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
 
 export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence {
 
-    protected abstract _index: KnotIndexInterface;
     protected abstract _uMax: number;
+    protected _isKnotMultiplicityNonUniform: boolean;
 
+    constructor(maxMultiplicityOrder: number) {
+        super(maxMultiplicityOrder);
+        this._isKnotMultiplicityNonUniform = false;
+    }
+
+    get isKnotMultiplicityNonUniform(): boolean {
+        return this._isKnotMultiplicityNonUniform;
+    }
+
+    checkNonUniformKnotMultiplicityOrder(): void {
+        this._isKnotMultiplicityNonUniform = false;
+        if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
+            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isKnotMultiplicityNonUniform = true;
+    }
 
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
@@ -23,17 +37,6 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
             error.logMessageToConsole();
         }
     }
-
-    // checkMaxMultiplicityOrderConsistency(): void {
-    //     const error = new ErrorLog(this.constructor.name, "checkMaxMultiplicityOrderConsistency");
-    //     for (const knot of this.knotSequence) {
-    //         if(knot.multiplicity > this._maxMultiplicityOrder) {
-    //             error.addMessage(" Inconsistent order of multiplicity of a knot: too large for a periodic knot sequence of the prescribed maximum order of multiplicity.");
-    //             console.log(error.logMessage());
-    //             throw new RangeError(error.logMessage());
-    //         }
-    //     }
-    // }
 
     getPeriod(): number {
         let period = RETURN_ERROR_CODE;

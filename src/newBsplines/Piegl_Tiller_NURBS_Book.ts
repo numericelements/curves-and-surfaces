@@ -2,7 +2,6 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
-import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
@@ -119,51 +118,30 @@ export function basisFunctionsFromSequence(span: number, u: number, knotSequence
     let left: Array<number> = [0];
     let right: Array<number> = [0];
     const strictIncSeqMaxIndex = knotSequence.distinctAbscissae().length - 1;
-    const incSeqMaxIndex = knotSequence.allAbscissae.length - 1;
     const multiplicityLastKnot = knotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(strictIncSeqMaxIndex));
     let degree = knotSequence.maxMultiplicityOrder - 1;
-    if(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve) degree = knotSequence.maxMultiplicityOrder
+    if(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve) degree = knotSequence.maxMultiplicityOrder;
     for (let j = 1; j <= degree; j += 1) {
-        const indexRight = new KnotIndexIncreasingSequence(span + j);
-        const indexLeft = new KnotIndexIncreasingSequence(span + 1 - j);
-        // let knotRight = 0;
-        // let knotLeft = 0;
-        if(span + 1 - j < 0) {
-            console.log("id left", span + 1 - j)
-            if(!(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve)) {
-                console.log("id left", span + 1 - j)
-            }
-        }
-        if(span + j >= knotSequence.allAbscissae.length) {
-            console.log("id right", span + j)
-            if(!(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve)) {
-                console.log("id left", span + 1 - j)
-            }
-        }
-        let knotRight = knotSequence.abscissaAtIndex(indexRight);
-        let knotLeft = knotSequence.abscissaAtIndex(indexLeft);
-        if(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve) {
-            let strictIncIndexRight = knotSequence.toKnotIndexStrictlyIncreasingSequence(indexRight);
-            if(strictIncIndexRight.knotIndex > strictIncSeqMaxIndex) {
-                strictIncIndexRight.knotIndex = strictIncIndexRight.knotIndex % strictIncSeqMaxIndex;
-            }
-            if(indexLeft.knotIndex < 0) {
-                indexLeft.knotIndex = incSeqMaxIndex + indexLeft.knotIndex - multiplicityLastKnot + 1;
-                knotLeft = knotSequence.abscissaAtIndex(indexLeft);
-            }
-            if((span + j) >= (knotSequence.allAbscissae.length - multiplicityLastKnot)) {
-            // if((span + j) >= (knotSequence.allAbscissae.length - multiplicityRight)) {
-                knotRight = knotSequence.getPeriod() + knotRight;
+        let knotRight = Infinity;
+        let knotLeft = Infinity;
+        if(!(knotSequence instanceof IncreasingPeriodicKnotSequenceClosedCurve)) {
+            const indexRight = new KnotIndexIncreasingSequence(span + j);
+            const indexLeft = new KnotIndexIncreasingSequence(span + 1 - j);
+            knotRight = knotSequence.abscissaAtIndex(indexRight);
+            knotLeft = knotSequence.abscissaAtIndex(indexLeft);
+        } else {
+            if((span + j) >= knotSequence.allAbscissae.length - multiplicityLastKnot) {
+                const indexRight = new KnotIndexIncreasingSequence((span + j) - knotSequence.allAbscissae.length + multiplicityLastKnot);
+                knotRight = knotSequence.abscissaAtIndex(indexRight) + knotSequence.getPeriod();
+            } else {
+                knotRight = knotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(span + j))
             }
             if((span + 1 - j) < 0) {
-                // const index = knotSequence.allAbscissae.length - 1 + (span + 1 - j);
-                // const indexLeft = new KnotIndexIncreasingSequence(index);
-                // knotLeft = knotSequence.abscissaAtIndex(indexLeft);
-                knotLeft = - (knotSequence.getPeriod() - knotLeft);
+                const indexLeft = new KnotIndexIncreasingSequence((knotSequence.allAbscissae.length + (span + 1 - j) - multiplicityLastKnot));
+                knotLeft = knotSequence.abscissaAtIndex(indexLeft) - knotSequence.getPeriod();
+            } else {
+                knotLeft = knotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(span + 1 - j))
             }
-        } else {
-            // if(indexLeft.knotIndex >= 0) knotLeft = knotSequence.abscissaAtIndex(indexLeft);
-            // if(indexRight.knotIndex < knotSequence.allAbscissae.length) knotSequence.abscissaAtIndex(indexRight);
         }
         left[j] = u - knotLeft;
         right[j] = knotRight - u;

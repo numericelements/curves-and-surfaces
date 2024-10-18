@@ -30,27 +30,6 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         this._enableMaxMultiplicityOrderAtIntermediateKnots = value;
     }
 
-    // checkCurveOrigin(): void {
-    //     if(this.knotSequence[0].abscissa !== 0.0) {
-    //         let i = 0;
-    //         let cumulativeMultiplicity = 0;
-    //         while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
-    //             cumulativeMultiplicity += this.knotSequence[i].multiplicity;
-    //             i++;
-    //         }
-    //         // this.indexKnotOrigin = i - 1;
-    //         if(this.knotSequence[0].abscissa !== 0.0) {
-    //             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-    //             error.logMessageToConsole();
-    //         }
-
-    //         const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-    //         error.logMessageToConsole();
-    //     } else {
-    //         // this.indexKnotOrigin = 0;
-    //     }
-    // }
-
     checkNonUniformKnotMultiplicityOrder(): void {
         this._isKnotMultiplicityNonUniform = false;
         if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
@@ -69,12 +48,9 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         let index = RETURN_ERROR_CODE;
         // if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
         if(u < OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
-            // console.log(u);
             const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside the valid knot sequence span.");
             console.log(error.logMessage());
             throw new RangeError(error.logMessage());
-            // const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            // error.logMessageToConsole();
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

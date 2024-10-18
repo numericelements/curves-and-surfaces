@@ -128,7 +128,6 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
                 knotAbscissae.push(knot.abscissa);
             }
         }
-        // return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, knotAbscissae);
         return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotAbscissae});
     }
 
@@ -139,12 +138,10 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         for(let i = 0; i < index.knotIndex; i++) {
             indexIncSeq += this.knotSequence[i].multiplicity;
         }
-        // if(index.knotIndex !== 0) indexIncSeq++;
         return new KnotIndexIncreasingSequence(indexIncSeq);
     }
 
     clone(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
-        // return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, this.distinctAbscissae(), this.multiplicities());
         return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
     }
 

@@ -7,6 +7,7 @@ import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../../src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { ErrorLog } from "../../src/errorProcessing/ErrorLoging";
 import { KnotIndexIncreasingSequence } from "../../src/newBsplines/Knot";
+import { INCREASINGPERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
 
 describe('PeriodicBSplineR1toR2', () => {
 
@@ -932,7 +933,7 @@ describe('PeriodicBSplineR1toR2', () => {
         let curveDegree = 1;
         let maxMultiplicityOrder = curveDegree;
         const spline = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree)
-        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder,  {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         expect(basisFunctionsFromSequence(0, 0, incSequence)).to.eql(basisFunctionsFromSequence(1, 1, incSequence))
         expect(basisFunctionsFromSequence(1, 1, incSequence)).to.eql(basisFunctionsFromSequence(2, 2, incSequence))
         expect(basisFunctionsFromSequence(2, 2, incSequence)).to.eql(basisFunctionsFromSequence(3, 3, incSequence))
@@ -948,7 +949,7 @@ describe('PeriodicBSplineR1toR2', () => {
         curveDegree = 2;
         maxMultiplicityOrder = curveDegree;
         const spline2 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree)
-        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         expect(basisFunctionsFromSequence(0, 0, incSequence2)).to.eql(basisFunctionsFromSequence(1, 1, incSequence2))
         expect(basisFunctionsFromSequence(1, 1, incSequence2)).to.eql(basisFunctionsFromSequence(2, 2, incSequence2))
         expect(basisFunctionsFromSequence(2, 2, incSequence2)).to.eql(basisFunctionsFromSequence(3, 3, incSequence2))
@@ -963,7 +964,7 @@ describe('PeriodicBSplineR1toR2', () => {
         curveDegree = 3;
         maxMultiplicityOrder = curveDegree;
         const spline3 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3], knots, curveDegree)
-        const incSequence3 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const incSequence3 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         expect(basisFunctionsFromSequence(0, 0, incSequence3)).to.eql(basisFunctionsFromSequence(1, 1, incSequence3))
         expect(basisFunctionsFromSequence(1, 1, incSequence3)).to.eql(basisFunctionsFromSequence(2, 2, incSequence3))
         expect(basisFunctionsFromSequence(2, 2, incSequence3)).to.eql(basisFunctionsFromSequence(3, 3, incSequence3))
@@ -993,7 +994,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const curveDegree = 2;
         const maxMultiplicityOrder = curveDegree;
         const spline = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp4], knots, curveDegree)
-        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         expect(basisFunctionsFromSequence(2, 1, incSequence)).to.eql(basisFunctionsFromSequence(4, 3, incSequence))
         expect(basisFunctionsFromSequence(1, 0.5, incSequence)[0]).to.eql(basisFunctionsFromSequence(4, 3.5, incSequence)[2])
         expect(basisFunctionsFromSequence(1, 0.5, incSequence)[1]).to.eql(basisFunctionsFromSequence(4, 3.5, incSequence)[1])
@@ -1022,7 +1023,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const maxMultiplicityOrder = curveDegree;
         const spline = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5], knots, curveDegree)
         expect(spline?.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5])
-        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots)
+        const incSequence = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots})
         for(let i = 0; i < (incSequence.length() - 2); i++) {
             let basis = basisFunctionsFromSequence(i, i, incSequence)
             expect(basis[0]).to.be.closeTo(0.1666666666666, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1039,7 +1040,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const knots1 = [0, 0, 1, 2, 3, 4, 5, 6, 6]
         const spline1 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp6, cp7, cp5], knots1, curveDegree)
         expect(spline1?.freeControlPoints).to.eql([cp0, cp1, cp2, cp3, cp6, cp7, cp5])
-        const incSequence1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots1)
+        const incSequence1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1})
         let basis1 = basisFunctionsFromSequence(1, 0, incSequence1)
         expect(basis1[0]).to.be.closeTo(0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(basis1[1]).to.be.closeTo(0.5, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -1064,7 +1065,7 @@ describe('PeriodicBSplineR1toR2', () => {
         const knots2 = [0, 0, 0, 1, 2, 3, 4, 5, 6, 6, 6]
         const spline2 = new PeriodicBSplineR1toR2([cp0, cp1, cp2, cp3, cp6, cp8, cp7, cp5], knots2, curveDegree)
         expect(spline2?.freeControlPoints).to.eql([cp0, cp1, cp2, cp3, cp6, cp8, cp7, cp5])
-        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots2)
+        const incSequence2 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder,  {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots2})
         let basis2 = basisFunctionsFromSequence(2, 0, incSequence2)
         expect(basis2[0]).to.be.closeTo(1, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
         expect(basis2[1]).to.be.closeTo(0, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
@@ -2351,7 +2352,7 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, 4.1, "testMethod")).to.throw(RangeError);
             const error1 = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
             error1.logMessageToConsole();
-            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, [0, 1, 2, 3, 4]);
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: [0, 1, 2, 3, 4]});
             const abscissa = seq.getPeriod() + TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2;
             expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, abscissa, "testMethod")).to.throw(RangeError);
             const error2 = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
@@ -2430,7 +2431,7 @@ describe('PeriodicBSplineR1toR2', () => {
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.findSpanBoehmAlgorithm(- TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)).to.eql(new KnotIndexIncreasingSequence(Infinity));
-            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, knots);
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
             expect(periodicSpl.findSpanBoehmAlgorithm(seq.getPeriod() + TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)).to.eql(new KnotIndexIncreasingSequence(Infinity));
         }
     });
@@ -2448,7 +2449,7 @@ describe('PeriodicBSplineR1toR2', () => {
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.findSpanBoehmAlgorithm(0)).to.eql(new KnotIndexIncreasingSequence(0));
-            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
             expect(periodicSpl.findSpanBoehmAlgorithm(seq.getPeriod())).to.eql(new KnotIndexIncreasingSequence(0));
             expect(periodicSpl.findSpanBoehmAlgorithm(0.5)).to.eql(new KnotIndexIncreasingSequence(0));
             expect(periodicSpl.findSpanBoehmAlgorithm(1)).to.eql(new KnotIndexIncreasingSequence(1));
@@ -2469,13 +2470,14 @@ describe('PeriodicBSplineR1toR2', () => {
         const periodicSpl = new PeriodicBSplineR1toR2([ cp0, cp1, cp2, cp3], knots, curveDegree)
         if(periodicSpl !== undefined) {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
-            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
-            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knots);
+            expect(() => periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.throw();
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(seq.allAbscissae.length))).to.eql(Infinity);
 
             periodicSpl.insertKnotBoehmAlgorithm(0)
-            expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
-            const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, periodicSpl.knots);
+            // expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.eql(Infinity);
+            expect(() => periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(-1))).to.throw();
+            const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder,  {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicSpl.knots});
             expect(periodicSpl.fromIncKnotSeqIndexToControlPointIndex(new KnotIndexIncreasingSequence(seq1.allAbscissae.length))).to.eql(Infinity);
         }
 

@@ -23,7 +23,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     constructor(controlPoints: Vector2d[] = [new Vector2d(0, 0)], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
         const maxMultiplicityOrder = this._degree + 1;
-        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, knots);
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});
         this.constructorInputParamAssessment(controlPoints, knots);
     }
@@ -42,7 +41,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
 
     set knots(knots: number[]) {
         this._degree = this.computeDegree(knots.length);
-        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree + 1, knots);
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._degree + 1, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});
     }
 
@@ -111,7 +109,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
 
         this.controlPoints = newSpline.controlPoints;
-        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(newSpline.degree + 1, newSpline.knots);
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(newSpline.degree + 1, {type: INCREASINGOPENKNOTSEQUENCE, knots: newSpline.knots});
         this._degree = newSpline.degree;
     }
@@ -132,7 +129,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const last = index - multiplicity;
         const first = index -this.degree;
         const offset = first - 1;
-        //std::vector<vectorType> local(2*degree+1);
         const local: Vector2d[] = [];
         local[0] = this.controlPoints[offset];
         local[last + 1 - offset] = this.controlPoints[last + 1];
