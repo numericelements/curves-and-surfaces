@@ -31,7 +31,7 @@ export class VertexR1 {
         let code = 0;
         if(this._index < 0) {
             const warning = new WarningLog(this.constructor.name, "checkIndex", "Inconsistent vertex index");
-            warning.logMessageToConsole();
+            warning.logMessage();
             code = RETURN_ERROR_CODE;
         } return code;
     }

@@ -41,7 +41,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
         const check = this.initVertexBuffers();
         if (check < 0) {
             const warning = new WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -53,17 +53,17 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
 
         if (this.a_Position < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
 
         if (this.a_Texture < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
 
         if (this.a_Color < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Color');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -85,7 +85,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -101,7 +101,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
 
@@ -148,7 +148,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
             this.selectedPoints.push(knotIndex);
         } else {
             const warning = new WarningLog(this.constructor.name, 'updateSelectedPoints', ' inconsistent number of clamped points !');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -167,7 +167,7 @@ export class ClampedControlPointView extends AbstractMouseSelectablePointView im
             this.selectedPoints.push(knotIndex);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setSelectedKnot', 'Try to insert a clamped point but maximum number of clamped points exceeded.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 

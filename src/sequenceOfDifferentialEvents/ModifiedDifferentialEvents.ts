@@ -18,7 +18,7 @@ export abstract class ModifiedDifferentialEvents {
     checkOrder() {
         if(this.order !== ORDER_INFLECTION && this.order !== ORDER_CURVATURE_EXTREMUM) {
             const error = new ErrorLog(this.constructor.name, "checkOrder", "Inconsistent value of differential event order.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 }
@@ -46,7 +46,7 @@ export class ModifiedCurvatureEvents extends ModifiedDifferentialEvents {
         this._nbEvents = nbEventsModified;
         if(this._nbEvents === 0) {
             const warning = new WarningLog(this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.")
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -92,7 +92,7 @@ export class ModifiedInflectionEvents extends ModifiedDifferentialEvents {
         this._nbEvents = nbEventsModified;
         if(this._nbEvents === 0) {
             const warning = new WarningLog(this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.")
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 

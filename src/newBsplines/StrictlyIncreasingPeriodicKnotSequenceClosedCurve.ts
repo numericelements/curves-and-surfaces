@@ -4,13 +4,11 @@ import { Knot, KnotIndexIncreasingSequence } from "./Knot";
 export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
     protected knotSequence: Knot[];
-    protected _index: KnotIndexIncreasingSequence;
     protected _uMax: number;
 
     constructor(maxMultiplicityOrder: number, freeKnots: number[]) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
-        this._index = new KnotIndexIncreasingSequence();
         this._uMax = 0;
     }
 

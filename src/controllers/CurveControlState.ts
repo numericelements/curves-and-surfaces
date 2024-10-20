@@ -69,7 +69,7 @@ export class HandleInflectionsNoSlidingState extends CurveControlState {
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         this.monitorCurveShape();
@@ -113,7 +113,7 @@ export class HandleInflectionsNoSlidingState extends CurveControlState {
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
 }
@@ -137,7 +137,7 @@ export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
@@ -182,7 +182,7 @@ export class HandleCurvatureExtremaNoSlidingState extends CurveControlState {
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -205,7 +205,7 @@ export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveCon
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         this.monitorCurveShape();
@@ -249,7 +249,7 @@ export class HandleInflectionsAndCurvatureExtremaNoSlidingState extends CurveCon
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -266,7 +266,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
             if(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents instanceof OpenCurveDifferentialEventsExtractorWithoutSequence) {
                 // It is the initialization phase and this curve differential event extractor has been already set up when creating the OpenCurve
                 const warning = new WarningLog(this.constructor.name, "constructor", "curve differential event extractor has been already set up. No new creation");
-                warning.logMessageToConsole();
+                warning.logMessage();
             } else {
                 this.shapeNavigableCurve.curveCategory.curveModel.removeObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
                 this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents = new OpenCurveDifferentialEventsExtractorWithoutSequence(curveToAnalyze.spline);
@@ -278,7 +278,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         this.monitorCurveShape();
@@ -322,7 +322,7 @@ export class HandleNoDiffEventNoSlidingState extends CurveControlState {
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -345,7 +345,7 @@ export class HandleInflectionsSlidingState extends CurveControlState {
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         this.monitorCurveShape();
@@ -389,7 +389,7 @@ export class HandleInflectionsSlidingState extends CurveControlState {
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -412,7 +412,7 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         this.monitorCurveShape();
@@ -456,7 +456,7 @@ export class HandleCurvatureExtremaSlidingState extends CurveControlState {
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -479,7 +479,7 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
@@ -524,7 +524,7 @@ export class HandleInflectionsAndCurvatureExtremaSlidingState extends CurveContr
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -548,7 +548,7 @@ export class HandleNoDiffEventSlidingState extends CurveControlState {
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         this.monitorCurveShape();
@@ -592,6 +592,6 @@ export class HandleNoDiffEventSlidingState extends CurveControlState {
         + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }

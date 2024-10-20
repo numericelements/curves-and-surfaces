@@ -34,7 +34,7 @@ export class BezierR1toR2 {
         let result = new Vector2d(0, 0);
         if(u < 0.0 || u > 1.0) {
             const error = new ErrorLog(this.constructor.name, "evaluate", "Parameter value for evaluation is outside the interval [0,1].");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             let vertices: Array<Array<Vector2d>> = [];
             vertices[0] = deepCopyControlPoints(this._controlPoints);
@@ -52,7 +52,7 @@ export class BezierR1toR2 {
         let result = new BezierR1toR2();
         if(u >= 0.0 && u <= 1.0) {
             const error = new ErrorLog(this.constructor.name, "extend", "Parameter value for extension is not outside the interval [0,1].");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             let ctrlPoints = deepCopyControlPoints(this._controlPoints);
             let reversed = false;
@@ -84,7 +84,7 @@ export class BezierR1toR2 {
         let result = new BezierR1toR2();
         if(sx.length !== sy.length) {
             const error = new ErrorLog(this.constructor.name, "generateBezierFromBSplineR1toR1", "Sizes of x and y component arrays are not equal. Impossible to generate the curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             let controlPolygon: Array<Vector2d> = [];
             for(let i = 0; i < sx.length; i++) {

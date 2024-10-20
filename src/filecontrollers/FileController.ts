@@ -32,13 +32,13 @@ export class FileController {
             saveAs(curveBlob, currentFileName);
         } else {
             const error = new ErrorLog(this.constructor.name, "saveCurveToFile", "Cannot save the current curve to a file. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
     inconsistentFileFormatMessage(): undefined {
         const warning = new WarningLog(this.constructor.name, "loadCurveFromFile", "inconsistent file format. Unable to load the curve.");
-        warning.logMessageToConsole();
+        warning.logMessage();
         return undefined;
     }
 
@@ -76,7 +76,7 @@ export class FileController {
             this._curveSceneController.initCurveSceneView();
         } else {
             const error = new ErrorLog(this.constructor.name, "resetCurveContext", "Cannot load the current file content into a curve model. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 }

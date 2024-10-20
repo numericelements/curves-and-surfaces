@@ -437,7 +437,7 @@ export abstract class AbstractOptProblemBSplineR1toR2 implements OpBSplineR1toR2
             f = this.compute_inflectionConstraints(curvatureNumerator, inflectionConstraintsSign, inflectionInactiveConstraints);
         } else {
             const warning = new WarningLog(this.constructor.name, "compute_f", "active control set to none: unable to compute f.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             f[0] = 0;
         }
         return f;
@@ -479,7 +479,7 @@ export abstract class AbstractOptProblemBSplineR1toR2 implements OpBSplineR1toR2
             return this.compute_inflectionConstraints_gradient(inflectionConstraintsSign, inflectionInactiveConstraints);
         } else {
             const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             let result = new DenseMatrix(1, 1);
             return result;
         }

@@ -1,6 +1,5 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { AbstractKnotSequence, KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
+import { AbstractKnotSequence, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
 
@@ -17,7 +16,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
     constructor(maxMultiplicityOrder: number, knotParameters: AbstractOpenKnotSequence_type) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
-        this._uMax = RETURN_ERROR_CODE;
+        this._uMax = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         this._isKnotMultiplicityNonUniform = false;
         if(knotParameters.type === NO_KNOT_OPEN_CURVE) {
             this.computeKnotSequenceFromMaxMultiplicityOrderOCurve();
@@ -69,8 +68,8 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
             const error = new ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceEnd");
             error.addMessage("Knot multiplicities at sequence end don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else {
             return new KnotIndexStrictlyIncreasingSequence(index);
         }
@@ -86,8 +85,8 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
             const error = new ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceEnd");
             error.addMessage("Knot multiplicities at sequence start don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else {
             return new KnotIndexStrictlyIncreasingSequence(index);
         }
@@ -141,7 +140,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         }
         if(multiplicity === 0) {
             const warning = new WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", "knot abscissa cannot be found within the knot sequence.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return multiplicity;
     }
@@ -150,7 +149,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         let insertion = true;
         if(this.isAbscissaCoincidingWithKnot(abscissa)) {
             const warning = new WarningLog(this.constructor.name, "insertKnot", "abscissa is too close from an existing knot: please, raise multiplicity of an existing knot.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             insertion = false;
             return insertion;
         }

@@ -70,7 +70,7 @@ export class CurveConstraintNoConstraint extends CurveConstraintStrategy impleme
             this._optimizedCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline;
         }
         const warning = new WarningLog(this.constructor.name, "constructor", " strategy for no CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     get firstControlPoint(): ConstraintType {
@@ -94,7 +94,7 @@ export class CurveConstraintNoConstraint extends CurveConstraintStrategy impleme
             this.optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         } else {
             const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -106,11 +106,11 @@ export class CurveConstraintNoConstraint extends CurveConstraintStrategy impleme
                     this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.optimizedCurve;
                 } else {
                     const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
         } else {
             const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 }
@@ -143,7 +143,7 @@ export class CurveConstraintClampedFirstControlPoint extends CurveConstraintStra
         this._referencePtIndex = this.shapeNavigableCurve.clampedPoints[0];
         this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator?.navigationCurveModel.displacementCurrentCurveControlPolygon;
         const warning = new WarningLog(this.constructor.name, "constructor", " strategy for first CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     get firstControlPoint(): ConstraintType {
@@ -171,7 +171,7 @@ export class CurveConstraintClampedFirstControlPoint extends CurveConstraintStra
             this.optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         } else {
             const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -215,11 +215,11 @@ export class CurveConstraintClampedFirstControlPoint extends CurveConstraintStra
                     this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.optimizedCurve;
                 } else {
                     const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
         } else {
             const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -253,7 +253,7 @@ export class CurveConstraintClampedLastControlPoint extends CurveConstraintStrat
         this._referencePtIndex = this.shapeNavigableCurve.clampedPoints[1];
         this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator?.navigationCurveModel.displacementCurrentCurveControlPolygon;
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for last CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     get firstControlPoint(): ConstraintType {
@@ -281,7 +281,7 @@ export class CurveConstraintClampedLastControlPoint extends CurveConstraintStrat
             this.optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         } else {
             const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -326,11 +326,11 @@ export class CurveConstraintClampedLastControlPoint extends CurveConstraintStrat
                     this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.optimizedCurve;
                 } else {
                     const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
         } else {
             const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -365,7 +365,7 @@ export class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstra
         this._currentCurve = this.shapeNavigableCurve.curveCategory.curveModel.spline;
         this.displacementCurrentCurveControlPolygon = this.curveShapeSpaceNavigator?.navigationCurveModel.displacementCurrentCurveControlPolygon;
         let warning = new WarningLog(this.constructor.name, "constructor", " strategy for first and last CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     get firstControlPoint(): ConstraintType {
@@ -393,7 +393,7 @@ export class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstra
             this.optimizedCurve = this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve;
         } else {
             const error = new ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -501,11 +501,11 @@ export class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstra
                     this._curveShapeSpaceNavigator.navigationCurveModel.optimizedCurve = this.optimizedCurve;
                 } else {
                     const error = new ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
         } else {
             const warning = new WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 

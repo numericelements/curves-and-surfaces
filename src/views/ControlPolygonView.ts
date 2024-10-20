@@ -79,7 +79,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
 
         if (this.a_Position < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -97,7 +97,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -146,7 +146,7 @@ export class ControlPolygonView implements IObserver<BSplineR1toR2Interface> {
             this.controlPoints.push(this.controlPoints[0]);
         } else {
             const error = new ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the controlPoints.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();

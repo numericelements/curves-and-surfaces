@@ -51,7 +51,9 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
             const indexKnotOrigin = s._increasingKnotSequence.indexKnotOrigin;
             const lastIndex = new KnotIndexIncreasingSequence(s._increasingKnotSequence.length() - indexKnotOrigin.knotIndex - 1);
             newControlPoints = s.controlPoints.slice(indexKnotOrigin.knotIndex, s.controlPoints.length - indexKnotOrigin.knotIndex);
-            newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexKnotOrigin, lastIndex);
+            // newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexKnotOrigin, lastIndex);
+            const indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexKnotOrigin)
+            newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexInc, lastIndex);
         }
         return new BernsteinDecompositionR1toR1(decomposeFunction(new BSplineR1toR1(newControlPoints, newKnots)));
     }
@@ -105,10 +107,10 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
         const knots = this.distinctKnots().slice();
         if(u >= knots[0] && u <= knots[knots.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Method not implemented yet.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     }

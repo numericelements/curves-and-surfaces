@@ -60,7 +60,7 @@ export class ChartWithNoFunction extends ChartContentState {
     
     setChartWithNoFunction(): void {
         const warning = new WarningLog(this.constructor.name, "setChartWithNoFunction", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -76,7 +76,7 @@ export class ChartFunctionA extends ChartContentState {
 
     setChartWithFunctionA(): void {
         const warning = new WarningLog(this.constructor.name, "setChartWithFunctionA", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -92,7 +92,7 @@ export class ChartFunctionB extends ChartContentState {
 
     setChartWithFunctionB(): void {
         const warning = new WarningLog(this.constructor.name, "setChartWithFunctionB", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -108,7 +108,7 @@ export class ChartCurvatureCrv extends ChartContentState {
 
     setChartWithCurvatureCrv(): void {
         const warning = new WarningLog(this.constructor.name, "setChartWithCurvatureCrv", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -124,7 +124,7 @@ export class ChartAbsCurvatureCrv extends ChartContentState {
 
     setChartWithAbsCurvature(): void {
         const warning = new WarningLog(this.constructor.name, "setChartWithAbsCurvature", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -140,6 +140,6 @@ export class ChartFunctionBsqrtScaled extends ChartContentState {
 
     setChartWithFunctionBsqrtScaled(): void {
         const warning = new WarningLog(this.constructor.name, "setChartWithFunctionBsqrtScaled", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }

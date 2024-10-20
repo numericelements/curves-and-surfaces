@@ -276,7 +276,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots})
         expect(seq.maxMultiplicityOrder).to.eql(curveDegree + 1)
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(0);
         let abscissa = seq.abscissaAtIndex(index)
         expect(abscissa).to.eql(0.0)
         index = new KnotIndexIncreasingSequence(3);
@@ -295,7 +295,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots})
         expect(seq.maxMultiplicityOrder).to.eql(curveDegree + 1)
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(0);
         let indexStrictlyIncSeq = seq.toKnotIndexStrictlyIncreasingSequence(index);
         expect(indexStrictlyIncSeq.knotIndex).to.eql(0)
         index = new KnotIndexIncreasingSequence(3);
@@ -314,7 +314,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         const knots = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
         const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots})
         expect(seq.maxMultiplicityOrder).to.eql(curveDegree + 1)
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(0);
         let indexStrictlyIncSeq = seq.toKnotIndexStrictlyIncreasingSequence(index);
         let multiplicity = seq.knotMultiplicity(indexStrictlyIncSeq)
         expect(multiplicity).to.eql(4)

@@ -49,8 +49,8 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         // if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
         if(u < OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
             const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside the valid knot sequence span.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

@@ -54,7 +54,7 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
             const indexObs = this.observers.indexOf(observer);
             if(indexObs === -1) {
                 const error = new ErrorLog(this.constructor.name, "checkObservers", "Unable to locate the " + i + "th observer in the list of observers.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             i++;
         }
@@ -63,7 +63,7 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
             const indexObsCP = this.observersCP.indexOf(observer);
             if(indexObsCP === -1) {
                 const error = new ErrorLog(this.constructor.name, "checkObservers", "Unable to locate the " + i + "th observerCP in the list of observersCP.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             i++;
         }
@@ -75,7 +75,7 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
                 const indexObs = this.observers.indexOf(observer);
                 if(indexObs === -1) {
                     const error = new ErrorLog(this.constructor.name, "removeObserver", "Unable to locate the observer "+observer+" in the list of observers.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 this.observers.splice(this.observers.indexOf(observer), 1);
                 break;
@@ -83,7 +83,7 @@ export abstract class AbstractCurveModel implements CurveModelInterface {
                 const indexObsCP = this.observersCP.indexOf(observer);
                 if(indexObsCP === -1) {
                     const error = new ErrorLog(this.constructor.name, "removeObserver", "Unable to locate the observer "+observer+" in the list of observers.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 this.observersCP.splice(this.observersCP.indexOf(observer), 1);
                 break;

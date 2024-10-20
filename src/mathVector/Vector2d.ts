@@ -89,7 +89,7 @@ export function toVector2d(v: number[]): Vector2d {
     let result = new Vector2d;
     if(v.length !== 2) {
         const error = new ErrorLog("function", "toVector2d", "Incorrect length of array to convert to Vector2d object.");
-        error.logMessageToConsole();
+        error.logMessage();
     } else {
         result.x = v[0];
         result.y = v[1];

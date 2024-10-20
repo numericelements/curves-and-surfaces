@@ -167,7 +167,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         } else {
             this._curveModel = new CurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         this._currentCurve = this.curveModel.spline;
@@ -215,7 +215,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
             this.selectedControlPoint = cpIndex;
         } else {
             const error =  new ErrorLog(this.constructor.name, 'set', 'the control point index must not be of type undefined.')
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -260,7 +260,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
             return this._selectedControlPoint;
         } else {
             const error = new ErrorLog(this.constructor.name, 'get', 'the selected control point has a status undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -330,7 +330,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
             this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.locationSelectedCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(this._shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
                 // this.curveControl.optimizationProblem.setTargetSpline(this.targetCurve);
@@ -344,7 +344,7 @@ export class OpenCurveShapeSpaceNavigator extends NavigationCurveModel{
         } else {
             this._curveModel = new CurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this._curveShapeMonitoringStrategy.resetAfterCurveChange();
     }
@@ -385,7 +385,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         } else {
             this._curveModel = new ClosedCurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         // this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
         //     this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -444,7 +444,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
             return this._selectedControlPoint;
         } else {
             const error = new ErrorLog(this.constructor.name, 'get', 'the selected control point has a status undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -495,7 +495,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
             this._targetCurve.setControlPointPosition(this.selectedControlPoint, this.locationSelectedCP);
         } else {
             const error = new ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(this._shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
             this._curveShapeMonitoringStrategy.optimizationProblem.setTargetSpline(this.targetCurve);
@@ -509,7 +509,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         } else {
             this._curveModel = new ClosedCurveModel();
             const error = new ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         // this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
         //     this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -528,7 +528,7 @@ export class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel{
         let message = new WarningLog(this.constructor.name, "navigateSpace", this._navigationState.constructor.name + " "
         // + this._shapeSpaceDiffEventsConfigurator.constructor.name + " ");
         + this._curveControlState.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
         this._selectedControlPoint = selectedControlPoint;
         this._navigationState.navigate(selectedControlPoint, x, y);
     }

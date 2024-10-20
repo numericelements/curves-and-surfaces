@@ -243,7 +243,7 @@ export class CurveSceneController implements SceneControllerInterface {
                     element.update(this.curveModel.spline)
                 } else {
                     const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             });
         } else if(this.curveModel instanceof ClosedCurveModel) {
@@ -252,7 +252,7 @@ export class CurveSceneController implements SceneControllerInterface {
                     element.update(this.curveModel.spline)
                 } else {
                     const error = new ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             });
         }

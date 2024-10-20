@@ -91,7 +91,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
 
     inputSelectCurveCategory(crvCategoryID: number) {
         let warning = new WarningLog(this.constructor.name, "inputSelectCurveCategoryProcess", crvCategoryID.toString());
-        warning.logMessageToConsole();
+        warning.logMessage();
 
         switch(crvCategoryID) {
             case 0: {
@@ -104,7 +104,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
             }
             default: {
                 let error = new ErrorLog(this.constructor.name, "inputSelectCurveCategoryProcess", "no available curve category.");
-                error.logMessageToConsole();
+                error.logMessage();
                 break;
             }
         }
@@ -117,7 +117,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
             || this._curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationWithoutShapeSpaceMonitoring
             || this._curveShapeSpaceNavigator.navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
             const error = new ErrorLog(this.constructor.name, "toggleCurveClamping", "Cannot handle clamping because no curve shape space navigator is available or no shape constraint is active.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             this._controlOfCurveClamping = !this._controlOfCurveClamping
             console.log("control of curve clamping: " + this._controlOfCurveClamping)
@@ -156,7 +156,7 @@ export class ShapeNavigableCurve implements IObservable<CurveModelInterface> {
         const knotIndex = i;
         if(this._clampedPoints[0] === NO_CONSTRAINT && this._clampedPoints[1] === NO_CONSTRAINT) {
             const warning = new WarningLog(this.constructor.name, "updateClampedPointsAfterKnotInsertion", "No need to update clamped point indices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         } else if((this._clampedPoints[0] === NO_CONSTRAINT && this._clampedPoints[1] !== NO_CONSTRAINT)
                 || (this._clampedPoints[0] !== NO_CONSTRAINT && this._clampedPoints[1] === NO_CONSTRAINT)) {
             if(this._clampedPoints[0] === NO_CONSTRAINT && this._clampedPoints[1] >= knotIndex) this._clampedPoints[1] += 1;

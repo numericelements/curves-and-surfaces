@@ -112,7 +112,7 @@ export class ChartEventListener extends UserInterfaceEventListener {
         if(this.ctxChart3 !== null) this.chartRenderingContext.push(this.ctxChart3);
         if(this.ctxChart1 === null || this.ctxChart2 === null || this.ctxChart3 === null) {
             const error = new ErrorLog(this.constructor.name, "setupChartRenderingContexts", "Unable to get one or more CanvasRenderingContext2D required to process charts.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -352,7 +352,7 @@ export class FileEventListener extends UserInterfaceEventListener {
                 }
             } else {
                 const error = new ErrorLog("FileEventListener", "processInputFile", "Error when reading the input file. Incorrect text format.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     }
@@ -366,12 +366,12 @@ export class FileEventListener extends UserInterfaceEventListener {
             this.curveModel = this._fileController.curveModel;
             if(this.curveModel === undefined) {
                 const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
         } else {
             const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to reset the curve context. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -508,13 +508,13 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
                     if(option !== null) option.setAttribute("disabled", "");
                     else {
                         const error = new ErrorLog("curveModelEventListener", "inputSelectDegree", "No ID found to identify an Option in the Selector.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
             }
         } else {
             const error = new ErrorLog("curveModelEventListener", "inputSelectDegree", "The selected option cannot be converted into a Number");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -620,7 +620,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
                 else
                 {
                     const error = new ErrorLog(this.constructor.name, "updateCurveDegreeSelector", "No id found to identify an Option in the Selector.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             option = <HTMLOptionElement> document.getElementById(optionName + optionNumber);
@@ -631,7 +631,7 @@ export class CurveModelDefinitionEventListener extends UserInterfaceEventListene
             this.inputDegree.click();
         } else {
             const error = new ErrorLog("FileEventListener", "processInputFile", "Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -975,7 +975,7 @@ export class CurveSceneEventListener {
 
         if (!this.gl) {
             const error = new ErrorLog(this.constructor.name, "CurveSceneEventListener", "Failed to get the rendering context for WebGL. Stop program.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
     }

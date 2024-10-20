@@ -56,8 +56,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
 
         if(invalid) {
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -266,14 +266,14 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const knots = this.getDistinctKnots();
         if(!this._increasingKnotSequence.isKnotMultiplicityNonUniform) {
             const warning = new WarningLog(this.constructor.name, "extend", "The knot sequence of the input curve is not of type non uniform. The algorithm is not operating on this category of curve.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         } else if(uAbsc >= knots[0] && uAbsc <= knots[knots.length - 1]) {
             const warning = new WarningLog(this.constructor.name, "extend", "Parameter value for extension is not outside the knot interval. No extension performed.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         } else {
             if(this._increasingKnotSequence.isAbscissaCoincidingWithKnot(uAbsc)) {
                 const warning = new WarningLog(this.constructor.name, "extend", "The abscissae used to extend the curve is considered as similar to one of the end knots of curve knot sequence. However, the extension is performed.");
-                warning.logMessageToConsole();
+                warning.logMessage();
             }
             let tempCurve = this.clone();
             let reversed = false;
@@ -319,10 +319,10 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const knots = this.getDistinctKnots();
         if(result.increasingKnotSequence.isAbscissaCoincidingWithKnot(u)) {
             const warning = new WarningLog(this.constructor.name, "splitAt", "Method not configured to split a curve at an existing knot");
-            warning.logMessageToConsole();
+            warning.logMessage();
         } else if(u < knots[0] || u > knots[knots.length - 1]) {
             const warning = new WarningLog(this.constructor.name, "splitAt", "The abscissae used to split the curve is outside the knot sequence interval. No split performed.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         } else {
             result.insertKnot(u, result._degree + 1);
             const knotSequence = result.knots;
@@ -352,7 +352,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 result = new BSplineR1toR2(newControlPolygon, updatedKnots);
             } else {
                 const error = new ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return result;
@@ -364,7 +364,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const knots = spline.getDistinctKnots();
         if(u >= knots[0] && u <= knots[knots.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             const extendedSpline = spline.extend(u);
             if(u < knots[0]) {

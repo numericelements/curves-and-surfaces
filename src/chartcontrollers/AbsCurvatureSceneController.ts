@@ -35,7 +35,7 @@ export class AbsCurvatureSceneController implements IObserver<BSplineR1toR2Inter
             this.splineDenominator = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDenominator().convertTocurve();
         } else {
             const error = new ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         let points = this.pointSequenceOnSpline()

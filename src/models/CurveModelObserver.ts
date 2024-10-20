@@ -323,7 +323,7 @@ export class CurveModelObserverInCurveSceneController extends CurveModelObserver
                 navigationState instanceof CCurveNavigationWithoutShapeSpaceMonitoring) {
                 if(this.listener.shapeNavigableCurve.controlOfCurveClamping) {
                     const error = new ErrorLog(this.constructor.name, "update", " incorrect status of control of curve clamping.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 this.listener.curveConstraintTransitionTo(new HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
                 this.listener.changeSceneInteraction(new CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this.listener));

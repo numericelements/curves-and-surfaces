@@ -42,12 +42,12 @@ export class OscillatingPolygonWithVerticesR1 extends AbstractPolygonWithVertice
             for(let vertex of vertices) {
                 if((vertex.index - previousIndex) !== 1) {
                     const error = new WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                     code = RETURN_ERROR_CODE;
                     return code;
                 } else if(vertex.value * previousValue > 0) {
                     const error = new WarningLog(this.constructor.name, "checkConsistency", "Vertices values are not oscillating.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                     code = RETURN_ERROR_CODE;
                 }
                 previousIndex = vertex.index;
@@ -55,7 +55,7 @@ export class OscillatingPolygonWithVerticesR1 extends AbstractPolygonWithVertice
             }
         } else {
             const error = new WarningLog(this.constructor.name, "checkConsistency", "Cannot process an oscillating polygon with less than two vertices.");
-            error.logMessageToConsole();
+            error.logMessage();
             code = RETURN_ERROR_CODE;
         }
         return code;
@@ -66,7 +66,7 @@ export class OscillatingPolygonWithVerticesR1 extends AbstractPolygonWithVertice
     extractControlPtClosestToZeroAtExtremityEvenNbEdges(index: number): VertexR1 {
         if(index !== this.getFirstIndex() && index !== this.getVertexAt(this.getFirstIndex() + this.length() - 1).index) {
             const error = new ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremityEvenNbEdges", "Current vertex index is not at an extremity of the polygon.");
-            error.logMessageToConsole();
+            error.logMessage();
             return new VertexR1(RETURN_ERROR_CODE, 0.0);
         }
         const vertex1 = this.getVertexAt(index);

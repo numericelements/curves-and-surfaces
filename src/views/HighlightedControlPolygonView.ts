@@ -77,7 +77,7 @@ export class HighlightedControlPolygonView implements IObserver<BSplineR1toR2Int
 
         if (this.a_Position < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -95,7 +95,7 @@ export class HighlightedControlPolygonView implements IObserver<BSplineR1toR2Int
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets

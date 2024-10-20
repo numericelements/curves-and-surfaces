@@ -20,7 +20,7 @@ export function findSpan(u: number, knots: Array<number>, degree: number): numbe
         console.log("degree: " + degree);
         // throw new Error("Error: parameter u is outside valid span");
         let error = new ErrorLog("function", "findSpan", "parameter u is outside valid span");
-        error.logMessageToConsole();
+        error.logMessage();
     }
     // Special case
     if (u === knots[knots.length - degree - 1]) {

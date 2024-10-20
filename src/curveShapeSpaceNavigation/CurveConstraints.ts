@@ -24,7 +24,7 @@ export class CurveConstraints {
     constructor(shapeNavigableCurve: ShapeNavigableCurve) {
 
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._shapeNavigableCurve = shapeNavigableCurve;
         this._curveConstraintStrategy = new CurveConstraintNoConstraint(this);
         this._firstControlPoint = this._curveConstraintStrategy.firstControlPoint;
@@ -97,7 +97,7 @@ export class CurveConstraints {
         const indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
         if(indexPoint1 === NO_CONSTRAINT || indexPoint2 === NO_CONSTRAINT) {
             const error = new ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "Configuration with only one clamped point: cannot be processed.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             const knots = this._curveConstraintStrategy.optimizedCurve.getDistinctKnots();
             let optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
@@ -203,7 +203,7 @@ export class CurveConstraints {
         let offset = 0.0;
         if(knotsOptCrv[0] !== 0.0) {
             const error = new ErrorLog(this.constructor.name, "computeAbscissae", "Inconsistent knot sequence. First knot is not 0.0");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         
         while(Math.abs(distance - refDistance) > TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
@@ -272,7 +272,7 @@ export class CurveConstraints {
                     // console.log(' ctrlPts'+JSON.stringify(optimizedSpline.controlPoints)+' knots '+optimizedSpline.knots);
                 } else if(this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence) {
                     const error = new ErrorLog(this.constructor.name, "computeAbscissae", "something to do there");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             point2Opt = optimizedSpline.evaluate(newAbsc);
@@ -362,7 +362,7 @@ export class CurveConstraints {
             }
         } else {
             const error = new ErrorLog(this.constructor.name, "solveWithLinearApproximation", "Cannot process robustly this configuration.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return {
             abscissa: u,

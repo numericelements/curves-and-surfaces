@@ -2,40 +2,45 @@ export abstract class ErrorProcessing {
 
     protected className: string;
     protected functionName: string;
-    protected message?: string;
+    protected _message: string;
 
-    constructor(className: string, functionName: string, message?: string) {
+    constructor(className: string, functionName: string, message: string = "") {
         this.className = className;
         this.functionName = functionName;
-        if(message !== undefined) {
-            this.message = message;
-        }
+        this._message = message;
     }
 
-    abstract logMessageToConsole(): void;
+    get message(): string {
+        return this._message;
+    }
+
+    abstract logMessage(): void;
 
     addMessage(message: string): void {
-        this.message = this.message + " " + message;
+        if(this._message === "") {
+            this._message = " " + message;
+        } else {
+            this._message = this._message + " " + message;
+        }
     }
-
 }
 
 export class ErrorLog extends ErrorProcessing {
 
-    logMessageToConsole(): void {
-        console.log(this.className + ", " + this.functionName + ":");
-        console.error( new Error(this.message));
+    logMessage(): void {
+        console.error(new Error(this.className + ", " + this.functionName + ":" + this._message));
     }
 
-    logMessage(): string {
-        const message = this.className + ", " + this.functionName + ":" + this.message;
+    generateMessageString(): string {
+        const message = this.className + ", " + this.functionName + ":" + this._message;
         return message;
     }
+
 }
 
 export class WarningLog extends ErrorProcessing {
 
-    logMessageToConsole(): void {
-        console.log(this.className + ", " + this.functionName + ": " + this.message);
+    logMessage(): void {
+        console.log(this.className + ", " + this.functionName + ": " + this._message);
     }
 }

@@ -223,7 +223,7 @@ export class OptProblemOpenBSplineR1toR2 extends AbstractOptProblemBSplineR1toR2
         }
         if(!valid) {
             const error = new ErrorLog(this.constructor.name, "checkConstraintTypeConsistency", "The number of constraints to analyse is not consistent with the type of constraint prescribed: please check.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -1341,7 +1341,7 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
                     typeC = constraintType.none;
                     indexC = RETURN_ERROR_CODE;
                     const warning = new WarningLog(this.constructor.name, "checkConstraintConsistency", "No active control set. There should be no constraint.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 }
                 invalidConstraints.push({value: this._f[i], type: typeC, index: indexC});
             }
@@ -1349,7 +1349,7 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
         if(invalidConstraints.length > 0) {
             const message = "Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints);
             const error = new ErrorLog(this.constructor.name, "checkConstraintConsistency", message);
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -1435,7 +1435,7 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
             }
         } else {
             const error = new ErrorLog(this.constructor.name, "clearInequalityChanges", "Current constraint type is not compatible with the inequalities changes.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -1450,7 +1450,7 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
             }
         } else {
             const error = new ErrorLog(this.constructor.name, "clearConstraintBoundsUpdate", "Current constraint type is not compatible with the constraint bounds update.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -1916,7 +1916,7 @@ export class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace ext
             return this.compute_inflectionConstraints_gradient(inflectionConstraintsSign, inflectionInactiveConstraints);
         } else {
             const warning = new WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             let result = new DenseMatrix(1, 1);
             return result;
         }

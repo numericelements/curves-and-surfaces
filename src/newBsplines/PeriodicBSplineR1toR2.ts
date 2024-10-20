@@ -5,7 +5,7 @@ import { AbstractBSplineR1toR2, TOL_KNOT_COINCIDENCE, deepCopyControlPoints } fr
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence";
 import { basisFunctionsFromSequence, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
@@ -75,8 +75,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             invalid = true;
         }
         if(invalid) {
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -98,12 +98,12 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     abcsissaInputParamAssessment(u: number, methodName: string): void {
         if(u < this._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(0))) {
             const error = new ErrorLog(this.constructor.name, methodName, "The abscissa cannot be negative. The corresponding method is not applied.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else if(u > this._increasingKnotSequence.getPeriod()) {
             const error = new ErrorLog(this.constructor.name, methodName, "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -139,8 +139,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         this._increasingKnotSequence.knotIndexInputParamAssessment(indexKSeq, methodName);
         if(offset < 0 || offset > this._degree) {
             const error = new ErrorLog(this.constructor.name, methodName, "Offset value is out of range: must be positive or null and smaller or equal to the curve degree. Control point index cannot be defined.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -177,21 +177,21 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         const abscissae = this._increasingKnotSequence.allAbscissae;
         if(u1 < abscissae[0]) {
             const error = new ErrorLog(this.constructor.name, "extract", "First abscissa is negative. Positive abscissa only are valid.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else if(u1 >= abscissae[abscissae.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "extract", "First abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         if(u2 < abscissae[0]) {
             const error = new ErrorLog(this.constructor.name, "extract", "Second abscissa is negative. Positive abscissa only are valid.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else if(u2 >= abscissae[abscissae.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "extract", "Second abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         return;
     }
@@ -202,7 +202,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             const spline = this.clone();
             if(Math.abs(u1 - u2) < TOL_KNOT_COINCIDENCE) {
                 const warning = new WarningLog(this.constructor.name, "extract", "The bounding abscissa are either identical or close enough to each other. No curve interval can be extracted. The curve is opened at the prescribed abscissa.");
-                warning.logMessageToConsole();
+                warning.logMessage();
                 let index = this.findSpanBoehmAlgorithm(u1);
                 if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== 0) {
                     u1 = this._increasingKnotSequence.abscissaAtIndex(index);
@@ -349,12 +349,12 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
 
         if(times <= 0) {
             const error = new ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else if(times > this._degree) {
             const error = new ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be greater than the curve degree. No insertion is perfomed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -587,7 +587,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     findCoincidentKnot(u: number): KnotIndexIncreasingSequence {
         try{
             this.abcsissaInputParamAssessment(u, "findCoincidentKnot");
-            let index = new KnotIndexIncreasingSequence();
+            let index = new KnotIndexIncreasingSequence(DEFAULT_KNOT_INDEX);
             if(!this.isKnotlMultiplicityZero(u)) index = this.getFirstKnotIndexCoincidentWithAbscissa(u);
             return index;
         } catch(error) {
@@ -601,7 +601,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
 
     insertKnot(u: number): void {
         let uToInsert = u;
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(DEFAULT_KNOT_INDEX);
         if(!this.isKnotlMultiplicityZero(u)) {
             index = this.findCoincidentKnot(u);
             const indexSpan = this._increasingKnotSequence.findSpan(this._increasingKnotSequence.abscissaAtIndex(index));
@@ -701,8 +701,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     evaluateOutsideRefIntervalInputParamAssessment(u: number): void {
         if(u < (- this._increasingKnotSequence.getPeriod())) {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefIntervalInputParamAssessment", "Abscissa is negative. Its value is lower than the knot sequence period. No evaluation takes place.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -713,7 +713,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             this.evaluateOutsideRefIntervalInputParamAssessment(u);
             if(u >= 0 && u < lastKnot) {
                 const warning = new WarningLog(this.constructor.name, "evaluateOutsideRefInterval", "Abscissa value falls within the interval of definition of the curve, use the evaluation method.");
-                warning.logMessageToConsole();
+                warning.logMessage();
                 return this.evaluate(u);
             } else if(u < 0) {
                 const uInInterval = u + this._increasingKnotSequence.getPeriod();
@@ -723,8 +723,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                 return this.evaluate(uInInterval);
             } else {
                 const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Abscissa has not fallen into any predefined sub interval. No evaluation can take place.");
-                console.log(error.logMessage());
-                throw new EvalError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new EvalError(error.generateMessageString());
             }
         } catch(error) {
             if(error instanceof RangeError) {
@@ -753,21 +753,21 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     toOpenBSplineInputParamAssessment(u1: number, u2: number): void {
         if(this.isKnotlMultiplicityZero(u1)) {
             const error = new ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa is not a knot. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new TypeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new TypeError(error.generateMessageString());
         } else if(this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== this._degree) {
             const error = new ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         if(this.isKnotlMultiplicityZero(u2)) {
             const error = new ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa is not a knot. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new TypeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new TypeError(error.generateMessageString());
         } else if(this._increasingKnotSequence.knotMultiplicityAtAbscissa(u2) !== this._degree) {
             const error = new ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         return;
     }
@@ -780,7 +780,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             this.toOpenBSplineInputParamAssessment(u1, u2);
             if(Math.abs(u1 - u2) < TOL_KNOT_COINCIDENCE) {
                 const warning = new WarningLog(this.constructor.name, "toOpenBSpline", "The bounding abscissa are either identical or close enough to each other. No curve interval can be extracted. The curve is opened at the prescribed abscissa.");
-                warning.logMessageToConsole();
+                warning.logMessage();
                 let index = this.findSpanBoehmAlgorithm(u1);
                 if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== 0) {
                     u1 = this._increasingKnotSequence.abscissaAtIndex(index);

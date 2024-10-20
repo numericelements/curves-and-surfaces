@@ -110,12 +110,12 @@ export class OpenPlanarCurve extends CurveCategory {
 
     setNavigableCurveWithOpenPlanarCurve(): void {
         const warning = new WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'no curve model to change there.');
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     setNavigableCurveWithClosedPlanarCurve(): void {
         const warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'change to closed planar curves.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._shapeNavigableCurve.changeCurveCategory(new ClosedPlanarCurve(this._shapeNavigableCurve));
     }
 
@@ -131,7 +131,7 @@ export class OpenPlanarCurve extends CurveCategory {
                         spline = tempSpline.clone();
                     } else {
                         const warning = new WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
-                        warning.logMessageToConsole();
+                        warning.logMessage();
                     }
                 }
                 this.curveModel.setSpline(spline);
@@ -141,7 +141,7 @@ export class OpenPlanarCurve extends CurveCategory {
             this._degreeChange = false;
         } else {
             const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -177,13 +177,13 @@ export class ClosedPlanarCurve extends CurveCategory {
 
     setNavigableCurveWithOpenPlanarCurve(): void {
         const warning = new WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'change to open planar curves.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._shapeNavigableCurve.changeCurveCategory(new OpenPlanarCurve(this._shapeNavigableCurve));
     }
 
     setNavigableCurveWithClosedPlanarCurve(): void {
         const warning = new WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'no curve model to change there.');
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     inputSelectDegree(curveDegree: number): void {
@@ -198,7 +198,7 @@ export class ClosedPlanarCurve extends CurveCategory {
                         spline = tempSpline.clone();
                     } else {
                         const warning = new WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
-                        warning.logMessageToConsole();
+                        warning.logMessage();
                     }
                 }
                 this.curveModel.setSpline(spline);
@@ -208,7 +208,7 @@ export class ClosedPlanarCurve extends CurveCategory {
             this._degreeChange = false;
         } else {
             const error = new ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 }

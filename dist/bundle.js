@@ -38583,7 +38583,7 @@ var AbstractOptProblemBSplineR1toR2 = /** @class */ (function () {
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_f", "active control set to none: unable to compute f.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             f[0] = 0;
         }
         return f;
@@ -38623,7 +38623,7 @@ var AbstractOptProblemBSplineR1toR2 = /** @class */ (function () {
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             var result = new DenseMatrix_1.DenseMatrix(1, 1);
             return result;
         }
@@ -38986,7 +38986,7 @@ var OptProblemOpenBSplineR1toR2 = /** @class */ (function (_super) {
         }
         if (!valid) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConstraintTypeConsistency", "The number of constraints to analyse is not consistent with the type of constraint prescribed: please check.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     OptProblemOpenBSplineR1toR2.prototype.g = function () {
@@ -40032,7 +40032,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
                     typeC = constraintType.none;
                     indexC = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
                     var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConstraintConsistency", "No active control set. There should be no constraint.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 }
                 invalidConstraints.push({ value: this._f[i], type: typeC, index: indexC });
             }
@@ -40040,7 +40040,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         if (invalidConstraints.length > 0) {
             var message = "Inconsistent constraints. Constraints value must be negative. " + JSON.stringify(invalidConstraints);
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConstraintConsistency", message);
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.inactivateConstraintClosestToZero = function (controlPoints, inactiveConstraints) {
@@ -40150,7 +40150,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "clearInequalityChanges", "Current constraint type is not compatible with the inequalities changes.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.clearConstraintBoundsUpdate = function () {
@@ -40187,7 +40187,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "clearConstraintBoundsUpdate", "Current constraint type is not compatible with the constraint bounds update.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace.prototype.revertInequalitiesWithinRangeOfLocalExtremum = function () {
@@ -40627,7 +40627,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "compute_gradient_f", "active control set to none: unable to compute gradients of f.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             var result = new DenseMatrix_1.DenseMatrix(1, 1);
             return result;
         }
@@ -41714,7 +41714,7 @@ var AbsCurvatureSceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
@@ -41824,7 +41824,7 @@ var ChartWithNoFunction = /** @class */ (function (_super) {
     }
     ChartWithNoFunction.prototype.setChartWithNoFunction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithNoFunction", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return ChartWithNoFunction;
 }(ChartContentState));
@@ -41841,7 +41841,7 @@ var ChartFunctionA = /** @class */ (function (_super) {
     }
     ChartFunctionA.prototype.setChartWithFunctionA = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithFunctionA", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return ChartFunctionA;
 }(ChartContentState));
@@ -41858,7 +41858,7 @@ var ChartFunctionB = /** @class */ (function (_super) {
     }
     ChartFunctionB.prototype.setChartWithFunctionB = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithFunctionB", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return ChartFunctionB;
 }(ChartContentState));
@@ -41875,7 +41875,7 @@ var ChartCurvatureCrv = /** @class */ (function (_super) {
     }
     ChartCurvatureCrv.prototype.setChartWithCurvatureCrv = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithCurvatureCrv", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return ChartCurvatureCrv;
 }(ChartContentState));
@@ -41892,7 +41892,7 @@ var ChartAbsCurvatureCrv = /** @class */ (function (_super) {
     }
     ChartAbsCurvatureCrv.prototype.setChartWithAbsCurvature = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithAbsCurvature", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return ChartAbsCurvatureCrv;
 }(ChartContentState));
@@ -41909,7 +41909,7 @@ var ChartFunctionBsqrtScaled = /** @class */ (function (_super) {
     }
     ChartFunctionBsqrtScaled.prototype.setChartWithFunctionBsqrtScaled = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setChartWithFunctionBsqrtScaled", "no state change to perform there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return ChartFunctionBsqrtScaled;
 }(ChartContentState));
@@ -42260,7 +42260,7 @@ var ChartSceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var indexCtrlr = this.chartControllers.indexOf(currentQueueItem.chartController);
         chartTitle = this.defaultChartTitles[indexCtrlr];
@@ -42280,14 +42280,14 @@ var ChartSceneController = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             this.switchChartState(chartTitle, indexCtrlr);
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined ChartController. Impossible to process graphs correctly.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ChartSceneController.prototype.addChartInPlaceOfTheOldestOne = function (chartTitle) {
@@ -42302,13 +42302,13 @@ var ChartSceneController = /** @class */ (function () {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             this.switchChartState(chartTitle, indexCtrlr);
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined ChartController. Queue content is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ChartSceneController.prototype.addChart = function (chartTitle) {
@@ -42364,13 +42364,13 @@ var ChartSceneController = /** @class */ (function () {
     ChartSceneController.prototype.checkRenderingContext = function () {
         if (this.chartRenderingContext.length !== exports.MAX_NB_CHARTS) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Inconsistent number of rendering contexts. Must be equal to MAX_NB_GRAPHS.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
                 if (this.chartRenderingContext[i] === null) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Rendering context of graph" + (i + 1) + " is null. Impossible to process graphs correctly.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -42382,7 +42382,7 @@ var ChartSceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ChartSceneController.prototype.removeCurveObserver = function (curveObserver) {
@@ -42392,7 +42392,7 @@ var ChartSceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ChartSceneController.prototype.update = function () {
@@ -42450,7 +42450,7 @@ var CurvatureSceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
@@ -42520,7 +42520,7 @@ var FunctionASceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
@@ -42589,7 +42589,7 @@ var FunctionBSceneController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var points = this.pointSequenceOnSpline();
         this.chartController.dataCleanUp();
@@ -42657,7 +42657,7 @@ var FunctionBSceneControllerSqrtScaled = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var points = this.pointSequenceOnSpline();
         points.forEach(function (element) {
@@ -42891,18 +42891,18 @@ var AdjacentOscillatingPolygons = /** @class */ (function () {
             if (lastVertex1.checkIndex() !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE && firstVertex2.checkIndex() !== ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE) {
                 if ((lastVertex1.index + 1) !== firstVertex2.index) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistency", "Indices of contiguous oscillating polygons are not in strict increasing order.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 else {
                     if (lastVertex1.value * firstVertex2.value <= 0.0) {
                         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistency", "Extreme vertices ordinates are not of same sign.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistency", "Inconsistent indices of extreme vertices of oscillating polygons.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     };
@@ -42968,7 +42968,7 @@ var AdjacentOscillatingPolygons = /** @class */ (function () {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findFirstVertex", "Inconsistent content of closestVertexAtBeginning and closestVertexAtEnd for oscillating polygon 1.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     };
@@ -43116,13 +43116,13 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
                     var vertex = vertices_1_1.value;
                     if ((vertex.index - previousIndex) !== 1) {
                         var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                         code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
                         return code;
                     }
                     else if (vertex.value * previousValue > 0) {
                         var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Vertices values are not oscillating.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                         code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
                     }
                     previousIndex = vertex.index;
@@ -43139,7 +43139,7 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Cannot process an oscillating polygon with less than two vertices.");
-            error.logMessageToConsole();
+            error.logMessage();
             code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
         }
         return code;
@@ -43147,7 +43147,7 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
     OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremityEvenNbEdges = function (index) {
         if (index !== this.getFirstIndex() && index !== this.getVertexAt(this.getFirstIndex() + this.length() - 1).index) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremityEvenNbEdges", "Current vertex index is not at an extremity of the polygon.");
-            error.logMessageToConsole();
+            error.logMessage();
             return new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
         }
         var vertex1 = this.getVertexAt(index);
@@ -43280,7 +43280,7 @@ var PolygonWithVerticesR1 = /** @class */ (function (_super) {
             index = startIndex;
             if (startIndex < 0) {
                 var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Cannot create a polygon with vertices with a start index negative");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else {
@@ -43327,7 +43327,7 @@ var PolygonWithVerticesR1 = /** @class */ (function (_super) {
                     var vertex = vertices_1_1.value;
                     if ((vertex.index - previousIndex) !== 1) {
                         var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                         code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
                         return code;
                     }
@@ -43580,7 +43580,7 @@ var QueueChartDescriptor = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, " extract ", "the item does not exists in the queue.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     QueueChartDescriptor.prototype.extractAt = function (index) {
@@ -43589,13 +43589,13 @@ var QueueChartDescriptor = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, " extractAt ", "the index is out of range.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     QueueChartDescriptor.prototype.get = function (index) {
         if (index < 0 && index > this.size) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "get", " index out of range.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var title = this.items[index].chartTitle;
         var chartCtrl = this.items[index].chartController;
@@ -43640,7 +43640,7 @@ var QueueChartDescriptor = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertAtController", " inconsistent location of the queue item to be removed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     QueueChartDescriptor.prototype.findItemFromTitle = function (title) {
@@ -43737,7 +43737,7 @@ var VertexR1 = /** @class */ (function () {
         var code = 0;
         if (this._index < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "checkIndex", "Inconsistent vertex index");
-            warning.logMessageToConsole();
+            warning.logMessage();
             code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
         }
         return code;
@@ -43799,10 +43799,10 @@ var HandleConstraintAtPoint1Point2NoConstraintState = /** @class */ (function (_
     }
     HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1ConstraintPoint2NoConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_1 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
-            warning_1.logMessageToConsole();
+            warning_1.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[0] = selectedPoint;
@@ -43812,10 +43812,10 @@ var HandleConstraintAtPoint1Point2NoConstraintState = /** @class */ (function (_
     };
     HandleConstraintAtPoint1Point2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1NoConstraintPoint2ConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT && this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_2 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
-            warning_2.logMessageToConsole();
+            warning_2.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[1] = selectedPoint;
@@ -43837,15 +43837,15 @@ var HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = /** @class */ (f
     }
     HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1Point2NoConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         var indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(function (element) { return element == selectedPoint; });
         if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_3 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
-            warning_3.logMessageToConsole();
+            warning_3.logMessage();
         }
         else if (indexClampedPoint === -1) {
             var warning_4 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' clamped point selection is incorrect !');
-            warning_4.logMessageToConsole();
+            warning_4.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[0] = ShapeNavigableCurve_1.NO_CONSTRAINT;
@@ -43855,10 +43855,10 @@ var HandleConstraintAtPoint1ConstraintPoint2NoConstraintState = /** @class */ (f
     };
     HandleConstraintAtPoint1ConstraintPoint2NoConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1Point2ConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] !== ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_5 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
-            warning_5.logMessageToConsole();
+            warning_5.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[1] = selectedPoint;
@@ -43880,10 +43880,10 @@ var HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = /** @class */ (f
     }
     HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1Point2ConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_6 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
-            warning_6.logMessageToConsole();
+            warning_6.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[0] = selectedPoint;
@@ -43893,15 +43893,15 @@ var HandleConstraintAtPoint1NoConstraintPoint2ConstraintState = /** @class */ (f
     };
     HandleConstraintAtPoint1NoConstraintPoint2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1Point2NoConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         var indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(function (element) { return element == selectedPoint; });
         if (this.shapeNavigableCurve.clampedPoints[0] !== ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_7 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
-            warning_7.logMessageToConsole();
+            warning_7.logMessage();
         }
         else if (indexClampedPoint === -1) {
             var warning_8 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' clamped point selection is incorrect !');
-            warning_8.logMessageToConsole();
+            warning_8.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[1] = ShapeNavigableCurve_1.NO_CONSTRAINT;
@@ -43923,15 +43923,15 @@ var HandleConstraintAtPoint1Point2ConstraintState = /** @class */ (function (_su
     }
     HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint1 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' call to HandleConstraintAtPoint1NoConstraintPoint2ConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         var indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(function (element) { return element == selectedPoint; });
         if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_9 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' inconsistent configuration of clamped points !');
-            warning_9.logMessageToConsole();
+            warning_9.logMessage();
         }
         else if (indexClampedPoint === -1) {
             var warning_10 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint1', ' clamped point selection is incorrect !');
-            warning_10.logMessageToConsole();
+            warning_10.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[0] = ShapeNavigableCurve_1.NO_CONSTRAINT;
@@ -43941,15 +43941,15 @@ var HandleConstraintAtPoint1Point2ConstraintState = /** @class */ (function (_su
     };
     HandleConstraintAtPoint1Point2ConstraintState.prototype.handleCurveConstraintAtPoint2 = function (selectedPoint) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' call to HandleConstraintAtPoint1ConstraintPoint2NoConstraintState');
-        warning.logMessageToConsole();
+        warning.logMessage();
         var indexClampedPoint = this.shapeNavigableCurve.clampedPoints.findIndex(function (element) { return element == selectedPoint; });
         if (this.shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT || this.shapeNavigableCurve.clampedPoints[1] === ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var warning_11 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' inconsistent configuration of clamped points !');
-            warning_11.logMessageToConsole();
+            warning_11.logMessage();
         }
         else if (indexClampedPoint === -1) {
             var warning_12 = new ErrorLoging_1.WarningLog(this.constructor.name, 'handleCurveConstraintAtPoint2', ' clamped point selection is incorrect !');
-            warning_12.logMessageToConsole();
+            warning_12.logMessage();
         }
         else {
             this.shapeNavigableCurve.clampedPoints[1] = ShapeNavigableCurve_1.NO_CONSTRAINT;
@@ -44037,7 +44037,7 @@ var HandleInflectionsNoSlidingState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44077,7 +44077,7 @@ var HandleInflectionsNoSlidingState = /** @class */ (function (_super) {
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleInflectionsNoSlidingState;
 }(CurveControlState));
@@ -44103,7 +44103,7 @@ var HandleCurvatureExtremaNoSlidingState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44143,7 +44143,7 @@ var HandleCurvatureExtremaNoSlidingState = /** @class */ (function (_super) {
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleCurvatureExtremaNoSlidingState;
 }(CurveControlState));
@@ -44169,7 +44169,7 @@ var HandleInflectionsAndCurvatureExtremaNoSlidingState = /** @class */ (function
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44209,7 +44209,7 @@ var HandleInflectionsAndCurvatureExtremaNoSlidingState = /** @class */ (function
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleInflectionsAndCurvatureExtremaNoSlidingState;
 }(CurveControlState));
@@ -44227,7 +44227,7 @@ var HandleNoDiffEventNoSlidingState = /** @class */ (function (_super) {
             if (_this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents instanceof OpenCurveDifferentialEventsExtractorWithoutSequence_1.OpenCurveDifferentialEventsExtractorWithoutSequence) {
                 // It is the initialization phase and this curve differential event extractor has been already set up when creating the OpenCurve
                 var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "curve differential event extractor has been already set up. No new creation");
-                warning.logMessageToConsole();
+                warning.logMessage();
             }
             else {
                 _this.shapeNavigableCurve.curveCategory.curveModel.removeObserver(_this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
@@ -44242,7 +44242,7 @@ var HandleNoDiffEventNoSlidingState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44282,7 +44282,7 @@ var HandleNoDiffEventNoSlidingState = /** @class */ (function (_super) {
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleNoDiffEventNoSlidingState;
 }(CurveControlState));
@@ -44308,7 +44308,7 @@ var HandleInflectionsSlidingState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44348,7 +44348,7 @@ var HandleInflectionsSlidingState = /** @class */ (function (_super) {
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleInflectionsSlidingState;
 }(CurveControlState));
@@ -44374,7 +44374,7 @@ var HandleCurvatureExtremaSlidingState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44414,7 +44414,7 @@ var HandleCurvatureExtremaSlidingState = /** @class */ (function (_super) {
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleCurvatureExtremaSlidingState;
 }(CurveControlState));
@@ -44440,7 +44440,7 @@ var HandleInflectionsAndCurvatureExtremaSlidingState = /** @class */ (function (
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44480,7 +44480,7 @@ var HandleInflectionsAndCurvatureExtremaSlidingState = /** @class */ (function (
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleInflectionsAndCurvatureExtremaSlidingState;
 }(CurveControlState));
@@ -44507,7 +44507,7 @@ var HandleNoDiffEventSlidingState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = _this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
         _this.monitorCurveShape();
@@ -44547,7 +44547,7 @@ var HandleNoDiffEventSlidingState = /** @class */ (function (_super) {
             + " activeControlCurvatureExtrema: " + this.shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
             + " activeControlInflections: " + this.shapeSpaceDiffEventsStructure.activeControlInflections
             + " slidingDifferentialEvents: " + this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return HandleNoDiffEventSlidingState;
 }(CurveControlState));
@@ -44798,7 +44798,7 @@ var CurveSceneController = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             });
         }
@@ -44809,7 +44809,7 @@ var CurveSceneController = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             });
         }
@@ -45062,7 +45062,7 @@ var CurveSceneControllerKnotInsertion = /** @class */ (function (_super) {
     };
     CurveSceneControllerKnotInsertion.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "insert knot");
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.selectedControlPoint = this._curveSceneController.controlPointsView.pointSelection(ndcX, ndcY);
         this.insertKnotIntoCurve(this.selectedControlPoint);
         this._curveSceneController.selectedControlPoint = null;
@@ -45084,19 +45084,19 @@ var CurveSceneControllerKnotInsertion = /** @class */ (function (_super) {
     };
     CurveSceneControllerKnotInsertion.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerKnotInsertion.prototype.processLeftMouseUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerKnotInsertion.prototype.processShiftKeyDownInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerKnotInsertion.prototype.processShiftKeyUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return CurveSceneControllerKnotInsertion;
 }(CurveSceneControllerInteractionStrategy));
@@ -45129,19 +45129,19 @@ var CurveSceneControllerNoShapeSpaceConstraintsCPSelection = /** @class */ (func
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPSelection.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPSelection.prototype.processLeftMouseUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPSelection.prototype.processShiftKeyDownInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPSelection.prototype.processShiftKeyUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return CurveSceneControllerNoShapeSpaceConstraintsCPSelection;
 }(CurveSceneControllerInteractionStrategy));
@@ -45156,7 +45156,7 @@ var CurveSceneControllerNoShapeSpaceConstraintsCPDragging = /** @class */ (funct
     }
     CurveSceneControllerNoShapeSpaceConstraintsCPDragging.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPDragging.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         var x = ndcX;
@@ -45176,11 +45176,11 @@ var CurveSceneControllerNoShapeSpaceConstraintsCPDragging = /** @class */ (funct
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPDragging.prototype.processShiftKeyDownInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNoShapeSpaceConstraintsCPDragging.prototype.processShiftKeyUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return CurveSceneControllerNoShapeSpaceConstraintsCPDragging;
 }(CurveSceneControllerInteractionStrategy));
@@ -45225,15 +45225,15 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection = /** @class */ (
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection.prototype.processLeftMouseUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection.prototype.processShiftKeyDownInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection.prototype.processShiftKeyUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection;
 }(CurveSceneControllerInteractionStrategy));
@@ -45263,7 +45263,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
     }
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         console.log('drag CPDraggingOpenCurve');
@@ -45308,14 +45308,14 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processLeftMouseUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyDownInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", "events can slip out");
-        message.logMessageToConsole();
+        message.logMessage();
         if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
             this.eventsStayInsideInterval = false;
             this.curveShapeSpaceNavigator.setManagementDiffEventsAtExtremities(ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive);
@@ -45324,10 +45324,10 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve = /** @cl
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve.prototype.processShiftKeyUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
-        message.logMessageToConsole();
+        message.logMessage();
         if (this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Inactive) {
             var message_1 = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
-            message_1.logMessageToConsole();
+            message_1.logMessage();
             this.eventsStayInsideInterval = true;
             this.curveShapeSpaceNavigator.setManagementDiffEventsAtExtremities(ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active);
             this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
@@ -45353,7 +45353,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
     }
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         console.log('drag CPDraggingOpenCurveEventsInsideInterval');
@@ -45391,7 +45391,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processLeftMouseUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", " come back to point selection");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.selectedSlipOutCurvatureExtremaView.clearPoints();
@@ -45400,7 +45400,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processShiftKeyDownInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", " come back to drag point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.eventsStayInsideInterval = false;
         this._curveSceneController.selectedSlipOutCurvatureExtremaView.clearPoints();
         this._curveSceneController.selectedSlipOutInflectionsView.clearPoints();
@@ -45408,7 +45408,7 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsi
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveEventsInsideInterval.prototype.processShiftKeyUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", " come back to drag point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.eventsStayInsideInterval = true;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
     };
@@ -45475,14 +45475,14 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraint
         this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied.prototype.processShiftKeyUpInteraction = function () {
         // this.curveEventAtExtremityMayVanish = false;
         this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStateAtCurveExtremity_1.EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveConstraintsUnsatisfied;
 }(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve));
@@ -45495,12 +45495,12 @@ var CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve = /** @
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve.prototype.processShiftKeyDownInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     };
     CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve.prototype.processShiftKeyUpInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     };
     return CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurve;
 }(CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve));
@@ -45540,19 +45540,19 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPSelection = /** @class */ (fun
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPSelection.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPSelection.prototype.processLeftMouseUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPSelection.prototype.processShiftKeyDownInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPSelection.prototype.processShiftKeyUpInteraction = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return CurveSceneControllerStrictlyInsideShapeSpaceCPSelection;
 }(CurveSceneControllerInteractionStrategy));
@@ -45579,7 +45579,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = /** @class
     }
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve.prototype.processLeftMouseDownInteraction = function (ndcX, ndcY) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve.prototype.processLeftMouseDragInteraction = function (ndcX, ndcY) {
         console.log('drag CPDraggingOpenCurve Stricly Inside Shape Space');
@@ -45615,7 +45615,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = /** @class
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve.prototype.processLeftMouseUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPSelection(this._curveSceneController));
@@ -45626,7 +45626,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = /** @class
         // const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         // message.logMessageToConsole();
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processShiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve.prototype.processShiftKeyUpInteraction = function () {
         // this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
@@ -45634,7 +45634,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve = /** @class
         // const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         // message.logMessageToConsole();
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "processShiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     return CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve;
 }(CurveSceneControllerInteractionStrategy));
@@ -45732,7 +45732,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary.prototype.processLeftMouseUpInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this.clearListsOfDiffEvents();
@@ -45743,7 +45743,7 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBou
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShapeSpaceBoundary.prototype.processShiftKeyDownInteraction = function () {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", "free differential events");
-        message.logMessageToConsole();
+        message.logMessage();
         this.clearListsOfDiffEvents();
         this.updateDiffEventsToDisplay();
         // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
@@ -45916,12 +45916,12 @@ var CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve = /** @cla
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve.prototype.processShiftKeyDownInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     };
     CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve.prototype.processShiftKeyUpInteraction = function () {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     };
     return CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve;
 }(CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve));
@@ -46046,11 +46046,11 @@ var OCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46078,11 +46078,11 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
         _this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46110,11 +46110,11 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
         _this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46142,11 +46142,11 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
         _this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46174,11 +46174,11 @@ var OCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (!_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
             if (_this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
@@ -46231,11 +46231,11 @@ var OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
         _this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (!_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
             if (_this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
@@ -46288,11 +46288,11 @@ var OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
         _this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (!_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
             if (_this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === ShapeSpaceDiffEventsStructure_1.EventMgmtState.Active) {
@@ -46345,12 +46345,12 @@ var OCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
         _this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             // The sliding state cannot be active when control of inflections and curvature extrema are deactivated
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (_this.curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationThroughSimplerShapeSpaces) {
             _this._optimizationProblem = new OptProblemOpenBSplineR1toR2_1.OptProblemOPenBSplineR1toR2WithWeigthingFactors(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46434,11 +46434,11 @@ var CCurveShapeMonitoringStrategyWithInflexionsNoSliding = /** @class */ (functi
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46470,11 +46470,11 @@ var CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding = /** @class */ (
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46506,11 +46506,11 @@ var CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSliding = /
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46542,11 +46542,11 @@ var CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding = /** @class */ (funct
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46578,11 +46578,11 @@ var CCurveShapeMonitoringStrategyWithInflexionsSliding = /** @class */ (function
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (!_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46614,11 +46614,11 @@ var CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding = /** @class */ (fu
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (!_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46650,11 +46650,11 @@ var CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSliding = /**
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (!_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (!_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46686,12 +46686,12 @@ var CCurveShapeMonitoringStrategyWithNoDiffEventSliding = /** @class */ (functio
         _this.activeOptimizer = _this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if (_this.activeOptimizer) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             // The sliding state cannot be active when control of inflections and curvature extrema are deactivated
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         _this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2_1.OptProblemPeriodicBSplineR1toR2(_this.currentCurve.clone(), _this.shapeSpaceDiffEventsStructure);
@@ -46785,12 +46785,12 @@ var AbstractCurveDifferentialEventsExtractor = /** @class */ (function () {
             case 'curve':
                 this._observers.push(observer);
                 var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'registerObserver', 'register as curve' + observer.constructor.name);
-                warning.logMessageToConsole();
+                warning.logMessage();
                 break;
             case 'control points':
                 this._observersCP.push(observer);
                 warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'registerObserver', 'register as CP' + observer.constructor.name);
-                warning.logMessageToConsole();
+                warning.logMessage();
                 break;
             default:
                 throw Error("unknown kind");
@@ -47177,7 +47177,7 @@ var OpenCurveAnalyzer = /** @class */ (function (_super) {
     function OpenCurveAnalyzer(curveToAnalyze, navigationCurveModel, slidingEventsAtExtremities) {
         var _this = _super.call(this, curveToAnalyze, navigationCurveModel) || this;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         _this._curvatureNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this._curvatureDerivativeNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this.curve = curveToAnalyze;
@@ -47198,7 +47198,7 @@ var OpenCurveAnalyzer = /** @class */ (function (_super) {
         }
         else {
             warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.globalExtremumOffAxisCurvatureDerivPoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
         if (_this._curveControlState) {
@@ -47210,7 +47210,7 @@ var OpenCurveAnalyzer = /** @class */ (function (_super) {
         }
         else {
             warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -47276,7 +47276,7 @@ var OPenCurveDummyAnalyzer = /** @class */ (function (_super) {
     function OPenCurveDummyAnalyzer(curveToAnalyze, navigationCurveModel, slidingEventsAtExtremities) {
         var _this = _super.call(this, curveToAnalyze, navigationCurveModel) || this;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         _this._curvatureNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this._curvatureDerivativeNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this.curve = curveToAnalyze;
@@ -47335,7 +47335,7 @@ var ClosedCurveAnalyzer = /** @class */ (function (_super) {
     function ClosedCurveAnalyzer(curveToAnalyze, navigationCurveModel) {
         var _this = _super.call(this, curveToAnalyze, navigationCurveModel) || this;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         _this._curvatureNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this._curvatureDerivativeNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this.curve = curveToAnalyze;
@@ -47354,7 +47354,7 @@ var ClosedCurveAnalyzer = /** @class */ (function (_super) {
         }
         else {
             warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.globalExtremumOffAxisCurvatureDerivPoly = { index: ExtremumLocationClassifiier_1.INITIAL_INDEX, value: 0.0 };
         if (_this._curveControlState) {
@@ -47365,7 +47365,7 @@ var ClosedCurveAnalyzer = /** @class */ (function (_super) {
         }
         else {
             warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -47416,7 +47416,7 @@ var ClosedCurveDummyAnalyzer = /** @class */ (function (_super) {
     function ClosedCurveDummyAnalyzer(curveToAnalyze, navigationCurveModel) {
         var _this = _super.call(this, curveToAnalyze, navigationCurveModel) || this;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         _this._curvatureNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this._curvatureDerivativeNumerator = new BSplineR1toR1_1.BSplineR1toR1();
         _this.curve = curveToAnalyze;
@@ -48170,7 +48170,7 @@ var CurveConstraintNoConstraint = /** @class */ (function (_super) {
             _this._optimizedCurve = _this.shapeNavigableCurve.curveCategory.curveModel.spline;
         }
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", " strategy for no CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
         return _this;
     }
     Object.defineProperty(CurveConstraintNoConstraint.prototype, "firstControlPoint", {
@@ -48203,7 +48203,7 @@ var CurveConstraintNoConstraint = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     CurveConstraintNoConstraint.prototype.locateCurveExtremityUnderConstraint = function (curveConstraints) {
@@ -48215,12 +48215,12 @@ var CurveConstraintNoConstraint = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     return CurveConstraintNoConstraint;
@@ -48250,7 +48250,7 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function (_super) {
         _this._referencePtIndex = _this.shapeNavigableCurve.clampedPoints[0];
         _this.displacementCurrentCurveControlPolygon = (_b = _this.curveShapeSpaceNavigator) === null || _b === void 0 ? void 0 : _b.navigationCurveModel.displacementCurrentCurveControlPolygon;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", " strategy for first CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
         return _this;
     }
     Object.defineProperty(CurveConstraintClampedFirstControlPoint.prototype, "firstControlPoint", {
@@ -48290,7 +48290,7 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     CurveConstraintClampedFirstControlPoint.prototype.relocateCurveAfterOptimization = function () {
@@ -48354,12 +48354,12 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     return CurveConstraintClampedFirstControlPoint;
@@ -48389,7 +48389,7 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function (_super) {
         _this._referencePtIndex = _this.shapeNavigableCurve.clampedPoints[1];
         _this.displacementCurrentCurveControlPolygon = (_b = _this.curveShapeSpaceNavigator) === null || _b === void 0 ? void 0 : _b.navigationCurveModel.displacementCurrentCurveControlPolygon;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", " strategy for last CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
         return _this;
     }
     Object.defineProperty(CurveConstraintClampedLastControlPoint.prototype, "firstControlPoint", {
@@ -48429,7 +48429,7 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     CurveConstraintClampedLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
@@ -48493,12 +48493,12 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     return CurveConstraintClampedLastControlPoint;
@@ -48529,7 +48529,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         _this._currentCurve = _this.shapeNavigableCurve.curveCategory.curveModel.spline;
         _this.displacementCurrentCurveControlPolygon = (_b = _this.curveShapeSpaceNavigator) === null || _b === void 0 ? void 0 : _b.navigationCurveModel.displacementCurrentCurveControlPolygon;
         var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", " strategy for first and last CP clamped.");
-        warning.logMessageToConsole();
+        warning.logMessage();
         return _this;
     }
     Object.defineProperty(CurveConstraintClampedFirstAndLastControlPoint.prototype, "firstControlPoint", {
@@ -48569,7 +48569,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'updateCurve', 'Cannot update curve: curveShapeSpaceNavigator undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     CurveConstraintClampedFirstAndLastControlPoint.prototype.setCurrentCurve = function (currentCurve) {
@@ -48698,12 +48698,12 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'locateCurveExtremityUnderConstraint', 'Cannot update the optimized curve: curveShapeSpaceNavigator undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateCurveExtremityUnderConstraint", " inconsistent constraint setting for this class.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     return CurveConstraintClampedFirstAndLastControlPoint;
@@ -48747,7 +48747,7 @@ var CurveConstraints = /** @class */ (function () {
     // private _optimizedCurve: BSplineR1toR2Interface;
     function CurveConstraints(shapeNavigableCurve) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._shapeNavigableCurve = shapeNavigableCurve;
         this._curveConstraintStrategy = new CurveConstraintStrategy_1.CurveConstraintNoConstraint(this);
         this._firstControlPoint = this._curveConstraintStrategy.firstControlPoint;
@@ -48827,7 +48827,7 @@ var CurveConstraints = /** @class */ (function () {
         var indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
         if (indexPoint1 === ShapeNavigableCurve_1.NO_CONSTRAINT || indexPoint2 === ShapeNavigableCurve_1.NO_CONSTRAINT) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "Configuration with only one clamped point: cannot be processed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             var knots = this._curveConstraintStrategy.optimizedCurve.getDistinctKnots();
@@ -48943,7 +48943,7 @@ var CurveConstraints = /** @class */ (function () {
         var offset = 0.0;
         if (knotsOptCrv[0] !== 0.0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "Inconsistent knot sequence. First knot is not 0.0");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         while (Math.abs(distance - refDistance) > CurveConstraintStrategy_1.TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             var c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
@@ -49019,7 +49019,7 @@ var CurveConstraints = /** @class */ (function () {
                 }
                 else if (this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "something to do there");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             point2Opt = optimizedSpline.evaluate(newAbsc);
@@ -49113,7 +49113,7 @@ var CurveConstraints = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "solveWithLinearApproximation", "Cannot process robustly this configuration.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return {
             abscissa: u,
@@ -49379,7 +49379,7 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
     };
     CurveShapeSpaceNavigator.prototype.inputSelectNavigationProcess = function (navigationID) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
-        warning.logMessageToConsole();
+        warning.logMessage();
         switch (navigationID) {
             case 0: {
                 this._navigationState.setNavigationWithoutShapeSpaceMonitoring();
@@ -49395,7 +49395,7 @@ var CurveShapeSpaceNavigator = /** @class */ (function () {
             }
             default: {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
-                error.logMessageToConsole();
+                error.logMessage();
                 break;
             }
         }
@@ -49524,7 +49524,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         else {
             _this._curveModel = new CurveModel_1.CurveModel();
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this._currentCurve = _this.curveModel.spline;
         _this.currentControlPolygon = _this.currentCurve.controlPoints;
@@ -49589,7 +49589,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'get', 'the selected control point has a status undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         },
         set: function (cpIndex) {
@@ -49598,7 +49598,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'set', 'the control point index must not be of type undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         },
         enumerable: false,
@@ -49711,7 +49711,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (this._shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
             // this.curveControl.optimizationProblem.setTargetSpline(this.targetCurve);
@@ -49725,7 +49725,7 @@ var OpenCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         else {
             this._curveModel = new CurveModel_1.CurveModel();
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this._curveShapeMonitoringStrategy.resetAfterCurveChange();
     };
@@ -49748,7 +49748,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         else {
             _this._curveModel = new ClosedCurveModel_1.ClosedCurveModel();
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         // this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
         //     this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -49844,7 +49844,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'get', 'the selected control point has a status undefined.');
-                error.logMessageToConsole();
+                error.logMessage();
             }
         },
         enumerable: false,
@@ -49885,7 +49885,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'setTargetCurve', 'the index of the selected control point is undefined.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (this._shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer) {
             this._curveShapeMonitoringStrategy.optimizationProblem.setTargetSpline(this.targetCurve);
@@ -49899,7 +49899,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         else {
             this._curveModel = new ClosedCurveModel_1.ClosedCurveModel();
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'constructor', "curve model is undefined. Cannot proceed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         // this._curveControl = new DummyStrategy(this.curveModel, this._shapeSpaceDiffEventsStructure.activeControlInflections,
         //     this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema);
@@ -49916,7 +49916,7 @@ var ClosedCurveShapeSpaceNavigator = /** @class */ (function (_super) {
         var message = new ErrorLoging_1.WarningLog(this.constructor.name, "navigateSpace", this._navigationState.constructor.name + " "
             // + this._shapeSpaceDiffEventsConfigurator.constructor.name + " ");
             + this._curveControlState.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
         this._selectedControlPoint = selectedControlPoint;
         this._navigationState.navigate(selectedControlPoint, x, y);
     };
@@ -50031,7 +50031,7 @@ var OpenCurveNavigationState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent object type to initialize the currentCurve.");
-            error.logMessageToConsole();
+            error.logMessage();
             _this.currentCurve = new BSplineR1toR2_1.BSplineR1toR2;
         }
         _this.navigationCurveModel.currentCurve = _this.currentCurve;
@@ -50039,7 +50039,7 @@ var OpenCurveNavigationState = /** @class */ (function (_super) {
         _this.navigationCurveModel.optimizedCurve = _this.optimizedCurve;
         if (!_this.navigationCurveModel.shapeNavigableCurve) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -50048,21 +50048,21 @@ var OpenCurveNavigationState = /** @class */ (function (_super) {
     };
     OpenCurveNavigationState.prototype.setNavigationStrictlyInsideShapeSpace = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.navigationCurveModel.changeNavigationState(new OCurveNavigationStrictlyInsideShapeSpace(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
     };
     OpenCurveNavigationState.prototype.setNavigationThroughSimplerShapeSpaces = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.navigationCurveModel.changeNavigationState(new OCurveNavigationThroughSimplerShapeSpaces(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
     };
     OpenCurveNavigationState.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.navigationCurveModel.changeNavigationState(new OCurveNavigationWithoutShapeSpaceMonitoring(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
@@ -50114,7 +50114,7 @@ var OCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         // this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         // this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     OCurveNavigationWithoutShapeSpaceMonitoring.prototype.curveConstraintsMonitoring = function () {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
@@ -50173,7 +50173,7 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
     });
     OCurveNavigationThroughSimplerShapeSpaces.prototype.setNavigationThroughSimplerShapeSpaces = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     OCurveNavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
@@ -50410,7 +50410,7 @@ var OCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
                     }
                     else if (filteredSeqComparator.neighboringEvents.length > 1) {
                         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
                 else if (this.navigationCurveModel.seqDiffEventsCurrentCurve.length() === this.navigationCurveModel.seqDiffEventsOptimizedCurve.length()
@@ -50480,7 +50480,7 @@ var OCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
     });
     OCurveNavigationStrictlyInsideShapeSpace.prototype.setNavigationStrictlyInsideShapeSpace = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationStrictlyInsideShapeSpace", "No navigation process to change there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     OCurveNavigationStrictlyInsideShapeSpace.prototype.curveConstraintsMonitoring = function () {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
@@ -50869,7 +50869,7 @@ var ClosedCurveNavigationState = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent object type to initialize the currentCurve.");
-            error.logMessageToConsole();
+            error.logMessage();
             _this.currentCurve = new PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence;
         }
         _this.navigationCurveModel.currentCurve = _this.currentCurve;
@@ -50877,7 +50877,7 @@ var ClosedCurveNavigationState = /** @class */ (function (_super) {
         _this.navigationCurveModel.optimizedCurve = _this.optimizedCurve;
         if (!_this.navigationCurveModel.shapeNavigableCurve) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, 'constructor', 'Not able to initialize curveConstraints field.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -50886,21 +50886,21 @@ var ClosedCurveNavigationState = /** @class */ (function (_super) {
     };
     ClosedCurveNavigationState.prototype.setNavigationStrictlyInsideShapeSpace = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationStrictlyInsideShapeSpace', 'set NavigationStrictlyInsideShapeSpace');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.navigationCurveModel.changeNavigationState(new CCurveNavigationStrictlyInsideShapeSpace(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
     };
     ClosedCurveNavigationState.prototype.setNavigationThroughSimplerShapeSpaces = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationThroughSimplerShapeSpaces', 'set NavigationThroughSimplerShapeSpaces');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.navigationCurveModel.changeNavigationState(new CCurveNavigationThroughSimplerShapeSpaces(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
     };
     ClosedCurveNavigationState.prototype.setNavigationWithoutShapeSpaceMonitoring = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setNavigationWithoutShapeSpaceMonitoring', 'set NavigationWithoutShapeSpaceMonitoring');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.navigationCurveModel.changeNavigationState(new CCurveNavigationWithoutShapeSpaceMonitoring(this.navigationCurveModel));
         this.shapeNavigableCurve.notifyObservers();
         this.navigationCurveModel.curveShapeSpaceNavigator.navigationState.navigationStateChange = false;
@@ -50952,7 +50952,7 @@ var CCurveNavigationWithoutShapeSpaceMonitoring = /** @class */ (function (_supe
         // this.curveAnalyserCurrentCurve = new CurveAnalyzer(this.currentCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         // this.curveAnalyserOptimizedCurve = new CurveAnalyzer(this.optimizedCurve, this.curveShapeSpaceNavigator, this.curveShapeSpaceNavigator.slidingEventsAtExtremities);
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationWithoutShapeSpaceMonitoring", "No navigation process to change there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CCurveNavigationWithoutShapeSpaceMonitoring.prototype.curveConstraintsMonitoring = function () {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
@@ -51010,7 +51010,7 @@ var CCurveNavigationThroughSimplerShapeSpaces = /** @class */ (function (_super)
     });
     CCurveNavigationThroughSimplerShapeSpaces.prototype.setNavigationThroughSimplerShapeSpaces = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationThroughSimplerShapeSpaces", "No navigation process to change there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CCurveNavigationThroughSimplerShapeSpaces.prototype.curveConstraintsMonitoring = function () {
         // pb etat des contraintes incorrect: un seul pt alors que etat: 2 pts ancres
@@ -51086,7 +51086,7 @@ var CCurveNavigationStrictlyInsideShapeSpace = /** @class */ (function (_super) 
     });
     CCurveNavigationStrictlyInsideShapeSpace.prototype.setNavigationStrictlyInsideShapeSpace = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "setNavigationStrictlyInsideShapeSpace", "No navigation process to change there.");
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     CCurveNavigationStrictlyInsideShapeSpace.prototype.curveConstraintsMonitoring = function () {
         this.shapeNavigableCurve.curveConstraints.processConstraint();
@@ -51243,7 +51243,7 @@ var AbstractShapeSpaceBoundaryEnforcer = /** @class */ (function () {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "hasTransitionsOfEvents", "The list of current differential events is inconsistent");
-                error.logMessageToConsole();
+                error.logMessage();
                 return false;
             }
         }
@@ -51445,7 +51445,7 @@ var EventMgmtState;
 var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
     function ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._curveCategory = shapeNavigableCurve.curveCategory;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._activeNavigationWithOptimizer = false;
@@ -51467,7 +51467,7 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
         else {
             this._managementOfEventsAtExtremities = EventMgmtState.NotApplicable;
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Curve category type unknown.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
     Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "activeControlInflections", {
@@ -51530,7 +51530,7 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
             if (this._curveCategory instanceof CurveCategory_1.OpenPlanarCurve) {
                 if (managementOfEventsAtExtremities === EventMgmtState.NotApplicable && this._slidingDifferentialEvents) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 else {
                     this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
@@ -51539,7 +51539,7 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
             else if (this._curveCategory instanceof ClosedCurveModel_1.ClosedCurveModel) {
                 if (managementOfEventsAtExtremities !== EventMgmtState.NotApplicable) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the closed curve category");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 else {
                     this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
@@ -51607,14 +51607,25 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WarningLog = exports.ErrorLog = exports.ErrorProcessing = void 0;
 var ErrorProcessing = /** @class */ (function () {
     function ErrorProcessing(className, functionName, message) {
+        if (message === void 0) { message = ""; }
         this.className = className;
         this.functionName = functionName;
-        if (message !== undefined) {
-            this.message = message;
-        }
+        this._message = message;
     }
+    Object.defineProperty(ErrorProcessing.prototype, "message", {
+        get: function () {
+            return this._message;
+        },
+        enumerable: false,
+        configurable: true
+    });
     ErrorProcessing.prototype.addMessage = function (message) {
-        this.message = this.message + " " + message;
+        if (this._message === "") {
+            this._message = " " + message;
+        }
+        else {
+            this._message = this._message + " " + message;
+        }
     };
     return ErrorProcessing;
 }());
@@ -51624,12 +51635,11 @@ var ErrorLog = /** @class */ (function (_super) {
     function ErrorLog() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ErrorLog.prototype.logMessageToConsole = function () {
-        console.log(this.className + ", " + this.functionName + ":");
-        console.error(new Error(this.message));
-    };
     ErrorLog.prototype.logMessage = function () {
-        var message = this.className + ", " + this.functionName + ":" + this.message;
+        console.error(new Error(this.className + ", " + this.functionName + ":" + this._message));
+    };
+    ErrorLog.prototype.generateMessageString = function () {
+        var message = this.className + ", " + this.functionName + ":" + this._message;
         return message;
     };
     return ErrorLog;
@@ -51640,8 +51650,8 @@ var WarningLog = /** @class */ (function (_super) {
     function WarningLog() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    WarningLog.prototype.logMessageToConsole = function () {
-        console.log(this.className + ", " + this.functionName + ": " + this.message);
+    WarningLog.prototype.logMessage = function () {
+        console.log(this.className + ", " + this.functionName + ": " + this._message);
     };
     return WarningLog;
 }(ErrorProcessing));
@@ -51696,12 +51706,12 @@ var FileController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "saveCurveToFile", "Cannot save the current curve to a file. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     FileController.prototype.inconsistentFileFormatMessage = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "loadCurveFromFile", "inconsistent file format. Unable to load the curve.");
-        warning.logMessageToConsole();
+        warning.logMessage();
         return undefined;
     };
     FileController.prototype.loadCurveFromFile = function (aString) {
@@ -51746,7 +51756,7 @@ var FileController = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "resetCurveContext", "Cannot load the current file content into a curve model. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return FileController;
@@ -52799,7 +52809,7 @@ function toVector2d(v) {
     var result = new Vector2d;
     if (v.length !== 2) {
         var error = new ErrorLoging_1.ErrorLog("function", "toVector2d", "Incorrect length of array to convert to Vector2d object.");
-        error.logMessageToConsole();
+        error.logMessage();
     }
     else {
         result.x = v[0];
@@ -54056,7 +54066,7 @@ var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) 
                 navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring) {
                 if (this.listener.shapeNavigableCurve.controlOfCurveClamping) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", " incorrect status of control of curve clamping.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 this.listener.curveConstraintTransitionTo(new CurveConstraintSelectionState_1.HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
                 this.listener.changeSceneInteraction(new CurveSceneControllerInteractionStrategy_1.CurveSceneControllerNoShapeSpaceConstraintsCPSelection(this.listener));
@@ -54184,7 +54194,7 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         var degree = knotLength - this._controlPoints.length - 1;
         if (degree < 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeDegree", "Negative degree BSplineR1toR1 are not supported.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return degree;
     };
@@ -54277,7 +54287,7 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         var result = [];
         if (it === exports.MAX_ITERATIONS_FOR_ZEROS_COMPUTATION) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "zeros", "Maximum number of iterations reached when computing zeros of BSplineR1toR1");
-            error.logMessageToConsole();
+            error.logMessage();
             return result;
         }
         vertexIndex = findControlPointsFollowingSignChanges(spline);
@@ -54323,7 +54333,7 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         if (times === void 0) { times = 1; }
         if (times <= 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "knot multiplicity prescribed equals zero or is negative. No knot insertion.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             return;
         }
         var index = this._increasingKnotSequence.findSpan(u);
@@ -54336,11 +54346,11 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         if ((multiplicity + times) > (this._degree + 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ", u, " multiplicity + times = ", (multiplicity + times));
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         var indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         for (var t = 0; t < times; t += 1) {
             for (var i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
@@ -54397,7 +54407,7 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         }
         var times = this._degree - multiplicity + 1;
         var indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         for (var t = 0; t < times; t += 1) {
             for (var i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
@@ -54632,15 +54642,15 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
             invalid = true;
         }
         if (invalid) {
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractBSplineR1toR2.prototype.computeDegree = function (knotLength) {
         var degree = knotLength - this._controlPoints.length - 1;
         if (degree < 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeDegree", "Negative degree for BSplines is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return degree;
     };
@@ -54684,8 +54694,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
     AbstractBSplineR1toR2.prototype.scaleInputParamAssessment = function (factor) {
         if (factor <= 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "scaleInputParamAssessment", "Scale factor is negative or null. Cannot generate the scaled curve.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractBSplineR1toR2.prototype.getControlPointsX = function () {
@@ -54753,8 +54763,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
     AbstractBSplineR1toR2.prototype.controlPointIndexInputParamAssessment = function (index, methodName) {
         if (index < 0 || index >= this._controlPoints.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "Control point index is out of range: control point location cannot be prescribed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractBSplineR1toR2.prototype.setControlPointPosition = function (index, value) {
@@ -54773,7 +54783,7 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
         if (Math.abs(knotAbscissa[0]) < exports.TOL_KNOT_COINCIDENCE) {
             result = knotAbscissa.slice();
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "resetKnotAbscissaToOrigin", "No need to reset the sequence of knot abscissa");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         else {
             result.push(AbstractOpenKnotSequence_1.OPEN_KNOT_SEQUENCE_ORIGIN);
@@ -54788,7 +54798,7 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
         // Piegl and Tiller, The NURBS book, p: 151
         if (times <= 0 || times > (this._degree + 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "Inconsistent multiplicity order of the knot insertion. No insertion performed.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         var index = this._increasingKnotSequence.findSpan(u);
@@ -54800,10 +54810,10 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
         if ((multiplicity + times) > (this._degree + 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ", u, " multiplicity + times = ", (multiplicity + times));
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
-        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         for (var t = 0; t < times; t += 1) {
             var newControlPoints = [];
             var upperBound = 1;
@@ -54864,7 +54874,7 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
         //i.e. applicable to non uniform or arbitrary knot sequences
         if (times <= 0 || times > (this._degree + 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithm", "The knot multiplicity prescribed is incompatible with the curve degree.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         var index = this.findSpanBoehmAlgorithm(u);
@@ -54877,7 +54887,7 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
         if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u) !== 0) {
             multiplicity = this.knotMultiplicity(indexStrictInc);
         }
-        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         for (var t = 0; t < times; t += 1) {
             var newControlPoints = [];
             for (var i = 0; i < index.knotIndex; i += 1) {
@@ -55417,13 +55427,13 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
     AbstractIncreasingOpenKnotSequence.prototype.knotIndexInputParamAssessment = function (index, methodName) {
         if (index.knotIndex < 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "The knot index cannot be negative. The corresponding method is not applied.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (index.knotIndex > (this.allAbscissae.length - 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "The knot index cannot be greater than the last knot index.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractIncreasingOpenKnotSequence.prototype.checkOriginOfNormalizedBasis = function () {
@@ -55431,20 +55441,8 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
         var abscissaOrigin = this.abscissaAtIndex(this.toKnotIndexIncreasingSequence(indexStart));
         if (abscissaOrigin !== 0.0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkOriginOfNormalizedBasis", "The abscissa defining the origin of the normalized basis of the knot sequence is not 0.0. The knot sequence is not consistent. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
-        }
-    };
-    AbstractIncreasingOpenKnotSequence.prototype.checkKnotIncreasingValues = function (knots) {
-        if (knots.length > 1) {
-            for (var i = 1; i < knots.length; i++) {
-                if (knots[i] < knots[i - 1]) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIncreasingValues");
-                    error.addMessage("Knot sequence is not increasing. Cannot proceed.");
-                    console.log(error.logMessage());
-                    throw new RangeError(error.logMessage());
-                }
-            }
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractIncreasingOpenKnotSequence.prototype.generateKnotSequence = function (knotParameters) {
@@ -55506,8 +55504,8 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
         if (size !== knots.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkSizeConsistency");
             error.addMessage("Increasing knot sequence size incompatible with the multiplicity orders of the strictly increasing sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractIncreasingOpenKnotSequence.prototype.length = function () {
@@ -55581,8 +55579,8 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
         if (!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae");
             error.addMessage("Start and/or end indices values are out of range. Cannot perform the extraction.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         var index = 0;
         try {
@@ -55631,7 +55629,7 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AbstractKnotSequence = exports.KNOT_COINCIDENCE_TOLERANCE = void 0;
+exports.AbstractKnotSequence = exports.UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA = exports.KNOT_COINCIDENCE_TOLERANCE = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
 var KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
@@ -55639,6 +55637,7 @@ var KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceC
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // It may be needed to check if there are side effects (JCL 2024/05/06).
 exports.KNOT_COINCIDENCE_TOLERANCE = 10E-10;
+exports.UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA = Infinity;
 var AbstractKnotSequence = /** @class */ (function () {
     function AbstractKnotSequence(maxMultiplicityOrder) {
         this._maxMultiplicityOrder = maxMultiplicityOrder;
@@ -55670,8 +55669,8 @@ var AbstractKnotSequence = /** @class */ (function () {
         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor");
         if (this._maxMultiplicityOrder < minValue) {
             error.addMessage("Maximal value of knot multiplicity order is too small for this category of knot sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractKnotSequence.prototype.distinctAbscissae = function () {
@@ -55714,8 +55713,8 @@ var AbstractKnotSequence = /** @class */ (function () {
         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName);
         if (multiplicity > this._maxMultiplicityOrder) {
             error.addMessage("Knot multiplicity is greater than the maximum multiplicity order set for the knot sequence.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractKnotSequence.prototype.constructorInputArrayAssessment = function (knotParameters) {
@@ -55740,11 +55739,11 @@ var AbstractKnotSequence = /** @class */ (function () {
                 message = messageKnotLengthVsMultitplicityLength;
             }
         }
-        else if (knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+        else if (knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE || knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE || knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSUBSEQUENCE) {
             if ((knotParameters.periodicKnots.length) === 0)
                 message = messageKnots;
         }
-        else if (knotParameters.type === KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+        else if (knotParameters.type === KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE || knotParameters.type === KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE) {
             if (knotParameters.periodicKnots.length === 0) {
                 message = messageKnots;
             }
@@ -55757,8 +55756,8 @@ var AbstractKnotSequence = /** @class */ (function () {
         }
         if (message !== "") {
             error.addMessage(message);
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractKnotSequence.prototype.constructorInputBspBasisSizeAssessment = function (knotParameters) {
@@ -55766,14 +55765,14 @@ var AbstractKnotSequence = /** @class */ (function () {
         error.addMessage("Knot sequence cannot be generated. Not enough control points to generate a B-Spline basis. Cannot proceed.");
         if (knotParameters.type === KnotSequenceConstructorInterface_1.UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === KnotSequenceConstructorInterface_1.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
             if (knotParameters.BsplBasisSize < this._maxMultiplicityOrder) {
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
         }
         else if (knotParameters.type === KnotSequenceConstructorInterface_1.UNIFORM_PERIODICKNOTSEQUENCE) {
             if (knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 2)) {
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
         }
     };
@@ -55832,8 +55831,32 @@ var AbstractKnotSequence = /** @class */ (function () {
         }
         if (maxMultiplicityOrderReached) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkMaxKnotMultiplicityAtIntermediateKnots", "Maximal knot multiplicity reached at an intermediate knot. Please, split the curve at these knots to describe elementary B-splines.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
+        }
+    };
+    AbstractKnotSequence.prototype.checkKnotIncreasingValues = function (knots) {
+        if (knots.length > 1) {
+            for (var i = 1; i < knots.length; i++) {
+                if (knots[i] < knots[i - 1]) {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIncreasingValues");
+                    error.addMessage("Knot sequence is not increasing. Cannot proceed.");
+                    console.log(error.generateMessageString());
+                    throw new RangeError(error.generateMessageString());
+                }
+            }
+        }
+    };
+    AbstractKnotSequence.prototype.checkKnotStrictlyIncreasingValues = function (knots) {
+        if (knots.length > 1) {
+            for (var i = 1; i < knots.length; i++) {
+                if (knots[i] <= knots[i - 1]) {
+                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotStrictlyIncreasingValues");
+                    error.addMessage("Knot sequence is not strictly increasing. Cannot proceed.");
+                    console.log(error.generateMessageString());
+                    throw new RangeError(error.generateMessageString());
+                }
+            }
         }
     };
     AbstractKnotSequence.prototype.isAbscissaCoincidingWithKnot = function (abscissa) {
@@ -55905,15 +55928,14 @@ var AbstractKnotSequence = /** @class */ (function () {
         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName);
         if (index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
             error.addMessage("Knot index value in strictly increasing knot sequence is out of range.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     AbstractKnotSequence.prototype.decrementKnotMultiplicity = function (index) {
         var e_8, _a;
         this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
-        this.knotSequence[index.knotIndex].multiplicity--;
-        if (this.knotSequence[index.knotIndex].multiplicity === 0) {
+        if (this.knotSequence[index.knotIndex].multiplicity === 1) {
             var abscissae = this.distinctAbscissae();
             var multiplicities = this.multiplicities();
             abscissae.splice(index.knotIndex, 1);
@@ -55934,6 +55956,9 @@ var AbstractKnotSequence = /** @class */ (function () {
                 }
                 finally { if (e_8) throw e_8.error; }
             }
+        }
+        else {
+            this.knotSequence[index.knotIndex].multiplicity--;
         }
         this.checkUniformityOfKnotSpacing();
     };
@@ -55979,7 +56004,6 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractOpenKnotSequence = exports.OPEN_KNOT_SEQUENCE_ORIGIN = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-var ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 var AbstractKnotSequence_1 = __webpack_require__(/*! ./AbstractKnotSequence */ "./src/newBsplines/AbstractKnotSequence.ts");
 var Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
 var KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
@@ -55989,7 +56013,7 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
     function AbstractOpenKnotSequence(maxMultiplicityOrder, knotParameters) {
         var _this = _super.call(this, maxMultiplicityOrder) || this;
         _this.knotSequence = [];
-        _this._uMax = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+        _this._uMax = AbstractKnotSequence_1.UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         _this._isKnotMultiplicityNonUniform = false;
         if (knotParameters.type === KnotSequenceConstructorInterface_1.NO_KNOT_OPEN_CURVE) {
             _this.computeKnotSequenceFromMaxMultiplicityOrderOCurve();
@@ -56044,8 +56068,8 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
         if (cumulativeMultiplicity !== this._maxMultiplicityOrder) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceEnd");
             error.addMessage("Knot multiplicities at sequence end don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else {
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
@@ -56061,8 +56085,8 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
         if (cumulativeMultiplicity !== this._maxMultiplicityOrder) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceEnd");
             error.addMessage("Knot multiplicities at sequence start don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else {
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
@@ -56123,7 +56147,7 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
         }
         if (multiplicity === 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", "knot abscissa cannot be found within the knot sequence.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return multiplicity;
     };
@@ -56132,7 +56156,7 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
         var insertion = true;
         if (this.isAbscissaCoincidingWithKnot(abscissa)) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "abscissa is too close from an existing knot: please, raise multiplicity of an existing knot.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             insertion = false;
             return insertion;
         }
@@ -56230,13 +56254,13 @@ var AbstractPeriodicKnotSequence = /** @class */ (function (_super) {
     AbstractPeriodicKnotSequence.prototype.checkCurveOrigin = function () {
         if (this.knotSequence[0].abscissa !== 0.0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCurveOrigin", "Inconsistent knot sequence origin. First knot abscissa must be 0.0");
-            error.logMessageToConsole;
+            error.logMessage;
         }
     };
     AbstractPeriodicKnotSequence.prototype.checkMultiplicityAtEndKnots = function () {
         if (this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkMultiplicityAtEndKnots", "Multiplicities at end knots of the sequence differ. They must be equal to define a periodic sequence structure.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     AbstractPeriodicKnotSequence.prototype.getPeriod = function () {
@@ -56254,7 +56278,7 @@ var AbstractPeriodicKnotSequence = /** @class */ (function (_super) {
         var increment = true;
         if (index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessageToConsole();
+            error.logMessage();
             increment = false;
         }
         else {
@@ -56319,7 +56343,7 @@ var AbstractStrictlyIncreasingOpenKnotSequence = /** @class */ (function (_super
     __extends(AbstractStrictlyIncreasingOpenKnotSequence, _super);
     function AbstractStrictlyIncreasingOpenKnotSequence(maxMultiplicityOrder, knotParameters) {
         var _this = _super.call(this, maxMultiplicityOrder, knotParameters) || this;
-        _this._indexKnotOrigin = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+        _this._indexKnotOrigin = new Knot_1.KnotIndexStrictlyIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         if (knotParameters.type === KnotSequenceConstructorInterface_1.NO_KNOT_OPEN_CURVE) {
             _this._indexKnotOrigin.knotIndex = 0;
         }
@@ -56338,7 +56362,7 @@ var AbstractStrictlyIncreasingOpenKnotSequence = /** @class */ (function (_super
         else if (knotParameters.type === KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
             if (knotParameters.periodicKnots.length !== knotParameters.multiplicities.length) {
                 var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "size of multiplicities array does not the size of knot abscissae array.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             for (var i = 0; i < knotParameters.periodicKnots.length; i++) {
                 _this.knotSequence.push(new Knot_1.Knot(knotParameters.periodicKnots[i], knotParameters.multiplicities[i]));
@@ -56396,25 +56420,13 @@ var AbstractStrictlyIncreasingOpenKnotSequence = /** @class */ (function (_super
             }
         };
     };
-    AbstractStrictlyIncreasingOpenKnotSequence.prototype.checkKnotStrictlyIncreasingValues = function (knots) {
-        if (knots.length > 1) {
-            for (var i = 1; i < knots.length; i++) {
-                if (knots[i] <= knots[i - 1]) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotStrictlyIncreasingValues");
-                    error.addMessage("Knot sequence is not strictly increasing. Cannot proceed.");
-                    console.log(error.logMessage());
-                    throw new RangeError(error.logMessage());
-                }
-            }
-        }
-    };
     AbstractStrictlyIncreasingOpenKnotSequence.prototype.checkKnotMultiplicities = function (multiplicities) {
         for (var i = 0; i < multiplicities.length; i++) {
             if (multiplicities[i] <= 0) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotMultiplicities");
                 error.addMessage("Some knot multiplicities are negative or null. Cannot proceed.");
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
         }
     };
@@ -56472,7 +56484,7 @@ var AbstractStrictlyIncreasingOpenKnotSequence = /** @class */ (function (_super
         var increment = true;
         if (index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessageToConsole();
+            error.logMessage();
             increment = false;
         }
         else {
@@ -56696,11 +56708,11 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         if ((multiplicity + times) > (this._degree + 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ", u, " multiplicity + times = ", (multiplicity + times));
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         var indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+        var newIndexStrictInc = new Knot_1.KnotIndexStrictlyIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         for (var t = 0; t < times; t += 1) {
             var newControlPoints = [];
             for (var i = 0; i < index.knotIndex; i += 1) {
@@ -56836,7 +56848,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
     BSplineR1toR1.prototype.moveControlPoint = function (i, delta) {
         if (i < 0 || i >= this.controlPoints.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "moveControlPoint", "Control point index is out of range.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         this.controlPoints[i] += delta;
@@ -56856,7 +56868,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         if (u >= knots[0] && u <= knots[knots.length - 1]) {
             result = 0.0;
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             var extendedSpline = spline.extend(u);
@@ -56874,7 +56886,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         var knots = this.distinctKnots().slice();
         if (uAbsc >= knots[0] && uAbsc <= knots[knots.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extend", "Parameter value for extension is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             var tempCurve = this.clone();
@@ -57036,8 +57048,8 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             invalid = true;
         }
         if (invalid) {
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     // protected override factory(controlPoints: readonly Vector2d[] = [new Vector2d(0, 0)], knots: readonly number[] = [0, 1]) {
@@ -57226,16 +57238,16 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         var knots = this.getDistinctKnots();
         if (!this._increasingKnotSequence.isKnotMultiplicityNonUniform) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extend", "The knot sequence of the input curve is not of type non uniform. The algorithm is not operating on this category of curve.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         else if (uAbsc >= knots[0] && uAbsc <= knots[knots.length - 1]) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extend", "Parameter value for extension is not outside the knot interval. No extension performed.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         else {
             if (this._increasingKnotSequence.isAbscissaCoincidingWithKnot(uAbsc)) {
                 var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extend", "The abscissae used to extend the curve is considered as similar to one of the end knots of curve knot sequence. However, the extension is performed.");
-                warning.logMessageToConsole();
+                warning.logMessage();
             }
             var tempCurve = this.clone();
             var reversed = false;
@@ -57282,11 +57294,11 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         var knots = this.getDistinctKnots();
         if (result.increasingKnotSequence.isAbscissaCoincidingWithKnot(u)) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "splitAt", "Method not configured to split a curve at an existing knot");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         else if (u < knots[0] || u > knots[knots.length - 1]) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "splitAt", "The abscissae used to split the curve is outside the knot sequence interval. No split performed.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         else {
             result.insertKnot(u, result._degree + 1);
@@ -57319,7 +57331,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return result;
@@ -57330,7 +57342,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         var knots = spline.getDistinctKnots();
         if (u >= knots[0] && u <= knots[knots.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             var extendedSpline = spline.extend(u);
@@ -57881,7 +57893,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             var interval2 = this.knotSequence[this.knotSequence.length - i - 2].abscissa - this.knotSequence[this.knotSequence.length - 1 - i].abscissa;
             if (Math.abs(interval1 + interval2) > AbstractKnotSequence_1.KNOT_COINCIDENCE_TOLERANCE) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point. This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -57893,7 +57905,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             var interval2 = this.knotSequence[indexKnotOrigin - (i + 1)].abscissa - this.knotSequence[indexKnotOrigin - i].abscissa;
             if (Math.abs(interval1 + interval2) > AbstractKnotSequence_1.KNOT_COINCIDENCE_TOLERANCE) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point (left hand side). This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -57904,7 +57916,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             var interval2 = this.knotSequence[this.knotSequence.length - indexKnotOrigin - (i + 2)].abscissa - this.knotSequence[this.knotSequence.length - indexKnotOrigin - i - 1].abscissa;
             if (Math.abs(interval1 + interval2) > AbstractKnotSequence_1.KNOT_COINCIDENCE_TOLERANCE) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point (right hand side). This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -57917,11 +57929,11 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             cumulativeMultiplicity += this.knotSequence[i].multiplicity;
             i++;
         }
-        this._indexKnotOrigin = new Knot_1.KnotIndexIncreasingSequence(i - 1);
+        this._indexKnotOrigin = new Knot_1.KnotIndexStrictlyIncreasingSequence(i - 1);
         if (this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa !== 0.0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this not sequence.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     IncreasingOpenKnotSequenceClosedCurve.prototype.checkNonUniformKnotMultiplicityOrder = function () {
@@ -57958,7 +57970,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             if (indexCoincidentKnot < this._indexKnotOrigin.knotIndex || indexCoincidentKnot > this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1) {
                 coincident = false;
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "isAbscissaCoincidingWithKnot", "knot abscissa is outside the definition interval of the closed curve.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return coincident;
@@ -57972,7 +57984,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
         var index = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
         if (u < this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa || u > this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].abscissa) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -58153,8 +58165,8 @@ var IncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_super) {
         // if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
         if (u < AbstractOpenKnotSequence_1.OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside the valid knot sequence span.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -58263,47 +58275,15 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
     function IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knotParameters) {
         var _this = _super.call(this, maxMultiplicityOrder) || this;
         _this.knotSequence = [];
-        _this._uMax = Infinity;
+        _this._uMax = AbstractKnotSequence_1.UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if (knotParameters.type === KnotSequenceConstructorInterface_1.NO_KNOT_PERIODIC_CURVE) {
-            var minValueMaxMultiplicityOrder = 1;
-            _this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
-            for (var i = 0; i < (_this._maxMultiplicityOrder + 2); i++) {
-                _this.knotSequence.push(new Knot_1.Knot(i, 1));
-            }
-            _this._uMax = _this._maxMultiplicityOrder + 1;
+            _this.computeKnotSequenceFromMaxMultiplicityOrder();
         }
         else if (knotParameters.type === KnotSequenceConstructorInterface_1.UNIFORM_PERIODICKNOTSEQUENCE) {
-            var minValueMaxMultiplicityOrder = 1;
-            _this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
-            _this.constructorInputBspBasisSizeAssessment(knotParameters);
-            for (var i = 0; i < knotParameters.BsplBasisSize; i++) {
-                _this.knotSequence.push(new Knot_1.Knot(i, 1));
-            }
-            _this._uMax = _this.knotSequence[_this.knotSequence.length - 1].abscissa;
+            _this.computeUniformKnotSequenceFromBsplBasisSize(knotParameters);
         }
         else if (knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE || knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSUBSEQUENCE) {
-            var minValueMaxMultiplicityOrder = 1;
-            _this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
-            _this.knotSequence.push(new Knot_1.Knot(knotParameters.periodicKnots[0], 1));
-            for (var i = 1; i < knotParameters.periodicKnots.length; i++) {
-                if (knotParameters.periodicKnots[i] === _this.knotSequence[_this.knotSequence.length - 1].abscissa) {
-                    _this.knotSequence[_this.knotSequence.length - 1].multiplicity++;
-                }
-                else {
-                    _this.knotSequence.push(new Knot_1.Knot(knotParameters.periodicKnots[i], 1));
-                }
-            }
-            if (knotParameters.periodicKnots.length < (_this._maxMultiplicityOrder + 2)) {
-                var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
-                error.logMessageToConsole();
-                return _this;
-            }
-            _this._uMax = _this.knotSequence[_this.knotSequence.length - 1].abscissa;
-            if (!(knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSUBSEQUENCE))
-                _this.checkCurveOrigin();
-            if (!(knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSUBSEQUENCE))
-                _this.checkMultiplicityAtEndKnots();
-            _this.checkMaxMultiplicityOrderConsistency();
+            _this.generateKnotSequence(knotParameters);
         }
         _this.checkUniformityOfKnotMultiplicity();
         _this.checkUniformityOfKnotSpacing();
@@ -58400,14 +58380,57 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.knotIndexInputParamAssessment = function (index, methodName) {
         if (index.knotIndex < 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "The knot index cannot be negative. The corresponding method is not applied.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (index.knotIndex > (this.allAbscissae.length - 1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "The knot index cannot be greater than the last knot index.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.computeKnotSequenceFromMaxMultiplicityOrder = function () {
+        var minValueMaxMultiplicityOrder = 1;
+        this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
+        for (var i = 0; i < (this._maxMultiplicityOrder + 2); i++) {
+            this.knotSequence.push(new Knot_1.Knot(i, 1));
+        }
+        this._uMax = this._maxMultiplicityOrder + 1;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.computeUniformKnotSequenceFromBsplBasisSize = function (knotParameters) {
+        var minValueMaxMultiplicityOrder = 1;
+        this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
+        this.constructorInputBspBasisSizeAssessment(knotParameters);
+        for (var i = 0; i < knotParameters.BsplBasisSize; i++) {
+            this.knotSequence.push(new Knot_1.Knot(i, 1));
+        }
+        this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.generateKnotSequence = function (knotParameters) {
+        var minValueMaxMultiplicityOrder = 1;
+        this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
+        this.constructorInputArrayAssessment(knotParameters);
+        this.checkKnotIncreasingValues(knotParameters.periodicKnots);
+        this.knotSequence.push(new Knot_1.Knot(knotParameters.periodicKnots[0], 1));
+        for (var i = 1; i < knotParameters.periodicKnots.length; i++) {
+            if (knotParameters.periodicKnots[i] === this.knotSequence[this.knotSequence.length - 1].abscissa) {
+                this.knotSequence[this.knotSequence.length - 1].multiplicity++;
+            }
+            else {
+                this.knotSequence.push(new Knot_1.Knot(knotParameters.periodicKnots[i], 1));
+            }
+        }
+        if (knotParameters.periodicKnots.length < (this._maxMultiplicityOrder + 2)) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
+            error.logMessage();
+            return;
+        }
+        this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
+        if (!(knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSUBSEQUENCE))
+            this.checkCurveOrigin();
+        if (!(knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSUBSEQUENCE))
+            this.checkMultiplicityAtEndKnots();
+        this.checkMaxMultiplicityOrderConsistency();
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.toOpenKnotSequence = function () {
         var e_4, _a;
@@ -58456,7 +58479,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.raiseKnotMultiplicity = function (index, multiplicity) {
         if (index.knotIndex < 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "raiseKnotMultiplicity", "Index value is out of range.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
@@ -58471,7 +58494,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         if (index.knotIndex < 0) {
             increment = false;
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "negative index value. It cannot be processed");
-            error.logMessageToConsole();
+            error.logMessage();
             return increment;
         }
         var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
@@ -58501,7 +58524,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         }
         if (multiplicity === 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "knotMultiplicityAtAbscissa", "knot abscissa cannot be found within the knot sequence.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return multiplicity;
     };
@@ -58510,19 +58533,19 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         var insertion = true;
         if (this.isAbscissaCoincidingWithKnot(abscissa)) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "abscissa is too close from an existing knot: raise multiplicity of an existing knot.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             insertion = false;
             return insertion;
         }
         else if (multiplicity >= this._maxMultiplicityOrder) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree");
-            warning.logMessageToConsole();
+            warning.logMessage();
             insertion = false;
             return insertion;
         }
         else if (abscissa < this.knotSequence[0].abscissa || abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "insertKnot", "the abscissa is out of the range of the knot sequence interval");
-            warning.logMessageToConsole();
+            warning.logMessage();
             insertion = false;
         }
         if (insertion) {
@@ -58596,19 +58619,19 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         try {
             if (knotStart.knotIndex < 0) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index must be positive or null. Cannot perform the extraction.");
-                throw (error.logMessage());
+                throw (error.generateMessageString());
             }
             if (knotEnd.knotIndex <= knotStart.knotIndex) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index must be strictly lower than the end one. Cannot perform the extraction.");
-                throw (error.logMessage());
+                throw (error.generateMessageString());
             }
             if (knotStart.knotIndex > lasIndex) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index is out of range. No extraction is performed.");
-                throw (error.logMessageToConsole());
+                throw (error.logMessage());
             }
             if ((knotEnd.knotIndex - knotStart.knotIndex) > (2 * lasIndex)) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than twice the period of the sequence. No extraction is performed.");
-                throw (error.logMessageToConsole());
+                throw (error.logMessage());
             }
             if (knotEnd.knotIndex > lasIndex) {
                 for (var i = multFirstKnot; i < this.allAbscissae.length; i++) {
@@ -58637,7 +58660,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         if (u < this.knotSequence[0].abscissa) {
             console.log(u);
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -58713,18 +58736,31 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getDistinctKnots = exports.KnotIndexIncreasingSequence = exports.KnotIndexStrictlyIncreasingSequence = exports.AbstractKnotIndex = exports.Knot = exports.DEFAULT_KNOT_INDEX = void 0;
+exports.KnotIndexIncreasingSequence = exports.KnotIndexStrictlyIncreasingSequence = exports.AbstractKnotIndex = exports.Knot = exports.EM_KNOT_INCREMENT_DECREMENT = exports.EM_KNOT_INDEX_VALUE = exports.EM_KNOT_DECREMENT_KNOT_MULTIPLICITY = exports.EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY = exports.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA = exports.DEFAULT_KNOT_ABSCISSA_VALUE = exports.DEFAULT_KNOT_INDEX = void 0;
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 exports.DEFAULT_KNOT_INDEX = Infinity;
+exports.DEFAULT_KNOT_ABSCISSA_VALUE = Infinity;
+exports.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA = "Knot abscissa value out of range. Cannot proceed.";
+exports.EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY = "Knot multiplicity value out of range. Cannot proceed.";
+exports.EM_KNOT_DECREMENT_KNOT_MULTIPLICITY = "Encountered a knot multiplicity smaller than one when decrementing. Cannot proceed.";
+exports.EM_KNOT_INDEX_VALUE = "Knot index is negative. Must be positive or null. Cannot proceed.";
+exports.EM_KNOT_INCREMENT_DECREMENT = "Knot multiplicity cannot be incremented/decremented by an increment/decrement value smaller than one.";
 var Knot = /** @class */ (function () {
     function Knot(abscissa, multiplicity) {
-        this._abscissa = abscissa;
-        if (multiplicity !== undefined) {
-            this._multiplicity = multiplicity;
-            if (multiplicity < 1) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Knot multiplicity value out of range");
-                error.logMessageToConsole();
+        if (abscissa !== undefined) {
+            if (abscissa === exports.DEFAULT_KNOT_ABSCISSA_VALUE) {
+                this.throwRangeErrorMessage("constructor", exports.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA);
             }
+            this._abscissa = abscissa;
+        }
+        else {
+            this._abscissa = exports.DEFAULT_KNOT_ABSCISSA_VALUE;
+        }
+        if (multiplicity !== undefined) {
+            if (multiplicity < 1) {
+                this.throwRangeErrorMessage("constructor", exports.EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY);
+            }
+            this._multiplicity = multiplicity;
         }
         else {
             this._multiplicity = 1;
@@ -58735,7 +58771,12 @@ var Knot = /** @class */ (function () {
             return this._abscissa;
         },
         set: function (abscissa) {
-            this._abscissa = abscissa;
+            if (abscissa === exports.DEFAULT_KNOT_ABSCISSA_VALUE) {
+                this.throwRangeErrorMessage("abscissa_setter", exports.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA);
+            }
+            else {
+                this._abscissa = abscissa;
+            }
         },
         enumerable: false,
         configurable: true
@@ -58745,59 +58786,77 @@ var Knot = /** @class */ (function () {
             return this._multiplicity;
         },
         set: function (multiplicity) {
-            this._multiplicity = multiplicity;
+            if (multiplicity < 1) {
+                this.throwRangeErrorMessage("multiplicity_setter", exports.EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY);
+            }
+            else {
+                this._multiplicity = multiplicity;
+            }
         },
         enumerable: false,
         configurable: true
     });
-    Knot.prototype.incrementMultiplicity = function () {
-        this._multiplicity++;
+    Knot.prototype.incrementMultiplicity = function (increment) {
+        if (increment === void 0) { increment = 1; }
+        if (increment < 1)
+            this.throwRangeErrorMessage("incrementMultiplicity", exports.EM_KNOT_INCREMENT_DECREMENT);
+        this._multiplicity = this._multiplicity + increment;
         return;
     };
-    Knot.prototype.decrementMultiplicity = function () {
-        this._multiplicity--;
-        if (this._multiplicity < 1) {
+    Knot.prototype.decrementMultiplicity = function (decrement) {
+        if (decrement === void 0) { decrement = 1; }
+        if (decrement < 1)
+            this.throwRangeErrorMessage("incrementMultiplicity", exports.EM_KNOT_INCREMENT_DECREMENT);
+        if (this._multiplicity < (decrement + 1)) {
+            this.throwRangeErrorMessage("decrementMultiplicity", exports.EM_KNOT_DECREMENT_KNOT_MULTIPLICITY);
+        }
+        else {
+            this._multiplicity = this._multiplicity - decrement;
         }
         return;
+    };
+    Knot.prototype.throwRangeErrorMessage = function (functionName, message) {
+        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, functionName);
+        error.addMessage(message);
+        console.log(error.generateMessageString());
+        throw new RangeError(error.generateMessageString());
     };
     return Knot;
 }());
 exports.Knot = Knot;
 var AbstractKnotIndex = /** @class */ (function () {
     function AbstractKnotIndex(value) {
-        if (value === undefined) {
-            this._knotIndex = 0;
-        }
-        else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor");
-            if (value < 0) {
-                error.addMessage("Knot index is negative. Must be positive or null. Cannot proceed.");
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
-            }
-            else {
-                this._knotIndex = value;
-            }
-        }
+        this.assessmentInputIndexValue(value);
     }
     Object.defineProperty(AbstractKnotIndex.prototype, "knotIndex", {
         get: function () {
-            return this._knotIndex;
+            return this._knotIndex.index;
         },
         set: function (value) {
-            this._knotIndex = value;
+            this.assessmentInputIndexValue(value);
+            this._knotIndex.index = value;
             return;
         },
         enumerable: false,
         configurable: true
     });
+    AbstractKnotIndex.prototype.assessmentInputIndexValue = function (value) {
+        if (value < 0) {
+            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor");
+            error.addMessage(exports.EM_KNOT_INDEX_VALUE);
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
+        }
+    };
     return AbstractKnotIndex;
 }());
 exports.AbstractKnotIndex = AbstractKnotIndex;
 var KnotIndexStrictlyIncreasingSequence = /** @class */ (function (_super) {
     __extends(KnotIndexStrictlyIncreasingSequence, _super);
     function KnotIndexStrictlyIncreasingSequence(value) {
-        return _super.call(this, value) || this;
+        var _this = _super.call(this, value) || this;
+        _this._knotIndex = { type: 'KnotIndexStrictlyIncreasingSequence', index: value };
+        return _this;
     }
     return KnotIndexStrictlyIncreasingSequence;
 }(AbstractKnotIndex));
@@ -58805,23 +58864,13 @@ exports.KnotIndexStrictlyIncreasingSequence = KnotIndexStrictlyIncreasingSequenc
 var KnotIndexIncreasingSequence = /** @class */ (function (_super) {
     __extends(KnotIndexIncreasingSequence, _super);
     function KnotIndexIncreasingSequence(value) {
-        return _super.call(this, value) || this;
+        var _this = _super.call(this, value) || this;
+        _this._knotIndex = { type: 'KnotIndexIncreasingSequence', index: value };
+        return _this;
     }
     return KnotIndexIncreasingSequence;
 }(AbstractKnotIndex));
 exports.KnotIndexIncreasingSequence = KnotIndexIncreasingSequence;
-function getDistinctKnots(knots) {
-    var result = [knots[0]];
-    var temp = result[0];
-    for (var i = 1; i < knots.length; i += 1) {
-        if (knots[i] !== temp) {
-            result.push(knots[i]);
-            temp = knots[i];
-        }
-    }
-    return result;
-}
-exports.getDistinctKnots = getDistinctKnots;
 
 
 /***/ }),
@@ -58960,7 +59009,9 @@ var PeriodicBSplineR1toR1 = /** @class */ (function (_super) {
             var indexKnotOrigin = s._increasingKnotSequence.indexKnotOrigin;
             var lastIndex = new Knot_1.KnotIndexIncreasingSequence(s._increasingKnotSequence.length() - indexKnotOrigin.knotIndex - 1);
             newControlPoints = s.controlPoints.slice(indexKnotOrigin.knotIndex, s.controlPoints.length - indexKnotOrigin.knotIndex);
-            newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexKnotOrigin, lastIndex);
+            // newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexKnotOrigin, lastIndex);
+            var indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexKnotOrigin);
+            newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexInc, lastIndex);
         }
         return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(new BSplineR1toR1_1.BSplineR1toR1(newControlPoints, newKnots)));
     };
@@ -59008,11 +59059,11 @@ var PeriodicBSplineR1toR1 = /** @class */ (function (_super) {
         var knots = this.distinctKnots().slice();
         if (u >= knots[0] && u <= knots[knots.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Method not implemented yet.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     };
@@ -59153,8 +59204,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             invalid = true;
         }
         if (invalid) {
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     /**
@@ -59173,13 +59224,13 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     PeriodicBSplineR1toR2.prototype.abcsissaInputParamAssessment = function (u, methodName) {
         if (u < this._increasingKnotSequence.abscissaAtIndex(new Knot_1.KnotIndexIncreasingSequence(0))) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "The abscissa cannot be negative. The corresponding method is not applied.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (u > this._increasingKnotSequence.getPeriod()) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     /**
@@ -59214,8 +59265,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         this._increasingKnotSequence.knotIndexInputParamAssessment(indexKSeq, methodName);
         if (offset < 0 || offset > this._degree) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, methodName, "Offset value is out of range: must be positive or null and smaller or equal to the curve degree. Control point index cannot be defined.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     PeriodicBSplineR1toR2.prototype.fromIncKnotSeqIndexToControlPointIndex = function (indexKSeq, offset) {
@@ -59253,23 +59304,23 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         var abscissae = this._increasingKnotSequence.allAbscissae;
         if (u1 < abscissae[0]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa is negative. Positive abscissa only are valid.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (u1 >= abscissae[abscissae.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "First abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         if (u2 < abscissae[0]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "Second abscissa is negative. Positive abscissa only are valid.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (u2 >= abscissae[abscissae.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extract", "Second abscissa must be lower than the right bound of the knot sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         return;
     };
@@ -59279,7 +59330,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             var spline = this.clone();
             if (Math.abs(u1 - u2) < AbstractBSplineR1toR2_1.TOL_KNOT_COINCIDENCE) {
                 var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "extract", "The bounding abscissa are either identical or close enough to each other. No curve interval can be extracted. The curve is opened at the prescribed abscissa.");
-                warning.logMessageToConsole();
+                warning.logMessage();
                 var index = this.findSpanBoehmAlgorithm(u1);
                 if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== 0) {
                     u1 = this._increasingKnotSequence.abscissaAtIndex(index);
@@ -59428,13 +59479,13 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         this.abcsissaInputParamAssessment(u, "insertKnotBoehmAlgorithmInputParamAssessment");
         if (times <= 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (times > this._degree) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be greater than the curve degree. No insertion is perfomed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     PeriodicBSplineR1toR2.prototype.insertKnotBoehmAlgorithm = function (u, times) {
@@ -59672,7 +59723,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     PeriodicBSplineR1toR2.prototype.findCoincidentKnot = function (u) {
         try {
             this.abcsissaInputParamAssessment(u, "findCoincidentKnot");
-            var index = new Knot_1.KnotIndexIncreasingSequence();
+            var index = new Knot_1.KnotIndexIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
             if (!this.isKnotlMultiplicityZero(u))
                 index = this.getFirstKnotIndexCoincidentWithAbscissa(u);
             return index;
@@ -59687,7 +59738,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     };
     PeriodicBSplineR1toR2.prototype.insertKnot = function (u) {
         var uToInsert = u;
-        var index = new Knot_1.KnotIndexIncreasingSequence();
+        var index = new Knot_1.KnotIndexIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         if (!this.isKnotlMultiplicityZero(u)) {
             index = this.findCoincidentKnot(u);
             var indexSpan = this._increasingKnotSequence.findSpan(this._increasingKnotSequence.abscissaAtIndex(index));
@@ -59787,8 +59838,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     PeriodicBSplineR1toR2.prototype.evaluateOutsideRefIntervalInputParamAssessment = function (u) {
         if (u < (-this._increasingKnotSequence.getPeriod())) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefIntervalInputParamAssessment", "Abscissa is negative. Its value is lower than the knot sequence period. No evaluation takes place.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     };
     PeriodicBSplineR1toR2.prototype.evaluateOutsideRefInterval = function (u) {
@@ -59798,7 +59849,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             this.evaluateOutsideRefIntervalInputParamAssessment(u);
             if (u >= 0 && u < lastKnot) {
                 var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "evaluateOutsideRefInterval", "Abscissa value falls within the interval of definition of the curve, use the evaluation method.");
-                warning.logMessageToConsole();
+                warning.logMessage();
                 return this.evaluate(u);
             }
             else if (u < 0) {
@@ -59811,8 +59862,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Abscissa has not fallen into any predefined sub interval. No evaluation can take place.");
-                console.log(error.logMessage());
-                throw new EvalError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new EvalError(error.generateMessageString());
             }
         }
         catch (error) {
@@ -59841,23 +59892,23 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     PeriodicBSplineR1toR2.prototype.toOpenBSplineInputParamAssessment = function (u1, u2) {
         if (this.isKnotlMultiplicityZero(u1)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa is not a knot. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new TypeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new TypeError(error.generateMessageString());
         }
         else if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== this._degree) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "First abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         if (this.isKnotlMultiplicityZero(u2)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa is not a knot. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new TypeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new TypeError(error.generateMessageString());
         }
         else if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u2) !== this._degree) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "toOpenBSplineInputParamAssessment", "Second abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         return;
     };
@@ -59869,7 +59920,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             this.toOpenBSplineInputParamAssessment(u1, u2);
             if (Math.abs(u1 - u2) < AbstractBSplineR1toR2_1.TOL_KNOT_COINCIDENCE) {
                 var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "toOpenBSpline", "The bounding abscissa are either identical or close enough to each other. No curve interval can be extracted. The curve is opened at the prescribed abscissa.");
-                warning.logMessageToConsole();
+                warning.logMessage();
                 var index = this.findSpanBoehmAlgorithm(u1);
                 if (this._increasingKnotSequence.knotMultiplicityAtAbscissa(u1) !== 0) {
                     u1 = this._increasingKnotSequence.abscissaAtIndex(index);
@@ -60118,7 +60169,8 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
     });
     Object.defineProperty(PeriodicBSplineR1toR2withOpenKnotSequence.prototype, "periodicControlPointsLength", {
         get: function () {
-            var indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+            // const indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+            var indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             var multiplicityBoundary = this.knotMultiplicity(indexOrigin);
             if (multiplicityBoundary === (this._degree + 1)) {
                 multiplicityBoundary--;
@@ -60232,11 +60284,11 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         var knotMultiplicity = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
         if (knotMultiplicity.length !== distinctKnots.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "inconsistent set of knot multiplicities compared to the disctinct knot values.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (knotMultiplicity[0] !== knotMultiplicity[knotMultiplicity.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "knot multiplicities at sequence extremities differ. Cannot generate the knot sequence of the corresponding open curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         var knotToAddAtOrigin = [];
         for (var j = 0; j < (this._degree - knotMultiplicity[0] + 2); j++) {
@@ -60508,7 +60560,8 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
     //     this._controlPoints.splice(fout, 1);
     // }
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.getDistinctKnots = function () {
-        var indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+        // const indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+        var indexStrctInc = this._increasingKnotSequence.indexKnotOrigin;
         var multiplicityBoundary = this.knotMultiplicity(indexStrctInc);
         var result = _super.prototype.getDistinctKnots.call(this);
         return result.slice(this.degree - (multiplicityBoundary - 1), result.length - this.degree + (multiplicityBoundary - 1));
@@ -60530,14 +60583,14 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         return multiplicityZero;
     };
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.findCoincidentKnot = function (u) {
-        var index = new Knot_1.KnotIndexIncreasingSequence();
+        var index = new Knot_1.KnotIndexIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         if (!this.isKnotlMultiplicityZero(u))
             index = this.getFirstKnotIndexCoincidentWithAbscissa(u);
         return index;
     };
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.insertKnot = function (u) {
         var uToInsert = u;
-        var index = new Knot_1.KnotIndexIncreasingSequence();
+        var index = new Knot_1.KnotIndexIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         if (!this.isKnotlMultiplicityZero(u)) {
             index = this.findCoincidentKnot(u);
             var indexSpan = this._increasingKnotSequence.findSpan(this._increasingKnotSequence.abscissaAtIndex(index));
@@ -60548,13 +60601,15 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
             var indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             var knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
             var sameSplineOpenCurve = new BSplineR1toR2_1.BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
-            var newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            var indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin);
+            var newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexInc) + uToInsert;
             var indexSpan = this._increasingKnotSequence.findSpan(uToInsert);
             var indexStrictIncSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexSpan);
             var knotMultiplicity = this.knotMultiplicity(indexStrictIncSeq);
             if (knotMultiplicity === this._degree) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             else {
                 // two knot insertions must take place to preserve the periodic structure of the function basis
@@ -60586,7 +60641,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
     };
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.insertKnotIntoTempSpline = function (u) {
         var uToInsert = u;
-        var index = new Knot_1.KnotIndexIncreasingSequence();
+        var index = new Knot_1.KnotIndexIncreasingSequence(Knot_1.DEFAULT_KNOT_INDEX);
         if (!this.isKnotlMultiplicityZero(u)) {
             index = this.findCoincidentKnot(u);
             var indexSpan = this._increasingKnotSequence.findSpan(this._increasingKnotSequence.abscissaAtIndex(index));
@@ -60597,13 +60652,15 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
             var indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             var knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
             var sameSplineOpenCurve = new BSplineR1toR2_1.BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
-            var newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            var indexIncSeq = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin);
+            var newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexIncSeq) + uToInsert;
             var indexSpan = this._increasingKnotSequence.findSpan(uToInsert);
             var indexStrictIncSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexSpan);
             var knotMultiplicity = this.knotMultiplicity(indexStrictIncSeq);
             if (knotMultiplicity === this._degree) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             else {
                 // two knot insertions must take place to preserve the periodic structure of the function basis
@@ -60676,7 +60733,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         var knots = this.getDistinctKnots();
         if (u >= knots[0] && u <= knots[knots.length - 1]) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             u = u % (knots[knots.length - 1] - knots[0]);
@@ -60739,7 +60796,7 @@ function findSpan(u, knots, degree) {
         console.log("degree: " + degree);
         // throw new Error("Error: parameter u is outside valid span");
         var error = new ErrorLoging_1.ErrorLog("function", "findSpan", "parameter u is outside valid span");
-        error.logMessageToConsole();
+        error.logMessage();
     }
     // Special case
     if (u === knots[knots.length - degree - 1]) {
@@ -61055,7 +61112,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
             var interval2 = this.knotSequence[this.knotSequence.length - i - 2].abscissa - this.knotSequence[this.knotSequence.length - 1 - i].abscissa;
             if (Math.abs(interval1 + interval2) > AbstractKnotSequence_1.KNOT_COINCIDENCE_TOLERANCE) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point. This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -61067,7 +61124,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
             var interval2 = this.knotSequence[indexKnotOrigin - (i + 1)].abscissa - this.knotSequence[indexKnotOrigin - i].abscissa;
             if (Math.abs(interval1 + interval2) > AbstractKnotSequence_1.KNOT_COINCIDENCE_TOLERANCE) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point (left hand side). This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -61078,7 +61135,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
             var interval2 = this.knotSequence[this.knotSequence.length - indexKnotOrigin - (i + 2)].abscissa - this.knotSequence[this.knotSequence.length - indexKnotOrigin - i - 1].abscissa;
             if (Math.abs(interval1 + interval2) > AbstractKnotSequence_1.KNOT_COINCIDENCE_TOLERANCE) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point (right hand side). This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -61097,7 +61154,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
         this._indexKnotOrigin.knotIndex = i - 1;
         if (this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa !== 0.0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this not sequence.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     StrictlyIncreasingOpenKnotSequenceClosedCurve.prototype.isAbscissaCoincidingWithKnot = function (abscissa) {
@@ -61125,7 +61182,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
             if (indexCoincidentKnot < this._indexKnotOrigin.knotIndex || indexCoincidentKnot > this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1) {
                 coincident = false;
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "isAbscissaCoincidingWithKnot", "knot abscissa is outside the definition interval of the closed curve.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return coincident;
@@ -61171,7 +61228,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
         var index = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
         if (u < this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa || u > this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].abscissa) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -61287,8 +61344,8 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCurveOrigin");
         if (this.knotSequence[0].abscissa !== 0.0 && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
             error.addMessage("Curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
         else if (this.knotSequence[0].abscissa !== 0.0) {
             var i = 0;
@@ -61299,8 +61356,8 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
             }
             if (cumulativeMultiplicity !== this._maxMultiplicityOrder) {
                 error.addMessage("No curve origin can be defined. The distribution of multiplicities at the beginning of the sequence does not enable the definition of consistent basis of B-spline functions. Not able to proceed.");
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
             this._indexKnotOrigin = new Knot_1.KnotIndexStrictlyIncreasingSequence(i - 1);
         }
@@ -61340,7 +61397,7 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
         if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
             console.log(u);
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -61436,8 +61493,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
     function StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knotsParameters) {
         var _this = _super.call(this, maxMultiplicityOrder) || this;
         _this.knotSequence = [];
-        _this._index = new Knot_1.KnotIndexIncreasingSequence();
-        _this._uMax = 0;
+        _this._uMax = AbstractKnotSequence_1.UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if (knotsParameters.type === KnotSequenceConstructorInterface_1.NO_KNOT_PERIODIC_CURVE) {
         }
         else if (knotsParameters.type === KnotSequenceConstructorInterface_1.UNIFORM_PERIODICKNOTSEQUENCE) {
@@ -61448,7 +61504,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
             }
             if (knotsParameters.periodicKnots.length < (_this._maxMultiplicityOrder + 2)) {
                 var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return _this;
             }
             if (!(knotsParameters.type === KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE))
@@ -61484,18 +61540,18 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
     });
     StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype[Symbol.iterator] = function () {
         var _this = this;
-        var lastIndex = new Knot_1.KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
+        var lastIndex = this.knotSequence.length - 1;
+        var index = 0;
         return {
             next: function () {
-                if (_this._index.knotIndex <= lastIndex.knotIndex) {
-                    var abscissa = _this.knotSequence[_this._index.knotIndex].abscissa;
-                    var multiplicity = _this.knotSequence[_this._index.knotIndex].multiplicity;
-                    _this._index.knotIndex++;
-                    return { value: { abscissa: abscissa, multiplicity: multiplicity },
-                        done: false };
+                if (index <= lastIndex) {
+                    var abscissa = _this.knotSequence[index].abscissa;
+                    var multiplicity = _this.knotSequence[index].multiplicity;
+                    index++;
+                    return { value: { abscissa: abscissa, multiplicity: multiplicity }, done: false };
                 }
                 else {
-                    _this._index = new Knot_1.KnotIndexStrictlyIncreasingSequence();
+                    index = 0;
                     return { done: true };
                 }
             }
@@ -61535,7 +61591,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
         var indexPeriod = new Knot_1.KnotIndexStrictlyIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
         if (indexPeriod.knotIndex < 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessageToConsole();
+            error.logMessage();
             increment = false;
         }
         else {
@@ -61624,7 +61680,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
         if (u < this.knotSequence[0].abscissa) {
             console.log(u);
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -61761,7 +61817,7 @@ var AbstractCurveModel = /** @class */ (function () {
                 var indexObs = this.observers.indexOf(observer);
                 if (indexObs === -1) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkObservers", "Unable to locate the " + i + "th observer in the list of observers.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 i++;
             }
@@ -61780,7 +61836,7 @@ var AbstractCurveModel = /** @class */ (function () {
                 var indexObsCP = this.observersCP.indexOf(observer);
                 if (indexObsCP === -1) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkObservers", "Unable to locate the " + i + "th observerCP in the list of observersCP.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 i++;
             }
@@ -61799,7 +61855,7 @@ var AbstractCurveModel = /** @class */ (function () {
                 var indexObs = this.observers.indexOf(observer);
                 if (indexObs === -1) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeObserver", "Unable to locate the observer " + observer + " in the list of observers.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 this.observers.splice(this.observers.indexOf(observer), 1);
                 break;
@@ -61807,7 +61863,7 @@ var AbstractCurveModel = /** @class */ (function () {
                 var indexObsCP = this.observersCP.indexOf(observer);
                 if (indexObsCP === -1) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeObserver", "Unable to locate the observer " + observer + " in the list of observers.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 this.observersCP.splice(this.observersCP.indexOf(observer), 1);
                 break;
@@ -62200,7 +62256,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         else {
             var message = 'Nb of inflections differ. In seq1 = ' + this._sequenceDiffEvents1.indicesOfInflections.length + ' seq2 = ' + this._sequenceDiffEvents2.indicesOfInflections.length;
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateIntervalAndNumberOfCurvExEventChanges", message);
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length() && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
             this.checkConsistencySumModifiedEvents();
@@ -62230,7 +62286,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         if (!modificationOfInflectionEventExist) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "setModifedInflectionEventInExtremeInterval", "Inconsistent variation of sequences of differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ComparatorOfSequencesOfDiffEvents.prototype.areTwoInflectionsDisappearingAtCurveExtremities = function (sequenceDiffEvents1, sequenceDiffEvents2) {
@@ -62295,7 +62351,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateIntervalAndNumberOfInflectionEventChanges", "Inconsistent number of curvature extrema. There must be one, at least.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             else if (nbModifiedInflections === exports.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
@@ -62304,7 +62360,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateIntervalAndNumberOfInflectionEventChanges", "Inconsistent number of curvature extrema. There must be one, at least.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -62357,7 +62413,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                     }
                     else if (modifiedCurvExEvent.nbEvents !== 0) {
                         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "Cannot process the curvature extremum event.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
             }
@@ -62371,7 +62427,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "No curvature extremum event processed because inflection events are modified too.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ComparatorOfSequencesOfDiffEvents.prototype.combineLocationAndBehaviorForCurvExtrema = function (neighboringEvent, eventBehavior) {
@@ -62390,7 +62446,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "combineLocationAndBehaviorForCurvExtrema", "Inconsistent differential event type.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     };
@@ -62440,7 +62496,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                     }
                     else {
                         var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "Cannot process the inflection event.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
             }
@@ -62454,7 +62510,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "No inflection event processed because curvature extrema events are modified too.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ComparatorOfSequencesOfDiffEvents.prototype.combineLocationAndBehaviorForInflections = function (neighboringEvent, eventBehavior) {
@@ -62473,14 +62529,14 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "combineLocationAndBehaviorForInflections", "Inconsistent differential event type.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     };
     ComparatorOfSequencesOfDiffEvents.prototype.assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange = function (index) {
         if (index !== 0 && index !== exports.LAST_INDEX) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange', 'invalid index to process sequences of differential events.');
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         var orderEventRemoved;
@@ -62601,7 +62657,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt a curvature extremum being replaced by an inflection.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             else if (variationNbInflections === -1 && variationNbCurvEx === 1) {
@@ -62620,7 +62676,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt an inflection being replaced by a curvature extremum     .");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -62660,7 +62716,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         else if (this.modifiedCurvExEvents.length === 0 && this.modifiedInflectionEvents.length === 0
             && this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length()) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "locateNeiboringEvents", "Cannot process this configuration yet.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ComparatorOfSequencesOfDiffEvents.prototype.checkConsistencyModifiedEvents = function () {
@@ -62671,7 +62727,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                     var message = "The number of differential events appaearing/disappearing in interval [" + _this._sequenceDiffEvents1.indicesOfInflections[element.indexInflection - 1]
                         + ", " + _this._sequenceDiffEvents1.indicesOfInflections[element.indexInflection] + "] must be even.";
                     var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "checkConsistencyModifiedEvents", message);
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         });
@@ -62683,7 +62739,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         });
         if (sum !== 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencySumModifiedEvents", "The sum of events appearing/disappearing must be null but is not: " + sum);
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ComparatorOfSequencesOfDiffEvents.prototype.removeAllNeighboringEvents = function (listNeighboringEvents) {
@@ -62778,7 +62834,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                     default:
                         if (neighboringEvents.type === NeighboringEvents_1.NeighboringEventsType.none) {
                             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "removeNeighboringEvents", "The events to remove are of type 'none'. Inconsistent operation.");
-                            warning.logMessageToConsole();
+                            warning.logMessage();
                         }
                         break;
                 }
@@ -62793,7 +62849,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
         }
         if (indexEvent === ExtremumLocationClassifiier_1.INITIAL_INDEX) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeNeighboringEvents", "Inconsistent index found when removing neighboring events from a comparator. Operation cannot be performed.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             this.neighboringEvents.splice(indexEvent, 1);
@@ -62899,7 +62955,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "filterOutneighboringEvents", "Incorrect transition of differential events.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -62986,7 +63042,7 @@ var ComparatorOfSequencesOfDiffEvents = /** @class */ (function () {
                 }
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "filterOutneighboringEvents", "Incorrect transition of differential events.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -63118,11 +63174,11 @@ var ComparatorOfSequencesOfIntervals = /** @class */ (function () {
     ComparatorOfSequencesOfIntervals.prototype.checkCandidateIndexInReferenceSequence = function (CandidateEvent, nbEvents) {
         if (nbEvents === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && CandidateEvent >= this._sequenceOfIntervals1.sequence.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCandidateIndexInReferenceSequence", "Invalid index to scan sequence1 of intervals: out of bounds.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (nbEvents === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && CandidateEvent >= this._sequenceOfIntervals2.sequence.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkCandidateIndexInReferenceSequence", "Invalid index to scan sequence2 of intervals: out of bounds.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return ComparatorOfSequencesOfIntervals;
@@ -63616,11 +63672,11 @@ var LocalizerOfCurvatureExtremumInsideExtremeInterval = /** @class */ (function 
         var _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
         if (_this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence1' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.sequenceDiffEvents2.indicesOfInflections.length === 0) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence2' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.intervalsBtwExtrema1 = _this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(_this.location);
         _this.intervalsBtwExtrema2 = _this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(_this.location);
@@ -63732,7 +63788,7 @@ var LocalizerOfCurvatureExtremumInsideExtremeInterval = /** @class */ (function 
         if ((indexInflection !== this.sequenceDiffEvents1.indicesOfInflections.length && indexInflection !== 0 && this.sequenceDiffEvents1.indicesOfInflections.length > 0)
             || (indexInflection !== 0 && this.sequenceDiffEvents1.indicesOfInflections.length === 0)) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexConsistency", "Index of inflection in the sequence of differerntial events is invalid.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return LocalizerOfCurvatureExtremumInsideExtremeInterval;
@@ -63776,11 +63832,11 @@ var LocalizerOfCurvatureExtremumInsideUniqueInterval = /** @class */ (function (
         _this = _super.call(this, sequenceDiffEvents1, sequenceDiffEvents2, indexInflection) || this;
         if (_this.sequenceDiffEvents1.indicesOfInflections.length !== 0) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence1' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (_this.sequenceDiffEvents2.indicesOfInflections.length !== 0) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence2' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         _this.intervalsBtwExtrema1 = _this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(_this.location);
         _this.intervalsBtwExtrema2 = _this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(_this.location);
@@ -63803,7 +63859,7 @@ var LocalizerOfCurvatureExtremumInsideUniqueInterval = /** @class */ (function (
             newEvent.type = NeighboringEvents_2.NeighboringEventsType.none;
             newEvent.index = candidateEventIndex;
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "assignNewEventInUniqueInterval", "Inconsistent identification of curvature extremum. Possibly extremum at a knot.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return newEvent;
     };
@@ -63836,7 +63892,7 @@ var LocalizerOfCurvatureExtremumInsideUniqueInterval = /** @class */ (function (
         }
         else if (nbEventsModified !== ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && nbEventsModified !== ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Incorrect number of modified differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             if (nbEventsModified === ComparatorOfSequencesDiffEvents_1.ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
@@ -63850,11 +63906,11 @@ var LocalizerOfCurvatureExtremumInsideUniqueInterval = /** @class */ (function (
             if (this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
                 if (modifiedEventIndex === candidateEventIndex) {
                     var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Events are stable as well as the candidate event.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 }
                 else {
                     var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Other events variations may influence the decision about the candidate event.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                     if (!(ratioLeft > ratioRight && candidateEventIndex === 0)) {
                         modifiedEventIndex = 0;
                     }
@@ -63869,7 +63925,7 @@ var LocalizerOfCurvatureExtremumInsideUniqueInterval = /** @class */ (function (
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Unable to generate the smallest interval of differential events for this curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return modifiedEventIndex;
     };
@@ -63979,11 +64035,11 @@ var LocalizerOfCurvatureExtrema = /** @class */ (function (_super) {
             if (this.intervalsBtwExtrema1.sequence.length > 0) {
                 if (maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
                     var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeIntervalVariations", "Events are stable as well as the candidate events.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 }
                 else if (maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
                     var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeIntervalVariations", "The candidate events are not the ones added.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                     /* Current assumption consists in considering an adjacent interval as candidate */
                     if (maxRatioF.value > maxRatioR.value) {
                         modifiedEventIndex = maxRatioF.index - 1;
@@ -63993,7 +64049,7 @@ var LocalizerOfCurvatureExtrema = /** @class */ (function (_super) {
                 }
                 else {
                     var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "analyzeIntervalVariations", "Events are not stable enough.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 }
             }
             else {
@@ -64018,7 +64074,7 @@ var LocalizerOfCurvatureExtrema = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeIntervalVariations", "Incorrect number of modified differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return modifiedEventIndex;
     };
@@ -64076,7 +64132,7 @@ var LocalizerOfInflectionInUniqueInterval = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "analyzeIntervalVariations", "Inconsistent content of the sequence of events to identify the curve extremity where the inflection is lost.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (intervalExtrema[0] > intervalExtrema[intervalExtrema.length - 1]) {
             index = sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1];
@@ -64113,7 +64169,7 @@ var LocalizerOfInflectionDisappearingInUniqueInterval = /** @class */ (function 
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into the unique interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return newEvent;
     };
@@ -64141,7 +64197,7 @@ var LocalizerOfInflectionAppearingInUniqueInterval = /** @class */ (function (_s
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into the unique interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return newEvent;
     };
@@ -64158,7 +64214,7 @@ var LocalizerOfInflectionInExtremeInterval = /** @class */ (function (_super) {
         if (_this.inflectionVariation === 1 && _this.sequenceDiffEvents1.indicesOfInflections.length === 1 ||
             _this.inflectionVariation === -1 && _this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Differential event sequence inadequate for this configuration.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return _this;
     }
@@ -64196,7 +64252,7 @@ var LocalizerOfInflectionAppearingInExtremeInterval = /** @class */ (function (_
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into an extreme interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return newEvent;
     };
@@ -64220,7 +64276,7 @@ var LocalizerOfInflectionDisappearingInExtremeInterval = /** @class */ (function
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "locateDifferentialEvents", " Inconsistent index to locate an inflection into an extreme interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return newEvent;
     };
@@ -64257,7 +64313,7 @@ var LocalizerOfInflectionsAdjacentCurvatureExtremum = /** @class */ (function (_
                 (this.indicesOscillations2.length - this.indicesOscillations1.length === 2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== 2) ||
                 (this.indicesOscillations2.length - this.indicesOscillations1.length === 3 && this.indicesOscillations1.length > 0)) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else if (nbModifedEvents === ComparatorOfSequencesDiffEvents_1.TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
@@ -64265,12 +64321,12 @@ var LocalizerOfInflectionsAdjacentCurvatureExtremum = /** @class */ (function (_
                 (this.indicesOscillations2.length - this.indicesOscillations1.length === -2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== -2) ||
                 (this.indicesOscillations2.length - this.indicesOscillations1.length === -3 && this.indicesOscillations2.length > 0)) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistent variation of number of differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     LocalizerOfInflectionsAdjacentCurvatureExtremum.prototype.assignNewEvent = function (sequenceDiffEvents, nbModifedEvents) {
@@ -64293,7 +64349,7 @@ var LocalizerOfInflectionsAdjacentCurvatureExtremum = /** @class */ (function (_
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "assignNewEvent", "Incorrect number of modified differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (indicesOscillations1.length > 0) {
             newEvent.type = NeighboringEvents_2.NeighboringEventsType.neighboringInflectionsCurvatureExtremum;
@@ -64445,7 +64501,7 @@ var ModifiedDifferentialEvents = /** @class */ (function () {
     ModifiedDifferentialEvents.prototype.checkOrder = function () {
         if (this.order !== DifferentialEvent_1.ORDER_INFLECTION && this.order !== DifferentialEvent_1.ORDER_CURVATURE_EXTREMUM) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkOrder", "Inconsistent value of differential event order.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return ModifiedDifferentialEvents;
@@ -64471,7 +64527,7 @@ var ModifiedCurvatureEvents = /** @class */ (function (_super) {
         _this._nbEvents = nbEventsModified;
         if (_this._nbEvents === 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -64519,7 +64575,7 @@ var ModifiedInflectionEvents = /** @class */ (function (_super) {
         _this._nbEvents = nbEventsModified;
         if (_this._nbEvents === 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "The number of modified differential events is set to 0, which is incorrect.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -64711,7 +64767,7 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
         else if (curvatureExtrema === undefined && inflections !== undefined) {
             if (inflections.length > 1) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Unable to generate a sequence of differential events: too many consecutive inflections.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             else {
                 var event_2 = new DifferentialEvent_1.InflectionEvent(inflections[0]);
@@ -64761,7 +64817,7 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "lastEvent", "Cannot get event because the sequence is empty.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         },
         enumerable: false,
@@ -64869,15 +64925,15 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
         if (indexExtrema > 0) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertEvents", "Inconsistent sequence of differential events because the location of curvature extrema is not stricly increasing at index."
                 + indexExtrema);
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if (j < inflections.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertEvents", "Inconsistent sequence of differential events that terminates with multiple inflections.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (this._sequence.length !== curvatureExtrema.length + inflections.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "insertEvents", "Inconsistent length of sequence of differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.checkSequenceConsistency();
         this._indicesOfInflections = this.generateIndicesInflection();
@@ -64943,7 +64999,7 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
         if (index > 0) {
             var message = "Inconsistent sequence of differential events: two successive inflections at indices " + (index - 1) + " and " + index;
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkTypeConsistency", message);
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     SequenceOfDifferentialEvents.prototype.checkLocationConsistency = function () {
@@ -64964,7 +65020,7 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
             var message = "Inconsistent sequence of differential events: two successive events have non strictly increasing abscissa at indices " +
                 (index - 1) + " and " + index + " with values " + this._sequence[index - 1].location + " and " + this._sequence[index].location;
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkLocationConsistency", message);
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     SequenceOfDifferentialEvents.prototype.checkSequenceConsistency = function () {
@@ -64979,22 +65035,22 @@ var SequenceOfDifferentialEvents = /** @class */ (function () {
                 if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_REMOVED) {
                     /* JCL A minimum of four intervals is required to obtain a meaningful loss of curvature extrema */
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema removal.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
                 else if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_DISAPPEAR && this._indicesOfInflections[inflectionIndex] - this._indicesOfInflections[inflectionIndex - 1] < exports.MIN_NB_INTERVALS_BTW_INFL_2CEXT_ADDED) {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the current interval of inflections. Number too small for curvature extrema insertion.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
         else if ((inflectionIndex === 0 || inflectionIndex === this._indicesOfInflections.length) && this._indicesOfInflections.length > 0) {
             if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === 0 && this._indicesOfInflections[inflectionIndex] < exports.MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the first interval of inflections. Number too small.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             else if (nbModifiedEvents === ComparatorOfSequencesDiffEvents_1.TWO_CURVEXT_EVENTS_APPEAR && inflectionIndex === this._indicesOfInflections.length && this._indicesOfInflections.length - this._indicesOfInflections[inflectionIndex - 1] < exports.MIN_NB_INTERVALS_BEFORE_AFTER_INFL_2CEXT_REMOVED) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencyIntervalBtwInflections", "Inconsistent number of curvature extrema in the last interval of inflections. Number too small.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     };
@@ -65146,7 +65202,7 @@ var SequenceOfIntervals = /** @class */ (function () {
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "indexSmallestInterval", "Inconsistent number of events (Must be a positive number not larger than two) or inconsistent number of intervals between curvature extrema.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return candidateEventIndex;
     };
@@ -65271,11 +65327,11 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
     };
     OpenPlanarCurve.prototype.setNavigableCurveWithOpenPlanarCurve = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'no curve model to change there.');
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     OpenPlanarCurve.prototype.setNavigableCurveWithClosedPlanarCurve = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'change to closed planar curves.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._shapeNavigableCurve.changeCurveCategory(new ClosedPlanarCurve(this._shapeNavigableCurve));
     };
     /* JCL 2020/10/07 Add the curve degree elevation process */
@@ -65291,7 +65347,7 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
                     }
                     else {
                         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
-                        warning.logMessageToConsole();
+                        warning.logMessage();
                     }
                 }
                 this.curveModel.setSpline(spline);
@@ -65302,7 +65358,7 @@ var OpenPlanarCurve = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return OpenPlanarCurve;
@@ -65335,12 +65391,12 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
     };
     ClosedPlanarCurve.prototype.setNavigableCurveWithOpenPlanarCurve = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setModelerWithOpenPlanarCurve', 'change to open planar curves.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._shapeNavigableCurve.changeCurveCategory(new OpenPlanarCurve(this._shapeNavigableCurve));
     };
     ClosedPlanarCurve.prototype.setNavigableCurveWithClosedPlanarCurve = function () {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'setModelerWithClosedPlanarCurve', 'no curve model to change there.');
-        warning.logMessageToConsole();
+        warning.logMessage();
     };
     ClosedPlanarCurve.prototype.inputSelectDegree = function (curveDegree) {
         if (this.curveModel !== undefined) {
@@ -65355,7 +65411,7 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
                     }
                     else {
                         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectDegree", "Curve degree increment has not been successful. Carry on with the initial curve");
-                        warning.logMessageToConsole();
+                        warning.logMessage();
                     }
                 }
                 this.curveModel.setSpline(spline);
@@ -65366,7 +65422,7 @@ var ClosedPlanarCurve = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectDegree", "Unable to assign a new degree to the curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return ClosedPlanarCurve;
@@ -65400,7 +65456,7 @@ var EventMgmtAtCurveExtremities = /** @class */ (function () {
         this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities = ShapeSpaceDiffEventsStructure_1.EventMgmtState.NotApplicable;
         if (this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Inconsistent curve type. Should be an open curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this._eventOutOfInterval = false;
         this._locationsCurvExtrema = [];
@@ -65542,7 +65598,7 @@ var EventStayInsideCurve = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "constructor", "Inconsistent curveShapeMonitoringStrategy class");
-            error.logMessageToConsole();
+            error.logMessage();
             _this.curveShapeMonitoringStrategy = _this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
         }
         _this.curveShapeMonitoringStrategy.resetCurve(_this.shapeNavigableCurve.curveCategory.curveModel.spline);
@@ -65557,17 +65613,17 @@ var EventStayInsideCurve = /** @class */ (function (_super) {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
             var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         }
         else if (this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && this.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.eventMgmtAtCurveExtremities));
             var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         }
         else if (!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     EventStayInsideCurve.prototype.monitorEventInsideCurve = function (seqComparator) {
@@ -65642,18 +65698,18 @@ var EventStayInsideCurve = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     };
     EventStayInsideCurve.prototype.checkConsistencySequencesDiffEvents = function () {
         if (this.sequenceCurvExtOutside.length() > 2) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencySequencesDiffEvents", "Number of curvature extrema moving outside is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else if (this.sequenceInflectionOutside.length() > 2) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkConsistencySequencesDiffEvents", "Number of inflections moving outside is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return EventStayInsideCurve;
@@ -65674,17 +65730,17 @@ var EventSlideOutsideCurve = /** @class */ (function (_super) {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
             var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         }
         else if (this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && this.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.eventMgmtAtCurveExtremities));
             var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         }
         else if (!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     EventSlideOutsideCurve.prototype.monitorEventInsideCurve = function (seqComparator) {
@@ -65711,11 +65767,11 @@ var NoEventToManageForCurve = /** @class */ (function (_super) {
                 this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
             }
             var message = new ErrorLoging_1.WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         }
         else if (!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     NoEventToManageForCurve.prototype.monitorEventInsideCurve = function (seqComparator) {
@@ -65842,7 +65898,7 @@ var ShapeNavigableCurve = /** @class */ (function () {
     });
     ShapeNavigableCurve.prototype.inputSelectCurveCategory = function (crvCategoryID) {
         var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "inputSelectCurveCategoryProcess", crvCategoryID.toString());
-        warning.logMessageToConsole();
+        warning.logMessage();
         switch (crvCategoryID) {
             case 0: {
                 this._curveCategory.setNavigableCurveWithOpenPlanarCurve();
@@ -65854,7 +65910,7 @@ var ShapeNavigableCurve = /** @class */ (function () {
             }
             default: {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "inputSelectCurveCategoryProcess", "no available curve category.");
-                error.logMessageToConsole();
+                error.logMessage();
                 break;
             }
         }
@@ -65866,7 +65922,7 @@ var ShapeNavigableCurve = /** @class */ (function () {
             || this._curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring
             || this._curveShapeSpaceNavigator.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "toggleCurveClamping", "Cannot handle clamping because no curve shape space navigator is available or no shape constraint is active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         else {
             this._controlOfCurveClamping = !this._controlOfCurveClamping;
@@ -65914,7 +65970,7 @@ var ShapeNavigableCurve = /** @class */ (function () {
         var knotIndex = i;
         if (this._clampedPoints[0] === exports.NO_CONSTRAINT && this._clampedPoints[1] === exports.NO_CONSTRAINT) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "updateClampedPointsAfterKnotInsertion", "No need to update clamped point indices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         else if ((this._clampedPoints[0] === exports.NO_CONSTRAINT && this._clampedPoints[1] !== exports.NO_CONSTRAINT)
             || (this._clampedPoints[0] !== exports.NO_CONSTRAINT && this._clampedPoints[1] === exports.NO_CONSTRAINT)) {
@@ -66048,7 +66104,7 @@ var ChartEventListener = /** @class */ (function (_super) {
             this.chartRenderingContext.push(this.ctxChart3);
         if (this.ctxChart1 === null || this.ctxChart2 === null || this.ctxChart3 === null) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "setupChartRenderingContexts", "Unable to get one or more CanvasRenderingContext2D required to process charts.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     ChartEventListener.prototype.uncheckCkbox = function () {
@@ -66285,7 +66341,7 @@ var FileEventListener = /** @class */ (function (_super) {
             }
             else {
                 var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Error when reading the input file. Incorrect text format.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     };
@@ -66297,13 +66353,13 @@ var FileEventListener = /** @class */ (function (_super) {
             this.curveModel = this._fileController.curveModel;
             if (this.curveModel === undefined) {
                 var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to get a curveModel to restart the chartSceneController.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
         }
         else {
             var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to reset the curve context. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return FileEventListener;
@@ -66434,14 +66490,14 @@ var CurveModelDefinitionEventListener = /** @class */ (function (_super) {
                         option.setAttribute("disabled", "");
                     else {
                         var error = new ErrorLoging_1.ErrorLog("curveModelEventListener", "inputSelectDegree", "No ID found to identify an Option in the Selector.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
             }
         }
         else {
             var error = new ErrorLoging_1.ErrorLog("curveModelEventListener", "inputSelectDegree", "The selected option cannot be converted into a Number");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     CurveModelDefinitionEventListener.prototype.updateCurveConstraintControlButton = function () {
@@ -66551,7 +66607,7 @@ var CurveModelDefinitionEventListener = /** @class */ (function (_super) {
                     option.setAttribute("disabled", "");
                 else {
                     var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "updateCurveDegreeSelector", "No id found to identify an Option in the Selector.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             option = document.getElementById(optionName + optionNumber);
@@ -66563,7 +66619,7 @@ var CurveModelDefinitionEventListener = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog("FileEventListener", "processInputFile", "Unable to assign a consistent curve degree when loading a curve. Curve degree must be greater or equal to 3.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     CurveModelDefinitionEventListener.prototype.update = function (message) {
@@ -66874,7 +66930,7 @@ var CurveSceneEventListener = /** @class */ (function () {
         }, false);
         if (!this.gl) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "CurveSceneEventListener", "Failed to get the rendering context for WebGL. Stop program.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
     }
@@ -67567,7 +67623,7 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -67578,15 +67634,15 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Color < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Color');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ClampedControlPointView.prototype.assignVertexAttrib = function () {
@@ -67605,7 +67661,7 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -67619,7 +67675,7 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -67672,7 +67728,7 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         }
         else {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'updateSelectedPoints', ' inconsistent number of clamped points !');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ClampedControlPointView.prototype.clearSelectedPoints = function () {
@@ -67689,7 +67745,7 @@ var ClampedControlPointView = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, 'setSelectedKnot', 'Try to insert a clamped point but maximum number of clamped points exceeded.');
-            error.logMessageToConsole();
+            error.logMessage();
         }
     };
     return ClampedControlPointView;
@@ -67745,7 +67801,7 @@ var ClickButtonView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return _this;
     }
@@ -67756,15 +67812,15 @@ var ClickButtonView = /** @class */ (function (_super) {
             this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Color < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Color');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ClickButtonView.prototype.assignVertexAttrib = function () {
@@ -67783,7 +67839,7 @@ var ClickButtonView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -67797,7 +67853,7 @@ var ClickButtonView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -67873,7 +67929,7 @@ var ControlPointsView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", 'Failed to set the positions of the vertices');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.updateVerticesAndIndices();
         _this.updateBuffers();
@@ -67886,15 +67942,15 @@ var ControlPointsView = /** @class */ (function (_super) {
         this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Color < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Color');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ControlPointsView.prototype.assignVertexAttrib = function () {
@@ -67913,7 +67969,7 @@ var ControlPointsView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -67927,7 +67983,7 @@ var ControlPointsView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -67960,7 +68016,7 @@ var ControlPointsView = /** @class */ (function (_super) {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the pointSequenceToDisplay.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
@@ -68047,7 +68103,7 @@ var ControlPolygonView = /** @class */ (function () {
         this.fColorLocation = this.gl.getUniformLocation(this.lineSegmentShader.program, "fColor");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     ControlPolygonView.prototype.assignVertexAttrib = function () {
@@ -68062,7 +68118,7 @@ var ControlPolygonView = /** @class */ (function () {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -68105,7 +68161,7 @@ var ControlPolygonView = /** @class */ (function () {
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "unknown type of curve. Unable to assign the controlPoints.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
@@ -68174,7 +68230,7 @@ var CurvatureExtremaView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.updateVerticesAndIndices();
         _this.updateBuffers();
@@ -68187,11 +68243,11 @@ var CurvatureExtremaView = /** @class */ (function (_super) {
         this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     CurvatureExtremaView.prototype.assignVertexAttrib = function () {
@@ -68208,7 +68264,7 @@ var CurvatureExtremaView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -68222,7 +68278,7 @@ var CurvatureExtremaView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -68315,7 +68371,7 @@ var CurveKnotsView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.updateVerticesAndIndices();
         _this.updateBuffers();
@@ -68347,7 +68403,7 @@ var CurveKnotsView = /** @class */ (function (_super) {
         this.FSIZE = this.vertices.BYTES_PER_ELEMENT;
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     CurveKnotsView.prototype.assignVertexAttrib = function () {
@@ -68363,7 +68419,7 @@ var CurveKnotsView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -68377,7 +68433,7 @@ var CurveKnotsView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -68445,7 +68501,7 @@ var CurveView = /** @class */ (function () {
         var check = this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
     CurveView.prototype.updatePointSequenceOnSpline = function () {
@@ -68491,7 +68547,7 @@ var CurveView = /** @class */ (function () {
             if (isNaN(spline.controlPoints[i].x) || isNaN(spline.controlPoints[i].y)) {
                 var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "NaN");
                 console.log("i = ", i);
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         this.spline = spline;
@@ -68504,7 +68560,7 @@ var CurveView = /** @class */ (function () {
         this.fColorLocation = this.gl.getUniformLocation(this.polylineShader.program, "fColor");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     CurveView.prototype.assignVertexAttrib = function () {
@@ -68536,7 +68592,7 @@ var CurveView = /** @class */ (function () {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.updatePointSequenceOnSpline();
@@ -68629,7 +68685,7 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         this.fColorLocation = this.gl.getUniformLocation(this.lineSegmentShader.program, "fColor");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     HighlightedControlPolygonView.prototype.assignVertexAttrib = function () {
@@ -68644,7 +68700,7 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -68750,7 +68806,7 @@ var InflectionsView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.updateVerticesAndIndices();
         _this.updateBuffers();
@@ -68763,11 +68819,11 @@ var InflectionsView = /** @class */ (function (_super) {
             this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     InflectionsView.prototype.assignVertexAttrib = function () {
@@ -68784,7 +68840,7 @@ var InflectionsView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -68798,7 +68854,7 @@ var InflectionsView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -68865,7 +68921,7 @@ var PhantomCurveView = /** @class */ (function () {
         var check = this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
     PhantomCurveView.prototype.updatePointSequenceOnSpline = function () {
@@ -68917,7 +68973,7 @@ var PhantomCurveView = /** @class */ (function () {
         this.fColorLocation = this.gl.getUniformLocation(this.polylineShader.program, "fColor");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     PhantomCurveView.prototype.assignVertexAttrib = function () {
@@ -68949,7 +69005,7 @@ var PhantomCurveView = /** @class */ (function () {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.updatePointSequenceOnSpline();
@@ -69179,7 +69235,7 @@ var SelectedEnteringShapeSpaceCurvExtremaView = /** @class */ (function (_super)
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.update(spline);
         return _this;
@@ -69192,11 +69248,11 @@ var SelectedEnteringShapeSpaceCurvExtremaView = /** @class */ (function (_super)
         this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     SelectedEnteringShapeSpaceCurvExtremaView.prototype.assignVertexAttrib = function () {
@@ -69213,7 +69269,7 @@ var SelectedEnteringShapeSpaceCurvExtremaView = /** @class */ (function (_super)
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -69227,7 +69283,7 @@ var SelectedEnteringShapeSpaceCurvExtremaView = /** @class */ (function (_super)
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -69336,7 +69392,7 @@ var SelectedEnteringShapeSpaceInflectionView = /** @class */ (function (_super) 
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.update(spline);
         return _this;
@@ -69349,11 +69405,11 @@ var SelectedEnteringShapeSpaceInflectionView = /** @class */ (function (_super) 
         this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     SelectedEnteringShapeSpaceInflectionView.prototype.assignVertexAttrib = function () {
@@ -69370,7 +69426,7 @@ var SelectedEnteringShapeSpaceInflectionView = /** @class */ (function (_super) 
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -69384,7 +69440,7 @@ var SelectedEnteringShapeSpaceInflectionView = /** @class */ (function (_super) 
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -69493,7 +69549,7 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.update(spline);
         return _this;
@@ -69506,11 +69562,11 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
         this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     SelectedSlipOutOfShapeSpaceCurvExtremaView.prototype.assignVertexAttrib = function () {
@@ -69527,7 +69583,7 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -69541,7 +69597,7 @@ var SelectedSlipOutOfShapeSpaceCurvExtremaView = /** @class */ (function (_super
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -69650,7 +69706,7 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.update(spline);
         return _this;
@@ -69663,11 +69719,11 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
         this.a_ColorLocation = this.gl.getUniformLocation(this.roundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     SelectedSlipOutOfShapeSpaceInflectionView.prototype.assignVertexAttrib = function () {
@@ -69684,7 +69740,7 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -69698,7 +69754,7 @@ var SelectedSlipOutOfShapeSpaceInflectionView = /** @class */ (function (_super)
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -69781,7 +69837,7 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         var check = _this.initVertexBuffers();
         if (check < 0) {
             var warning = new ErrorLoging_1.WarningLog(_this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         _this.updateVerticesAndIndices();
         _this.updateBuffers();
@@ -69794,11 +69850,11 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         this.a_ColorLocation = this.gl.getUniformLocation(this.doubleRoundDotSolidShader.program, "a_Color");
         if (this.a_Position < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if (this.a_Texture < 0) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     };
     TransitionCurvatureExtremaView.prototype.assignVertexAttrib = function () {
@@ -69815,7 +69871,7 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -69829,7 +69885,7 @@ var TransitionCurvatureExtremaView = /** @class */ (function (_super) {
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);

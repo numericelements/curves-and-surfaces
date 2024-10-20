@@ -275,7 +275,7 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
         const multiplicities: number[] = [4, 1, 1, 2, 4]
         const maxMultiplicityOrder = 4;
         const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: knots, multiplicities: multiplicities})
-        let index = new KnotIndexStrictlyIncreasingSequence();
+        let index = new KnotIndexStrictlyIncreasingSequence(0);
         let multiplicity = seq.knotMultiplicity(index)
         expect(multiplicity).to.eql(4);
         index = new KnotIndexStrictlyIncreasingSequence(1);

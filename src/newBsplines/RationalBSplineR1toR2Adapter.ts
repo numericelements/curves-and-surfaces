@@ -168,13 +168,13 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
     elevateDegree(times: number): void {
         // JCL method to be implemented
         const error = new ErrorLog(this.constructor.name, "elevateDegree", "method not yet implemented !");
-        error.logMessageToConsole();
+        error.logMessage();
     }
 
     degreeIncrement(): BSplineR1toR2Interface {
         // JCL method to be implemented
         const error = new ErrorLog(this.constructor.name, "degreeIncrement", "method not yet implemented !");
-        error.logMessageToConsole();
+        error.logMessage();
         return new RationalBSplineR1toR2Adapter();
     }
 
@@ -210,10 +210,10 @@ export class RationalBSplineR1toR2Adapter implements BSplineR1toR2Interface {
         const knots = this.getDistinctKnots();
         if(u >= knots[0] && u <= knots[knots.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Method not implemented yet.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     }

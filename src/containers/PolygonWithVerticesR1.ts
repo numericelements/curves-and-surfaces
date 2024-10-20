@@ -21,7 +21,7 @@ export class PolygonWithVerticesR1 extends AbstractPolygonWithVerticesR1{
             index = startIndex;
             if(startIndex < 0) {
                 const error = new ErrorLog(this.constructor.name, "constructor", "Cannot create a polygon with vertices with a start index negative");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         } else {
             index = 0;
@@ -48,7 +48,7 @@ export class PolygonWithVerticesR1 extends AbstractPolygonWithVerticesR1{
             for(let vertex of vertices) {
                 if((vertex.index - previousIndex) !== 1) {
                     const error = new WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                     code = RETURN_ERROR_CODE;
                     return code;
                 }

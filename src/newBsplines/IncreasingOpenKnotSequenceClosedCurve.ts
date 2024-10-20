@@ -56,7 +56,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             const interval2 = this.knotSequence[this.knotSequence.length - i - 2].abscissa - this.knotSequence[this.knotSequence.length - 1 - i].abscissa;
             if(Math.abs(interval1 + interval2) > KNOT_COINCIDENCE_TOLERANCE) {
                 const error = new ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point. This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -68,7 +68,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             const interval2 = this.knotSequence[indexKnotOrigin - (i + 1)].abscissa - this.knotSequence[indexKnotOrigin - i].abscissa;
             if(Math.abs(interval1 + interval2) > KNOT_COINCIDENCE_TOLERANCE) {
                 const error = new ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point (left hand side). This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -79,7 +79,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             const interval2 = this.knotSequence[this.knotSequence.length - indexKnotOrigin - (i + 2)].abscissa - this.knotSequence[this.knotSequence.length - indexKnotOrigin - i - 1].abscissa;
             if(Math.abs(interval1 + interval2) > KNOT_COINCIDENCE_TOLERANCE) {
                 const error = new ErrorLog(this.constructor.name, "checkKnotIntervalConsistency", "knot intervals are not symmetrically spread around the closure point (right hand side). This sequence cannot be processed.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             i++;
@@ -93,11 +93,11 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             cumulativeMultiplicity += this.knotSequence[i].multiplicity;
             i++;
         }
-        this._indexKnotOrigin = new KnotIndexIncreasingSequence(i - 1);
+        this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(i - 1);
         if(this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa !== 0.0) {
             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "curve origin is not zero. Curve origin must be set to 0.0. Not able to process this not sequence.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -128,7 +128,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             if(indexCoincidentKnot < this._indexKnotOrigin.knotIndex || indexCoincidentKnot > this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1) {
                 coincident = false;
                 const error = new ErrorLog(this.constructor.name, "isAbscissaCoincidingWithKnot", "knot abscissa is outside the definition interval of the closed curve.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return coincident;
@@ -143,7 +143,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         let index = RETURN_ERROR_CODE;
         if (u < this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa || u > this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].abscissa) {
             const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

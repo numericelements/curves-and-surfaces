@@ -45,7 +45,7 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
             this.curveShapeMonitoringStrategy = this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent curveShapeMonitoringStrategy class");
-            error.logMessageToConsole();
+            error.logMessage();
             this.curveShapeMonitoringStrategy = this.curveShapeSpaceNavigator.navigationCurveModel.curveShapeMonitoringStrategy;
         }
         this.curveShapeMonitoringStrategy.resetCurve(this.shapeNavigableCurve.curveCategory.curveModel.spline);
@@ -60,15 +60,15 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
             const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         } else if(this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && this.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel) {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.eventMgmtAtCurveExtremities));
             const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         } else if(!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -142,7 +142,7 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
                 }
             } else {
                 const error = new ErrorLog(this.constructor.name, "navigate", "Several events appear/disappear simultaneously. Configuration not processed yet");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     }
@@ -150,10 +150,10 @@ export class EventStayInsideCurve extends EventStateAtCurveExtremity {
     checkConsistencySequencesDiffEvents(): void {
         if(this.sequenceCurvExtOutside.length() > 2) {
             const error = new ErrorLog(this.constructor.name, "checkConsistencySequencesDiffEvents", "Number of curvature extrema moving outside is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.sequenceInflectionOutside.length() > 2) {
             const error = new ErrorLog(this.constructor.name, "checkConsistencySequencesDiffEvents", "Number of inflections moving outside is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -174,15 +174,15 @@ export class EventSlideOutsideCurve extends EventStateAtCurveExtremity {
                 this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtCurveExtremities));
             const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         } else if(this.shapeSpaceDiffEventStructure.slidingDifferentialEvents && this.shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel) {
             this.eventMgmtAtCurveExtremities.previousManagementOfEventsAtExtremities = this.shapeSpaceDiffEventStructure.managementOfEventsAtExtremities;
             this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new NoEventToManageForCurve(this.eventMgmtAtCurveExtremities));
             const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         } else if(!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -208,10 +208,10 @@ export class NoEventToManageForCurve extends EventStateAtCurveExtremity {
                 this.eventMgmtAtCurveExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtCurveExtremities));
             }
             const message = new WarningLog(this.constructor.name, " handleEventAtCurveExtremity ", this.eventMgmtAtCurveExtremities.eventStateAtCrvExtremities.constructor.name);
-            message.logMessageToConsole();
+            message.logMessage();
         } else if(!this.shapeSpaceDiffEventStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "handleEventAtCurveExtremity", "Cannot appply state change of event management at curve extremities: sliding status is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 

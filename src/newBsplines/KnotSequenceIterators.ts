@@ -8,7 +8,7 @@ export abstract class AbstractIndexKnotSeq implements knotIndex {
             this._index = index;
         } else {
             const error = new ErrorLog(this.constructor.name, "AbstractIndexKnotSeq", "parameter input must be an integer");
-            error.logMessageToConsole();
+            error.logMessage();
             this._index = 0;
         }
         

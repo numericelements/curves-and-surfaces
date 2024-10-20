@@ -192,7 +192,7 @@ export class CurveShapeSpaceNavigator {
 
     inputSelectNavigationProcess(navigationID: number) {
         const warning = new WarningLog(this.constructor.name, "inputSelectNavigationProcess", navigationID.toString());
-        warning.logMessageToConsole();
+        warning.logMessage();
 
         switch(navigationID) {
             case 0: {
@@ -209,7 +209,7 @@ export class CurveShapeSpaceNavigator {
             }
             default: {
                 const error = new ErrorLog(this.constructor.name, "inputSelectNavigationProcess", "no available navigation process.");
-                error.logMessageToConsole();
+                error.logMessage();
                 break;
             }
         }

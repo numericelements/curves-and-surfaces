@@ -6,7 +6,7 @@ import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2"
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1";
 import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
@@ -40,7 +40,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     }
 
     get periodicControlPointsLength(): number {
-        const indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+        // const indexOrigin = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+        const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
         let multiplicityBoundary = this.knotMultiplicity(indexOrigin);
         if(multiplicityBoundary === (this._degree + 1)) {
             multiplicityBoundary--;
@@ -170,10 +171,10 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
         if(knotMultiplicity.length !== distinctKnots.length) {
             const error = new ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "inconsistent set of knot multiplicities compared to the disctinct knot values.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(knotMultiplicity[0] !== knotMultiplicity[knotMultiplicity.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "knot multiplicities at sequence extremities differ. Cannot generate the knot sequence of the corresponding open curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         const knotToAddAtOrigin: number[] = [];
         for(let j = 0; j < (this._degree - knotMultiplicity[0] + 2); j++) {
@@ -459,7 +460,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     // }
 
     getDistinctKnots(): number[] {
-        const indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+        // const indexStrctInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.indexKnotOrigin);
+        const indexStrctInc = this._increasingKnotSequence.indexKnotOrigin;
         const multiplicityBoundary = this.knotMultiplicity(indexStrctInc);
         const result = super.getDistinctKnots();
         return result.slice(this.degree - (multiplicityBoundary - 1), result.length - this.degree + (multiplicityBoundary - 1));
@@ -485,14 +487,14 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     }
 
     findCoincidentKnot(u: number): KnotIndexIncreasingSequence {
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(DEFAULT_KNOT_INDEX);
         if(!this.isKnotlMultiplicityZero(u)) index = this.getFirstKnotIndexCoincidentWithAbscissa(u);
         return index;
     }
 
     insertKnot(u: number): void {
         let uToInsert = u;
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(DEFAULT_KNOT_INDEX);
         if(!this.isKnotlMultiplicityZero(u)) {
             index = this.findCoincidentKnot(u);
             const indexSpan = this._increasingKnotSequence.findSpan(this._increasingKnotSequence.abscissaAtIndex(index));
@@ -503,14 +505,16 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
             const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
-            const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            const indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin);
+            const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexInc) + uToInsert;
 
             const indexSpan = this._increasingKnotSequence.findSpan(uToInsert);
             const indexStrictIncSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexSpan);
             const knotMultiplicity = this.knotMultiplicity(indexStrictIncSeq);
             if(knotMultiplicity === this._degree) {
                 const error = new ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
-                error.logMessageToConsole();
+                error.logMessage();
             } else {
                 // two knot insertions must take place to preserve the periodic structure of the function basis
                 // unless if uToInsert = uSymmetric. In this case, only one knot insertion is possible
@@ -541,7 +545,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
 
     insertKnotIntoTempSpline(u: number): void {
         let uToInsert = u;
-        let index = new KnotIndexIncreasingSequence();
+        let index = new KnotIndexIncreasingSequence(DEFAULT_KNOT_INDEX);
         if(!this.isKnotlMultiplicityZero(u)) {
             index = this.findCoincidentKnot(u);
             const indexSpan = this._increasingKnotSequence.findSpan(this._increasingKnotSequence.abscissaAtIndex(index));
@@ -552,14 +556,16 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
             const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
-            const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
+            const indexIncSeq = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin)
+            const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexIncSeq) + uToInsert;
 
             const indexSpan = this._increasingKnotSequence.findSpan(uToInsert);
             const indexStrictIncSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexSpan);
             const knotMultiplicity = this.knotMultiplicity(indexStrictIncSeq);
             if(knotMultiplicity === this._degree) {
                 const error = new ErrorLog(this.constructor.name, "insertKnot", "cannot insert knot. Current knot multiplicity already equals curve degree.");
-                error.logMessageToConsole();
+                error.logMessage();
             } else {
                 // two knot insertions must take place to preserve the periodic structure of the function basis
                 // unless if uToInsert = uSymmetric. In this case, only one knot insertion is possible
@@ -635,7 +641,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         const knots = this.getDistinctKnots();
         if(u >= knots[0] && u <= knots[knots.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             u = u % (knots[knots.length - 1] - knots[0]);
             result = this.evaluate(u);

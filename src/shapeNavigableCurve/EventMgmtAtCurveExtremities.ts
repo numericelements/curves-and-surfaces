@@ -26,7 +26,7 @@ export class EventMgmtAtCurveExtremities {
         this._shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities = EventMgmtState.NotApplicable;
         if(this._shapeNavigableCurve.curveCategory.curveModel instanceof ClosedCurveModel) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent curve type. Should be an open curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this._eventOutOfInterval = false;
         this._locationsCurvExtrema = [];

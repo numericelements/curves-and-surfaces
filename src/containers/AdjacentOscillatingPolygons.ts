@@ -39,16 +39,16 @@ export class AdjacentOscillatingPolygons {
             if(lastVertex1.checkIndex() !== RETURN_ERROR_CODE && firstVertex2.checkIndex() !== RETURN_ERROR_CODE) {
                 if((lastVertex1.index + 1) !== firstVertex2.index) {
                     const error = new ErrorLog(this.constructor.name, "checkConsistency", "Indices of contiguous oscillating polygons are not in strict increasing order.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 } else {
                     if(lastVertex1.value * firstVertex2.value <= 0.0) {
                         const error = new ErrorLog(this.constructor.name, "checkConsistency", "Extreme vertices ordinates are not of same sign.");
-                        error.logMessageToConsole();
+                        error.logMessage();
                     }
                 }
             } else {
                 const error = new ErrorLog(this.constructor.name, "checkConsistency", "Inconsistent indices of extreme vertices of oscillating polygons.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     }
@@ -113,7 +113,7 @@ export class AdjacentOscillatingPolygons {
             }
             else {
                 const error = new ErrorLog(this.constructor.name, "findFirstVertex", "Inconsistent content of closestVertexAtBeginning and closestVertexAtEnd for oscillating polygon 1.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
     }

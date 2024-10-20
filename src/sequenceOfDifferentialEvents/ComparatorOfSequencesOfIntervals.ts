@@ -106,10 +106,10 @@ export class ComparatorOfSequencesOfIntervals {
     checkCandidateIndexInReferenceSequence(CandidateEvent: number, nbEvents: number): void {
         if(nbEvents === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && CandidateEvent >= this._sequenceOfIntervals1.sequence.length) {
             let error = new ErrorLog(this.constructor.name, "checkCandidateIndexInReferenceSequence", "Invalid index to scan sequence1 of intervals: out of bounds.")
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(nbEvents === ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL && CandidateEvent >= this._sequenceOfIntervals2.sequence.length) {
             let error = new ErrorLog(this.constructor.name, "checkCandidateIndexInReferenceSequence", "Invalid index to scan sequence2 of intervals: out of bounds.")
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 

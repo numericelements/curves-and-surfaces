@@ -37,7 +37,7 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
         const check = this.initVertexBuffers();
         if (check < 0) {
             const warning = new WarningLog(this.constructor.name, "constructor", "Failed to set the positions of the vertices.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
@@ -51,12 +51,12 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
     
         if (this.a_Position < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
 
         if (this.a_Texture < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Texture.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -77,7 +77,7 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
         // Bind the buffer objects to targets
@@ -93,7 +93,7 @@ export class TransitionCurvatureExtremaView extends AbstractPointView implements
         this.indexBuffer = this.gl.createBuffer();
         if (!this.indexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the index buffer object');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
 

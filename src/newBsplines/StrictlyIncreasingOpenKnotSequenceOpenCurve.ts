@@ -32,8 +32,8 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         const error = new ErrorLog(this.constructor.name,  "checkCurveOrigin");
         if(this.knotSequence[0].abscissa !== 0.0 && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
             error.addMessage("Curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         } else if(this.knotSequence[0].abscissa !== 0.0) {
             let i = 0;
             let cumulativeMultiplicity = 0;
@@ -43,8 +43,8 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
             }
             if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
                 error.addMessage("No curve origin can be defined. The distribution of multiplicities at the beginning of the sequence does not enable the definition of consistent basis of B-spline functions. Not able to proceed.");
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
             this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(i - 1);
         }
@@ -75,7 +75,7 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         if (u < this.knotSequence[0].abscissa || u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
             console.log(u);
             const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

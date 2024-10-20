@@ -50,12 +50,12 @@ export abstract class AbstractCurveDifferentialEventsExtractor implements IObser
             case 'curve':
                 this._observers.push(observer);
                 let warning = new WarningLog(this.constructor.name, 'registerObserver', 'register as curve' + observer.constructor.name);
-                warning.logMessageToConsole();
+                warning.logMessage();
                 break;
             case 'control points':
                 this._observersCP.push(observer);
                 warning = new WarningLog(this.constructor.name, 'registerObserver', 'register as CP' + observer.constructor.name);
-                warning.logMessageToConsole();
+                warning.logMessage();
                 break;
             default:
                 throw Error("unknown kind");

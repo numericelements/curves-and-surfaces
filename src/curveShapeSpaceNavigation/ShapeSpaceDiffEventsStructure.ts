@@ -33,7 +33,7 @@ export class ShapeSpaceDiffEventsStructure {
 
     constructor(shapeNavigableCurve: ShapeNavigableCurve, curveShapeSpaceNavigator: CurveShapeSpaceNavigator) {
         const warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._curveCategory = shapeNavigableCurve.curveCategory;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
         this._activeNavigationWithOptimizer = false;
@@ -53,7 +53,7 @@ export class ShapeSpaceDiffEventsStructure {
         } else{
             this._managementOfEventsAtExtremities = EventMgmtState.NotApplicable;
             const error = new ErrorLog(this.constructor.name, "constructor", "Curve category type unknown.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -87,14 +87,14 @@ export class ShapeSpaceDiffEventsStructure {
         if(this._curveCategory instanceof OpenPlanarCurve) {
             if(managementOfEventsAtExtremities === EventMgmtState.NotApplicable && this._slidingDifferentialEvents) {
                 const error = new ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
-                error.logMessageToConsole();
+                error.logMessage();
             } else {
                 this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
             }
         } else if(this._curveCategory instanceof ClosedCurveModel) {
             if(managementOfEventsAtExtremities !== EventMgmtState.NotApplicable) {
                 const error = new ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the closed curve category");
-                error.logMessageToConsole();
+                error.logMessage();
             } else {
                 this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
             }

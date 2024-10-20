@@ -1,11 +1,12 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { INCREASINGOPENKNOTSEQUENCE, IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSubSequence, IncreasingOpenKnotSubSequenceCCurve, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, StrictlyIncreasingOpenKnotSequence, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, Uniform_OpenKnotSequence, UNIFORM_OPENKNOTSEQUENCE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCE, IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSubSequence, IncreasingOpenKnotSubSequenceCCurve, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, INCREASINGPERIODICKNOTSEQUENCE, IncreasingPeriodicKnotSequence, INCREASINGPERIODICKNOTSUBSEQUENCE, IncreasingPeriodicKnotSubSequence, StrictIncreasingPeriodicKnotSequence, StrictlyIncreasingOpenKnotSequence, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORM_OPENKNOTSEQUENCE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 
 // Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // It may be needed to check if there are side effects (JCL 2024/05/06).
 export const KNOT_COINCIDENCE_TOLERANCE = 10E-10;
+export const UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA = Infinity;
 
 export abstract class AbstractKnotSequence {
 
@@ -36,8 +37,8 @@ export abstract class AbstractKnotSequence {
         const error = new ErrorLog(this.constructor.name, "constructor");
         if(this._maxMultiplicityOrder < minValue) {
             error.addMessage("Maximal value of knot multiplicity order is too small for this category of knot sequence. Cannot proceed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -61,14 +62,15 @@ export abstract class AbstractKnotSequence {
         const error = new ErrorLog(this.constructor.name, methodName);
         if(multiplicity > this._maxMultiplicityOrder) {
             error.addMessage("Knot multiplicity is greater than the maximum multiplicity order set for the knot sequence.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
     constructorInputArrayAssessment(knotParameters: IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceCCurve_allKnots | IncreasingOpenKnotSubSequence |
         IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSubSequenceCCurve | StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve |
-        StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots): void {
+        StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots | 
+        IncreasingPeriodicKnotSequence | IncreasingPeriodicKnotSubSequence | StrictIncreasingPeriodicKnotSequence): void {
         const error = new ErrorLog(this.constructor.name, "constructor");
         let message = "";
         const messageKnots = "Knot sequence with null length encountered. Cannot proceed.";
@@ -85,9 +87,9 @@ export abstract class AbstractKnotSequence {
             } else if(knotParameters.knots.length !== knotParameters.multiplicities.length) {
                 message = messageKnotLengthVsMultitplicityLength;
             }
-        } else if(knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+        } else if(knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVE || knotParameters.type === INCREASINGPERIODICKNOTSEQUENCE || knotParameters.type === INCREASINGPERIODICKNOTSUBSEQUENCE) {
             if((knotParameters.periodicKnots.length) === 0) message = messageKnots;
-        } else if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+        } else if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE || knotParameters.type === STRICTLYINCREASINGPERIODICKNOTSEQUENCE) {
             if(knotParameters.periodicKnots.length === 0) {
                 message = messageKnots;
             } else if(knotParameters.multiplicities.length === 0) {
@@ -98,8 +100,8 @@ export abstract class AbstractKnotSequence {
         }
         if(message !== "") {
             error.addMessage(message);
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -109,13 +111,13 @@ export abstract class AbstractKnotSequence {
         error.addMessage("Knot sequence cannot be generated. Not enough control points to generate a B-Spline basis. Cannot proceed.");
         if(knotParameters.type === UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
             if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder) {
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
         } else if(knotParameters.type === UNIFORM_PERIODICKNOTSEQUENCE) {
             if(knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 2)) {
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
         }
     }
@@ -155,8 +157,34 @@ export abstract class AbstractKnotSequence {
         }
         if(maxMultiplicityOrderReached) {
             const error = new ErrorLog(this.constructor.name, "checkMaxKnotMultiplicityAtIntermediateKnots", "Maximal knot multiplicity reached at an intermediate knot. Please, split the curve at these knots to describe elementary B-splines.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    checkKnotIncreasingValues(knots: number[]): void {
+        if(knots.length > 1) {
+            for(let i = 1; i < knots.length; i++) {
+                if(knots[i] < knots[i -1]) {
+                    const error = new ErrorLog(this.constructor.name, "checkKnotIncreasingValues");
+                    error.addMessage("Knot sequence is not increasing. Cannot proceed.");
+                    console.log(error.generateMessageString());
+                    throw new RangeError(error.generateMessageString());
+                }
+            }
+        }
+    }
+
+    checkKnotStrictlyIncreasingValues(knots: number[]): void {
+        if(knots.length > 1) {
+            for(let i = 1; i < knots.length; i++) {
+                if(knots[i] <= knots[i -1]) {
+                const error = new ErrorLog(this.constructor.name, "checkKnotStrictlyIncreasingValues");
+                    error.addMessage("Knot sequence is not strictly increasing. Cannot proceed.");
+                    console.log(error.generateMessageString());
+                    throw new RangeError(error.generateMessageString());
+                }
+            }
         }
     }
 
@@ -199,15 +227,14 @@ export abstract class AbstractKnotSequence {
         const error = new ErrorLog(this.constructor.name, methodName);
         if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
             error.addMessage("Knot index value in strictly increasing knot sequence is out of range.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
         this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
-        this.knotSequence[index.knotIndex].multiplicity--;
-        if(this.knotSequence[index.knotIndex].multiplicity === 0) {
+        if(this.knotSequence[index.knotIndex].multiplicity === 1) {
             const abscissae = this.distinctAbscissae();
             const multiplicities = this.multiplicities();
             abscissae.splice(index.knotIndex, 1);
@@ -218,6 +245,8 @@ export abstract class AbstractKnotSequence {
                 const knot = new Knot(abscissa, multiplicities[i]);
                 this.knotSequence.push(knot);
             }
+        } else {
+            this.knotSequence[index.knotIndex].multiplicity--;
         }
         this.checkUniformityOfKnotSpacing();
     }

@@ -1,23 +1,21 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
+import { KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGPERIODICKNOTSEQUENCE, NO_KNOT_PERIODIC_CURVE, StrictIncreasingPeriodicKnotSequenceClosedCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 
 export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
     protected knotSequence: Knot[];
-    protected _index: KnotIndexIncreasingSequence;
     protected _uMax: number;
 
     constructor(maxMultiplicityOrder: number, knotsParameters: StrictIncreasingPeriodicKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder);
         this.knotSequence = [];
-        this._index = new KnotIndexIncreasingSequence();
-        this._uMax = 0;
+        this._uMax = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if(knotsParameters.type === NO_KNOT_PERIODIC_CURVE) {
         
         } else if(knotsParameters.type === UNIFORM_PERIODICKNOTSEQUENCE) {
@@ -28,7 +26,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
             }
             if(knotsParameters.periodicKnots.length < (this._maxMultiplicityOrder + 2)) {
                 const error = new ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
-                error.logMessageToConsole();
+                error.logMessage();
                 return;
             }
             if(!(knotsParameters.type === STRICTLYINCREASINGPERIODICKNOTSEQUENCE)) this.checkCurveOrigin();
@@ -46,17 +44,17 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
     }
 
     [Symbol.iterator]() {
-        const lastIndex = new KnotIndexStrictlyIncreasingSequence(this.knotSequence.length - 1);
+        const lastIndex = this.knotSequence.length - 1;
+        let index = 0;
         return  {
             next: () => {
-                if ( this._index.knotIndex <= lastIndex.knotIndex ) {
-                    const abscissa = this.knotSequence[this._index.knotIndex].abscissa;
-                    const multiplicity = this.knotSequence[this._index.knotIndex].multiplicity;
-                    this._index.knotIndex++;
-                    return { value: {abscissa: abscissa, multiplicity: multiplicity}, 
-                    done: false };
+                if ( index <= lastIndex ) {
+                    const abscissa = this.knotSequence[index].abscissa;
+                    const multiplicity = this.knotSequence[index].multiplicity;
+                    index++;
+                    return { value: {abscissa: abscissa, multiplicity: multiplicity}, done: false };
                 } else {
-                    this._index = new KnotIndexStrictlyIncreasingSequence();
+                    index = 0;
                     return { done: true };
                 }
             }
@@ -87,7 +85,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         const indexPeriod =  new KnotIndexStrictlyIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
         if(indexPeriod.knotIndex < 0) {
             const error = new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessageToConsole();
+            error.logMessage();
             increment = false;
         } else {
             const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
@@ -152,7 +150,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         if (u < this.knotSequence[0].abscissa) {
             console.log(u);
             const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

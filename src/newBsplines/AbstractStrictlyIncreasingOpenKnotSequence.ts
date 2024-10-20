@@ -1,6 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequence } from "./AbstractOpenKnotSequence";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { DEFAULT_KNOT_INDEX, Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
@@ -14,7 +14,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
 
     constructor(maxMultiplicityOrder: number, knotParameters: AbstractStrictlyIncreasingOpenKnotSequence_type) {
         super(maxMultiplicityOrder, knotParameters);
-        this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence();
+        this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(DEFAULT_KNOT_INDEX);
         if(knotParameters.type === NO_KNOT_OPEN_CURVE) {
             this._indexKnotOrigin.knotIndex = 0;
         } else if(knotParameters.type === NO_KNOT_CLOSED_CURVE) {
@@ -28,7 +28,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         } else if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
             if(knotParameters.periodicKnots.length !== knotParameters.multiplicities.length) {
                 const error = new ErrorLog(this.constructor.name, "constructor", "size of multiplicities array does not the size of knot abscissae array.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
             for(let i = 0; i < knotParameters.periodicKnots.length; i++) {
                 this.knotSequence.push(new Knot(knotParameters.periodicKnots[i], knotParameters.multiplicities[i]));
@@ -73,26 +73,13 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
 
     abstract checkNonUniformKnotMultiplicityOrder(): void;
 
-    checkKnotStrictlyIncreasingValues(knots: number[]): void {
-        if(knots.length > 1) {
-            for(let i = 1; i < knots.length; i++) {
-                if(knots[i] <= knots[i -1]) {
-                const error = new ErrorLog(this.constructor.name, "checkKnotStrictlyIncreasingValues");
-                    error.addMessage("Knot sequence is not strictly increasing. Cannot proceed.");
-                    console.log(error.logMessage());
-                    throw new RangeError(error.logMessage());
-                }
-            }
-        }
-    }
-
     checkKnotMultiplicities(multiplicities: number[]): void {
         for(let i = 0; i < multiplicities.length; i++) {
             if(multiplicities[i] <= 0) {
                 const error = new ErrorLog(this.constructor.name, "checkKnotMultiplicities");
                 error.addMessage("Some knot multiplicities are negative or null. Cannot proceed.");
-                console.log(error.logMessage());
-                throw new RangeError(error.logMessage());
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
             }
         }
     }
@@ -142,7 +129,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         let increment = true;
         if(index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
             const error = new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessageToConsole();
+            error.logMessage();
             increment = false;
         } else {
             this.knotSequence[index.knotIndex].multiplicity += multiplicity;

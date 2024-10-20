@@ -4,7 +4,7 @@ import { BSplineR1toR2Interface as BSplineR1toR2Interface } from "./BSplineR1toR
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequence";
 import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
 
@@ -42,8 +42,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
             invalid = true;
         }
         if(invalid) {
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -51,7 +51,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         let degree = knotLength - this._controlPoints.length - 1;
         if (degree < 0) {
             const error = new ErrorLog(this.constructor.name, "computeDegree", "Negative degree for BSplines is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return degree;
     }
@@ -126,8 +126,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     scaleInputParamAssessment(factor: number): void {
         if(factor <= 0) {
             const error = new ErrorLog(this.constructor.name, "scaleInputParamAssessment", "Scale factor is negative or null. Cannot generate the scaled curve.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -178,8 +178,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
     controlPointIndexInputParamAssessment(index: number, methodName: string) {
         if (index < 0 || index >= this._controlPoints.length) {
             const error = new ErrorLog(this.constructor.name, methodName, "Control point index is out of range: control point location cannot be prescribed.");
-            console.log(error.logMessage());
-            throw new RangeError(error.logMessage());
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -199,7 +199,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         if(Math.abs(knotAbscissa[0]) < TOL_KNOT_COINCIDENCE) {
             result = knotAbscissa.slice();
             const warning = new WarningLog(this.constructor.name, "resetKnotAbscissaToOrigin", "No need to reset the sequence of knot abscissa");
-            warning.logMessageToConsole();
+            warning.logMessage();
         } else {
             result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
             for(let i= 1; i < knotAbscissa.length; i++) {
@@ -213,7 +213,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         // Piegl and Tiller, The NURBS book, p: 151
         if (times <= 0 || times > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnot", "Inconsistent multiplicity order of the knot insertion. No insertion performed.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         const index = this._increasingKnotSequence.findSpan(u);
@@ -226,11 +226,11 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         if((multiplicity + times) > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ",u, " multiplicity + times = ", (multiplicity + times));
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
 
-        let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
+        let newIndexStrictInc = new KnotIndexStrictlyIncreasingSequence(DEFAULT_KNOT_INDEX);
         for (let t = 0; t < times; t += 1) {
             const newControlPoints = [];
             let upperBound = 1;
@@ -289,7 +289,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         //i.e. applicable to non uniform or arbitrary knot sequences
         if (times <= 0 || times > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnotBoehmAlgorithm", "The knot multiplicity prescribed is incompatible with the curve degree.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         let index = this.findSpanBoehmAlgorithm(u);
@@ -303,7 +303,7 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
             multiplicity = this.knotMultiplicity(indexStrictInc);
         }
 
-        let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
+        let newIndexStrictInc = new KnotIndexStrictlyIncreasingSequence(DEFAULT_KNOT_INDEX);
         for (let t = 0; t < times; t += 1) {
             const newControlPoints = [];
             for (let i = 0; i < index.knotIndex; i += 1) {

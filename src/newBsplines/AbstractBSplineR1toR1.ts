@@ -3,7 +3,7 @@ import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 
@@ -32,7 +32,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         let degree = knotLength - this._controlPoints.length - 1;
         if (degree < 0) {
             const error = new ErrorLog(this.constructor.name, "computeDegree", "Negative degree BSplineR1toR1 are not supported.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return degree;
     }
@@ -116,7 +116,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         let result: number[] = []
         if(it === MAX_ITERATIONS_FOR_ZEROS_COMPUTATION) {
             const error = new ErrorLog(this.constructor.name, "zeros", "Maximum number of iterations reached when computing zeros of BSplineR1toR1");
-            error.logMessageToConsole();
+            error.logMessage();
             return result;
         }
 
@@ -144,7 +144,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
     insertKnot(u: number, times: number = 1): void {
         if (times <= 0) {
             const warning = new WarningLog(this.constructor.name, "insertKnot", "knot multiplicity prescribed equals zero or is negative. No knot insertion.");
-            warning.logMessageToConsole();
+            warning.logMessage();
             return;
         }
         const index = this._increasingKnotSequence.findSpan(u);
@@ -158,12 +158,12 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
         if((multiplicity + times) > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ",u, " multiplicity + times = ", (multiplicity + times));
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
 
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
+        let newIndexStrictInc = new KnotIndexStrictlyIncreasingSequence(DEFAULT_KNOT_INDEX);
         for (let t = 0; t < times; t += 1) {
             for (let i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];
@@ -227,7 +227,7 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
 
         const times = this._degree - multiplicity + 1;
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
+        let newIndexStrictInc = new KnotIndexStrictlyIncreasingSequence(DEFAULT_KNOT_INDEX);
         for (let t = 0; t < times; t += 1) {
             for (let i = 0; i < index.knotIndex - this._degree + 1; i += 1) {
                 newControlPoints[i] = this._controlPoints[i];

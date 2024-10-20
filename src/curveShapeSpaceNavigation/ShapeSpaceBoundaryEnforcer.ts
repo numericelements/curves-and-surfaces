@@ -72,7 +72,7 @@ export abstract class AbstractShapeSpaceBoundaryEnforcer {
                 return true;
             } else {
                 const error = new ErrorLog(this.constructor.name, "hasTransitionsOfEvents", "The list of current differential events is inconsistent");
-                error.logMessageToConsole();
+                error.logMessage();
                 return false;
             }
         } else {

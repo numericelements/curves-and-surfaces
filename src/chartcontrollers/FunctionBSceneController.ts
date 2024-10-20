@@ -28,7 +28,7 @@ export class FunctionBSceneController implements IObserver<BSplineR1toR2Interfac
             this.spline = new PeriodicBSplineR1toR2DifferentialProperties(message).curvatureDerivativeNumerator().convertTocurve();
         } else {
             const error = new ErrorLog(this.constructor.name, "update", "inconsistent class name to update the chart.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         
         let points = this.pointSequenceOnSpline()

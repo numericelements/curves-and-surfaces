@@ -112,7 +112,7 @@ export class ComparatorOfSequencesOfDiffEvents {
         } else {
             const message = 'Nb of inflections differ. In seq1 = ' + this._sequenceDiffEvents1.indicesOfInflections.length + ' seq2 = '+this._sequenceDiffEvents2.indicesOfInflections.length;
             const warning = new WarningLog(this.constructor.name, "locateIntervalAndNumberOfCurvExEventChanges", message);
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         if(this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length() && this._sequenceDiffEvents1.indicesOfInflections.length > 0) {
             this.checkConsistencySumModifiedEvents();
@@ -142,7 +142,7 @@ export class ComparatorOfSequencesOfDiffEvents {
         }
         if(!modificationOfInflectionEventExist) {
             const error = new ErrorLog(this.constructor.name, "setModifedInflectionEventInExtremeInterval", "Inconsistent variation of sequences of differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -206,14 +206,14 @@ export class ComparatorOfSequencesOfDiffEvents {
                     this.setModifedInflectionEventsAjacentToCurvEx(this._sequenceDiffEvents1, this._sequenceDiffEvents2, nbModifiedInflections);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateIntervalAndNumberOfInflectionEventChanges", "Inconsistent number of curvature extrema. There must be one, at least.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             } else if(nbModifiedInflections === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
                 if(nbCurvExtrema2  > 0) {
                     this.setModifedInflectionEventsAjacentToCurvEx(this._sequenceDiffEvents2, this._sequenceDiffEvents1, nbModifiedInflections);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateIntervalAndNumberOfInflectionEventChanges", "Inconsistent number of curvature extrema. There must be one, at least.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -258,12 +258,12 @@ export class ComparatorOfSequencesOfDiffEvents {
                     this.neighboringEvents.push(neighboringEvent);
                 } else if(modifiedCurvExEvent.nbEvents !== 0){
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "Cannot process the curvature extremum event.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         } else {
             const warning = new WarningLog(this.constructor.name, "locateNeiboringEventsUnderCurvExEventChanges", "No curvature extremum event processed because inflection events are modified too.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -279,7 +279,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             result.type = NeighboringEventsType.neighboringCurExtremumRightBoundaryDisappear;
         } else {
             const error = new ErrorLog(this.constructor.name, "combineLocationAndBehaviorForCurvExtrema", "Inconsistent differential event type.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     }
@@ -321,12 +321,12 @@ export class ComparatorOfSequencesOfDiffEvents {
                     this.neighboringEvents.push(neighboringEvent);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "Cannot process the inflection event.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         } else {
             const warning = new WarningLog(this.constructor.name, "locateNeiboringEventsUnderInflectionEventChanges", "No inflection event processed because curvature extrema events are modified too.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -342,7 +342,7 @@ export class ComparatorOfSequencesOfDiffEvents {
             result.type = NeighboringEventsType.neighboringInflectionRightBoundaryDisappear;
         } else {
             const error = new ErrorLog(this.constructor.name, "combineLocationAndBehaviorForInflections", "Inconsistent differential event type.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         return result;
     }
@@ -350,7 +350,7 @@ export class ComparatorOfSequencesOfDiffEvents {
     assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange(index: number): void {
         if(index !== 0 && index !== LAST_INDEX) {
             const error = new ErrorLog(this.constructor.name, 'assignNeighboringEventUnderCurvExAndInflectionSimultaneousChange', 'invalid index to process sequences of differential events.');
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         let orderEventRemoved: number;
@@ -462,7 +462,7 @@ export class ComparatorOfSequencesOfDiffEvents {
 
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt a curvature extremum being replaced by an inflection.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             } else if(variationNbInflections === -1 && variationNbCurvEx === 1) {
                 if(this._sequenceDiffEvents1.eventAt(0).order === ORDER_INFLECTION && this._sequenceDiffEvents2.eventAt(0).order === ORDER_CURVATURE_EXTREMUM) {
@@ -478,7 +478,7 @@ export class ComparatorOfSequencesOfDiffEvents {
 
                 } else {
                     const error = new ErrorLog(this.constructor.name, "locateNeiboringEvents", "The event types at the curve extremity are inconsistent wrt an inflection being replaced by a curvature extremum     .");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -517,7 +517,7 @@ export class ComparatorOfSequencesOfDiffEvents {
         } else if(this.modifiedCurvExEvents.length === 0 && this.modifiedInflectionEvents.length === 0
             && this._sequenceDiffEvents1.length() === this._sequenceDiffEvents2.length()) {
             const warning = new WarningLog(this.constructor.name, "locateNeiboringEvents", "Cannot process this configuration yet.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -529,7 +529,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                     const message = "The number of differential events appaearing/disappearing in interval [" + this._sequenceDiffEvents1.indicesOfInflections[element.indexInflection - 1]
                     + ", " + this._sequenceDiffEvents1.indicesOfInflections[element.indexInflection] + "] must be even.";
                     const error = new ErrorLog(this.constructor.name, "checkConsistencyModifiedEvents", message);
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         });
@@ -542,7 +542,7 @@ export class ComparatorOfSequencesOfDiffEvents {
         });
         if(sum !== 0) {
             const error = new ErrorLog(this.constructor.name, "checkConsistencySumModifiedEvents", "The sum of events appearing/disappearing must be null but is not: " + sum);
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -609,14 +609,14 @@ export class ComparatorOfSequencesOfDiffEvents {
                 default:
                     if(neighboringEvents.type === NeighboringEventsType.none) {
                         const warning = new WarningLog(this.constructor.name, "removeNeighboringEvents", "The events to remove are of type 'none'. Inconsistent operation." );
-                        warning.logMessageToConsole();
+                        warning.logMessage();
                     }
                     break;
             }
         }
         if(indexEvent === INITIAL_INDEX) {
             const error = new ErrorLog(this.constructor.name, "removeNeighboringEvents", "Inconsistent index found when removing neighboring events from a comparator. Operation cannot be performed.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             this.neighboringEvents.splice(indexEvent, 1);
         }
@@ -706,7 +706,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 }
             } else {
                 const error = new ErrorLog(this.constructor.name, "filterOutneighboringEvents", "Incorrect transition of differential events.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return filteredSeqComparator;
@@ -770,7 +770,7 @@ export class ComparatorOfSequencesOfDiffEvents {
                 console.log("curvature extremum and inflection moving. cannot be removed");
             } else {
                 const error = new ErrorLog(this.constructor.name, "filterOutneighboringEvents", "Incorrect transition of differential events.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         return filteredSeqComparator;

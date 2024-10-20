@@ -67,7 +67,7 @@ export class QueueChartDescriptor extends Queue<ChartDescriptorQueueItem> {
             this.items.splice(index, 1);
         } else {
             const error = new ErrorLog(this.constructor.name, " extract ", "the item does not exists in the queue.")
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -76,14 +76,14 @@ export class QueueChartDescriptor extends Queue<ChartDescriptorQueueItem> {
             this.items.splice(index, 1);
         } else {
             const error = new ErrorLog(this.constructor.name, " extractAt ", "the index is out of range.")
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
     get(index: number): ChartDescriptorQueueItem {
         if(index < 0 && index > this.size) {
             const error = new ErrorLog(this.constructor.name, "get", " index out of range.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         const title = this.items[index].chartTitle;
         const chartCtrl = this.items[index].chartController;
@@ -116,7 +116,7 @@ export class QueueChartDescriptor extends Queue<ChartDescriptorQueueItem> {
             this.items = newItems;
         } else {
             const error = new ErrorLog(this.constructor.name, "insertAtController", " inconsistent location of the queue item to be removed.")
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 

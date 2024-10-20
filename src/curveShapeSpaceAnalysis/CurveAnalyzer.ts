@@ -173,7 +173,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._curvatureNumerator = new BSplineR1toR1();
         this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
@@ -193,7 +193,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
             this.computeCurvatureCPClosestToZero();
         } else {
             warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
         if(this._curveControlState) {
@@ -204,7 +204,7 @@ export class OpenCurveAnalyzer extends AbstractCurveAnalyzer {
             this.computeCurvatureDerivCPClosestToZero();
         } else {
             warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -275,7 +275,7 @@ export class OPenCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     constructor(curveToAnalyze: BSplineR1toR2, navigationCurveModel: OpenCurveShapeSpaceNavigator, slidingEventsAtExtremities: SlidingEventsAtExtremities) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._curvatureNumerator = new BSplineR1toR1();
         this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
@@ -338,7 +338,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
     constructor(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._curvatureNumerator = new BSplineR1toR1();
         this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;
@@ -356,7 +356,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
             this.computeCurvatureCPClosestToZero();
         } else {
             warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         this.globalExtremumOffAxisCurvatureDerivPoly = {index: INITIAL_INDEX, value: 0.0};
         if(this._curveControlState) {
@@ -366,7 +366,7 @@ export class ClosedCurveAnalyzer extends AbstractCurveAnalyzer {
             this.computeCurvatureDerivCPClosestToZero();
         } else {
             warning = new WarningLog(this.constructor.name, 'constructor', 'Cannot initialize consistently curvature deriv control polygon.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -422,7 +422,7 @@ export class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
     constructor(curveToAnalyze: PeriodicBSplineR1toR2withOpenKnotSequence, navigationCurveModel: ClosedCurveShapeSpaceNavigator) {
         super(curveToAnalyze, navigationCurveModel);
         let warning = new WarningLog(this.constructor.name, 'constructor', 'start constructor.');
-        warning.logMessageToConsole();
+        warning.logMessage();
         this._curvatureNumerator = new BSplineR1toR1();
         this._curvatureDerivativeNumerator = new BSplineR1toR1();
         this.curve = curveToAnalyze;

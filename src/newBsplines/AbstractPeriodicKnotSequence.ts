@@ -27,14 +27,14 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
             const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "Inconsistent knot sequence origin. First knot abscissa must be 0.0");
-            error.logMessageToConsole;
+            error.logMessage;
         }
     }
 
     checkMultiplicityAtEndKnots(): void {
         if(this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
             const error = new ErrorLog(this.constructor.name, "checkMultiplicityAtEndKnots", "Multiplicities at end knots of the sequence differ. They must be equal to define a periodic sequence structure.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -55,7 +55,7 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         let increment = true;
         if(index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
             const error = new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessageToConsole();
+            error.logMessage();
             increment = false;
         } else {
             this.knotSequence[index.knotIndex].multiplicity += multiplicity;

@@ -109,7 +109,7 @@ export class CurveSceneControllerKnotInsertion extends CurveSceneControllerInter
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "insert knot");
-        warning.logMessageToConsole();
+        warning.logMessage();
         this.selectedControlPoint = this._curveSceneController.controlPointsView.pointSelection(ndcX, ndcY);
         this.insertKnotIntoCurve(this.selectedControlPoint);
         this._curveSceneController.selectedControlPoint = null;
@@ -130,22 +130,22 @@ export class CurveSceneControllerKnotInsertion extends CurveSceneControllerInter
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyDownInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -185,22 +185,22 @@ export class CurveSceneControllerNoShapeSpaceConstraintsCPSelection extends Curv
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyDownInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -216,7 +216,7 @@ export class CurveSceneControllerNoShapeSpaceConstraintsCPDragging extends Curve
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
@@ -239,12 +239,12 @@ export class CurveSceneControllerNoShapeSpaceConstraintsCPDragging extends Curve
 
     processShiftKeyDownInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -298,17 +298,17 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection extends 
 
     processLeftMouseUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyDownInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -343,7 +343,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
@@ -387,7 +387,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
 
     processLeftMouseUpInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPSelection(this._curveSceneController));
@@ -395,7 +395,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
 
     processShiftKeyDownInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", "events can slip out");
-        message.logMessageToConsole();
+        message.logMessage();
         if(this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === EventMgmtState.Active) {
             this.eventsStayInsideInterval = false;
             this.curveShapeSpaceNavigator.setManagementDiffEventsAtExtremities(EventMgmtState.Inactive);
@@ -405,10 +405,10 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve 
 
     processShiftKeyUpInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
-        message.logMessageToConsole();
+        message.logMessage();
         if(this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities() === EventMgmtState.Inactive) {
             const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", "events stay inside interval");
-            message.logMessageToConsole();
+            message.logMessage();
             this.eventsStayInsideInterval = true;
             this.curveShapeSpaceNavigator.setManagementDiffEventsAtExtremities(EventMgmtState.Active);
             this.managementOfEventsAtExtremities = this.curveShapeSpaceNavigator.getManagementDiffEventsAtExtremities();
@@ -438,7 +438,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveE
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
@@ -476,7 +476,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveE
 
     processLeftMouseUpInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", " come back to point selection");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.selectedSlipOutCurvatureExtremaView.clearPoints();
@@ -486,7 +486,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveE
 
     processShiftKeyDownInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", " come back to drag point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.eventsStayInsideInterval = false;
         this._curveSceneController.selectedSlipOutCurvatureExtremaView.clearPoints();
         this._curveSceneController.selectedSlipOutInflectionsView.clearPoints();
@@ -495,7 +495,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveE
 
     processShiftKeyUpInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", " come back to drag point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.eventsStayInsideInterval = true;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurve(this._curveSceneController));
     }
@@ -568,7 +568,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveC
         this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventSlideOutsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
@@ -576,7 +576,7 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingOpenCurveC
         this.curveShapeSpaceNavigator.eventMgmtAtExtremities.changeMngmtOfEventAtExtremity(new EventStayInsideCurve(this.eventMgmtAtExtremities));
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     }
 }
 
@@ -589,13 +589,13 @@ export class CurveSceneControllerNestedSimplifiedShapeSpacesCPDraggingClosedCurv
     processShiftKeyDownInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     }
 }
 
@@ -649,22 +649,22 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPSelection extends Cur
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDragInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyDownInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         const warning = new WarningLog(this.constructor.name, "processshiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -696,7 +696,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
 
     processLeftMouseDownInteraction(ndcX: number, ndcY: number): void {
         const warning = new WarningLog(this.constructor.name, "processLeftMouseDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processLeftMouseDragInteraction(ndcX: number, ndcY: number): void {
@@ -734,7 +734,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
 
     processLeftMouseUpInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this._curveSceneController.changeSceneInteraction(new CurveSceneControllerStrictlyInsideShapeSpaceCPSelection(this._curveSceneController));
@@ -746,7 +746,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
         // const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         // message.logMessageToConsole();
         const warning = new WarningLog(this.constructor.name, "processShiftKeyDownInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
@@ -755,7 +755,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurve ext
         // const message = new WarningLog(this.constructor.name, " processShiftKeyUpInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
         // message.logMessageToConsole();
         const warning = new WarningLog(this.constructor.name, "processShiftKeyUpInteraction", "nothing to do there");
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 }
 
@@ -855,7 +855,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
 
     processLeftMouseUpInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processLeftMouseUpInteraction ", "reset selected control point");
-        message.logMessageToConsole();
+        message.logMessage();
         this.selectedControlPoint = null;
         this._curveSceneController.selectedControlPoint = null;
         this.clearListsOfDiffEvents();
@@ -867,7 +867,7 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingOpenCurveShap
 
     processShiftKeyDownInteraction(): void {
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", "free differential events");
-        message.logMessageToConsole();
+        message.logMessage();
         this.clearListsOfDiffEvents();
         this.updateDiffEventsToDisplay();
         // this.curveShapeSpaceNavigator.navigationCurveModel.navigationState.boundaryEnforcer.deactivate();
@@ -1006,12 +1006,12 @@ export class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve e
     processShiftKeyDownInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     }
 
     processShiftKeyUpInteraction(): void {
         this.eventMgmtAtExtremities.processEventAtCurveExtremity();
         const message = new WarningLog(this.constructor.name, " processShiftKeyDownInteraction ", this.eventMgmtAtExtremities.eventStateAtCrvExtremities.constructor.name);
-        message.logMessageToConsole();
+        message.logMessage();
     }
 }

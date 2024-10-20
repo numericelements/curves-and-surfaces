@@ -1850,22 +1850,22 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, -0.1, 1)).to.throw(RangeError);
             const error = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is negative. Positive abscissa only are valid.");
-            error.logMessageToConsole();
+            error.logMessage();
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 1, -0.1)).to.throw(RangeError);
             const error1 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "Second abscissa is negative. Positive abscissa only are valid.");
-            error1.logMessageToConsole();
+            error1.logMessage();
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 1, 4.1)).to.throw(RangeError);
             const error2 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "Second abscissa is greater than or equal to the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
-            error2.logMessageToConsole();
+            error2.logMessage();
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 4.1, 2.5)).to.throw(RangeError);
             const error3 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is greater than the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
-            error3.logMessageToConsole();
+            error3.logMessage();
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 1, 4.0)).to.throw(RangeError);
             const error4 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "Second abscissa is greater than or equal to the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
-            error4.logMessageToConsole();
+            error4.logMessage();
             expect(periodicSpl.extractInputParamAssessment.bind(periodicSpl, 4.0, 2.5)).to.throw(RangeError);
             const error5 = new ErrorLog("PeriodicBSplineR1toR2", "extract", "First abscissa is greater than the largest knot value. Abscissa must be strictly inside the right bound of the knot period.");
-            error5.logMessageToConsole();
+            error5.logMessage();
         }
     });
 
@@ -2295,19 +2295,19 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.toOpenBSplineInputParamAssessment.bind(periodicSpl, 0.5, 1)).to.throw(TypeError);
             const error = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "First abscissa is not a knot. Curve opening process cannot take place.");
-            error.logMessageToConsole();
+            error.logMessage();
             periodicSpl.insertKnotBoehmAlgorithm(1);
             expect(periodicSpl.toOpenBSplineInputParamAssessment.bind(periodicSpl, 1, 2)).to.throw(RangeError);
             const error1 = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "First abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            error1.logMessageToConsole();
+            error1.logMessage();
             periodicSpl1?.clamp(1);
             expect(periodicSpl1?.toOpenBSplineInputParamAssessment.bind(periodicSpl1, 1, 3.5)).to.throw(TypeError);
             const error2 = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "Second abscissa is not a knot. Curve opening process cannot take place.");
-            error2.logMessageToConsole();
+            error2.logMessage();
             periodicSpl1?.insertKnotBoehmAlgorithm(3)
             expect(periodicSpl1?.toOpenBSplineInputParamAssessment.bind(periodicSpl1, 1, 3)).to.throw(RangeError);
             const error3 = new ErrorLog("PeriodicBSplineR1toR2", "toOpenBSplineInputParamAssessment", "Second abscissa has not a multiplicity equal to the curve degree. Curve opening process cannot take place.");
-            error3.logMessageToConsole();
+            error3.logMessage();
         }
     });
 
@@ -2348,15 +2348,15 @@ describe('PeriodicBSplineR1toR2', () => {
             expect(periodicSpl.freeControlPoints).to.eql([ cp0, cp1, cp2, cp3])
             expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, -0.1, "testMethod")).to.throw(RangeError);
             const error = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be negative. The corresponding method is not applied.");
-            error.logMessageToConsole();
+            error.logMessage();
             expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, 4.1, "testMethod")).to.throw(RangeError);
             const error1 = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
-            error1.logMessageToConsole();
+            error1.logMessage();
             const seq = new IncreasingPeriodicKnotSequenceClosedCurve(3, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: [0, 1, 2, 3, 4]});
             const abscissa = seq.getPeriod() + TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2;
             expect(periodicSpl.abcsissaInputParamAssessment.bind(periodicSpl, abscissa, "testMethod")).to.throw(RangeError);
             const error2 = new ErrorLog("PeriodicBSplineR1toR2", "testMethod", "The abscissa cannot be greater or equal than the knot sequence period. The corresponding method is not applied.");
-            error2.logMessageToConsole();
+            error2.logMessage();
         }
     });
 
@@ -2373,7 +2373,7 @@ describe('PeriodicBSplineR1toR2', () => {
             const u4 = -0.5 - periodicSpl.knots[knots.length - 1];
             expect(periodicSpl.evaluateOutsideRefIntervalInputParamAssessment.bind(periodicSpl, u4)).to.throw(RangeError);
             const error = new ErrorLog("PeriodicBSplineR1toR2", "evaluateOutsideRefIntervalInputParamAssessment", "Abscissa is negative. Its value is lower than the knot sequence period. No evaluation takes place.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     });
 
@@ -2409,13 +2409,13 @@ describe('PeriodicBSplineR1toR2', () => {
 
             expect(periodicSpl.insertKnotBoehmAlgorithmInputParamAssessment.bind(periodicSpl, 0.1, 0)).to.throw(RangeError);
             const error3 = new ErrorLog("PeriodicBSplineR1toR2", "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
-            error3.logMessageToConsole();
+            error3.logMessage();
             expect(periodicSpl.insertKnotBoehmAlgorithmInputParamAssessment.bind(periodicSpl, 0.1, -1)).to.throw(RangeError);
             const error4 = new ErrorLog("PeriodicBSplineR1toR2", "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
-            error4.logMessageToConsole();
+            error4.logMessage();
             expect(periodicSpl.insertKnotBoehmAlgorithmInputParamAssessment.bind(periodicSpl, 0.1, periodicSpl.degree + 1)).to.throw(RangeError);
             const error5 = new ErrorLog("PeriodicBSplineR1toR2", "insertKnotBoehmAlgorithmInputParamAssessment", "The knot multiplicity cannot be negative or null. No insertion is perfomed.");
-            error5.logMessageToConsole();
+            error5.logMessage();
         }
     });
 

@@ -5,7 +5,7 @@ import { BernsteinDecompositionR1toR1, splineRecomposition } from "./BernsteinDe
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
 import { INCREASINGOPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 
@@ -162,12 +162,12 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         if((multiplicity + times) > (this._degree + 1)) {
             const error = new ErrorLog(this.constructor.name, "insertKnot", "The number of times the knot should be inserted is incompatible with the curve degree.");
             console.log("u = ",u, " multiplicity + times = ", (multiplicity + times));
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
 
         const indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(index);
-        let newIndexStrictInc: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence();
+        let newIndexStrictInc = new KnotIndexStrictlyIncreasingSequence(DEFAULT_KNOT_INDEX);
         for (let t = 0; t < times; t += 1) {
             const newControlPoints = [];
             for (let i = 0; i < index.knotIndex; i += 1) {
@@ -316,7 +316,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
     moveControlPoint(i: number, delta: number): void {
         if (i < 0 || i >= this.controlPoints.length) {
             const error = new ErrorLog(this.constructor.name, "moveControlPoint", "Control point index is out of range.");
-            error.logMessageToConsole();
+            error.logMessage();
             return;
         }
         this.controlPoints[i] += delta;
@@ -338,7 +338,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         if(u >= knots[0] && u <= knots[knots.length - 1]) {
             result = 0.0;
             const error = new ErrorLog(this.constructor.name, "evaluateOutsideRefInterval", "Parameter value for evaluation is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             const extendedSpline = spline.extend(u);
             if(u < knots[0]) {
@@ -355,7 +355,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const knots = this.distinctKnots().slice();
         if(uAbsc >= knots[0] && uAbsc <= knots[knots.length - 1]) {
             const error = new ErrorLog(this.constructor.name, "extend", "Parameter value for extension is not outside the knot interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             let tempCurve = this.clone();
             let reversed = false;

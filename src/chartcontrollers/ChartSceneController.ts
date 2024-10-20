@@ -176,7 +176,7 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
             this.removeCurveObserver(chartOberserver);
         } else {
             const error = new ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         const indexCtrlr = this.chartControllers.indexOf(currentQueueItem.chartController);
         chartTitle = this.defaultChartTitles[indexCtrlr];
@@ -197,13 +197,13 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
                     this.removeCurveObserver(chartOberserver);
                 } else {
                     const error = new ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
             this.switchChartState(chartTitle, indexCtrlr);
         } else {
             const error = new ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined ChartController. Impossible to process graphs correctly.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -218,12 +218,12 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
                 this.removeCurveObserver(chartOberserver);
             } else {
                 const error = new ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
-            error.logMessageToConsole();
+            error.logMessage();
             }
             this.switchChartState(chartTitle, indexCtrlr);
         } else {
             const error = new ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined ChartController. Queue content is inconsistent.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -277,12 +277,12 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
     checkRenderingContext(): void {
         if(this.chartRenderingContext.length !== MAX_NB_CHARTS) {
             const error = new ErrorLog(this.constructor.name, "checkRenderingContext", "Inconsistent number of rendering contexts. Must be equal to MAX_NB_GRAPHS.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             for(let i = 0; i < MAX_NB_CHARTS; i++) {
                 if(this.chartRenderingContext[i] === null) {
                     const error = new ErrorLog(this.constructor.name, "checkRenderingContext", "Rendering context of graph" + (i + 1) + " is null. Impossible to process graphs correctly.");
-                    error.logMessageToConsole();
+                    error.logMessage();
                 }
             }
         }
@@ -294,7 +294,7 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
             this._curveModel.registerObserver(curveObserver, "curve");
         } else {
             const error = new ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -304,7 +304,7 @@ export class ChartSceneController implements IObserver<CurveModelInterface> {
             this._curveModel.removeObserver(curveObserver, "curve");
         } else {
             const error = new ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 

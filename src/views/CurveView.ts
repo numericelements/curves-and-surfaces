@@ -36,7 +36,7 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
         const check = this.initVertexBuffers();
         if (check < 0) {
             const warning = new WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }     
     
@@ -87,7 +87,7 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
             if(isNaN(spline.controlPoints[i].x) || isNaN(spline.controlPoints[i].y)) {
                 const error = new ErrorLog(this.constructor.name, "update", "NaN");
                 console.log("i = ", i);
-                error.logMessageToConsole();
+                error.logMessage();
             }
         }
         this.spline = spline;
@@ -102,7 +102,7 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
 
         if (this.a_Position < 0) {
             const warning = new WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
     }
 
@@ -141,7 +141,7 @@ export class CurveView implements IObserver<BSplineR1toR2Interface> {
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
             const warning = new WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
-            warning.logMessageToConsole();
+            warning.logMessage();
             return -1;
         }
 

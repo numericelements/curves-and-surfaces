@@ -116,10 +116,10 @@ export class OCurveShapeMonitoringStrategyWithInflexionsNoSliding extends OCurve
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -153,10 +153,10 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends 
         this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -190,10 +190,10 @@ export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSl
         this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -227,10 +227,10 @@ export class OCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends OCurv
         this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new  OptProblemOpenBSplineR1toR2WithWeigthingFactorsNoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -264,10 +264,10 @@ export class OCurveShapeMonitoringStrategyWithInflexionsSliding extends OCurveSh
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
             if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
@@ -322,10 +322,10 @@ export class OCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends OC
         this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
             if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
@@ -380,10 +380,10 @@ export class OCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
         this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
             if(this.curveShapeSpaceNavigator.shapeSpaceDiffEventsStructure.managementOfEventsAtExtremities === EventMgmtState.Active) {
@@ -438,11 +438,11 @@ export class OCurveShapeMonitoringStrategyWithNoDiffEventSliding extends OCurveS
         this.activeOptimizer = oCShapeSpaceNavigator.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             // The sliding state cannot be active when control of inflections and curvature extrema are deactivated
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(this.curveShapeSpaceNavigator.navigationState instanceof OCurveNavigationThroughSimplerShapeSpaces) {
             this._optimizationProblem = new OptProblemOPenBSplineR1toR2WithWeigthingFactors(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -534,10 +534,10 @@ export class CCurveShapeMonitoringStrategyWithInflexionsNoSliding extends CCurve
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -576,10 +576,10 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaNoSliding extends 
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -618,10 +618,10 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaNoSl
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -660,10 +660,10 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventNoSliding extends CCurv
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2NoInactiveConstraints(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -702,10 +702,10 @@ export class CCurveShapeMonitoringStrategyWithInflexionsSliding extends CCurveSh
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -744,10 +744,10 @@ export class CCurveShapeMonitoringStrategyWithCurvatureExtremaSliding extends CC
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -786,10 +786,10 @@ export class CCurveShapeMonitoringStrategyWithInflectionsAndCurvatureExtremaSlid
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(!this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(!this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be active.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);
@@ -828,11 +828,11 @@ export class CCurveShapeMonitoringStrategyWithNoDiffEventSliding extends CCurveS
         this.activeOptimizer = this.shapeSpaceDiffEventsStructure.activeNavigationWithOptimizer;
         if(this.activeOptimizer) {
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of activeNavigationWithOptimizer parameter.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.shapeSpaceDiffEventsStructure.slidingDifferentialEvents) {
                         // The sliding state cannot be active when control of inflections and curvature extrema are deactivated
             const error = new ErrorLog(this.constructor.name, "constructor", "Inconsistent status of slidingDifferentialEvents parameter: sliding should be inactive.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         /* JCL 2020/10/06 use optimization with inactive constraints dedicated to cubics */
         this._optimizationProblem = new OptProblemPeriodicBSplineR1toR2(this.currentCurve.clone(), this.shapeSpaceDiffEventsStructure);

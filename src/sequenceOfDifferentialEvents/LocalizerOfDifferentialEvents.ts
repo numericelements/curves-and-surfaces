@@ -68,10 +68,10 @@ export abstract class LocalizerOfCurvatureExtremumInsideExtremeInterval extends 
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
         if(this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
             let error = new ErrorLog(this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence1' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.sequenceDiffEvents2.indicesOfInflections.length === 0) {
             let error = new ErrorLog(this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence2' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.intervalsBtwExtrema1 = this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(this.location);
         this.intervalsBtwExtrema2 = this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(this.location);
@@ -174,7 +174,7 @@ export abstract class LocalizerOfCurvatureExtremumInsideExtremeInterval extends 
         if((indexInflection !== this.sequenceDiffEvents1.indicesOfInflections.length && indexInflection !== 0 && this.sequenceDiffEvents1.indicesOfInflections.length > 0)
         || (indexInflection !== 0 && this.sequenceDiffEvents1.indicesOfInflections.length === 0)) {
             const error = new ErrorLog(this.constructor.name, "checkIndexConsistency", "Index of inflection in the sequence of differerntial events is invalid.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -224,10 +224,10 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
         super(sequenceDiffEvents1, sequenceDiffEvents2, indexInflection);
         if(this.sequenceDiffEvents1.indicesOfInflections.length !== 0) {
             let error = new ErrorLog(this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence1' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else if(this.sequenceDiffEvents2.indicesOfInflections.length !== 0) {
             let error = new ErrorLog(this.constructor.name, "constructor", "This class is inapropriate to handle the sequence 'sequence2' of differential events input.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.intervalsBtwExtrema1 = this.sequenceDiffEvents1.computeIntervalsBtwCurvatureExtrema(this.location);
         this.intervalsBtwExtrema2 = this.sequenceDiffEvents2.computeIntervalsBtwCurvatureExtrema(this.location);
@@ -250,7 +250,7 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
             newEvent.type = NeighboringEventsType.none;
             newEvent.index = candidateEventIndex;
             const warning = new WarningLog(this.constructor.name, "assignNewEventInUniqueInterval", "Inconsistent identification of curvature extremum. Possibly extremum at a knot.")
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return newEvent;
     }
@@ -281,7 +281,7 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
             }
         } else if(nbEventsModified !== ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL && nbEventsModified !== ONE_CURVEXT_EVENT_DISAPPEAR_IN_EXTREME_INTERVAL) {
             const error = new ErrorLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Incorrect number of modified differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         } else {
             if(nbEventsModified === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
                 modifiedEventIndex = candidateEventIndex;
@@ -294,10 +294,10 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
             if(this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
                 if(modifiedEventIndex === candidateEventIndex) {
                     const warning = new WarningLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Events are stable as well as the candidate event.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 } else {
                     const warning = new WarningLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Other events variations may influence the decision about the candidate event.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                     if(!(ratioLeft > ratioRight && candidateEventIndex === 0)) {
                         modifiedEventIndex = 0;
                     } else if(!(ratioLeft < ratioRight && candidateEventIndex === this.intervalsBtwExtrema1.sequence.length - 1) && nbEventsModified === ONE_CURVEXT_EVENT_APPEAR_IN_EXTREME_INTERVAL) {
@@ -309,7 +309,7 @@ export abstract class LocalizerOfCurvatureExtremumInsideUniqueInterval extends L
             }
         } else {
             const error = new ErrorLog(this.constructor.name, "analyzeUniqueIntervalVariations", "Unable to generate the smallest interval of differential events for this curve.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         return modifiedEventIndex;
@@ -421,17 +421,17 @@ export abstract class LocalizerOfCurvatureExtrema extends LocalizerOfDifferentia
             if(this.intervalsBtwExtrema1.sequence.length > 0) {
                 if(maxRatioF.index === maxRatioR.index && maxRatioF.index === (candidateEventIndex - 1)) {
                     let warning = new WarningLog(this.constructor.name, "analyzeIntervalVariations", "Events are stable as well as the candidate events.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 } else if(maxRatioF.index !== (candidateEventIndex - 1) || maxRatioR.index !== (candidateEventIndex - 1)) {
                     let warning = new WarningLog(this.constructor.name, "analyzeIntervalVariations", "The candidate events are not the ones added.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                     /* Current assumption consists in considering an adjacent interval as candidate */
                     if(maxRatioF.value > maxRatioR.value) {
                         modifiedEventIndex = maxRatioF.index - 1;
                     } else modifiedEventIndex = maxRatioF.index + 1;
                 } else {
                     let warning = new WarningLog(this.constructor.name, "analyzeIntervalVariations", "Events are not stable enough.");
-                    warning.logMessageToConsole();
+                    warning.logMessage();
                 }
             } else {
                 /* JCL this.sequenceDiffEvents2 contains two events only that may appear/disappear */
@@ -454,7 +454,7 @@ export abstract class LocalizerOfCurvatureExtrema extends LocalizerOfDifferentia
         //     } else modifiedEventIndex = 0;
         } else {
             let error = new ErrorLog(this.constructor.name, "analyzeIntervalVariations", "Incorrect number of modified differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         return modifiedEventIndex;
@@ -516,7 +516,7 @@ export abstract class LocalizerOfInflectionInUniqueInterval extends LocalizerOfD
             intervalExtrema.push(UPPER_BOUND_CURVE_INTERVAL - sequenceDiffEvents.eventAt(sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1]).location);
         } else {
             let error =  new ErrorLog(this.constructor.name, "analyzeIntervalVariations", "Inconsistent content of the sequence of events to identify the curve extremity where the inflection is lost.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         if(intervalExtrema[0] > intervalExtrema[intervalExtrema.length - 1]) {
             index = sequenceDiffEvents.indicesOfInflections[sequenceDiffEvents.indicesOfInflections.length - 1];
@@ -550,7 +550,7 @@ export class LocalizerOfInflectionDisappearingInUniqueInterval extends Localizer
             newEvent.type = NeighboringEventsType.neighboringInflectionRightBoundary;
         } else {
             let error = new ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into the unique interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         return newEvent;
@@ -576,7 +576,7 @@ export class LocalizerOfInflectionAppearingInUniqueInterval extends LocalizerOfI
             newEvent.type = NeighboringEventsType.neighboringInflectionRightBoundary;
         } else {
             let error = new ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into the unique interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         return newEvent;
@@ -594,7 +594,7 @@ export abstract class LocalizerOfInflectionInExtremeInterval extends LocalizerOf
         if(this.inflectionVariation === 1 && this.sequenceDiffEvents1.indicesOfInflections.length === 1 ||
             this.inflectionVariation === -1 && this.sequenceDiffEvents1.indicesOfInflections.length === 0) {
                 let error = new ErrorLog(this.constructor.name, "constructor", "Differential event sequence inadequate for this configuration.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
     }
 
@@ -631,7 +631,7 @@ export class LocalizerOfInflectionAppearingInExtremeInterval extends LocalizerOf
             newEvent.type = NeighboringEventsType.neighboringInflectionRightBoundary;
         } else {
             let error = new ErrorLog(this.constructor.name, "locateDifferentialEvents", "Inconsistent index to locate an inflection into an extreme interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         return newEvent;
@@ -654,7 +654,7 @@ export class LocalizerOfInflectionDisappearingInExtremeInterval extends Localize
             newEvent.type = NeighboringEventsType.neighboringInflectionRightBoundary;
         } else {
             let error = new ErrorLog(this.constructor.name, "locateDifferentialEvents", " Inconsistent index to locate an inflection into an extreme interval.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         return newEvent;
@@ -697,18 +697,18 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
             (this.indicesOscillations2.length - this.indicesOscillations1.length === 2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== 2) ||
             (this.indicesOscillations2.length - this.indicesOscillations1.length === 3 && this.indicesOscillations1.length > 0)) {
                 let error = new ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         } else if (nbModifedEvents === TWO_INFLECTIONS_EVENTS_DISAPPEAR) {
             if((this.indicesOscillations2.length - this.indicesOscillations1.length === -1 && this.indicesOscillations2.length !== 0) ||
             (this.indicesOscillations2.length - this.indicesOscillations1.length === -2 && this.sequenceDiffEvents2.length() - this.sequenceDiffEvents1.length() !== -2) ||
             (this.indicesOscillations2.length - this.indicesOscillations1.length === -3 && this.indicesOscillations2.length > 0)) {
                 let error = new ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistency of reference type event that does not coincide with oscillation removal.");
-                error.logMessageToConsole();
+                error.logMessage();
             }
         } else {
             let error = new ErrorLog(this.constructor.name, "checkIndexLocation", "Inconsistent variation of number of differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -730,7 +730,7 @@ export abstract class LocalizerOfInflectionsAdjacentCurvatureExtremum extends Lo
             indicesOscillations2 = this.indicesOscillations1;
         } else {
             let error = new ErrorLog(this.constructor.name, "assignNewEvent", "Incorrect number of modified differential events.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
 
         if(indicesOscillations1.length > 0) {

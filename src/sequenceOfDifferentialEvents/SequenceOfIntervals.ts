@@ -86,7 +86,7 @@ export class SequenceOfIntervals {
             } 
         } else {
             const warning = new WarningLog(this.constructor.name, "indexSmallestInterval", "Inconsistent number of events (Must be a positive number not larger than two) or inconsistent number of intervals between curvature extrema.");
-            warning.logMessageToConsole();
+            warning.logMessage();
         }
         return candidateEventIndex;
     }

@@ -51,7 +51,7 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding extends ShapeSpaceCo
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
         this.shapeNavigableCurve.curveCategory.curveModelDifferentialEventsLocations = this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents.crvDiffEventsLocations;
     }
@@ -74,7 +74,7 @@ export class ShapeSpaceConfiguratorWithInflectionsNoSliding extends ShapeSpaceCo
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     // setShapeSpaceMonitoringToCurvatureExtrema(): void {
@@ -103,7 +103,7 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding extends ShapeSp
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -125,7 +125,7 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaNoSliding extends ShapeSp
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
 
@@ -158,7 +158,7 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding e
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -180,7 +180,7 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaNoSliding e
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
 
@@ -207,7 +207,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
             if(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents instanceof OpenCurveDifferentialEventsExtractorWithoutSequence) {
                 // It is the initialization phase and this curve differential event extractor has been already set up when creating the OpenCurve
                 const warning = new WarningLog(this.constructor.name, "constructor", "curve differential event extractor has been already set up. No new creation");
-                warning.logMessageToConsole();
+                warning.logMessage();
             } else {
                 this.shapeNavigableCurve.curveCategory.curveModel.removeObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
                 this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents = new OpenCurveDifferentialEventsExtractorWithoutSequence(curveToAnalyze.spline);
@@ -219,7 +219,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -243,7 +243,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaNoSlidin
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
 
     }
 
@@ -276,7 +276,7 @@ export class ShapeSpaceConfiguratorWithInflectionsSliding extends ShapeSpaceConf
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -298,7 +298,7 @@ export class ShapeSpaceConfiguratorWithInflectionsSliding extends ShapeSpaceConf
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
 }
@@ -323,7 +323,7 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaSliding extends ShapeSpac
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -345,7 +345,7 @@ export class ShapeSpaceConfiguratorWithCurvatureExtremaSliding extends ShapeSpac
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
 }
@@ -370,7 +370,7 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding ext
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -392,7 +392,7 @@ export class ShapeSpaceConfiguratorWithInflectionsAndCurvatureExtremaSliding ext
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
 }
@@ -417,7 +417,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding 
             this.shapeNavigableCurve.curveCategory.curveModel.registerObserver(this.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents, "control points");
         } else {
             const error = new ErrorLog(this.constructor.name, "constructor", "inconsistent object type. Cannot configure shape space.");
-            error.logMessageToConsole();
+            error.logMessage();
         }
     }
 
@@ -440,7 +440,7 @@ export class ShapeSpaceConfiguratorWithoutInflectionsAndCurvatureExtremaSliding 
         + " activeControlCurvatureExtrema: " + shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema
         + " activeControlInflections: " + shapeSpaceDiffEventsStructure.activeControlInflections
         + " slidingDifferentialEvents: " + shapeSpaceDiffEventsStructure.slidingDifferentialEvents);
-        warning.logMessageToConsole();
+        warning.logMessage();
     }
 
     // setShapeSpaceMonitoringToInflections(): void {
