@@ -1,16 +1,18 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { AbstractKnotSequence, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
+import { AbstractKnotSequence, EM_SEQUENCE_ORIGIN_REMOVAL, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
 
 export const OPEN_KNOT_SEQUENCE_ORIGIN = 0.0;
+export const EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART = "Knot multiplicities at sequence start don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.";
+export const EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND = "Knot multiplicities at sequence end don't add up correctly to produce a normalized basis ending from some knot. Cannot proceed.";
 
 export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
 
     protected knotSequence: Knot[];
     protected _uMax: number;
     protected _isKnotMultiplicityNonUniform: boolean;
-    protected abstract _indexKnotOrigin: KnotIndexInterface;
+    protected abstract _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
     protected abstract _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
 
     constructor(maxMultiplicityOrder: number, knotParameters: AbstractOpenKnotSequence_type) {
@@ -67,7 +69,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         }
         if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
             const error = new ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceEnd");
-            error.addMessage("Knot multiplicities at sequence end don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.");
+            error.addMessage(EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         } else {
@@ -83,8 +85,8 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
             cumulativeMultiplicity = cumulativeMultiplicity + this.knotSequence[index].multiplicity;
         }
         if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
-            const error = new ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceEnd");
-            error.addMessage("Knot multiplicities at sequence start don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.");
+            const error = new ErrorLog(this.constructor.name, "getKnotIndexNormalizedBasisAtSequenceStart");
+            error.addMessage(EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         } else {
@@ -186,9 +188,30 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
     }
 
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
-        super.decrementKnotMultiplicity(index);
+        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
+        if(this.knotSequence[index.knotIndex].multiplicity === 1) {
+            if(this._indexKnotOrigin instanceof KnotIndexStrictlyIncreasingSequence && index.knotIndex === this._indexKnotOrigin.knotIndex) {
+                const error = new ErrorLog(this.constructor.name, "decrementKnotMultiplicity");
+                error.addMessage(EM_SEQUENCE_ORIGIN_REMOVAL);
+                console.log(error.generateMessageString());
+                throw new RangeError(error.generateMessageString());
+            }
+            const abscissae = this.distinctAbscissae();
+            const multiplicities = this.multiplicities();
+            abscissae.splice(index.knotIndex, 1);
+            multiplicities.splice(index.knotIndex, 1);
+            this.knotSequence = [];
+            let i = 0;
+            for(const abscissa of abscissae) {
+                const knot = new Knot(abscissa, multiplicities[i]);
+                this.knotSequence.push(knot);
+                i++;
+            }
+        } else {
+            this.knotSequence[index.knotIndex].multiplicity--;
+        }
+        this.checkUniformityOfKnotSpacing();
         this.checkUniformityOfKnotMultiplicity();
         this.checkNonUniformKnotMultiplicityOrder();
     }
-
 }

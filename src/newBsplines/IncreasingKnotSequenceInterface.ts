@@ -14,5 +14,5 @@ export interface IncreasingKnotSequenceInterface extends KnotSequenceInterface {
     insertKnot(abscissa: number, multiplicity: number): boolean;
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[];
-    revertKnots():void;
+    revertKnotSequence():void;
 }

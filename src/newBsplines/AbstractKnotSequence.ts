@@ -1,6 +1,19 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCE, IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSubSequence, IncreasingOpenKnotSubSequenceCCurve, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, INCREASINGPERIODICKNOTSEQUENCE, IncreasingPeriodicKnotSequence, INCREASINGPERIODICKNOTSUBSEQUENCE, IncreasingPeriodicKnotSubSequence, StrictIncreasingPeriodicKnotSequence, StrictlyIncreasingOpenKnotSequence, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORM_OPENKNOTSEQUENCE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
+
+
+export const EM_MAXMULTIPLICITY_ORDER_SEQUENCE = "Maximal value of knot multiplicity order is too small for this category of knot sequence. Cannot proceed.";
+export const EM_SIZENORMALIZED_BSPLINEBASIS = "Normalized knot sequence cannot be generated. The prescribed basis size is too small to generate a B-Spline basis. Cannot proceed.";
+export const EM_MAXMULTIPLICITY_ORDER_KNOT = "Knot multiplicity is greater than the maximum multiplicity order set for the knot sequence."
+export const EM_NULL_MULTIPLICITY_ARRAY = "Knot multiplicity array with null length encountered. Cannot proceed.";
+export const EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT = "Maximal knot multiplicity reached at an intermediate knot. Please, split the curve at these knots to describe elementary B-splines.";
+export const EM_NULL_KNOT_SEQUENCE = "Knot sequence with null length encountered. Cannot proceed.";
+export const EM_NON_INCREASING_KNOT_VALUES = "Knot sequence is not increasing. Cannot proceed.";
+export const EM_NON_STRICTLY_INCREASING_VALUES = "Knot sequence is not strictly increasing. Cannot proceed.";
+export const EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL = "Knot sequence with length not equal to the multiplicity array length. Cannot proceed.";
+export const EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE = "Knot index value in strictly increasing knot sequence is out of range.";
+export const EM_SEQUENCE_ORIGIN_REMOVAL = "Decrementing knot multiplicity would remove this knot. This knot is the origin of the knot sequence. Cannot remove this knot."
 
 // Important remark: There is an interaction between KNOT_COINCIDENCE_TOLERANCE and CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
 // when computing the zeros of a BSplineR1toR1. KNOT_COINCIDENCE_TOLERANCE currently set to 10E-2 CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION
@@ -33,10 +46,14 @@ export abstract class AbstractKnotSequence {
         return this._isKnotMultiplicityUniform;
     }
 
+    abstract checkNonUniformKnotMultiplicityOrder(): void;
+
+    abstract decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void;
+
     constructorInputMultOrderAssessment(minValue: number): void {
         const error = new ErrorLog(this.constructor.name, "constructor");
         if(this._maxMultiplicityOrder < minValue) {
-            error.addMessage("Maximal value of knot multiplicity order is too small for this category of knot sequence. Cannot proceed.");
+            error.addMessage(EM_MAXMULTIPLICITY_ORDER_SEQUENCE);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -61,7 +78,7 @@ export abstract class AbstractKnotSequence {
     maxMultiplicityOrderInputParamAssessment(multiplicity: number, methodName: string): void {
         const error = new ErrorLog(this.constructor.name, methodName);
         if(multiplicity > this._maxMultiplicityOrder) {
-            error.addMessage("Knot multiplicity is greater than the maximum multiplicity order set for the knot sequence.");
+            error.addMessage(EM_MAXMULTIPLICITY_ORDER_KNOT);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -73,9 +90,9 @@ export abstract class AbstractKnotSequence {
         IncreasingPeriodicKnotSequence | IncreasingPeriodicKnotSubSequence | StrictIncreasingPeriodicKnotSequence): void {
         const error = new ErrorLog(this.constructor.name, "constructor");
         let message = "";
-        const messageKnots = "Knot sequence with null length encountered. Cannot proceed.";
-        const messageMultiplicities = "Knot multiplicity array with null length encountered. Cannot proceed.";
-        const messageKnotLengthVsMultitplicityLength = "Knot sequence with length not equal to the multiplicity array length. Cannot proceed.";
+        const messageKnots = EM_NULL_KNOT_SEQUENCE;
+        const messageMultiplicities = EM_NULL_MULTIPLICITY_ARRAY;
+        const messageKnotLengthVsMultitplicityLength = EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL;
         if(knotParameters.type === INCREASINGOPENKNOTSEQUENCE || knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
             || knotParameters.type === INCREASINGOPENKNOTSUBSEQUENCE || knotParameters.type === INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE) {
             if(knotParameters.knots.length === 0) message = messageKnots;
@@ -108,7 +125,7 @@ export abstract class AbstractKnotSequence {
     constructorInputBspBasisSizeAssessment(knotParameters: Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence |
                                                             Uniform_PeriodicKnotSequence): void {
         const error = new ErrorLog(this.constructor.name, "constructor");
-        error.addMessage("Knot sequence cannot be generated. Not enough control points to generate a B-Spline basis. Cannot proceed.");
+        error.addMessage(EM_SIZENORMALIZED_BSPLINEBASIS);
         if(knotParameters.type === UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
             if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder) {
                 console.log(error.generateMessageString());
@@ -148,15 +165,13 @@ export abstract class AbstractKnotSequence {
         return;
     }
 
-    abstract checkNonUniformKnotMultiplicityOrder(): void;
-
     checkMaxKnotMultiplicityAtIntermediateKnots(): void {
         let maxMultiplicityOrderReached = false;
         for(let knot = 1; knot < (this.knotSequence.length - 1); knot++) {
             if(this.knotSequence[knot].multiplicity === this._maxMultiplicityOrder) maxMultiplicityOrderReached = true;
         }
         if(maxMultiplicityOrderReached) {
-            const error = new ErrorLog(this.constructor.name, "checkMaxKnotMultiplicityAtIntermediateKnots", "Maximal knot multiplicity reached at an intermediate knot. Please, split the curve at these knots to describe elementary B-splines.");
+            const error = new ErrorLog(this.constructor.name, "checkMaxKnotMultiplicityAtIntermediateKnots", EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -167,7 +182,7 @@ export abstract class AbstractKnotSequence {
             for(let i = 1; i < knots.length; i++) {
                 if(knots[i] < knots[i -1]) {
                     const error = new ErrorLog(this.constructor.name, "checkKnotIncreasingValues");
-                    error.addMessage("Knot sequence is not increasing. Cannot proceed.");
+                    error.addMessage(EM_NON_INCREASING_KNOT_VALUES);
                     console.log(error.generateMessageString());
                     throw new RangeError(error.generateMessageString());
                 }
@@ -179,8 +194,8 @@ export abstract class AbstractKnotSequence {
         if(knots.length > 1) {
             for(let i = 1; i < knots.length; i++) {
                 if(knots[i] <= knots[i -1]) {
-                const error = new ErrorLog(this.constructor.name, "checkKnotStrictlyIncreasingValues");
-                    error.addMessage("Knot sequence is not strictly increasing. Cannot proceed.");
+                    const error = new ErrorLog(this.constructor.name, "checkKnotStrictlyIncreasingValues");
+                    error.addMessage(EM_NON_STRICTLY_INCREASING_VALUES);
                     console.log(error.generateMessageString());
                     throw new RangeError(error.generateMessageString());
                 }
@@ -208,7 +223,7 @@ export abstract class AbstractKnotSequence {
         return result;
     }
 
-    revertKnots(): void {
+    revertKnotSequence(): void {
         const sequence: Array<Knot> = [];
         for(const knot of this.knotSequence) {
             sequence.push(new Knot(0.0))
@@ -226,29 +241,10 @@ export abstract class AbstractKnotSequence {
     strictlyIncKnotIndexInputParamAssessment(index: KnotIndexStrictlyIncreasingSequence, methodName: string): void {
         const error = new ErrorLog(this.constructor.name, methodName);
         if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) {
-            error.addMessage("Knot index value in strictly increasing knot sequence is out of range.");
+            error.addMessage(EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
-    }
-
-    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
-        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
-        if(this.knotSequence[index.knotIndex].multiplicity === 1) {
-            const abscissae = this.distinctAbscissae();
-            const multiplicities = this.multiplicities();
-            abscissae.splice(index.knotIndex, 1);
-            multiplicities.splice(index.knotIndex, 1);
-            this.knotSequence = [];
-            let i = 0;
-            for(const abscissa of abscissae) {
-                const knot = new Knot(abscissa, multiplicities[i]);
-                this.knotSequence.push(knot);
-            }
-        } else {
-            this.knotSequence[index.knotIndex].multiplicity--;
-        }
-        this.checkUniformityOfKnotSpacing();
     }
 
 }

@@ -123,6 +123,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
                 this.knotSequence.push(new Knot(knotParameters.periodicKnots[i], 1));
             }
         }
+        this.checkMaxMultiplicityOrderConsistency();
         if(knotParameters.periodicKnots.length < (this._maxMultiplicityOrder + 2)) {
             const error = new ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
             error.logMessage();
@@ -131,7 +132,6 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         this._uMax =  this.knotSequence[this.knotSequence.length - 1].abscissa;
         if(!(knotParameters.type === INCREASINGPERIODICKNOTSUBSEQUENCE)) this.checkCurveOrigin();
         if(!(knotParameters.type === INCREASINGPERIODICKNOTSUBSEQUENCE)) this.checkMultiplicityAtEndKnots();
-        this.checkMaxMultiplicityOrderConsistency();
     }
 
     toOpenKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {

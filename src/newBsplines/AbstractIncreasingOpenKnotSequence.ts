@@ -7,6 +7,11 @@ import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasin
 import { AbstractIncreasingOpenKnotSequence_type, IncreasingOpenKnotSequence, INCREASINGOPENKNOTSEQUENCE, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, IncreasingOpenKnotSubSequence, INCREASINGOPENKNOTSUBSEQUENCE, IncreasingOpenKnotSubSequenceCCurve, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, INCREASINGPERIODICKNOTSEQUENCE, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, Uniform_OpenKnotSequence, UNIFORM_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 
+export const EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ = "Increasing knot sequence size incompatible with the multiplicity orders of the strictly increasing sequence. Cannot proceed.";
+export const EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE = "The abscissa defining the origin of the normalized basis of the knot sequence is not 0.0. The knot sequence is not consistent. Cannot proceed.";
+export const EM_KNOTINDEX_INC_SEQ_NEGATIVE = "The knot index cannot be negative. The corresponding method is not applied.";
+export const EM_KNOTINDEX_INC_SEQ_TOO_LARGE = "The knot index cannot be greater than the last knot index. The corresponding method is not applied.";
+export const EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE = "Start and/or end indices values are out of range. Cannot perform the extraction.";
 
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
@@ -78,11 +83,11 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
 
     knotIndexInputParamAssessment(index: KnotIndexIncreasingSequence, methodName: string): void {
         if(index.knotIndex < 0) {
-            const error = new ErrorLog(this.constructor.name, methodName, "The knot index cannot be negative. The corresponding method is not applied.");
+            const error = new ErrorLog(this.constructor.name, methodName, EM_KNOTINDEX_INC_SEQ_NEGATIVE);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         } else if(index.knotIndex > (this.allAbscissae.length - 1)) {
-            const error = new ErrorLog(this.constructor.name, methodName, "The knot index cannot be greater than the last knot index.");
+            const error = new ErrorLog(this.constructor.name, methodName, EM_KNOTINDEX_INC_SEQ_TOO_LARGE);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -92,7 +97,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         const indexStart = this.getKnotIndexNormalizedBasisAtSequenceStart();
         const abscissaOrigin = this.abscissaAtIndex(this.toKnotIndexIncreasingSequence(indexStart));
         if(abscissaOrigin !== 0.0) {
-            const error = new ErrorLog(this.constructor.name, "checkOriginOfNormalizedBasis", "The abscissa defining the origin of the normalized basis of the knot sequence is not 0.0. The knot sequence is not consistent. Cannot proceed.");
+            const error = new ErrorLog(this.constructor.name, "checkOriginOfNormalizedBasis", EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -111,6 +116,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
                 this.knotSequence.push(new Knot(knotParameters.knots[i], 1));
             }
         }
+        this.checkMaxMultiplicityOrderConsistency();
         // this.checkMaxKnotMultiplicityAtIntermediateKnots();
         const {start: indexStart, end: indexEnd} = this.getKnotIndicesBoundingNormalizedBasis();
         this._uMax = this.abscissaAtIndex(this.toKnotIndexIncreasingSequence(indexEnd));
@@ -136,7 +142,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
 
     revertSequence(): number[] {
         const seq = this.clone();
-        seq.revertKnots();
+        seq.revertKnotSequence();
         return seq.allAbscissae;
     }
 
@@ -147,7 +153,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         }
         if(size !== knots.length) {
             const error = new ErrorLog(this.constructor.name, "checkSizeConsistency");
-            error.addMessage("Increasing knot sequence size incompatible with the multiplicity orders of the strictly increasing sequence. Cannot proceed.");
+            error.addMessage(EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -189,7 +195,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         let knots: number[] = [];
         if(!(knotStart.knotIndex >= 0) || !(knotEnd.knotIndex <= this.length() - 1) || !(knotStart.knotIndex <= knotEnd.knotIndex)) {
             const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae");
-            error.addMessage("Start and/or end indices values are out of range. Cannot perform the extraction.");
+            error.addMessage(EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE);
             console.log(error.generateMessageString());
             throw new RangeError(error.generateMessageString());
         }
@@ -202,4 +208,5 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         }
         return knots;
     }
+
 }

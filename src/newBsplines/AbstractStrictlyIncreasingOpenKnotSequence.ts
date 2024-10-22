@@ -107,7 +107,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
 
     revertSequence(): number[] {
         const seq = this.clone();
-        seq.revertKnots();
+        seq.revertKnotSequence();
         return seq.distinctAbscissae();
     }
 

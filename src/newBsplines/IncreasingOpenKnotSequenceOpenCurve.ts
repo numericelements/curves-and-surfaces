@@ -16,7 +16,6 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         super(maxMultiplicityOrder, knotParameters);
         this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
         if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCE) this.checkOriginOfNormalizedBasis();
-        this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformKnotMultiplicityOrder();
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
