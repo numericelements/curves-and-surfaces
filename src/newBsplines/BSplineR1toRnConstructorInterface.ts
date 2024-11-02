@@ -2,6 +2,7 @@ import { Vector2d } from "../mathVector/Vector2d";
 import { Vector3d } from "../mathVector/Vector3d";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
+import { IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots } from "./KnotSequenceConstructorInterface";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
@@ -14,6 +15,13 @@ export interface BSplinenD_CParray {
 
 export interface BSplinenD_CParrayDeg_Uniform {
     type: 'CParray_Degree_UniformKnotSeq';
+    controlPoints: ControlPoints[];
+    spaceDimension: number;
+    degree: number;
+}
+
+export interface BSplinenD_CParrayDeg_EuclideanDist {
+    type: 'CParray_Degree_EuclideanDistKnotSeq';
     controlPoints: ControlPoints[];
     spaceDimension: number;
     degree: number;
@@ -33,21 +41,60 @@ export interface BSplinenD_KCParray {
     knots: number[];
 }
 
+export interface BSplinenD_CParrayIncS_Derivative {
+    type: 'increasingSequence_CParray_Derivative';
+    controlPoints: ControlPoints[];
+    spaceDimension: number;
+    knotSequence: IncreasingOpenKnotSequenceInterface_type;
+    // derivative type
+}
+
 export interface BSplinenD_CParrayIncS {
     type: 'increasingSequence_CParray';
     controlPoints: ControlPoints[];
     spaceDimension: number;
-    increasingKnotSequence: IncreasingOpenKnotSequenceInterface;
+    knotSequence: IncreasingOpenKnotSequenceInterface_type;
 }
 
 export interface BSplinenD_CParrayStIncS {
     type: 'strIncreasingSequence_CParray';
     controlPoints: ControlPoints[];
     spaceDimension: number;
-    increasingKnotSequence: StrictlyIncreasingOpenKnotSequenceInterface;
+    knotSequence: StrictlyIncreasingOpenKnotSequenceInterface;
+    // increasingKnotSequence: StrictlyIncreasingOpenKnotSequenceInterface; (StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots)
 }
 
+export interface BSplinenD_CParrayStIncS_Derivative {
+    type: 'strIncreasingSequence_CParray_Derivative';
+    controlPoints: ControlPoints[];
+    spaceDimension: number;
+    knotSequence: StrictlyIncreasingOpenKnotSequenceInterface;
+    // derivative type
+}
+
+export interface BSplineR1toR1_KCParray {
+    type: 'knotArray_increasingSequence_CParray';
+    controlPoints: number[];
+    knots: number[];
+}
+
+export interface BSplineR1toR1_CParrayIncS {
+    type: 'increasingSequence_CParray';
+    controlPoints: number[];
+    knotSequence: IncreasingOpenKnotSequenceInterface;
+    // increasingKnotSequence: IncreasingOpenKnotSequenceInterface_type; (IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSequenceCCurve_allKnots)
+}
+
+export interface BSplineR1toR1_CParrayStIncS {
+    type: 'strIncreasingSequence_CParray';
+    controlPoints: number[];
+    knotSequence: StrictlyIncreasingOpenKnotSequenceInterface;
+    // increasingKnotSequence: StrictlyIncreasingOpenKnotSequenceInterface; (StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots)
+}
+
+
 export type ControlPoints = Vector2d | Vector3d;
+export type IncreasingOpenKnotSequenceInterface_type = IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSequenceCCurve_allKnots;
 
 export type BSplinenD_type = BSplinenD_CParray | BSplinenD_CParrayDeg_Uniform | BSplinenD_CParrayDeg_NonUniform | BSplinenD_KCParray | BSplinenD_CParrayIncS | BSplinenD_CParrayStIncS;
 

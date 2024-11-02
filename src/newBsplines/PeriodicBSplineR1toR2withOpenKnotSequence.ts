@@ -10,7 +10,7 @@ import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncre
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1";
 import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
-import { clampingFindSpan, findSpan } from "./Piegl_Tiller_NURBS_Book"
+import { clampingFindSpan, findSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book"
 
 
 /**
@@ -503,7 +503,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         if(uToInsert < this.knots[2 * this._degree] || uToInsert > this.knots[this.knots.length - 2 * this._degree - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
             const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
-            const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
+            const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
             const indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin);
@@ -554,7 +554,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         if(uToInsert < this.knots[2 * this._degree] || uToInsert > this.knots[this.knots.length - 2 * this._degree - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
             const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
-            const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
+            const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
             const indexIncSeq = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin)

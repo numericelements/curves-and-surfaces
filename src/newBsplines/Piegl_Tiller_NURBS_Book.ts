@@ -1,5 +1,7 @@
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
+import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
+import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequence";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
@@ -233,6 +235,21 @@ export function decomposeFunction(spline: BSplineR1toR1): number[][] {
             }
             a = b;
             b += 1;
+        }
+    }
+    return result;
+}
+
+export function resetKnotAbscissaeToOrigin(knotAbscissa: number[]): number[] {
+    let result: number[] = [];
+    if(Math.abs(knotAbscissa[0]) < KNOT_COINCIDENCE_TOLERANCE) {
+        result = knotAbscissa.slice();
+        const warning = new WarningLog("function", "resetKnotAbscissaToOrigin", "No need to reset the sequence of knot abscissa.");
+        warning.logMessage();
+    } else {
+        result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
+        for(let i= 1; i < knotAbscissa.length; i++) {
+            result.push(knotAbscissa[i] - knotAbscissa[0]);
         }
     }
     return result;

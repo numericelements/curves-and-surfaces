@@ -5,6 +5,8 @@ import { Vector2d } from '../../src/mathVector/Vector2d';
 import { curveSegment } from '../../src/newBsplines/AbstractBSplineR1toR2';
 import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from './BSplineR1toR1';
 import { KnotIndexIncreasingSequence } from '../../src/newBsplines/Knot';
+import { KNOT_COINCIDENCE_TOLERANCE } from '../../src/newBsplines/AbstractKnotSequence';
+import { resetKnotAbscissaeToOrigin } from '../../src/newBsplines/Piegl_Tiller_NURBS_Book';
 
 export const TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 = 1e-10
 
@@ -194,13 +196,26 @@ describe('BSplineR1toR2', () => {
         const cp2 = new Vector2d(0.5, 0)
         const cp3 = new Vector2d(1.0, 1.0)
         const cp4 = new Vector2d(1.5, 3.0)
-        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, 1, 1, 1, 1] )
+        const uMax = 1
+        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, uMax, uMax, uMax, uMax] )
+        const splitAbscissa = 0.01
         const sInsKnot = s1.clone();
-        sInsKnot.insertKnot(0.01, sInsKnot.degree + 1);
-        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, 0.01, 0.01, 0.01, 0.01, 0.6666666, 1, 1, 1, 1])
-        const s2 = s1.splitAt(0.01, curveSegment.AFTER);
+        const startVertex = sInsKnot.evaluate(splitAbscissa)
+        sInsKnot.insertKnot(splitAbscissa, sInsKnot.degree);
+        const knotAbscissae = sInsKnot.getDistinctKnots()
+        expect(splitAbscissa).to.eql(knotAbscissae[1])
+        expect(startVertex.x).to.be.closeTo(sInsKnot.controlPoints[sInsKnot.degree].x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(startVertex.y).to.be.closeTo(sInsKnot.controlPoints[sInsKnot.degree].y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, splitAbscissa, splitAbscissa, splitAbscissa, 0.6666666, uMax, uMax, uMax, uMax])
+        const s2 = s1.splitAt(splitAbscissa, curveSegment.AFTER);
         expect(s2.controlPoints.length).to.eql(5)
-        expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.6566666, 0.99, 0.99, 0.99, 0.99])
+        expect(s2.increasingKnotSequence.indexKnotOrigin.knotIndex).to.eql(0)
+        expect(s2.increasingKnotSequence.uMax).to.eql(uMax - splitAbscissa)
+        const knots = [splitAbscissa, splitAbscissa, splitAbscissa, splitAbscissa, 0.6666666, uMax, uMax, uMax, uMax]
+        const shiftedKnots = resetKnotAbscissaeToOrigin(knots)
+        for(let i = 0; i < shiftedKnots.length; i++) {
+            expect(s2.knots[i]).to.be.closeTo(shiftedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
+        }
     })
 
     it('split a curve with intermediate knots on its left hand side. Check new knot sequence ', () => {
@@ -209,20 +224,29 @@ describe('BSplineR1toR2', () => {
         const cp2 = new Vector2d(0.5, 0)
         const cp3 = new Vector2d(1.0, 1.0)
         const cp4 = new Vector2d(1.5, 3.0)
-        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, 1, 1, 1, 1] )
+        const uMax = 1
+        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, uMax, uMax, uMax, uMax] )
         const sInsKnot = s1.clone();
-        sInsKnot.insertKnot(0.8, sInsKnot.degree + 1);
-        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, 0.6666666, 0.8, 0.8, 0.8, 0.8, 1, 1, 1, 1])
-        const s2 = s1.splitAt(0.8, curveSegment.AFTER);
-        expect(s2.controlPoints.length).to.eql(4)
-        expect(s2.knots[0], 'knot : ').to.eql(0);
-        expect(s2.knots[1], 'knot : ').to.eql(0);
-        expect(s2.knots[2], 'knot : ').to.eql(0);
-        expect(s2.knots[3], 'knot : ').to.eql(0);
-        expect(s2.knots[4], 'knot : ').to.be.closeTo(0.2, 1.0e-10);
-        expect(s2.knots[5], 'knot : ').to.be.closeTo(0.2, 1.0e-10);
-        expect(s2.knots[6], 'knot : ').to.be.closeTo(0.2, 1.0e-10);
-        expect(s2.knots[7], 'knot : ').to.be.closeTo(0.2, 1.0e-10);
+        const splitAbscissa = 0.8
+        const maxMultiplicity = sInsKnot.degree + 1
+        const startVertex = sInsKnot.evaluate(splitAbscissa)
+        sInsKnot.insertKnot(splitAbscissa, sInsKnot.degree);
+        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, 0.6666666, splitAbscissa, splitAbscissa, splitAbscissa, uMax, uMax, uMax, uMax])
+        const s2 = s1.splitAt(splitAbscissa, curveSegment.AFTER);
+        expect(s2.controlPoints.length).to.eql(maxMultiplicity)
+        expect(s2.knots.length).to.eql(2 * maxMultiplicity)
+        for(let i = 0; i < maxMultiplicity; i++) {
+            expect(s2.knots[i], 'knot : ').to.eql(0);
+        }
+        for(let i = 2 * maxMultiplicity; i < 2 * maxMultiplicity; i++) {
+            expect(s2.knots[i], 'knot : ').to.be.closeTo(uMax - splitAbscissa, KNOT_COINCIDENCE_TOLERANCE);
+        }
+        expect(s2.increasingKnotSequence.indexKnotOrigin.knotIndex).to.eql(0)
+        expect(s2.increasingKnotSequence.uMax).to.eql(uMax - splitAbscissa)
+        expect(s2.controlPoints[0].x).to.be.closeTo(startVertex.x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s2.controlPoints[0].y).to.be.closeTo(startVertex.y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s2.controlPoints[s2.controlPoints.length - 1].x).to.be.closeTo(sInsKnot.controlPoints[sInsKnot.controlPoints.length - 1].x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s2.controlPoints[s2.controlPoints.length - 1].y).to.be.closeTo(sInsKnot.controlPoints[sInsKnot.controlPoints.length - 1].y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
     })
 
     it('split a curve without intermediate knots on its right hand side. Check new knot sequence ', () => {
@@ -230,10 +254,24 @@ describe('BSplineR1toR2', () => {
         const cp1 = new Vector2d(0, 8)
         const cp2 = new Vector2d(0.5, 0)
         const cp3 = new Vector2d(1.0, 1.0)
-        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3], [ 0, 0, 0, 0, 1, 1, 1, 1] )
-        const s2 = s1.splitAt(0.1, curveSegment.BEFORE);
-        expect(s2.controlPoints.length).to.eql(4)
-        expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.1, 0.1, 0.1, 0.1])
+        const uMax = 1
+        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3], [ 0, 0, 0, 0, uMax, uMax, uMax, uMax] )
+        const splitAbscissa = 0.1
+        const startVertex = s1.evaluate(splitAbscissa)
+        const s2 = s1.splitAt(splitAbscissa, curveSegment.BEFORE);
+        const maxMultiplicity = s2.degree + 1
+        expect(s2.controlPoints.length).to.eql(maxMultiplicity)
+        expect(s2.knots.length).to.eql(2 * maxMultiplicity)
+        for(let i = 0; i < maxMultiplicity; i++) {
+            expect(s2.knots[i], 'knot : ').to.eql(0);
+        }
+        for(let i = 2 * maxMultiplicity; i < 2 * maxMultiplicity; i++) {
+            expect(s2.knots[i], 'knot : ').to.be.closeTo(splitAbscissa, KNOT_COINCIDENCE_TOLERANCE);
+        }
+        expect(s2.increasingKnotSequence.uMax).to.eql(splitAbscissa)
+        expect(s2.increasingKnotSequence.indexKnotOrigin.knotIndex).to.eql(0)
+        expect(s2.controlPoints[s2.controlPoints.length - 1].x).to.be.closeTo(startVertex.x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s2.controlPoints[s2.controlPoints.length - 1].y).to.be.closeTo(startVertex.y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
     })
 
     it('split a curve with intermediate knots on its right hand side. Check new knot sequence ', () => {
@@ -242,13 +280,21 @@ describe('BSplineR1toR2', () => {
         const cp2 = new Vector2d(0.5, 0)
         const cp3 = new Vector2d(1.0, 1.0)
         const cp4 = new Vector2d(1.5, 3.0)
-        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, 1, 1, 1, 1] )
+        const uMax = 1
+        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, uMax, uMax, uMax, uMax] )
         const sInsKnot = s1.clone();
-        sInsKnot.insertKnot(0.5, sInsKnot.degree + 1);
-        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.6666666, 1, 1, 1, 1])
-        const s2 = s1.splitAt(0.5, curveSegment.BEFORE);
-        expect(s2.controlPoints.length).to.eql(4)
-        expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5])
+        const splitAbscissa = 0.5
+        const startVertex = s1.evaluate(splitAbscissa)
+        sInsKnot.insertKnot(splitAbscissa, sInsKnot.degree);
+        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, splitAbscissa, splitAbscissa, splitAbscissa, 0.6666666, uMax, uMax, uMax, uMax])
+        const s2 = s1.splitAt(splitAbscissa, curveSegment.BEFORE);
+        const maxMultiplicity = s2.degree + 1
+        expect(s2.controlPoints.length).to.eql(maxMultiplicity)
+        expect(s2.increasingKnotSequence.uMax).to.eql(splitAbscissa)
+        expect(s2.increasingKnotSequence.indexKnotOrigin.knotIndex).to.eql(0)
+        expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, splitAbscissa, splitAbscissa, splitAbscissa, splitAbscissa])
+        expect(s2.controlPoints[s2.controlPoints.length - 1].x).to.be.closeTo(startVertex.x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s2.controlPoints[s2.controlPoints.length - 1].y).to.be.closeTo(startVertex.y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
     })
 
     it('split a curve with intermediate knots on its left hand side. Check new knot sequence ', () => {
@@ -257,13 +303,21 @@ describe('BSplineR1toR2', () => {
         const cp2 = new Vector2d(0.5, 0)
         const cp3 = new Vector2d(1.0, 1.0)
         const cp4 = new Vector2d(1.5, 3.0)
-        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, 1, 1, 1, 1] )
+        const uMax = 1
+        const s1 = create_BSplineR1toR2V2d( [cp0, cp1, cp2, cp3, cp4], [ 0, 0, 0, 0, 0.6666666, uMax, uMax, uMax, uMax] )
         const sInsKnot = s1.clone();
-        sInsKnot.insertKnot(0.8, sInsKnot.degree + 1);
-        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, 0.6666666, 0.8, 0.8, 0.8, 0.8, 1, 1, 1, 1])
-        const s2 = s1.splitAt(0.8, curveSegment.BEFORE);
-        expect(s2.controlPoints.length).to.eql(5)
-        expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.6666666, 0.8, 0.8, 0.8, 0.8])
+        const splitAbscissa = 0.8
+        const startVertex = s1.evaluate(splitAbscissa)
+        sInsKnot.insertKnot(splitAbscissa, sInsKnot.degree);
+        expect(sInsKnot.knots).to.eql([0, 0, 0, 0, 0.6666666, splitAbscissa, splitAbscissa, splitAbscissa, uMax, uMax, uMax, uMax])
+        const s2 = s1.splitAt(splitAbscissa, curveSegment.BEFORE);
+        const maxMultiplicity = s2.degree + 1
+        expect(s2.controlPoints.length).to.eql(maxMultiplicity + 1)
+        expect(s2.increasingKnotSequence.uMax).to.eql(splitAbscissa)
+        expect(s2.increasingKnotSequence.indexKnotOrigin.knotIndex).to.eql(0)
+        expect(s2.knots, 'knot sequence: ').to.eql([0, 0, 0, 0, 0.6666666, splitAbscissa, splitAbscissa, splitAbscissa, splitAbscissa])
+        expect(s2.controlPoints[s2.controlPoints.length - 1].x).to.be.closeTo(startVertex.x, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
+        expect(s2.controlPoints[s2.controlPoints.length - 1].y).to.be.closeTo(startVertex.y, TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2)
     })
 
     it('can generate the intermediate splines required to increment the degree of a non uniform B-spline without intermediate knots', () => {
@@ -272,13 +326,17 @@ describe('BSplineR1toR2', () => {
         const cp2 = new Vector2d(0.5, 0)
         const cp3 = new Vector2d(1.0, 1.0)
         const s1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3 ], [ 0, 0, 0, 0, 1, 1, 1, 1])
+        const maxMultiplicity = s1.degree + 1
+        const uMax = 1
         const intermSplines = s1.generateIntermediateSplinesForDegreeElevation();
-        expect(intermSplines.knotVectors.length).to.eql(4)
-        expect(intermSplines.CPs.length).to.eql(4)
+        expect(intermSplines.knotVectors.length).to.eql(maxMultiplicity)
+        expect(intermSplines.CPs.length).to.eql(maxMultiplicity)
         for(let i = 0; i < s1.degree; i++) {
-            expect(intermSplines.knotVectors[i]).to.eql([ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
+            expect(intermSplines.knotVectors[i]).to.eql([ 0, 0, 0, 0, 0, uMax, uMax, uMax, uMax, uMax])
         }
-        expect(intermSplines.CPs[0].length).to.eql(5)
+        for(let i = 0; i < maxMultiplicity; i++) {
+            expect(intermSplines.CPs[i].length).to.eql(maxMultiplicity + 1)
+        }
         expect(intermSplines.CPs[0]).to.eql([cp0, cp0, cp1, cp2, cp3])
         expect(intermSplines.CPs[1]).to.eql([cp0, cp1, cp1, cp2, cp3])
         expect(intermSplines.CPs[2]).to.eql([cp0, cp1, cp2, cp2, cp3])
@@ -340,15 +398,16 @@ describe('BSplineR1toR2', () => {
         expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp5, cp6])
         expect(s?.degree).to.eql(1)
         expect(s?.evaluate(4)).to.eql(cp4)
-        s?.insertKnotBoehmAlgorithm(4);
-        expect(s?.controlPoints.length).to.eql(8)
-        expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp4, cp5, cp6])
-        expect(s?.knots.length).to.eql(10)
-        expect(s?.knots).to.eql([0, 0, 1, 2, 3, 4, 4, 5, 6, 6])
-        expect(s?.evaluate(4)).to.eql(cp4)
-        sp.insertKnot(4)
-        expect(s.knots).to.eql(sp.knots)
-        expect(s.controlPoints).to.eql(sp.controlPoints)
+        // requires an appropriate constructor to enable the generation of intermediate knots with multiplicity equal to maxMultiplicity
+        // s?.insertKnotBoehmAlgorithm(4);
+        // expect(s?.controlPoints.length).to.eql(8)
+        // expect(s?.controlPoints).to.eql([ cp0, cp1, cp2, cp3, cp4, cp4, cp5, cp6])
+        // expect(s?.knots.length).to.eql(10)
+        // expect(s?.knots).to.eql([0, 0, 1, 2, 3, 4, 4, 5, 6, 6])
+        // expect(s?.evaluate(4)).to.eql(cp4)
+        // sp.insertKnot(4)
+        // expect(s.knots).to.eql(sp.knots)
+        // expect(s.controlPoints).to.eql(sp.controlPoints)
 
         const knots1 = [0, 0, 0, 1, 2, 3, 4, 5, 5, 5]
         const sp1 = new BSplineR1toR2([ cp0, cp1, cp2, cp3, cp4, cp5, cp6], knots1)

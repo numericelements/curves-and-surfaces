@@ -2,6 +2,7 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 
 export const DEFAULT_KNOT_INDEX = Infinity;
 export const DEFAULT_KNOT_ABSCISSA_VALUE = Infinity;
+export const DEFAULT_MULTIPLICITY_VALUE = Infinity;
 export const EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA = "Knot abscissa value out of range. Cannot proceed.";
 export const EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY = "Knot multiplicity value out of range. Cannot proceed.";
 export const EM_KNOT_DECREMENT_KNOT_MULTIPLICITY = "Encountered a knot multiplicity smaller than one when decrementing. Cannot proceed.";
@@ -27,8 +28,10 @@ export class Knot {
                 this.throwRangeErrorMessage("constructor", EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY);
             }
             this._multiplicity = multiplicity;
-        } else {
+        } else if(this._abscissa !== DEFAULT_KNOT_ABSCISSA_VALUE) {
             this._multiplicity = 1;
+        } else {
+            this._multiplicity = DEFAULT_MULTIPLICITY_VALUE;
         }
     }
 

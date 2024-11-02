@@ -8,11 +8,11 @@ import { INCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE, Strictl
 
 export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
-    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
+    // protected _isSequenceOfDerivative: boolean;
 
     constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceOpenCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
+        // this._isSequenceOfDerivative = false;
         this.checkCurveOrigin();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformKnotMultiplicityOrder();
@@ -21,11 +21,11 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     }
 
     get enableMaxMultiplicityOrderAtIntermediateKnots(): boolean {
-        return this._enableMaxMultiplicityOrderAtIntermediateKnots;
+        return this._isSequenceUpToC0Discontinuity;
     }
 
     set enableMaxMultiplicityOrderAtIntermediateKnots(value: boolean) {
-        this._enableMaxMultiplicityOrderAtIntermediateKnots = value;
+        this._isSequenceUpToC0Discontinuity = value;
     }
 
     checkCurveOrigin(): void {

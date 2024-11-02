@@ -5,23 +5,20 @@ import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnot
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE, INCREASINGPERIODICKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, INCREASINGPERIODICKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequence {
 
-    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
-
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval
         this.checkNonUniformKnotMultiplicityOrder();
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
-        if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE && knotParameters.type !== INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) this.checkCurveOrigin();
-        if(knotParameters.type !== INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE) this.checkKnotIntervalConsistency();
+        if(knotParameters.type !== INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS && knotParameters.type !== INCREASINGOPENKNOTSEQUENCECLOSEDCURVE) this.checkCurveOrigin();
+        if(knotParameters.type !== INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS) this.checkKnotIntervalConsistency();
         this.checkMaxMultiplicityOrderConsistency();
     }
 
@@ -110,7 +107,11 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
-        return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        if(this._isSequenceUpToC0Discontinuity) {
+            return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        } else {
+            return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        }
     }
 
     isAbscissaCoincidingWithKnot(abscissa: number): boolean {
@@ -201,9 +202,17 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
                 new KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
         } else {
-            newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae;
+            if(this._isSequenceUpToC0Discontinuity) {
+                newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae;
+            } else {
+                newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae;
+            }
         }
-        return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder - 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: newKnots});
+        if(this._isSequenceUpToC0Discontinuity) {
+            return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder - 1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: newKnots});
+        } else {
+            return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder - 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: newKnots});
+        }
     }
 
     toPeriodicKnotSequence(): IncreasingPeriodicKnotSequenceClosedCurve {

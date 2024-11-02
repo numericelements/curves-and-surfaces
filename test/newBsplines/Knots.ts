@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { DEFAULT_KNOT_ABSCISSA_VALUE, EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA, EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY, EM_KNOT_DECREMENT_KNOT_MULTIPLICITY, EM_KNOT_INCREMENT_DECREMENT, EM_KNOT_INDEX_VALUE, Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
+import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_MULTIPLICITY_VALUE, EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA, EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY, EM_KNOT_DECREMENT_KNOT_MULTIPLICITY, EM_KNOT_INCREMENT_DECREMENT, EM_KNOT_INDEX_VALUE, Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 
 describe('Knots', () => {
 
@@ -40,7 +40,7 @@ describe('Knots', () => {
         it('can be initialized without presciption of an abscissa and multiplicity', () => {
             const knot = new Knot();
             expect(knot.abscissa).to.eql(DEFAULT_KNOT_ABSCISSA_VALUE);
-            expect(knot.multiplicity).to.eql(1)
+            expect(knot.multiplicity).to.eql(DEFAULT_MULTIPLICITY_VALUE)
         });
     });
 

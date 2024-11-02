@@ -194,20 +194,20 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
         }
     }
 
-    resetKnotAbscissaToOrigin(knotAbscissa: number[]): number[] {
-        let result: number[] = [];
-        if(Math.abs(knotAbscissa[0]) < TOL_KNOT_COINCIDENCE) {
-            result = knotAbscissa.slice();
-            const warning = new WarningLog(this.constructor.name, "resetKnotAbscissaToOrigin", "No need to reset the sequence of knot abscissa");
-            warning.logMessage();
-        } else {
-            result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
-            for(let i= 1; i < knotAbscissa.length; i++) {
-                result.push(knotAbscissa[i] - knotAbscissa[0]);
-            }
-        }
-        return result;
-    }
+    // resetKnotAbscissaToOrigin(knotAbscissa: number[]): number[] {
+    //     let result: number[] = [];
+    //     if(Math.abs(knotAbscissa[0]) < TOL_KNOT_COINCIDENCE) {
+    //         result = knotAbscissa.slice();
+    //         const warning = new WarningLog(this.constructor.name, "resetKnotAbscissaToOrigin", "No need to reset the sequence of knot abscissa");
+    //         warning.logMessage();
+    //     } else {
+    //         result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
+    //         for(let i= 1; i < knotAbscissa.length; i++) {
+    //             result.push(knotAbscissa[i] - knotAbscissa[0]);
+    //         }
+    //     }
+    //     return result;
+    // }
 
     insertKnot(u: number, times: number = 1): void {
         // Piegl and Tiller, The NURBS book, p: 151

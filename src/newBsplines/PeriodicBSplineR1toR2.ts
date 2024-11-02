@@ -8,7 +8,7 @@ import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicK
 import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence";
-import { basisFunctionsFromSequence, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
+import { basisFunctionsFromSequence, clampingFindSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book";
 
 /**
  * A B-Spline function from a one dimensional real periodic space to a two dimensional real space
@@ -610,7 +610,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         if(uToInsert >= this.knots[0] && uToInsert <= this.knots[this.knots.length - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
             const indexOrigin = new KnotIndexIncreasingSequence(0);
-            const knotAbscResetOrigin = this.resetKnotAbscissaToOrigin(knotAbsc);
+            const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
 
@@ -790,7 +790,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                 const knotSeqLength = this._increasingKnotSequence.allAbscissae.length;
                 const lastIndex = new KnotIndexIncreasingSequence(index.knotIndex + knotSeqLength - 1 - (multiplicityAtOrigin - 1));
                 newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(firstIndex, lastIndex);
-                newKnots = this.resetKnotAbscissaToOrigin(newKnots);
+                newKnots = resetKnotAbscissaeToOrigin(newKnots);
                 newKnots.splice(0, 0, newKnots[0]);
                 newKnots.splice(newKnots.length, 0, newKnots[newKnots.length - 1]);
                 const indexCP = this.fromIncKnotSeqIndexToControlPointIndex(index);
@@ -816,7 +816,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                 } else {
                     newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(indexFirstKnot, index2);
                 }
-                newKnots = this.resetKnotAbscissaToOrigin(newKnots);
+                newKnots = resetKnotAbscissaeToOrigin(newKnots);
                 newKnots.splice(0, 0, newKnots[0]);
                 newKnots.splice(newKnots.length, 0, newKnots[newKnots.length - 1]);
         

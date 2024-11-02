@@ -8,11 +8,11 @@ import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGOPENKN
 
 export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
-    protected _enableMaxMultiplicityOrderAtIntermediateKnots: boolean;
+    // protected _isSequenceOfDerivative: boolean;
 
     constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-        this._enableMaxMultiplicityOrderAtIntermediateKnots = false;
+        // this._isSequenceOfDerivative = false;
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval

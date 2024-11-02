@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { IncreasingOpenKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingOpenKnotSequenceClosedCurve";
 import { clampingFindSpan } from "../../src/newBsplines/Piegl_Tiller_NURBS_Book";
 import { KnotIndexIncreasingSequence } from "../../src/newBsplines/Knot";
-import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, NO_KNOT_CLOSED_CURVE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, NO_KNOT_CLOSED_CURVE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
 
 describe('IncreasingOpenKnotSequenceClosedCurve', () => {
     
@@ -606,7 +606,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
     it('can decrement the degree of a knot sequence of degree 2 with knots of multiplicity greater than two', () => {
         const knots: number [] = [-2, -1, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         const curveDegree = 2
-        const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: knots});
         const newSeq = seq.decrementMaxMultiplicityOrder();
         const newKnots: number [] = [-1, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8]
         expect(newSeq.maxMultiplicityOrder).to.eql(2)
@@ -620,7 +620,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
     it('can decrement the degree of a knot sequence of degree 1 with knots of multiplicity greater than one', () => {
         const knots: number [] = [-1, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8]
         const curveDegree = 1
-        const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: knots});
         const newSeq = seq.decrementMaxMultiplicityOrder();
         const newKnots: number [] = [0, 1, 2, 3, 4, 5, 6, 7]
         expect(newSeq.maxMultiplicityOrder).to.eql(1)
@@ -634,7 +634,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
     it('can decrement the degree of a knot sequence of degree 1 with a knot of multiplicity greater than one at sequence origin', () => {
         const knots: number [] = [0, 0, 1, 2, 3, 4, 5, 6, 7, 7]
         const curveDegree = 1
-        const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
+        const seq = new IncreasingOpenKnotSequenceClosedCurve(curveDegree + 1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: knots});
         const newSeq = seq.decrementMaxMultiplicityOrder();
         const newKnots: number [] = [0, 1, 2, 3, 4, 5, 6, 7]
         expect(newSeq.maxMultiplicityOrder).to.eql(1)

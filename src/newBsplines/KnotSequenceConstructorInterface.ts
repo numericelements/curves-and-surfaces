@@ -4,13 +4,15 @@ export const NO_KNOT_CLOSED_CURVE = 'No_Knot_ClosedCurve';
 export const UNIFORM_OPENKNOTSEQUENCE = 'Uniform_OpenKnotSequence';
 export const UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_OpenKnotSequence';
 export const INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence';
-export const INCREASINGOPENKNOTSUBSEQUENCE = 'IncreasingOpenKnotSubSequence';
+export const INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKnotSequenceUpToC0Discontinuity';
 export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequenceClosedCurve';
 export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSequenceClosedCurve_allKnots';
-export const INCREASINGOPENKNOTSUBSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSubSequenceClosedCurve';
+export const INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
 export const STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSequence';
+export const STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity';
 export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasingOpenKnotSequenceClosedCurve';
 export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots';
+export const STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = 'StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
 
 export const NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
 export const UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
@@ -42,8 +44,8 @@ export interface IncreasingOpenKnotSequence {
     knots: number[];
 }
 
-export interface IncreasingOpenKnotSubSequence {
-    type: 'IncreasingOpenKnotSubSequence';
+export interface IncreasingOpenKnotSequenceUpToC0Discontinuity {
+    type: 'IncreasingOpenKnotSequenceUpToC0Discontinuity';
     knots: number[];
 }
 
@@ -57,13 +59,19 @@ export interface IncreasingOpenKnotSequenceCCurve_allKnots {
     knots: number[];
 }
 
-export interface IncreasingOpenKnotSubSequenceCCurve {
-    type: 'IncreasingOpenKnotSubSequenceClosedCurve';
+export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
+    type: 'IncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
     knots: number[];
 }
 
 export interface StrictlyIncreasingOpenKnotSequence {
     type: 'StrictlyIncreasingOpenKnotSequence';
+    knots: number[];
+    multiplicities: number[];
+}
+
+export interface StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity {
+    type: 'StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity';
     knots: number[];
     multiplicities: number[];
 }
@@ -80,10 +88,16 @@ export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
     multiplicities: number[];
 }
 
-export type IncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | IncreasingOpenKnotSequence | IncreasingOpenKnotSubSequence;
-export type IncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSubSequenceCCurve | IncreasingOpenKnotSequenceCCurve_allKnots;
-export type StrictlyIncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | StrictlyIncreasingOpenKnotSequence;
-export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots;
+export interface StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots {
+    type: 'StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
+    knots: number[];
+    multiplicities: number[];
+}
+
+export type IncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceUpToC0Discontinuity;
+export type IncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots | IncreasingOpenKnotSequenceCCurve_allKnots;
+export type StrictlyIncreasingOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence | StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity;
+export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve | Uniform_OpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots | StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots;
 export type AbstractIncreasingOpenKnotSequence_type = IncreasingOpenKnotSequenceOpenCurve_type | IncreasingOpenKnotSequenceClosedCurve_type;
 export type AbstractStrictlyIncreasingOpenKnotSequence_type = StrictlyIncreasingOpenKnotSequenceOpenCurve_type | StrictlyIncreasingOpenKnotSequenceClosedCurve_type;
 export type AbstractOpenKnotSequence_type = AbstractIncreasingOpenKnotSequence_type | AbstractStrictlyIncreasingOpenKnotSequence_type;

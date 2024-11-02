@@ -1,4 +1,4 @@
-import { clampingFindSpan, findSpan } from "./Piegl_Tiller_NURBS_Book"
+import { clampingFindSpan, findSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book"
 import { Vector2d } from "../mathVector/Vector2d"
 import { AbstractBSplineR1toR2, TOL_KNOT_COINCIDENCE, curveSegment, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { BSplineR1toR1, KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1"
@@ -6,7 +6,7 @@ import { splineRecomposition } from "./BernsteinDecompositionR1toR1"
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging"
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve"
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot"
-import { INCREASINGOPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface"
+import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from "./KnotSequenceConstructorInterface"
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -216,7 +216,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const knotSequences: number[][] = [];
         const controlPolygons: Array<Vector2d[]> = [];
         for(let i = 0; i <= this._degree; i += 1) {
-            const knotSequence = this._increasingKnotSequence.clone();
+            // const knotSequence = this._increasingKnotSequence.clone();
+            const knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae})
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
             for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
@@ -259,6 +260,23 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             cp.push(new Vector2d(element.x * factor, element.y))
         });
         return new BSplineR1toR2(cp, this.knots.slice())
+    }
+
+    toBSplineWithC0Discontinuity(): BSplineR1toR2 {
+        const controlPts = this._controlPoints;
+        if(this._increasingKnotSequence.isSequenceUpToC0Discontinuity) {
+            const knotSeq = this._increasingKnotSequence.clone();
+            const warning = new WarningLog(this.constructor.name, "toBSplineWithC0Continuity", "This curve can already describe C0 discontinuities at a current point.");
+            warning.logMessage();
+            return new BSplineR1toR2(controlPts, knotSeq.allAbscissae);
+        } else {
+            const newKnotSeq = new IncreasingOpenKnotSequenceOpenCurve((this._degree + 1), {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae});
+            // to be modified so that isSequenceUpToC0Discontinuity can be set to true
+            // return new BSplineR1toR2(controlPts, newKnotSeq.allAbscissae);
+            const newCurve = new BSplineR1toR2(controlPts, newKnotSeq.allAbscissae);
+            newCurve.increasingKnotSequence.isSequenceUpToC0Discontinuity = true;
+            return newCurve;
+        }
     }
 
     extend(uAbsc: number): BSplineR1toR2 {
@@ -307,7 +325,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 tempCtrlPoly[k] = vertices[vertices.length - 1][k];
                 tempKnots[k] = u;
             }
-            const newKnots = this.resetKnotAbscissaToOrigin(tempKnots);
+            const newKnots = resetKnotAbscissaeToOrigin(tempKnots);
             result = new BSplineR1toR2(tempCtrlPoly, newKnots);
             if(reversed) result = result.revertCurve();
         }
@@ -315,7 +333,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     }
 
     splitAt(u: number, segmentLocation: curveSegment): BSplineR1toR2 {
-        let result = this.clone();
+        let result = this.toBSplineWithC0Discontinuity();
+        // let result = this.clone();
         const knots = this.getDistinctKnots();
         if(result.increasingKnotSequence.isAbscissaCoincidingWithKnot(u)) {
             const warning = new WarningLog(this.constructor.name, "splitAt", "Method not configured to split a curve at an existing knot");
@@ -348,7 +367,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 for(let i = knotIndex; i < result.knots.length; i++) {
                     newKnots.push(result.knots[i]);
                 }
-                const updatedKnots = this.resetKnotAbscissaToOrigin(newKnots)
+                const updatedKnots = resetKnotAbscissaeToOrigin(newKnots)
                 result = new BSplineR1toR2(newControlPolygon, updatedKnots);
             } else {
                 const error = new ErrorLog(this.constructor.name, "splitAt", "undefined specification of curve interval to be extracted.");
@@ -392,8 +411,9 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
      * @return the BSpline_R1_to_R2 section
      */
     extract(from: number, to: number) {
-
-        const spline = this.clone();
+        // clone to be replaced by toBSplineWithC0Discontinuity
+        const spline = this.toBSplineWithC0Discontinuity();
+        // const spline = this.clone();
         const strictIncSeq = spline._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
         let newFromSpan = spline._degree;
         let newToSpan = spline._increasingKnotSequence.length() - 1;
@@ -426,7 +446,6 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 newToSpan = clampingFindSpan(to, spline.knots, spline._degree);
             }
         } else {
-            spline._increasingKnotSequence.enableMaxMultiplicityOrderAtIntermediateKnots = true;
             spline.clamp(to);
             newToSpan = clampingFindSpan(to, spline.knots, spline._degree);
         }
@@ -441,7 +460,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         for (let i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
             newControlPoints.push(new Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y))
         }
-        const knotSequence = this.resetKnotAbscissaToOrigin(newKnots);
+        const knotSequence = resetKnotAbscissaeToOrigin(newKnots);
 
         return new BSplineR1toR2(newControlPoints, knotSequence);
     }
