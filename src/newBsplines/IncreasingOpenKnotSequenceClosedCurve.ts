@@ -154,6 +154,8 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
                         if(knot.abscissa === this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].abscissa
                         && this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].multiplicity === this._maxMultiplicityOrder) {
                             index -= this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].multiplicity
+                        } else if(knot.abscissa === this._uMax) {
+                            index -= knot.multiplicity;
                         }
                         if(this._isKnotMultiplicityUniform && index === (this.knotSequence.length - this._maxMultiplicityOrder + 1)) index -= 1;
                         return new KnotIndexIncreasingSequence(index - 1);
@@ -192,7 +194,8 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             if(strictlyIncSeq_Mult[i] === this._maxMultiplicityOrder) knotIdx_maxMultiplicityOrder.push(i);
         }
         for(const multiplicity of knotIdx_maxMultiplicityOrder) {
-            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
+            // strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
+            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity), false);
         }
         let newKnots: number[] = [];
         if(this._maxMultiplicityOrder > 2 || (this._maxMultiplicityOrder === 2 && 

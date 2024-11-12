@@ -610,7 +610,9 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         if(uToInsert >= this.knots[0] && uToInsert <= this.knots[this.knots.length - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
             const indexOrigin = new KnotIndexIncreasingSequence(0);
-            const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
+            // temoprary modif
+            const knotAbscResetOrigin: number[] = []
+            // const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
 

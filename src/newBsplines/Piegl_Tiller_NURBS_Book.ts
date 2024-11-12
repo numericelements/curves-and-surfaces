@@ -7,6 +7,8 @@ import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenc
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 
+export const WM_KNOT_SEQUENCE_ORIGIN_ALREADY_ZERO = "No need to reset the sequence of knot abscissae.";
+
 /**
  * Returns the span index
  * @param u parameter
@@ -240,16 +242,38 @@ export function decomposeFunction(spline: BSplineR1toR1): number[][] {
     return result;
 }
 
-export function resetKnotAbscissaeToOrigin(knotAbscissa: number[]): number[] {
+// export function resetKnotAbscissaeToOrigin(knotAbscissa: number[]): number[] {
+export function resetKnotAbscissaeToOrigin(knotAbscissa: number[], indexOrigin: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence(0)): number[] {
+    if(indexOrigin.knotIndex < 0 || indexOrigin.knotIndex >= knotAbscissa.length) {
+        const error = new ErrorLog("function", "resetKnotAbscissaToOrigin", "Knot index out of bounds. Cannot reset knot abscissae to origin.");
+        console.log(error.generateMessageString());
+        throw new RangeError(error.generateMessageString());
+    }
+    for(let i = 1; i < knotAbscissa.length; i++) {
+        const diff = knotAbscissa[i] - knotAbscissa[i - 1];
+        if(diff < KNOT_COINCIDENCE_TOLERANCE || diff < 0) {
+            const error = new ErrorLog("function", "resetKnotAbscissaToOrigin", "Knot abscissae are either too close to each other or not strictly increasing. Cannot reset knot abscissae to origin.");
+            console.log(error.generateMessageString());
+            throw new Error(error.generateMessageString());
+        }
+    }
     let result: number[] = [];
-    if(Math.abs(knotAbscissa[0]) < KNOT_COINCIDENCE_TOLERANCE) {
+    // if(Math.abs(knotAbscissa[0]) < (OPEN_KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
+    if(Math.abs(knotAbscissa[indexOrigin.knotIndex]) < (OPEN_KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
         result = knotAbscissa.slice();
-        const warning = new WarningLog("function", "resetKnotAbscissaToOrigin", "No need to reset the sequence of knot abscissa.");
+        const warning = new WarningLog("function", "resetKnotAbscissaToOrigin", WM_KNOT_SEQUENCE_ORIGIN_ALREADY_ZERO);
         warning.logMessage();
     } else {
         result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
-        for(let i= 1; i < knotAbscissa.length; i++) {
-            result.push(knotAbscissa[i] - knotAbscissa[0]);
+        for(let i = 1; i < knotAbscissa.length; i++) {
+            result.push(knotAbscissa[i] - knotAbscissa[indexOrigin.knotIndex]);
+        }
+        for(let i = 0; i < knotAbscissa.length; i++) {
+            let newAbscissa = knotAbscissa[i] - knotAbscissa[indexOrigin.knotIndex];
+            if(Math.abs(newAbscissa) < KNOT_COINCIDENCE_TOLERANCE) {
+                newAbscissa = OPEN_KNOT_SEQUENCE_ORIGIN;
+            }
+            result.push(newAbscissa);
         }
     }
     return result;

@@ -222,7 +222,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             let k = 0;
             for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
                 const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
+                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
                 if(j < this._controlPoints.length) {
                     let controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);

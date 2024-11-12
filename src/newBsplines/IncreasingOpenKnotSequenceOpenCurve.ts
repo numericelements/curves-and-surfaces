@@ -25,7 +25,11 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
     }
 
     clone(): IncreasingOpenKnotSequenceOpenCurve {
-        return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: this.allAbscissae});
+        if(this._isSequenceUpToC0Discontinuity) {
+            return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this.allAbscissae});
+        } else {
+            return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: this.allAbscissae});
+        }
     }
 
     toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve {

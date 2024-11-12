@@ -1,6 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { Vector2d } from "../mathVector/Vector2d"
-import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
@@ -503,7 +502,9 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         if(uToInsert < this.knots[2 * this._degree] || uToInsert > this.knots[this.knots.length - 2 * this._degree - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
             const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
-            const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
+            // temporary modif
+            const knotAbscResetOrigin: number[] = [];
+            // const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
             const indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin);
@@ -554,6 +555,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         if(uToInsert < this.knots[2 * this._degree] || uToInsert > this.knots[this.knots.length - 2 * this._degree - 1]) {
             const knotAbsc = this._increasingKnotSequence.allAbscissae;
             const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
+            // temporary modif
             const knotAbscResetOrigin = resetKnotAbscissaeToOrigin(knotAbsc);
             const sameSplineOpenCurve = new BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;

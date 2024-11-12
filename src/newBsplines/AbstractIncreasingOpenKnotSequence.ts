@@ -1,4 +1,3 @@
-import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractOpenKnotSequence, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, NormalizedBasisAtSequenceEnd } from "./AbstractOpenKnotSequence";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_KNOT_INDEX, Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
@@ -184,8 +183,8 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
     }
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
-        // this.knotIndexInputParamAssessment(index, "abscissaAtIndex");
-        let abscissa = RETURN_ERROR_CODE;
+        this.knotIndexInputParamAssessment(index, "abscissaAtIndex");
+        let abscissa = Infinity;
         let i = 0;
         for(const knot of this) {
             if(i === index.knotIndex && knot !== undefined) abscissa = knot;

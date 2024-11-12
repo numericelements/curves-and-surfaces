@@ -7,7 +7,7 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
-import { INCREASINGOPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from "./KnotSequenceConstructorInterface";
 
 export const KNOT_REMOVAL_TOLERANCE = 10e-5;
 
@@ -26,7 +26,8 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
     constructor(controlPoints: number[] = [0], knots: number[] = [0, 1]) {
         super(controlPoints, knots);
         const maxMultiplicityOrder = this._degree + 1;
-        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});
+        // this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});
+        this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knots});
     }
 
     get knots() : number[] {
@@ -71,7 +72,8 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
             }
         }
         for(const multiplicity of knotIdx_MultDegPlusOne) {
-            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
+            // strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
+            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity), false);
         }
         const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
         const newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
@@ -123,12 +125,13 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const knotSequences: number[][] = [];
         const controlPolygons: number[][] = [];
         for(let i = 0; i <= this._degree; i += 1) {
-            let knotSequence = this._increasingKnotSequence.clone();
+            // let knotSequence = this._increasingKnotSequence.clone();
+            const knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae})
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
             for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
                 const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
+                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
                 if(j < this._controlPoints.length) {
                     let controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
