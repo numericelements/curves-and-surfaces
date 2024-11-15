@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
-import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceOpenCurve";
+import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 import { STRICTLYINCREASINGPERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
+import { fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence, fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC } from "../../src/newBsplines/KnotSequenceConversionAndUtilities";
 
 describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
     
@@ -64,7 +65,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const multiplicities = [1, 1, 1, 1, 1];
         const degree = 2;
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots, multiplicities: multiplicities});
-        const newSeq = seq.deepCopy()
+        const newSeq = seq.clone()
         newSeq.incrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1))
         expect(newSeq.allAbscissae).to.eql([0, 1, 2, 3, 4])
         expect(seq.allAbscissae).to.eql(knots)
@@ -99,14 +100,16 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const multiplicities = [1, 2, 1, 1, 1];
         const degree = 2;
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots, multiplicities: multiplicities});
-        const incSeq = seq.toIncreasingKnotSequence()
+        // const incSeq = seq.toIncreasingKnotSequence()
+        const incSeq = fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence(seq)
         expect(incSeq.allAbscissae).to.eql([0, 1, 1, 2, 3, 4])
         expect(incSeq.multiplicities()).to.eql([1, 2, 1, 1, 1])
         const knots1 = [0, 1, 2, 3, 4];
         const multiplicities1 = [2, 1, 1, 1, 2];
         const degree1 = 2;
         const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree1, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1, multiplicities: multiplicities1});
-        const incSeq1 = seq1.toIncreasingKnotSequence()
+        // const incSeq1 = seq1.toIncreasingKnotSequence()
+        const incSeq1 = fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence(seq1)
         expect(incSeq1.allAbscissae).to.eql([0, 0, 1, 2, 3, 4, 4])
         expect(incSeq1.multiplicities()).to.eql([2, 1, 1, 1, 2])
     });
@@ -116,35 +119,40 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         const multiplicities = [1, 2, 1, 1, 1];
         const degree = 2;
         const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots, multiplicities: multiplicities});
-        const strictIncSeq = seq.toOpenKnotSequence()
+        // const strictIncSeq = seq.toOpenKnotSequence()
+        const strictIncSeq = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(seq)
         expect(strictIncSeq.allAbscissae).to.eql([-2, -1, 0, 1, 2, 3, 4, 5])
         expect(strictIncSeq.multiplicities()).to.eql([1, 1, 1, 2, 1, 1, 1, 2])
         const knots1 = [0, 1, 2, 3, 4];
         const multiplicities1 = [2, 1, 1, 1, 2];
         const degree1 = 2;
         const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree1, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1, multiplicities: multiplicities1});
-        const strictIncSeq1 = seq1.toOpenKnotSequence()
+        // const strictIncSeq1 = seq1.toOpenKnotSequence()
+        const strictIncSeq1 = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(seq1)
         expect(strictIncSeq1.allAbscissae).to.eql([-1, 0, 1, 2, 3, 4, 5])
         expect(strictIncSeq1.multiplicities()).to.eql([1, 2, 1, 1, 1, 2, 1])
         const knots2 = [0, 1, 2, 3, 4, 5];
         const multiplicities2 = [1, 1, 1, 1, 1, 1];
         const degree2 = 2;
         const seq2 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree2, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots2, multiplicities: multiplicities2});
-        const strictIncSeq2 = seq2.toOpenKnotSequence()
+        // const strictIncSeq2 = seq2.toOpenKnotSequence()
+        const strictIncSeq2 = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(seq2)
         expect(strictIncSeq2.allAbscissae).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
         expect(strictIncSeq2.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         const knots3 = [0, 1, 2, 3, 4, 5];
         const multiplicities3 = [1, 1, 1, 1, 2, 1];
         const degree3 = 2;
         const seq3 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree3, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots3, multiplicities: multiplicities3});
-        const strictIncSeq3 = seq3.toOpenKnotSequence()
+        // const strictIncSeq3 = seq3.toOpenKnotSequence()
+        const strictIncSeq3 = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(seq3)
         expect(strictIncSeq3.allAbscissae).to.eql([-1, 0, 1, 2, 3, 4, 5, 6, 7])
         expect(strictIncSeq3.multiplicities()).to.eql([2, 1, 1, 1, 1, 2, 1, 1, 1])
         const knots4 = [0, 1, 2, 3, 4, 5];
         const multiplicities4 = [1, 1, 2, 1, 1, 1];
         const degree4 = 2;
         const seq4 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(degree4, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots4, multiplicities: multiplicities4});
-        const strictIncSeq4 = seq4.toOpenKnotSequence()
+        // const strictIncSeq4 = seq4.toOpenKnotSequence()
+        const strictIncSeq4 = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(seq4)
         expect(strictIncSeq4.allAbscissae).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
         expect(strictIncSeq4.multiplicities()).to.eql([1, 1, 1, 1, 2, 1, 1, 1, 1, 2])
     });

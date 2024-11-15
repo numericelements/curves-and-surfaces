@@ -1,17 +1,30 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { AbstractKnotSequence, EM_SEQUENCE_ORIGIN_REMOVAL } from "./AbstractKnotSequence";
-import { Knot, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { AbstractKnotSequence, EM_SEQUENCE_ORIGIN_REMOVAL, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
+import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { AbstractPeriodicKnotSequenceClosedCurve_type, NO_KNOT_PERIODIC_CURVE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 
 
 export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence {
 
-    protected abstract _uMax: number;
+    protected _uMax: number;
+    protected knotSequence: Knot[];
     protected _isKnotMultiplicityNonUniform: boolean;
 
-    constructor(maxMultiplicityOrder: number) {
+    constructor(maxMultiplicityOrder: number, knotParameters: AbstractPeriodicKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder);
         this._isKnotMultiplicityNonUniform = false;
+        this.knotSequence = [];
+        this._uMax = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
+        if(knotParameters.type === NO_KNOT_PERIODIC_CURVE) {
+            this.computeKnotSequenceFromMaxMultiplicityOrder();
+        } else if(knotParameters.type === UNIFORM_PERIODICKNOTSEQUENCE) {
+            this.computeUniformKnotSequenceFromBsplBasisSize(knotParameters);
+        }
+    }
+
+    get uMax(): number {
+        return this._uMax;
     }
 
     get isKnotMultiplicityNonUniform(): boolean {
@@ -49,6 +62,25 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
 
     length(): number {
         return this.knotSequence.length;
+    }
+
+    computeKnotSequenceFromMaxMultiplicityOrder(): void {
+        const minValueMaxMultiplicityOrder = 1;
+        this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
+        for(let i = 0; i < (this._maxMultiplicityOrder + 2); i++) {
+            this.knotSequence.push(new Knot(i, 1));
+        }
+        this._uMax = this._maxMultiplicityOrder + 1;
+    }
+
+    computeUniformKnotSequenceFromBsplBasisSize(knotParameters: Uniform_PeriodicKnotSequence): void {
+        const minValueMaxMultiplicityOrder = 1;
+        this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
+        this.constructorInputBspBasisSizeAssessment(knotParameters);
+        for(let i = 0; i < knotParameters.BsplBasisSize; i++) {
+            this.knotSequence.push(new Knot(i, 1));
+        }
+        this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
     }
 
     incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {

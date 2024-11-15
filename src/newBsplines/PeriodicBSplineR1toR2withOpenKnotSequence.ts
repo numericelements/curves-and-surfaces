@@ -7,6 +7,7 @@ import { BSplineR1toR2 } from "./BSplineR1toR2"
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
+import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1";
 import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
 import { clampingFindSpan, findSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book"
@@ -167,7 +168,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     generateKnotSequenceOfBSplineR1toR2(): number[] {
         const knotSequence = this._increasingKnotSequence.allAbscissae;
         const distinctKnots = this.getDistinctKnots();
-        const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
+        // const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
+        const knotMultiplicity: number[] = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this._increasingKnotSequence).multiplicities();
         if(knotMultiplicity.length !== distinctKnots.length) {
             const error = new ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "inconsistent set of knot multiplicities compared to the disctinct knot values.");
             error.logMessage();
@@ -238,7 +240,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
 
     generateControlPolygonOfBSplineR1toR2(): Vector2d[] {
         let result: Vector2d[] = [];
-        const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
+        // const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
+        const knotMultiplicity: number[] = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this._increasingKnotSequence).multiplicities();
         if(knotMultiplicity[0] === (this._degree + 1)) {
             result = this._controlPoints;
         } else {
@@ -599,7 +602,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     findKnotAbscissaeRightBound(): number {
         let result = 0.0;
         let cumulativeMultiplicity = 0;
-        const strictIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        // const strictIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        const strictIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this._increasingKnotSequence);
         const indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
         for(let j = 0; j < indexOrigin.knotIndex; j++) {
             cumulativeMultiplicity += strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(j));

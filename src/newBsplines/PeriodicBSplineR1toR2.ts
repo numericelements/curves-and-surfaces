@@ -7,6 +7,7 @@ import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
+import { fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC, fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence } from "./KnotSequenceConversionAndUtilities";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence";
 import { basisFunctionsFromSequence, clampingFindSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book";
 
@@ -452,9 +453,11 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         const intermSplKnotsAndCPs = this.generateIntermediateSplinesForDegreeElevation();
         const splineHigherDegree =  new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0], (this._degree + 1));
         for(let i = 1; i <= this._degree; i += 1) {
-            const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            const strictIncSeq_splineHigherDegree = fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence(splineHigherDegree._increasingKnotSequence);
             const splineTemp = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i], (this._degree + 1));
-            const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            // const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            const strictIncSeq_splineTemp = fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence(splineTemp._increasingKnotSequence);
             for(let j = 0; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(j);
                 if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
@@ -709,7 +712,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     }
 
     evaluateOutsideRefInterval(u: number): Vector2d {
-        const strctIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        // const strctIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        const strctIncSeq = fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence(this._increasingKnotSequence);
         const lastKnot = strctIncSeq.allAbscissae[strctIncSeq.allAbscissae.length - 1];
         try{
             this.evaluateOutsideRefIntervalInputParamAssessment(u);
@@ -740,7 +744,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
     }
 
     toPeriodicBSplineR1toR2withOpenKnotSequence(): PeriodicBSplineR1toR2withOpenKnotSequence {
-        const knots = this._increasingKnotSequence.toOpenKnotSequence();
+        // const knots = this._increasingKnotSequence.toOpenKnotSequence();
+        const knots = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(this._increasingKnotSequence);
         let controlPoints = [];
         const multiplicityOrigin = this._increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
         for(let i = 0; i < this._degree; i++) {

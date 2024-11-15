@@ -5,14 +5,19 @@ import { KnotSequenceInterface } from "./KnotSequenceInterface";
 export interface IncreasingKnotSequenceInterface extends KnotSequenceInterface {
 
     allAbscissae: number[];
+    isKnotMultiplicityNonUniform: boolean;
+    uMax: number;
 
+    clone(): IncreasingKnotSequenceInterface;
     isAbscissaCoincidingWithKnot(abscissa: number): boolean;
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number;
     knotMultiplicityAtAbscissa(abcissa: number): number;
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence;
     findSpan(u: number): KnotIndexIncreasingSequence;
     insertKnot(abscissa: number, multiplicity: number): boolean;
-    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void;
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean): void;
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[];
-    revertKnotSequence():void;
+    // updateKnotSequenceThroughNormalizedBasisAnalysis(): void;
+    // toKnotIndexIncreasingSequence(index: KnotIndexStrictlyIncreasingSequence): KnotIndexIncreasingSequence;
 }

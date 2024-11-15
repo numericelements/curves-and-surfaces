@@ -1,11 +1,12 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_NOT_NORMALIZED_BASIS } from "./AbstractIncreasingOpenKnotSequence";
-import { AbstractKnotSequence, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
+import { AbstractKnotSequence, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "./AbstractKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
+import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences"
+import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences"
 // import { resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book";
 
-export const OPEN_KNOT_SEQUENCE_ORIGIN = 0.0;
 export const EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART = "Knot multiplicities at sequence start don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.";
 export const EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND = "Knot multiplicities at sequence end don't add up correctly to produce a normalized basis ending from some knot. Cannot proceed.";
 export const EM_KNOT_INSERTION_OVER_UMAX = "Knot insertion cannot take place over the largest knot abscissa. Please, create a new knot sequence incorporating the new abscissa.";

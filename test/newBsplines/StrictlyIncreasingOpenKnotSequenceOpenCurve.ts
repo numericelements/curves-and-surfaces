@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 import { NO_KNOT_OPEN_CURVE, STRICTLYINCREASINGOPENKNOTSEQUENCE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
+import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "../../src/newBsplines/KnotSequenceConversionAndUtilities";
 
 describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
 
@@ -218,7 +219,8 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
         const multiplicities: number[] = [4, 1, 1, 2, 4]
         const maxMultiplicityOrder = 4;
         const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: knots, multiplicities: multiplicities});
-        const seqIncreasing = seq.toIncreasingKnotSequence();
+        // const seqIncreasing = seq.toIncreasingKnotSequence();
+        const seqIncreasing = fromStrictlyIncreasingtToIncreasingKnotSequenceOC(seq);
         const abscissae: number[] = []
         for(const knot of seqIncreasing) {
             if(knot !== undefined) abscissae.push(knot)

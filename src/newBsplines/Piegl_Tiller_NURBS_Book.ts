@@ -1,8 +1,9 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
-import { OPEN_KNOT_SEQUENCE_ORIGIN } from "./AbstractOpenKnotSequence";
+import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
+import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
+import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
@@ -116,7 +117,9 @@ export function basisFunctions(span: number, u: number, knots: number[], degree:
     }
     return result;
 }
-export function basisFunctionsFromSequence(span: number, u: number, knotSequence: IncreasingOpenKnotSequenceInterface): number[] {
+
+// export function basisFunctionsFromSequence(span: number, u: number, knotSequence: IncreasingOpenKnotSequenceInterface): number[] {
+export function basisFunctionsFromSequence(span: number, u: number, knotSequence: IncreasingKnotSequenceInterface): number[] {
     // Bibliographic reference : The NURBS BOOK, p.70
     let result: Array<number> = [1];
     let left: Array<number> = [0];
@@ -249,14 +252,14 @@ export function resetKnotAbscissaeToOrigin(knotAbscissa: number[], indexOrigin: 
         console.log(error.generateMessageString());
         throw new RangeError(error.generateMessageString());
     }
-    for(let i = 1; i < knotAbscissa.length; i++) {
-        const diff = knotAbscissa[i] - knotAbscissa[i - 1];
-        if(diff < KNOT_COINCIDENCE_TOLERANCE || diff < 0) {
-            const error = new ErrorLog("function", "resetKnotAbscissaToOrigin", "Knot abscissae are either too close to each other or not strictly increasing. Cannot reset knot abscissae to origin.");
-            console.log(error.generateMessageString());
-            throw new Error(error.generateMessageString());
-        }
-    }
+    // for(let i = 1; i < knotAbscissa.length; i++) {
+    //     const diff = knotAbscissa[i] - knotAbscissa[i - 1];
+    //     if(diff < KNOT_COINCIDENCE_TOLERANCE || diff < 0) {
+    //         const error = new ErrorLog("function", "resetKnotAbscissaToOrigin", "Knot abscissae are either too close to each other or not strictly increasing. Cannot reset knot abscissae to origin.");
+    //         console.log(error.generateMessageString());
+    //         throw new Error(error.generateMessageString());
+    //     }
+    // }
     let result: number[] = [];
     // if(Math.abs(knotAbscissa[0]) < (OPEN_KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
     if(Math.abs(knotAbscissa[indexOrigin.knotIndex]) < (OPEN_KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
@@ -264,10 +267,10 @@ export function resetKnotAbscissaeToOrigin(knotAbscissa: number[], indexOrigin: 
         const warning = new WarningLog("function", "resetKnotAbscissaToOrigin", WM_KNOT_SEQUENCE_ORIGIN_ALREADY_ZERO);
         warning.logMessage();
     } else {
-        result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
-        for(let i = 1; i < knotAbscissa.length; i++) {
-            result.push(knotAbscissa[i] - knotAbscissa[indexOrigin.knotIndex]);
-        }
+        // result.push(OPEN_KNOT_SEQUENCE_ORIGIN);
+        // for(let i = 1; i < knotAbscissa.length; i++) {
+        //     result.push(knotAbscissa[i] - knotAbscissa[indexOrigin.knotIndex]);
+        // }
         for(let i = 0; i < knotAbscissa.length; i++) {
             let newAbscissa = knotAbscissa[i] - knotAbscissa[indexOrigin.knotIndex];
             if(Math.abs(newAbscissa) < KNOT_COINCIDENCE_TOLERANCE) {

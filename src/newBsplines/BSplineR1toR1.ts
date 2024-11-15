@@ -6,8 +6,9 @@ import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
+import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from "./KnotSequenceConstructorInterface";
+import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC, fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "./KnotSequenceConversionAndUtilities";
 
 export const KNOT_REMOVAL_TOLERANCE = 10e-5;
 
@@ -55,7 +56,8 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
     derivative(): BSplineR1toR1 {
         const newControlPoints = [];
         const knotIdx_MultDegPlusOne: number[] = [];
-        const strictlyIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        // const strictlyIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        const strictlyIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this._increasingKnotSequence);
         const strictlyIncSeq_Mult = strictlyIncSeq.multiplicities();
         for(let i = 0; i < strictlyIncSeq_Mult.length; i++) {
             if(strictlyIncSeq_Mult[i] === (this._degree + 1) && i !== 0 && i !== (strictlyIncSeq.length() - 1)) knotIdx_MultDegPlusOne.push(i);
@@ -75,7 +77,8 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
             // strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
             strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity), false);
         }
-        const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
+        // const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
+        const newIncKnotSeq = fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictlyIncSeq);
         const newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
             new KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
         // if(newKnots[0] !== 0.0) {

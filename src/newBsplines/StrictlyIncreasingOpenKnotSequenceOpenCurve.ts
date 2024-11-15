@@ -1,10 +1,9 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "./AbstractKnotSequence";
-import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
+import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
-import { INCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
+import { INCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
 
 export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
@@ -20,11 +19,11 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         this.checkUniformityOfKnotSpacing();
     }
 
-    get enableMaxMultiplicityOrderAtIntermediateKnots(): boolean {
+    get isSequenceUpToC0Discontinuity(): boolean {
         return this._isSequenceUpToC0Discontinuity;
     }
 
-    set enableMaxMultiplicityOrderAtIntermediateKnots(value: boolean) {
+    set isSequenceUpToC0Discontinuity(value: boolean) {
         this._isSequenceUpToC0Discontinuity = value;
     }
 
@@ -57,18 +56,22 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     }
 
     clone(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
-        return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        if(this._isSequenceUpToC0Discontinuity) {
+            return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        } else {
+            return new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
+        }
     }
 
-    toIncreasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
-        const knotAbscissae: number[] = [];
-        for (const knot of this.knotSequence) {
-            for(let i = 0; i < knot.multiplicity; i++) {
-                knotAbscissae.push(knot.abscissa);
-            }
-        }
-        return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knotAbscissae});
-    }
+    // toIncreasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
+    //     const knotAbscissae: number[] = [];
+    //     for (const knot of this.knotSequence) {
+    //         for(let i = 0; i < knot.multiplicity; i++) {
+    //             knotAbscissae.push(knot.abscissa);
+    //         }
+    //     }
+    //     return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knotAbscissae});
+    // }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {
         let index = RETURN_ERROR_CODE;

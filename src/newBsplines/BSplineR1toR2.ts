@@ -7,6 +7,7 @@ import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging"
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve"
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot"
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from "./KnotSequenceConstructorInterface"
+import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceConversionAndUtilities"
 
 /**
  * A B-Spline function from a one dimensional real space to a two dimensional real space
@@ -187,9 +188,11 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         const intermSplKnotsAndCPs = this.generateIntermediateSplinesForDegreeElevation();
         const splineHigherDegree = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
         for(let i = 1; i <= this._degree; i += 1) {
-            const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            const strictIncSeq_splineHigherDegree = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(splineHigherDegree._increasingKnotSequence);
             const splineTemp = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
-            const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            // const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+            const strictIncSeq_splineTemp = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(splineTemp._increasingKnotSequence);
             for(let j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(j);
                 if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
@@ -414,7 +417,8 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         // clone to be replaced by toBSplineWithC0Discontinuity
         const spline = this.toBSplineWithC0Discontinuity();
         // const spline = this.clone();
-        const strictIncSeq = spline._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        // const strictIncSeq = spline._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
+        const strictIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(spline._increasingKnotSequence);
         let newFromSpan = spline._degree;
         let newToSpan = spline._increasingKnotSequence.length() - 1;
         if(spline._increasingKnotSequence.isAbscissaCoincidingWithKnot(from)) {
