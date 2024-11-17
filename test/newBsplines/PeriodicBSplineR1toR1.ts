@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { PeriodicBSplineR1toR1 } from "../../src/newBsplines/PeriodicBSplineR1toR1";
-import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from "./BSplineR1toR1";
+import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from "../namedConstants/Curves";
 
 describe('PeriodicBSplineR1toR1', () => {
     

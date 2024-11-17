@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { BSplineR1toR1 } from '../../src/newBsplines/BSplineR1toR1';
+import { TOL_EVAL_ZEROS_BSPL_R1TOR1 } from '../namedConstants/Curves';
+import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from '../namedConstants/Curves';
+import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1 } from '../namedConstants/Curves';
 
-export const TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR1 = 1e-10;
-export const TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 = 1e-10;
-export const TOL_EVAL_ZEROS_BSPL_R1TOR1 = 1e-7;
 
 describe('BSplineR1toR1', () => {
     

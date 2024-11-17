@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { Vector2d } from "../../src/mathVector/Vector2d";
-import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "./BSplineR1toR2";
+import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "../namedConstants/Curves";
 import { PeriodicBSplineR1toR2 } from "../../src/newBsplines/PeriodicBSplineR1toR2";
 import { basisFunctionsFromSequence } from "../../src/newBsplines/Piegl_Tiller_NURBS_Book";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";

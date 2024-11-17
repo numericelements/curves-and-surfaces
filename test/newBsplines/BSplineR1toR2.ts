@@ -3,12 +3,12 @@ import { BSplineR1toR2 } from '../../src/newBsplines/BSplineR1toR2';
 import { create_BSplineR1toR2V2d } from '../../src/newBsplines/BSplineR1toR2';
 import { Vector2d } from '../../src/mathVector/Vector2d';
 import { curveSegment } from '../../src/newBsplines/AbstractBSplineR1toR2';
-import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from './BSplineR1toR1';
+import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from '../namedConstants/Curves';
 import { KnotIndexIncreasingSequence } from '../../src/newBsplines/Knot';
 import { KNOT_COINCIDENCE_TOLERANCE } from '../../src/namedConstants/KnotSequences';
+import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from '../namedConstants/Curves'
 import { resetKnotAbscissaeToOrigin } from '../../src/newBsplines/Piegl_Tiller_NURBS_Book';
 
-export const TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 = 1e-10
 
 describe('BSplineR1toR2', () => {
     
