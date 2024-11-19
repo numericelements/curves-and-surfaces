@@ -6,13 +6,6 @@ import { fromInputParametersToOpenKnotSequenceCC } from "./KnotSequenceConversio
 import { EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT } from "../ErrorMessages/KnotSequences";
 import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 
-// export const EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ = "Increasing knot sequence size incompatible with the multiplicity orders of the strictly increasing sequence. Cannot proceed.";
-// export const EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE = "The abscissa defining the origin of the normalized basis of the knot sequence is not 0.0. The knot sequence is not consistent. Cannot proceed.";
-// export const EM_KNOTINDEX_INC_SEQ_NEGATIVE = "The knot index cannot be negative. The corresponding method is not applied.";
-// export const EM_KNOTINDEX_INC_SEQ_TOO_LARGE = "The knot index cannot be greater than the last knot index. The corresponding method is not applied.";
-// export const EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE = "Start and/or end indices values are out of range. Cannot perform the extraction.";
-// export const EM_NOT_NORMALIZED_BASIS = "The B-Spline basis is not normalized over the knot interval defined. This basis cannot be used for curve modeling.";
-// export const EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT = "The normalized basis interval is not large enough to apply curve modeling algorithms."
 
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
@@ -149,9 +142,6 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         this.constructorInputArrayAssessment(knotParameters);
         this.checkKnotIncreasingValues(knotParameters.periodicKnots);
         const openSequence = fromInputParametersToOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
-        // // const periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve((this._maxMultiplicityOrder - 1), {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots});
-        // // // const openSequence = periodicSeq.toOpenKnotSequence();
-        // // const openSequence = fromIncreasingPeriodicToOpenKnotSequenceCC(periodicSeq);
         const knots = openSequence.distinctAbscissae();
         const multiplicities = openSequence.multiplicities();
         for(let i = 0; i < knots.length; i++) {
@@ -193,20 +183,6 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         }
         return abscissa;
     }
-
-    // toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
-    //     // const strictlyIncreasingKnotSequence = this.toStrictlyIncreasingKnotSequence();
-    //     const strictlyIncreasingKnotSequence = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this);
-    //     const abscissa = this.abscissaAtIndex(index);
-    //     let i = 0;
-    //     for(const knot of strictlyIncreasingKnotSequence.allAbscissae) {
-    //         if(knot !== undefined) {
-    //             if(knot === abscissa) break;
-    //             i++;
-    //         }
-    //     }
-    //     return new KnotIndexStrictlyIncreasingSequence(i);
-    // }
 
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[] {
         let knots: number[] = [];

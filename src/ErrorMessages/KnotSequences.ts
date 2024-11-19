@@ -45,6 +45,9 @@ export const EM_NOT_NORMALIZED_BASIS = "The B-Spline basis is not normalized ove
 // The normalized basis interval is not large enough to have a sufficient number of independent basis functions compared to the maximal multiplicity order defined for the knot sequence
 export const EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT = "The normalized basis interval is not large enough to apply curve modeling algorithms.";
 
+// The abscissa value set for a knot sequence processing is outside the valid interval of the knot sequence
+export const EM_U_OUTOF_KNOTSEQ_RANGE = "Parameter u is outside the valid knot sequence span.";
+
 
 
 // Strictly increasing knot sequences
@@ -56,6 +59,7 @@ export const EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL = "Knot sequence with leng
 
 // The knot index of a knot into a strictly increasing knot sequence is out of range
 export const EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE = "Knot index value in strictly increasing knot sequence is out of range.";
+
 
 
 // Open knot sequences

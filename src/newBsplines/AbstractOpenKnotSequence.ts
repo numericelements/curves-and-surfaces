@@ -1,4 +1,4 @@
-import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
@@ -286,23 +286,15 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
             this._indexKnotOrigin = indices.start.knotIndex;
             if(this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa !== OPEN_KNOT_SEQUENCE_ORIGIN) {
                 this.resetKnotAbscissaeToOrigin();
-                // const relocatedAbscissae = resetKnotAbscissaeToOrigin(this.distinctAbscissae(), this._indexKnotOrigin);
-                // const multiplicities = this.multiplicities();
-                // this.knotSequence = [];
-                // let i = 0;
-                // for(const abscissa of relocatedAbscissae) {
-                //     const knot = new Knot(abscissa, multiplicities[i]);
-                //     this.knotSequence.push(knot);
-                //     i++;
-                // }
             }
+            this._uMax = this.knotSequence[indices.end.knotIndex.knotIndex].abscissa;
         } else if(indices.start.basisAtSeqExt === NormalizedBasisAtSequenceEnd.OverDefined) {
             this.throwRangeErrorMessage("updateKnotSequenceThroughNormalizedBasisAnalysis", EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART)
         } else if(indices.start.basisAtSeqExt === NormalizedBasisAtSequenceEnd.NotNormalized) {
             this.throwRangeErrorMessage("updateKnotSequenceThroughNormalizedBasisAnalysis",EM_NOT_NORMALIZED_BASIS)
         }
         if(indices.end.basisAtSeqExt === NormalizedBasisAtSequenceEnd.StrictlyNormalized) {
-            this._uMax = this.abscissaAtIndex(this.toKnotIndexIncreasingSequence(indices.end.knotIndex));
+            this._uMax = this.knotSequence[indices.end.knotIndex.knotIndex].abscissa;
         } else if(indices.end.basisAtSeqExt === NormalizedBasisAtSequenceEnd.NotNormalized) {
             this.throwRangeErrorMessage("generateKnotSequence", EM_NOT_NORMALIZED_BASIS);
         } else if(indices.end.basisAtSeqExt === NormalizedBasisAtSequenceEnd.OverDefined) {
@@ -312,8 +304,9 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
     }
 
     resetKnotAbscissaeToOrigin(): void {
+        const offset = this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa;
         for(let i = 0; i < this.knotSequence.length; i++) {
-            let newAbscissa = this.knotSequence[i].abscissa - this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa;
+            let newAbscissa = this.knotSequence[i].abscissa - offset;
             if(Math.abs(newAbscissa) < KNOT_COINCIDENCE_TOLERANCE) {
                 newAbscissa = OPEN_KNOT_SEQUENCE_ORIGIN;
             }
