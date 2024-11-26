@@ -7,7 +7,7 @@ import { BSplineR1toR2 } from "./BSplineR1toR2"
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
-import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
+import { fromIncreasingOpentoIncreasingPeriodicKnotSequence, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1";
 import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
 import { clampingFindSpan, findSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book"
@@ -291,7 +291,8 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     }
 
     toPeriodicBSplineR1toR2(): PeriodicBSplineR1toR2 | undefined {
-        const periodicSequence = this._increasingKnotSequence.toPeriodicKnotSequence();
+        // const periodicSequence = this._increasingKnotSequence.toPeriodicKnotSequence();
+        const periodicSequence = fromIncreasingOpentoIncreasingPeriodicKnotSequence(this._increasingKnotSequence);
         const increasingKnotAbscissae = periodicSequence.allAbscissae;
         const controlPoints = this._controlPoints.slice(this._degree, this._controlPoints.length);
         const multiplicityOrigin = periodicSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
