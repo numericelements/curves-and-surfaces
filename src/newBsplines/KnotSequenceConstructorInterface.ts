@@ -117,11 +117,6 @@ export interface IncreasingPeriodicKnotSequence {
     periodicKnots: number[];
 }
 
-// export interface IncreasingPeriodicKnotSubSequence {
-//     type: 'IncreasingPeriodicKnotSubSequence';
-//     periodicKnots: number[];
-// }
-
 export interface StrictIncreasingPeriodicKnotSequence {
     type: 'StrictIncreasingPeriodicKnotSequence';
     periodicKnots: number[];

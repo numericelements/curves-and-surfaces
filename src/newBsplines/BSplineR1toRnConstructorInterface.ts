@@ -3,6 +3,9 @@ import { Vector3d } from "../mathVector/Vector3d";
 import { IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, IncreasingOpenKnotSequenceUpToC0Discontinuity, IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots, IncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequence, StrictlyIncreasingOpenKnotSequence, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity, StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots } from "./KnotSequenceConstructorInterface";
 
 
+// rational case (without/with weights)
+// complex case or pythagorean hodographs?
+
 export interface BSpline_CParray {
     type: 'OpenBSPL_CParray_No_KnotSequence';
     controlPoints: ControlPoints[];
@@ -56,6 +59,23 @@ export interface BSpline_CParrayKnotSeq_Derivative {
     knotSequence: OpenKnotSequenceUpToC0DiscontinuityInterface_type;
 }
 
+export interface PeriodicBSpline_CParray {
+    type: 'PeriodicBSPL_CParray_No_KnotSequence';
+    controlPoints: ControlPoints[];
+}
+
+export interface PeriodicBSpline_CParrayDeg_Uniform {
+    type: 'PeriodicBSPL_CParray_Degree_PeriodicUniformKnotSeq';
+    controlPoints: ControlPoints[];
+    degree: number;
+}
+
+export interface PeriodicBSpline_CParrayDeg_Uniform_EuclideanDist {
+    type: 'PeriodicBSPL_CParray_Degree_PeriodicUniformKnotSeq_EuclideanDist';
+    controlPoints: ControlPoints[];
+    degree: number;
+}
+
 export interface PeriodicBSpline_CParrayOpenKnotSeq {
     type: 'PeriodicBSPL_IncreasingSequence_CParray_OpenKSeq';
     periodicControlPoints: ControlPoints[];
@@ -74,23 +94,11 @@ export interface PeriodicBSpline_CParrayOpenKnotSeq_Derivative {
     knotSequence: OpenKnotSequenceUpToC0DiscontinuityCCurveInterfaceAllCPK_type;
 }
 
-export interface PeriodicBSpline_CParray {
-    type: 'PeriodicBSPL_CParray_No_KnotSequence';
-    controlPoints: ControlPoints[];
-}
-
-export interface PeriodicBSpline_CParrayDeg_Uniform {
-    type: 'PeriodicBSPL_CParray_Degree_PeriodicUniformKnotSeq';
-    controlPoints: ControlPoints[];
-    degree: number;
-}
-
 export interface PeriodicBSpline_CParrayPeriodicKnotSeq {
     type: 'PeriodicBSPL_IncreasingSequence_CParray_PeriodicKSeq';
     periodicControlPoints: ControlPoints[];
     knotSequence: PeriodicKnotSequenceCCurveInterface_type;
 }
-
 
 export interface BSplineR1toR1_CParrayIncS {
     type: 'OpenBSPL_IncreasingSequence_CParray';
@@ -114,7 +122,7 @@ export type PeriodicKnotSequenceCCurveInterface_type = IncreasingPeriodicKnotSeq
 
 export type OpenBSpline_type = BSpline_CParray | BSpline_CParrayDeg_Uniform | BSpline_CParrayDeg_Uniform_EuclideanDist | BSpline_CParrayDeg_NonUniform | BSpline_CParrayDeg_NonUniform_EuclideanDist | BSpline_CParray_KarrayIncreasing | BSpline_CParray_KarrayStrctIncreasing | BSpline_CParrayKnotSeq | BSpline_CParrayKnotSeq_Derivative
 export type PeriodicBSplineOPenSeq_type = PeriodicBSpline_CParrayOpenKnotSeq | PeriodicBSpline_CParrayOpenKnotSeq_allCPK | PeriodicBSpline_CParrayOpenKnotSeq_Derivative;
-export type PeriodicBSpline_type = PeriodicBSpline_CParray | PeriodicBSpline_CParrayDeg_Uniform | PeriodicBSpline_CParrayPeriodicKnotSeq;
+export type PeriodicBSpline_type = PeriodicBSpline_CParray | PeriodicBSpline_CParrayDeg_Uniform | PeriodicBSpline_CParrayDeg_Uniform_EuclideanDist | PeriodicBSpline_CParrayPeriodicKnotSeq;
 export type BSpline_type = OpenBSpline_type | PeriodicBSplineOPenSeq_type | PeriodicBSpline_type;
 
 export type BSplineR1toR1_type = BSplineR1toR1_CParrayIncS | PeriodicBSplineR1toR1_CParrayIncS;

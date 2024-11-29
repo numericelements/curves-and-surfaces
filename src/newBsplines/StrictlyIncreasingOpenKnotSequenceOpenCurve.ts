@@ -1,9 +1,10 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
+import { KNOT_COINCIDENCE_TOLERANCE, OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
-import { INCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
+import { STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
+import { EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE } from "../ErrorMessages/KnotSequences";
 
 export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
@@ -26,24 +27,10 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     }
 
     checkCurveOrigin(): void {
-        const error = new ErrorLog(this.constructor.name,  "checkCurveOrigin");
-        if(this.knotSequence[0].abscissa !== 0.0 && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
-            error.addMessage("Curve origin is not zero. Curve origin must be set to 0.0. Not able to process this knot sequence.");
-            console.log(error.generateMessageString());
-            throw new RangeError(error.generateMessageString());
-        } else if(this.knotSequence[0].abscissa !== 0.0) {
-            let i = 0;
-            let cumulativeMultiplicity = 0;
-            while(cumulativeMultiplicity < this._maxMultiplicityOrder) {
-                cumulativeMultiplicity += this.knotSequence[i].multiplicity;
-                i++;
-            }
-            if(cumulativeMultiplicity !== this._maxMultiplicityOrder) {
-                error.addMessage("No curve origin can be defined. The distribution of multiplicities at the beginning of the sequence does not enable the definition of consistent basis of B-spline functions. Not able to proceed.");
-                console.log(error.generateMessageString());
-                throw new RangeError(error.generateMessageString());
-            }
-            this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(i - 1);
+        if(this.knotSequence[0].abscissa !== OPEN_KNOT_SEQUENCE_ORIGIN && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
+            this.throwRangeErrorMessage("checkCurveOrigin", EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE);
+        } else if(this.knotSequence[0].abscissa !== OPEN_KNOT_SEQUENCE_ORIGIN) {
+            super.checkCurveOrigin();
         }
     }
 

@@ -60,6 +60,12 @@ export const EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL = "Knot sequence with leng
 // The knot index of a knot into a strictly increasing knot sequence is out of range
 export const EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE = "Knot index value in strictly increasing knot sequence is out of range.";
 
+// The multiplicity order encountered at a knot is either null or negative. The knot sequence is invalid
+export const EM_KNOT_MULTIPLICITY_OUT_OF_RANGE = "Some knot multiplicities are negative or null. Cannot proceed.";
+
+// The knot at the origin of a non uniform knot sequence is not 0. The knot sequence is not valid
+export const EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE = "Sequence origin is not zero. Non-uniform knot sequence origin must be set to 0.0. Not able to process this knot sequence.";
+
 
 
 // Open knot sequences
