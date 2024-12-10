@@ -66,6 +66,9 @@ export const EM_KNOT_MULTIPLICITY_OUT_OF_RANGE = "Some knot multiplicities are n
 // The knot at the origin of a non uniform knot sequence is not 0. The knot sequence is not valid
 export const EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE = "Sequence origin is not zero. Non-uniform knot sequence origin must be set to 0.0. Not able to process this knot sequence.";
 
+// Knot sequences whether open for closed curves or periodic that are specified from a range of periodic knots must have the first coinciding with the origin of the knot sequence, i.e. 0.0
+// see EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE
+
 
 
 // Open knot sequences
@@ -87,6 +90,21 @@ export const EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS = "The knot multip
 // Either the knot index of the knot sequence origin is inconsistent or the abscissa at the knot sequence origin is not OPEN_KNOT_SEQUENCE_ORIGIN
 export const EM_KNOT_SEQUENCE_ORIGIN_INCONSISTENT = "Either the knot sequence origin is not zero or the knot defining the origin of the sequence has an abscissa differing from zero. Knot sequence origin must be set to 0.0. Not able to process this knot sequence.";
 
+// The knot multiplicity at the first knot abscissa is inconsistent with the setting of the sequene origin because the cumulative multiplicities of knots up to the origin of the sequence does not equal the max multiplicity of the sequence
+export const EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT = "The knot multiplicity at the first knot is inconsistent with the sequence origin. Cannot proceed.";
+
+// The knot multiplicity at the last knot abscissa is inconsistent with the setting of the sequene upper bound because the cumulative multiplicities of knots from the upper bound of the sequence to its end does not equal the max multiplicity of the sequence
+export const EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT = "The knot multiplicity at the last knot is inconsistent with the sequence upper bound. Cannot proceed.";
+
+// At the left hand side of the knot sequence, with respect to knot origin, the knots are not periodically distributed compared to the left hand side of the right bound of the normalized basis
+// Knot intervals on the left hand side of the origin (closure point) are not consistently set with respect to the distribution of knots in the normalized basis
+export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT = "Knot intervals are not periodically distributed around the closure point (left hand side). This sequence cannot be processed.";
+
+// At the right hand side of the knot sequence, with respect to knot at the right bound of the normalized basis, the knots are not periodically distributed compared to the right hand side of the knot origin of the knot sequence
+// Knot intervals on the right hand side of the origin (closure point) are not consistently set with respect to the distribution of knots in the normalized basis
+export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT = "Knot intervals are not periodically distributed around the closure point (right hand side). This sequence cannot be processed.";
+
+
 
 // Increasing open knot sequences
 // The size of the increasing knot sequence generated is incompatible with the multiplicity orders computed and associated with the strictly increasing knot sequence set up internally
@@ -98,12 +116,6 @@ export const EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE = "The abscissa defining the orig
 
 
 // Increasing open knot sequences of closed curves
-// At the left hand side of the knot sequence, with respect to knot origin, the knots are not periodically distributed compared to the left hand side of the right bound of the normalized basis
-export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT = "knot intervals are not symmetrically spread around the closure point (left hand side). This sequence cannot be processed.";
-
-// At the right hand side of the knot sequence, with respect to knot at the right bound of the normalized basis, the knots are not periodically distributed compared to the right hand side of the knot origin of the knot sequence
-export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT = "knot intervals are not symmetrically spread around the closure point (right hand side). This sequence cannot be processed.";
-
 // The multiplicity orders of the knots at the left and right bounds of the normalized basis are not equal
 export const EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER = "Multiplicities at knots bounding the normalized basis differ. Cannot proceed with this sequence.";
 
@@ -112,4 +124,9 @@ export const EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE = "Knot abscissa is outside 
 
 // The conversion of an increasing open knot sequence of a closed curve is possible only if all knots have a multiplicity strictly lower to the maximal multiplicity order defined for the knot sequence
 export const EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION = "Some knot of the sequence has a multiplicity order that can describe a C0 discontinuity, which incompatible with a closed curve. The conversion is not possible.";
+
+// Strictly incresing open knot sequences of closed curves
+// Intervals around the origin (the closure point) are not correctly distributed
+export const EM_INCORRECT_INTERVALS_AT_ORIGIN = "Knot intervals are not spread correctly around the closure point. This sequence cannot be processed.";
+
 

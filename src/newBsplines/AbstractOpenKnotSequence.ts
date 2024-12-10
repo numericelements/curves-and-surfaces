@@ -3,7 +3,7 @@ import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
 import { OPEN_KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
-import { EM_SEQUENCE_ORIGIN_REMOVAL, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT } from "../ErrorMessages/KnotSequences"
+import { EM_SEQUENCE_ORIGIN_REMOVAL, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER } from "../ErrorMessages/KnotSequences"
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE, WM_ABSCISSA_TOO_CLOSE_TO_KNOT } from "../WarningMessages/KnotSequences";
 // import { resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book";
 
@@ -93,6 +93,14 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
             basisAtSeqStart = NormalizedBasisAtSequenceEnd.StrictlyNormalized;
         }
         return {knot: new KnotIndexStrictlyIncreasingSequence(index), basisAtSeqExt: basisAtSeqStart};
+    }
+
+    checkKnotMultiplicitiesAtNormalizedBasisBoundaries(): void {
+        const indexLeftBoundBasis = this.getKnotIndexNormalizedBasisAtSequenceStart().knot.knotIndex;
+        const indexRightBoundBasis = this.getKnotIndexNormalizedBasisAtSequenceEnd().knot.knotIndex;
+        if(this.knotSequence[indexLeftBoundBasis].multiplicity !== this.knotSequence[indexRightBoundBasis].multiplicity) {
+            this.throwRangeErrorMessage("checkKnotMultiplicitiesAtNormalizedBasisBoundaries", EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER);
+        }
     }
 
     computeKnotSequenceFromMaxMultiplicityOrderOCurve(): void {

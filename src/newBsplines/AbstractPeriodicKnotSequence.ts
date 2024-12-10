@@ -3,7 +3,7 @@ import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfS
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractPeriodicKnotSequenceClosedCurve_type, NO_KNOT_PERIODIC_CURVE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { EM_SEQUENCE_ORIGIN_REMOVAL } from "../ErrorMessages/KnotSequences";
+import { EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL } from "../ErrorMessages/KnotSequences";
 import { UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
 
 
@@ -41,8 +41,7 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
 
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== 0.0) {
-            const error = new ErrorLog(this.constructor.name, "checkCurveOrigin", "Inconsistent knot sequence origin. First knot abscissa must be 0.0");
-            error.logMessage;
+            this.throwRangeErrorMessage('checkCurveOrigin', EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
         }
     }
 

@@ -154,7 +154,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
         // const strictIncSeq4 = seq4.toOpenKnotSequence()
         const strictIncSeq4 = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(seq4)
         expect(strictIncSeq4.allAbscissae).to.eql([-2, -1, 0, 1, 2, 3, 4, 5, 6, 7])
-        expect(strictIncSeq4.multiplicities()).to.eql([1, 1, 1, 1, 2, 1, 1, 1, 1, 2])
+        expect(strictIncSeq4.multiplicities()).to.eql([1, 1, 1, 1, 2, 1, 1, 1, 1, 1])
     });
 
     it('can increment the knot multiplicity of a strictly increasing sequence at an intermediate knot', () => {

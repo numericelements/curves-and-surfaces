@@ -1,10 +1,9 @@
-import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE, OPEN_KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
 import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnotSequence";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
-import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
+import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT, EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequence {
 
@@ -44,31 +43,47 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         return periodicKnots;
     }
 
-    checkKnotMultiplicitiesAtNormalizedBasisBoundaries(): void {
-        const indexLeftBoundBasis = this.getKnotIndexNormalizedBasisAtSequenceStart().knot.knotIndex;
-        const indexRightBoundBasis = this.getKnotIndexNormalizedBasisAtSequenceEnd().knot.knotIndex;
-        if(this.knotSequence[indexLeftBoundBasis].multiplicity !== this.knotSequence[indexRightBoundBasis].multiplicity) {
-            this.throwRangeErrorMessage("checkKnotMultiplicitiesAtNormalizedBasisBoundaries", EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER);
-        }
-    }
-
     checkKnotIntervalConsistency(): void {
+        if(this.knotSequence[0].multiplicity >= this._maxMultiplicityOrder && this.knotSequence[this.knotSequence.length - 1].multiplicity >= this._maxMultiplicityOrder) return;
+
+        if(this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa !== OPEN_KNOT_SEQUENCE_ORIGIN) this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
         const indexRightBoundBasis = this.getKnotIndexNormalizedBasisAtSequenceEnd().knot.knotIndex;
+        const multiplicityAtOrigin = this.knotSequence[this._indexKnotOrigin.knotIndex].multiplicity;
         let i = 0;
+        let cumulativeMultiplicity = 0;
         while((this._indexKnotOrigin.knotIndex - i) > 0) {
             const interval1 = this.knotSequence[indexRightBoundBasis - (i + 1)].abscissa - this.knotSequence[indexRightBoundBasis - i].abscissa;
+            const multiplicity1 = this.knotSequence[indexRightBoundBasis - (i + 1)].multiplicity;
             const interval2 = this.knotSequence[this._indexKnotOrigin.knotIndex - (i + 1)].abscissa - this.knotSequence[this._indexKnotOrigin.knotIndex - i].abscissa;
-            if(Math.abs(interval1 - interval2) > KNOT_COINCIDENCE_TOLERANCE) {
+            const multiplicity2 = this.knotSequence[this._indexKnotOrigin.knotIndex - (i + 1)].multiplicity;
+            if((Math.abs(interval1 - interval2) > KNOT_COINCIDENCE_TOLERANCE || multiplicity1 !== multiplicity2) && (this._indexKnotOrigin.knotIndex - i) > 1) {
                 this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT);
+            } else if((Math.abs(interval1 - interval2) > KNOT_COINCIDENCE_TOLERANCE || multiplicity1 < multiplicity2) && (this._indexKnotOrigin.knotIndex - i) === 1) {
+                this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT);
+            }
+            if((this._indexKnotOrigin.knotIndex - i) > 1) {
+                cumulativeMultiplicity += multiplicity1;
+            } else if(cumulativeMultiplicity + multiplicity2 + multiplicityAtOrigin !== this._maxMultiplicityOrder) {
+                this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT);
             }
             i++;
         }
         i = 0;
+        cumulativeMultiplicity = 0;
         while((indexRightBoundBasis + i + 1) < this.knotSequence.length) {
             const interval1 = this.knotSequence[indexRightBoundBasis + i].abscissa - this.knotSequence[indexRightBoundBasis + i + 1].abscissa;
+            const multiplicity1 = this.knotSequence[indexRightBoundBasis + (i + 1)].multiplicity;
             const interval2 = this.knotSequence[this._indexKnotOrigin.knotIndex + i].abscissa - this.knotSequence[this._indexKnotOrigin.knotIndex + i + 1].abscissa;
-            if(Math.abs(interval1 - interval2) > KNOT_COINCIDENCE_TOLERANCE) {
+            const multiplicity2 = this.knotSequence[this._indexKnotOrigin.knotIndex + (i + 1)].multiplicity;
+            if((Math.abs(interval1 - interval2) > KNOT_COINCIDENCE_TOLERANCE || multiplicity1 !== multiplicity2) && (indexRightBoundBasis + (i + 1)) < this.knotSequence.length - 1) {
                 this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT);
+            } else if((Math.abs(interval1 - interval2) > KNOT_COINCIDENCE_TOLERANCE || multiplicity2 < multiplicity1) && (indexRightBoundBasis + (i + 1)) === this.knotSequence.length - 1) {
+                this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT);
+            }
+            if((indexRightBoundBasis + (i + 1)) < this.knotSequence.length - 1) {
+                cumulativeMultiplicity += multiplicity1;
+            } else if(cumulativeMultiplicity + multiplicity1 + multiplicityAtOrigin !== this._maxMultiplicityOrder) {
+                this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT);
             }
             i++;
         }
@@ -125,10 +140,6 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
 
     findSpan(u: number): KnotIndexIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
-        // let index = RETURN_ERROR_CODE;
-        // if (u < this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa || u > this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].abscissa) {
-        //     const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-        //     error.logMessage();
         if(u < OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
             this.throwRangeErrorMessage("findSpan", EM_U_OUTOF_KNOTSEQ_RANGE);
         } else {
