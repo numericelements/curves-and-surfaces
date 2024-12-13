@@ -2,7 +2,7 @@ import { KNOT_COINCIDENCE_TOLERANCE, OPEN_KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORM
 import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnotSequence";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
-import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
+import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC, fromStrictlyIncreasingToIncreasingKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
 import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT, EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequence {
@@ -197,7 +197,8 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         if(this._maxMultiplicityOrder > 2 || (this._maxMultiplicityOrder === 2 && 
             (knotIdx_maxMultiplicityOrder.length > 0 && knotIdx_maxMultiplicityOrder[0] !== this._indexKnotOrigin.knotIndex ||
             knotIdx_maxMultiplicityOrder.length === 0))) {
-            const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
+            // const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
+            const newIncKnotSeq = fromStrictlyIncreasingToIncreasingKnotSequenceCC(strictlyIncSeq);
             newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence(1),
                 new KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
         } else {

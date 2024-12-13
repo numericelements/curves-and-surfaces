@@ -3,7 +3,7 @@ import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "../../src/namedConstants/KnotSequences";
 import { INCREASINGPERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
-import { fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC, fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence } from "../../src/newBsplines/KnotSequenceConversionAndUtilities";
+import { fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "../../src/newBsplines/KnotSequenceConversionAndUtilities";
 
 describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
     
@@ -94,14 +94,14 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
         const degree = 2;
         const seq = new IncreasingPeriodicKnotSequenceClosedCurve(degree, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots});
         // const strictIncSeq = seq.toStrictlyIncreasingKnotSequence()
-        const strictIncSeq = fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence(seq)
+        const strictIncSeq = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(seq)
         expect(strictIncSeq.allAbscissae).to.eql([0, 1, 2, 3, 4])
         expect(strictIncSeq.multiplicities()).to.eql([1, 2, 1, 1, 1])
         const knots1 = [0, 0, 1, 2, 3, 4, 4];
         const degree1 = 2;
         const seq1 = new IncreasingPeriodicKnotSequenceClosedCurve(degree1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1});
         // const strictIncSeq1 = seq1.toStrictlyIncreasingKnotSequence()
-        const strictIncSeq1 = fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence(seq1)
+        const strictIncSeq1 = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(seq1)
         expect(strictIncSeq1.allAbscissae).to.eql([0, 1, 2, 3, 4])
         expect(strictIncSeq1.multiplicities()).to.eql([2, 1, 1, 1, 2])
     });

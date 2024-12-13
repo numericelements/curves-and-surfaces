@@ -4,7 +4,7 @@ import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingPeriodicKnotSequence, INCREASINGPERIODICKNOTSEQUENCE, IncreasingPeriodicKnotSequenceClosedCurve_type } from "./KnotSequenceConstructorInterface";
-import { fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence } from "./KnotSequenceConversionAndUtilities";
+import { fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "./KnotSequenceConversionAndUtilities";
 
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
@@ -215,7 +215,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
 
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
         // const strictlyIncreasingKnotSequence = this.toStrictlyIncreasingKnotSequence();
-        const strictlyIncreasingKnotSequence = fromIncreasingPeriodictoStrictlyIncreasingPeriodicKnotSequence(this);
+        const strictlyIncreasingKnotSequence = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(this);
         const lastIdxStrictIncSeq = strictlyIncreasingKnotSequence.allAbscissae.length - 1;
         const abscissa = this.abscissaAtIndex(index);
         let i = 0;
