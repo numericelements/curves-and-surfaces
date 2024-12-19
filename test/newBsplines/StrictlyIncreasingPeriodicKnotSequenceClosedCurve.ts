@@ -23,7 +23,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             knotSequence.push(new Knot(knots[i], multiplicities[i]));
         }
         expect(knotSequence[0].multiplicity).to.not.eql(knotSequence[knotSequence.length - 1].multiplicity)
-        // expect(seq.checkMultiplicityAtEndKnots()).to.throw()
+        // expect(() => seq.checkKnotMultiplicitiesAtNormalizedBasisBoundaries()).to.throw()
         // expect(() => new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(2, knots, multiplicities)).to.throw()
     });
 

@@ -1,10 +1,11 @@
-import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
+import { KNOT_COINCIDENCE_TOLERANCE, OPEN_KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
 import { Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingPeriodicKnotSequence, INCREASINGPERIODICKNOTSEQUENCE, IncreasingPeriodicKnotSequenceClosedCurve_type } from "./KnotSequenceConstructorInterface";
 import { fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "./KnotSequenceConversionAndUtilities";
+import { EM_INDICES_SPAN_TWICE_PERIOD, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_START_INDEX_GREATER_THAN_END_INDEX, EM_START_INDEX_OUTOF_RANGE, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
+import { WM_ABSCISSA_TOO_CLOSE_TO_KNOT } from "../WarningMessages/KnotSequences";
 
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
@@ -12,6 +13,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         super(maxMultiplicityOrder, knotParameters);
         if(knotParameters.type === INCREASINGPERIODICKNOTSEQUENCE) {
             this.generateKnotSequence(knotParameters);
+            this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
         }
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
@@ -67,14 +69,17 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
 
     knotIndexInputParamAssessment(index: KnotIndexIncreasingSequence, methodName: string): void {
         if(index.knotIndex < 0) {
-            const error = new ErrorLog(this.constructor.name, methodName, "The knot index cannot be negative. The corresponding method is not applied.");
-            console.log(error.generateMessageString());
-            throw new RangeError(error.generateMessageString());
+            this.throwRangeErrorMessage(methodName, EM_KNOTINDEX_INC_SEQ_NEGATIVE);
         } else if(index.knotIndex > (this.allAbscissae.length - 1)) {
-            const error = new ErrorLog(this.constructor.name, methodName, "The knot index cannot be greater than the last knot index.");
-            console.log(error.generateMessageString());
-            throw new RangeError(error.generateMessageString());
+            this.throwRangeErrorMessage(methodName, EM_KNOTINDEX_INC_SEQ_TOO_LARGE);
         }
+    }
+
+    isAbscissaCoincidingWithKnot(abscissa: number): boolean {
+        if(abscissa < OPEN_KNOT_SEQUENCE_ORIGIN || abscissa > this._uMax) {
+            this.throwRangeErrorMessage("isAbscissaCoincidingWithKnot", EM_U_OUTOF_KNOTSEQ_RANGE);
+        }
+        return super.isAbscissaCoincidingWithKnot(abscissa);
     }
 
     generateKnotSequence(knotParameters: IncreasingPeriodicKnotSequence): void {
@@ -91,70 +96,24 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
             }
         }
         this.checkMaxMultiplicityOrderConsistency();
-        if(knotParameters.periodicKnots.length < (this._maxMultiplicityOrder + 2)) {
-            const error = new ErrorLog(this.constructor.name, "constructor", "the knot number is not large enough to generate a B-Spline basis.");
-            error.logMessage();
-            return;
+        if(knotParameters.periodicKnots.length < (this._maxMultiplicityOrder + 1)) {
+            this.throwRangeErrorMessage("generateKnotSequence", EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS)
         }
         this._uMax =  this.knotSequence[this.knotSequence.length - 1].abscissa;
         this.checkCurveOrigin();
-        this.checkMultiplicityAtEndKnots();
+        this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
     }
-
-    // toOpenKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
-    //     const knotsOpenSequence: number[] = [];
-    //     const multiplicityAtOrigin = this.knotSequence[0].multiplicity;
-    //     let knotNumber = 1;
-    //     for( let i = 1; i <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)); i++) {
-    //         for(let j = 0; j < this.knotSequence[this.knotSequence.length - 1 - i].multiplicity; j++) {
-    //             if (knotNumber <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)))
-    //                 knotsOpenSequence.splice(0, 0,(this.knotSequence[this.knotSequence.length - 1 - i].abscissa - this.knotSequence[this.knotSequence.length - 1].abscissa));
-    //             else break;
-    //             knotNumber++;
-    //         }
-    //         if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
-    //     }
-    //     for(const knot of this) {
-    //         if(knot !== undefined) knotsOpenSequence.push(knot);
-    //     }
-    //     knotNumber = 1;
-    //     for(let i = 1; i <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)); i++) {
-    //         for(let j = 0; j < this.knotSequence[0 + i].multiplicity; j++) {
-    //             if (knotNumber <= (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1)))
-    //                 knotsOpenSequence.push(this.knotSequence[this.knotSequence.length - 1].abscissa + (this.knotSequence[i].abscissa - this.knotSequence[0].abscissa));
-    //             else break;
-    //             knotNumber++;
-    //         }
-    //         if (knotNumber > (this._maxMultiplicityOrder - (this.knotSequence[0].multiplicity - 1))) break;
-    //     }
-    //     return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder + 1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotsOpenSequence});
-    // }
 
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void {
         if(index.knotIndex < 0) {
-            const error = new ErrorLog(this.constructor.name, "raiseKnotMultiplicity", "Index value is out of range.");
-            error.logMessage();
-            return;
+            this.throwRangeErrorMessage("raiseKnotMultiplicity", EM_KNOTINDEX_INC_SEQ_NEGATIVE);
         }
         const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
         this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
-        if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
-        this.checkUniformityOfKnotSpacing();
-    }
-
-    incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
-        let increment = true;
-        if(index.knotIndex < 0) {
-            increment = false
-            const error =  new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "negative index value. It cannot be processed");
-            error.logMessage();
-            return increment;
-        }
-        const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
-        this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
-        if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
         this.checkMaxMultiplicityOrderConsistency();
-        return increment;
+        if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+        this.checkUniformityOfKnotMultiplicity();
+        this.checkNonUniformKnotMultiplicityOrder();
     }
 
     knotMultiplicityAtAbscissa(abcissa: number): number {
@@ -174,20 +133,16 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
     insertKnot(abscissa: number, multiplicity: number = 1): boolean {
         let insertion = true;
         if(this.isAbscissaCoincidingWithKnot(abscissa)) {
-            const warning = new WarningLog(this.constructor.name, "insertKnot", "abscissa is too close from an existing knot: raise multiplicity of an existing knot.");
+            const warning = new WarningLog(this.constructor.name, "insertKnot", WM_ABSCISSA_TOO_CLOSE_TO_KNOT);
             warning.logMessage();
             insertion = false;
             return insertion;
-        } else if(multiplicity >= this._maxMultiplicityOrder) {
-            const warning = new WarningLog(this.constructor.name, "insertKnot", "the order of multiplicity of the new knot is not compatible with the curve degree")
-            warning.logMessage();
-            insertion = false;
-            return insertion;
-        } else if(abscissa < this.knotSequence[0].abscissa || abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
-            const warning = new WarningLog(this.constructor.name, "insertKnot", "the abscissa is out of the range of the knot sequence interval");
-            warning.logMessage();
-            insertion = false;
+        } else if(abscissa < this.knotSequence[0].abscissa) {
+            this.throwRangeErrorMessage("insertKnot", EM_KNOT_INSERTION_UNDER_SEQORIGIN);
+        } else if (abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+            this.throwRangeErrorMessage("insertKnot", EM_KNOT_INSERTION_OVER_UMAX);
         }
+        this.maxMultiplicityOrderInputParamAssessment(multiplicity, "insertKnot");
         if(insertion) {
             const knot = new Knot(abscissa, multiplicity);
             let i = 0;
@@ -197,12 +152,14 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
             }
             this.knotSequence.splice((i + 1), 0, knot);
             this.checkUniformityOfKnotSpacing();
+            this.checkUniformityOfKnotMultiplicity();
+            this.checkNonUniformKnotMultiplicityOrder();
         }
         return insertion;
     }
 
     abscissaAtIndex(index: KnotIndexIncreasingSequence): number {
-        let abscissa = RETURN_ERROR_CODE;
+        let abscissa = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         const multLastKnot = this.knotSequence[this.knotSequence.length - 1].multiplicity;
         const indexPeriod =  new KnotIndexIncreasingSequence(index.knotIndex % (this.allAbscissae.length - multLastKnot));
         let i = 0;
@@ -214,7 +171,6 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
     }
 
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
-        // const strictlyIncreasingKnotSequence = this.toStrictlyIncreasingKnotSequence();
         const strictlyIncreasingKnotSequence = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(this);
         const lastIdxStrictIncSeq = strictlyIncreasingKnotSequence.allAbscissae.length - 1;
         const abscissa = this.abscissaAtIndex(index);
@@ -234,52 +190,37 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         const sequence = this.allAbscissae.slice();
         const lasIndex = this.allAbscissae.length - 1;
         const multFirstKnot = this.knotSequence[0].multiplicity;
-        try{
-            if(knotStart.knotIndex < 0) {
-                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index must be positive or null. Cannot perform the extraction.");
-                throw(error.generateMessageString());
-            }
-            if(knotEnd.knotIndex <= knotStart.knotIndex) {
-                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index must be strictly lower than the end one. Cannot perform the extraction.");
-                throw(error.generateMessageString());
-            }
-            if(knotStart.knotIndex > lasIndex) {
-                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start index is out of range. No extraction is performed.");
-                throw(error.logMessage());
-            }
-            if((knotEnd.knotIndex - knotStart.knotIndex) > (2 * lasIndex)) {
-                const error = new ErrorLog(this.constructor.name, "extractSubsetOfAbscissae", "start and end indices span more than twice the period of the sequence. No extraction is performed.");
-                throw(error.logMessage());
-            }
-
-            if(knotEnd.knotIndex > lasIndex) {
-                for(let i = multFirstKnot; i < this.allAbscissae.length; i++) {
-                    sequence.push(this.allAbscissae[i] + this.allAbscissae[lasIndex]);
-                }
-            }
-            if(knotEnd.knotIndex >= (2 * lasIndex)) {
-                for(let i = multFirstKnot; i < this.allAbscissae.length; i++) {
-                    sequence.push(this.allAbscissae[i] + 2 * this.allAbscissae[lasIndex]);
-                }
-            }
-            knots = sequence.slice(knotStart.knotIndex, knotEnd.knotIndex + 1);
-            return knots;
-        } catch(error) {
-            console.error(error);
-            return knots;
+        if(knotEnd.knotIndex <= knotStart.knotIndex) {
+            this.throwRangeErrorMessage("extractSubsetOfAbscissae", EM_START_INDEX_OUTOF_RANGE);
+        }
+        if(knotStart.knotIndex > lasIndex) {
+            this.throwRangeErrorMessage("extractSubsetOfAbscissae", EM_START_INDEX_GREATER_THAN_END_INDEX);
+        }
+        if((knotEnd.knotIndex - knotStart.knotIndex) > (2 * lasIndex)) {
+            this.throwRangeErrorMessage("extractSubsetOfAbscissae", EM_INDICES_SPAN_TWICE_PERIOD);
         }
 
+        if(knotEnd.knotIndex > lasIndex) {
+            for(let i = multFirstKnot; i < this.allAbscissae.length; i++) {
+                sequence.push(this.allAbscissae[i] + this.allAbscissae[lasIndex]);
+            }
+        }
+        if(knotEnd.knotIndex >= (2 * lasIndex)) {
+            for(let i = multFirstKnot; i < this.allAbscissae.length; i++) {
+                sequence.push(this.allAbscissae[i] + 2 * this.allAbscissae[lasIndex]);
+            }
+        }
+        knots = sequence.slice(knotStart.knotIndex, knotEnd.knotIndex + 1);
+        return knots;
     }
 
     findSpan(u: number): KnotIndexIncreasingSequence {
-        let index = RETURN_ERROR_CODE;
+        let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if(u > this.knotSequence[this.knotSequence.length - 1].abscissa) {
             u = u % this.getPeriod();
         }
-        if (u < this.knotSequence[0].abscissa) {
-            console.log(u);
-            const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            error.logMessage();
+        if(u < OPEN_KNOT_SEQUENCE_ORIGIN) {
+            this.throwRangeErrorMessage("findSpan", EM_U_OUTOF_KNOTSEQ_RANGE);
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;

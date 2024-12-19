@@ -2,17 +2,17 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
-import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
-import { INCREASINGPERIODICKNOTSEQUENCE, NO_KNOT_PERIODIC_CURVE, StrictIncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequenceClosedCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
+import { INCREASINGPERIODICKNOTSEQUENCE, StrictIncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequenceClosedCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 
 export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
     constructor(maxMultiplicityOrder: number, knotsParameters: StrictIncreasingPeriodicKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotsParameters);
+
         if(knotsParameters.type === STRICTLYINCREASINGPERIODICKNOTSEQUENCE) {
             this.generateStrictlyIncreasingSequence(knotsParameters);
+            this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
         }
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
@@ -65,7 +65,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         this.checkMaxMultiplicityOrderConsistency();
         this._uMax =  this.knotSequence[this.knotSequence.length - 1].abscissa;
         this.checkCurveOrigin();
-        this.checkMultiplicityAtEndKnots();
+        this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
     }
 
     abscissaAtIndex(index: KnotIndexStrictlyIncreasingSequence): number {

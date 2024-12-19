@@ -130,3 +130,15 @@ export const EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION = "Some knot of the s
 export const EM_INCORRECT_INTERVALS_AT_ORIGIN = "Knot intervals are not spread correctly around the closure point. This sequence cannot be processed.";
 
 
+// Periodic knot sequences
+// The size of the periodic knot sequence is incompatible with the max multiplicity order of the knot sequence set up to generate a normalized basis over the interval defined by the knots
+export const EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS = "The knot sequence size and knot multiplicities cannot produce a normalized basis over the interval spanned by the knots. Cannot proceed.";
+
+// Indices set to extract a subset of a knot sequence span an interval larger than twice the period of the sequence
+export const EM_INDICES_SPAN_TWICE_PERIOD = "Start and end indices span more than twice the period of the sequence. No extraction is performed.";
+
+// The start index to extract a subset of a knot sequence is greater than the last knot index of the sequence
+export const EM_START_INDEX_OUTOF_RANGE = "Start index must be strictly lower than the end one. Cannot perform the extraction.";
+
+// The start index is greater than the end index
+export const EM_START_INDEX_GREATER_THAN_END_INDEX = "Start index must be strictly lower than the end one. Cannot perform the extraction.";

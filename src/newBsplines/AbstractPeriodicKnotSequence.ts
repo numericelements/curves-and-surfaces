@@ -1,9 +1,7 @@
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractPeriodicKnotSequenceClosedCurve_type, NO_KNOT_PERIODIC_CURVE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL } from "../ErrorMessages/KnotSequences";
+import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL } from "../ErrorMessages/KnotSequences";
 import { UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
 
 
@@ -35,8 +33,6 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
 
     checkNonUniformKnotMultiplicityOrder(): void {
         this._isKnotMultiplicityNonUniform = false;
-        if(this.knotSequence[0].multiplicity === this._maxMultiplicityOrder &&
-            this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isKnotMultiplicityNonUniform = true;
     }
 
     checkCurveOrigin(): void {
@@ -45,16 +41,8 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         }
     }
 
-    checkMultiplicityAtEndKnots(): void {
-        if(this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
-            const error = new ErrorLog(this.constructor.name, "checkMultiplicityAtEndKnots", "Multiplicities at end knots of the sequence differ. They must be equal to define a periodic sequence structure.");
-            error.logMessage();
-        }
-    }
-
     getPeriod(): number {
-        let period = RETURN_ERROR_CODE;
-         return period = this.knotSequence[this.knotSequence.length - 1].abscissa - this.knotSequence[0].abscissa;
+         return this.knotSequence[this.knotSequence.length - 1].abscissa - this.knotSequence[0].abscissa;
     }
 
     lastKnot(): number {
@@ -65,10 +53,18 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         return this.knotSequence.length;
     }
 
+    checkKnotMultiplicitiesAtNormalizedBasisBoundaries(): void {
+        if(this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
+            this.throwRangeErrorMessage("checkKnotMultiplicitiesAtNormalizedBasisBoundaries", EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER);
+        }
+    }
+
     computeKnotSequenceFromMaxMultiplicityOrder(): void {
         const minValueMaxMultiplicityOrder = 1;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
-        for(let i = 0; i < (this._maxMultiplicityOrder + 2); i++) {
+        let upperBound = this._maxMultiplicityOrder + 1;
+        if(this._maxMultiplicityOrder === 1) upperBound = this._maxMultiplicityOrder + 2;
+        for(let i = 0; i < upperBound; i++) {
             this.knotSequence.push(new Knot(i, 1));
         }
         this._uMax = this._maxMultiplicityOrder + 1;
@@ -84,32 +80,11 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
     }
 
-    incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
-        let increment = true;
-        if(index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
-            const error = new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessage();
-            increment = false;
-        } else {
-            this.knotSequence[index.knotIndex].multiplicity += multiplicity;
-            if(index.knotIndex === 0) {
-                this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
-            } else if(index.knotIndex === (this.knotSequence.length - 1)) {
-                this.knotSequence[0].multiplicity += multiplicity;
-            }
-            this.checkMaxMultiplicityOrderConsistency();
-        }
-        return increment;
-    }
-
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
         this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
         if(this.knotSequence[index.knotIndex].multiplicity === 1) {
-            if(index.knotIndex === 0) {
-                const error = new ErrorLog(this.constructor.name, "decrementKnotMultiplicity");
-                error.addMessage(EM_SEQUENCE_ORIGIN_REMOVAL);
-                console.log(error.generateMessageString());
-                throw new RangeError(error.generateMessageString());
+            if(index.knotIndex === 0 || index.knotIndex === this.knotSequence.length - 1) {
+                this.throwRangeErrorMessage("decrementKnotMultiplicity", EM_SEQUENCE_ORIGIN_REMOVAL);
             }
             const abscissae = this.distinctAbscissae();
             const multiplicities = this.multiplicities();
@@ -124,6 +99,11 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
             }
         } else {
             this.knotSequence[index.knotIndex].multiplicity--;
+            if(index.knotIndex === 0) {
+                this.knotSequence[this.knotSequence.length - 1].multiplicity--;
+            } else if(index.knotIndex === (this.knotSequence.length - 1)) {
+                this.knotSequence[0].multiplicity--;
+            }
         }
         this.checkUniformityOfKnotSpacing();
         this.checkUniformityOfKnotMultiplicity();

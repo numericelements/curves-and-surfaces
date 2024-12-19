@@ -114,7 +114,9 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
     computeKnotSequenceFromMaxMultiplicityOrderCCurve(): void {
         const minValueMaxMultiplicityOrder = 2;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
-        for(let i = - (this._maxMultiplicityOrder - 1); i < (3 * this._maxMultiplicityOrder - 2); i++) {
+        let upperBound = 2 * this._maxMultiplicityOrder - 1;
+        if(this._maxMultiplicityOrder === 2) upperBound = 2 * this._maxMultiplicityOrder;
+        for(let i = - (this._maxMultiplicityOrder - 1); i < upperBound; i++) {
             this.knotSequence.push(new Knot(i, 1));
         }
         this._uMax = this._maxMultiplicityOrder;

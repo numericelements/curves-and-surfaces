@@ -106,7 +106,7 @@ export abstract class AbstractKnotSequence {
         if(knotParameters.type === UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
             if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
         } else if(knotParameters.type === UNIFORM_PERIODICKNOTSEQUENCE) {
-            if(knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 2)) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
+            if(knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1)) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
         }
     }
 
