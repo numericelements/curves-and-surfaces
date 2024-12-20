@@ -45,7 +45,7 @@ export function fromIncreasingOpentoIncreasingPeriodicKnotSequence(increasingSeq
             }
         }
     }
-    return new IncreasingPeriodicKnotSequenceClosedCurve(maxMultOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotAbscissae});
+    return new IncreasingPeriodicKnotSequenceClosedCurve(maxMultOrder - 1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotAbscissae});
 }
 
 export function fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictIncSeq: StrictlyIncreasingOpenKnotSequenceOpenCurve): IncreasingOpenKnotSequenceOpenCurve {

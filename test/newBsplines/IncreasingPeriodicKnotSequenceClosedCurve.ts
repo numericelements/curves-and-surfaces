@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
-import { EM_KNOT_INDEX_VALUE, Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
+import { EM_KNOT_INDEX_VALUE, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
 import { KNOT_COINCIDENCE_TOLERANCE, OPEN_KNOT_SEQUENCE_ORIGIN } from "../../src/namedConstants/KnotSequences";
 import { INCREASINGPERIODICKNOTSEQUENCE, NO_KNOT_PERIODIC_CURVE, UNIFORM_PERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
 import { fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "../../src/newBsplines/KnotSequenceConversionAndUtilities";
-import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_INDICES_SPAN_TWICE_PERIOD, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NON_INCREASING_KNOT_VALUES, EM_NULL_KNOT_SEQUENCE, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_SIZENORMALIZED_BSPLINEBASIS, EM_START_INDEX_GREATER_THAN_END_INDEX, EM_START_INDEX_OUTOF_RANGE, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
+import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_INDICES_SPAN_TWICE_PERIOD, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NON_INCREASING_KNOT_VALUES, EM_NULL_KNOT_SEQUENCE, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_SIZENORMALIZED_BSPLINEBASIS, EM_START_INDEX_GREATER_THAN_END_INDEX, EM_START_INDEX_OUTOF_RANGE, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from "../namedConstants/GeneralPurpose";
 
 describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
@@ -210,7 +210,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
                 const maxMultiplicityOrder = 2;
                 const periodicKnots = [0, 1, 2]
                 const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
-                expect(seq.allAbscissae[0]).to.eql(0)
+                expect(seq.allAbscissae[0]).to.eql(OPEN_KNOT_SEQUENCE_ORIGIN)
             });
 
             it('can get the uMax of the knot sequence origin initialized with ' + INCREASINGPERIODICKNOTSEQUENCE, () => {
@@ -243,17 +243,17 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
                 });
 
                 it('check that the non uniform property is deactivated for all knot sequences of this class', () => {
-                    const maxMultiplicityOrder = 4
+                    const maxMultiplicityOrder = 3
                     const periodicKnots = [0, 0, 0, 1, 1, 1]
                     const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
                     expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
                 });
 
                 it('can get the knot index and the abscissa of the upper bound of the normalized basis. Non uniform B-Spline without intermediate knot', () => {
-                    const maxMultiplicityOrder = 4
+                    const maxMultiplicityOrder = 3
                     const periodicKnots = [0, 0, 0, 1, 1, 1]
                     const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
-                    expect(seq.allAbscissae[0]).to.eql(0)
+                    expect(seq.allAbscissae[0]).to.eql(OPEN_KNOT_SEQUENCE_ORIGIN)
                     expect(seq.uMax).to.eql(periodicKnots[periodicKnots.length -1])
                 });
 
@@ -282,12 +282,12 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
                     const maxMultiplicityOrder = 3
                     const periodicKnots = [0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1]
                     const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
-                    expect(seq.allAbscissae[0]).to.eql(0)
+                    expect(seq.allAbscissae[0]).to.eql(OPEN_KNOT_SEQUENCE_ORIGIN)
                     expect(seq.uMax).to.eql(periodicKnots[periodicKnots.length - 1])
                 });
             });
 
-            describe('Initialization of knot sequences for uniform  closed B-splines', () => {
+            describe('Initialization of knot sequences for uniform closed B-splines', () => {
 
                 it('can be initialized with an initializer ' + INCREASINGPERIODICKNOTSEQUENCE + '. uniform knot sequence of open curve without intermediate knots', () => {
                     const maxMultiplicityOrder = 2
@@ -359,35 +359,35 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
                 });
             });
         });
+    });
 
-        describe('Accessors', () => {
-            it('can get all the abscissa of the knot sequence', () => {
-                const maxMultiplicityOrder = 2
-                const periodicKnots = [0, 1, 2, 3, 4, 5]
-                const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
-                expect(seq.allAbscissae).to.eql(periodicKnots)
-            });
-    
-            it('can use the iterator to access the knots of the sequence', () => {
-                const maxMultiplicityOrder = 3
-                const periodicKnots = [0, 0, 0, 1, 2, 2, 2]
-                const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
-                expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
-                const seq1: number[] = [];
-                for(const knot of seq) {
-                    if(knot !== undefined) seq1.push(knot)
-                }
-                expect(seq1).to.eql(periodicKnots)
-            });
-
-            it('can get the maximum multiplicity order of the knot sequence', () => {
-                const maxMultiplicityOrder = 2
-                const periodicKnots = [0, 1, 2, 3, 4, 5]
-                const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
-                expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
-            });
-    
+    describe('Accessors', () => {
+        it('can get all the abscissa of the knot sequence', () => {
+            const maxMultiplicityOrder = 2
+            const periodicKnots = [0, 1, 2, 3, 4, 5]
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
+            expect(seq.allAbscissae).to.eql(periodicKnots)
         });
+
+        it('can use the iterator to access the knots of the sequence', () => {
+            const maxMultiplicityOrder = 3
+            const periodicKnots = [0, 0, 0, 1, 2, 2, 2]
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
+            expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
+            const seq1: number[] = [];
+            for(const knot of seq) {
+                if(knot !== undefined) seq1.push(knot)
+            }
+            expect(seq1).to.eql(periodicKnots)
+        });
+
+        it('can get the maximum multiplicity order of the knot sequence', () => {
+            const maxMultiplicityOrder = 2
+            const periodicKnots = [0, 1, 2, 3, 4, 5]
+            const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
+            expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
+        });
+
     });
 
     describe('Methods', () => {
@@ -578,7 +578,7 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
             const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots});
             expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
             expect(seq.allAbscissae.length).to.eql(periodicKnots.length)
-            expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(periodicKnots.length - 1))).to.eql(0)
+            expect(seq.abscissaAtIndex(new KnotIndexIncreasingSequence(periodicKnots.length - 1))).to.eql(OPEN_KNOT_SEQUENCE_ORIGIN)
         });
 
         it('can obtain the knot abscissa given the knot index for a uniform knot sequence whatever the index greater than the period', () => {

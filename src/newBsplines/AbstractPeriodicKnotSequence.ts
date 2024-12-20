@@ -1,8 +1,8 @@
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractPeriodicKnotSequenceClosedCurve_type, NO_KNOT_PERIODIC_CURVE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL } from "../ErrorMessages/KnotSequences";
-import { UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
+import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
+import { OPEN_KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
 
 
 export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence {
@@ -57,6 +57,13 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         if(this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
             this.throwRangeErrorMessage("checkKnotMultiplicitiesAtNormalizedBasisBoundaries", EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER);
         }
+    }
+
+    isAbscissaCoincidingWithKnot(abscissa: number): boolean {
+        if(abscissa < OPEN_KNOT_SEQUENCE_ORIGIN || abscissa > this._uMax) {
+            this.throwRangeErrorMessage("isAbscissaCoincidingWithKnot", EM_U_OUTOF_KNOTSEQ_RANGE);
+        }
+        return super.isAbscissaCoincidingWithKnot(abscissa);
     }
 
     computeKnotSequenceFromMaxMultiplicityOrder(): void {

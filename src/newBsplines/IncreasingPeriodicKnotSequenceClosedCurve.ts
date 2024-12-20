@@ -75,13 +75,6 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         }
     }
 
-    isAbscissaCoincidingWithKnot(abscissa: number): boolean {
-        if(abscissa < OPEN_KNOT_SEQUENCE_ORIGIN || abscissa > this._uMax) {
-            this.throwRangeErrorMessage("isAbscissaCoincidingWithKnot", EM_U_OUTOF_KNOTSEQ_RANGE);
-        }
-        return super.isAbscissaCoincidingWithKnot(abscissa);
-    }
-
     generateKnotSequence(knotParameters: IncreasingPeriodicKnotSequence): void {
         const minValueMaxMultiplicityOrder = 1;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
@@ -96,7 +89,9 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
             }
         }
         this.checkMaxMultiplicityOrderConsistency();
-        if(knotParameters.periodicKnots.length < (this._maxMultiplicityOrder + 1)) {
+        const cumulative_multiplicities = knotParameters.periodicKnots.length - this.knotSequence[this.knotSequence.length - 1].multiplicity;
+        if((cumulative_multiplicities < this._maxMultiplicityOrder && this._maxMultiplicityOrder > 1) ||
+        (cumulative_multiplicities < (this._maxMultiplicityOrder + 1) && this._maxMultiplicityOrder === 1)) {
             this.throwRangeErrorMessage("generateKnotSequence", EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS)
         }
         this._uMax =  this.knotSequence[this.knotSequence.length - 1].abscissa;
