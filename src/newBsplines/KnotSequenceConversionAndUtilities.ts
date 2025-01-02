@@ -1,5 +1,6 @@
-import { EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION } from "../ErrorMessages/KnotSequences";
+import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION, EM_KNOT_SEQUENCE_ORIGIN_INCONSISTENT, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MAXMULTIPLICITY_ORDER_KNOT } from "../ErrorMessages/KnotSequences";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
@@ -198,10 +199,20 @@ export function fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence(s
     return new IncreasingPeriodicKnotSequenceClosedCurve(strictIncSeq.maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotAbscissae});
 }
 
-export function fromInputParametersToOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceCCurve): IncreasingOpenKnotSequenceClosedCurve {
-    const periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots});
-    const openSequence = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(periodicSeq);
-    return new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae});
+export function fromInputParametersToIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceCCurve): IncreasingOpenKnotSequenceClosedCurve {
+    let multiplicityFirstKnot = 0;
+    let i = 0;
+    while(knotParameters.periodicKnots[i] === OPEN_KNOT_SEQUENCE_ORIGIN) {
+        i++;
+        multiplicityFirstKnot++;
+    }
+    if(multiplicityFirstKnot < maxMultiplicityOrder) {
+        const periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots});
+        const openSequence = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(periodicSeq);
+        return new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae});
+    } else {
+        return new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotParameters.periodicKnots});
+    }
 }
 
 export function fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceCCurve): StrictlyIncreasingOpenKnotSequenceClosedCurve {

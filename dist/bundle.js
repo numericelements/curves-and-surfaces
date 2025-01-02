@@ -55651,11 +55651,11 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
             this.throwRangeErrorMessage("generateKnotSequence", KnotSequences_1.EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT);
     };
     AbstractIncreasingOpenKnotSequence.prototype.computeKnotSequenceFromPeriodicKnotSequence = function (knotParameters) {
-        var minValueMaxMultiplicityOrder = 1;
+        var minValueMaxMultiplicityOrder = 2;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
         this.constructorInputArrayAssessment(knotParameters);
         this.checkKnotIncreasingValues(knotParameters.periodicKnots);
-        var openSequence = KnotSequenceConversionAndUtilities_1.fromInputParametersToOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
+        var openSequence = KnotSequenceConversionAndUtilities_1.fromInputParametersToIncreasingOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
         var knots = openSequence.distinctAbscissae();
         var multiplicities = openSequence.multiplicities();
         for (var i = 0; i < knots.length; i++) {
@@ -59268,9 +59268,10 @@ var __values = (this && this.__values) || function(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC = exports.fromInputParametersToOpenKnotSequenceCC = exports.fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence = exports.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence = exports.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC = exports.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC = exports.fromStrictlyIncreasingToIncreasingKnotSequenceCC = exports.fromStrictlyIncreasingtToIncreasingKnotSequenceOC = exports.fromIncreasingOpentoIncreasingPeriodicKnotSequence = exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC = exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC = void 0;
+exports.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC = exports.fromInputParametersToIncreasingOpenKnotSequenceCC = exports.fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence = exports.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence = exports.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC = exports.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC = exports.fromStrictlyIncreasingToIncreasingKnotSequenceCC = exports.fromStrictlyIncreasingtToIncreasingKnotSequenceOC = exports.fromIncreasingOpentoIncreasingPeriodicKnotSequence = exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC = exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC = void 0;
 var KnotSequences_1 = __webpack_require__(/*! ../ErrorMessages/KnotSequences */ "./src/ErrorMessages/KnotSequences.ts");
 var ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+var KnotSequences_2 = __webpack_require__(/*! ../namedConstants/KnotSequences */ "./src/namedConstants/KnotSequences.ts");
 var IncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./IncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts");
 var IncreasingOpenKnotSequenceOpenCurve_1 = __webpack_require__(/*! ./IncreasingOpenKnotSequenceOpenCurve */ "./src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts");
 var IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./IncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts");
@@ -59537,12 +59538,23 @@ function fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence(strictIn
     return new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve(strictIncSeq.maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotAbscissae });
 }
 exports.fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence = fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence;
-function fromInputParametersToOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
-    var periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots });
-    var openSequence = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(periodicSeq);
-    return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae });
+function fromInputParametersToIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
+    var multiplicityFirstKnot = 0;
+    var i = 0;
+    while (knotParameters.periodicKnots[i] === KnotSequences_2.OPEN_KNOT_SEQUENCE_ORIGIN) {
+        i++;
+        multiplicityFirstKnot++;
+    }
+    if (multiplicityFirstKnot < maxMultiplicityOrder) {
+        var periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots });
+        var openSequence = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(periodicSeq);
+        return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae });
+    }
+    else {
+        return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotParameters.periodicKnots });
+    }
 }
-exports.fromInputParametersToOpenKnotSequenceCC = fromInputParametersToOpenKnotSequenceCC;
+exports.fromInputParametersToIncreasingOpenKnotSequenceCC = fromInputParametersToIncreasingOpenKnotSequenceCC;
 function fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
     if (knotParameters.multiplicities[0] < maxMultiplicityOrder) {
         var strictIncPeriodicSeq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1.StrictlyIncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities });
@@ -62269,8 +62281,6 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
         var indexPeriod = new Knot_1.KnotIndexStrictlyIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
         if (indexPeriod.knotIndex < 0) {
             this.throwRangeErrorMessage("raiseKnotMultiplicity", KnotSequences_2.EM_KNOTINDEX_INC_SEQ_NEGATIVE);
-            // const error = new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            // error.logMessage();
         }
         var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
         this.knotSequence[indexPeriod.knotIndex].multiplicity += multiplicity;
