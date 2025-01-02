@@ -55860,10 +55860,38 @@ var AbstractKnotSequence = /** @class */ (function () {
         }
         return multiplicities;
     };
+    /**
+     * Validates that a knot multiplicity does not exceed the maximum multiplicity order assigned to a knot sequence.
+     *
+     * @param multiplicity - The knot multiplicity value to validate
+     * @param methodName - Name of the calling method for error reporting
+     * @throws {RangeError} If multiplicity exceeds maxMultiplicityOrder
+     *
+     * @example
+     * const multiplicity = 3;
+     * const methodName = "checkMaxMultiplicityOrderConsistency";
+     * this.maxMultiplicityOrderInputParamAssessment(multiplicity, methodName);
+     */
     AbstractKnotSequence.prototype.maxMultiplicityOrderInputParamAssessment = function (multiplicity, methodName) {
         if (multiplicity > this._maxMultiplicityOrder)
             this.throwRangeErrorMessage(methodName, KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_KNOT);
     };
+    /**
+     * Assesses the input array parameters for the constructor of the `AbstractKnotSequence` class hierarchy.
+     * This method checks the validity of the `knotParameters` object, which can be of type `IncreasingOpenKnotSequence`,
+     * `IncreasingOpenKnotSequenceCCurve_allKnots`, or `IncreasingOpenKnotSequenceUpToC0Discontinuity`...., i.e. all knot sequences that use knot abscissae as input parameters.
+     * It ensures that the knot sequence and multiplicity arrays have the correct lengthes.
+     *
+     * @param knotParameters - An object containing the knot sequence parameters.
+     * @throws {RangeError} If the input parameters are invalid.
+     *
+     * @example
+     * const knotParams = {
+     *   type: INCREASINGOPENKNOTSEQUENCE,
+     *   knots: [0, 0, 0, 1, 2, 3, 3, 3]
+     * };
+     * this.constructorInputArrayAssessment(knotParams);
+     */
     AbstractKnotSequence.prototype.constructorInputArrayAssessment = function (knotParameters) {
         var message = "";
         var messageKnots = KnotSequences_2.EM_NULL_KNOT_SEQUENCE;
