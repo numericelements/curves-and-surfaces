@@ -21,74 +21,74 @@ export const STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicK
 
 
 export interface OpenKnotSequenceOpenCurve {
-    type: 'No_Knot_OpenCurve';
+    type: typeof NO_KNOT_OPEN_CURVE;
 }
 
 export interface OpenKnotSequenceClosedCurve {
-    type: 'No_Knot_ClosedCurve';
+    type: typeof NO_KNOT_CLOSED_CURVE;
 }
 
 export interface Uniform_OpenKnotSequence {
-    type: 'Uniform_OpenKnotSequence';
+    type: typeof UNIFORM_OPENKNOTSEQUENCE;
     BsplBasisSize: number;
 }
 
 export interface UniformlySpreadInterKnots_OpenKnotSequence {
-    type: 'UniformlySpreadInterKnots_OpenKnotSequence';
+    type: typeof UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE;
     BsplBasisSize: number;
 }
 
 export interface IncreasingOpenKnotSequence {
-    type: 'IncreasingOpenKnotSequence';
+    type: typeof INCREASINGOPENKNOTSEQUENCE;
     knots: number[];
 }
 
 export interface IncreasingOpenKnotSequenceUpToC0Discontinuity {
-    type: 'IncreasingOpenKnotSequenceUpToC0Discontinuity';
+    type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
     knots: number[];
 }
 
 export interface IncreasingOpenKnotSequenceCCurve {
-    type: 'IncreasingOpenKnotSequenceClosedCurve';
+    type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
     periodicKnots: number[];
 }
 
 export interface IncreasingOpenKnotSequenceCCurve_allKnots {
-    type: 'IncreasingOpenKnotSequenceClosedCurve_allKnots';
+    type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
     knots: number[];
 }
 
 export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
-    type: 'IncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
+    type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
     knots: number[];
 }
 
 export interface StrictlyIncreasingOpenKnotSequence {
-    type: 'StrictlyIncreasingOpenKnotSequence';
+    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE;
     knots: number[];
     multiplicities: number[];
 }
 
 export interface StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity {
-    type: 'StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity';
+    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
     knots: number[];
     multiplicities: number[];
 }
 
 export interface StrictlyIncreasingOpenKnotSequenceCCurve {
-    type: 'StrictlyIncreasingOpenKnotSequenceClosedCurve';
+    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
     periodicKnots: number[];
     multiplicities: number[];
 }
 
 export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
-    type: 'StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots';
+    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
     knots: number[];
     multiplicities: number[];
 }
 
 export interface StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots {
-    type: 'StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
+    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
     knots: number[];
     multiplicities: number[];
 }
@@ -104,21 +104,21 @@ export type AbstractStrictlyIncreasingOpenKnotSequence_type = StrictlyIncreasing
 export type AbstractOpenKnotSequence_type = AbstractIncreasingOpenKnotSequence_type | AbstractStrictlyIncreasingOpenKnotSequence_type;
 
 export interface PeriodicKnotSequence {
-    type: 'No_Knot_PeriodicCurve';
+    type: typeof NO_KNOT_PERIODIC_CURVE;
 }
 
 export interface Uniform_PeriodicKnotSequence {
-    type: 'Uniform_PeriodicKnotSequence';
+    type: typeof UNIFORM_PERIODICKNOTSEQUENCE;
     BsplBasisSize: number;
 }
 
 export interface IncreasingPeriodicKnotSequence {
-    type: 'IncreasingPeriodicKnotSequence';
+    type: typeof INCREASINGPERIODICKNOTSEQUENCE;
     periodicKnots: number[];
 }
 
 export interface StrictIncreasingPeriodicKnotSequence {
-    type: 'StrictIncreasingPeriodicKnotSequence';
+    type: typeof STRICTLYINCREASINGPERIODICKNOTSEQUENCE;
     periodicKnots: number[];
     multiplicities: number[];
 }

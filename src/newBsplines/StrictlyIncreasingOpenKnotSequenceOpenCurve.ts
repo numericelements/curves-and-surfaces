@@ -1,4 +1,4 @@
-import { KNOT_COINCIDENCE_TOLERANCE, OPEN_KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
+import { KNOT_COINCIDENCE_TOLERANCE, KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
 import { STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, StrictlyIncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
@@ -25,9 +25,9 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     }
 
     checkCurveOrigin(): void {
-        if(this.knotSequence[0].abscissa !== OPEN_KNOT_SEQUENCE_ORIGIN && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
+        if(this.knotSequence[0].abscissa !== KNOT_SEQUENCE_ORIGIN && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
             this.throwRangeErrorMessage("checkCurveOrigin", EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE);
-        } else if(this.knotSequence[0].abscissa !== OPEN_KNOT_SEQUENCE_ORIGIN) {
+        } else if(this.knotSequence[0].abscissa !== KNOT_SEQUENCE_ORIGIN) {
             super.checkCurveOrigin();
         }
     }
@@ -48,7 +48,7 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
-        if (u < OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
+        if (u < KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
             this.throwRangeErrorMessage("findSpan", EM_U_OUTOF_KNOTSEQ_RANGE);
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {

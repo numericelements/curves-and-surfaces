@@ -2,7 +2,7 @@ import { KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCIS
 import { AbstractIncreasingOpenKnotSequence } from "./AbstractIncreasingOpenKnotSequence";
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, IncreasingOpenKnotSequenceOpenCurve_type } from "./KnotSequenceConstructorInterface";
-import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
+import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceConversionAndUtilities";
 
@@ -47,7 +47,7 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
 
     findSpan(u: number): KnotIndexIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
-        if(u < OPEN_KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
+        if(u < KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
             this.throwRangeErrorMessage("findSpan", EM_U_OUTOF_KNOTSEQ_RANGE);
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {

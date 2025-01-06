@@ -6,6 +6,8 @@ import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_M
 
 /**
  * Abstract base class for knot sequences used in B-spline entities (curves or surfaces).
+ * 
+ * @description
  * Provides common functionality for managing and validating knot sequences
  * with different knot multiplicity orders and spacing characteristics.
  * This base class covers increasing and strictly increasing knot sequences, open and periodic knot sequences.
@@ -75,7 +77,7 @@ export abstract class AbstractKnotSequence {
      * @example
      * this.throwRangeErrorMessage("constructor", "Invalid multiplicity order");
      */
-    throwRangeErrorMessage(functionName: string, message: string): void {
+    protected throwRangeErrorMessage(functionName: string, message: string): void {
         const error = new ErrorLog(this.constructor.name, functionName);
         error.addMessage(message);
         console.log(error.generateMessageString());
@@ -91,40 +93,8 @@ export abstract class AbstractKnotSequence {
      * @example
      * this.constructorInputMultOrderAssessment(3);
      */
-    constructorInputMultOrderAssessment(minValue: number): void {
+    protected constructorInputMultOrderAssessment(minValue: number): void {
         if(this._maxMultiplicityOrder < minValue) this.throwRangeErrorMessage("constructor", EM_MAXMULTIPLICITY_ORDER_SEQUENCE);
-    }
-
-    /**
-     * Returns an array containing the distinct abscissa values of all knots in the knot sequence.
-     * 
-     * @returns {number[]} Array of distinct knot abscissa values
-     * 
-     * @example
-     * const abscissae = knotSequence.distinctAbscissae(); // [0, 1, 2, 3]
-     */
-    distinctAbscissae(): number[] {
-        let abscissae: number[] = [];
-        for(const knot of this.knotSequence) {
-            abscissae.push(knot.abscissa);
-        }
-        return abscissae;
-    }
-
-    /**
-     * Returns an array containing the multiplicities of all knots in the knot sequence.
-     * 
-     * @returns {number[]} Array of knot multiplicities
-     * 
-     * @example
-     * const multiplicities = knotSequence.multiplicities(); // [3, 1, 1, 3]
-     */
-    multiplicities(): number[] {
-        let multiplicities: number[] = [];
-        for(const knot of this.knotSequence) {
-            multiplicities.push(knot.multiplicity);
-        }
-        return multiplicities;
     }
 
     /**
@@ -139,18 +109,20 @@ export abstract class AbstractKnotSequence {
      * const methodName = "checkMaxMultiplicityOrderConsistency";
      * this.maxMultiplicityOrderInputParamAssessment(multiplicity, methodName);
      */
-    maxMultiplicityOrderInputParamAssessment(multiplicity: number, methodName: string): void {
+    protected maxMultiplicityOrderInputParamAssessment(multiplicity: number, methodName: string): void {
         if(multiplicity > this._maxMultiplicityOrder) this.throwRangeErrorMessage(methodName, EM_MAXMULTIPLICITY_ORDER_KNOT);
     }
 
     /**
      * Assesses the input array parameters for the constructor of the `AbstractKnotSequence` class hierarchy.
-     * This method checks the validity of the `knotParameters` object, which can be of type `IncreasingOpenKnotSequence`,
-     * `IncreasingOpenKnotSequenceCCurve_allKnots`, or `IncreasingOpenKnotSequenceUpToC0Discontinuity`...., i.e. all knot sequences that use knot abscissae as input parameters.
-     * It ensures that the knot sequence and multiplicity arrays have the correct lengthes.
      *
      * @param knotParameters - An object containing the knot sequence parameters.
      * @throws {RangeError} If the input parameters are invalid.
+     * 
+     * @description
+     * This method checks the validity of the `knotParameters` object, which can be of type `IncreasingOpenKnotSequence`,
+     * `IncreasingOpenKnotSequenceCCurve_allKnots`, or `IncreasingOpenKnotSequenceUpToC0Discontinuity`...., i.e. all knot sequences that use knot abscissae as input parameters.
+     * It ensures that the knot sequence and multiplicity arrays have the correct lengthes.
      * 
      * @example
      * const knotParams = {
@@ -159,7 +131,7 @@ export abstract class AbstractKnotSequence {
      * };
      * this.constructorInputArrayAssessment(knotParams);
      */
-    constructorInputArrayAssessment(knotParameters: IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceCCurve_allKnots | IncreasingOpenKnotSequenceUpToC0Discontinuity |
+    protected constructorInputArrayAssessment(knotParameters: IncreasingOpenKnotSequence | IncreasingOpenKnotSequenceCCurve_allKnots | IncreasingOpenKnotSequenceUpToC0Discontinuity |
         IncreasingOpenKnotSequenceCCurve | IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots | StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurve |
         StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots | StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity | StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots |
         IncreasingPeriodicKnotSequence | StrictIncreasingPeriodicKnotSequence): void {
@@ -209,14 +181,61 @@ export abstract class AbstractKnotSequence {
      * };
      * this.constructorInputBspBasisSizeAssessment(params);
      */
-    constructorInputBspBasisSizeAssessment(knotParameters: Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence |
-                                                            Uniform_PeriodicKnotSequence): void {
+    protected constructorInputBspBasisSizeAssessment(knotParameters: Uniform_OpenKnotSequence | UniformlySpreadInterKnots_OpenKnotSequence |
+        Uniform_PeriodicKnotSequence): void {
 
         if(knotParameters.type === UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
             if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
         } else if(knotParameters.type === UNIFORM_PERIODICKNOTSEQUENCE) {
             if(knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1)) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
         }
+    }
+
+    /**
+     * Validates that a knot index is within valid bounds of the sequence.
+     * 
+     * @param index - Index to validate in the strictly increasing representation of the knot sequence
+     * @param methodName - Name of calling method for error reporting
+     * @throws {RangeError} If index is out of valid range
+     * 
+     * @example
+     * const index = new KnotIndexStrictlyIncreasingSequence(1);
+     * this.strictlyIncKnotIndexInputParamAssessment(index, "knotMultiplicity");
+     */
+    protected strictlyIncKnotIndexInputParamAssessment(index: KnotIndexStrictlyIncreasingSequence, methodName: string): void {
+        if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) this.throwRangeErrorMessage(methodName, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE);
+    }
+
+    /**
+     * Returns an array containing the distinct abscissa values of all knots in the knot sequence.
+     * 
+     * @returns {number[]} Array of distinct knot abscissa values
+     * 
+     * @example
+     * const abscissae = knotSequence.distinctAbscissae(); // [0, 1, 2, 3]
+     */
+    distinctAbscissae(): number[] {
+        let abscissae: number[] = [];
+        for(const knot of this.knotSequence) {
+            abscissae.push(knot.abscissa);
+        }
+        return abscissae;
+    }
+
+    /**
+     * Returns an array containing the multiplicities of all knots in the knot sequence.
+     * 
+     * @returns {number[]} Array of knot multiplicities
+     * 
+     * @example
+     * const multiplicities = knotSequence.multiplicities(); // [3, 1, 1, 3]
+     */
+    multiplicities(): number[] {
+        let multiplicities: number[] = [];
+        for(const knot of this.knotSequence) {
+            multiplicities.push(knot.multiplicity);
+        }
+        return multiplicities;
     }
 
     /**
@@ -370,21 +389,6 @@ export abstract class AbstractKnotSequence {
         }
         this.knotSequence = sequence.slice();
         return
-    }
-
-    /**
-     * Validates that a knot index is within valid bounds of the sequence.
-     * 
-     * @param index - Index to validate in the strictly increasing representation of the knot sequence
-     * @param methodName - Name of calling method for error reporting
-     * @throws {RangeError} If index is out of valid range
-     * 
-     * @example
-     * const index = new KnotIndexStrictlyIncreasingSequence(1);
-     * this.strictlyIncKnotIndexInputParamAssessment(index, "knotMultiplicity");
-     */
-    strictlyIncKnotIndexInputParamAssessment(index: KnotIndexStrictlyIncreasingSequence, methodName: string): void {
-        if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) this.throwRangeErrorMessage(methodName, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE);
     }
 
 }

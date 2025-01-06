@@ -4,13 +4,13 @@ import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINU
 import { fromIncreasingOpentoIncreasingPeriodicKnotSequence, fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC, fromInputParametersToIncreasingOpenKnotSequenceCC, fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC, fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence, fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC, fromStrictlyIncreasingToIncreasingKnotSequenceCC, fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from '../../src/newBsplines/KnotSequenceConversionAndUtilities';
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from '../../src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve';
 import { TOL_KNOT_COINCIDENCE } from '../../src/newBsplines/AbstractBSplineR1toR2';
-import { NormalizedBasisAtSequenceEnd } from '../../src/newBsplines/AbstractOpenKnotSequence';
 import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from '../../src/newBsplines/Knot';
 import { IncreasingOpenKnotSequenceClosedCurve } from '../../src/newBsplines/IncreasingOpenKnotSequenceClosedCurve';
 import { EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION, EM_MAXMULTIPLICITY_ORDER_KNOT } from '../../src/ErrorMessages/KnotSequences';
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from '../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve';
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from '../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve';
 import { IncreasingPeriodicKnotSequenceClosedCurve } from '../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve';
+import { NormalizedBasisAtSequenceExtremity } from '../../src/namedConstants/KnotSequences';
 
 describe('Conversions between knot sequences classes', () => {
 
@@ -780,9 +780,9 @@ describe('Conversions between knot sequences classes', () => {
                         expect(strictIncPeriodicSeq1.multiplicities()).to.eql(multiplicities1)
                         const strIncSeq = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(strictIncPeriodicSeq1);
                         const boundsNormalizedBasis = strIncSeq.getKnotIndicesBoundingNormalizedBasis()
-                        expect(boundsNormalizedBasis.start.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceEnd.StrictlyNormalized)
+                        expect(boundsNormalizedBasis.start.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceExtremity.StrictlyNormalized)
                         expect(strIncSeq.abscissaAtIndex(boundsNormalizedBasis.start.knot)).to.eql(periodicKnots[0])
-                        expect(boundsNormalizedBasis.end.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceEnd.StrictlyNormalized)
+                        expect(boundsNormalizedBasis.end.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceExtremity.StrictlyNormalized)
                         expect(strIncSeq.abscissaAtIndex(boundsNormalizedBasis.end.knot)).to.eql(periodicKnots[periodicKnots.length - 1])
                         const knotOrigin = boundsNormalizedBasis.start.knot.knotIndex
                         for(let knot = 0; knot < knotOrigin; knot++) {

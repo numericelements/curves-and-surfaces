@@ -1,10 +1,10 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { AbstractOpenKnotSequence, NormalizedBasisAtSequenceEnd } from "./AbstractOpenKnotSequence";
+import { AbstractOpenKnotSequence } from "./AbstractOpenKnotSequence";
 import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_KNOT_INDEX, Knot, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 import { AbstractStrictlyIncreasingOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, StrictlyIncreasingOpenKnotSequence, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, Uniform_OpenKnotSequence, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurve } from "./KnotSequenceConstructorInterface";
 import { EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_KNOT_MULTIPLICITY_OUT_OF_RANGE, EM_KNOT_SEQUENCE_ORIGIN_INCONSISTENT, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_NOT_NORMALIZED_BASIS, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_SIZENORMALIZED_BSPLINEBASIS } from "../ErrorMessages/KnotSequences"
-import { OPEN_KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
+import { NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
 import { fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC as fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
 
 export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
@@ -79,10 +79,10 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
     checkCurveOrigin(): void {
         const normalizedBasisAtStart = this.getKnotIndexNormalizedBasisAtSequenceStart();
         let abscissaOrigin = DEFAULT_KNOT_ABSCISSA_VALUE;
-        if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceEnd.StrictlyNormalized) {
+        if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.StrictlyNormalized) {
             abscissaOrigin = this.abscissaAtIndex(normalizedBasisAtStart.knot);
         }
-        if(abscissaOrigin !== OPEN_KNOT_SEQUENCE_ORIGIN) this.throwRangeErrorMessage("checkOriginOfNormalizedBasis", EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
+        if(abscissaOrigin !== KNOT_SEQUENCE_ORIGIN) this.throwRangeErrorMessage("checkOriginOfNormalizedBasis", EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
     }
 
     generateKnotSequence(knotParameters: StrictlyIncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots |
@@ -98,18 +98,18 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         this.checkMaxMultiplicityOrderConsistency();
         if(!this._isSequenceUpToC0Discontinuity) this.checkMaxKnotMultiplicityAtIntermediateKnots();
         const {start: normalizedBasisAtStart, end: normalizedBasisAtEnd} = this.getKnotIndicesBoundingNormalizedBasis();
-        if(normalizedBasisAtEnd.basisAtSeqExt === NormalizedBasisAtSequenceEnd.StrictlyNormalized) {
+        if(normalizedBasisAtEnd.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.StrictlyNormalized) {
             this._uMax = this.abscissaAtIndex(normalizedBasisAtEnd.knot);
-        } else if(normalizedBasisAtEnd.basisAtSeqExt === NormalizedBasisAtSequenceEnd.NotNormalized) {
+        } else if(normalizedBasisAtEnd.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.NotNormalized) {
             this.throwRangeErrorMessage("generateKnotSequence", EM_NOT_NORMALIZED_BASIS);
-        } else if(normalizedBasisAtEnd.basisAtSeqExt === NormalizedBasisAtSequenceEnd.OverDefined) {
+        } else if(normalizedBasisAtEnd.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.OverDefined) {
             this.throwRangeErrorMessage("generateKnotSequence", EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND);
         }
-        if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceEnd.StrictlyNormalized) {
+        if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.StrictlyNormalized) {
             this._indexKnotOrigin = normalizedBasisAtStart.knot;
-        } else if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceEnd.NotNormalized) {
+        } else if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.NotNormalized) {
             this.throwRangeErrorMessage("generateKnotSequence", EM_NOT_NORMALIZED_BASIS);
-        } else if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceEnd.OverDefined) {
+        } else if(normalizedBasisAtStart.basisAtSeqExt === NormalizedBasisAtSequenceExtremity.OverDefined) {
             this.throwRangeErrorMessage("generateKnotSequence", EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART);
         }
         if(normalizedBasisAtEnd.knot.knotIndex <= normalizedBasisAtStart.knot.knotIndex) this.throwRangeErrorMessage("generateKnotSequence", EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT);

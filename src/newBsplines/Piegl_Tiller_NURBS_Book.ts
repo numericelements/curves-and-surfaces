@@ -1,7 +1,7 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
-import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
+import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
@@ -262,7 +262,7 @@ export function resetKnotAbscissaeToOrigin(knotAbscissa: number[], indexOrigin: 
     // }
     let result: number[] = [];
     // if(Math.abs(knotAbscissa[0]) < (OPEN_KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
-    if(Math.abs(knotAbscissa[indexOrigin.knotIndex]) < (OPEN_KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
+    if(Math.abs(knotAbscissa[indexOrigin.knotIndex]) < (KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
         result = knotAbscissa.slice();
         const warning = new WarningLog("function", "resetKnotAbscissaToOrigin", WM_KNOT_SEQUENCE_ORIGIN_ALREADY_ZERO);
         warning.logMessage();
@@ -274,7 +274,7 @@ export function resetKnotAbscissaeToOrigin(knotAbscissa: number[], indexOrigin: 
         for(let i = 0; i < knotAbscissa.length; i++) {
             let newAbscissa = knotAbscissa[i] - knotAbscissa[indexOrigin.knotIndex];
             if(Math.abs(newAbscissa) < KNOT_COINCIDENCE_TOLERANCE) {
-                newAbscissa = OPEN_KNOT_SEQUENCE_ORIGIN;
+                newAbscissa = KNOT_SEQUENCE_ORIGIN;
             }
             result.push(newAbscissa);
         }

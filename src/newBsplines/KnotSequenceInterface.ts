@@ -5,7 +5,7 @@ export interface KnotSequenceInterface {
     maxMultiplicityOrder: number;
     isKnotSpacingUniform: boolean;
     isKnotMultiplicityUniform: boolean;
-    throwRangeErrorMessage(functionName: string, message: string): void;
+    // throwRangeErrorMessage(functionName: string, message: string): void;
     distinctAbscissae(): number[];
     multiplicities(): number[];
     checkMaxMultiplicityOrderConsistency(): void;

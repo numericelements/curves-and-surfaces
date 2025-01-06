@@ -1,6 +1,6 @@
 import { EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION } from "../ErrorMessages/KnotSequences";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { OPEN_KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
+import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
@@ -202,7 +202,7 @@ export function fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence(s
 export function fromInputParametersToIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceCCurve): IncreasingOpenKnotSequenceClosedCurve {
     let multiplicityFirstKnot = 0;
     let i = 0;
-    while(knotParameters.periodicKnots[i] === OPEN_KNOT_SEQUENCE_ORIGIN) {
+    while(knotParameters.periodicKnots[i] === KNOT_SEQUENCE_ORIGIN) {
         i++;
         multiplicityFirstKnot++;
     }
