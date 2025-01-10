@@ -312,9 +312,10 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * Computes a minimal open knot sequence for a closed curve.
      *
      * @description
-     * Creates a minimal knot sequence consisting of two knots:
-     * - First knot at 0 with maxMultiplicityOrder
-     * - Second knot at 1 with maxMultiplicityOrder.
+     * Creates a minimal uniform knot sequence consisting of:
+     * - maxMultiplicityOrder knots up to the KNOT_SEQUENCE_ORIGIN (0) where starts the normalized basis,
+     * - (maxMultiplicityOrder - 1) knots uniformly spaced that describe the normalized basis: uMax = maxMultiplicityOrder - 1,
+     * - (maxMultiplicityOrder - 1) knots up to the last knot abscissa.
      * This method is associated with the constructor category NO_KNOT_CLOSED_CURVE.
      *
      * This configuration represents the simplest possible closed curve B-spline,
@@ -348,7 +349,8 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         for(let i = - (this._maxMultiplicityOrder - 1); i < upperBound; i++) {
             this.knotSequence.push(new Knot(i, 1));
         }
-        this._uMax = this._maxMultiplicityOrder;
+        this._uMax = this._maxMultiplicityOrder - 1;
+        if(this._maxMultiplicityOrder === 2) this._uMax = 2;
     }
 
     /**

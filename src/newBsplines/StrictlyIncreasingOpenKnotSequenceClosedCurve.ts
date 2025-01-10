@@ -175,19 +175,8 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
                     }
                 }
             }
-            // Do binary search
-            let low = this._indexKnotOrigin.knotIndex;
-            let high = this.knotSequence.length - 1 - this._indexKnotOrigin.knotIndex;
-            index = Math.floor((low + high) / 2);
-        
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                } else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
+            const indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
+            index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
             return new KnotIndexStrictlyIncreasingSequence(index);
         }
         return new KnotIndexStrictlyIncreasingSequence(index);

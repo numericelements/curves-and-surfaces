@@ -8,9 +8,11 @@ import { EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_N
 
 export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
+    protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
+
     constructor(maxMultiplicityOrder: number, knotsParameters: StrictIncreasingPeriodicKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotsParameters);
-
+        this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(0);
         if(knotsParameters.type === STRICTLYINCREASINGPERIODICKNOTSEQUENCE) {
             this.generateStrictlyIncreasingSequence(knotsParameters);
             this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
@@ -109,9 +111,6 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         }
         if (u < KNOT_SEQUENCE_ORIGIN) {
             this.throwRangeErrorMessage("findSpan", EM_U_OUTOF_KNOTSEQ_RANGE);
-            // console.log(u);
-            // const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            // error.logMessage();
         } else {
             if(this.isAbscissaCoincidingWithKnot(u)) {
                 index = 0;
@@ -125,19 +124,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
                     }
                 }
             }
-            // Do binary search
-            let low = 0;
-            let high = this.knotSequence.length - 1;
-            index = Math.floor((low + high) / 2);
-        
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                } else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
+            index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u);
             return new KnotIndexStrictlyIncreasingSequence(index);
         }
         return new KnotIndexStrictlyIncreasingSequence(index);

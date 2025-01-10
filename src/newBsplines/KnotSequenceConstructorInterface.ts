@@ -1,9 +1,105 @@
 
+/**
+ * Named constants for knot sequence constructor types
+ */
+
+/**
+ * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing open curves.
+ * 
+ * @constant {string} NO_KNOT_OPEN_CURVE
+ * @description
+ * Used to specify a knot sequence where:
+ * - There is only two knots at positions 0 and 1
+ * - Both knots have multiplicity equal to maxMultiplicityOrder
+ * - Sequence represents minimal open curve configuration
+ * - Sequence represents an open curve
+ * 
+ * @example
+ * const params = {
+ *   type: NO_KNOT_OPEN_CURVE
+ * }; // produces a knot array [0,0,0,1,1,1] with maxMultiplicityOrder = 3 or [0,0,1,1] with maxMultiplicityOrder = 2
+ */
 export const NO_KNOT_OPEN_CURVE = 'No_Knot_OpenCurve';
+
+/**
+ * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing closed curves.
+ * 
+ * @constant {string} NO_KNOT_CLOSED_CURVE
+ * @description
+ * Used to specify a knot sequence where:
+ * - All knots are uniformly spaced
+ * - All knots have multiplicity of 1
+ * - Sequence starts at -(maxMultiplicityOrder-1)
+ * - Sequence ends at 2*maxMultiplicityOrder-1 (or 2*maxMultiplicityOrder if maxMultiplicityOrder=2)
+ * - Sequence represents a closed curve
+ * 
+ * @example
+ * const params = {
+ *   type: NO_KNOT_CLOSED_CURVE
+ * }; // produces a knot array [-2,-1,0,1,2,3,4] with maxMultiplicityOrder = 3 or [-1,0,1,2,3] with maxMultiplicityOrder = 2
+ */
 export const NO_KNOT_CLOSED_CURVE = 'No_Knot_ClosedCurve';
+
+/**
+ * Identifies a uniform open knot sequence type that can be applied to open or closed curves.
+ * 
+ * @constant {string} UNIFORM_OPENKNOTSEQUENCE
+ * @description
+ * Used to specify an open knot sequence that can be increaing or stricly increasing where:
+ * - All knots are uniformly spaced
+ * - All knots have multiplicity of 1
+ * - Sequence starts at -(maxMultiplicityOrder-1)
+ * - Sequence ends at BsplBasisSize + (maxMultiplicityOrder - 1)
+ * - Sequence is open (not periodic) and applicable to open or closed curves
+ * 
+ * @example
+ * const params = {
+ *   type: UNIFORM_OPENKNOTSEQUENCE,
+ *   BsplBasisSize: 3
+ * };   // produces a knot array [-2,-1,0,1,2,3,4,5] with maxMultiplicityOrder = 3
+ */
 export const UNIFORM_OPENKNOTSEQUENCE = 'Uniform_OpenKnotSequence';
+
+/**
+ * Identifies an open knot sequence with uniformly spread interior knots and non uniform multiplicity of the extreme knots.
+ * 
+ * @constant {string} UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE
+ * @description
+ * Used to specify a knot sequence where:
+ * - End knots have multiplicity equal to maxMultiplicityOrder
+ * - Interior knots are uniformly distributed and have multiplicity of 1
+ * - Sequence is open (not periodic),
+ * - The size of the B-Spline basis is provided as a parameter.
+ * Devoted to open curves or surfaces.
+ * 
+ * @example
+ * const params = {
+ *   type: UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE,
+ *   BsplBasisSize: 5
+ * };
+ */
 export const UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_OpenKnotSequence';
+
+/**
+ * Identifies an increasing open knot sequence type to describe open curves or surfaces.
+ * 
+ * @constant {string} INCREASINGOPENKNOTSEQUENCE
+ * @description
+ * Used to specify an increasing open knot sequence where:
+ * - Knots form a non-decreasing sequence
+ * - Multiple knots at same location are allowed to express a knot multiplicity
+ * - Sequence is open (not periodic)
+ * - The entire knot sequence is provided as an array of knots.
+ * 
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCE,
+ *   knots: [0, 0, 0, 1, 2.5, 3, 3, 3], // with maxMultiplicityOrder = 3
+ * };
+ */
 export const INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence';
+
+
 export const INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKnotSequenceUpToC0Discontinuity';
 export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequenceClosedCurve';
 export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSequenceClosedCurve_allKnots';

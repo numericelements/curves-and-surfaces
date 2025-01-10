@@ -3,7 +3,16 @@
  * Implements mathematical vector space axioms for real and complex numbers
  */
 
+import { ErrorLog } from "../errorProcessing/ErrorLoging";
+
 // ------------ Type Definitions ------------
+
+export const COMPLEX = 'Complex';
+export const WEIGHT = 'Weight';
+export const VECTOR2D = 'Vector2D';
+export const PROJECTIVEVECTOR2D = 'ProjectiveVector2D';
+export const VECTOR3D = 'Vector3D';
+export const PROJECTIVEVECTOR3D = 'ProjectiveVector3D';
 
 /** Real numbers (ℝ) */
 export type Real = number;
@@ -11,14 +20,51 @@ export type Real = number;
 /** Complex numbers (ℂ) represented as [real, imaginary] */
 // export type Complex = [number, number];
 export interface Complex {
-    type: 'Complex';
+    type: typeof COMPLEX;
     real: number;
     imaginery: number;
 }
 
-export interface Weight {
-    type: 'Weight';
+export interface Weight_Interface {
+    type: typeof WEIGHT;
     value: number;
+}
+
+export const EM_WEIGHT_VALUE = 'A weight value cannot be negative or null. Cannot proceed.';
+export const DEFAULT_WEIGHT_VALUE = -1;
+
+export class Weight {
+
+    private type: typeof WEIGHT;
+    protected _weight: number;
+
+    constructor(weight?: number) {
+        this.type = WEIGHT;
+        if(weight !== undefined) {
+            this.assessmentInputWeightValue(weight);
+            this._weight = weight;
+        } else {
+            this._weight = DEFAULT_WEIGHT_VALUE;
+        }
+    }
+
+    get weight(): number {
+        return this._weight;
+    }
+
+    set weight(weight: number) {
+        this.assessmentInputWeightValue(weight);
+        this._weight = weight;
+    }
+
+    protected assessmentInputWeightValue(weight: number) {
+        if (weight <= 0) {
+            const error = new ErrorLog(this.constructor.name, "constructor");
+            error.addMessage(EM_WEIGHT_VALUE);
+            console.log(error.generateMessageString());
+            throw new RangeError(error.generateMessageString());
+        }
+    }
 }
 
 /** Scalar types supported in calculations */
@@ -34,24 +80,24 @@ export type Vector1D = number
 
 // export type Vector2D = [number, number]
 export interface Vector2D {
-    type: 'Vector2D';
+    type: typeof VECTOR2D;
     coordinates: [number, number];
 }
 
 export interface ProjectiveVector2D {
-    type: 'ProjectiveVector2D';
-    coordinates: [number, number, Weight];
+    type: typeof PROJECTIVEVECTOR2D;
+    coordinates: [number, number, Weight_Interface];
 }
 
 // export type Vector3D = [number, number, number]
 export interface Vector3D {
-    type: 'Vector3D';
+    type: typeof VECTOR3D;
     coordinates: [number, number, number];
 }
 
 export interface ProjectiveVector3D {
-    type: 'ProjectiveVector3D';
-    coordinates: [number, number, number, Weight];
+    type: typeof PROJECTIVEVECTOR3D;
+    coordinates: [number, number, number, Weight_Interface];
 }
 
 export type Vector4D = [number, number, number, number]
@@ -88,6 +134,16 @@ export function isRealVector(v: Vector): v is RealVector {
 export function isComplexVector(v: Vector): v is ComplexVector {
     return Array.isArray(v) && (v.length === 2 || Array.isArray(v[0]));
 }
+
+// export function isProjectiveVector2D(v: Vector): v is ProjectiveVector2D {
+//     return (
+//         Array.isArray(v) &&
+//         v.length === 3 &&
+//         typeof v[0] === 'number' &&
+//         typeof v[1] === 'number' &&
+//         v[2] instanceof Weight
+//     );
+// }
 
 // ------------ Complex Number Operations ------------
 

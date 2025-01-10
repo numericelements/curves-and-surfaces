@@ -62,10 +62,19 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
                 expect(seq.indexKnotOrigin.knotIndex).to.eql(1)
             });
 
-            it('can get the uMax of a knot sequence initialized with ' + NO_KNOT_CLOSED_CURVE, () => {
+            it('can get the uMax of a knot sequence initialized with ' + NO_KNOT_CLOSED_CURVE + 'specific case with maxMultiplicityOrder = 2', () => {
                 const maxMultiplicityOrder = 2;
                 const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: NO_KNOT_CLOSED_CURVE})
                 expect(seq.uMax).to.eql(2)
+            });
+
+            it('can get the uMax of a knot sequence initialized with ' + NO_KNOT_CLOSED_CURVE + 'generic case with maxMultiplicityOrder > 2', () => {
+                const maxMultiplicityOrder = 3;
+                const upperBound = 4;
+                for(let i = maxMultiplicityOrder; i < maxMultiplicityOrder + upperBound; i++) {
+                    const seq = new IncreasingOpenKnotSequenceClosedCurve(i, {type: NO_KNOT_CLOSED_CURVE})
+                    expect(seq.uMax).to.eql(i - 1)
+                }
             });
         });
 

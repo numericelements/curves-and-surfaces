@@ -9,8 +9,11 @@ import { WM_ABSCISSA_TOO_CLOSE_TO_KNOT } from "../WarningMessages/KnotSequences"
 
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
+    protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
+
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingPeriodicKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
+        this._indexKnotOrigin = new KnotIndexStrictlyIncreasingSequence(0);
         if(knotParameters.type === INCREASINGPERIODICKNOTSEQUENCE) {
             this.generateKnotSequence(knotParameters);
             this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
@@ -229,24 +232,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
                     }
                 }
             }
-            // Do binary search
-            let low = 0;
-            let high = this.knotSequence.length - 1;
-            index = Math.floor((low + high) / 2);
-        
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                } else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
-            let indexSeq = 0;
-            for(let i = 0; i < (index + 1); i++) {
-                indexSeq += this.knotSequence[i].multiplicity; 
-            }
-            index = indexSeq - 1;
+            index = this.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u);
             return new KnotIndexIncreasingSequence(index);
         }
         return new KnotIndexIncreasingSequence(index);

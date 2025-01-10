@@ -1390,38 +1390,38 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             }
         });
 
-        it('comparison with the former findSpan function devoted non uniform B-spline', () => {
+        it('comparison with the former findSpan function devoted to non uniform B-spline', () => {
             const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
             const curveDegree = 3;
             const maxMultiplicityOrder = curveDegree + 1
             const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
             let index = seq.findSpan(0.0)
             // compare with the findSpan function initially set up and devoted to non-uniform B-splines
-            let indexCompare = findSpan(0.0, knots, 3);
+            let indexCompare = findSpan(0.0, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.1)
-            indexCompare = findSpan(0.1, knots, 3);
+            indexCompare = findSpan(0.1, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.5)
-            indexCompare = findSpan(0.5, knots, 3);
+            indexCompare = findSpan(0.5, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.55)
-            indexCompare = findSpan(0.55, knots, 3);
+            indexCompare = findSpan(0.55, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.6)
-            indexCompare = findSpan(0.6, knots, 3);
+            indexCompare = findSpan(0.6, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.65)
-            indexCompare = findSpan(0.65, knots, 3);
+            indexCompare = findSpan(0.65, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.7)
-            indexCompare = findSpan(0.7, knots, 3);
+            indexCompare = findSpan(0.7, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(0.9)
-            indexCompare = findSpan(0.9, knots, 3);
+            indexCompare = findSpan(0.9, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
             index = seq.findSpan(1.0)
-            indexCompare = findSpan(1.0, knots, 3);
+            indexCompare = findSpan(1.0, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
         });
 

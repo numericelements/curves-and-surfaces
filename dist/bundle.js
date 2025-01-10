@@ -56299,6 +56299,32 @@ var AbstractKnotSequence = /** @class */ (function () {
         this.knotSequence = sequence.slice();
         return;
     };
+    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence = function (u, targetIndex) {
+        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
+        var knotIndex = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex);
+        var indexSeq = 0;
+        for (var i = 0; i < (knotIndex + 1); i++) {
+            indexSeq += this.knotSequence[i].multiplicity;
+        }
+        knotIndex = indexSeq - 1;
+        return knotIndex;
+    };
+    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence = function (u, targetIndex) {
+        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
+        // Do binary search
+        var low = this._indexKnotOrigin.knotIndex;
+        var knotIndex = Math.floor((low + targetIndex) / 2);
+        while (!(this.knotSequence[knotIndex].abscissa < u && u < this.knotSequence[knotIndex + 1].abscissa)) {
+            if (u < this.knotSequence[knotIndex].abscissa) {
+                targetIndex = knotIndex;
+            }
+            else {
+                low = knotIndex;
+            }
+            knotIndex = Math.floor((low + targetIndex) / 2);
+        }
+        return knotIndex;
+    };
     return AbstractKnotSequence;
 }());
 exports.AbstractKnotSequence = AbstractKnotSequence;
@@ -56647,9 +56673,10 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
      * Computes a minimal open knot sequence for a closed curve.
      *
      * @description
-     * Creates a minimal knot sequence consisting of two knots:
-     * - First knot at 0 with maxMultiplicityOrder
-     * - Second knot at 1 with maxMultiplicityOrder.
+     * Creates a minimal uniform knot sequence consisting of:
+     * - maxMultiplicityOrder knots up to the KNOT_SEQUENCE_ORIGIN (0) where starts the normalized basis,
+     * - (maxMultiplicityOrder - 1) knots uniformly spaced that describe the normalized basis: uMax = maxMultiplicityOrder - 1,
+     * - (maxMultiplicityOrder - 1) knots up to the last knot abscissa.
      * This method is associated with the constructor category NO_KNOT_CLOSED_CURVE.
      *
      * This configuration represents the simplest possible closed curve B-spline,
@@ -56684,7 +56711,9 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
         for (var i = -(this._maxMultiplicityOrder - 1); i < upperBound; i++) {
             this.knotSequence.push(new Knot_1.Knot(i, 1));
         }
-        this._uMax = this._maxMultiplicityOrder;
+        this._uMax = this._maxMultiplicityOrder - 1;
+        if (this._maxMultiplicityOrder === 2)
+            this._uMax = 2;
     };
     /**
      * Computes a uniform open knot sequence for a given B-spline basis size.
@@ -59107,24 +59136,8 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
                     finally { if (e_4) throw e_4.error; }
                 }
             }
-            // Do binary search
-            var low = this._indexKnotOrigin.knotIndex;
-            var high = this.knotSequence.length - 1 - this._indexKnotOrigin.knotIndex;
-            index = Math.floor((low + high) / 2);
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                }
-                else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
-            var indexSeq = 0;
-            for (var i = 0; i < (index + 1); i++) {
-                indexSeq += this.knotSequence[i].multiplicity;
-            }
-            index = indexSeq - 1;
+            var indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
+            index = this.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
             return new Knot_1.KnotIndexIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexIncreasingSequence(index);
@@ -59303,24 +59316,8 @@ var IncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_super) {
                     finally { if (e_2) throw e_2.error; }
                 }
             }
-            // Do binary search
-            var low = 0;
-            var high = this.knotSequence.length - 1;
-            index = Math.floor((low + high) / 2);
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                }
-                else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
-            var indexSeq = 0;
-            for (var i = 0; i < (index + 1); i++) {
-                indexSeq += this.knotSequence[i].multiplicity;
-            }
-            index = indexSeq - 1;
+            var indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
+            index = this.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
             return new Knot_1.KnotIndexIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexIncreasingSequence(index);
@@ -59383,6 +59380,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
     __extends(IncreasingPeriodicKnotSequenceClosedCurve, _super);
     function IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knotParameters) {
         var _this = _super.call(this, maxMultiplicityOrder, knotParameters) || this;
+        _this._indexKnotOrigin = new Knot_1.KnotIndexStrictlyIncreasingSequence(0);
         if (knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE) {
             _this.generateKnotSequence(knotParameters);
             _this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
@@ -59684,24 +59682,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
                     finally { if (e_7) throw e_7.error; }
                 }
             }
-            // Do binary search
-            var low = 0;
-            var high = this.knotSequence.length - 1;
-            index = Math.floor((low + high) / 2);
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                }
-                else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
-            var indexSeq = 0;
-            for (var i = 0; i < (index + 1); i++) {
-                indexSeq += this.knotSequence[i].multiplicity;
-            }
-            index = indexSeq - 1;
+            index = this.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u);
             return new Knot_1.KnotIndexIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexIncreasingSequence(index);
@@ -60009,12 +59990,101 @@ exports.KnotIndexIncreasingSequence = KnotIndexIncreasingSequence;
 
 "use strict";
 
+/**
+ * Named constants for knot sequence constructor types
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = exports.INCREASINGPERIODICKNOTSEQUENCE = exports.UNIFORM_PERIODICKNOTSEQUENCE = exports.NO_KNOT_PERIODIC_CURVE = exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = exports.STRICTLYINCREASINGOPENKNOTSEQUENCE = exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = exports.INCREASINGOPENKNOTSEQUENCE = exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = exports.UNIFORM_OPENKNOTSEQUENCE = exports.NO_KNOT_CLOSED_CURVE = exports.NO_KNOT_OPEN_CURVE = void 0;
+/**
+ * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing open curves.
+ *
+ * @constant {string} NO_KNOT_OPEN_CURVE
+ * @description
+ * Used to specify a knot sequence where:
+ * - There is only two knots at positions 0 and 1
+ * - Both knots have multiplicity equal to maxMultiplicityOrder
+ * - Sequence represents minimal open curve configuration
+ * - Sequence represents an open curve
+ *
+ * @example
+ * const params = {
+ *   type: NO_KNOT_OPEN_CURVE
+ * }; // produces a knot array [0,0,0,1,1,1] with maxMultiplicityOrder = 3 or [0,0,1,1] with maxMultiplicityOrder = 2
+ */
 exports.NO_KNOT_OPEN_CURVE = 'No_Knot_OpenCurve';
+/**
+ * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing closed curves.
+ *
+ * @constant {string} NO_KNOT_CLOSED_CURVE
+ * @description
+ * Used to specify a knot sequence where:
+ * - All knots are uniformly spaced
+ * - All knots have multiplicity of 1
+ * - Sequence starts at -(maxMultiplicityOrder-1)
+ * - Sequence ends at 2*maxMultiplicityOrder-1 (or 2*maxMultiplicityOrder if maxMultiplicityOrder=2)
+ * - Sequence represents a closed curve
+ *
+ * @example
+ * const params = {
+ *   type: NO_KNOT_CLOSED_CURVE
+ * }; // produces a knot array [-2,-1,0,1,2,3,4] with maxMultiplicityOrder = 3 or [-1,0,1,2,3] with maxMultiplicityOrder = 2
+ */
 exports.NO_KNOT_CLOSED_CURVE = 'No_Knot_ClosedCurve';
+/**
+ * Identifies a uniform open knot sequence type that can be applied to open or closed curves.
+ *
+ * @constant {string} UNIFORM_OPENKNOTSEQUENCE
+ * @description
+ * Used to specify an open knot sequence that can be increaing or stricly increasing where:
+ * - All knots are uniformly spaced
+ * - All knots have multiplicity of 1
+ * - Sequence starts at -(maxMultiplicityOrder-1)
+ * - Sequence ends at BsplBasisSize + (maxMultiplicityOrder - 1)
+ * - Sequence is open (not periodic) and applicable to open or closed curves
+ *
+ * @example
+ * const params = {
+ *   type: UNIFORM_OPENKNOTSEQUENCE,
+ *   BsplBasisSize: 3
+ * };   // produces a knot array [-2,-1,0,1,2,3,4,5] with maxMultiplicityOrder = 3
+ */
 exports.UNIFORM_OPENKNOTSEQUENCE = 'Uniform_OpenKnotSequence';
+/**
+ * Identifies an open knot sequence with uniformly spread interior knots and non uniform multiplicity of the extreme knots.
+ *
+ * @constant {string} UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE
+ * @description
+ * Used to specify a knot sequence where:
+ * - End knots have multiplicity equal to maxMultiplicityOrder
+ * - Interior knots are uniformly distributed and have multiplicity of 1
+ * - Sequence is open (not periodic),
+ * - The size of the B-Spline basis is provided as a parameter.
+ * Devoted to open curves or surfaces.
+ *
+ * @example
+ * const params = {
+ *   type: UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE,
+ *   BsplBasisSize: 5
+ * };
+ */
 exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_OpenKnotSequence';
+/**
+ * Identifies an increasing open knot sequence type to describe open curves or surfaces.
+ *
+ * @constant {string} INCREASINGOPENKNOTSEQUENCE
+ * @description
+ * Used to specify an increasing open knot sequence where:
+ * - Knots form a non-decreasing sequence
+ * - Multiple knots at same location are allowed to express a knot multiplicity
+ * - Sequence is open (not periodic)
+ * - The entire knot sequence is provided as an array of knots.
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCE,
+ *   knots: [0, 0, 0, 1, 2.5, 3, 3, 3], // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence';
 exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKnotSequenceUpToC0Discontinuity';
 exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequenceClosedCurve';
@@ -62758,19 +62828,8 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
                     finally { if (e_2) throw e_2.error; }
                 }
             }
-            // Do binary search
-            var low = this._indexKnotOrigin.knotIndex;
-            var high = this.knotSequence.length - 1 - this._indexKnotOrigin.knotIndex;
-            index = Math.floor((low + high) / 2);
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                }
-                else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
+            var indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
+            index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
@@ -62893,19 +62952,8 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
                     finally { if (e_1) throw e_1.error; }
                 }
             }
-            // Do binary search
-            var low = 0;
-            var high = this.knotSequence.length - 1;
-            index = Math.floor((low + high) / 2);
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                }
-                else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
+            var indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
+            index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
@@ -62960,6 +63008,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
     __extends(StrictlyIncreasingPeriodicKnotSequenceClosedCurve, _super);
     function StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, knotsParameters) {
         var _this = _super.call(this, maxMultiplicityOrder, knotsParameters) || this;
+        _this._indexKnotOrigin = new Knot_1.KnotIndexStrictlyIncreasingSequence(0);
         if (knotsParameters.type === KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE) {
             _this.generateStrictlyIncreasingSequence(knotsParameters);
             _this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
@@ -63084,9 +63133,6 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
         }
         if (u < KnotSequences_1.KNOT_SEQUENCE_ORIGIN) {
             this.throwRangeErrorMessage("findSpan", KnotSequences_2.EM_U_OUTOF_KNOTSEQ_RANGE);
-            // console.log(u);
-            // const error = new ErrorLog(this.constructor.name, "findSpan", "Parameter u is outside valid span");
-            // error.logMessage();
         }
         else {
             if (this.isAbscissaCoincidingWithKnot(u)) {
@@ -63111,19 +63157,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
                     finally { if (e_3) throw e_3.error; }
                 }
             }
-            // Do binary search
-            var low = 0;
-            var high = this.knotSequence.length - 1;
-            index = Math.floor((low + high) / 2);
-            while (!(this.knotSequence[index].abscissa < u && u < this.knotSequence[index + 1].abscissa)) {
-                if (u < this.knotSequence[index].abscissa) {
-                    high = index;
-                }
-                else {
-                    low = index;
-                }
-                index = Math.floor((low + high) / 2);
-            }
+            index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u);
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);

@@ -20,6 +20,7 @@ import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_M
 export abstract class AbstractKnotSequence {
 
     protected abstract knotSequence: Array<Knot>;
+    protected abstract _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
     protected _maxMultiplicityOrder: number;
     protected _isKnotSpacingUniform: boolean;
     protected _isKnotMultiplicityUniform: boolean;
@@ -204,6 +205,81 @@ export abstract class AbstractKnotSequence {
      */
     protected strictlyIncKnotIndexInputParamAssessment(index: KnotIndexStrictlyIncreasingSequence, methodName: string): void {
         if(index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1) this.throwRangeErrorMessage(methodName, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE);
+    }
+
+    /**
+     * Finds a span in an increasing knot sequence where the abscissa is distinct from knots.
+     * 
+     * @description
+     * Locates a span between two consecutive distinct knots where the given abscissa lies,
+     * accounting for knots with multiplicity greater than 1.
+     * The method does not ensure the abscissa is not coincident with any knot in the sequence.
+     * This method is called by the findSpan method. The findSpan checks the validity of the asbcissa
+     * as well as the coincidence of the abscissa with knots.
+     * Performs a binary search to find the knot index characterizing the span.
+     * 
+     * @param abscissa - The abscissa value to locate in the sequence
+     * @param warningLog - Index of the knot defining the right bound of normalized basis interval. Defaults to the last knot index.
+     * The index value is defined from the strictly increasing representation of the knot sequence.
+     * @returns The index of the knot defining the span containing the abscissa within the increasing knot sequence.
+     * 
+     * @example
+     * // For sequence [0,0,0,1,2,3,3,3], maxMultiplicityOrder = 3 and abscissa 1.5
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(1.5);
+     * // Returns 3 (span between knots at indices 3 and 4)
+     * 
+     * @example
+     * // For sequence [-2,-1,0,1,2,3,4,4,5,6,7], maxMultiplicityOrder = 3 and abscissa 4.999. targetIndex = 8.
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(4.999);
+     * // Returns 7 (span between knots at indices 7 and 8)
+     */
+    protected findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u: number, targetIndex: number = this.knotSequence.length - 1): number {
+        let knotIndex = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex);
+        let indexSeq = 0;
+        for(let i = 0; i < (knotIndex + 1); i++) {
+            indexSeq += this.knotSequence[i].multiplicity;
+        }
+        knotIndex = indexSeq - 1;
+        return knotIndex;
+    }
+
+    /**
+     * Finds a span in a strictly increasing knot sequence where the abscissa is distinct from knots.
+     * 
+     * @description
+     * Locates a span between two consecutive knots where the given abscissa lies.
+     * The method does not ensure the abscissa is not coincident with any knot in the sequence.
+     * This method is called by the findSpan method. The findSpan checks the validity of the asbcissa
+     * as well as the coincidence of the abscissa with knots.
+     * Performs a binary search to find the knot index characterizing the span.
+     * 
+     * @param abscissa - The abscissa value to locate in the sequence
+     * @param targetIndex - Index of the knot defining the right bound of normalized basis interval. Defaults to the last knot index.
+     * @returns The index of the knot defining the span containing the abscissa within the strictly increasing knot sequence.
+     * 
+     * @example
+     * // For a strictly increasing sequence [0.0, 0.5, 0.6, 0.7, 1] with multiplicities [4, 1, 1, 2, 4], maxMultiplicityOrder = 4 and abscissa 0.55
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(0.55);
+     * // Returns 1 (span between knots at indices 1 and 2)
+     * 
+     * @example
+     * // For a strictly increasing sequence [-2,-1,0,1,2,3,4,5] with multiplicities [1,1,1,1,1,1,1,1], maxMultiplicityOrder = 3 and abscissa 2.999
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(2.999, 5);
+     * // Returns 4 (span between knots at indices 4 and 5)
+     */
+    protected findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u: number, targetIndex: number = this.knotSequence.length - 1): number {
+        // Do binary search
+        let low = this._indexKnotOrigin.knotIndex;
+        let knotIndex = Math.floor((low + targetIndex) / 2);
+        while (!(this.knotSequence[knotIndex].abscissa < u && u < this.knotSequence[knotIndex + 1].abscissa)) {
+            if (u < this.knotSequence[knotIndex].abscissa) {
+                targetIndex = knotIndex;
+            } else {
+                low = knotIndex;
+            }
+            knotIndex = Math.floor((low + targetIndex) / 2);
+        }
+        return knotIndex;
     }
 
     /**
