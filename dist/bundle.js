@@ -56043,6 +56043,82 @@ var AbstractKnotSequence = /** @class */ (function () {
             this.throwRangeErrorMessage(methodName, KnotSequences_2.EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE);
     };
     /**
+     * Finds a span in an increasing knot sequence where the abscissa is distinct from knots.
+     *
+     * @description
+     * Locates a span between two consecutive distinct knots where the given abscissa lies,
+     * accounting for knots with multiplicity greater than 1.
+     * The method does not ensure the abscissa is not coincident with any knot in the sequence.
+     * This method is called by the findSpan method. The findSpan checks the validity of the asbcissa
+     * as well as the coincidence of the abscissa with knots.
+     * Performs a binary search to find the knot index characterizing the span.
+     *
+     * @param abscissa - The abscissa value to locate in the sequence
+     * @param warningLog - Index of the knot defining the right bound of normalized basis interval. Defaults to the last knot index.
+     * The index value is defined from the strictly increasing representation of the knot sequence.
+     * @returns The index of the knot defining the span containing the abscissa within the increasing knot sequence.
+     *
+     * @example
+     * // For sequence [0,0,0,1,2,3,3,3], maxMultiplicityOrder = 3 and abscissa 1.5
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(1.5);
+     * // Returns 3 (span between knots at indices 3 and 4)
+     *
+     * @example
+     * // For sequence [-2,-1,0,1,2,3,4,4,5,6,7], maxMultiplicityOrder = 3 and abscissa 4.999. targetIndex = 8.
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(4.999);
+     * // Returns 7 (span between knots at indices 7 and 8)
+     */
+    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence = function (u, targetIndex) {
+        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
+        var knotIndex = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex);
+        var indexSeq = 0;
+        for (var i = 0; i < (knotIndex + 1); i++) {
+            indexSeq += this.knotSequence[i].multiplicity;
+        }
+        knotIndex = indexSeq - 1;
+        return knotIndex;
+    };
+    /**
+     * Finds a span in a strictly increasing knot sequence where the abscissa is distinct from knots.
+     *
+     * @description
+     * Locates a span between two consecutive knots where the given abscissa lies.
+     * The method does not ensure the abscissa is not coincident with any knot in the sequence.
+     * This method is called by the findSpan method. The findSpan checks the validity of the asbcissa
+     * as well as the coincidence of the abscissa with knots.
+     * Performs a binary search to find the knot index characterizing the span.
+     *
+     * @param abscissa - The abscissa value to locate in the sequence
+     * @param targetIndex - Index of the knot defining the right bound of normalized basis interval. Defaults to the last knot index.
+     * @returns The index of the knot defining the span containing the abscissa within the strictly increasing knot sequence.
+     *
+     * @example
+     * // For a strictly increasing sequence [0.0, 0.5, 0.6, 0.7, 1] with multiplicities [4, 1, 1, 2, 4], maxMultiplicityOrder = 4 and abscissa 0.55
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(0.55);
+     * // Returns 1 (span between knots at indices 1 and 2)
+     *
+     * @example
+     * // For a strictly increasing sequence [-2,-1,0,1,2,3,4,5] with multiplicities [1,1,1,1,1,1,1,1], maxMultiplicityOrder = 3 and abscissa 2.999
+     * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(2.999, 5);
+     * // Returns 4 (span between knots at indices 4 and 5)
+     */
+    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence = function (u, targetIndex) {
+        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
+        // Do binary search
+        var low = this._indexKnotOrigin.knotIndex;
+        var knotIndex = Math.floor((low + targetIndex) / 2);
+        while (!(this.knotSequence[knotIndex].abscissa < u && u < this.knotSequence[knotIndex + 1].abscissa)) {
+            if (u < this.knotSequence[knotIndex].abscissa) {
+                targetIndex = knotIndex;
+            }
+            else {
+                low = knotIndex;
+            }
+            knotIndex = Math.floor((low + targetIndex) / 2);
+        }
+        return knotIndex;
+    };
+    /**
      * Returns an array containing the distinct abscissa values of all knots in the knot sequence.
      *
      * @returns {number[]} Array of distinct knot abscissa values
@@ -56298,32 +56374,6 @@ var AbstractKnotSequence = /** @class */ (function () {
         }
         this.knotSequence = sequence.slice();
         return;
-    };
-    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence = function (u, targetIndex) {
-        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
-        var knotIndex = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex);
-        var indexSeq = 0;
-        for (var i = 0; i < (knotIndex + 1); i++) {
-            indexSeq += this.knotSequence[i].multiplicity;
-        }
-        knotIndex = indexSeq - 1;
-        return knotIndex;
-    };
-    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence = function (u, targetIndex) {
-        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
-        // Do binary search
-        var low = this._indexKnotOrigin.knotIndex;
-        var knotIndex = Math.floor((low + targetIndex) / 2);
-        while (!(this.knotSequence[knotIndex].abscissa < u && u < this.knotSequence[knotIndex + 1].abscissa)) {
-            if (u < this.knotSequence[knotIndex].abscissa) {
-                targetIndex = knotIndex;
-            }
-            else {
-                low = knotIndex;
-            }
-            knotIndex = Math.floor((low + targetIndex) / 2);
-        }
-        return knotIndex;
     };
     return AbstractKnotSequence;
 }());
@@ -59996,14 +60046,14 @@ exports.KnotIndexIncreasingSequence = KnotIndexIncreasingSequence;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = exports.INCREASINGPERIODICKNOTSEQUENCE = exports.UNIFORM_PERIODICKNOTSEQUENCE = exports.NO_KNOT_PERIODIC_CURVE = exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = exports.STRICTLYINCREASINGOPENKNOTSEQUENCE = exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = exports.INCREASINGOPENKNOTSEQUENCE = exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = exports.UNIFORM_OPENKNOTSEQUENCE = exports.NO_KNOT_CLOSED_CURVE = exports.NO_KNOT_OPEN_CURVE = void 0;
 /**
- * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing open curves.
+ * Identifies an open knot sequence dedicated to increasing and strictly increasing sequences describing open curves.
  *
  * @constant {string} NO_KNOT_OPEN_CURVE
  * @description
  * Used to specify a knot sequence where:
- * - There is only two knots at positions 0 and 1
+ * - There are only two knots at positions 0 and 1
  * - Both knots have multiplicity equal to maxMultiplicityOrder
- * - Sequence represents minimal open curve configuration
+ * - Sequence represents minimal open curve configurations
  * - Sequence represents an open curve
  *
  * @example
@@ -60077,7 +60127,10 @@ exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_
  * - Knots form a non-decreasing sequence
  * - Multiple knots at same location are allowed to express a knot multiplicity
  * - Sequence is open (not periodic)
+ * - knots strictly internal to the normalized basis interval have a multiplicity up to (maxMultiplicityOrder-1)
  * - The entire knot sequence is provided as an array of knots.
+ * The array of knot cannot contain knots strictly inside the normalized basis interval with
+ * a multiplicity equal to maxMultiplicityOrder to make sure that the sequence described defines a single curve/surface only.
  *
  * @example
  * const params = {
@@ -60086,15 +60139,288 @@ exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_
  * };
  */
 exports.INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence';
+/**
+ * Identifies an increasing open knot sequence type to describe open curves or surfaces and may contain internal C0 discontinuities.
+ *
+ * @constant {string} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
+ * @description
+ * Used to specify an increasing open knot sequence where:
+ * - Knots form a non-decreasing sequence
+ * - Multiple knots at same position are allowed to express a knot multiplicity
+ * - Knot multiplicity can reach maxMultiplicityOrder at interior knots
+ * - Sequence allows C0 discontinuities at interior knots of the normalized basis interval
+ * - Sequence is open (not periodic)
+ * - The entire knot sequence is provided as an array of knots.
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY,
+ *   knots: [0,0,0,1,2,2,2,3,3,3], // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY,
+ *   knots: [-2,-1,0,1,2,2,2,3,4,5,6], // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKnotSequenceUpToC0Discontinuity';
+/**
+ * Identifies an increasing open knot sequence type for closed curves or surfaces with periodic knots specified only.
+ *
+ * @constant {string} INCREASINGOPENKNOTSEQUENCECLOSEDCURVE
+ * @description
+ * Used to specify an increasing open knot sequence where:
+ * - Knots form a non-decreasing sequence
+ * - Multiple knots at same position are allowed to express a knot multiplicity
+ * - Knot sequence represents a closed curve using open knot vector, periodicity constraints hold for some knots at extremities of the sequence
+ * - periodicity conditions constrain knot spacing at sequence extremities to contribute to curve closure
+ * - knot multiplicities near the extremities of the sequence are analyzed to ensure a consistent definition of a normalized basis interval
+ * - the array of periodic knots is provided as an array of knots and defines the normalized basis interval.
+ *  Knots are added automatically to incorporate periodicity constraints.
+ * - knots strictly internal to the normalized basis interval have a multiplicity up to (maxMultiplicityOrder-1)
+ * - Interior knots define shape control
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE,
+ *   periodicKnots: [0,1,2,2,3,4], // with maxMultiplicityOrder = 3 produces a knot array [-2,-1,0,1,2,2,3,4,5,6]
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE,
+ *   periodicKnots: [0,0,1.1,2,2,3,4,4], // with maxMultiplicityOrder = 3 produces a knot array [-1,0,0,1.1,2,2,3,4,4,5.1]
+ * };
+ */
 exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequenceClosedCurve';
+/**
+ * Identifies an increasing open knot sequence type for closed curves with all knots specified.
+ *
+ * @constant {string} INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+ * @description
+ * Used to specify an increasing open knot sequence for closed curves where:
+ * - Knots form a non-decreasing sequence
+ * - Multiple knots at same position are allowed
+ * - Sequence represents a closed curve using an open knot sequence, periodicity constraints hold for some knots at extremities of the sequence
+ * - End conditions ensure curve closure and must be incorporated in knot sequence definition to ensure the knot sequence consistency
+ * - All knots including end knots are explicitly specified
+ * - Full control over knot placement and multiplicity
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS,
+ *   knots: [0, 0, 0, 1, 2, 3, 3, 3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS,
+ *   knots: [-1,0,0,1.1,2,2,3,4,4,5.1], // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSequenceClosedCurve_allKnots';
+/**
+ * Identifies an increasing open knot sequence type for closed curves/surface with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
+ *
+ * @constant {string} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
+ * @description
+ * Represents an open knot sequence type for closed curves that:
+ * - Knots form a non-decreasing sequence
+ * - Allows C0 discontinuities at strictly internal knots of the normalized basis interval (knots with maxMultiplicityOrder multiplicity)
+ * - End conditions ensure curve closure and must be incorporated in knot sequence definition to ensure the knot sequence consistency
+ * - All knots including end knots are explicitly specified
+ *
+ * This type combines the characteristics of closed curves (where the curve endpoints meet)
+ * while allowing C0 discontinuities (discontinuity of the closed curves)
+ * at internal knots (the curve can be open there).
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS,
+ *   knots: [0, 0, 0, 1, 2, 3, 3, 3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS,
+ *   knots: [-1,0,0,1.1,2,2,2,3,4,4,5.1], // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
+/**
+ * Identifies a strictly increasing open knot sequence type that describes open curves/surfaces.
+ *
+ * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE
+ * @description
+ * Used to specify a strictly open knot sequence where:
+ * - Knots form a strictly increasing sequence (No repeated knot abscissa allowed)
+ * - Sequence is open (not periodic)
+ * - Full control over knot placement while maintaining strict monotonicity
+ * - knots strictly internal to the normalized basis interval have a multiplicity up to (maxMultiplicityOrder-1)
+ * - The entire knot sequence is provided as an array of knots.
+ * - The entire list of knot multiplicities is provided as an array of multiplicities.
+ *
+ * The array of knots cannot contain knots strictly inside the normalized basis interval with
+ * a multiplicity equal to maxMultiplicityOrder to make sure that the sequence described defines a single curve/surface only.
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE,
+ *   knots: [0,1,2,3,4],
+ *   multiplicities: [3,1,2,1,3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE,
+ *   knots: [-3,-2,-1,0,1,2,3,4,5,6],
+ *   multiplicities: [1,1,1,1,1,1,1,1,1,1] // with maxMultiplicityOrder = 4
+ * };
+ */
 exports.STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSequence';
+/**
+ * Identifies a strictly increasing open knot sequence type to describe open curves/surfaces and may contain internal C0 discontinuities.
+ *
+ * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
+ * @description
+ * Used to specify a strictly increasing knot sequence where:
+ * - Knots form a strictly increasing sequence
+ * - Each knot must have greater abscissa value than previous
+ * - Knot multiplicity can reach maxMultiplicityOrder at interior knots
+ * - Sequence allows C0 discontinuities at interior knots of the normalized basis interval
+ * - Sequence is open (not periodic)
+ * - The entire knot sequence is provided as an array of knots.
+ * - The entire list of knot multiplicities is provided as an array of multiplicities.
+ *
+ * The array of knots can contain knots strictly inside the normalized basis interval with
+ * a multiplicity equal to maxMultiplicityOrder. The knot sequence can describe multiple disconnected curves/surfaces.
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY,
+ *   knots: [0,1,2,3,4],
+ *   multiplicities: [3,1,3,1,3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY,
+ *   knots: [-3,-2,-1,0,1,2,3,4,5,6],
+ *   multiplicities: [1,1,1,1,4,1,1,1,1,1] // with maxMultiplicityOrder = 4
+ * };
+ */
 exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity';
+/**
+ * Identifies a strictly increasing open knot sequence type for closed curves or surfaces with periodic knots only.
+ *
+ * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE
+ * @description
+ * Used to specify a knot sequence where:
+ * - Knots form a strictly increasing sequence
+ * - Each knot must have greater value than previous
+ * - Knot sequence represents a closed curve using open knot vector, periodicity constraints hold for some knots at extremities of the sequence
+ * - periodicity conditions constrain knot spacing at sequence extremities to contribute to curve closure
+ * - knot multiplicities near the extremities of the sequence are analyzed to ensure a consistent definition of a normalized basis interval
+ * - the array of periodic knots is provided as an array of knots and defines the normalized basis interval.
+ *  Knots are added automatically to incorporate periodicity constraints.
+ * - The periodic knot multiplicities are provided as an array of multiplicities.
+ * - knots strictly internal to the normalized basis interval have a multiplicity up to (maxMultiplicityOrder-1)
+ * - Interior knots define shape control
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE,
+ *   periodicKnots: [0,1,2,3,4],
+ *   multiplicities: [1,1,2,1,1]  // with maxMultiplicityOrder = 3 produces a knot array [-2,-1,0,1,2,3,4,5,6] with multiplicities [1,1,1,1,2,1,1,1,1]
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE,
+ *   periodicKnots: [0,0,1.1,2,2,3,4,4],
+ *   multiplicities: [2,1,2,1,2]  // with maxMultiplicityOrder = 3 produces a knot array [-1,0,0,1.1,2,2,3,4,4,5.1] with multiplicities [1,2,1,2,1,2,1]
+ * };
+ */
 exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasingOpenKnotSequenceClosedCurve';
+/**
+ * Identifies a strictly increasing open knot sequence type for closed curves/surfaces with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
+ *
+ * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+ * @description
+ * Used to specify a strictly increasing knot sequence type for closed curves where:
+ * - Knots form a strictly increasing sequence
+ * - Each knot must have greater value than previous
+ * - Sequence represents a closed curve using an open knot sequence, periodicity constraints hold for some knots at extremities of the sequence
+ * - End conditions ensure curve closure and must be incorporated in knot sequence definition to ensure the knot sequence consistency
+ * - All knots including end knots are explicitly specified
+ * - Full control over knot placement and multiplicity
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS,
+ *   knots: [0,1,2,3],
+ *   multiplicities: [3,1,1,3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS,
+ *   knots: [-1,0,1.1,2,3,4,5.1],
+ *   multiplicities: [1,2,1,2,1,2,1] // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots';
+/**
+ * Identifies a strictly increasing open knot sequence type for closed curves/surfaces with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
+ *
+ * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
+ * @description
+ * Used to specify a strictly increasing knot sequence type for closed curves where:
+ * - Knots form a strictly increasing sequence
+ * - Each knot must have greater value than previous
+ * - Sequence represents a closed curve using an open knot sequence, periodicity constraints hold for some knots at extremities of the sequence
+ * - End conditions ensure curve closure and must be incorporated in knot sequence definition to ensure the knot sequence consistency
+ * - All knots including end knots are explicitly specified
+ * - Full control over knot placement and multiplicity
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS,
+ *   knots: [0,1,2,3],
+ *   multiplicities: [3,1,3,3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS,
+ *   knots: [-1,0,1.1,2,3,4,5.1],
+ *   multiplicities: [1,2,1,2,1,2,1] // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = 'StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots';
+/**
+ * Identifies a periodic knot sequence dedicated to increasing and strictly increasing sequences describing closed curves.
+ *
+ * @constant {string} NO_KNOT_PERIODIC_CURVE
+ * @description
+ * Used to specify a periodic knot sequence where:
+ * - Knots abscissa are spread with uniform spacing across the normalized basis interval
+ * - Knot multiplicity is uniformly set to 1
+ * - Knot sequence length equals (maxMultiplicityOrder+1)
+ * - Sequence represents minimal closed curve configurations
+ * - Sequence represents a closed curve
+ *
+ * @example
+ * const params = {
+ *   type: NO_KNOT_PERIODIC_CURVE
+ * }; // produces a knot array [0,1,2,3] with maxMultiplicityOrder = 3
+ *
+ * @example
+ * const params = {
+ *   type: NO_KNOT_PERIODIC_CURVE
+ * }; // produces a knot array [0,1,2] with maxMultiplicityOrder = 1. A particular case of a periodic knot sequence to describe the smallest closed curve configuration for a linear B-Spline
+ */
 exports.NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
 exports.UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
 exports.INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';

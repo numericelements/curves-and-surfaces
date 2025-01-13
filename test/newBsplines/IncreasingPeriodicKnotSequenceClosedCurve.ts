@@ -19,16 +19,25 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
 
             it('can be initialized with (maxMultiplicityOrder + 1) knots with type constructor' + NO_KNOT_PERIODIC_CURVE, () => {
                 const maxMultiplicityOrder = 2;
-                const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: NO_KNOT_PERIODIC_CURVE})
-                expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
-                const knots = [0, 1, 2]
-                expect(seq.allAbscissae).to.eql(knots)
-                expect(seq.length()).to.eql(maxMultiplicityOrder + 1)
-                const seq1: number[] = [];
-                for(const knot of seq) {
-                    if(knot !== undefined) seq1.push(knot)
+                const upperBound = 3;
+                for(let i = maxMultiplicityOrder; i < maxMultiplicityOrder + upperBound; i++) {
+                    const seq = new IncreasingPeriodicKnotSequenceClosedCurve(i, {type: NO_KNOT_PERIODIC_CURVE})
+                    expect(seq.maxMultiplicityOrder).to.eql(i)
+                    const multiplicities: Array<number> = [];
+                    const knots: Array<number> = [];
+                    for(let j = 0; j < i + 1; j++) {
+                        knots.push(j)
+                        multiplicities.push(1)
+                    }
+                    expect(seq.allAbscissae).to.eql(knots)
+                    expect(seq.multiplicities()).to.eql(multiplicities)
+                    expect(seq.length()).to.eql(i + 1)
+                    const seq1: number[] = [];
+                    for(const knot of seq) {
+                        if(knot !== undefined) seq1.push(knot)
+                    }
+                    expect(seq1).to.eql(knots)
                 }
-                expect(seq1).to.eql(knots)
             });
 
             it('can be initialized with 3 knots when maxMultiplicityOrder = 1 with type constructor' + NO_KNOT_PERIODIC_CURVE, () => {
