@@ -181,4 +181,10 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         }
         return new KnotIndexStrictlyIncreasingSequence(index);
     }
+
+    revertKnotSequence(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
+    }
 }

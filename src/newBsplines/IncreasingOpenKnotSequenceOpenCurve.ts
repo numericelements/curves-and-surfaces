@@ -71,6 +71,12 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         return new KnotIndexIncreasingSequence(index);
     }
 
+    revertKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
+        const newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
+    }
+
 }
 
 export function deepCopyIncreasingKnotSequenceOpenCurve(knotSeq: IncreasingOpenKnotSequenceOpenCurve): number[] {

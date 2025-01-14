@@ -69,4 +69,10 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         }
         return new KnotIndexStrictlyIncreasingSequence(index);
     }
+
+    revertKnotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
+        const newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
+    }
 }

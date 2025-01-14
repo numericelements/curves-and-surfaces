@@ -56337,10 +56337,10 @@ var AbstractKnotSequence = /** @class */ (function () {
      * Reverses the knot spacing distribution in the sequence while preserving multiplicities and the origin of the knot sequence.
      *
      * @example
-     * knotSequence.revertKnotSequence(); // [0,0,1,3,3] becomes [0,0,2,3,3] for an increasing open knot sequence describing an open curve
-     * knotSequence.revertKnotSequence(); // [0,1,1.5,3] becomes [0,1.5,2,3] for an increasing periodic knot sequence describing a closed curve
+     * knotSequence.revertKnotSpacing(); // [0,0,1,3,3] becomes [0,0,2,3,3] for an increasing open knot sequence describing an open curve
+     * knotSequence.revertKnotSpacing(); // [0,1,1.5,3] becomes [0,1.5,2,3] for an increasing periodic knot sequence describing a closed curve
      */
-    AbstractKnotSequence.prototype.revertKnotSequence = function () {
+    AbstractKnotSequence.prototype.revertKnotSpacing = function () {
         var e_6, _a, e_7, _b;
         var sequence = [];
         try {
@@ -59237,6 +59237,11 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
             return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder - 1, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: newKnots });
         }
     };
+    IncreasingOpenKnotSequenceClosedCurve.prototype.revertKnotSequence = function () {
+        var newKnotSequence = this.clone();
+        newKnotSequence.revertKnotSpacing();
+        return newKnotSequence;
+    };
     return IncreasingOpenKnotSequenceClosedCurve;
 }(AbstractIncreasingOpenKnotSequence_1.AbstractIncreasingOpenKnotSequence));
 exports.IncreasingOpenKnotSequenceClosedCurve = IncreasingOpenKnotSequenceClosedCurve;
@@ -59371,6 +59376,11 @@ var IncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_super) {
             return new Knot_1.KnotIndexIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexIncreasingSequence(index);
+    };
+    IncreasingOpenKnotSequenceOpenCurve.prototype.revertKnotSequence = function () {
+        var newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
     };
     return IncreasingOpenKnotSequenceOpenCurve;
 }(AbstractIncreasingOpenKnotSequence_1.AbstractIncreasingOpenKnotSequence));
@@ -59736,6 +59746,11 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
             return new Knot_1.KnotIndexIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexIncreasingSequence(index);
+    };
+    IncreasingPeriodicKnotSequenceClosedCurve.prototype.revertKnotSequence = function () {
+        var newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
     };
     return IncreasingPeriodicKnotSequenceClosedCurve;
 }(AbstractPeriodicKnotSequence_1.AbstractPeriodicKnotSequence));
@@ -60414,7 +60429,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNO
  * @example
  * const params = {
  *   type: NO_KNOT_PERIODIC_CURVE
- * }; // produces a knot array [0,1,2,3] with maxMultiplicityOrder = 3
+ * }; // produces a knot array [0,1,2,3] with maxMultiplicityOrder = 3 where the knot array corresponds to the periodic knots
  *
  * @example
  * const params = {
@@ -60422,8 +60437,80 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNO
  * }; // produces a knot array [0,1,2] with maxMultiplicityOrder = 1. A particular case of a periodic knot sequence to describe the smallest closed curve configuration for a linear B-Spline
  */
 exports.NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
+/**
+ * Identifies a uniform periodic knot sequence type that can be applied to closed curves. The knot sequence is of increasing type.
+ *
+ * @constant {string} UNIFORM_PERIODICKNOTSEQUENCE
+ * @description
+ * Used to specify an periodic knot sequence that is increaing where:
+ * - All knots are uniformly spaced
+ * - All knots have multiplicity of 1
+ * - Sequence starts at KNOT_SEQUENCE_ORIGIN
+ * - Sequence ends at abscissa BsplBasisSize
+ * - Sequence is periodic and applicable to closed curves
+ * - BsplBasisSize must equal or greater than (maxMultiplicityOrder+1)
+ *
+ * @example
+ * const params = {
+ *   type: UNIFORM_PERIODICKNOTSEQUENCE,
+ *   BsplBasisSize: 3
+ * };   // produces a knot array [0,1,2,3,4,5] with maxMultiplicityOrder = 3
+ */
 exports.UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
+/**
+ * Identifies an increasing periodic knot sequence type to describe closed curves or surfaces.
+ *
+ * @constant {string} INCREASINGPERIODICKNOTSEQUENCE
+ * @description
+ * Used to specify an increasing periodic knot sequence where:
+ * - Knots form a non-decreasing sequence
+ * - Multiple knots at same location are allowed to express a knot multiplicity
+ * - Sequence is periodic
+ * - knots strictly internal to the normalized basis interval have a multiplicity up to maxMultiplicityOrder
+ * - The entire knot sequence is provided as an array of knots.
+ * The normalized basis spans the interval [KNOT_SEQUENCE_ORIGIN, last knot abscissa]
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGPERIODICKNOTSEQUENCE,
+ *   periodicKnots: [0,0,0,1,2.5,3,3,3], // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: INCREASINGPERIODICKNOTSEQUENCE,
+ *   periodicKnots: [0,1,1,1,2.5,3], // with maxMultiplicityOrder = 3
+ * };
+ */
 exports.INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
+/**
+ * Identifies a strictly increasing periodic knot sequence type that describes closed curves/surfaces.
+ *
+ * @constant {string} STRICTLYINCREASINGPERIODICKNOTSEQUENCE
+ * @description
+ * Used to specify a strictly periodic knot sequence where:
+ * - Knots form a strictly increasing sequence (No repeated knot abscissa allowed)
+ * - Sequence is periodic
+ * - Full control over knot placement while maintaining strict monotonicity
+ * - knots have a multiplicity up to maxMultiplicityOrder
+ * - The entire knot sequence is provided as an array of knots.
+ * - The entire list of knot multiplicities is provided as an array of multiplicities.
+ * The normalized basis spans the interval [KNOT_SEQUENCE_ORIGIN, last knot abscissa]
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE,
+ *   periodicKnots: [0,1,2,3,4],
+ *   multiplicities: [3,1,2,1,3] // with maxMultiplicityOrder = 3
+ * };
+ *
+ * @example
+ * const params = {
+ *   type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE,
+ *   periodicKnots: [0,1,2,3,4,5,6],
+ *   multiplicities: [1,1,1,1,1,1,1] // with maxMultiplicityOrder = 4
+ * };
+ */
 exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicKnotSequence';
 
 
@@ -63160,6 +63247,11 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
         }
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
     };
+    StrictlyIncreasingOpenKnotSequenceClosedCurve.prototype.revertKnotSequence = function () {
+        var newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
+    };
     return StrictlyIncreasingOpenKnotSequenceClosedCurve;
 }(AbstractStrictlyIncreasingOpenKnotSequence_1.AbstractStrictlyIncreasingOpenKnotSequence));
 exports.StrictlyIncreasingOpenKnotSequenceClosedCurve = StrictlyIncreasingOpenKnotSequenceClosedCurve;
@@ -63283,6 +63375,11 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
+    };
+    StrictlyIncreasingOpenKnotSequenceOpenCurve.prototype.revertKnotSequence = function () {
+        var newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
     };
     return StrictlyIncreasingOpenKnotSequenceOpenCurve;
 }(AbstractStrictlyIncreasingOpenKnotSequence_1.AbstractStrictlyIncreasingOpenKnotSequence));
@@ -63487,6 +63584,11 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function 
             return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
         }
         return new Knot_1.KnotIndexStrictlyIncreasingSequence(index);
+    };
+    StrictlyIncreasingPeriodicKnotSequenceClosedCurve.prototype.revertKnotSequence = function () {
+        var newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
     };
     return StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
 }(AbstractPeriodicKnotSequence_1.AbstractPeriodicKnotSequence));

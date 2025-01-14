@@ -237,4 +237,10 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         }
         return new KnotIndexIncreasingSequence(index);
     }
+
+    revertKnotSequence(): IncreasingPeriodicKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        // newKnotSequence.revertKnotSequence();
+        return newKnotSequence;
+    }
 }

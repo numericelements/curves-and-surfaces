@@ -449,10 +449,10 @@ export abstract class AbstractKnotSequence {
      * Reverses the knot spacing distribution in the sequence while preserving multiplicities and the origin of the knot sequence.
      * 
      * @example
-     * knotSequence.revertKnotSequence(); // [0,0,1,3,3] becomes [0,0,2,3,3] for an increasing open knot sequence describing an open curve
-     * knotSequence.revertKnotSequence(); // [0,1,1.5,3] becomes [0,1.5,2,3] for an increasing periodic knot sequence describing a closed curve
+     * knotSequence.revertKnotSpacing(); // [0,0,1,3,3] becomes [0,0,2,3,3] for an increasing open knot sequence describing an open curve
+     * knotSequence.revertKnotSpacing(); // [0,1,1.5,3] becomes [0,1.5,2,3] for an increasing periodic knot sequence describing a closed curve
      */
-    revertKnotSequence(): void {
+    protected revertKnotSpacing(): void {
         const sequence: Array<Knot> = [];
         for(const knot of this.knotSequence) {
             sequence.push(new Knot(0.0))

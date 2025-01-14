@@ -681,26 +681,26 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const multiplicities = [1, 1, 1, 1, 1, 1];
             const maxMultiplicityOrder = 4
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
-            const seqRef = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
-            seq.revertKnotSequence();
-            seq.revertKnotSequence();
+            // const seqRef = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const seqReversed = seq.revertKnotSequence();
+            const seqReReversed = seqReversed.revertKnotSequence();
             for(let i = 0; i < seq.length(); i++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(i);
-                expect(seqRef.abscissaAtIndex(index)).to.be.closeTo(seq.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
+                expect(seqReReversed.abscissaAtIndex(index)).to.be.closeTo(seq.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
             }
-            expect(seq.multiplicities()).to.eql(seqRef.multiplicities())
+            expect(seq.multiplicities()).to.eql(seqReReversed.multiplicities())
             
             const periodicKnots1: number [] = [0, 0.05, 0.2, 0.35, 0.4, 0.5]
             const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities})
-            const seqRef1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities})
-            seq1.revertKnotSequence();
-            seq1.revertKnotSequence();
+            // const seqRef1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities})
+            const seqReversed1 = seq1.revertKnotSequence();
+            const seqReReversed1 = seqReversed1.revertKnotSequence();
             let i = 0;
             for(let i = 0; i < seq1.length(); i++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(i);
-                expect(seqRef1.abscissaAtIndex(index)).to.be.closeTo(seq1.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE);
+                expect(seqReReversed1.abscissaAtIndex(index)).to.be.closeTo(seq1.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE);
             }
-            expect(seq1.multiplicities()).to.eql(seqRef1.multiplicities())
+            expect(seq1.multiplicities()).to.eql(seqReReversed1.multiplicities())
         });
 
         it('can revert the knot sequence for a non uniform B-spline', () => {
@@ -708,25 +708,25 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const multiplicities = [2, 1, 1, 2, 2];
             const maxMultiplicityOrder = 2
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
-            const seqRef = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
-            seq.revertKnotSequence();
-            seq.revertKnotSequence();
+            // const seqRef = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const seqReversed = seq.revertKnotSequence();
+            const seqReReversed = seqReversed.revertKnotSequence();
             for(let i = 0; i < seq.length(); i++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(i);
-                expect(seqRef.abscissaAtIndex(index)).to.be.closeTo(seq.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
+                expect(seqReReversed.abscissaAtIndex(index)).to.be.closeTo(seq.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
             }
-            expect(seq.multiplicities()).to.eql(seqRef.multiplicities())
+            expect(seq.multiplicities()).to.eql(seqReReversed.multiplicities())
             const periodicKnots1: number [] = [0, 0.2, 0.5, 0.8]
             const multiplicities1 = [2, 2, 1, 2];
             const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities1})
-            const seqRef1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities1})
-            seq1.revertKnotSequence();
-            seq1.revertKnotSequence();
+            // const seqRef1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities1})
+            const seqReversed1 = seq1.revertKnotSequence();
+            const seqReReversed1 = seqReversed1.revertKnotSequence();
             for(let i = 0; i < seq1.length(); i++) {
                 const index = new KnotIndexStrictlyIncreasingSequence(i);
-                expect(seqRef1.abscissaAtIndex(index)).to.be.closeTo(seq1.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
+                expect(seqReReversed1.abscissaAtIndex(index)).to.be.closeTo(seq1.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
             }
-            expect(seq1.multiplicities()).to.eql(seqRef1.multiplicities())
+            expect(seq1.multiplicities()).to.eql(seqReReversed1.multiplicities())
         });
 
         it('cannot decrement the multiplicity of a knot when the knot index is out of range with constructor type ' + STRICTLYINCREASINGPERIODICKNOTSEQUENCE, () => {

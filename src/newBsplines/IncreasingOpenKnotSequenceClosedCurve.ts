@@ -203,4 +203,10 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         }
     }
 
+    revertKnotSequence(): IncreasingOpenKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.revertKnotSpacing();
+        return newKnotSequence;
+    }
+
 }

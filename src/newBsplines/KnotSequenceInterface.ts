@@ -17,6 +17,6 @@ export interface KnotSequenceInterface {
     isAbscissaCoincidingWithKnot(abscissa: number): boolean;
     isKnotlMultiplicityZero(abscissa: number): boolean;
     knotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): number;
-    revertKnotSequence(): void;
+    revertKnotSequence(): KnotSequenceInterface;
     length(): number;
 }
