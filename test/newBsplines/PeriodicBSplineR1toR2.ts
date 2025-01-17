@@ -4,9 +4,8 @@ import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "../namedConstants/Curves"
 import { PeriodicBSplineR1toR2 } from "../../src/newBsplines/PeriodicBSplineR1toR2";
 import { basisFunctionsFromSequence } from "../../src/newBsplines/Piegl_Tiller_NURBS_Book";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve";
-import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../../src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
 import { ErrorLog } from "../../src/errorProcessing/ErrorLoging";
-import { KnotIndexIncreasingSequence } from "../../src/newBsplines/Knot";
+import { KnotIndexIncreasingSequence } from "../../src/newBsplines/KnotIndexIncreasingSequence";
 import { INCREASINGPERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
 
 describe('PeriodicBSplineR1toR2', () => {

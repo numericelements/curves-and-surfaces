@@ -5,7 +5,7 @@ import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { decomposeFunction, clampingFindSpan } from "./Piegl_Tiller_NURBS_Book";
 

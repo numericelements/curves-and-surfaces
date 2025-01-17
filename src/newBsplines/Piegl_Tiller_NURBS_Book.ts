@@ -4,9 +4,9 @@ import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { BSplineR1toR1 } from "./BSplineR1toR1";
 import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
-import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
 export const WM_KNOT_SEQUENCE_ORIGIN_ALREADY_ZERO = "No need to reset the sequence of knot abscissae.";
 

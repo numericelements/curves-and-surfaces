@@ -31,7 +31,7 @@
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
     "webpack": "^5.75.0",
-    "webpack-cli": "^3.3.11",
+    "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^4.9.0"
   },
   "dependencies": {
@@ -39,6 +39,6 @@
     "chart.js": "^2.9.3",
     "file-saver": "^2.0.2",
     "node": "^19.3.0",
-    "npm": "^8.19.3"
+    "npm": "^11.0.0"
   }
 }

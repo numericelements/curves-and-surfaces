@@ -5,10 +5,13 @@ import { BernsteinDecompositionR1toR1, splineRecomposition } from "./BernsteinDe
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
-import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from "./KnotSequenceConstructorInterface";
-import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC, fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "./KnotSequenceConversionAndUtilities";
+import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC";
+import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
 
 export const KNOT_REMOVAL_TOLERANCE = 10e-5;
 

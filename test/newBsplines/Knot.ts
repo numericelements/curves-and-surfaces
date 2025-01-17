@@ -1,5 +1,7 @@
 import { expect } from "chai";
-import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_MULTIPLICITY_VALUE, EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA, EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY, EM_KNOT_DECREMENT_KNOT_MULTIPLICITY, EM_KNOT_INCREMENT_DECREMENT, EM_KNOT_INDEX_VALUE, Knot, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/Knot";
+import { Knot } from "../../src/newBsplines/Knot";
+import { EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA, EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY, EM_KNOT_DECREMENT_KNOT_MULTIPLICITY, EM_KNOT_INCREMENT_DECREMENT } from "../../src/ErrorMessages/Knots";
+import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_MULTIPLICITY_VALUE } from "../../src/namedConstants/Knots";
 
 describe('Knots', () => {
 
@@ -122,64 +124,4 @@ describe('Knots', () => {
     });
 
 
-});
-
-describe('KnotIndexStrictlyIncreasingSequence', () => {
-    describe('KnotIndexStrictlyIncreasingSequence constructor', () => {
-        it('cannot be initialized with a negative value', () => {
-            const index = -1;
-            expect(() => new KnotIndexStrictlyIncreasingSequence(index)).to.throw(EM_KNOT_INDEX_VALUE)
-        });
-
-        it('can be initialized with a null or positive value', () => {
-            const index = 0;
-            const knotIndex = new KnotIndexStrictlyIncreasingSequence(index);
-            expect(knotIndex.knotIndex).to.eql(0)
-        });
-    });
-
-    describe('Accessors', () => {
-        it('can update the value of a knot index with a null or positive value', () => {
-            const index = 0;
-            const knotIndex = new KnotIndexStrictlyIncreasingSequence(index);
-            knotIndex.knotIndex = 1;
-            expect(knotIndex.knotIndex).to.eql(1)
-        });
-
-        it('cannot update the value of a knot index with a negative value', () => {
-            const index = 0;
-            const knotIndex = new KnotIndexStrictlyIncreasingSequence(index);
-            expect(() => knotIndex.knotIndex = -1).to.throw(EM_KNOT_INDEX_VALUE)
-        });
-    });
-});
-
-describe('KnotIndexIncreasingSequence', () => {
-    describe('KnotIndexIncreasingSequence constructor', () => {
-        it('cannot be initialized with a negative value', () => {
-            const index = -1;
-            expect(() => new KnotIndexIncreasingSequence(index)).to.throw(EM_KNOT_INDEX_VALUE)
-        });
-
-        it('can be initialized with a null or positive value', () => {
-            const index = 0;
-            const knotIndex = new KnotIndexIncreasingSequence(index);
-            expect(knotIndex.knotIndex).to.eql(0)
-        });
-    });
-
-    describe('Accessors', () => {
-        it('can update the value of a knot index with a null or positive value', () => {
-            const index = 0;
-            const knotIndex = new KnotIndexIncreasingSequence(index);
-            knotIndex.knotIndex = 1;
-            expect(knotIndex.knotIndex).to.eql(1)
-        });
-
-        it('cannot update the value of a knot index with a negative value', () => {
-            const index = 0;
-            const knotIndex = new KnotIndexIncreasingSequence(index);
-            expect(() => knotIndex.knotIndex = -1).to.throw(EM_KNOT_INDEX_VALUE)
-        });
-    });
 });

@@ -1,4 +1,4 @@
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotSequenceInterface } from "./KnotSequenceInterface";
 
 export interface StrictlyIncreasingOpenKnotSequenceInterface extends KnotSequenceInterface {

@@ -3,9 +3,11 @@ import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface"
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1"
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { KNOT_COINCIDENCE_TOLERANCE } from "../namedConstants/KnotSequences";
 import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
 
 export const CONVERGENCE_TOLERANCE_FOR_ZEROS_COMPUTATION = 10e-8;
 export const MAX_ITERATIONS_FOR_ZEROS_COMPUTATION = 1e6;

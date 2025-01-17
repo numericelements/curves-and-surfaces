@@ -5,11 +5,14 @@ import { AbstractBSplineR1toR2, TOL_KNOT_COINCIDENCE, deepCopyControlPoints } fr
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 import { IncreasingPeriodicKnotSequenceClosedCurve } from "./IncreasingPeriodicKnotSequenceClosedCurve";
-import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC";
 import { INCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "./KnotSequenceConversionAndUtilities";
+import { fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "./KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "./PeriodicBSplineR1toR2withOpenKnotSequence";
 import { basisFunctionsFromSequence, clampingFindSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
 
 /**
  * A B-Spline function from a one dimensional real periodic space to a two dimensional real space

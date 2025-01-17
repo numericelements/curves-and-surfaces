@@ -1,18 +1,23 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { KNOT_COINCIDENCE_TOLERANCE, KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
-import { KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot } from "./Knot";
 import { AbstractStrictlyIncreasingOpenKnotSequence } from "./AbstractStrictlyIncreasingOpenKnotSequence";
-import { STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, StrictlyIncreasingOpenKnotSequenceClosedCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, Uniform_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
+import { STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, StrictlyIncreasingOpenKnotSequenceCCurve, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, StrictlyIncreasingOpenKnotSequenceClosedCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, Uniform_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT, EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS } from "../ErrorMessages/KnotSequences";
+import { fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 
 export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
 
     constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceClosedCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-
+        if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE) {
+            this.computeKnotSequenceFromPeriodicKnotSequence(knotParameters);
+        }
         // this._isSequenceOfDerivative = false;
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
@@ -108,7 +113,32 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
 
     constructorInputBspBasisSizeAssessment(knotParameters: Uniform_OpenKnotSequence): void {
         if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder || (this._maxMultiplicityOrder === 2 && knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1))) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
-}
+    }
+
+    computeKnotSequenceFromPeriodicKnotSequence(knotParameters: StrictlyIncreasingOpenKnotSequenceCCurve): void {
+        const minValueMaxMultiplicityOrder = 2;
+        this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
+        this.constructorInputArrayAssessment(knotParameters);
+        this.checkKnotStrictlyIncreasingValues(knotParameters.periodicKnots);
+        if(this._maxMultiplicityOrder === 2 && knotParameters.periodicKnots.length < 3) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
+        if(this._maxMultiplicityOrder > 2) {
+            if(knotParameters.periodicKnots.length <= (1 + this._maxMultiplicityOrder - knotParameters.multiplicities[0])) {
+                let cumulative_multiplicities = 0;
+                for(let i = 1; i < knotParameters.periodicKnots.length - 1; i++) {
+                    cumulative_multiplicities+= knotParameters.multiplicities[i];
+                }
+                if(cumulative_multiplicities < (this._maxMultiplicityOrder - knotParameters.multiplicities[0])) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
+            }
+        }
+        const openSequence = fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
+        const knots = openSequence.distinctAbscissae();
+        const multiplicities = openSequence.multiplicities();
+        for(let i = 0; i < knots.length; i++) {
+            this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
+        }
+        this._uMax = openSequence._uMax;
+        this._indexKnotOrigin = openSequence._indexKnotOrigin;
+    }
 
     getIndexKnotOrigin(): KnotIndexStrictlyIncreasingSequence {
         return new KnotIndexStrictlyIncreasingSequence(this._indexKnotOrigin.knotIndex);

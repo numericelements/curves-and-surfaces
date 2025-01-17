@@ -5,12 +5,15 @@ import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2"
 import { IncreasingOpenKnotSequenceClosedCurve } from "./IncreasingOpenKnotSequenceClosedCurve";
-import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
-import { fromIncreasingOpentoIncreasingPeriodicKnotSequence, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceConversionAndUtilities";
+import { fromIncreasingOpentoIncreasingPeriodicKnotSequence } from "./KnotSequenceAndUtilities/fromIncreasingOpentoIncreasingPeriodicKnotSequence";
 import { PeriodicBSplineR1toR1 } from "./PeriodicBSplineR1toR1";
 import { PeriodicBSplineR1toR2 } from "./PeriodicBSplineR1toR2";
 import { clampingFindSpan, findSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book"
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
 
 
 /**

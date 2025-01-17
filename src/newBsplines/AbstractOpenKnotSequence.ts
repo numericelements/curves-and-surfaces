@@ -1,10 +1,13 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
-import { Knot, KnotIndexIncreasingSequence, KnotIndexInterface, KnotIndexStrictlyIncreasingSequence } from "./Knot";
+import { Knot } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
 import { KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA, NormalizedBasisAtSequenceExtremity } from "../namedConstants/KnotSequences";
 import { EM_SEQUENCE_ORIGIN_REMOVAL, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER } from "../ErrorMessages/KnotSequences"
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE, WM_ABSCISSA_TOO_CLOSE_TO_KNOT } from "../WarningMessages/KnotSequences";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { KnotIndexInterface } from "./KnotIndexConstructorInterface";
 
 
 /**
@@ -738,7 +741,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * knotSequence.resetKnotAbscissaeToOrigin();
      * // Results in [0,0,0,1,2,3,3,3]
      */
-    resetKnotAbscissaeToOrigin(): void {
+    protected resetKnotAbscissaeToOrigin(): void {
         const offset = this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa;
         for(let i = 0; i < this.knotSequence.length; i++) {
             let newAbscissa = this.knotSequence[i].abscissa - offset;
@@ -746,6 +749,13 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
                 newAbscissa = KNOT_SEQUENCE_ORIGIN;
             }
             this.knotSequence[i].abscissa = newAbscissa;
+        }
+    }
+
+    protected revertKnotSpacing(): void {
+        super.revertKnotSpacing();
+        if(Math.abs(this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa) > (KNOT_SEQUENCE_ORIGIN + KNOT_COINCIDENCE_TOLERANCE)) {
+            this.resetKnotAbscissaeToOrigin();
         }
     }
 }

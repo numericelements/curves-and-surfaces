@@ -3,9 +3,10 @@ import { Vector2d } from "../mathVector/Vector2d"
 import { BSplineR1toR2Interface as BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
-import { IncreasingOpenKnotSequenceInterface } from "./IncreasingOpenKnotSequenceInterface";
-import { DEFAULT_KNOT_INDEX, KnotIndexIncreasingSequence, KnotIndexStrictlyIncreasingSequence } from "./Knot";
 import { IncreasingKnotSequenceInterface } from "./IncreasingKnotSequenceInterface";
+import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
+import { DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
 
 export enum curveSegment {BEFORE, AFTER};
 export const TOL_KNOT_COINCIDENCE = 1.0E-8;
