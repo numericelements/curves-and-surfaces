@@ -627,18 +627,18 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * @example
      * // For sequence [0,0,0,1,1,2,3,3,3]
      * const index = new KnotIndexStrictlyIncreasingSequence(2);
-     * knotSequence.decrementKnotMultiplicity(index); // Results in [0,0,0,1,2,3,3,3]
+     * knotSequence.decrementKnotMultiplicityMutSeq(index); // Results in [0,0,0,1,2,3,3,3]
      * // For sequence [0,0,0,1,2,3,3,3]
      * const index = new KnotIndexStrictlyIncreasingSequence(2);
-     * knotSequence.decrementKnotMultiplicity(index); // Results in [0,0,0,2,3,3,3]
+     * knotSequence.decrementKnotMultiplicityMutSeq(index); // Results in [0,0,0,2,3,3,3]
      * 
      * // Decrement without consistency check
      * // For sequence [0,0,0,1,2,3,3,3]
      * const index = new KnotIndexStrictlyIncreasingSequence(0);
-     * knotSequence.decrementKnotMultiplicity(index, false); // Results in [0,0,1,2,3,3,3], the normalized basis interval is modified
+     * knotSequence.decrementKnotMultiplicityMutSeq(index, false); // Results in [0,0,1,2,3,3,3], the normalized basis interval is modified
      */
-    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean = true): void {
-        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
+    protected decrementKnotMultiplicityMutSeq(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean = true): void {
+        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicityMutSeq");
         if(checkSequenceConsistency) {
             const basisAtEnd = this.getKnotIndexNormalizedBasisAtSequenceEnd();
             if(index.knotIndex <= this._indexKnotOrigin.knotIndex || index.knotIndex >= basisAtEnd.knot.knotIndex) {
@@ -646,7 +646,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
             }
             if(this.knotSequence[index.knotIndex].multiplicity === 1) {
                 if(index.knotIndex === this._indexKnotOrigin.knotIndex) {
-                    this.throwRangeErrorMessage("decrementKnotMultiplicity", EM_SEQUENCE_ORIGIN_REMOVAL);
+                    this.throwRangeErrorMessage("decrementKnotMultiplicityMutSeq", EM_SEQUENCE_ORIGIN_REMOVAL);
                 } else {
                     this.removeKnot(index);
                 }

@@ -391,8 +391,9 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
         }
         
         // this.knots.splice(index, 1);
-        this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
+        this._increasingKnotSequence = this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
         
+
         const fout = (2 * index - multiplicity - this.degree) / 2;
         this._controlPoints.splice(fout, 1);
     }

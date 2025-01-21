@@ -178,7 +178,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 --indDec;
             }
         }
-        this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
+        this._increasingKnotSequence = this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
         
         const fout = (2 * index - multiplicity - this.degree) / 2;
         this._controlPoints.splice(fout, 1);

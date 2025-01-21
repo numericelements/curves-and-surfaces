@@ -214,7 +214,13 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
 
     revertKnotSequence(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
         const newKnotSequence = this.clone();
-        // newKnotSequence.revertKnotSequence();
+        newKnotSequence.revertKnotSpacing();
+        return newKnotSequence;
+    }
+
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean = true): StrictlyIncreasingOpenKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     }
 }

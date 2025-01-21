@@ -88,11 +88,11 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
     }
 
-    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void {
-        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicity");
+    decrementKnotMultiplicityMutSeq(index: KnotIndexStrictlyIncreasingSequence): void {
+        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicityMutSeq");
         if(this.knotSequence[index.knotIndex].multiplicity === 1) {
             if(index.knotIndex === 0 || index.knotIndex === this.knotSequence.length - 1) {
-                this.throwRangeErrorMessage("decrementKnotMultiplicity", EM_SEQUENCE_ORIGIN_REMOVAL);
+                this.throwRangeErrorMessage("decrementKnotMultiplicityMutSeq", EM_SEQUENCE_ORIGIN_REMOVAL);
             }
             const abscissae = this.distinctAbscissae();
             const multiplicities = this.multiplicities();

@@ -1398,7 +1398,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots});
             const newSeq = seq.decrementMaxMultiplicityOrder();
             const newKnots: number [] = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-            expect(newSeq.maxMultiplicityOrder).to.eql(3)
+            expect(newSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder - 1)
             let i = 0
             for(const knot of newSeq) {
                 expect(knot).to.eql(newKnots[i])
@@ -1467,8 +1467,8 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const sequenceConsistencyCheck = false
             for(let i = 0; i < seq.distinctAbscissae().length; i++) {
                 const seq1 = seq.clone()
-                seq1.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
-                expect(seq1.length()).to.eql(seq.length() - 1)
+                const seq2 = seq1.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
+                expect(seq2.length()).to.eql(seq.length() - 1)
             }
         });
 
@@ -1478,8 +1478,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const sequenceConsistencyCheck = true
             const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots})
             for(let i = maxMultiplicityOrder; i < seq.distinctAbscissae().length - maxMultiplicityOrder; i++) {
-                const seq1 = seq.clone()
-                seq1.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
+                const seq1 = seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
                 if(seq.multiplicities()[i] === 1) {
                     expect(seq1.length()).to.eql(seq.length() - 1)
                 } else {
@@ -1488,12 +1487,11 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             }
             const seq2 = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: knots})
             for(let i = maxMultiplicityOrder; i < seq2.distinctAbscissae().length - maxMultiplicityOrder; i++) {
-                const seq1 = seq2.clone()
-                seq1.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
+                const seq3 = seq2.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
                 if(seq2.multiplicities()[i] === 1) {
-                    expect(seq1.length()).to.eql(seq2.length() - 1)
+                    expect(seq3.length()).to.eql(seq2.length() - 1)
                 } else {
-                    expect(seq1.multiplicities()[i]).to.eql(seq2.multiplicities()[i] - 1)
+                    expect(seq3.multiplicities()[i]).to.eql(seq2.multiplicities()[i] - 1)
                 }
             }
         });
@@ -1504,8 +1502,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const sequenceConsistencyCheck = true
             const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots})
             for(let i = 1; i < seq.distinctAbscissae().length - 1; i++) {
-                const seq1 = seq.clone()
-                seq1.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
+                const seq1 = seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
                 if(seq.multiplicities()[i] === 1) {
                     expect(seq1.length()).to.eql(seq.length() - 1)
                 } else {
@@ -1514,12 +1511,11 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             }
             const seq2 = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: knots})
             for(let i = 1; i < seq2.distinctAbscissae().length - 1; i++) {
-                const seq1 = seq2.clone()
-                seq1.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
+                const seq3 = seq2.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i), sequenceConsistencyCheck)
                 if(seq2.multiplicities()[i] === 1) {
-                    expect(seq1.length()).to.eql(seq2.length() - 1)
+                    expect(seq3.length()).to.eql(seq2.length() - 1)
                 } else {
-                    expect(seq1.multiplicities()[i]).to.eql(seq2.multiplicities()[i] - 1)
+                    expect(seq3.multiplicities()[i]).to.eql(seq2.multiplicities()[i] - 1)
                 }
             }
         });
@@ -1534,8 +1530,8 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const sequenceConsistencyCheck = true
             expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2])
             expect(seq.isKnotSpacingUniform).to.eql(true)
-            seq.decrementKnotMultiplicity(indexStrictInc, sequenceConsistencyCheck)
-            expect(seq.isKnotSpacingUniform).to.eql(false)
+            const seq1 = seq.decrementKnotMultiplicity(indexStrictInc, sequenceConsistencyCheck)
+            expect(seq1.isKnotSpacingUniform).to.eql(false)
         });
 
         it('can decrement the multiplicity of an existing knot and get updated knot multiplicity uniformity property of the sequence', () => {
@@ -1550,10 +1546,10 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             expect(seq.isKnotMultiplicityUniform).to.eql(false)
             expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             expect(seq.isKnotSpacingUniform).to.eql(true)
-            seq.decrementKnotMultiplicity(indexStrictInc, sequenceConsistencyCheck)
-            expect(seq.isKnotSpacingUniform).to.eql(true)
-            expect(seq.isKnotMultiplicityUniform).to.eql(false)
-            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
+            const seq1 = seq.decrementKnotMultiplicity(indexStrictInc, sequenceConsistencyCheck)
+            expect(seq1.isKnotSpacingUniform).to.eql(true)
+            expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
         });
 
         it('can decrement the multiplicity of an existing knot and get updated non uniform knot multiplicity property of the sequence when the knot sequence  consistency is not checked', () => {
@@ -1567,11 +1563,11 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             expect(seq.isKnotSpacingUniform).to.eql(false)
             expect(seq.isKnotMultiplicityUniform).to.eql(false)
             expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
-            seq.decrementKnotMultiplicity(indexStrictInc, sequenceConsistencyCheck)
-            expect(seq.isKnotSpacingUniform).to.eql(false)
-            expect(seq.isKnotMultiplicityUniform).to.eql(false)
-            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
-            expect(seq.multiplicities()).to.eql([4, 1, 2, 1, 1, 3])
+            const seq1 = seq.decrementKnotMultiplicity(indexStrictInc, sequenceConsistencyCheck)
+            expect(seq1.isKnotSpacingUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq1.multiplicities()).to.eql([4, 1, 2, 1, 1, 3])
         });
 
         it('can get a consistent knot sequence origin when a knot multiplicity is decremented and the knot at origin is removed. Knot sequence consistency is not checked during knot multiplicity decrement but the sequence origin is updated as well as some abscissae', () => {
@@ -1582,15 +1578,15 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const indexOrigin = seq.indexKnotOrigin
             const abscissa = seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))
             expect(abscissa).to.eql(KNOT_SEQUENCE_ORIGIN)
-            seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
-            seq.updateKnotSequenceThroughNormalizedBasisAnalysis()
-            expect(seq.indexKnotOrigin).to.eql(indexOrigin)
-            expect(seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
+            const seq1 = seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
+            seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
+            expect(seq1.indexKnotOrigin).to.eql(indexOrigin)
+            expect(seq1.abscissaAtIndex(seq1.toKnotIndexIncreasingSequence(indexOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
             const updatedKnots: number [] = [-0.4, -0.3, -0.2, 0, 0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.6]
-            for(let i = 0; i < seq.allAbscissae.length; i++) {
-                expect(seq.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
+            for(let i = 0; i < seq1.allAbscissae.length; i++) {
+                expect(seq1.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
             }
-            expect(seq.uMax).to.eql(0.4)
+            expect(seq1.uMax).to.eql(0.4)
         });
 
         it('can get a consistent knot sequence origin when a knot multiplicity is decremented and the knot at uMax is removed. Knot sequence consistency is not checked during knot multiplicity decrement but the sequence uMax is updated as well as some abscissae', () => {
@@ -1601,14 +1597,14 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const indexUMax = seq.getKnotIndicesBoundingNormalizedBasis().end.knot;
             const abscissa = seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexUMax))
             expect(abscissa).to.eql(seq.uMax)
-            seq.decrementKnotMultiplicity(indexUMax, sequenceConsistencyCheck)
-            seq.updateKnotSequenceThroughNormalizedBasisAnalysis()
-            expect(seq.uMax).to.eql(0.4)
+            const seq1 = seq.decrementKnotMultiplicity(indexUMax, sequenceConsistencyCheck)
+            seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
+            expect(seq1.uMax).to.eql(0.4)
             const updatedKnots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.6, 0.7, 0.7]
-            for(let i = 0; i < seq.allAbscissae.length; i++) {
-                expect(seq.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
+            for(let i = 0; i < seq1.allAbscissae.length; i++) {
+                expect(seq1.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
             }
-            expect(seq.uMax).to.eql(0.4)
+            expect(seq1.uMax).to.eql(0.4)
         });
 
         it('cannot get a consistent knot sequence origin when a knot multiplicity is decremented and the knot at origin is removed. Knot sequence consistency is not checked during knot multiplicity decrement and the sequence origin cannot be updated', () => {
@@ -1619,8 +1615,8 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const indexOrigin = seq.indexKnotOrigin
             const abscissa = seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))
             expect(abscissa).to.eql(KNOT_SEQUENCE_ORIGIN)
-            seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
-            expect(() => seq.updateKnotSequenceThroughNormalizedBasisAnalysis()).to.throw(EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART)
+            const seq1 = seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
+            expect(() => seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()).to.throw(EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART)
         });
 
         it('cannot get consistent knot sequence normalized basis when a knot multiplicity is decremented and the knot at origin is removed when the knot sequence consistency is not checked during knot multiplicity decrement', () => {
@@ -1632,23 +1628,23 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             let indexNormalizedBasisAtStart = seq.getKnotIndexNormalizedBasisAtSequenceStart()
             expect(indexNormalizedBasisAtStart.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceExtremity.StrictlyNormalized)
             expect(indexNormalizedBasisAtStart.knot.knotIndex).to.eql(indexOrigin.knotIndex)
-            seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
-            indexNormalizedBasisAtStart = seq.getKnotIndexNormalizedBasisAtSequenceStart()
+            const seq1 = seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
+            indexNormalizedBasisAtStart = seq1.getKnotIndexNormalizedBasisAtSequenceStart()
             expect(indexNormalizedBasisAtStart.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceExtremity.StrictlyNormalized)
             expect(indexNormalizedBasisAtStart.knot.knotIndex).to.not.eql(indexOrigin.knotIndex)
-            expect(seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexNormalizedBasisAtStart.knot))).to.not.eql(KNOT_SEQUENCE_ORIGIN)
+            expect(seq1.abscissaAtIndex(seq1.toKnotIndexIncreasingSequence(indexNormalizedBasisAtStart.knot))).to.not.eql(KNOT_SEQUENCE_ORIGIN)
 
             const knots1: number [] = [0, 0, 0, 0, 0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.5, 0.5]
-            const seq1 = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots1})
-            const indexOrigin1 = seq1.indexKnotOrigin
-            let indexNormalizedBasisAtStart1 = seq1.getKnotIndexNormalizedBasisAtSequenceStart()
+            const seq2 = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots1})
+            const indexOrigin1 = seq2.indexKnotOrigin
+            let indexNormalizedBasisAtStart1 = seq2.getKnotIndexNormalizedBasisAtSequenceStart()
             expect(indexNormalizedBasisAtStart1.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceExtremity.StrictlyNormalized)
             expect(indexNormalizedBasisAtStart1.knot.knotIndex).to.eql(indexOrigin1.knotIndex)
-            seq1.decrementKnotMultiplicity(indexOrigin1, sequenceConsistencyCheck)
-            indexNormalizedBasisAtStart1 = seq1.getKnotIndexNormalizedBasisAtSequenceStart()
+            const seq3 = seq2.decrementKnotMultiplicity(indexOrigin1, sequenceConsistencyCheck)
+            indexNormalizedBasisAtStart1 = seq3.getKnotIndexNormalizedBasisAtSequenceStart()
             expect(indexNormalizedBasisAtStart1.basisAtSeqExt).to.eql(NormalizedBasisAtSequenceExtremity.OverDefined)
             expect(indexNormalizedBasisAtStart1.knot.knotIndex).to.not.eql(indexOrigin1.knotIndex)
-            expect(seq1.abscissaAtIndex(seq1.toKnotIndexIncreasingSequence(indexNormalizedBasisAtStart1.knot))).to.not.eql(KNOT_SEQUENCE_ORIGIN)
+            expect(seq3.abscissaAtIndex(seq3.toKnotIndexIncreasingSequence(indexNormalizedBasisAtStart1.knot))).to.not.eql(KNOT_SEQUENCE_ORIGIN)
         });
 
         it('can update the origin and uMax of a knot sequence whose knot multiplicities have been increased/decreased without knot conformity checking', () => {
@@ -1660,10 +1656,10 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const abscissa = seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))
             expect(abscissa).to.eql(KNOT_SEQUENCE_ORIGIN)
             expect(seq.uMax).to.eql(0.5)
-            seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0), sequenceConsistencyCheck)
-            seq.updateKnotSequenceThroughNormalizedBasisAnalysis()
-            expect(seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(seq.indexKnotOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
-            expect(seq.uMax).to.eql(0.4)
+            const seq1 = seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0), sequenceConsistencyCheck)
+            seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
+            expect(seq1.abscissaAtIndex(seq1.toKnotIndexIncreasingSequence(seq.indexKnotOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
+            expect(seq1.uMax).to.eql(0.4)
         });
 
         it('cannot decrement the maximal multiplicity order of the knot sequence when the maximal multiplicity order of a knot sequence is 2 with constructor type ' + INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, () => {

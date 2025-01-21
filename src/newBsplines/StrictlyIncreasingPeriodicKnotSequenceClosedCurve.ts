@@ -131,8 +131,13 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
 
     revertKnotSequence(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
         const newKnotSequence = this.clone();
-        // newKnotSequence.revertKnotSequence();
+        newKnotSequence.revertKnotSpacing();
         return newKnotSequence;
     }
 
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.decrementKnotMultiplicityMutSeq(index);
+        return newKnotSequence;
+    }
 }

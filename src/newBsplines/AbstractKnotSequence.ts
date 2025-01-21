@@ -67,7 +67,7 @@ export abstract class AbstractKnotSequence {
 
     abstract checkNonUniformKnotMultiplicityOrder(): void;
 
-    abstract decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): void;
+    protected abstract decrementKnotMultiplicityMutSeq(index: KnotIndexStrictlyIncreasingSequence): void;
 
     /**
      * Generates and throws a RangeError with formatted error message.

@@ -1,0 +1,144 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var chai_1 = require("chai");
+var DifferentialEvent_1 = require("../../src/sequenceOfDifferentialEvents/DifferentialEvent");
+var SequenceOfDifferentialEvents_1 = require("../../src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents");
+describe('SequenceOfDifferentialEvents', function () {
+    it('can return the lengthes of indices of inflections and the sequence length when there is no event in the sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+        var seqLength = seqDif1.length();
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(0);
+        chai_1.expect(seqDif1.sequence.length, 'sequence length: ').to.eql(0);
+        chai_1.expect(seqLength, 'sequence length: ').to.eql(0);
+    });
+    it('can return the lengthes of indices of inflections and the sequence length when there is no inlection in the sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.1, 0.5, 0.85]);
+        var seqLength = seqDif1.length();
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(0);
+        chai_1.expect(seqDif1.sequence.length, 'sequence length: ').to.eql(4);
+        chai_1.expect(seqLength, 'sequence length: ').to.eql(4);
+    });
+    it('can return the array of indices of inflections in the sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.75], [0.5]);
+        chai_1.expect(seqDif1.indicesOfInflections, 'indicesOfInflections: ').to.eql([0]);
+    });
+    it('can return the length of array of indices of inflections in the sequence when there no inflection', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.75]);
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(0);
+    });
+    it('can return the length of array of indices of inflections in the sequence when there no curvature extremum', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents(undefined, [0.75]);
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(1);
+        chai_1.expect(seqDif1.indicesOfInflections, 'indicesOfInflections: ').to.eql([0]);
+    });
+    it('can return the first event in the sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        chai_1.expect(seqDif1.eventAt(0).location, 'event location: ').to.eql(0.05);
+        chai_1.expect(seqDif1.eventAt(0).order, 'event order: ').to.eql(1);
+    });
+    it('can return the last event in the sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        chai_1.expect(seqDif1.eventAt(seqDif1.length() - 1).location, 'event location: ').to.eql(0.95);
+        chai_1.expect(seqDif1.eventAt(seqDif1.length() - 1).order, 'event order: ').to.eql(0);
+    });
+    it('cannot return the event in the sequence because the index is out of range', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        chai_1.expect(seqDif1.eventAt(seqDif1.length()), 'event: ').to.eql(undefined);
+    });
+    it('can return the intervals when there is no event', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([], []);
+        var inflection = 0;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(1.0);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence, 'sequence of intervals: ').to.eql([1.0]);
+    });
+    it('can add curvature extrema and inflections into an empty sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+        seqDif1.insertEvents([0.05, 0.5], [0.2]);
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(1);
+        chai_1.expect(seqDif1.sequence.length, 'sequence length: ').to.eql(3);
+    });
+    it('can add curvature extrema only into an empty sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+        seqDif1.insertEvents([0.05, 0.5], []);
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(0);
+        chai_1.expect(seqDif1.sequence.length, 'sequence length: ').to.eql(2);
+    });
+    it('can add one inflection only into an empty sequence', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents();
+        seqDif1.insertEvents([], [0.1]);
+        chai_1.expect(seqDif1.indicesOfInflections.length, 'indicesOfInflections length: ').to.eql(1);
+        chai_1.expect(seqDif1.sequence.length, 'sequence length: ').to.eql(1);
+    });
+    // The inflection unused here is the index of the inflection event in the sequence of inflections
+    // If the interval designated is the last one, the index is set to the length of the sequence of inflections
+    it('can return the intervals when there is no inflection', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.4, 0.8], []);
+        var inflection = 0;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(1.0);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.4, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[1], 'sequence of intervals: ').to.be.closeTo(0.4, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[2], 'sequence of intervals: ').to.be.closeTo(0.2, 1.0e-10);
+    });
+    it('can return the intervals in the first interval when there is one inflection and no curvature extremum', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([], [0.4]);
+        var inflection = 0;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(0.4);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.4, 1.0e-10);
+    });
+    it('can return the intervals in the last interval when there is one inflection and no curvature extremum', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([], [0.4]);
+        var inflection = 1;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(0.6);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.6, 1.0e-10);
+    });
+    it('can return the intervals between curvature extrema before the first inflection', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        var inflection = 0;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.eql(0.5);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence, 'sequence of intervals: ').to.eql([0.05, 0.45]);
+    });
+    it('can return the intervals between curvature extrema between inflections', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        var inflection = 1;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.be.closeTo(0.45, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.25, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[1], 'sequence of intervals: ').to.be.closeTo(0.1, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[2], 'sequence of intervals: ').to.be.closeTo(0.1, 1.0e-10);
+    });
+    it('can return the intervals between curvature extrema after the last inflection', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85, 0.98], [0.5, 0.95]);
+        var inflection = 2;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.be.closeTo(0.05, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.03, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[1], 'sequence of intervals: ').to.be.closeTo(0.02, 1.0e-10);
+    });
+    it('can return the intervals between curvature extrema when there is no inflection', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85, 0.98]);
+        var inflection = 0;
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).span, 'interval span: ').to.be.closeTo(1.0, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[0], 'sequence of intervals: ').to.be.closeTo(0.05, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[1], 'sequence of intervals: ').to.be.closeTo(0.7, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[2], 'sequence of intervals: ').to.be.closeTo(0.1, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[3], 'sequence of intervals: ').to.be.closeTo(0.13, 1.0e-10);
+        chai_1.expect(seqDif1.computeIntervalsBtwCurvatureExtrema(inflection).sequence[4], 'sequence of intervals: ').to.be.closeTo(0.02, 1.0e-10);
+    });
+    it('returns an error when the curvature extrema value is not strictly increasing', function () {
+        var seqDif1 = new SequenceOfDifferentialEvents_1.SequenceOfDifferentialEvents([0.05, 0.75, 0.85], [0.5, 0.95]);
+        var event = new DifferentialEvent_1.DifferentialEvent(1, 0.7);
+        seqDif1.sequence.splice(3, 0, event);
+        var index = 0;
+        // Look for location consistency. The sequence of abscissae must be strictly increasing
+        for (var i = 1; i < seqDif1.sequence.length; i += 1) {
+            if (seqDif1.sequence[i].location > seqDif1.sequence[i - 1].location) {
+                continue;
+            }
+            else {
+                index = i;
+                break;
+            }
+        }
+        chai_1.expect(index).to.not.eql(0);
+        // error is thrown by ErrorLog class
+        // expect(() => seqDif1.insertAt(event, 3)).to.throw();
+    });
+});

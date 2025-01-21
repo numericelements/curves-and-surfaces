@@ -60,7 +60,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const newControlPoints = [];
         const knotIdx_MultDegPlusOne: number[] = [];
         // const strictlyIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-        const strictlyIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this._increasingKnotSequence);
+        let strictlyIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this._increasingKnotSequence);
         const strictlyIncSeq_Mult = strictlyIncSeq.multiplicities();
         for(let i = 0; i < strictlyIncSeq_Mult.length; i++) {
             if(strictlyIncSeq_Mult[i] === (this._degree + 1) && i !== 0 && i !== (strictlyIncSeq.length() - 1)) knotIdx_MultDegPlusOne.push(i);
@@ -78,7 +78,8 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         }
         for(const multiplicity of knotIdx_MultDegPlusOne) {
             // strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity));
-            strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity), false);
+            const strictlyIncSeq1 = strictlyIncSeq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(multiplicity), false);
+            strictlyIncSeq = strictlyIncSeq1.clone();
         }
         // const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
         const newIncKnotSeq = fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictlyIncSeq);
@@ -316,7 +317,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
                 --indDec;
             }
         }
-        this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
+        this._increasingKnotSequence = this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
         
         const fout = (2 * index - multiplicity - this.degree) / 2;
         this._controlPoints.splice(fout, 1);

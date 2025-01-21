@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from '../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve';
-import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from '../../src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC';
-import { STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from '../../src/newBsplines/KnotSequenceConstructorInterface';
+import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from '../../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve';
+import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from '../../../src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC';
+import { STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from '../../../src/newBsplines/KnotSequenceConstructorInterface';
 
 describe('Conversions from a strictly increasing knot sequence of an open curve to an increasing open knot sequence of an open curve', () => {
 

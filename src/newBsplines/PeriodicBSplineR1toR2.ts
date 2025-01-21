@@ -564,7 +564,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
         
         // this.knots.splice(index, 1);
-        this._increasingKnotSequence.decrementKnotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
+        this._increasingKnotSequence.decrementKnotMultiplicityMutSeq(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(indexIncSeq));
         
         const fout = (2 * index - multiplicity - this.degree) / 2;
         this._controlPoints.splice(fout, 1);
