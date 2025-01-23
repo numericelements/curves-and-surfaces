@@ -256,16 +256,20 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             let knotSequence = new IncreasingPeriodicKnotSequenceClosedCurve(this._increasingKnotSequence.maxMultiplicityOrder + 1, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: this._increasingKnotSequence.allAbscissae}) ;
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
+            const knotIndices: Array<KnotIndexStrictlyIncreasingSequence> = [];
             for(let j = i; j < (this._increasingKnotSequence.length() - 1); j += this._degree + 1) {
                 const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
+                knotIndices.push(indexStrctIncreasingSeq);
+                // knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
                 if(j < this._controlPoints.length) {
                     const controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotSequences.push(knotSequence.allAbscissae);
+            const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1);
+            knotSequences.push(knotSequence1.allAbscissae);
+            // knotSequences.push(knotSequence.allAbscissae);
             if(i === 0) {
                 const cp = controlPolygon.splice(0, 1);
                 controlPolygon.splice(controlPolygon.length, 0, cp[0]);
@@ -434,7 +438,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                     newControlPoints[j + 1] = this._controlPoints[j];
                 }
                 if(multiplicity > 0) {
-                    this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                    const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                    this._increasingKnotSequence = updatedSeq.clone();
                 } else if(multiplicity === 0 && t === 0) {
                     this._increasingKnotSequence.insertKnot(u, 1);
                     const newIndex = this._increasingKnotSequence.findSpan(u);

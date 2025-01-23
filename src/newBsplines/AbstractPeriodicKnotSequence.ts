@@ -1,7 +1,7 @@
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot } from "./Knot";
 import { AbstractPeriodicKnotSequenceClosedCurve_type, NO_KNOT_PERIODIC_CURVE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
+import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
@@ -114,6 +114,21 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
             }
         }
         this.checkUniformityOfKnotSpacing();
+        this.checkUniformityOfKnotMultiplicity();
+        this.checkNonUniformKnotMultiplicityOrder();
+    }
+
+    raiseKnotMultiplicityArrayMutSeq(indicesArray: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number): void {
+        if(!Array.isArray(indicesArray)) indicesArray = [indicesArray];
+        for(const index of indicesArray) {
+            if(index.knotIndex < 0) {
+                this.throwRangeErrorMessage("raiseKnotMultiplicity", EM_KNOTINDEX_INC_SEQ_NEGATIVE);
+            }
+            const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+            this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
+            this.checkMaxMultiplicityOrderConsistency();
+            if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+        }
         this.checkUniformityOfKnotMultiplicity();
         this.checkNonUniformKnotMultiplicityOrder();
     }

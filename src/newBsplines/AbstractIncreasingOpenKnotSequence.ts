@@ -7,6 +7,7 @@ import { NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_N
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
+import { adaptParameter } from "./KnotSequenceAndUtilities/adaptParameterNumberArray";
 
 
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
@@ -142,12 +143,6 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         if(normalizedBasisAtEnd.knot.knotIndex <= normalizedBasisAtStart.knot.knotIndex) this.throwRangeErrorMessage("generateKnotSequence", EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT);
     }
 
-    revertSequence(): number[] {
-        const seq = this.clone();
-        seq.revertKnotSequence();
-        return seq.allAbscissae;
-    }
-
     checkSizeConsistency(knots: number[]): void {
         let size = 0;
         for(const multiplicity of this.multiplicities()) {
@@ -186,6 +181,11 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
             index++;
         }
         return knots;
+    }
+
+    @adaptParameter()
+    raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number = 1, checkSequenceConsistency: boolean = true): void {
+        return super.raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices as Array<KnotIndexStrictlyIncreasingSequence>, multiplicity, checkSequenceConsistency);
     }
 
 }

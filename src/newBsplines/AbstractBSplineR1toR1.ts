@@ -181,13 +181,15 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
                 newControlPoints[i + 1] = this._controlPoints[i];
             }
             if(multiplicity > 0) {
-                this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             } else if(multiplicity === 0 && t === 0) {
                 this._increasingKnotSequence.insertKnot(u, 1);
                 const newIndex = this._increasingKnotSequence.findSpan(u);
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             } else {
-                this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             this._controlPoints = newControlPoints.slice();
         }

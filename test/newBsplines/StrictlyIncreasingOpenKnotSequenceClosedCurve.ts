@@ -1426,8 +1426,8 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
             for(let i = maxMultiplicityOrder; i < (seq.length() - maxMultiplicityOrder - 1); i++) {
                 const seq1 = seq.clone()
                 const index = new KnotIndexStrictlyIncreasingSequence(i)
-                seq1.raiseKnotMultiplicity(index, 1, sequenceConsistencyCheck)
-                expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+                const seq2 = seq1.raiseKnotMultiplicity(index, 1, sequenceConsistencyCheck)
+                expect(seq2.isKnotMultiplicityUniform).to.eql(false)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             }
         });
@@ -1443,22 +1443,22 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
             for(let i = 1; i < (seq.length() - 1); i++) {
                 const seq1 = seq.clone()
                 const index = new KnotIndexStrictlyIncreasingSequence(i)
-                seq1.raiseKnotMultiplicity(index, 1, sequenceConsistencyCheck)
-                expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+                const seq2 = seq1.raiseKnotMultiplicity(index, 1, sequenceConsistencyCheck)
+                expect(seq2.isKnotMultiplicityUniform).to.eql(false)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             }
         });
 
         it('can raise the multiplicity of an existing knot with constructor type ' + STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, () => {
-            const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-            const multiplicities: number [] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+            const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+            const multiplicities: number [] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
             const maxMultiplicityOrder = 4
             const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots, multiplicities: multiplicities})
-            const index = seq.findSpan(0.2)
+            const index = seq.findSpan(0.3)
             const sequenceConsistencyCheck = true
-            seq.raiseKnotMultiplicity(index, 1)
-            expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1])
-            expect(() => seq.raiseKnotMultiplicity(index, 2, sequenceConsistencyCheck)).to.throw(EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT)
+            const seq1 = seq.raiseKnotMultiplicity(index, 1)
+            expect(seq1.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1])
+            expect(() => seq1.raiseKnotMultiplicity(index, 2, sequenceConsistencyCheck)).to.throw(EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT)
         });
 
         it('can revert the knot sequence for a uniform B-spline', () => {

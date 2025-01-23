@@ -980,8 +980,8 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
                 const seq1 = seq.clone()
                 const index = new KnotIndexIncreasingSequence(i)
                 const indexStrictInc = seq1.toKnotIndexStrictlyIncreasingSequence(index)
-                seq1.raiseKnotMultiplicity(indexStrictInc, maxMultiplicityOrder, sequenceConsistencyCheck)
-                expect(seq1.multiplicities()[i]).to.eql(maxMultiplicityOrder + 1)
+                const seq2 = seq1.raiseKnotMultiplicity(indexStrictInc, maxMultiplicityOrder, sequenceConsistencyCheck)
+                expect(seq2.multiplicities()[i]).to.eql(maxMultiplicityOrder + 1)
             }
         });
     
@@ -996,8 +996,8 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
                 const seq1 = seq.clone()
                 const index = new KnotIndexIncreasingSequence(i)
                 const indexStrictInc = seq1.toKnotIndexStrictlyIncreasingSequence(index)
-                seq1.raiseKnotMultiplicity(indexStrictInc, 1, sequenceConsistencyCheck)
-                expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+                const seq2 = seq1.raiseKnotMultiplicity(indexStrictInc, 1, sequenceConsistencyCheck)
+                expect(seq2.isKnotMultiplicityUniform).to.eql(false)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             }
         });
@@ -1013,8 +1013,8 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
                 const seq1 = seq.clone()
                 const index = new KnotIndexIncreasingSequence(i)
                 const indexStrictInc = seq1.toKnotIndexStrictlyIncreasingSequence(index)
-                seq1.raiseKnotMultiplicity(indexStrictInc, 1, sequenceConsistencyCheck)
-                expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+                const seq2 = seq1.raiseKnotMultiplicity(indexStrictInc, 1, sequenceConsistencyCheck)
+                expect(seq2.isKnotMultiplicityUniform).to.eql(false)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(true)
             }
         });
@@ -1026,9 +1026,9 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             const index = seq.findSpan(0.2)
             const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
             const sequenceConsistencyCheck = true
-            seq.raiseKnotMultiplicity(indexStrictInc, 1)
-            expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1])
-            expect(() => seq.raiseKnotMultiplicity(indexStrictInc, 2, sequenceConsistencyCheck)).to.throw(EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT)
+            const seq1 = seq.raiseKnotMultiplicity(indexStrictInc, 1)
+            expect(seq1.multiplicities()).to.eql([1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1])
+            expect(() => seq1.raiseKnotMultiplicity(indexStrictInc, 2, sequenceConsistencyCheck)).to.throw(EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT)
         });
 
         it('cannot decrement the multiplicity of a knot when the knot index is out of range with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {

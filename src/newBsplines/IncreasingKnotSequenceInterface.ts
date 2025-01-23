@@ -16,7 +16,7 @@ export interface IncreasingKnotSequenceInterface extends KnotSequenceInterface {
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence;
     findSpan(u: number): KnotIndexIncreasingSequence;
     insertKnot(abscissa: number, multiplicity: number): boolean;
-    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void;
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): IncreasingKnotSequenceInterface;
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean): void;
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[];
     // updateKnotSequenceThroughNormalizedBasisAnalysis(): void;

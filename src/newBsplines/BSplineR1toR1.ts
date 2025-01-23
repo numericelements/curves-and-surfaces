@@ -101,18 +101,27 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         let splineHigherDegree = new BSplineR1toR1(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
         for(let i = 1; i <= this._degree; i += 1) {
             let splineTemp = new BSplineR1toR1(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
-            let j = 0, k = 0;
-            while(j < splineHigherDegree._increasingKnotSequence.length()) {
-                if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
-                    && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) < splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
-                    splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)), 1);
-                } else if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
-                    && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) > splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
-                    splineHigherDegree.insertKnotBoehmAlgorithm(splineTemp.knots[k], 1);
-                }
-                j += 1;
-                k += 1;
+            const strictIncSeq_splineHigherDegree = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(splineHigherDegree._increasingKnotSequence);
+            const strictIncSeq_splineTemp = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(splineTemp._increasingKnotSequence);
+            for(let j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
+                const index = new KnotIndexStrictlyIncreasingSequence(j);
+                if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
+                    splineTemp.insertKnotBoehmAlgorithm(strictIncSeq_splineTemp.abscissaAtIndex(index));
+                if(strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index))
+                    splineHigherDegree.insertKnotBoehmAlgorithm(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
             }
+            // let j = 0, k = 0;
+            // while(j < splineHigherDegree._increasingKnotSequence.length()) {
+            //     if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
+            //         && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) < splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
+            //         splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)), 1);
+            //     } else if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
+            //         && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) > splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
+            //         splineHigherDegree.insertKnotBoehmAlgorithm(splineTemp.knots[k], 1);
+            //     }
+            //     j += 1;
+            //     k += 1;
+            // }
             let tempCPs: number[] = [];
             for(let ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
                 tempCPs[ind] = splineHigherDegree.controlPoints[ind] + splineTemp.controlPoints[ind];
@@ -132,20 +141,25 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         const knotSequences: number[][] = [];
         const controlPolygons: number[][] = [];
         for(let i = 0; i <= this._degree; i += 1) {
-            // let knotSequence = this._increasingKnotSequence.clone();
-            const knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae})
+            let knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae})
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
+            const knotIndices: Array<KnotIndexStrictlyIncreasingSequence> = [];
             for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
                 const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
+                knotIndices.push(indexStrctIncreasingSeq);
+                // const knotSequence1 = knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
+                // const knotSequence2 = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder +  1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knotSequence1.allAbscissae});
+                // knotSequence = knotSequence2.clone();
                 if(j < this._controlPoints.length) {
                     let controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotSequences.push(knotSequence.allAbscissae);
+            const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
+            knotSequences.push(knotSequence1.allAbscissae);
+            // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
         return {
@@ -416,7 +430,7 @@ export class BSplineR1toR1 extends AbstractBSplineR1toR1 {
         for(let i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        const result = new BSplineR1toR1(vertices, this._increasingKnotSequence.revertSequence());
+        const result = new BSplineR1toR1(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
         return result;
     }
 

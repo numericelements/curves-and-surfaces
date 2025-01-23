@@ -223,4 +223,10 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     }
+
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1, checkSequenceConsistency: boolean = true): StrictlyIncreasingOpenKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityMutSeq(index, multiplicity, checkSequenceConsistency);
+        return newKnotSequence;
+    }
 }

@@ -38100,7 +38100,7 @@ var DoubleRoundDotSolidShader = /** @class */ (function () {
             '     gl_FragColor = a_Color; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38167,7 +38167,7 @@ var InsertKnotButtonDialogShader = /** @class */ (function () {
             '     gl_FragColor = vec4(v_Color, 1.0); } \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38214,7 +38214,7 @@ var LineSegmentShader = /** @class */ (function () {
             /*'     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +  */
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38256,7 +38256,7 @@ var PolylineShader = /** @class */ (function () {
             '    gl_FragColor = fColor; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38304,7 +38304,7 @@ var RoundDotSolidShader = /** @class */ (function () {
             '     gl_FragColor = a_Color; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38364,7 +38364,7 @@ var RoundDotTwoLevelsTransparencyShader = /** @class */ (function () {
             '     gl_FragColor = (fColor1+fColor2)/2.0; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38414,7 +38414,7 @@ var SquareDotSolidShader = /** @class */ (function () {
             '    gl_FragColor = fColor; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
@@ -38641,7 +38641,7 @@ var AbstractOptProblemBSplineR1toR2 = /** @class */ (function () {
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._hessian_f0 = (0, DiagonalMatrix_1.identityMatrix)(this._numberOfIndependentVariables);
         this._f = [];
         this._gradient_f = new DenseMatrix_1.DenseMatrix(1, 1);
         this._hessian_f = undefined;
@@ -39066,7 +39066,7 @@ var AbstractOptProblemBSplineR1toR2 = /** @class */ (function () {
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._hessian_f0 = (0, DiagonalMatrix_1.identityMatrix)(this._numberOfIndependentVariables);
         if (this._shapeSpaceDiffEventsStructure.activeControlInflections || this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             // e = this.expensiveComputation(this._spline);
             this._analyticHighOrderCurveDerivatives = this.expensiveComputation(this._spline);
@@ -39149,10 +39149,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -39266,7 +39268,7 @@ var OptProblemOpenBSplineR1toR2 = /** @class */ (function (_super) {
     }
     Object.defineProperty(OptProblemOpenBSplineR1toR2.prototype, "f", {
         get: function () {
-            if (MathVectorBasicOperations_1.containsNaN(this._f)) {
+            if ((0, MathVectorBasicOperations_1.containsNaN)(this._f)) {
                 throw new Error("OptimizationProblem_BSpline_R1_to_R2 contains Nan in its f vector");
             }
             return this._f;
@@ -39297,7 +39299,7 @@ var OptProblemOpenBSplineR1toR2 = /** @class */ (function (_super) {
     OptProblemOpenBSplineR1toR2.prototype.computeBasisFunctionsDerivatives = function () {
         var n = this.spline.controlPoints.length;
         this._numberOfIndependentVariables = n * 2;
-        var diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
+        var diracControlPoints = (0, MathVectorBasicOperations_1.zeroVector)(n);
         var secondOrderSplineDerivatives = [];
         this.dBasisFunctions_du = [];
         this.d2BasisFunctions_du2 = [];
@@ -39317,7 +39319,7 @@ var OptProblemOpenBSplineR1toR2 = /** @class */ (function (_super) {
             }
         }
         if (this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
-            var diracControlPoints_1 = MathVectorBasicOperations_1.zeroVector(n);
+            var diracControlPoints_1 = (0, MathVectorBasicOperations_1.zeroVector)(n);
             for (var i = 0; i < n; i += 1) {
                 diracControlPoints_1[i] = 1;
                 var suuu = secondOrderSplineDerivatives[i].derivative();
@@ -39364,7 +39366,7 @@ var OptProblemOpenBSplineR1toR2 = /** @class */ (function (_super) {
         var polygon = new PolygonWithVerticesR1_1.PolygonWithVerticesR1(controlPoints);
         var oscillatingPolygons = polygon.extractOscillatingPolygons();
         if (oscillatingPolygons.length !== 0) {
-            var oscillatingPolygonsWithAdjacency = OscillatingPolygonWithVerticesR1_1.extractAdjacentOscillatingPolygons(oscillatingPolygons);
+            var oscillatingPolygonsWithAdjacency = (0, OscillatingPolygonWithVerticesR1_1.extractAdjacentOscillatingPolygons)(oscillatingPolygons);
             try {
                 for (var oscillatingPolygonsWithAdjacency_1 = __values(oscillatingPolygonsWithAdjacency), oscillatingPolygonsWithAdjacency_1_1 = oscillatingPolygonsWithAdjacency_1.next(); !oscillatingPolygonsWithAdjacency_1_1.done; oscillatingPolygonsWithAdjacency_1_1 = oscillatingPolygonsWithAdjacency_1.next()) {
                     var oscillatingPolyWithAdj = oscillatingPolygonsWithAdjacency_1_1.value;
@@ -40026,7 +40028,7 @@ var OptProblemOPenBSplineR1toR2WithWeigthingFactors = /** @class */ (function (_
      */
     OptProblemOPenBSplineR1toR2WithWeigthingFactors.prototype.f0Step = function (step) {
         var splineTemp = this._spline.clone();
-        splineTemp = splineTemp.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(step));
+        splineTemp = splineTemp.moveControlPoints((0, AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d)(step));
         var gradient = this.compute_gradient_f0(splineTemp);
         var n = gradient.length;
         var result = 0;
@@ -40114,7 +40116,7 @@ var OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities 
             this._inflectionInactiveConstraints = [];
             this._curvatureExtremaInactiveConstraints = [];
         }
-        this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+        this._spline = this.spline.moveControlPoints((0, AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d)(deltaX));
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
         // e = this.expensiveComputation(this._spline);
@@ -40158,7 +40160,7 @@ var OptProblemOPenBSplineR1toR2WithWeigthingFactorsEventMonitoringAtExtremities 
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._hessian_f0 = (0, DiagonalMatrix_1.identityMatrix)(this._numberOfIndependentVariables);
         this._inflectionInactiveConstraints = [];
         this._curvatureExtremaInactiveConstraints = [];
         // let e: ExpensiveComputationResults = this.initExpansiveComputations();
@@ -40312,14 +40314,14 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         for (var i = 0; i < _this._curvatureNumeratorCP.length; i += 1) {
             _this.revertInflectionsConstraints.push(1);
         }
-        _this.inflectionsConstraintsBounds = MathVectorBasicOperations_1.zeroVector(_this._curvatureNumeratorCP.length);
+        _this.inflectionsConstraintsBounds = (0, MathVectorBasicOperations_1.zeroVector)(_this._curvatureNumeratorCP.length);
         if (_this._shapeSpaceDiffEventsStructure.activeControlCurvatureExtrema) {
             _this.constraintType = AbstractOptProblemBSplineR1toR2_1.ConstraintType.curvatureExtrema;
             _this._curvatureExtremaInactiveConstraints = _this.computeInactiveConstraints(_this._curvatureDerivativeNumeratorCP);
             _this.curvatureExtremaNumberOfActiveConstraints = _this._curvatureDerivativeNumeratorCP.length - _this.curvatureExtremaInactiveConstraints.length;
         }
         _this.controlPointsFunctionBInit = _this._curvatureDerivativeNumeratorCP;
-        _this.curvatureExtremaConstraintBounds = MathVectorBasicOperations_1.zeroVector(_this._curvatureDerivativeNumeratorCP.length);
+        _this.curvatureExtremaConstraintBounds = (0, MathVectorBasicOperations_1.zeroVector)(_this._curvatureDerivativeNumeratorCP.length);
         for (var i = 0; i < _this._curvatureDerivativeNumeratorCP.length; i += 1) {
             _this.revertCurvatureExtremaConstraints.push(1);
         }
@@ -41097,7 +41099,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
                     finally { if (e_10) throw e_10.error; }
                 }
                 var splineCurrent = this.spline.clone();
-                this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+                this._spline = this.spline.moveControlPoints((0, AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d)(deltaX));
                 var splineDPupdated = new BSplineR1toR2DifferentialProperties_1.BSplineR1toR2DifferentialProperties(this.spline);
                 var functionBupdated = splineDPupdated.curvatureDerivativeNumerator();
                 var curvatureExtremaLocationsUpdated = functionBupdated.zeros();
@@ -41127,11 +41129,11 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
                 }
             }
             else {
-                this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+                this._spline = this.spline.moveControlPoints((0, AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d)(deltaX));
             }
         }
         else {
-            this._spline = this.spline.moveControlPoints(AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d(deltaX));
+            this._spline = this.spline.moveControlPoints((0, AbstractOptProblemBSplineR1toR2_1.convertStepToVector2d)(deltaX));
             this._iteratedCurves.push(this.spline);
         }
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
@@ -41192,7 +41194,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         this._numberOfIndependentVariables = this._spline.freeControlPoints.length * 2;
         this._gradient_f0 = this.compute_gradient_f0(this._spline);
         this._f0 = this.compute_f0(this._gradient_f0);
-        this._hessian_f0 = DiagonalMatrix_1.identityMatrix(this._numberOfIndependentVariables);
+        this._hessian_f0 = (0, DiagonalMatrix_1.identityMatrix)(this._numberOfIndependentVariables);
         this._inflectionInactiveConstraints = [];
         this._curvatureExtremaInactiveConstraints = [];
         this.curveAnalyzerCurrentCurve = this._diffEventsVariation.curveAnalyser1;
@@ -41221,7 +41223,7 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         }
         this.controlPointsFunctionBInit = this._curvatureDerivativeNumeratorCP;
         // if(this.neighboringEvent.event !== NeighboringEventsType.none) console.log("B(u) control points at init:" + this.currentCurvatureExtremaControPoints)
-        this.curvatureExtremaConstraintBounds = MathVectorBasicOperations_1.zeroVector(this._curvatureDerivativeNumeratorCP.length);
+        this.curvatureExtremaConstraintBounds = (0, MathVectorBasicOperations_1.zeroVector)(this._curvatureDerivativeNumeratorCP.length);
         for (var i = 0; i < this._curvatureDerivativeNumeratorCP.length; i += 1) {
             this.revertCurvatureExtremaConstraints[i] = 1;
         }
@@ -41242,11 +41244,11 @@ var OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = /** @class
         // this._diffEventsVariation.neighboringEvents = [];
         //const e = this.expensiveComputation(this.spline)  
         //const g = this.curvatureDerivativeNumerator(e.h1, e.h2, e.h3, e.h4)
-        this.curvatureExtremaConstraintBounds = MathVectorBasicOperations_1.zeroVector(this.curvatureExtremaConstraintBounds.length);
+        this.curvatureExtremaConstraintBounds = (0, MathVectorBasicOperations_1.zeroVector)(this.curvatureExtremaConstraintBounds.length);
         for (var i = 0; i < this.revertCurvatureExtremaConstraints.length; i += 1) {
             this.revertCurvatureExtremaConstraints[i] = 1;
         }
-        var delta = MathVectorBasicOperations_1.zeroVector(this.spline.controlPoints.length * 2);
+        var delta = (0, MathVectorBasicOperations_1.zeroVector)(this.spline.controlPoints.length * 2);
         this.step(delta);
         this.checkConstraintConsistency();
     };
@@ -41269,10 +41271,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -42010,7 +42014,7 @@ var OptProblemPeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         var n = this.spline.controlPoints.length;
         var m = this.spline.freeControlPoints.length;
         this._numberOfIndependentVariables = m * 2;
-        var diracControlPoints = MathVectorBasicOperations_1.zeroVector(n);
+        var diracControlPoints = (0, MathVectorBasicOperations_1.zeroVector)(n);
         this.dBasisFunctions_du = [];
         this.d2BasisFunctions_du2 = [];
         this.d3BasisFunctions_du3 = [];
@@ -42195,10 +42199,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -43477,10 +43483,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -43669,10 +43677,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -43810,7 +43820,7 @@ var PolygonWithVerticesR1 = /** @class */ (function (_super) {
     PolygonWithVerticesR1.prototype.extractLocalPositiveMinima = function () {
         this._localPositiveMinima = [];
         for (var i = 0; i < this._vertices.length - 2; i += 1) {
-            if (MathVectorBasicOperations_1.sign(this._vertices[i].value) === 1 && MathVectorBasicOperations_1.sign(this._vertices[i + 1].value) === 1 && MathVectorBasicOperations_1.sign(this._vertices[i + 2].value) === 1) {
+            if ((0, MathVectorBasicOperations_1.sign)(this._vertices[i].value) === 1 && (0, MathVectorBasicOperations_1.sign)(this._vertices[i + 1].value) === 1 && (0, MathVectorBasicOperations_1.sign)(this._vertices[i + 2].value) === 1) {
                 if (this._vertices[i].value > this._vertices[i + 1].value && this._vertices[i + 1].value < this._vertices[i + 2].value) {
                     this._localPositiveMinima.push(new VertexR1_1.VertexR1((i + 1), this._vertices[i + 1].value));
                 }
@@ -43820,7 +43830,7 @@ var PolygonWithVerticesR1 = /** @class */ (function (_super) {
     PolygonWithVerticesR1.prototype.extractLocalNegativeMaxima = function () {
         this._localNegativeMaxima = [];
         for (var i = 0; i < this._vertices.length - 2; i += 1) {
-            if (MathVectorBasicOperations_1.sign(this._vertices[i].value) === -1 && MathVectorBasicOperations_1.sign(this._vertices[i + 1].value) === -1 && MathVectorBasicOperations_1.sign(this._vertices[i + 2].value) === -1) {
+            if ((0, MathVectorBasicOperations_1.sign)(this._vertices[i].value) === -1 && (0, MathVectorBasicOperations_1.sign)(this._vertices[i + 1].value) === -1 && (0, MathVectorBasicOperations_1.sign)(this._vertices[i + 2].value) === -1) {
                 if (this._vertices[i].value < this._vertices[i + 1].value && this._vertices[i + 1].value > this._vertices[i + 2].value) {
                     this._localNegativeMaxima.push(new VertexR1_1.VertexR1((i + 1), this._vertices[i + 1].value));
                 }
@@ -43922,10 +43932,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -44191,10 +44203,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -44406,10 +44420,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -45383,10 +45399,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -46372,10 +46390,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -47288,10 +47308,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -47403,10 +47425,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -47462,10 +47486,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -47646,7 +47672,7 @@ var OpenCurveAnalyzer = /** @class */ (function (_super) {
     }
     Object.defineProperty(OpenCurveAnalyzer.prototype, "sequenceOfDifferentialEvents", {
         get: function () {
-            return SequenceOfDifferentialEvents_1.deepCopySequenceOfDifferentialEvents(this._sequenceOfDifferentialEvents);
+            return (0, SequenceOfDifferentialEvents_1.deepCopySequenceOfDifferentialEvents)(this._sequenceOfDifferentialEvents);
         },
         enumerable: false,
         configurable: true
@@ -48262,7 +48288,7 @@ var ExtremumLocationClassifier = /** @class */ (function () {
     }
     ExtremumLocationClassifier.prototype.getLocalMinima = function () {
         for (var i = 0; i < this.controlPoints.length - 2; i += 1) {
-            if (MathVectorBasicOperations_1.sign(this.controlPoints[i]) === 1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 1]) === 1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 2]) === 1) {
+            if ((0, MathVectorBasicOperations_1.sign)(this.controlPoints[i]) === 1 && (0, MathVectorBasicOperations_1.sign)(this.controlPoints[i + 1]) === 1 && (0, MathVectorBasicOperations_1.sign)(this.controlPoints[i + 2]) === 1) {
                 if (this.controlPoints[i] > this.controlPoints[i + 1] && this.controlPoints[i + 1] < this.controlPoints[i + 2]) {
                     this._localExtremum.push({ index: (i + 1), value: this.controlPoints[i + 1] });
                 }
@@ -48271,7 +48297,7 @@ var ExtremumLocationClassifier = /** @class */ (function () {
     };
     ExtremumLocationClassifier.prototype.getLocalMaxima = function () {
         for (var i = 0; i < this.controlPoints.length - 2; i += 1) {
-            if (MathVectorBasicOperations_1.sign(this.controlPoints[i]) === -1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 1]) === -1 && MathVectorBasicOperations_1.sign(this.controlPoints[i + 2]) === -1) {
+            if ((0, MathVectorBasicOperations_1.sign)(this.controlPoints[i]) === -1 && (0, MathVectorBasicOperations_1.sign)(this.controlPoints[i + 1]) === -1 && (0, MathVectorBasicOperations_1.sign)(this.controlPoints[i + 2]) === -1) {
                 if (this.controlPoints[i] < this.controlPoints[i + 1] && this.controlPoints[i + 1] > this.controlPoints[i + 2]) {
                     this._localExtremum.push({ index: (i + 1), value: this.controlPoints[i + 1] });
                 }
@@ -48331,10 +48357,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -48456,10 +48484,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -48514,10 +48544,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -48659,8 +48691,9 @@ exports.CurveConstraintNoConstraint = CurveConstraintNoConstraint;
 var CurveConstraintClampedFirstControlPoint = /** @class */ (function (_super) {
     __extends(CurveConstraintClampedFirstControlPoint, _super);
     function CurveConstraintClampedFirstControlPoint(curveConstraints) {
+        var _this = this;
         var _a, _b;
-        var _this = _super.call(this, curveConstraints) || this;
+        _this = _super.call(this, curveConstraints) || this;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -48726,7 +48759,7 @@ var CurveConstraintClampedFirstControlPoint = /** @class */ (function (_super) {
     CurveConstraintClampedFirstControlPoint.prototype.relocateCurveAfterOptimization = function () {
         var e_1, _a;
         this.updateCurve();
-        var controlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._optimizedCurve.controlPoints);
+        var controlPoints = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this._optimizedCurve.controlPoints);
         if (this._curveShapeSpaceNavigator !== undefined
             && this.displacementCurrentCurveControlPolygon !== undefined) {
             this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
@@ -48798,8 +48831,9 @@ exports.CurveConstraintClampedFirstControlPoint = CurveConstraintClampedFirstCon
 var CurveConstraintClampedLastControlPoint = /** @class */ (function (_super) {
     __extends(CurveConstraintClampedLastControlPoint, _super);
     function CurveConstraintClampedLastControlPoint(curveConstraints) {
+        var _this = this;
         var _a, _b;
-        var _this = _super.call(this, curveConstraints) || this;
+        _this = _super.call(this, curveConstraints) || this;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -48865,7 +48899,7 @@ var CurveConstraintClampedLastControlPoint = /** @class */ (function (_super) {
     CurveConstraintClampedLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
         var e_3, _a;
         this.updateCurve();
-        var controlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._optimizedCurve.controlPoints);
+        var controlPoints = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this._optimizedCurve.controlPoints);
         if (this._curveShapeSpaceNavigator !== undefined &&
             this.displacementCurrentCurveControlPolygon !== undefined) {
             this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
@@ -48937,8 +48971,9 @@ exports.CurveConstraintClampedLastControlPoint = CurveConstraintClampedLastContr
 var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_super) {
     __extends(CurveConstraintClampedFirstAndLastControlPoint, _super);
     function CurveConstraintClampedFirstAndLastControlPoint(curveConstraints) {
+        var _this = this;
         var _a, _b;
-        var _this = _super.call(this, curveConstraints) || this;
+        _this = _super.call(this, curveConstraints) || this;
         if (_this.shapeNavigableCurve.curveShapeSpaceNavigator !== undefined) {
             _this._curveShapeSpaceNavigator = _this.shapeNavigableCurve.curveShapeSpaceNavigator;
         }
@@ -49008,7 +49043,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
     CurveConstraintClampedFirstAndLastControlPoint.prototype.relocateCurveAfterOptimization = function () {
         var e_5, _a;
         if (this._curveShapeSpaceNavigator !== undefined && this.displacementCurrentCurveControlPolygon !== undefined) {
-            var controlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this.optimizedCurve.controlPoints);
+            var controlPoints = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this.optimizedCurve.controlPoints);
             var nbControlPts = this.displacementCurrentCurveControlPolygon.length;
             this._curveShapeSpaceNavigator.navigationCurveModel.curveDisplacement();
             if (Math.abs(this.displacementCurrentCurveControlPolygon[nbControlPts - 1].substract(this.displacementCurrentCurveControlPolygon[0]).norm()) < exports.TOL_LOCATION_CURVE_REFERENCE_POINTS) {
@@ -49096,7 +49131,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         if (signAngle < 0.0)
             angle = -angle;
         var rotationMatrix = new SquareMatrix_1.SquareMatrix(2, [Math.cos(angle), Math.sin(angle), -Math.sin(angle), Math.cos(angle)]);
-        var controlPointsOptCrv = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._optimizedCurve.controlPoints);
+        var controlPointsOptCrv = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this._optimizedCurve.controlPoints);
         var relocatedCtrlPts = [];
         try {
             for (var controlPointsOptCrv_1 = __values(controlPointsOptCrv), controlPointsOptCrv_1_1 = controlPointsOptCrv_1.next(); !controlPointsOptCrv_1_1.done; controlPointsOptCrv_1_1 = controlPointsOptCrv_1.next()) {
@@ -49113,7 +49148,7 @@ var CurveConstraintClampedFirstAndLastControlPoint = /** @class */ (function (_s
         }
         for (var i = 0; i < controlPointsOptCrv.length; i++) {
             var vertexLoc = controlPointsOptCrv[i].substract(refPt1optCurve);
-            var vertexRot = Vector2d_1.toVector2d(rotationMatrix.multiplyByVector(vertexLoc.toArray()));
+            var vertexRot = (0, Vector2d_1.toVector2d)(rotationMatrix.multiplyByVector(vertexLoc.toArray()));
             relocatedCtrlPts[i] = vertexRot.add(refPt1optCurve).substract(displacement);
         }
         this._optimizedCurve.controlPoints = relocatedCtrlPts;
@@ -49852,10 +49887,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -50374,10 +50411,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -51569,10 +51608,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -52024,10 +52065,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -52132,7 +52175,7 @@ var FileController = /** @class */ (function () {
     FileController.prototype.saveCurveToFile = function (currentFileName) {
         if (this._curveModel !== undefined) {
             var curveBlob = new Blob([JSON.stringify(this._curveModel.spline.knots) + JSON.stringify(this._curveModel.spline.controlPoints)], { type: "application/json", });
-            file_saver_1.saveAs(curveBlob, currentFileName);
+            (0, file_saver_1.saveAs)(curveBlob, currentFileName);
         }
         else {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "saveCurveToFile", "Cannot save the current curve to a file. Undefined curve model.");
@@ -52173,11 +52216,11 @@ var FileController = /** @class */ (function () {
             }
             finally { if (e_1) throw e_1.error; }
         }
-        var tmpSpline = BSplineR1toR2_1.create_BSplineR1toR2V2d(CPs, knots);
+        var tmpSpline = (0, BSplineR1toR2_1.create_BSplineR1toR2V2d)(CPs, knots);
         return tmpSpline;
     };
     FileController.prototype.resetCurveContext = function (knots, controlPoints) {
-        var newSpline = BSplineR1toR2_1.create_BSplineR1toR2V2d(controlPoints, knots);
+        var newSpline = (0, BSplineR1toR2_1.create_BSplineR1toR2V2d)(controlPoints, knots);
         if (this._curveModel !== undefined) {
             this._curveModel.setSpline(newSpline);
             this.curveModeler.notifyObservers();
@@ -53142,7 +53185,7 @@ var SymmetricMatrix = /** @class */ (function () {
         return result;
     };
     SymmetricMatrix.prototype.containsNaN = function () {
-        return MathVectorBasicOperations_1.containsNaN(this.data);
+        return (0, MathVectorBasicOperations_1.containsNaN)(this.data);
     };
     return SymmetricMatrix;
 }());
@@ -53300,9 +53343,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Optimizer = exports.OptimizerReturnStatus = void 0;
@@ -53341,7 +53389,7 @@ var Optimizer = /** @class */ (function () {
         var eta = 0.1; // [0, 1/4)
         var mu = 10; // Bibliographic reference: Convex Optimization, Stephen Boyd and Lieven Vandenberghe, p. 569
         /* JCL 2020/09/18 Collect the elementary steps prior to shift the control polygon */
-        var globalStep = MathVectorBasicOperations_3.zeroVector(this.optimizationProblem.f.length);
+        var globalStep = (0, MathVectorBasicOperations_3.zeroVector)(this.optimizationProblem.f.length);
         // JCL 05/03/2021 add the use of checked to take into account the curve analysis
         var checked = true;
         while (this.optimizationProblem.numberOfConstraints / t > epsilon) {
@@ -53353,7 +53401,7 @@ var Optimizer = /** @class */ (function () {
                     console.log("Problem about f length and gradient_f shape 0 is in the function optimize_using_trust_region");
                 }
                 var b = this.barrier(this.optimizationProblem.f, this.optimizationProblem.gradient_f, this.optimizationProblem.hessian_f);
-                var gradient = MathVectorBasicOperations_2.saxpy2(t, this.optimizationProblem.gradient_f0, b.gradient);
+                var gradient = (0, MathVectorBasicOperations_2.saxpy2)(t, this.optimizationProblem.gradient_f0, b.gradient);
                 var hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.optimizationProblem.hessian_f0, t);
                 var trustRegionSubproblem = new TrustRegionSubproblem_1.TrustRegionSubproblem(gradient, hessian);
                 var tr = trustRegionSubproblem.solve(trustRadius);
@@ -53371,7 +53419,7 @@ var Optimizer = /** @class */ (function () {
                 }
                 var barrierValueStep = this.barrierValue(fStep);
                 var actualReduction = t * (this.optimizationProblem.f0 - this.optimizationProblem.f0Step(tr.step)) + (b.value - barrierValueStep);
-                var predictedReduction = -MathVectorBasicOperations_1.dotProduct(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
+                var predictedReduction = -(0, MathVectorBasicOperations_1.dotProduct)(gradient, tr.step) - 0.5 * hessian.quadraticForm(tr.step);
                 /* JCL 2020/09/17 update the global step */
                 for (var i = 0; i < this.optimizationProblem.f.length; i += 1) {
                     globalStep[i] += tr.step[i];
@@ -53447,14 +53495,14 @@ var Optimizer = /** @class */ (function () {
                 numSteps += 1;
                 //console.log(numSteps) 
                 var b = this.barrier(this.optimizationProblem.f, this.optimizationProblem.gradient_f, this.optimizationProblem.hessian_f);
-                var gradient = MathVectorBasicOperations_2.saxpy2(t, this.optimizationProblem.gradient_f0, b.gradient);
+                var gradient = (0, MathVectorBasicOperations_2.saxpy2)(t, this.optimizationProblem.gradient_f0, b.gradient);
                 var hessian = b.hessian.plusSymmetricMatrixMultipliedByValue(this.optimizationProblem.hessian_f0, t);
                 var newtonStep = this.computeNewtonStep(gradient, hessian);
                 var stepRatio = this.backtrackingLineSearch(t, newtonStep, this.optimizationProblem.f0, b.value, this.optimizationProblem.gradient_f0, b.gradient);
                 if (stepRatio < 1) {
                     //console.log(stepRatio)
                 }
-                var step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, stepRatio);
+                var step = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(newtonStep, stepRatio);
                 /*
                 if (Math.max(...this.o.fStep(step)) > 0) {
                     console.log(Math.max(...this.o.fStep(step)))
@@ -53493,7 +53541,7 @@ var Optimizer = /** @class */ (function () {
         //console.log(numSteps)
     };
     Optimizer.prototype.newtonDecrementSquared = function (newtonStep, t, gradient_f0, barrierGradient) {
-        return -MathVectorBasicOperations_1.dotProduct(MathVectorBasicOperations_2.saxpy2(t, gradient_f0, barrierGradient), newtonStep);
+        return -(0, MathVectorBasicOperations_1.dotProduct)((0, MathVectorBasicOperations_2.saxpy2)(t, gradient_f0, barrierGradient), newtonStep);
     };
     Optimizer.prototype.barrierValue = function (f) {
         //console.log(f)
@@ -53505,7 +53553,7 @@ var Optimizer = /** @class */ (function () {
         return result;
     };
     Optimizer.prototype.barrierGradient = function (f, gradient_f) {
-        var result = MathVectorBasicOperations_3.zeroVector(gradient_f.shape[1]);
+        var result = (0, MathVectorBasicOperations_3.zeroVector)(gradient_f.shape[1]);
         var n = f.length;
         var m = gradient_f.shape[1];
         if (n !== gradient_f.shape[0]) {
@@ -53565,15 +53613,15 @@ var Optimizer = /** @class */ (function () {
         var beta = 0.5;
         var result = 1;
         var step = newtonStep.slice();
-        while (Math.max.apply(Math, __spread(this.optimizationProblem.fStep(step))) > 0) {
+        while (Math.max.apply(Math, __spreadArray([], __read(this.optimizationProblem.fStep(step)), false)) > 0) {
             result *= beta;
             //console.log(Math.max(...this.o.fStep(step)))
-            step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, result);
+            step = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(newtonStep, result);
         }
         while (t * this.optimizationProblem.f0Step(step) + this.barrierValue(this.optimizationProblem.fStep(step)) > t * f0 + barrierValue
-            + alpha * result * MathVectorBasicOperations_1.dotProduct(MathVectorBasicOperations_1.addTwoVectors(MathVectorBasicOperations_1.multiplyVectorByScalar(gradient_f0, t), barrierGradient), newtonStep)) {
+            + alpha * result * (0, MathVectorBasicOperations_1.dotProduct)((0, MathVectorBasicOperations_1.addTwoVectors)((0, MathVectorBasicOperations_1.multiplyVectorByScalar)(gradient_f0, t), barrierGradient), newtonStep)) {
             result *= beta;
-            step = MathVectorBasicOperations_1.multiplyVectorByScalar(newtonStep, result);
+            step = (0, MathVectorBasicOperations_1.multiplyVectorByScalar)(newtonStep, result);
         }
         return result;
     };
@@ -53582,7 +53630,7 @@ var Optimizer = /** @class */ (function () {
         if (choleskyDecomposition.success === false) {
             console.log("choleskyDecomposition failed");
         }
-        return choleskyDecomposition.solve(MathVectorBasicOperations_1.multiplyVectorByScalar(gradient, -1));
+        return choleskyDecomposition.solve((0, MathVectorBasicOperations_1.multiplyVectorByScalar)(gradient, -1));
     };
     return Optimizer;
 }());
@@ -53649,14 +53697,14 @@ var TrustRegionSubproblem = /** @class */ (function () {
         this.range = lambdaRange.F;
         this.lambdaPlus = 0;
         this.hardCase = false;
-        this.gNorm = MathVectorBasicOperations_1.norm(this.gradient);
-        if (MathVectorBasicOperations_1.containsNaN(gradient)) {
+        this.gNorm = (0, MathVectorBasicOperations_1.norm)(this.gradient);
+        if ((0, MathVectorBasicOperations_1.containsNaN)(gradient)) {
             throw new Error("The gradient parameter passed to the TrustRegionSubproblem constructor contains NaN");
         }
         if (hessian.containsNaN()) {
             throw new Error("The hessian parameter passed to the TrustRegionSubproblem to constructor contains NaN");
         }
-        this.cauchyPoint = MathVectorBasicOperations_8.zeroVector(this.gradient.length);
+        this.cauchyPoint = (0, MathVectorBasicOperations_8.zeroVector)(this.gradient.length);
     }
     /**
      * Find the nearly exact trust region subproblem minimizer
@@ -53733,8 +53781,8 @@ var TrustRegionSubproblem = /** @class */ (function () {
      */
     TrustRegionSubproblem.prototype.update_step_and_range = function (trustRegionRadius, choleskyDecomposition) {
         if (choleskyDecomposition.success) {
-            this.step = choleskyDecomposition.solve(MathVectorBasicOperations_4.multiplyVectorByScalar(this.gradient, -1));
-            this.stepSquaredNorm = MathVectorBasicOperations_3.squaredNorm(this.step);
+            this.step = choleskyDecomposition.solve((0, MathVectorBasicOperations_4.multiplyVectorByScalar)(this.gradient, -1));
+            this.stepSquaredNorm = (0, MathVectorBasicOperations_3.squaredNorm)(this.step);
             this.stepNorm = Math.sqrt(this.stepSquaredNorm);
             if (this.stepNorm < trustRegionRadius) {
                 this.range = lambdaRange.G;
@@ -53769,7 +53817,7 @@ var TrustRegionSubproblem = /** @class */ (function () {
         if (this.range === lambdaRange.L || this.range === lambdaRange.G) {
             // Step 3a. Solve Lw = step and set lambdaPlus (algorithm 7.3.1)
             var w = solveLowerTriangular(choleskyDecomposition.g, this.step);
-            var wSquaredNorm = MathVectorBasicOperations_3.squaredNorm(w);
+            var wSquaredNorm = (0, MathVectorBasicOperations_3.squaredNorm)(w);
             this.lambdaPlus = this.lambda.current + (this.stepNorm / trustRegionRadius - 1) * (this.stepSquaredNorm / wSquaredNorm);
             // Step 3b. If lambda in G
             if (this.range === lambdaRange.G) {
@@ -53787,8 +53835,8 @@ var TrustRegionSubproblem = /** @class */ (function () {
                 else {
                     t = intersection.tmax;
                 }
-                MathVectorBasicOperations_7.saxpy(t, s_min.vector, this.step);
-                this.stepSquaredNorm = MathVectorBasicOperations_3.squaredNorm(this.step);
+                (0, MathVectorBasicOperations_7.saxpy)(t, s_min.vector, this.step);
+                this.stepSquaredNorm = (0, MathVectorBasicOperations_3.squaredNorm)(this.step);
                 this.stepNorm = Math.sqrt(this.stepSquaredNorm);
             }
         }
@@ -53796,7 +53844,7 @@ var TrustRegionSubproblem = /** @class */ (function () {
             // Step 3c. Use the partial factorization to find delta and v such that (H(lambda) + delta e_k e_k^T) v = 0
             var sls = singularLeadingSubmatrix(hessianPlusLambda, choleskyDecomposition.g, choleskyDecomposition.firstNonPositiveDefiniteLeadingSubmatrixSize);
             // Step 3d. Replace lambda.lb by max [ lambda_lb, lambda_current + delta / || v ||^2 ]
-            var vSquaredNorm = MathVectorBasicOperations_3.squaredNorm(sls.vector);
+            var vSquaredNorm = (0, MathVectorBasicOperations_3.squaredNorm)(sls.vector);
             this.lambda.lowerBound = Math.max(this.lambda.lowerBound, this.lambda.current + sls.delta / vSquaredNorm);
             //lambda.current = Math.max(Math.sqrt(lambda.lb * lambda.ub), lambda.lb + this.UPDATE_COEFF * (lambda.ub - lambda.lb));
         }
@@ -53812,8 +53860,8 @@ var TrustRegionSubproblem = /** @class */ (function () {
         // Algorithm 7.3.5, Step 1. If lambda is in F and | ||s(lambda)|| - trustRegionRadius | <= k_easy * trustRegionRadius
         if ((this.range === lambdaRange.L || this.range === lambdaRange.G) && Math.abs(this.stepNorm - trustRegionRadius) <= this.k_easy * trustRegionRadius) {
             // Added test to make sure that the result is better than the Cauchy point
-            var evalResult = MathVectorBasicOperations_6.dotProduct(this.gradient, this.step) + 0.5 * this.hessian.quadraticForm(this.step);
-            var evalCauchy = MathVectorBasicOperations_6.dotProduct(this.gradient, this.cauchyPoint) + 0.5 * this.hessian.quadraticForm(this.cauchyPoint);
+            var evalResult = (0, MathVectorBasicOperations_6.dotProduct)(this.gradient, this.step) + 0.5 * this.hessian.quadraticForm(this.step);
+            var evalCauchy = (0, MathVectorBasicOperations_6.dotProduct)(this.gradient, this.cauchyPoint) + 0.5 * this.hessian.quadraticForm(this.cauchyPoint);
             if (evalResult > evalCauchy) {
                 return false;
             }
@@ -53836,7 +53884,12 @@ var TrustRegionSubproblem = /** @class */ (function () {
             //let alpha = s_min.value
             //let u = s_min.vector
             var intersection = getBoundariesIntersections(this.step, s_min.vector, trustRegionRadius);
-            var t_abs_max = void 0;
+            var t_abs_max 
+            // To do : explain better why > instead of <
+            // relative_error is smaller for <
+            // it seems that we need the worst case to make sure the result is a better solution
+            // than the Cauchy point
+            = void 0;
             // To do : explain better why > instead of <
             // relative_error is smaller for <
             // it seems that we need the worst case to make sure the result is a better solution
@@ -53894,18 +53947,18 @@ var TrustRegionSubproblem = /** @class */ (function () {
     TrustRegionSubproblem.prototype.computeCauchyPoint = function (trustRegionRadius) {
         // Bibliographic referece: Numerical Optimizatoin, second edition, Nocedal and Wright, p. 71-72
         var gHg = this.hessian.quadraticForm(this.gradient);
-        var gNorm = MathVectorBasicOperations_1.norm(this.gradient);
+        var gNorm = (0, MathVectorBasicOperations_1.norm)(this.gradient);
         // return a zero step if the gradient is zero
         if (gNorm === 0) {
-            return MathVectorBasicOperations_8.zeroVector(this.gradient.length);
+            return (0, MathVectorBasicOperations_8.zeroVector)(this.gradient.length);
         }
-        var result = MathVectorBasicOperations_4.multiplyVectorByScalar(this.gradient, -trustRegionRadius / gNorm);
+        var result = (0, MathVectorBasicOperations_4.multiplyVectorByScalar)(this.gradient, -trustRegionRadius / gNorm);
         if (gHg <= 0) {
             return result;
         }
         var tau = Math.pow(gNorm, 3) / trustRegionRadius / gHg;
         if (tau < 1) {
-            return MathVectorBasicOperations_4.multiplyVectorByScalar(result, tau);
+            return (0, MathVectorBasicOperations_4.multiplyVectorByScalar)(result, tau);
         }
         return result;
     };
@@ -53928,8 +53981,8 @@ var TrustRegionSubproblem = /** @class */ (function () {
             hessianInfiniteNorm = Math.max(hessianInfiniteNorm, tempInfiniteNorm);
             minHessianDiagonal = Math.min(minHessianDiagonal, this.hessian.get(i, i));
         }
-        var lowerBound = Math.max(0, Math.max(-minHessianDiagonal, MathVectorBasicOperations_1.norm(this.gradient) / trustRegionRadius - Math.min(gershgorin.upperBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm))));
-        var upperBound = Math.max(0, MathVectorBasicOperations_1.norm(this.gradient) / trustRegionRadius + Math.min(-gershgorin.lowerBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm)));
+        var lowerBound = Math.max(0, Math.max(-minHessianDiagonal, (0, MathVectorBasicOperations_1.norm)(this.gradient) / trustRegionRadius - Math.min(gershgorin.upperBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm))));
+        var upperBound = Math.max(0, (0, MathVectorBasicOperations_1.norm)(this.gradient) / trustRegionRadius + Math.min(-gershgorin.lowerBound, Math.min(hessianFrobeniusNorm, hessianInfiniteNorm)));
         var lambda_initial;
         if (lowerBound === 0) {
             lambda_initial = 0;
@@ -53961,7 +54014,7 @@ function singularLeadingSubmatrix(A, L, k) {
     var delta = 0;
     var l = new SquareMatrix_1.SquareMatrix(k);
     var v = [];
-    var u = MathVectorBasicOperations_8.zeroVector(k);
+    var u = (0, MathVectorBasicOperations_8.zeroVector)(k);
     for (var j = 0; j < k - 1; j += 1) {
         delta += Math.pow(L.get(k - 1, j), 2);
     }
@@ -53972,7 +54025,7 @@ function singularLeadingSubmatrix(A, L, k) {
         }
         u[i] = L.get(k - 1, i);
     }
-    v = MathVectorBasicOperations_8.zeroVector(A.shape[0]);
+    v = (0, MathVectorBasicOperations_8.zeroVector)(A.shape[0]);
     v[k - 1] = 1;
     if (k !== 1) {
         var vtemp = solveLowerTriangular(l, u);
@@ -53993,8 +54046,8 @@ function estimateSmallestSingularValue(lowerTriangular) {
     // Bibliographic reference :  Golub, G. H., Van Loan, C. F. (2013), "Matrix computations". Forth Edition. JHU press. pp. 140-142.
     // Web reference: https://github.com/scipy/scipy/blob/master/scipy/optimize/_trustregion_exact.py
     var n = lowerTriangular.shape[0];
-    var p = MathVectorBasicOperations_8.zeroVector(n);
-    var y = MathVectorBasicOperations_8.zeroVector(n);
+    var p = (0, MathVectorBasicOperations_8.zeroVector)(n);
+    var y = (0, MathVectorBasicOperations_8.zeroVector)(n);
     var p_plus = [];
     var p_minus = [];
     for (var k = 0; k < n; k += 1) {
@@ -54004,7 +54057,7 @@ function estimateSmallestSingularValue(lowerTriangular) {
             p_plus.push(p[i] + lowerTriangular.get(i, k) * y_plus);
             p_minus.push(p[i] + lowerTriangular.get(i, k) * y_minus);
         }
-        if (Math.abs(y_plus) + MathVectorBasicOperations_2.norm1(p_plus) >= Math.abs(y_minus) + MathVectorBasicOperations_2.norm1(p_minus)) {
+        if (Math.abs(y_plus) + (0, MathVectorBasicOperations_2.norm1)(p_plus) >= Math.abs(y_minus) + (0, MathVectorBasicOperations_2.norm1)(p_minus)) {
             y[k] = y_plus;
             for (var i = k + 1; i < n; i += 1) {
                 p[i] = p_plus[i - k - 1];
@@ -54018,14 +54071,14 @@ function estimateSmallestSingularValue(lowerTriangular) {
         }
     }
     var v = solveUpperTriangular(lowerTriangular, y);
-    var vNorm = MathVectorBasicOperations_1.norm(v);
-    var yNorm = MathVectorBasicOperations_1.norm(y);
+    var vNorm = (0, MathVectorBasicOperations_1.norm)(v);
+    var yNorm = (0, MathVectorBasicOperations_1.norm)(y);
     if (vNorm === 0) {
         throw new Error("divideVectorByScalar division by zero");
     }
     return {
         value: yNorm / vNorm,
-        vector: MathVectorBasicOperations_5.divideVectorByScalar(v, vNorm)
+        vector: (0, MathVectorBasicOperations_5.divideVectorByScalar)(v, vNorm)
     };
 }
 /**
@@ -54135,14 +54188,14 @@ exports.gershgorin_bounds = gershgorin_bounds;
  * @returns The two values of t, sorted from low to high
  */
 function getBoundariesIntersections(z, d, trustRegionRadius) {
-    if (MathVectorBasicOperations_1.isZeroVector(d)) {
+    if ((0, MathVectorBasicOperations_1.isZeroVector)(d)) {
         throw new Error("In getBoundariesInstersections the d vector cannot be the zero vector");
     }
-    var a = MathVectorBasicOperations_3.squaredNorm(d);
-    var b = 2 * MathVectorBasicOperations_6.dotProduct(z, d);
-    var c = MathVectorBasicOperations_3.squaredNorm(z) - trustRegionRadius * trustRegionRadius;
+    var a = (0, MathVectorBasicOperations_3.squaredNorm)(d);
+    var b = 2 * (0, MathVectorBasicOperations_6.dotProduct)(z, d);
+    var c = (0, MathVectorBasicOperations_3.squaredNorm)(z) - trustRegionRadius * trustRegionRadius;
     var sqrtDiscriminant = Math.sqrt(b * b - 4 * a * c);
-    var sign_b = MathVectorBasicOperations_9.sign(b);
+    var sign_b = (0, MathVectorBasicOperations_9.sign)(b);
     if (sign_b === 0) {
         sign_b = 1;
     }
@@ -54176,10 +54229,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -54669,9 +54724,14 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
-var __spread = (this && this.__spread) || function () {
-    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
-    return ar;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -54709,7 +54769,7 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
         if (knots === void 0) { knots = [0, 1]; }
         this._controlPoints = [];
         this._degree = 0;
-        this._controlPoints = __spread(controlPoints);
+        this._controlPoints = __spreadArray([], __read(controlPoints), false);
         this._degree = this.computeDegree(knots.length);
     }
     AbstractBSplineR1toR1.prototype.computeDegree = function (knotLength) {
@@ -54729,10 +54789,10 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
     });
     Object.defineProperty(AbstractBSplineR1toR1.prototype, "controlPoints", {
         get: function () {
-            return __spread(this._controlPoints);
+            return __spreadArray([], __read(this._controlPoints), false);
         },
         set: function (controlPoints) {
-            this._controlPoints = __spread(controlPoints);
+            this._controlPoints = __spreadArray([], __read(controlPoints), false);
             this._degree = this.computeDegree(this._increasingKnotSequence.length());
         },
         enumerable: false,
@@ -54745,7 +54805,7 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
      */
     AbstractBSplineR1toR1.prototype.evaluate = function (u) {
         var span = this._increasingKnotSequence.findSpan(u);
-        var basis = Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence(span.knotIndex, u, this._increasingKnotSequence);
+        var basis = (0, Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence)(span.knotIndex, u, this._increasingKnotSequence);
         var result = 0;
         for (var i = 0; i < this._degree + 1; i += 1) {
             result += basis[i] * this._controlPoints[span.knotIndex - this._degree + i];
@@ -54887,7 +54947,8 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
                 newControlPoints[i + 1] = this._controlPoints[i];
             }
             if (multiplicity > 0) {
-                this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             else if (multiplicity === 0 && t === 0) {
                 this._increasingKnotSequence.insertKnot(u, 1);
@@ -54895,7 +54956,8 @@ var AbstractBSplineR1toR1 = /** @class */ (function () {
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             }
             else {
-                this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             this._controlPoints = newControlPoints.slice();
         }
@@ -55204,7 +55266,7 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
      */
     AbstractBSplineR1toR2.prototype.evaluate = function (u) {
         var span = this._increasingKnotSequence.findSpan(u);
-        var basis = Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence(span.knotIndex, u, this._increasingKnotSequence);
+        var basis = (0, Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence)(span.knotIndex, u, this._increasingKnotSequence);
         var result = new Vector2d_1.Vector2d(0, 0);
         for (var i = 0; i < this._degree + 1; i += 1) {
             if (basis[i] !== 0.0) {
@@ -55376,7 +55438,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
                 newControlPoints[i + 1] = this._controlPoints[i];
             }
             if (multiplicity > 0) {
-                this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             else if (multiplicity === 0 && t === 0) {
                 this._increasingKnotSequence.insertKnot(u, 1);
@@ -55384,7 +55447,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             }
             else {
-                this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             this._controlPoints = newControlPoints.slice();
             // index += 1;
@@ -55450,7 +55514,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
                 newControlPoints[i + 1] = this._controlPoints[i];
             }
             if (multiplicity > 0) {
-                this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             else if (multiplicity === 0 && t === 0) {
                 this._increasingKnotSequence.insertKnot(u, 1);
@@ -55458,7 +55523,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             }
             else {
-                this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(newIndexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             this._controlPoints = newControlPoints.slice();
             multiplicity++;
@@ -55561,7 +55627,8 @@ var AbstractBSplineR1toR2 = /** @class */ (function () {
                 newControlPoints[i + 1] = this._controlPoints[i];
             }
             if (multiplicity > 0) {
-                this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
             }
             else if (multiplicity === 0 && t === 0) {
                 this._increasingKnotSequence.insertKnot(u, 1);
@@ -55824,15 +55891,23 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -55853,6 +55928,7 @@ var KnotSequences_1 = __webpack_require__(/*! ../ErrorMessages/KnotSequences */ 
 var KnotSequences_2 = __webpack_require__(/*! ../namedConstants/KnotSequences */ "./src/namedConstants/KnotSequences.ts");
 var KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ./KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
 var Knots_1 = __webpack_require__(/*! ../namedConstants/Knots */ "./src/namedConstants/Knots.ts");
+var adaptParameterNumberArray_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/adaptParameterNumberArray */ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterNumberArray.ts");
 var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
     __extends(AbstractIncreasingOpenKnotSequence, _super);
     function AbstractIncreasingOpenKnotSequence(maxMultiplicityOrder, knotParameters) {
@@ -56021,11 +56097,6 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
         if (normalizedBasisAtEnd.knot.knotIndex <= normalizedBasisAtStart.knot.knotIndex)
             this.throwRangeErrorMessage("generateKnotSequence", KnotSequences_1.EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT);
     };
-    AbstractIncreasingOpenKnotSequence.prototype.revertSequence = function () {
-        var seq = this.clone();
-        seq.revertKnotSequence();
-        return seq.allAbscissae;
-    };
     AbstractIncreasingOpenKnotSequence.prototype.checkSizeConsistency = function (knots) {
         var e_3, _a;
         var size = 0;
@@ -56111,6 +56182,14 @@ var AbstractIncreasingOpenKnotSequence = /** @class */ (function (_super) {
         }
         return knots;
     };
+    AbstractIncreasingOpenKnotSequence.prototype.raiseKnotMultiplicityKnotArrayMutSeq = function (arrayIndices, multiplicity, checkSequenceConsistency) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
+        return _super.prototype.raiseKnotMultiplicityKnotArrayMutSeq.call(this, arrayIndices, multiplicity, checkSequenceConsistency);
+    };
+    __decorate([
+        (0, adaptParameterNumberArray_1.adaptParameter)()
+    ], AbstractIncreasingOpenKnotSequence.prototype, "raiseKnotMultiplicityKnotArrayMutSeq", null);
     return AbstractIncreasingOpenKnotSequence;
 }(AbstractOpenKnotSequence_1.AbstractOpenKnotSequence));
 exports.AbstractIncreasingOpenKnotSequence = AbstractIncreasingOpenKnotSequence;
@@ -56777,10 +56856,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -57399,31 +57480,49 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
      * @example
      * // Increase the multiplicity of the third knot (index 2) by 1
      * const index = { knotIndex: 2 };
-     * this.raiseKnotMultiplicity(index);
+     * this.raiseKnotMultiplicityMutSeq(index);
      *
      * // Increase the multiplicity of the fourth knot (index 3) by 2
      * const index2 = { knotIndex: 3 };
-     * this.raiseKnotMultiplicity(index2, 2);
+     * this.raiseKnotMultiplicityMutSeq(index2, 2);
      */
-    AbstractOpenKnotSequence.prototype.raiseKnotMultiplicity = function (index, multiplicity, checkSequenceConsistency) {
+    AbstractOpenKnotSequence.prototype.raiseKnotMultiplicityMutSeq = function (index, multiplicity, checkSequenceConsistency) {
         if (multiplicity === void 0) { multiplicity = 1; }
         if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
-        this.strictlyIncKnotIndexInputParamAssessment(index, "raiseKnotMultiplicity");
+        this.strictlyIncKnotIndexInputParamAssessment(index, "raiseKnotMultiplicityMutSeq");
         this.knotSequence[index.knotIndex].multiplicity += multiplicity;
         if (checkSequenceConsistency || (!checkSequenceConsistency && !this._isSequenceUpToC0Discontinuity)) {
             var basisAtEnd = this.getKnotIndexNormalizedBasisAtSequenceEnd();
             if (index.knotIndex <= this._indexKnotOrigin.knotIndex || index.knotIndex >= basisAtEnd.knot.knotIndex) {
-                this.throwRangeErrorMessage('raiseKnotMultiplicity', KnotSequences_2.EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS);
+                this.throwRangeErrorMessage('raiseKnotMultiplicityMutSeq', KnotSequences_2.EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS);
             }
             if (!this._isSequenceUpToC0Discontinuity) {
                 this.checkMaxKnotMultiplicityAtIntermediateKnots();
             }
             else if (this.knotSequence[index.knotIndex].multiplicity > this._maxMultiplicityOrder) {
-                this.throwRangeErrorMessage('raiseKnotMultiplicity', KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_ATKNOT);
+                this.throwRangeErrorMessage('raiseKnotMultiplicityMutSeq', KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_ATKNOT);
             }
         }
         this.checkUniformityOfKnotMultiplicity();
         this.checkNonUniformKnotMultiplicityOrder();
+    };
+    AbstractOpenKnotSequence.prototype.raiseKnotMultiplicityKnotArrayMutSeq = function (arrayIndices, multiplicity, checkSequenceConsistency) {
+        var e_3, _a;
+        if (multiplicity === void 0) { multiplicity = 1; }
+        if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
+        try {
+            for (var arrayIndices_1 = __values(arrayIndices), arrayIndices_1_1 = arrayIndices_1.next(); !arrayIndices_1_1.done; arrayIndices_1_1 = arrayIndices_1.next()) {
+                var index = arrayIndices_1_1.value;
+                this.raiseKnotMultiplicityMutSeq(index, multiplicity, checkSequenceConsistency);
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (arrayIndices_1_1 && !arrayIndices_1_1.done && (_a = arrayIndices_1.return)) _a.call(arrayIndices_1);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
     };
     /**
      * Decrements the multiplicity of a knot at the specified index.
@@ -57462,7 +57561,7 @@ var AbstractOpenKnotSequence = /** @class */ (function (_super) {
         if (checkSequenceConsistency) {
             var basisAtEnd = this.getKnotIndexNormalizedBasisAtSequenceEnd();
             if (index.knotIndex <= this._indexKnotOrigin.knotIndex || index.knotIndex >= basisAtEnd.knot.knotIndex) {
-                this.throwRangeErrorMessage('raiseKnotMultiplicity', KnotSequences_2.EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS);
+                this.throwRangeErrorMessage('decrementKnotMultiplicityMutSeq', KnotSequences_2.EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS);
             }
             if (this.knotSequence[index.knotIndex].multiplicity === 1) {
                 if (index.knotIndex === this._indexKnotOrigin.knotIndex) {
@@ -57602,10 +57701,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -57748,6 +57849,33 @@ var AbstractPeriodicKnotSequence = /** @class */ (function (_super) {
         this.checkUniformityOfKnotMultiplicity();
         this.checkNonUniformKnotMultiplicityOrder();
     };
+    AbstractPeriodicKnotSequence.prototype.raiseKnotMultiplicityArrayMutSeq = function (indicesArray, multiplicity) {
+        var e_2, _a;
+        if (!Array.isArray(indicesArray))
+            indicesArray = [indicesArray];
+        try {
+            for (var indicesArray_1 = __values(indicesArray), indicesArray_1_1 = indicesArray_1.next(); !indicesArray_1_1.done; indicesArray_1_1 = indicesArray_1.next()) {
+                var index = indicesArray_1_1.value;
+                if (index.knotIndex < 0) {
+                    this.throwRangeErrorMessage("raiseKnotMultiplicity", KnotSequences_1.EM_KNOTINDEX_INC_SEQ_NEGATIVE);
+                }
+                var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
+                this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
+                this.checkMaxMultiplicityOrderConsistency();
+                if (indexWithinPeriod === 0)
+                    this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (indicesArray_1_1 && !indicesArray_1_1.done && (_a = indicesArray_1.return)) _a.call(indicesArray_1);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        this.checkUniformityOfKnotMultiplicity();
+        this.checkNonUniformKnotMultiplicityOrder();
+    };
     return AbstractPeriodicKnotSequence;
 }(AbstractKnotSequence_1.AbstractKnotSequence));
 exports.AbstractPeriodicKnotSequence = AbstractPeriodicKnotSequence;
@@ -57767,10 +57895,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -58007,10 +58137,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -58083,7 +58215,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
     });
     BSplineR1toR1.prototype.bernsteinDecomposition = function () {
         // Piegl_Tiller_NURBS_Book.ts
-        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(this));
+        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1((0, Piegl_Tiller_NURBS_Book_1.decomposeFunction)(this));
     };
     BSplineR1toR1.prototype.clone = function () {
         return new BSplineR1toR1(this._controlPoints.slice(), this._increasingKnotSequence.allAbscissae.slice());
@@ -58093,7 +58225,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         var newControlPoints = [];
         var knotIdx_MultDegPlusOne = [];
         // const strictlyIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-        var strictlyIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this._increasingKnotSequence);
+        var strictlyIncSeq = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(this._increasingKnotSequence);
         var strictlyIncSeq_Mult = strictlyIncSeq.multiplicities();
         for (var i = 0; i < strictlyIncSeq_Mult.length; i++) {
             if (strictlyIncSeq_Mult[i] === (this._degree + 1) && i !== 0 && i !== (strictlyIncSeq.length() - 1))
@@ -58126,7 +58258,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
             finally { if (e_1) throw e_1.error; }
         }
         // const newIncKnotSeq = strictlyIncSeq.toIncreasingKnotSequence();
-        var newIncKnotSeq = fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1.fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictlyIncSeq);
+        var newIncKnotSeq = (0, fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1.fromStrictlyIncreasingtToIncreasingKnotSequenceOC)(strictlyIncSeq);
         var newKnots = newIncKnotSeq.extractSubsetOfAbscissae(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(1), new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(newIncKnotSeq.length() - 2));
         // if(newKnots[0] !== 0.0) {
         //     const offset = newKnots[0];
@@ -58142,19 +58274,27 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         var splineHigherDegree = new BSplineR1toR1(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
         for (var i = 1; i <= this._degree; i += 1) {
             var splineTemp = new BSplineR1toR1(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
-            var j = 0, k = 0;
-            while (j < splineHigherDegree._increasingKnotSequence.length()) {
-                if (splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(k))
-                    && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j)) < splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(k))) {
-                    splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j)), 1);
-                }
-                else if (splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(k))
-                    && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j)) > splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(k))) {
-                    splineHigherDegree.insertKnotBoehmAlgorithm(splineTemp.knots[k], 1);
-                }
-                j += 1;
-                k += 1;
+            var strictIncSeq_splineHigherDegree = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(splineHigherDegree._increasingKnotSequence);
+            var strictIncSeq_splineTemp = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(splineTemp._increasingKnotSequence);
+            for (var j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
+                var index = new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(j);
+                if (strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
+                    splineTemp.insertKnotBoehmAlgorithm(strictIncSeq_splineTemp.abscissaAtIndex(index));
+                if (strictIncSeq_splineHigherDegree.knotMultiplicity(index) < strictIncSeq_splineTemp.knotMultiplicity(index))
+                    splineHigherDegree.insertKnotBoehmAlgorithm(strictIncSeq_splineHigherDegree.abscissaAtIndex(index));
             }
+            // let j = 0, k = 0;
+            // while(j < splineHigherDegree._increasingKnotSequence.length()) {
+            //     if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
+            //         && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) < splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
+            //         splineTemp.insertKnotBoehmAlgorithm(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)), 1);
+            //     } else if(splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) !== splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))
+            //         && splineHigherDegree._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(j)) > splineTemp._increasingKnotSequence.abscissaAtIndex(new KnotIndexIncreasingSequence(k))) {
+            //         splineHigherDegree.insertKnotBoehmAlgorithm(splineTemp.knots[k], 1);
+            //     }
+            //     j += 1;
+            //     k += 1;
+            // }
             var tempCPs = [];
             for (var ind = 0; ind < splineHigherDegree.controlPoints.length; ind += 1) {
                 tempCPs[ind] = splineHigherDegree.controlPoints[ind] + splineTemp.controlPoints[ind];
@@ -58173,20 +58313,25 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         var knotSequences = [];
         var controlPolygons = [];
         for (var i = 0; i <= this._degree; i += 1) {
-            // let knotSequence = this._increasingKnotSequence.clone();
             var knotSequence = new IncreasingOpenKnotSequenceOpenCurve_1.IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae });
             var controlPolygon = this._controlPoints.slice();
             var k = 0;
+            var knotIndices = [];
             for (var j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
                 var indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
+                knotIndices.push(indexStrctIncreasingSeq);
+                // const knotSequence1 = knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
+                // const knotSequence2 = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder +  1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knotSequence1.allAbscissae});
+                // knotSequence = knotSequence2.clone();
                 if (j < this._controlPoints.length) {
                     var controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotSequences.push(knotSequence.allAbscissae);
+            var knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
+            knotSequences.push(knotSequence1.allAbscissae);
+            // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
         return {
@@ -58276,7 +58421,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         var bds = this.bernsteinDecomposition();
         bds.elevateDegree();
         var knots = this.distinctKnots();
-        var newSpline = BernsteinDecompositionR1toR1_1.splineRecomposition(bds, knots);
+        var newSpline = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bds, knots);
         for (var i = 0; i < knots.length; i += 1) {
             var m = this.knotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.findSpan(knots[i])));
             for (var j = 0; j < newSpline.degree - m - 1; j += 1) {
@@ -58444,7 +58589,7 @@ var BSplineR1toR1 = /** @class */ (function (_super) {
         for (var i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        var result = new BSplineR1toR1(vertices, this._increasingKnotSequence.revertSequence());
+        var result = new BSplineR1toR1(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
         return result;
     };
     return BSplineR1toR1;
@@ -58466,10 +58611,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -58569,7 +58716,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
      * Return a deep copy of this b-spline
      */
     BSplineR1toR2.prototype.clone = function () {
-        var cloneControlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._controlPoints);
+        var cloneControlPoints = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this._controlPoints);
         return new BSplineR1toR2(cloneControlPoints, this.knots.slice());
     };
     BSplineR1toR2.prototype.optimizerStep = function (step) {
@@ -58587,8 +58734,8 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         bdsx.elevateDegree();
         bdsy.elevateDegree();
         var knots = this.getDistinctKnots();
-        var sxNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsx, knots);
-        var syNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsy, knots);
+        var sxNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsx, knots);
+        var syNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsy, knots);
         var newcp = [];
         for (var i = 0; i < sxNew.controlPoints.length; i += 1) {
             newcp.push(new Vector2d_1.Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
@@ -58597,7 +58744,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         for (var i = 0; i < knots.length; i += 1) {
             var m = this.knotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.findSpan(knots[i])));
             for (var j = 0; j < newSpline.degree - m - 1; j += 1) {
-                newSpline.removeKnot(Piegl_Tiller_NURBS_Book_1.findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
+                newSpline.removeKnot((0, Piegl_Tiller_NURBS_Book_1.findSpan)(newSpline.knots[i], newSpline.knots, newSpline.degree));
             }
         }
         this.controlPoints = newSpline.controlPoints;
@@ -58672,10 +58819,10 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         var splineHigherDegree = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0]);
         for (var i = 1; i <= this._degree; i += 1) {
             // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            var strictIncSeq_splineHigherDegree = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(splineHigherDegree._increasingKnotSequence);
+            var strictIncSeq_splineHigherDegree = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(splineHigherDegree._increasingKnotSequence);
             var splineTemp = new BSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i]);
             // const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            var strictIncSeq_splineTemp = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(splineTemp._increasingKnotSequence);
+            var strictIncSeq_splineTemp = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(splineTemp._increasingKnotSequence);
             for (var j = 1; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
                 var index = new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(j);
                 if (strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
@@ -58705,16 +58852,20 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             var knotSequence = new IncreasingOpenKnotSequenceOpenCurve_1.IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae });
             var controlPolygon = this._controlPoints.slice();
             var k = 0;
+            var knotIndices = [];
             for (var j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
                 var indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
+                knotIndices.push(indexStrctIncreasingSeq);
+                // knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
                 if (j < this._controlPoints.length) {
                     var controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotSequences.push(knotSequence.allAbscissae);
+            var knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
+            knotSequences.push(knotSequence1.allAbscissae);
+            // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
         return {
@@ -58809,7 +58960,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
                 tempCtrlPoly[k] = vertices[vertices.length - 1][k];
                 tempKnots[k] = u;
             }
-            var newKnots = Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin(tempKnots);
+            var newKnots = (0, Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin)(tempKnots);
             result = new BSplineR1toR2(tempCtrlPoly, newKnots);
             if (reversed)
                 result = result.revertCurve();
@@ -58854,7 +59005,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
                 for (var i = knotIndex; i < result.knots.length; i++) {
                     newKnots.push(result.knots[i]);
                 }
-                var updatedKnots = Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin(newKnots);
+                var updatedKnots = (0, Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin)(newKnots);
                 result = new BSplineR1toR2(newControlPolygon, updatedKnots);
             }
             else {
@@ -58888,7 +59039,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         for (var i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        var result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertSequence());
+        var result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
         return result;
     };
     /**
@@ -58903,7 +59054,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         var spline = this.toBSplineWithC0Discontinuity();
         // const spline = this.clone();
         // const strictIncSeq = spline._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-        var strictIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(spline._increasingKnotSequence);
+        var strictIncSeq = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(spline._increasingKnotSequence);
         var newFromSpan = spline._degree;
         var newToSpan = spline._increasingKnotSequence.length() - 1;
         if (spline._increasingKnotSequence.isAbscissaCoincidingWithKnot(from)) {
@@ -58927,12 +59078,12 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             var mult = strictIncSeq.knotMultiplicity(indexStrictIncSeq);
             if (mult !== (this._degree + 1)) {
                 spline.clamp(from);
-                newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(from, spline.knots, spline._degree);
+                newFromSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(from, spline.knots, spline._degree);
             }
         }
         else {
             spline.clamp(from);
-            newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(from, spline.knots, spline._degree);
+            newFromSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(from, spline.knots, spline._degree);
         }
         if (spline._increasingKnotSequence.isAbscissaCoincidingWithKnot(to)) {
             var i = 0;
@@ -58955,12 +59106,12 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
             var mult = strictIncSeq.knotMultiplicity(indexStrictIncSeq);
             if (mult !== (this._degree + 1)) {
                 spline.clamp(to);
-                newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(to, spline.knots, spline._degree);
+                newToSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(to, spline.knots, spline._degree);
             }
         }
         else {
             spline.clamp(to);
-            newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(to, spline.knots, spline._degree);
+            newToSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(to, spline.knots, spline._degree);
         }
         var newKnots = [];
         var newControlPoints = [];
@@ -58970,7 +59121,7 @@ var BSplineR1toR2 = /** @class */ (function (_super) {
         for (var i = newFromSpan - spline._degree; i < newToSpan - spline._degree; i += 1) {
             newControlPoints.push(new Vector2d_1.Vector2d(spline._controlPoints[i].x, spline._controlPoints[i].y));
         }
-        var knotSequence = Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin(newKnots);
+        var knotSequence = (0, Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin)(newKnots);
         return new BSplineR1toR2(newControlPoints, knotSequence);
     };
     return BSplineR1toR2;
@@ -59018,10 +59169,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -59183,9 +59336,9 @@ var BernsteinDecompositionR1toR1 = /** @class */ (function () {
         for (var i = 0; i < controlPoints.length + times; i += 1) {
             var cp = 0;
             for (var j = Math.max(0, i - times); j <= Math.min(degree, i); j += 1) {
-                var bc0 = BinomialCoefficient_1.binomialCoefficient(times, i - j);
-                var bc1 = BinomialCoefficient_1.binomialCoefficient(degree, j);
-                var bc2 = BinomialCoefficient_1.binomialCoefficient(degree + times, i);
+                var bc0 = (0, BinomialCoefficient_1.binomialCoefficient)(times, i - j);
+                var bc1 = (0, BinomialCoefficient_1.binomialCoefficient)(degree, j);
+                var bc2 = (0, BinomialCoefficient_1.binomialCoefficient)(degree + times, i);
                 cp += bc0 * bc1 / bc2 * controlPoints[j];
             }
             result.push(cp);
@@ -59221,7 +59374,7 @@ var BernsteinDecompositionR1toR1 = /** @class */ (function () {
         var decompositionCopy = new BernsteinDecompositionR1toR1(this.controlPointsArray.slice());
         return decompositionCopy;
     };
-    BernsteinDecompositionR1toR1.binomial = BinomialCoefficient_1.memoizedBinomialCoefficient();
+    BernsteinDecompositionR1toR1.binomial = (0, BinomialCoefficient_1.memoizedBinomialCoefficient)();
     BernsteinDecompositionR1toR1.flopsCounter = 0;
     return BernsteinDecompositionR1toR1;
 }());
@@ -59314,10 +59467,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -59474,7 +59629,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
         this.constructorInputArrayAssessment(knotParameters);
         this.checkKnotIncreasingValues(knotParameters.periodicKnots);
-        var openSequence = fromInputParametersToIncreasingOpenKnotSequenceCC_1.fromInputParametersToIncreasingOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
+        var openSequence = (0, fromInputParametersToIncreasingOpenKnotSequenceCC_1.fromInputParametersToIncreasingOpenKnotSequenceCC)(this._maxMultiplicityOrder, knotParameters);
         var knots = openSequence.distinctAbscissae();
         var multiplicities = openSequence.multiplicities();
         for (var i = 0; i < knots.length; i++) {
@@ -59485,7 +59640,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
     };
     IncreasingOpenKnotSequenceClosedCurve.prototype.toKnotIndexStrictlyIncreasingSequence = function (index) {
         var e_2, _a;
-        var strictlyIncreasingKnotSequence = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this);
+        var strictlyIncreasingKnotSequence = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC)(this);
         var abscissa = this.abscissaAtIndex(index);
         var i = 0;
         try {
@@ -59582,7 +59737,7 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
     };
     IncreasingOpenKnotSequenceClosedCurve.prototype.decrementMaxMultiplicityOrder = function () {
         var e_5, _a;
-        var strictlyIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this);
+        var strictlyIncSeq = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC)(this);
         var strictlyIncSeq_Mult = strictlyIncSeq.multiplicities();
         var knotIdx_maxMultiplicityOrder = [];
         for (var i = 0; i < strictlyIncSeq_Mult.length; i++) {
@@ -59638,6 +59793,13 @@ var IncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_super) {
         newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     };
+    IncreasingOpenKnotSequenceClosedCurve.prototype.raiseKnotMultiplicity = function (index, multiplicity, checkSequenceConsistency) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
+        var newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityMutSeq(index, multiplicity, checkSequenceConsistency);
+        return newKnotSequence;
+    };
     return IncreasingOpenKnotSequenceClosedCurve;
 }(AbstractIncreasingOpenKnotSequence_1.AbstractIncreasingOpenKnotSequence));
 exports.IncreasingOpenKnotSequenceClosedCurve = IncreasingOpenKnotSequenceClosedCurve;
@@ -59657,10 +59819,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -59714,7 +59878,7 @@ var IncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_super) {
     };
     IncreasingOpenKnotSequenceOpenCurve.prototype.toKnotIndexStrictlyIncreasingSequence = function (index) {
         var e_1, _a;
-        var strictlyIncreasingKnotSequence = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this);
+        var strictlyIncreasingKnotSequence = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC)(this);
         var abscissa = this.abscissaAtIndex(index);
         var i = 0;
         try {
@@ -59785,6 +59949,13 @@ var IncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_super) {
         newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     };
+    IncreasingOpenKnotSequenceOpenCurve.prototype.raiseKnotMultiplicity = function (arrayIndices, multiplicity, checkSequenceConsistency) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
+        var newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices, multiplicity, checkSequenceConsistency);
+        return newKnotSequence;
+    };
     return IncreasingOpenKnotSequenceOpenCurve;
 }(AbstractIncreasingOpenKnotSequence_1.AbstractIncreasingOpenKnotSequence));
 exports.IncreasingOpenKnotSequenceOpenCurve = IncreasingOpenKnotSequenceOpenCurve;
@@ -59809,10 +59980,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -59972,16 +60145,9 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
         this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.raiseKnotMultiplicity = function (index, multiplicity) {
-        if (index.knotIndex < 0) {
-            this.throwRangeErrorMessage("raiseKnotMultiplicity", KnotSequences_2.EM_KNOTINDEX_INC_SEQ_NEGATIVE);
-        }
-        var indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
-        this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
-        this.checkMaxMultiplicityOrderConsistency();
-        if (indexWithinPeriod === 0)
-            this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
-        this.checkUniformityOfKnotMultiplicity();
-        this.checkNonUniformKnotMultiplicityOrder();
+        var newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityArrayMutSeq(index, multiplicity);
+        return newKnotSequence;
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.knotMultiplicityAtAbscissa = function (abcissa) {
         var e_4, _a;
@@ -60063,7 +60229,7 @@ var IncreasingPeriodicKnotSequenceClosedCurve = /** @class */ (function (_super)
     };
     IncreasingPeriodicKnotSequenceClosedCurve.prototype.toKnotIndexStrictlyIncreasingSequence = function (index) {
         var e_6, _a;
-        var strictlyIncreasingKnotSequence = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(this);
+        var strictlyIncreasingKnotSequence = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(this);
         var lastIdxStrictIncSeq = strictlyIncreasingKnotSequence.allAbscissae.length - 1;
         var abscissa = this.abscissaAtIndex(index);
         var i = 0;
@@ -60356,10 +60522,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -60410,10 +60578,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -60448,6 +60618,30 @@ var KnotIndexStrictlyIncreasingSequence = /** @class */ (function (_super) {
     return KnotIndexStrictlyIncreasingSequence;
 }(AbstractKnotIndex_1.AbstractKnotIndex));
 exports.KnotIndexStrictlyIncreasingSequence = KnotIndexStrictlyIncreasingSequence;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterNumberArray.ts":
+/*!*******************************************************************************!*\
+  !*** ./src/newBsplines/KnotSequenceAndUtilities/adaptParameterNumberArray.ts ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.adaptParameter = void 0;
+function adaptParameter() {
+    return function (target, propertyKey, descriptor) {
+        var originalMethod = descriptor.value;
+        descriptor.value = function (index, multiplicity, checkSequenceConsistency) {
+            var input = Array.isArray(index) ? index : [index];
+            return originalMethod.call(this, input, multiplicity, checkSequenceConsistency);
+        };
+    };
+}
+exports.adaptParameter = adaptParameter;
 
 
 /***/ }),
@@ -60541,7 +60735,7 @@ function fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(increasingSeq) {
     var e_1, _a;
     var knotsOpenSequence = [];
     var multiplicityAtOrigin = increasingSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
-    var strictlyIncSeq = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(increasingSeq);
+    var strictlyIncSeq = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(increasingSeq);
     var strictSeqLength = strictlyIncSeq.length();
     var lastAbscissa = strictlyIncSeq.uMax;
     var knotNumber = 1;
@@ -60692,7 +60886,7 @@ function fromInputParametersToIncreasingOpenKnotSequenceCC(maxMultiplicityOrder,
     }
     if (multiplicityFirstKnot < maxMultiplicityOrder) {
         var periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots });
-        var openSequence = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC_1.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(periodicSeq);
+        var openSequence = (0, fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC_1.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC)(periodicSeq);
         return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae });
     }
     else {
@@ -60721,7 +60915,7 @@ var StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*
 function fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
     if (knotParameters.multiplicities[0] < maxMultiplicityOrder) {
         var strictIncPeriodicSeq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1.StrictlyIncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities });
-        var openSequence = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(strictIncPeriodicSeq);
+        var openSequence = (0, fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC)(strictIncPeriodicSeq);
         return new StrictlyIncreasingOpenKnotSequenceClosedCurve_1.StrictlyIncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae, multiplicities: openSequence.multiplicities() });
     }
     else {
@@ -61355,10 +61549,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -61450,7 +61646,7 @@ var PeriodicBSplineR1toR1 = /** @class */ (function (_super) {
             var indexInc = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexKnotOrigin);
             newKnots = s._increasingKnotSequence.extractSubsetOfAbscissae(indexInc, lastIndex);
         }
-        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1(Piegl_Tiller_NURBS_Book_1.decomposeFunction(new BSplineR1toR1_1.BSplineR1toR1(newControlPoints, newKnots)));
+        return new BernsteinDecompositionR1toR1_1.BernsteinDecompositionR1toR1((0, Piegl_Tiller_NURBS_Book_1.decomposeFunction)(new BSplineR1toR1_1.BSplineR1toR1(newControlPoints, newKnots)));
     };
     PeriodicBSplineR1toR1.prototype.clone = function () {
         return new PeriodicBSplineR1toR1(this._controlPoints.slice(), this._increasingKnotSequence.allAbscissae.slice());
@@ -61523,10 +61719,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -61653,7 +61851,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
      * Return a deep copy of this b-spline
      */
     PeriodicBSplineR1toR2.prototype.clone = function () {
-        var cloneControlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._controlPoints);
+        var cloneControlPoints = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this._controlPoints);
         return new PeriodicBSplineR1toR2(cloneControlPoints, this.knots.slice(), this._degree);
     };
     PeriodicBSplineR1toR2.prototype.optimizerStep = function (step) {
@@ -61683,7 +61881,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         try {
             this.abcsissaInputParamAssessment(u, "evaluate");
             var span = this._increasingKnotSequence.findSpan(u);
-            var basis = Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence(span.knotIndex, u, this._increasingKnotSequence);
+            var basis = (0, Piegl_Tiller_NURBS_Book_1.basisFunctionsFromSequence)(span.knotIndex, u, this._increasingKnotSequence);
             var result = new Vector2d_1.Vector2d(0, 0);
             for (var i = 0; i < this._degree + 1; i += 1) {
                 if (basis[i] !== 0.0) {
@@ -61821,16 +62019,20 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
             var knotSequence = new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve(this._increasingKnotSequence.maxMultiplicityOrder + 1, { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: this._increasingKnotSequence.allAbscissae });
             var controlPolygon = this._controlPoints.slice();
             var k = 0;
+            var knotIndices = [];
             for (var j = i; j < (this._increasingKnotSequence.length() - 1); j += this._degree + 1) {
                 var indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
+                knotIndices.push(indexStrctIncreasingSeq);
+                // knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1);
                 if (j < this._controlPoints.length) {
                     var controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotSequences.push(knotSequence.allAbscissae);
+            var knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1);
+            knotSequences.push(knotSequence1.allAbscissae);
+            // knotSequences.push(knotSequence.allAbscissae);
             if (i === 0) {
                 var cp = controlPolygon.splice(0, 1);
                 controlPolygon.splice(controlPolygon.length, 0, cp[0]);
@@ -62005,7 +62207,8 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
                     newControlPoints[j + 1] = this._controlPoints[j];
                 }
                 if (multiplicity > 0) {
-                    this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                    var updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
+                    this._increasingKnotSequence = updatedSeq.clone();
                 }
                 else if (multiplicity === 0 && t === 0) {
                     this._increasingKnotSequence.insertKnot(u, 1);
@@ -62031,10 +62234,10 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
         var splineHigherDegree = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[0], intermSplKnotsAndCPs.knotVectors[0], (this._degree + 1));
         for (var i = 1; i <= this._degree; i += 1) {
             // const strictIncSeq_splineHigherDegree = splineHigherDegree._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            var strictIncSeq_splineHigherDegree = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(splineHigherDegree._increasingKnotSequence);
+            var strictIncSeq_splineHigherDegree = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(splineHigherDegree._increasingKnotSequence);
             var splineTemp = new PeriodicBSplineR1toR2(intermSplKnotsAndCPs.CPs[i], intermSplKnotsAndCPs.knotVectors[i], (this._degree + 1));
             // const strictIncSeq_splineTemp = splineTemp._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-            var strictIncSeq_splineTemp = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(splineTemp._increasingKnotSequence);
+            var strictIncSeq_splineTemp = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(splineTemp._increasingKnotSequence);
             for (var j = 0; j < (strictIncSeq_splineHigherDegree.length() - 1); j++) {
                 var index = new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(j);
                 if (strictIncSeq_splineHigherDegree.knotMultiplicity(index) > strictIncSeq_splineTemp.knotMultiplicity(index))
@@ -62290,7 +62493,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     };
     PeriodicBSplineR1toR2.prototype.evaluateOutsideRefInterval = function (u) {
         // const strctIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-        var strctIncSeq = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(this._increasingKnotSequence);
+        var strctIncSeq = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(this._increasingKnotSequence);
         var lastKnot = strctIncSeq.allAbscissae[strctIncSeq.allAbscissae.length - 1];
         try {
             this.evaluateOutsideRefIntervalInputParamAssessment(u);
@@ -62326,7 +62529,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
     };
     PeriodicBSplineR1toR2.prototype.toPeriodicBSplineR1toR2withOpenKnotSequence = function () {
         // const knots = this._increasingKnotSequence.toOpenKnotSequence();
-        var knots = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC_1.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(this._increasingKnotSequence);
+        var knots = (0, fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC_1.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC)(this._increasingKnotSequence);
         var controlPoints = [];
         var multiplicityOrigin = this._increasingKnotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
         for (var i = 0; i < this._degree; i++) {
@@ -62378,7 +62581,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
                 var knotSeqLength = this._increasingKnotSequence.allAbscissae.length;
                 var lastIndex = new KnotIndexIncreasingSequence_1.KnotIndexIncreasingSequence(index.knotIndex + knotSeqLength - 1 - (multiplicityAtOrigin - 1));
                 newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(firstIndex, lastIndex);
-                newKnots = Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin(newKnots);
+                newKnots = (0, Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin)(newKnots);
                 newKnots.splice(0, 0, newKnots[0]);
                 newKnots.splice(newKnots.length, 0, newKnots[newKnots.length - 1]);
                 var indexCP = this.fromIncKnotSeqIndexToControlPointIndex(index);
@@ -62408,7 +62611,7 @@ var PeriodicBSplineR1toR2 = /** @class */ (function (_super) {
                 else {
                     newKnots = this._increasingKnotSequence.extractSubsetOfAbscissae(indexFirstKnot, index2);
                 }
-                newKnots = Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin(newKnots);
+                newKnots = (0, Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin)(newKnots);
                 newKnots.splice(0, 0, newKnots[0]);
                 newKnots.splice(newKnots.length, 0, newKnots[newKnots.length - 1]);
                 var nbCtrlPts = newKnots.length - (this._degree + 1);
@@ -62461,10 +62664,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -62540,10 +62745,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -62662,7 +62869,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
      * Return a deep copy of this b-spline
      */
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.clone = function () {
-        var cloneControlPoints = AbstractBSplineR1toR2_1.deepCopyControlPoints(this._controlPoints);
+        var cloneControlPoints = (0, AbstractBSplineR1toR2_1.deepCopyControlPoints)(this._controlPoints);
         return new PeriodicBSplineR1toR2withOpenKnotSequence(cloneControlPoints, this._increasingKnotSequence.allAbscissae.slice());
     };
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.optimizerStep = function (step) {
@@ -62692,8 +62899,8 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         var spline = this.clone();
         spline.clamp(fromU);
         spline.clamp(toU);
-        var newFromSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(fromU, spline.knots, spline._degree);
-        var newToSpan = Piegl_Tiller_NURBS_Book_1.clampingFindSpan(toU, spline.knots, spline._degree);
+        var newFromSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(fromU, spline.knots, spline._degree);
+        var newToSpan = (0, Piegl_Tiller_NURBS_Book_1.clampingFindSpan)(toU, spline.knots, spline._degree);
         var newKnots = [];
         var newControlPoints = [];
         for (var i = newFromSpan - spline._degree; i < newToSpan + 1; i += 1) {
@@ -62713,8 +62920,8 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         bdsx.elevateDegree();
         bdsy.elevateDegree();
         var knots = this.getDistinctKnots();
-        var sxNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsx, knots);
-        var syNew = BernsteinDecompositionR1toR1_1.splineRecomposition(bdsy, knots);
+        var sxNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsx, knots);
+        var syNew = (0, BernsteinDecompositionR1toR1_1.splineRecomposition)(bdsy, knots);
         var newcp = [];
         for (var i = 0; i < sxNew.controlPoints.length; i += 1) {
             newcp.push(new Vector2d_1.Vector2d(sxNew.controlPoints[i], syNew.controlPoints[i]));
@@ -62723,7 +62930,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         for (var i = 0; i < knots.length; i += 1) {
             var m = this.knotMultiplicity(this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(this._increasingKnotSequence.findSpan(knots[i])));
             for (var j = 0; j < newSpline.degree - m - 1; j += 1) {
-                newSpline.removeKnot(Piegl_Tiller_NURBS_Book_1.findSpan(newSpline.knots[i], newSpline.knots, newSpline.degree));
+                newSpline.removeKnot((0, Piegl_Tiller_NURBS_Book_1.findSpan)(newSpline.knots[i], newSpline.knots, newSpline.degree));
             }
         }
         this._controlPoints = newSpline.controlPoints;
@@ -62734,7 +62941,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         var knotSequence = this._increasingKnotSequence.allAbscissae;
         var distinctKnots = this.getDistinctKnots();
         // const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
-        var knotMultiplicity = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this._increasingKnotSequence).multiplicities();
+        var knotMultiplicity = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC)(this._increasingKnotSequence).multiplicities();
         if (knotMultiplicity.length !== distinctKnots.length) {
             var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "generateKnotSequenceOfBSplineR1toR2", "inconsistent set of knot multiplicities compared to the disctinct knot values.");
             error.logMessage();
@@ -62805,7 +63012,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.generateControlPolygonOfBSplineR1toR2 = function () {
         var result = [];
         // const knotMultiplicity: number[] = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence().multiplicities();
-        var knotMultiplicity = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this._increasingKnotSequence).multiplicities();
+        var knotMultiplicity = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC)(this._increasingKnotSequence).multiplicities();
         if (knotMultiplicity[0] === (this._degree + 1)) {
             result = this._controlPoints;
         }
@@ -62853,7 +63060,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
     };
     PeriodicBSplineR1toR2withOpenKnotSequence.prototype.toPeriodicBSplineR1toR2 = function () {
         // const periodicSequence = this._increasingKnotSequence.toPeriodicKnotSequence();
-        var periodicSequence = fromIncreasingOpentoIncreasingPeriodicKnotSequence_1.fromIncreasingOpentoIncreasingPeriodicKnotSequence(this._increasingKnotSequence);
+        var periodicSequence = (0, fromIncreasingOpentoIncreasingPeriodicKnotSequence_1.fromIncreasingOpentoIncreasingPeriodicKnotSequence)(this._increasingKnotSequence);
         var increasingKnotAbscissae = periodicSequence.allAbscissae;
         var controlPoints = this._controlPoints.slice(this._degree, this._controlPoints.length);
         var multiplicityOrigin = periodicSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
@@ -63108,7 +63315,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
             var knotAbsc = this._increasingKnotSequence.allAbscissae;
             var indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
             // temporary modif
-            var knotAbscResetOrigin = Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin(knotAbsc);
+            var knotAbscResetOrigin = (0, Piegl_Tiller_NURBS_Book_1.resetKnotAbscissaeToOrigin)(knotAbsc);
             var sameSplineOpenCurve = new BSplineR1toR2_1.BSplineR1toR2(this.controlPoints, knotAbscResetOrigin);
             // const newUToInsert = sameSplineOpenCurve.increasingKnotSequence.abscissaAtIndex(indexOrigin) + uToInsert;
             var indexIncSeq = this._increasingKnotSequence.toKnotIndexIncreasingSequence(indexOrigin);
@@ -63152,7 +63359,7 @@ var PeriodicBSplineR1toR2withOpenKnotSequence = /** @class */ (function (_super)
         var result = 0.0;
         var cumulativeMultiplicity = 0;
         // const strictIncSeq = this._increasingKnotSequence.toStrictlyIncreasingKnotSequence();
-        var strictIncSeq = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this._increasingKnotSequence);
+        var strictIncSeq = (0, fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC)(this._increasingKnotSequence);
         var indexOrigin = this._increasingKnotSequence.indexKnotOrigin;
         for (var j = 0; j < indexOrigin.knotIndex; j++) {
             cumulativeMultiplicity += strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(j));
@@ -63533,10 +63740,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -63693,7 +63902,7 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
                     this.throwRangeErrorMessage("constructor", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
             }
         }
-        var openSequence = fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC_1.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
+        var openSequence = (0, fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC_1.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC)(this._maxMultiplicityOrder, knotParameters);
         var knots = openSequence.distinctAbscissae();
         var multiplicities = openSequence.multiplicities();
         for (var i = 0; i < knots.length; i++) {
@@ -63802,6 +64011,13 @@ var StrictlyIncreasingOpenKnotSequenceClosedCurve = /** @class */ (function (_su
         newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     };
+    StrictlyIncreasingOpenKnotSequenceClosedCurve.prototype.raiseKnotMultiplicity = function (index, multiplicity, checkSequenceConsistency) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
+        var newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityMutSeq(index, multiplicity, checkSequenceConsistency);
+        return newKnotSequence;
+    };
     return StrictlyIncreasingOpenKnotSequenceClosedCurve;
 }(AbstractStrictlyIncreasingOpenKnotSequence_1.AbstractStrictlyIncreasingOpenKnotSequence));
 exports.StrictlyIncreasingOpenKnotSequenceClosedCurve = StrictlyIncreasingOpenKnotSequenceClosedCurve;
@@ -63821,10 +64037,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -63937,6 +64155,13 @@ var StrictlyIncreasingOpenKnotSequenceOpenCurve = /** @class */ (function (_supe
         newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     };
+    StrictlyIncreasingOpenKnotSequenceOpenCurve.prototype.raiseKnotMultiplicity = function (index, multiplicity, checkSequenceConsistency) {
+        if (multiplicity === void 0) { multiplicity = 1; }
+        if (checkSequenceConsistency === void 0) { checkSequenceConsistency = true; }
+        var newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityMutSeq(index, multiplicity, checkSequenceConsistency);
+        return newKnotSequence;
+    };
     return StrictlyIncreasingOpenKnotSequenceOpenCurve;
 }(AbstractStrictlyIncreasingOpenKnotSequence_1.AbstractStrictlyIncreasingOpenKnotSequence));
 exports.StrictlyIncreasingOpenKnotSequenceOpenCurve = StrictlyIncreasingOpenKnotSequenceOpenCurve;
@@ -63956,10 +64181,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -64357,10 +64584,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -64410,7 +64639,7 @@ var ClosedCurveModel = /** @class */ (function (_super) {
             finally { if (e_1) throw e_1.error; }
         }
         var knots = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        _this._spline = PeriodicBSplineR1toR2withOpenKnotSequence_1.create_PeriodicBSplineR1toR2(cp1, knots);
+        _this._spline = (0, PeriodicBSplineR1toR2withOpenKnotSequence_1.create_PeriodicBSplineR1toR2)(cp1, knots);
         // this.optimizationProblem = new  OptimizationProblemPeriodicBSplineR1toR2(this._spline.clone(), this._spline.clone(), this.activeControl)
         // this.optimizer = new Optimizer(this.optimizationProblem)
         console.log("end constructor ClosedCurveModel");
@@ -64487,10 +64716,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -65630,10 +65861,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -65693,10 +65926,8 @@ exports.DifferentialEvent = DifferentialEvent;
 var InflectionEvent = /** @class */ (function (_super) {
     __extends(InflectionEvent, _super);
     function InflectionEvent(uAbscissa) {
-        var _this = this;
         var order = exports.ORDER_INFLECTION;
-        _this = _super.call(this, order, uAbscissa) || this;
-        return _this;
+        return _super.call(this, order, uAbscissa) || this;
     }
     return InflectionEvent;
 }(DifferentialEvent));
@@ -65704,10 +65935,8 @@ exports.InflectionEvent = InflectionEvent;
 var CurvatureExtremumEvent = /** @class */ (function (_super) {
     __extends(CurvatureExtremumEvent, _super);
     function CurvatureExtremumEvent(uAbscissa) {
-        var _this = this;
         var order = exports.ORDER_CURVATURE_EXTREMUM;
-        _this = _super.call(this, order, uAbscissa) || this;
-        return _this;
+        return _super.call(this, order, uAbscissa) || this;
     }
     return CurvatureExtremumEvent;
 }(DifferentialEvent));
@@ -65915,8 +66144,8 @@ var DiffrentialEventVariation = /** @class */ (function () {
                         }
                         console.log("variations1_2: " + this._CPvariations);
                     }
-                    var span = Piegl_Tiller_NURBS_Book_1.findSpan(this._extremumLocation, curvatureDerivativeNumerator.knots, curvatureDerivativeNumerator.degree);
-                    var spanOptim = Piegl_Tiller_NURBS_Book_1.findSpan(this._extremumLocationOpt, curvatureDerivativeNumeratorOpt.knots, curvatureDerivativeNumeratorOpt.degree);
+                    var span = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(this._extremumLocation, curvatureDerivativeNumerator.knots, curvatureDerivativeNumerator.degree);
+                    var spanOptim = (0, Piegl_Tiller_NURBS_Book_1.findSpan)(this._extremumLocationOpt, curvatureDerivativeNumeratorOpt.knots, curvatureDerivativeNumeratorOpt.degree);
                     var curveDegree = curvatureDerivativeNumerator.degree;
                     if (span === spanOptim) {
                         this._span = span;
@@ -66040,10 +66269,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -66910,10 +67141,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -67655,10 +67888,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -67988,10 +68223,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -68435,10 +68672,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -69328,7 +69567,7 @@ var CurveSceneEventListener = /** @class */ (function () {
     function CurveSceneEventListener(curveModelDefinitionEventListener, shapeSpaceNavigationEventListener) {
         var _this = this;
         this.canvas = document.getElementById("webgl");
-        this.gl = webgl_utils_1.WebGLUtils().setupWebGL(this.canvas);
+        this.gl = (0, webgl_utils_1.WebGLUtils)().setupWebGL(this.canvas);
         this.shapeSpaceNavigationEventListener = shapeSpaceNavigationEventListener;
         this.curveModelDefinitionEventListener = curveModelDefinitionEventListener;
         this._curveSceneController = new CurveSceneController_1.CurveSceneController(this.canvas, this.gl, this.curveModelDefinitionEventListener, this.shapeSpaceNavigationEventListener);
@@ -69459,7 +69698,7 @@ var CurveSceneEventListener = /** @class */ (function () {
             'void main() {\n' +
             '   gl_FragColor = texture2D(u_texture, v_texcoord);\n' +
             '}\n';
-        var program = cuon_utils_1.createProgram(this.gl, VSHADER_SOURCE, FSHADER_SOURCE);
+        var program = (0, cuon_utils_1.createProgram)(this.gl, VSHADER_SOURCE, FSHADER_SOURCE);
         if (!program) {
             console.log('Failed to create program');
         }
@@ -69603,10 +69842,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -69710,10 +69951,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -69752,10 +69995,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -69887,10 +70132,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -69989,10 +70236,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -70197,10 +70446,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -70321,10 +70572,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -70625,10 +70878,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -70754,10 +71009,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -71201,10 +71458,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -71469,10 +71728,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -71604,10 +71865,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -71761,10 +72024,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -71918,10 +72183,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -72075,10 +72342,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -72232,10 +72501,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -72606,7 +72877,8 @@ exports.WebGLUtils = WebGLUtils;
 if (!window.requestAnimationFrame) {
     window.requestAnimationFrame = (function () {
         return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
+            //JCL modified 2025/01/21
+            //  window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame ||
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
@@ -72622,7 +72894,10 @@ if (!window.requestAnimationFrame) {
  * @param {number}  Animation frame request. */
 if (!window.cancelAnimationFrame) {
     window.cancelAnimationFrame = (window.cancelRequestAnimationFrame ||
-        window.webkitCancelAnimationFrame || window.webkitCancelRequestAnimationFrame ||
+        //JCL modified 2025/01/21
+        //  window.webkitCancelAnimationFrame
+        window.requestAnimationFrame
+        || window.webkitCancelRequestAnimationFrame ||
         window.mozCancelAnimationFrame || window.mozCancelRequestAnimationFrame ||
         window.msCancelAnimationFrame || window.msCancelRequestAnimationFrame ||
         window.oCancelAnimationFrame || window.oCancelRequestAnimationFrame ||

@@ -6,6 +6,7 @@ import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
+import { adaptParameter } from "./KnotSequenceAndUtilities/adaptParameterNumberArray";
 
 
 export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenKnotSequence {
@@ -81,6 +82,12 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean = true): IncreasingOpenKnotSequenceOpenCurve {
         const newKnotSequence = this.clone();
         newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
+        return newKnotSequence;
+    }
+
+    raiseKnotMultiplicity(arrayIndices: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number = 1, checkSequenceConsistency: boolean = true): IncreasingOpenKnotSequenceOpenCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices, multiplicity, checkSequenceConsistency);
         return newKnotSequence;
     }
 

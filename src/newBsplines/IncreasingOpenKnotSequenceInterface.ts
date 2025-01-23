@@ -18,10 +18,11 @@ export interface IncreasingOpenKnotSequenceInterface extends IncreasingKnotSeque
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence;
     findSpan(u: number): KnotIndexIncreasingSequence;
     insertKnot(abscissa: number, multiplicity: number): boolean;
-    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): void;
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): IncreasingOpenKnotSequenceInterface;
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean): IncreasingOpenKnotSequenceInterface;
     updateKnotSequenceThroughNormalizedBasisAnalysis(): void;
     extractSubsetOfAbscissae(knotStart: KnotIndexIncreasingSequence, knotEnd: KnotIndexIncreasingSequence): number[];
     
+    // raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices: Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number, checkSequenceConsistency: boolean);
     // toStrictlyIncreasingKnotSequence(): StrictlyIncreasingOpenKnotSequenceInterface;
 }

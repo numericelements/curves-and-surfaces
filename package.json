@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha --require ts-node/register \"test/**/*.ts\"",
     "build": "webpack",
-    "start": "webpack-dev-server --port 9000 --inline --progress --profile --colors --watch  --mode development"
+    "start": "webpack-dev-server --port 9000 --inline --progress --profile --colors --watch  --mode development",
+    "coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -21,26 +22,32 @@
   "homepage": "https://github.com/numericelements/curves-and-surfaces#readme",
   "devDependencies": {
     "@types/chai": "^4.2.11",
+    "@types/express": "^4.17.21",
+    "@types/express-serve-static-core": "^4.17.41",
     "@types/file-saver": "^2.0.1",
+    "@types/jest": "^29.5.14",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.11.8",
     "chai": "^4.2.0",
     "chart": "^0.1.2",
+    "express": "^4.18.2",
     "jest": "^29.7.0",
     "mocha": "^10.2.0",
-    "ts-loader": "^7.0.5",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.5",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5",
     "webpack": "^5.75.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^4.9.0"
   },
   "dependencies": {
+    "@sinclair/typebox": "^0.28.9",
     "@types/chart.js": "^2.9.22",
-    "@types/express": "^4.17.13",
-    "@types/express-serve-static-core": "^4.17.30",
+    "@types/yargs": "^17.0.24",
     "chart.js": "^2.9.3",
     "file-saver": "^2.0.2",
+    "jest-haste-map": "^29.6.0",
     "node": "^19.3.0",
     "npm": "^11.0.0"
   }

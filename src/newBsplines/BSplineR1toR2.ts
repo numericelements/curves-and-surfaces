@@ -224,16 +224,20 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             const knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this._increasingKnotSequence.maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae})
             let controlPolygon = this._controlPoints.slice();
             let k = 0;
+            const knotIndices: Array<KnotIndexStrictlyIncreasingSequence> = [];
             for(let j = i; j < this._increasingKnotSequence.length(); j += this._degree + 1) {
                 const indexStrctIncreasingSeq = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(j));
-                knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
+                knotIndices.push(indexStrctIncreasingSeq);
+                // knotSequence.raiseKnotMultiplicity(indexStrctIncreasingSeq, 1, false);
                 if(j < this._controlPoints.length) {
                     let controlPoint = this._controlPoints[j];
                     controlPolygon.splice((j + k), 0, controlPoint);
                 }
                 k += 1;
             }
-            knotSequences.push(knotSequence.allAbscissae);
+            const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
+            knotSequences.push(knotSequence1.allAbscissae);
+            // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
         return {
@@ -404,7 +408,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         for(let i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        let result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertSequence());
+        let result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
         return result;
     }
 

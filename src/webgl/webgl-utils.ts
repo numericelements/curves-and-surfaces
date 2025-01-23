@@ -175,7 +175,8 @@ export function WebGLUtils() {
     if (!window.requestAnimationFrame) {
       window.requestAnimationFrame = (function() {
         return window.requestAnimationFrame ||
-               window.webkitRequestAnimationFrame ||
+          //JCL modified 2025/01/21
+              //  window.webkitRequestAnimationFrame ||
                (window as any).mozRequestAnimationFrame ||
                (window as any).oRequestAnimationFrame ||
                (window as any).msRequestAnimationFrame ||
@@ -192,7 +193,10 @@ export function WebGLUtils() {
      * @param {number}  Animation frame request. */
     if (!window.cancelAnimationFrame) {
       window.cancelAnimationFrame = ((window as any).cancelRequestAnimationFrame ||
-                                     window.webkitCancelAnimationFrame || (window as any).webkitCancelRequestAnimationFrame ||
+                //JCL modified 2025/01/21
+                                    //  window.webkitCancelAnimationFrame
+                                     window.requestAnimationFrame 
+                                     || (window as any).webkitCancelRequestAnimationFrame ||
                                      (window as any).mozCancelAnimationFrame || (window as any).mozCancelRequestAnimationFrame ||
                                      (window as any).msCancelAnimationFrame || (window as any).msCancelRequestAnimationFrame ||
                                      (window as any).oCancelAnimationFrame || (window as any).oCancelRequestAnimationFrame ||

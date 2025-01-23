@@ -1,0 +1,514 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/ErrorMessages/KnotSequences.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/ErrorMessages</a> KnotSequences.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>144/144</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>144/144</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">// All knot sequences
+// Maximal multiplicity order of a knot sequence
+export const EM_MAXMULTIPLICITY_ORDER_SEQUENCE = "Maximal value of knot multiplicity order is too small for this category of knot sequence. Cannot proceed.";
+&nbsp;
+// A normalized knot sequence cannot be generated over an interval covered by the knot abscissa. The number of basis functions that can be defined is not enough to obtained a normalized basis
+export const EM_SIZENORMALIZED_BSPLINEBASIS = "Normalized knot sequence cannot be generated. The prescribed basis size is too small to generate a B-Spline basis. Cannot proceed.";
+&nbsp;
+// The maximal multiplicity at a knot is greater than the maximal multiplicity order defined for the knot sequence
+export const EM_MAXMULTIPLICITY_ORDER_KNOT = "Knot multiplicity is greater than the maximum multiplicity order set for the knot sequence.";
+&nbsp;
+// The array containing the knot abscissae of the knot sequence has a null length
+export const EM_NULL_KNOT_SEQUENCE = "Knot sequence with null length encountered. Cannot proceed.";
+&nbsp;
+// The abscissae of the knots into the knot array do not follow an increasing order 
+export const EM_NON_INCREASING_KNOT_VALUES = "Knot sequence is not increasing. Cannot proceed.";
+&nbsp;
+// The abscissae of the knots into the knot sequence do not follow a strictly increasing order
+export const EM_NON_STRICTLY_INCREASING_VALUES = "Knot sequence is not strictly increasing. Cannot proceed.";
+&nbsp;
+// The knot index of a knot sequence cannot be negative
+export const EM_KNOTINDEX_INC_SEQ_NEGATIVE = "The knot index cannot be negative. The corresponding method is not applied.";
+&nbsp;
+// The knot index of a knot sequence, whether increasing or strictly increasing, cannot be greater than the last knot index of the equence
+export const EM_KNOTINDEX_INC_SEQ_TOO_LARGE = "The knot index cannot be greater than the last knot index. The corresponding method is not applied.";
+&nbsp;
+// Decrementing to a multiplicity 0 or removing the knot defining the origin of the sequence is not allowed
+export const EM_SEQUENCE_ORIGIN_REMOVAL = "Decrementing knot multiplicity would remove this knot. This knot is the origin of the knot sequence. Cannot remove this knot.";
+&nbsp;
+// A knot cannot be inserted into a knot sequence when its abscissa is greater than the max abscissa of the sequence, ie: uMAX
+export const EM_KNOT_INSERTION_OVER_UMAX = "Knot insertion cannot take place over the largest knot abscissa. Please, create a new knot sequence incorporating the new abscissa.";
+&nbsp;
+// A knot cannot be inserted into a knot sequence when its abscissa is lower than the origin of the knot sequence. This may not be consistent
+// with the structure of the knot sequence (non uniform, periodic, ...) and/or may not be compatible with the interval where the normalized basis is defined
+export const EM_KNOT_INSERTION_UNDER_SEQORIGIN = "Knot insertion cannot take place at abscissa lower than the knot sequence origin. Please, create a new knot sequence incorporating the new abscissa.";
+&nbsp;
+// The knot multiplicity becomes greater than the maximal multiplicity order set for the knot sequence, which is not consistent
+export const EM_MAXMULTIPLICITY_ORDER_ATKNOT = "The knot multiplicity becomes greater than the maximal multiplicity of the knot sequence. Perhaps, raise the maximal multiplicity before increasing the knot multiplicity.";
+&nbsp;
+// The knot indices prescribed to define the sequence of knot abscissae to be extracted from a sequence are inconsistent
+export const EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE = "Start and/or end indices values are out of range. Cannot perform the extraction.";
+&nbsp;
+// The B-Spline basis is not normalized over the interval specified. Data are inconsistent.
+export const EM_NOT_NORMALIZED_BASIS = "The B-Spline basis is not normalized over the knot interval defined. This basis cannot be used for curve modeling.";
+&nbsp;
+// The normalized basis interval is not large enough to have a sufficient number of independent basis functions compared to the maximal multiplicity order defined for the knot sequence
+export const EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT = "The normalized basis interval is not large enough to apply curve modeling algorithms.";
+&nbsp;
+// The abscissa value set for a knot sequence processing is outside the valid interval of the knot sequence
+export const EM_U_OUTOF_KNOTSEQ_RANGE = "Parameter u is outside the valid knot sequence span.";
+&nbsp;
+&nbsp;
+&nbsp;
+// Strictly increasing knot sequences
+// The array containing the knot multiplicities of the knot sequence has a null length
+export const EM_NULL_MULTIPLICITY_ARRAY = "Knot multiplicity array with null length encountered. Cannot proceed.";
+&nbsp;
+// The arrays containing the knot abscissae and the knot multiplicities of the knot sequence don't have the same length
+export const EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL = "Knot sequence with length not equal to the multiplicity array length. Cannot proceed.";
+&nbsp;
+// The knot index of a knot into a strictly increasing knot sequence is out of range
+export const EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE = "Knot index value in strictly increasing knot sequence is out of range.";
+&nbsp;
+// The multiplicity order encountered at a knot is either null or negative. The knot sequence is invalid
+export const EM_KNOT_MULTIPLICITY_OUT_OF_RANGE = "Some knot multiplicities are negative or null. Cannot proceed.";
+&nbsp;
+// The knot at the origin of a non uniform knot sequence is not 0. The knot sequence is not valid
+export const EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE = "Sequence origin is not zero. Non-uniform knot sequence origin must be set to 0.0. Not able to process this knot sequence.";
+&nbsp;
+// Knot sequences whether open for closed curves or periodic that are specified from a range of periodic knots must have the first coinciding with the origin of the knot sequence, i.e. 0.0
+// see EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE
+&nbsp;
+&nbsp;
+&nbsp;
+// Open knot sequences
+// The cumulative knot multiplicity (the sum of the multiplicity order of the first knots up to sequence origin) does not add up to the maximum multiplicity order defined for the knot sequence
+// The cumulative multiplicity is either greater than the max multiplicity, meaning that the first knots may not be useful or their multplicity order is improperly set, or smaller than max multiplicity,
+// meaning that the number of knots and/or their multiplicity orders before the sequence origin, is not consistent
+export const EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART = "Knot multiplicities at sequence start don't add up correctly to produce a normalized basis starting from some knot. Cannot proceed.";
+&nbsp;
+// The cumulative knot multiplicity does not add up to the maximum multiplicity order defined for the knot sequence at some knot to be able to define uMAX, the upper bound of the knot sequence
+// Either some knots are supplementary or some knot multiplicities are inconsistent
+export const EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND = "Knot multiplicities at sequence end don't add up correctly to produce a normalized basis ending from some knot. Cannot proceed.";
+&nbsp;
+// Knot sequences of open curves typically with uniform or non uniform knot sequences where the concept of intermediate knot holds
+export const EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT = "Maximal knot multiplicity reached at an intermediate knot. Please, split the curve at these knots to describe elementary B-splines.";
+&nbsp;
+// A knot removal operation can take place at a boundary or outside the interval of definition of the normalized basis but this operation cannot be performed since it modifies the interval of definition of the normalized basis
+export const EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS = "The knot multiplicity cannot be modified since it modifies the interval of the normalized basis. Please, change the normalized basis definition.";
+&nbsp;
+// Either the knot index of the knot sequence origin is inconsistent or the abscissa at the knot sequence origin is not OPEN_KNOT_SEQUENCE_ORIGIN
+export const EM_KNOT_SEQUENCE_ORIGIN_INCONSISTENT = "Either the knot sequence origin is not zero or the knot defining the origin of the sequence has an abscissa differing from zero. Knot sequence origin must be set to 0.0. Not able to process this knot sequence.";
+&nbsp;
+// The knot multiplicity at the first knot abscissa is inconsistent with the setting of the sequene origin because the cumulative multiplicities of knots up to the origin of the sequence does not equal the max multiplicity of the sequence
+export const EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT = "The knot multiplicity at the first knot is inconsistent with the sequence origin. Cannot proceed.";
+&nbsp;
+// The knot multiplicity at the last knot abscissa is inconsistent with the setting of the sequene upper bound because the cumulative multiplicities of knots from the upper bound of the sequence to its end does not equal the max multiplicity of the sequence
+export const EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT = "The knot multiplicity at the last knot is inconsistent with the sequence upper bound. Cannot proceed.";
+&nbsp;
+// At the left hand side of the knot sequence, with respect to knot origin, the knots are not periodically distributed compared to the left hand side of the right bound of the normalized basis
+// Knot intervals on the left hand side of the origin (closure point) are not consistently set with respect to the distribution of knots in the normalized basis
+export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT = "Knot intervals are not periodically distributed around the closure point (left hand side). This sequence cannot be processed.";
+&nbsp;
+// At the right hand side of the knot sequence, with respect to knot at the right bound of the normalized basis, the knots are not periodically distributed compared to the right hand side of the knot origin of the knot sequence
+// Knot intervals on the right hand side of the origin (closure point) are not consistently set with respect to the distribution of knots in the normalized basis
+export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT = "Knot intervals are not periodically distributed around the closure point (right hand side). This sequence cannot be processed.";
+&nbsp;
+&nbsp;
+&nbsp;
+// Increasing open knot sequences
+// The size of the increasing knot sequence generated is incompatible with the multiplicity orders computed and associated with the strictly increasing knot sequence set up internally
+// as reference representation of every knot sequence class
+export const EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ = "Increasing knot sequence size incompatible with the multiplicity orders of the strictly increasing sequence. Cannot proceed.";
+&nbsp;
+// The knot index defining the left bound of the normalized basis of the knot sequence is associated with an abscissa differing from OPEN_KNOT_SEQUENCE_ORIGIN, ie: 0.0 
+export const EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE = "The abscissa defining the origin of the normalized basis of the knot sequence is not 0.0. The knot sequence is not consistent. Cannot proceed.";
+&nbsp;
+&nbsp;
+// Increasing open knot sequences of closed curves
+// The multiplicity orders of the knots at the left and right bounds of the normalized basis are not equal
+export const EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER = "Multiplicities at knots bounding the normalized basis differ. Cannot proceed with this sequence.";
+&nbsp;
+// The abscissa specified to search for a coinciding knot is out of the interval where the normalized basis of the knot sequenbce is defined
+export const EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE = "Knot abscissa is outside the definition interval of the normalized basis.";
+&nbsp;
+// The conversion of an increasing open knot sequence of a closed curve is possible only if all knots have a multiplicity strictly lower to the maximal multiplicity order defined for the knot sequence
+export const EM_KNOT_MULTIPLICITY_TOO_LARGE_FOR_CONVERSION = "Some knot of the sequence has a multiplicity order that can describe a C0 discontinuity, which incompatible with a closed curve. The conversion is not possible.";
+&nbsp;
+// Strictly incresing open knot sequences of closed curves
+// Intervals around the origin (the closure point) are not correctly distributed
+export const EM_INCORRECT_INTERVALS_AT_ORIGIN = "Knot intervals are not spread correctly around the closure point. This sequence cannot be processed.";
+&nbsp;
+&nbsp;
+// Periodic knot sequences
+// The size of the periodic knot sequence is incompatible with the max multiplicity order of the knot sequence set up to generate a normalized basis over the interval defined by the knots
+export const EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS = "The knot sequence size and knot multiplicities cannot produce a normalized basis over the interval spanned by the knots. Cannot proceed.";
+&nbsp;
+// Indices set to extract a subset of a knot sequence span an interval larger than twice the period of the sequence
+export const EM_INDICES_SPAN_TWICE_PERIOD = "Start and end indices span more than twice the period of the sequence. No extraction is performed.";
+&nbsp;
+// The start index to extract a subset of a knot sequence is greater than the last knot index of the sequence
+export const EM_START_INDEX_OUTOF_RANGE = "Start index must be strictly lower than the end one. Cannot perform the extraction.";
+&nbsp;
+// The start index is greater than the end index
+export const EM_START_INDEX_GREATER_THAN_END_INDEX = "Start index must be strictly lower than the end one. Cannot perform the extraction.";</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-01-23T13:59:10.287Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

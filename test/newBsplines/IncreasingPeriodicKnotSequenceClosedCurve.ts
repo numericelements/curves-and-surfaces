@@ -887,13 +887,13 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
             const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
             expect(seq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1])
             let index = seq.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(1))
-            seq.raiseKnotMultiplicity(index, 1)
-            expect(seq.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1, 1])
-            expect(seq.knotMultiplicity(index)).to.eql(2)
-            index = seq.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(0))
-            seq.raiseKnotMultiplicity(index, 1)
-            expect(seq.multiplicities()).to.eql([2, 2, 1, 1, 1, 1, 1, 1, 2])
-            expect(seq.knotMultiplicity(index)).to.eql(2)
+            const seq1 = seq.raiseKnotMultiplicity(index, 1)
+            expect(seq1.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1, 1])
+            expect(seq1.knotMultiplicity(index)).to.eql(2)
+            index = seq1.toKnotIndexStrictlyIncreasingSequence(new KnotIndexIncreasingSequence(0))
+            const seq2 = seq1.raiseKnotMultiplicity(index, 1)
+            expect(seq2.multiplicities()).to.eql([2, 2, 1, 1, 1, 1, 1, 1, 2])
+            expect(seq2.knotMultiplicity(index)).to.eql(2)
         });
 
         it('check the knot sequence property update after raising the multiplicity of a knot of a uniform multiplicity sequence with constructor type ' + INCREASINGPERIODICKNOTSEQUENCE, () => {
@@ -906,8 +906,8 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
                 const seq1 = seq.clone()
                 const index = new KnotIndexIncreasingSequence(i)
                 const indexStrictInc = seq1.toKnotIndexStrictlyIncreasingSequence(index)
-                seq1.raiseKnotMultiplicity(indexStrictInc, 1)
-                expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+                const seq2 = seq1.raiseKnotMultiplicity(indexStrictInc, 1)
+                expect(seq2.isKnotMultiplicityUniform).to.eql(false)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             }
         });
@@ -922,8 +922,8 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
                 const seq1 = seq.clone()
                 const index = new KnotIndexIncreasingSequence(i)
                 const indexStrictInc = seq1.toKnotIndexStrictlyIncreasingSequence(index)
-                seq1.raiseKnotMultiplicity(indexStrictInc, 1)
-                expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+                const seq2 = seq1.raiseKnotMultiplicity(indexStrictInc, 1)
+                expect(seq2.isKnotMultiplicityUniform).to.eql(false)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             }
         });
@@ -934,9 +934,9 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
             const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
             const index = seq.findSpan(0.2)
             const indexStrictInc = seq.toKnotIndexStrictlyIncreasingSequence(index)
-            seq.raiseKnotMultiplicity(indexStrictInc, 1)
-            expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1])
-            expect(() => seq.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
+            const seq1 = seq.raiseKnotMultiplicity(indexStrictInc, 1)
+            expect(seq1.multiplicities()).to.eql([1, 1, 2, 1, 1, 1])
+            expect(() => seq1.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
         });
 
         it('can raise the multiplicity of an extreme knot with constructor type ' + INCREASINGPERIODICKNOTSEQUENCE, () => {
@@ -944,9 +944,9 @@ describe('IncreasingPeriodicKnotSequenceClosedCurve', () => {
             const maxMultiplicityOrder = 3
             const seq = new IncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots})
             const indexStrictInc = new KnotIndexStrictlyIncreasingSequence(0)
-            seq.raiseKnotMultiplicity(indexStrictInc, 1)
-            expect(seq.multiplicities()).to.eql([2, 1, 1, 1, 1, 2])
-            expect(() => seq.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
+            const seq1 = seq.raiseKnotMultiplicity(indexStrictInc, 1)
+            expect(seq1.multiplicities()).to.eql([2, 1, 1, 1, 1, 2])
+            expect(() => seq1.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
         });
 
         it('can revert the knot sequence for a uniform B-spline', () => {

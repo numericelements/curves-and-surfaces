@@ -6,6 +6,11 @@
 import type {Config} from 'jest';
 
 const config: Config = {
+
+  // JCL added 20225/01/22
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -23,6 +28,11 @@ const config: Config = {
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   // collectCoverageFrom: undefined,
+  // JCL added 20225/01/22
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts'
+  ],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: "coverage",
@@ -42,6 +52,12 @@ const config: Config = {
   //   "lcov",
   //   "clover"
   // ],
+  // JCL added 20225/01/22
+  coverageReporters: [
+    'text',
+    'lcov',
+    'html'
+  ],
 
   // An object that configures minimum threshold enforcement for coverage results
   // coverageThreshold: undefined,
@@ -88,6 +104,12 @@ const config: Config = {
   //   "json",
   //   "node"
   // ],
+  // JCL added 20225/01/22
+  moduleFileExtensions: [
+    'ts',
+    'js',
+    'json'
+  ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
@@ -159,6 +181,10 @@ const config: Config = {
   //   "**/__tests__/**/*.[jt]s?(x)",
   //   "**/?(*.)+(spec|test).[tj]s?(x)"
   // ],
+  // JCL added 20225/01/22
+  testMatch: [
+    '**/test/**/*.ts'
+  ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
