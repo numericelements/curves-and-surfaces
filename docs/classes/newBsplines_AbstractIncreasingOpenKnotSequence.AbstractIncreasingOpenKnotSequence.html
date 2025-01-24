@@ -1,0 +1,1119 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>AbstractIncreasingOpenKnotSequence | curves-and-surfaces</title><meta name="description" content="Documentation for curves-and-surfaces"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="tsd-search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container">
+<div class="table-cell" id="tsd-search" data-base="..">
+<div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
+<div class="field">
+<div id="tsd-toolbar-links"></div></div>
+<ul class="results">
+<li class="state loading">Preparing search index...</li>
+<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">curves-and-surfaces</a></div>
+<div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<ul class="tsd-breadcrumb">
+<li><a href="../index.html">curves-and-surfaces</a></li>
+<li><a href="../modules/newBsplines_AbstractIncreasingOpenKnotSequence.html">newBsplines/AbstractIncreasingOpenKnotSequence</a></li>
+<li><a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html">AbstractIncreasingOpenKnotSequence</a></li></ul>
+<h1>Class AbstractIncreasingOpenKnotSequence<code class="tsd-tag ts-flagAbstract">Abstract</code> </h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>Abstract base class for open knot sequences used in B-spline curves or surfaces.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Description</h4><p>Extends AbstractKnotSequence to provide functionality specific to open knot sequences,
+including normalized basis bounds and knot insertion/removal operations.
+This class is applicable to open B-spline curves and surfaces as well as closed ones that can be described not with periodic knot sequences but also with open ones.</p>
+
+<h4>Abstract</h4>
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// Example knot sequence: [0,0,0,1,2,3,3,3]</span><br/><span class="hl-4">class</span><span class="hl-0"> </span><span class="hl-8">ConcreteOpenKnotSequence</span><span class="hl-0"> </span><span class="hl-4">extends</span><span class="hl-0"> </span><span class="hl-8">AbstractOpenKnotSequence</span><span class="hl-0"> {</span><br/><span class="hl-0">  </span><span class="hl-4">constructor</span><span class="hl-0">() {</span><br/><span class="hl-0">    </span><span class="hl-4">super</span><span class="hl-0">(</span><span class="hl-6">3</span><span class="hl-0">, {</span><span class="hl-1">type:</span><span class="hl-0"> </span><span class="hl-9">UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE</span><span class="hl-0">});</span><br/><span class="hl-0">  }</span><br/><span class="hl-0">}</span>
+</code><button>Copy</button></pre>
+</div></section>
+<section class="tsd-panel tsd-hierarchy">
+<h4>Hierarchy</h4>
+<ul class="tsd-hierarchy">
+<li><a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html" class="tsd-signature-type tsd-kind-class">AbstractOpenKnotSequence</a>
+<ul class="tsd-hierarchy">
+<li><span class="target">AbstractIncreasingOpenKnotSequence</span>
+<ul class="tsd-hierarchy">
+<li><a href="newBsplines_IncreasingOpenKnotSequenceClosedCurve.IncreasingOpenKnotSequenceClosedCurve.html" class="tsd-signature-type tsd-kind-class">IncreasingOpenKnotSequenceClosedCurve</a></li>
+<li><a href="newBsplines_IncreasingOpenKnotSequenceOpenCurve.IncreasingOpenKnotSequenceOpenCurve.html" class="tsd-signature-type tsd-kind-class">IncreasingOpenKnotSequenceOpenCurve</a></li></ul></li></ul></li></ul></section><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L13">newBsplines/AbstractIncreasingOpenKnotSequence.ts:13</a></li></ul></aside>
+<section class="tsd-panel-group tsd-index-group">
+<section class="tsd-panel tsd-index-panel">
+<details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
+<h5 class="tsd-index-heading uppercase" role="button" aria-expanded="false" tabIndex=0><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1.5 5.50969L8 11.6609L14.5 5.50969L12.5466 3.66086L8 7.96494L3.45341 3.66086L1.5 5.50969Z" fill="var(--color-text)"></path></svg> Index</h5></summary>
+<div class="tsd-accordion-details">
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Constructors</h3>
+<div class="tsd-index-list"><a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-512"><rect fill="var(--color-icon-background)" stroke="#4D7FFF" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)"></path></g></svg><span>constructor</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Accessors</h3>
+<div class="tsd-index-list"><a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#allAbscissae" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-262144"><rect fill="var(--color-icon-background)" stroke="#FF4D4D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M8.85 16L11.13 7.24H12.582L14.85 16H13.758L13.182 13.672H10.53L9.954 16H8.85ZM10.746 12.76H12.954L12.282 10.06C12.154 9.548 12.054 9.12 11.982 8.776C11.91 8.432 11.866 8.208 11.85 8.104C11.834 8.208 11.79 8.432 11.718 8.776C11.646 9.12 11.546 9.544 11.418 10.048L10.746 12.76Z" fill="var(--color-text)"></path></g></svg><span>all<wbr/>Abscissae</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#indexKnotOrigin" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>index<wbr/>Knot<wbr/>Origin</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#isKnotMultiplicityNonUniform" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Knot<wbr/>Multiplicity<wbr/>Non<wbr/>Uniform</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#isKnotMultiplicityUniform" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Knot<wbr/>Multiplicity<wbr/>Uniform</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#isKnotSpacingUniform" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Knot<wbr/>Spacing<wbr/>Uniform</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#isSequenceUpToC0Discontinuity" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Sequence<wbr/>Up<wbr/>To<wbr/>C0<wbr/>Discontinuity</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#maxMultiplicityOrder" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>max<wbr/>Multiplicity<wbr/>Order</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#uMax" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>u<wbr/>Max</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Methods</h3>
+<div class="tsd-index-list"><a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#_iterator_" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-2048"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)"></path></g></svg><span>[iterator]</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#abscissaAtIndex" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>abscissa<wbr/>At<wbr/>Index</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkCurveOrigin" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Curve<wbr/>Origin</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkKnotIncreasingValues" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Knot<wbr/>Increasing<wbr/>Values</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkKnotStrictlyIncreasingValues" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Knot<wbr/>Strictly<wbr/>Increasing<wbr/>Values</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkMaxKnotMultiplicityAtIntermediateKnots" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Max<wbr/>Knot<wbr/>Multiplicity<wbr/>At<wbr/>Intermediate<wbr/>Knots</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkMaxMultiplicityOrderConsistency" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Max<wbr/>Multiplicity<wbr/>Order<wbr/>Consistency</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkNonUniformKnotMultiplicityOrder" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Non<wbr/>Uniform<wbr/>Knot<wbr/>Multiplicity<wbr/>Order</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkOriginOfNormalizedBasis" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Origin<wbr/>Of<wbr/>Normalized<wbr/>Basis</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkSizeConsistency" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Size<wbr/>Consistency</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkUniformityOfKnotMultiplicity" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Multiplicity</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#checkUniformityOfKnotSpacing" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Spacing</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#clone" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>clone</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#distinctAbscissae" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>distinct<wbr/>Abscissae</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#extractSubsetOfAbscissae" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>extract<wbr/>Subset<wbr/>Of<wbr/>Abscissae</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#generateKnotSequence" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate<wbr/>Knot<wbr/>Sequence</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#getKnotIndexNormalizedBasisAtSequenceEnd" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>End</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#getKnotIndexNormalizedBasisAtSequenceStart" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>Start</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#getKnotIndicesBoundingNormalizedBasis" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Knot<wbr/>Indices<wbr/>Bounding<wbr/>Normalized<wbr/>Basis</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#insertKnot" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>insert<wbr/>Knot</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#isAbscissaCoincidingWithKnot" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Abscissa<wbr/>Coinciding<wbr/>With<wbr/>Knot</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#isKnotlMultiplicityZero" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Knotl<wbr/>Multiplicity<wbr/>Zero</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#knotIndexInputParamAssessment" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>knot<wbr/>Index<wbr/>Input<wbr/>Param<wbr/>Assessment</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#knotMultiplicity" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>knot<wbr/>Multiplicity</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#knotMultiplicityAtAbscissa" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>knot<wbr/>Multiplicity<wbr/>At<wbr/>Abscissa</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#length" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>length</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#multiplicities" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>multiplicities</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#raiseKnotMultiplicityKnotArrayMutSeq" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Knot<wbr/>Array<wbr/>Mut<wbr/>Seq</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#raiseKnotMultiplicityMutSeq" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Mut<wbr/>Seq</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#toKnotIndexIncreasingSequence" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>Knot<wbr/>Index<wbr/>Increasing<wbr/>Sequence</span></a>
+<a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html#updateKnotSequenceThroughNormalizedBasisAnalysis" class="tsd-index-link tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>update<wbr/>Knot<wbr/>Sequence<wbr/>Through<wbr/>Normalized<wbr/>Basis<wbr/>Analysis</span></a>
+</div></section></div></details></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Constructors</h2>
+<section class="tsd-panel tsd-member"><a id="constructor" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><g stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" id="icon-anchor"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></g></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_AbstractIncreasingOpenKnotSequence"><span class="tsd-kind-constructor-signature">new <wbr/>Abstract<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">maxMultiplicityOrder</span>, <span class="tsd-kind-parameter">knotParameters</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html" class="tsd-signature-type tsd-kind-class">AbstractIncreasingOpenKnotSequence</a><a href="#constructor.new_AbstractIncreasingOpenKnotSequence" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">maxMultiplicityOrder</span>: <span class="tsd-signature-type">number</span></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">knotParameters</span>: <a href="../types/newBsplines_KnotSequenceConstructorInterface.AbstractIncreasingOpenKnotSequence_type.html" class="tsd-signature-type tsd-kind-type-alias">AbstractIncreasingOpenKnotSequence_type</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html" class="tsd-signature-type tsd-kind-class">AbstractIncreasingOpenKnotSequence</a></h4><aside class="tsd-sources">
+<p>Overrides <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#constructor">constructor</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L18">newBsplines/AbstractIncreasingOpenKnotSequence.ts:18</a></li></ul></aside></li></ul></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Accessors</h2>
+<section class="tsd-panel tsd-member"><a id="allAbscissae" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>all<wbr/>Abscissae</span><a href="#allAbscissae" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="allAbscissae.allAbscissae-1"><span class="tsd-signature-symbol">get</span> allAbscissae<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L37">newBsplines/AbstractIncreasingOpenKnotSequence.ts:37</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="indexKnotOrigin" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>index<wbr/>Knot<wbr/>Origin</span><a href="#indexKnotOrigin" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="indexKnotOrigin.indexKnotOrigin-1"><span class="tsd-signature-symbol">get</span> indexKnotOrigin<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L45">newBsplines/AbstractIncreasingOpenKnotSequence.ts:45</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="isKnotMultiplicityNonUniform" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Knot<wbr/>Multiplicity<wbr/>Non<wbr/>Uniform</span><a href="#isKnotMultiplicityNonUniform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature" id="isKnotMultiplicityNonUniform.isKnotMultiplicityNonUniform-1"><span class="tsd-signature-symbol">get</span> isKnotMultiplicityNonUniform<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Indicates if knot multiplicity is non-uniform across the sequence</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Description</h4><p>When the knot multiplicity is maxMultiplicityOrder at both ends, the property is set to true.</p>
+</div><aside class="tsd-sources">
+<p>Inherited from AbstractOpenKnotSequence.isKnotMultiplicityNonUniform</p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L86">newBsplines/AbstractOpenKnotSequence.ts:86</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="isKnotMultiplicityUniform" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Knot<wbr/>Multiplicity<wbr/>Uniform</span><a href="#isKnotMultiplicityUniform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature" id="isKnotMultiplicityUniform.isKnotMultiplicityUniform-1"><span class="tsd-signature-symbol">get</span> isKnotMultiplicityUniform<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Indicates if knot multiplicity is uniform across the sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True if knot multiplicity is uniform</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from AbstractOpenKnotSequence.isKnotMultiplicityUniform</p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L64">newBsplines/AbstractKnotSequence.ts:64</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="isKnotSpacingUniform" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Knot<wbr/>Spacing<wbr/>Uniform</span><a href="#isKnotSpacingUniform" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature" id="isKnotSpacingUniform.isKnotSpacingUniform-1"><span class="tsd-signature-symbol">get</span> isKnotSpacingUniform<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Indicates if knot spacing is uniform across the sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True if knot spacing is uniform</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from AbstractOpenKnotSequence.isKnotSpacingUniform</p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L55">newBsplines/AbstractKnotSequence.ts:55</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="isSequenceUpToC0Discontinuity" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Sequence<wbr/>Up<wbr/>To<wbr/>C0<wbr/>Discontinuity</span><a href="#isSequenceUpToC0Discontinuity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="isSequenceUpToC0Discontinuity.isSequenceUpToC0Discontinuity-1"><span class="tsd-signature-symbol">get</span> isSequenceUpToC0Discontinuity<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L49">newBsplines/AbstractIncreasingOpenKnotSequence.ts:49</a></li></ul></aside></li>
+<li class="tsd-signature" id="isSequenceUpToC0Discontinuity.isSequenceUpToC0Discontinuity-2"><span class="tsd-signature-symbol">set</span> isSequenceUpToC0Discontinuity<span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">isSequenceUpToC0Discontinuity</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">isSequenceUpToC0Discontinuity</span>: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L54">newBsplines/AbstractIncreasingOpenKnotSequence.ts:54</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="maxMultiplicityOrder" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>max<wbr/>Multiplicity<wbr/>Order</span><a href="#maxMultiplicityOrder" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature" id="maxMultiplicityOrder.maxMultiplicityOrder-1"><span class="tsd-signature-symbol">get</span> maxMultiplicityOrder<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the maximum allowed multiplicity order for knots in the sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>Maximum multiplicity order</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from AbstractOpenKnotSequence.maxMultiplicityOrder</p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L46">newBsplines/AbstractKnotSequence.ts:46</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="uMax" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>u<wbr/>Max</span><a href="#uMax" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature" id="uMax.uMax-1"><span class="tsd-signature-symbol">get</span> uMax<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the knot abscissa of the right bound of the normalized basis of the knot sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from AbstractOpenKnotSequence.uMax</p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L76">newBsplines/AbstractOpenKnotSequence.ts:76</a></li></ul></aside></li></ul></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Methods</h2>
+<section class="tsd-panel tsd-member"><a id="_iterator_" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>[iterator]</span><a href="#_iterator_" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="_iterator_._iterator_-1"><span class="tsd-kind-call-signature">[iterator]</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">next</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#_iterator_._iterator_-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">next</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">next</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span></h5>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="_iterator_._iterator_-1.__type.next.__type-1.__type-2"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">done</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">value</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4></li></ul></li></ul></li></ul><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L58">newBsplines/AbstractIncreasingOpenKnotSequence.ts:58</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="abscissaAtIndex" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>abscissa<wbr/>At<wbr/>Index</span><a href="#abscissaAtIndex" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="abscissaAtIndex.abscissaAtIndex-1"><span class="tsd-kind-call-signature">abscissa<wbr/>At<wbr/>Index</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">index</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#abscissaAtIndex.abscissaAtIndex-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">index</span>: <a href="newBsplines_KnotIndexIncreasingSequence.KnotIndexIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexIncreasingSequence</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
+<p>Overrides <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#abscissaAtIndex">abscissaAtIndex</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L162">newBsplines/AbstractIncreasingOpenKnotSequence.ts:162</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="checkCurveOrigin" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Curve<wbr/>Origin</span><a href="#checkCurveOrigin" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="checkCurveOrigin.checkCurveOrigin-1"><span class="tsd-kind-call-signature">check<wbr/>Curve<wbr/>Origin</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkCurveOrigin.checkCurveOrigin-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L105">newBsplines/AbstractIncreasingOpenKnotSequence.ts:105</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="checkKnotIncreasingValues" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Knot<wbr/>Increasing<wbr/>Values</span><a href="#checkKnotIncreasingValues" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="checkKnotIncreasingValues.checkKnotIncreasingValues-1"><span class="tsd-kind-call-signature">check<wbr/>Knot<wbr/>Increasing<wbr/>Values</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">knots</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkKnotIncreasingValues.checkKnotIncreasingValues-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Verifies that knot values of the iterated knot sequence are in increasing order.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">knots</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Array of knot values to check</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If knots are not in increasing order</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkKnotIncreasingValues">checkKnotIncreasingValues</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L380">newBsplines/AbstractKnotSequence.ts:380</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="checkKnotStrictlyIncreasingValues" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Knot<wbr/>Strictly<wbr/>Increasing<wbr/>Values</span><a href="#checkKnotStrictlyIncreasingValues" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="checkKnotStrictlyIncreasingValues.checkKnotStrictlyIncreasingValues-1"><span class="tsd-kind-call-signature">check<wbr/>Knot<wbr/>Strictly<wbr/>Increasing<wbr/>Values</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">knots</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkKnotStrictlyIncreasingValues.checkKnotStrictlyIncreasingValues-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Verifies that knot values of the iterated knot sequence are in strictly increasing order.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">knots</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>Array of knot values to check</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If knots are not in strictly increasing order</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkKnotStrictlyIncreasingValues">checkKnotStrictlyIncreasingValues</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L394">newBsplines/AbstractKnotSequence.ts:394</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="checkMaxKnotMultiplicityAtIntermediateKnots" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Max<wbr/>Knot<wbr/>Multiplicity<wbr/>At<wbr/>Intermediate<wbr/>Knots</span><a href="#checkMaxKnotMultiplicityAtIntermediateKnots" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="checkMaxKnotMultiplicityAtIntermediateKnots.checkMaxKnotMultiplicityAtIntermediateKnots-1"><span class="tsd-kind-call-signature">check<wbr/>Max<wbr/>Knot<wbr/>Multiplicity<wbr/>At<wbr/>Intermediate<wbr/>Knots</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkMaxKnotMultiplicityAtIntermediateKnots.checkMaxKnotMultiplicityAtIntermediateKnots-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Verifies that intermediate knots don&#39;t exceed maximum multiplicity order assigned to the knot sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If any intermediate knot exceeds max multiplicity</p>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkMaxKnotMultiplicityAtIntermediateKnots">checkMaxKnotMultiplicityAtIntermediateKnots</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L366">newBsplines/AbstractKnotSequence.ts:366</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="checkMaxMultiplicityOrderConsistency" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Max<wbr/>Multiplicity<wbr/>Order<wbr/>Consistency</span><a href="#checkMaxMultiplicityOrderConsistency" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="checkMaxMultiplicityOrderConsistency.checkMaxMultiplicityOrderConsistency-1"><span class="tsd-kind-call-signature">check<wbr/>Max<wbr/>Multiplicity<wbr/>Order<wbr/>Consistency</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkMaxMultiplicityOrderConsistency.checkMaxMultiplicityOrderConsistency-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Verifies that no knot multiplicity exceeds the maximum multiplicity order
+assigned to the knot sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If any knot multiplicity exceeds maxMultiplicityOrder</p>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">checkMaxMultiplicityOrderConsistency</span><span class="hl-0">(); </span><span class="hl-3">// Validates all knot multiplicities</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkMaxMultiplicityOrderConsistency">checkMaxMultiplicityOrderConsistency</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L327">newBsplines/AbstractKnotSequence.ts:327</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="checkNonUniformKnotMultiplicityOrder" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>check<wbr/>Non<wbr/>Uniform<wbr/>Knot<wbr/>Multiplicity<wbr/>Order</span><a href="#checkNonUniformKnotMultiplicityOrder" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="checkNonUniformKnotMultiplicityOrder.checkNonUniformKnotMultiplicityOrder-1"><span class="tsd-kind-call-signature">check<wbr/>Non<wbr/>Uniform<wbr/>Knot<wbr/>Multiplicity<wbr/>Order</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkNonUniformKnotMultiplicityOrder.checkNonUniformKnotMultiplicityOrder-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<p>Overrides <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkNonUniformKnotMultiplicityOrder">checkNonUniformKnotMultiplicityOrder</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L84">newBsplines/AbstractIncreasingOpenKnotSequence.ts:84</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="checkOriginOfNormalizedBasis" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Origin<wbr/>Of<wbr/>Normalized<wbr/>Basis</span><a href="#checkOriginOfNormalizedBasis" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="checkOriginOfNormalizedBasis.checkOriginOfNormalizedBasis-1"><span class="tsd-kind-call-signature">check<wbr/>Origin<wbr/>Of<wbr/>Normalized<wbr/>Basis</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkOriginOfNormalizedBasis.checkOriginOfNormalizedBasis-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L96">newBsplines/AbstractIncreasingOpenKnotSequence.ts:96</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="checkSizeConsistency" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Size<wbr/>Consistency</span><a href="#checkSizeConsistency" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="checkSizeConsistency.checkSizeConsistency-1"><span class="tsd-kind-call-signature">check<wbr/>Size<wbr/>Consistency</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">knots</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkSizeConsistency.checkSizeConsistency-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">knots</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L146">newBsplines/AbstractIncreasingOpenKnotSequence.ts:146</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="checkUniformityOfKnotMultiplicity" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Multiplicity</span><a href="#checkUniformityOfKnotMultiplicity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="checkUniformityOfKnotMultiplicity.checkUniformityOfKnotMultiplicity-1"><span class="tsd-kind-call-signature">check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Multiplicity</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkUniformityOfKnotMultiplicity.checkUniformityOfKnotMultiplicity-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Checks uniformity of knot multiplicity in the sequence.
+Updates isKnotMultiplicityUniform property.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkUniformityOfKnotMultiplicity">checkUniformityOfKnotMultiplicity</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L353">newBsplines/AbstractKnotSequence.ts:353</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="checkUniformityOfKnotSpacing" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Spacing</span><a href="#checkUniformityOfKnotSpacing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="checkUniformityOfKnotSpacing.checkUniformityOfKnotSpacing-1"><span class="tsd-kind-call-signature">check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Spacing</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#checkUniformityOfKnotSpacing.checkUniformityOfKnotSpacing-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Checks uniformity of knot spacing in the sequence.
+Updates isKnotSpacingUniform property.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#checkUniformityOfKnotSpacing">checkUniformityOfKnotSpacing</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L337">newBsplines/AbstractKnotSequence.ts:337</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="clone" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagAbstract">Abstract</code> <span>clone</span><a href="#clone" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="clone.clone-1"><span class="tsd-kind-call-signature">clone</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/newBsplines_IncreasingOpenKnotSequenceInterface.IncreasingOpenKnotSequenceInterface.html" class="tsd-signature-type tsd-kind-interface">IncreasingOpenKnotSequenceInterface</a><a href="#clone.clone-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/newBsplines_IncreasingOpenKnotSequenceInterface.IncreasingOpenKnotSequenceInterface.html" class="tsd-signature-type tsd-kind-interface">IncreasingOpenKnotSequenceInterface</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L86">newBsplines/AbstractIncreasingOpenKnotSequence.ts:86</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="distinctAbscissae" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>distinct<wbr/>Abscissae</span><a href="#distinctAbscissae" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="distinctAbscissae.distinctAbscissae-1"><span class="tsd-kind-call-signature">distinct<wbr/>Abscissae</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><a href="#distinctAbscissae.distinctAbscissae-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns an array containing the distinct abscissa values of all knots in the knot sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4><p>Array of distinct knot abscissa values</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">abscissae</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">distinctAbscissae</span><span class="hl-0">(); </span><span class="hl-3">// [0, 1, 2, 3]</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#distinctAbscissae">distinctAbscissae</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L294">newBsplines/AbstractKnotSequence.ts:294</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="extractSubsetOfAbscissae" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>extract<wbr/>Subset<wbr/>Of<wbr/>Abscissae</span><a href="#extractSubsetOfAbscissae" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="extractSubsetOfAbscissae.extractSubsetOfAbscissae-1"><span class="tsd-kind-call-signature">extract<wbr/>Subset<wbr/>Of<wbr/>Abscissae</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">knotStart</span>, <span class="tsd-kind-parameter">knotEnd</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><a href="#extractSubsetOfAbscissae.extractSubsetOfAbscissae-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">knotStart</span>: <a href="newBsplines_KnotIndexIncreasingSequence.KnotIndexIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexIncreasingSequence</a></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">knotEnd</span>: <a href="newBsplines_KnotIndexIncreasingSequence.KnotIndexIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexIncreasingSequence</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L173">newBsplines/AbstractIncreasingOpenKnotSequence.ts:173</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="generateKnotSequence" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>generate<wbr/>Knot<wbr/>Sequence</span><a href="#generateKnotSequence" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="generateKnotSequence.generateKnotSequence-1"><span class="tsd-kind-call-signature">generate<wbr/>Knot<wbr/>Sequence</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">knotParameters</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#generateKnotSequence.generateKnotSequence-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">knotParameters</span>: <a href="../interfaces/newBsplines_KnotSequenceConstructorInterface.IncreasingOpenKnotSequence.html" class="tsd-signature-type tsd-kind-interface">IncreasingOpenKnotSequence</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/newBsplines_KnotSequenceConstructorInterface.IncreasingOpenKnotSequenceUpToC0Discontinuity.html" class="tsd-signature-type tsd-kind-interface">IncreasingOpenKnotSequenceUpToC0Discontinuity</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/newBsplines_KnotSequenceConstructorInterface.IncreasingOpenKnotSequenceCCurve_allKnots.html" class="tsd-signature-type tsd-kind-interface">IncreasingOpenKnotSequenceCCurve_allKnots</a><span class="tsd-signature-symbol"> | </span><a href="../interfaces/newBsplines_KnotSequenceConstructorInterface.IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots.html" class="tsd-signature-type tsd-kind-interface">IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L112">newBsplines/AbstractIncreasingOpenKnotSequence.ts:112</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="getKnotIndexNormalizedBasisAtSequenceEnd" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>End</span><a href="#getKnotIndexNormalizedBasisAtSequenceEnd" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="getKnotIndexNormalizedBasisAtSequenceEnd.getKnotIndexNormalizedBasisAtSequenceEnd-1"><span class="tsd-kind-call-signature">get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>End</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#getKnotIndexNormalizedBasisAtSequenceEnd.getKnotIndexNormalizedBasisAtSequenceEnd-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the knot index and basis normalization state at the end of the normalized basis interval.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4><p>An object containing the knot index as KnotIndexStrictlyIncreasingSequence and basis state at sequence end</p>
+
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">basis<wbr/>At<wbr/>Seq<wbr/>Ext</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5></li></ul>
+<div class="tsd-comment tsd-typography">
+<h4>Description</h4><p>This method determines the knot index and basis normalization state at the end of the normalized basis interval
+by analyzing the cumulative multiplicities starting from the last knot and heading toward the start of the sequence.
+The cumulative multiplicities are constrained by the maxMultiplicityOrder assigned
+to the knot sequence. The knot index is always valid, i.e. &gt;= 0 and &lt; knotSequence.length.</p>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// For sequence [0,0,0,1,2,3,3,3] with maxMultiplicityOrder = 3</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndexNormalizedBasisAtSequenceEnd</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 3}, basisAtSeqExt: StrictlyNormalized}</span><br/><br/><span class="hl-3">// For sequence [0,0,0,1,2,3,3,4,4] with maxMultiplicityOrder = 3</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndexNormalizedBasisAtSequenceEnd</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 3}, basisAtSeqExt: OverDefined}</span><br/><br/><span class="hl-3">// For sequence [-1,0,1] with maxMultiplicityOrder = 4</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndexNormalizedBasisAtSequenceEnd</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 0}, basisAtSeqExt: NotNormalized}</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#getKnotIndexNormalizedBasisAtSequenceEnd">getKnotIndexNormalizedBasisAtSequenceEnd</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L185">newBsplines/AbstractOpenKnotSequence.ts:185</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="getKnotIndexNormalizedBasisAtSequenceStart" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>Start</span><a href="#getKnotIndexNormalizedBasisAtSequenceStart" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="getKnotIndexNormalizedBasisAtSequenceStart.getKnotIndexNormalizedBasisAtSequenceStart-1"><span class="tsd-kind-call-signature">get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>Start</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#getKnotIndexNormalizedBasisAtSequenceStart.getKnotIndexNormalizedBasisAtSequenceStart-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the knot index and basis normalization state at the start of the normalized basis interval.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4><p>An object containing the knot index as KnotIndexStrictlyIncreasingSequence and basis state at sequence start</p>
+
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">basis<wbr/>At<wbr/>Seq<wbr/>Ext</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5></li></ul>
+<div class="tsd-comment tsd-typography">
+<h4>Description</h4><p>This method determines the knot index and basis normalization state at the start of the normalized basis interval
+by analyzing the cumulative multiplicities starting from the first knot and heading toward the end of the sequence.
+The cumulative multiplicities are constrained by the maxMultiplicityOrder assigned
+to the knot sequence. The knot index is always valid, i.e. &gt;= 0 and &lt; knotSequence.length.</p>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// For sequence [0,0,0,1,2,3,3,3] with maxMultiplicityOrder = 3</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndexNormalizedBasisAtSequenceStart</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 0}, basisAtSeqExt: StrictlyNormalized}</span><br/><br/><span class="hl-3">// For sequence [0,1,1,1,2,3,3,3] with maxMultiplicityOrder = 3</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndexNormalizedBasisAtSequenceStart</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 1}, basisAtSeqExt: OverDefined}</span><br/><br/><span class="hl-3">// For sequence [-1,0,1] with maxMultiplicityOrder = 4</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndexNormalizedBasisAtSequenceStart</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 2}, basisAtSeqExt: NotNormalized}</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#getKnotIndexNormalizedBasisAtSequenceStart">getKnotIndexNormalizedBasisAtSequenceStart</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L227">newBsplines/AbstractOpenKnotSequence.ts:227</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="getKnotIndicesBoundingNormalizedBasis" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>get<wbr/>Knot<wbr/>Indices<wbr/>Bounding<wbr/>Normalized<wbr/>Basis</span><a href="#getKnotIndicesBoundingNormalizedBasis" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="getKnotIndicesBoundingNormalizedBasis.getKnotIndicesBoundingNormalizedBasis-1"><span class="tsd-kind-call-signature">get<wbr/>Knot<wbr/>Indices<wbr/>Bounding<wbr/>Normalized<wbr/>Basis</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">end</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">start</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#getKnotIndicesBoundingNormalizedBasis.getKnotIndicesBoundingNormalizedBasis-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the knot indices that bound the normalized basis of the knot sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">end</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">start</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>        </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>        </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4><p>An object containing the start and end knot indices with their respective basis normalization states</p>
+
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">end</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">basis<wbr/>At<wbr/>Seq<wbr/>Ext</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5></li></ul></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">start</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">basisAtSeqExt</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">basis<wbr/>At<wbr/>Seq<wbr/>Ext</span><span class="tsd-signature-symbol">: </span><a href="../enums/namedConstants_KnotSequences.NormalizedBasisAtSequenceExtremity.html" class="tsd-signature-type tsd-kind-enum">NormalizedBasisAtSequenceExtremity</a></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">knot</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5></li></ul></li></ul>
+<div class="tsd-comment tsd-typography">
+<h4>Description</h4><p>This method determines the boundary knots of the normalized basis interval by analyzing
+the cumulative multiplicities at both ends of the sequence with respect to maxMultiplicityOrder assigned 
+to the knot sequence. For each boundary:</p>
+<ul>
+<li>Returns the knot index as a KnotIndexStrictlyIncreasingSequence. The knot index is always valid, i.e. &gt;= 0 and &lt; knotSequence.length.</li>
+<li>Indicates the basis normalization state (StrictlyNormalized, NotNormalized, or OverDefined)
+When returning the normaalization state, the knot index value is not relevant.</li>
+</ul>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// For sequence [0,0,0,1,2,3,3,3] with maxMultiplicityOrder = 3</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndicesBoundingNormalizedBasis</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {</span><br/><span class="hl-3">//   start: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 0}, basisAtSeqExt: StrictlyNormalized},</span><br/><span class="hl-3">//   end: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 3}, basisAtSeqExt: StrictlyNormalized}</span><br/><span class="hl-3">// }</span><br/><br/><span class="hl-3">// For sequence [-2,-1,0,1,2,3,3,4,4] with maxMultiplicityOrder = 3</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndicesBoundingNormalizedBasis</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {</span><br/><span class="hl-3">//   start: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 2}, basisAtSeqExt: StrictlyNormalized},</span><br/><span class="hl-3">//   end: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 5}, basisAtSeqExt: OverDefined}</span><br/><span class="hl-3">// }</span><br/><br/><span class="hl-3">// For sequence [-1,0,1] with maxMultiplicityOrder = 4</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">bounds</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">getKnotIndicesBoundingNormalizedBasis</span><span class="hl-0">();</span><br/><span class="hl-3">// Returns: {</span><br/><span class="hl-3">//   start: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 2}, basisAtSeqExt: NotNormalized},</span><br/><span class="hl-3">//   end: {knot: KnotIndexStrictlyIncreasingSequence{knotIndex: 0}, basisAtSeqExt: NotNormalized}</span><br/><span class="hl-3">// }</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#getKnotIndicesBoundingNormalizedBasis">getKnotIndicesBoundingNormalizedBasis</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L153">newBsplines/AbstractOpenKnotSequence.ts:153</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="insertKnot" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>insert<wbr/>Knot</span><a href="#insertKnot" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="insertKnot.insertKnot-1"><span class="tsd-kind-call-signature">insert<wbr/>Knot</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">abscissa</span>, <span class="tsd-kind-parameter">multiplicity</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#insertKnot.insertKnot-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Inserts a new knot into the knot sequence.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">abscissa</span>: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Abscissa value for new knot. Must be within [KNOT_SEQUENCE_ORIGIN, uMax]</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">multiplicity</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+<div class="tsd-comment tsd-typography"><p>Multiplicity of new knot. Must not exceed maxMultiplicityOrder. Defaults to 1</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True if insertion successful, false if abscissa coincides with existing knot</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>warning message if abscissa is too close to an existing knot.</p>
+
+<h4>Throws</h4><p>if the abscissa is smaller than KNOT_SEQUENCE_ORIGIN</p>
+
+<h4>Throws</h4><p>if the abscissa is greater than uMax</p>
+
+<h4>Throws</h4><p>if the multiplicity is greater than maxMultiplicityOrder</p>
+
+<h4>Description</h4><p>The multiplicity of the inserted knot defaults to 1 and is bounded by maxMultiplicityOrder.
+The new knot abscissa must be distinct from all other knots in the sequence. If not a warning message is issued and the method returns false.
+The knot insertion process incorporates the knot increasing or knot strictly increasing constraint depending on the knot sequence type.
+The uniformity of knot spacing, uniformity of knot multiplicity, and non uniformity of knot multiplicity at normalized basis boundaries are checked.</p>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// Insert knot with multiplicity 2 at x=1.5</span><br/><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">insertKnot</span><span class="hl-0">(</span><span class="hl-6">1.5</span><span class="hl-0">, </span><span class="hl-6">2</span><span class="hl-0">);</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#insertKnot">insertKnot</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L502">newBsplines/AbstractOpenKnotSequence.ts:502</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="isAbscissaCoincidingWithKnot" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Abscissa<wbr/>Coinciding<wbr/>With<wbr/>Knot</span><a href="#isAbscissaCoincidingWithKnot" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="isAbscissaCoincidingWithKnot.isAbscissaCoincidingWithKnot-1"><span class="tsd-kind-call-signature">is<wbr/>Abscissa<wbr/>Coinciding<wbr/>With<wbr/>Knot</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">abscissa</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#isAbscissaCoincidingWithKnot.isAbscissaCoincidingWithKnot-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Checks if a given abscissa value coincides with any knot in the sequence within the KNOT_COINCIDENCE_TOLERANCE tolerance.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">abscissa</span>: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Knot abscissa value to check for coincidence with knots of the sequence</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True if abscissa coincides with a knot</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">coincides</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">isAbscissaCoincidingWithKnot</span><span class="hl-0">(</span><span class="hl-6">1.0</span><span class="hl-0">);</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#isAbscissaCoincidingWithKnot">isAbscissaCoincidingWithKnot</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L411">newBsplines/AbstractKnotSequence.ts:411</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="isKnotlMultiplicityZero" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>is<wbr/>Knotl<wbr/>Multiplicity<wbr/>Zero</span><a href="#isKnotlMultiplicityZero" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="isKnotlMultiplicityZero.isKnotlMultiplicityZero-1"><span class="tsd-kind-call-signature">is<wbr/>Knotl<wbr/>Multiplicity<wbr/>Zero</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">abscissa</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#isKnotlMultiplicityZero.isKnotlMultiplicityZero-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Checks if a given knot abscissa has zero multiplicity (no coincident knot).</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">abscissa</span>: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>Value to check for zero multiplicity</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True if abscissa has zero multiplicity</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">isZero</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">isKnotlMultiplicityZero</span><span class="hl-0">(</span><span class="hl-6">1.5</span><span class="hl-0">);</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#isKnotlMultiplicityZero">isKnotlMultiplicityZero</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L428">newBsplines/AbstractKnotSequence.ts:428</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="knotIndexInputParamAssessment" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>knot<wbr/>Index<wbr/>Input<wbr/>Param<wbr/>Assessment</span><a href="#knotIndexInputParamAssessment" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="knotIndexInputParamAssessment.knotIndexInputParamAssessment-1"><span class="tsd-kind-call-signature">knot<wbr/>Index<wbr/>Input<wbr/>Param<wbr/>Assessment</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">index</span>, <span class="tsd-kind-parameter">methodName</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#knotIndexInputParamAssessment.knotIndexInputParamAssessment-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">index</span>: <a href="newBsplines_KnotIndexIncreasingSequence.KnotIndexIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexIncreasingSequence</a></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">methodName</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L88">newBsplines/AbstractIncreasingOpenKnotSequence.ts:88</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="knotMultiplicity" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>knot<wbr/>Multiplicity</span><a href="#knotMultiplicity" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="knotMultiplicity.knotMultiplicity-1"><span class="tsd-kind-call-signature">knot<wbr/>Multiplicity</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">index</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#knotMultiplicity.knotMultiplicity-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets the multiplicity of knot at specified index.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">index</span>: <a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5>
+<div class="tsd-comment tsd-typography"><p>Index of knot into a strictly increasing representation of the knot sequence</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>Multiplicity of knot at index</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">mult</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">knotMultiplicity</span><span class="hl-0">(</span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-5">KnotIndexStrictlyIncreasingSequence</span><span class="hl-0">(</span><span class="hl-6">1</span><span class="hl-0">));</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#knotMultiplicity">knotMultiplicity</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L443">newBsplines/AbstractKnotSequence.ts:443</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="knotMultiplicityAtAbscissa" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>knot<wbr/>Multiplicity<wbr/>At<wbr/>Abscissa</span><a href="#knotMultiplicityAtAbscissa" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="knotMultiplicityAtAbscissa.knotMultiplicityAtAbscissa-1"><span class="tsd-kind-call-signature">knot<wbr/>Multiplicity<wbr/>At<wbr/>Abscissa</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">abscissa</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#knotMultiplicityAtAbscissa.knotMultiplicityAtAbscissa-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Gets multiplicity of the knot located at specified abscissa.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">abscissa</span>: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>abscissa of the knot to get multiplicity of</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>Multiplicity of the knot at the specified abscissa.</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>warning message if abscissa is not found in the sequence and retruns a multiplicity order of 0.</p>
+
+<h4>Description</h4><p>There is no error throw if the abscissa is below the abscissa of the first knot
+or greater than the abscissa of the last knot since the value returned is 0 in all cases.</p>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// For sequence [0,0,0,1,2,3,3,3]</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">mult</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">knotMultiplicityAtAbscissa</span><span class="hl-0">(</span><span class="hl-6">0</span><span class="hl-0">); </span><span class="hl-3">// Returns 3</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#knotMultiplicityAtAbscissa">knotMultiplicityAtAbscissa</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L465">newBsplines/AbstractOpenKnotSequence.ts:465</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="length" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>length</span><a href="#length" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="length.length-1"><span class="tsd-kind-call-signature">length</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#length.length-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L154">newBsplines/AbstractIncreasingOpenKnotSequence.ts:154</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="multiplicities" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>multiplicities</span><a href="#multiplicities" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="multiplicities.multiplicities-1"><span class="tsd-kind-call-signature">multiplicities</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><a href="#multiplicities.multiplicities-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Returns an array containing the multiplicities of all knots in the knot sequence.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4><p>Array of knot multiplicities</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">multiplicities</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">multiplicities</span><span class="hl-0">(); </span><span class="hl-3">// [3, 1, 1, 3]</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#multiplicities">multiplicities</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractKnotSequence.ts#L310">newBsplines/AbstractKnotSequence.ts:310</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="raiseKnotMultiplicityKnotArrayMutSeq" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Knot<wbr/>Array<wbr/>Mut<wbr/>Seq</span><a href="#raiseKnotMultiplicityKnotArrayMutSeq" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="raiseKnotMultiplicityKnotArrayMutSeq.raiseKnotMultiplicityKnotArrayMutSeq-1"><span class="tsd-kind-call-signature">raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Knot<wbr/>Array<wbr/>Mut<wbr/>Seq</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">arrayIndices</span>, <span class="tsd-kind-parameter">multiplicity</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">checkSequenceConsistency</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#raiseKnotMultiplicityKnotArrayMutSeq.raiseKnotMultiplicityKnotArrayMutSeq-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">arrayIndices</span>: <a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol"> | </span><a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a><span class="tsd-signature-symbol">[]</span></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">multiplicity</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">checkSequenceConsistency</span>: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
+<p>Overrides <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#raiseKnotMultiplicityKnotArrayMutSeq">raiseKnotMultiplicityKnotArrayMutSeq</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractIncreasingOpenKnotSequence.ts#L186">newBsplines/AbstractIncreasingOpenKnotSequence.ts:186</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="raiseKnotMultiplicityMutSeq" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Mut<wbr/>Seq</span><a href="#raiseKnotMultiplicityMutSeq" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="raiseKnotMultiplicityMutSeq.raiseKnotMultiplicityMutSeq-1"><span class="tsd-kind-call-signature">raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Mut<wbr/>Seq</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">index</span>, <span class="tsd-kind-parameter">multiplicity</span><span class="tsd-signature-symbol">?</span>, <span class="tsd-kind-parameter">checkSequenceConsistency</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#raiseKnotMultiplicityMutSeq.raiseKnotMultiplicityMutSeq-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Raises the multiplicity of a knot at the specified index.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">index</span>: <a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5>
+<div class="tsd-comment tsd-typography"><p>The index of the knot to modify, represented as a KnotIndexStrictlyIncreasingSequence object.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">multiplicity</span>: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+<div class="tsd-comment tsd-typography"><p>The amount to increase the knot&#39;s multiplicity. Defaults to 1.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">checkSequenceConsistency</span>: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether to perform additional consistency checks. Defaults to true.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If the knot index is out of bounds or if the new multiplicity violates sequence constraints.</p>
+
+<h4>Description</h4><p>This method increases the multiplicity of a specified knot in the knot sequence.</p>
+<p>The method includes several checks to maintain the mathematical validity of the knot sequence:</p>
+<ul>
+<li>Ensures the modified knot is not at the sequence boundaries</li>
+<li>Verifies that the new multiplicity doesn&#39;t exceed allowed maximums</li>
+<li>Checks for uniformity and allowed non-uniform orders in the sequence</li>
+</ul>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// Increase the multiplicity of the third knot (index 2) by 1</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">index</span><span class="hl-0"> = { </span><span class="hl-1">knotIndex:</span><span class="hl-0"> </span><span class="hl-6">2</span><span class="hl-0"> };</span><br/><span class="hl-4">this</span><span class="hl-0">.</span><span class="hl-5">raiseKnotMultiplicityMutSeq</span><span class="hl-0">(</span><span class="hl-1">index</span><span class="hl-0">);</span><br/><br/><span class="hl-3">// Increase the multiplicity of the fourth knot (index 3) by 2</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">index2</span><span class="hl-0"> = { </span><span class="hl-1">knotIndex:</span><span class="hl-0"> </span><span class="hl-6">3</span><span class="hl-0"> };</span><br/><span class="hl-4">this</span><span class="hl-0">.</span><span class="hl-5">raiseKnotMultiplicityMutSeq</span><span class="hl-0">(</span><span class="hl-1">index2</span><span class="hl-0">, </span><span class="hl-6">2</span><span class="hl-0">);</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#raiseKnotMultiplicityMutSeq">raiseKnotMultiplicityMutSeq</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L591">newBsplines/AbstractOpenKnotSequence.ts:591</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="toKnotIndexIncreasingSequence" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>to<wbr/>Knot<wbr/>Index<wbr/>Increasing<wbr/>Sequence</span><a href="#toKnotIndexIncreasingSequence" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="toKnotIndexIncreasingSequence.toKnotIndexIncreasingSequence-1"><span class="tsd-kind-call-signature">to<wbr/>Knot<wbr/>Index<wbr/>Increasing<wbr/>Sequence</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">index</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="newBsplines_KnotIndexIncreasingSequence.KnotIndexIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexIncreasingSequence</a><a href="#toKnotIndexIncreasingSequence.toKnotIndexIncreasingSequence-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Converts strictly increasing sequence index to an increasing sequence index.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">index</span>: <a href="newBsplines_KnotIndexStrictlyIncreasingSequence.KnotIndexStrictlyIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexStrictlyIncreasingSequence</a></h5>
+<div class="tsd-comment tsd-typography"><p>The knot index to convert as represented into the strictly increasing sequence used as reference.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="newBsplines_KnotIndexIncreasingSequence.KnotIndexIncreasingSequence.html" class="tsd-signature-type tsd-kind-class">KnotIndexIncreasingSequence</a></h4><p>The index into the corresponding increasing sequence.</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>if the index is out of range, i.e. either negative or greater than the strictly increasing knot sequence length.</p>
+
+<h4>Description</h4><p>This index transformation is not unique. The convention followed here is the assignment of the first index 
+of the increasing sequence where the abscissa at index (strictly increasing sequence) appears.</p>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// For sequence [0,0,0,1,2,3,3,3]</span><br/><span class="hl-3">// Convert index 2 (third unique knot) to index 4 (counting multiplicities)</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">strictIndex</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-5">KnotIndexStrictlyIncreasingSequence</span><span class="hl-0">(</span><span class="hl-6">2</span><span class="hl-0">);</span><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-9">incIndex</span><span class="hl-0"> = </span><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">toKnotIndexIncreasingSequence</span><span class="hl-0">(</span><span class="hl-1">strictIndex</span><span class="hl-0">);</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#toKnotIndexIncreasingSequence">toKnotIndexIncreasingSequence</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L107">newBsplines/AbstractOpenKnotSequence.ts:107</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited"><a id="updateKnotSequenceThroughNormalizedBasisAnalysis" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>update<wbr/>Knot<wbr/>Sequence<wbr/>Through<wbr/>Normalized<wbr/>Basis<wbr/>Analysis</span><a href="#updateKnotSequenceThroughNormalizedBasisAnalysis" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited">
+<li class="tsd-signature tsd-anchor-link" id="updateKnotSequenceThroughNormalizedBasisAnalysis.updateKnotSequenceThroughNormalizedBasisAnalysis-1"><span class="tsd-kind-call-signature">update<wbr/>Knot<wbr/>Sequence<wbr/>Through<wbr/>Normalized<wbr/>Basis<wbr/>Analysis</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#updateKnotSequenceThroughNormalizedBasisAnalysis.updateKnotSequenceThroughNormalizedBasisAnalysis-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Updates and validates knot sequence through normalized basis analysis.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If sequence start is not properly normalized</p>
+
+<h4>Throws</h4><p>If sequence end is not properly normalized</p>
+
+<h4>Throws</h4><p>If normalized basis interval is insufficient</p>
+
+<h4>Description</h4><ul>
+<li>Updates maxMultiplicityOrder if needed based on knot multiplicities</li>
+<li>Validates normalization at sequence boundaries</li>
+<li>Ensures proper sequence origin position</li>
+<li>Sets correct uMax value</li>
+</ul>
+
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">// For sequence [0,0,0,1,2,3,3,3] with maxMultiplicityOrder = 3</span><br/><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">updateKnotSequenceThroughNormalizedBasisAnalysis</span><span class="hl-0">();</span><br/><span class="hl-3">// Validates normalization and updates sequence properties</span><br/><br/><span class="hl-3">// For invalid sequence [0,0,1,2,3,3,3]</span><br/><span class="hl-1">knotSequence</span><span class="hl-0">.</span><span class="hl-5">updateKnotSequenceThroughNormalizedBasisAnalysis</span><span class="hl-0">();</span><br/><span class="hl-3">// Throws error: Not normalized at sequence start</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from <a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html">AbstractOpenKnotSequence</a>.<a href="newBsplines_AbstractOpenKnotSequence.AbstractOpenKnotSequence.html#updateKnotSequenceThroughNormalizedBasisAnalysis">updateKnotSequenceThroughNormalizedBasisAnalysis</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/numericelements/curves-and-surfaces/blob/35a27e8/src/newBsplines/AbstractOpenKnotSequence.ts#L698">newBsplines/AbstractOpenKnotSequence.ts:698</a></li></ul></aside></li></ul></section></section></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)" id="icon-chevronDown"></path></svg>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility">
+<h4 class="uppercase">Member Visibility</h4><form>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
+<div class="tsd-theme-toggle">
+<h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg>On This Page</h3></summary>
+<div class="tsd-accordion-details">
+<ul>
+<li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
+<li><a href="#allAbscissae" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>all<wbr/>Abscissae</span></a></li>
+<li><a href="#indexKnotOrigin" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>index<wbr/>Knot<wbr/>Origin</span></a></li>
+<li><a href="#isKnotMultiplicityNonUniform" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Knot<wbr/>Multiplicity<wbr/>Non<wbr/>Uniform</span></a></li>
+<li><a href="#isKnotMultiplicityUniform" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Knot<wbr/>Multiplicity<wbr/>Uniform</span></a></li>
+<li><a href="#isKnotSpacingUniform" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Knot<wbr/>Spacing<wbr/>Uniform</span></a></li>
+<li><a href="#isSequenceUpToC0Discontinuity" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>is<wbr/>Sequence<wbr/>Up<wbr/>To<wbr/>C0<wbr/>Discontinuity</span></a></li>
+<li><a href="#maxMultiplicityOrder" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>max<wbr/>Multiplicity<wbr/>Order</span></a></li>
+<li><a href="#uMax" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>u<wbr/>Max</span></a></li>
+<li><a href="#_iterator_" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>[iterator]</span></a></li>
+<li><a href="#abscissaAtIndex" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>abscissa<wbr/>At<wbr/>Index</span></a></li>
+<li><a href="#checkCurveOrigin" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Curve<wbr/>Origin</span></a></li>
+<li><a href="#checkKnotIncreasingValues" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Knot<wbr/>Increasing<wbr/>Values</span></a></li>
+<li><a href="#checkKnotStrictlyIncreasingValues" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Knot<wbr/>Strictly<wbr/>Increasing<wbr/>Values</span></a></li>
+<li><a href="#checkMaxKnotMultiplicityAtIntermediateKnots" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Max<wbr/>Knot<wbr/>Multiplicity<wbr/>At<wbr/>Intermediate<wbr/>Knots</span></a></li>
+<li><a href="#checkMaxMultiplicityOrderConsistency" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Max<wbr/>Multiplicity<wbr/>Order<wbr/>Consistency</span></a></li>
+<li><a href="#checkNonUniformKnotMultiplicityOrder" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Non<wbr/>Uniform<wbr/>Knot<wbr/>Multiplicity<wbr/>Order</span></a></li>
+<li><a href="#checkOriginOfNormalizedBasis" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Origin<wbr/>Of<wbr/>Normalized<wbr/>Basis</span></a></li>
+<li><a href="#checkSizeConsistency" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Size<wbr/>Consistency</span></a></li>
+<li><a href="#checkUniformityOfKnotMultiplicity" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Multiplicity</span></a></li>
+<li><a href="#checkUniformityOfKnotSpacing" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>check<wbr/>Uniformity<wbr/>Of<wbr/>Knot<wbr/>Spacing</span></a></li>
+<li><a href="#clone" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>clone</span></a></li>
+<li><a href="#distinctAbscissae" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>distinct<wbr/>Abscissae</span></a></li>
+<li><a href="#extractSubsetOfAbscissae" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>extract<wbr/>Subset<wbr/>Of<wbr/>Abscissae</span></a></li>
+<li><a href="#generateKnotSequence" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>generate<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="#getKnotIndexNormalizedBasisAtSequenceEnd" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>End</span></a></li>
+<li><a href="#getKnotIndexNormalizedBasisAtSequenceStart" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Knot<wbr/>Index<wbr/>Normalized<wbr/>Basis<wbr/>At<wbr/>Sequence<wbr/>Start</span></a></li>
+<li><a href="#getKnotIndicesBoundingNormalizedBasis" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Knot<wbr/>Indices<wbr/>Bounding<wbr/>Normalized<wbr/>Basis</span></a></li>
+<li><a href="#insertKnot" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>insert<wbr/>Knot</span></a></li>
+<li><a href="#isAbscissaCoincidingWithKnot" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Abscissa<wbr/>Coinciding<wbr/>With<wbr/>Knot</span></a></li>
+<li><a href="#isKnotlMultiplicityZero" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>is<wbr/>Knotl<wbr/>Multiplicity<wbr/>Zero</span></a></li>
+<li><a href="#knotIndexInputParamAssessment" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>knot<wbr/>Index<wbr/>Input<wbr/>Param<wbr/>Assessment</span></a></li>
+<li><a href="#knotMultiplicity" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>knot<wbr/>Multiplicity</span></a></li>
+<li><a href="#knotMultiplicityAtAbscissa" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>knot<wbr/>Multiplicity<wbr/>At<wbr/>Abscissa</span></a></li>
+<li><a href="#length" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>length</span></a></li>
+<li><a href="#multiplicities" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>multiplicities</span></a></li>
+<li><a href="#raiseKnotMultiplicityKnotArrayMutSeq" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Knot<wbr/>Array<wbr/>Mut<wbr/>Seq</span></a></li>
+<li><a href="#raiseKnotMultiplicityMutSeq" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>raise<wbr/>Knot<wbr/>Multiplicity<wbr/>Mut<wbr/>Seq</span></a></li>
+<li><a href="#toKnotIndexIncreasingSequence" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>to<wbr/>Knot<wbr/>Index<wbr/>Increasing<wbr/>Sequence</span></a></li>
+<li><a href="#updateKnotSequenceThroughNormalizedBasisAnalysis" class="tsd-is-inherited"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>update<wbr/>Knot<wbr/>Sequence<wbr/>Through<wbr/>Normalized<wbr/>Basis<wbr/>Analysis</span></a></li></ul></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="../index.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-4"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-namespace)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6"></rect><path d="M9.33 16V7.24H10.77L13.446 14.74C13.43 14.54 13.41 14.296 13.386 14.008C13.37 13.712 13.354 13.404 13.338 13.084C13.33 12.756 13.326 12.448 13.326 12.16V7.24H14.37V16H12.93L10.266 8.5C10.282 8.692 10.298 8.936 10.314 9.232C10.33 9.52 10.342 9.828 10.35 10.156C10.366 10.476 10.374 10.784 10.374 11.08V16H9.33Z" fill="var(--color-text)"></path></g></svg><span>curves-<wbr/>and-<wbr/>surfaces</span></a>
+<ul class="tsd-small-nested-navigation">
+<li><a href="../modules/2DgraphicsItems_DoubleRoundDotSolidShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Double<wbr/>Round<wbr/>Dot<wbr/>Solid<wbr/>Shader</span></a></li>
+<li><a href="../modules/2DgraphicsItems_InsertKnotButtonDialogShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Insert<wbr/>Knot<wbr/>Button<wbr/>Dialog<wbr/>Shader</span></a></li>
+<li><a href="../modules/2DgraphicsItems_LineSegmentShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Line<wbr/>Segment<wbr/>Shader</span></a></li>
+<li><a href="../modules/2DgraphicsItems_PolylineShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Polyline<wbr/>Shader</span></a></li>
+<li><a href="../modules/2DgraphicsItems_RoundDotSolidShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Round<wbr/>Dot<wbr/>Solid<wbr/>Shader</span></a></li>
+<li><a href="../modules/2DgraphicsItems_RoundDotTwoLevelsTransparencyShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Round<wbr/>Dot<wbr/>Two<wbr/>Levels<wbr/>Transparency<wbr/>Shader</span></a></li>
+<li><a href="../modules/2DgraphicsItems_SquareDotSolidShader.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>2<wbr/>Dgraphics<wbr/>Items/<wbr/>Square<wbr/>Dot<wbr/>Solid<wbr/>Shader</span></a></li>
+<li><a href="../modules/ErrorMessages_KnotSequences.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>Error<wbr/>Messages/<wbr/>Knot<wbr/>Sequences</span></a></li>
+<li><a href="../modules/ErrorMessages_Knots.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>Error<wbr/>Messages/<wbr/>Knots</span></a></li>
+<li><a href="../modules/WarningMessages_KnotSequences.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>Warning<wbr/>Messages/<wbr/>Knot<wbr/>Sequences</span></a></li>
+<li><a href="../modules/bezierCurves_BezierR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bezier<wbr/>Curves/<wbr/>Bezier<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_AbstractGenerateOptimizationConstraints.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Abstract<wbr/>Generate<wbr/>Optimization<wbr/>Constraints</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_AbstractOptProblemBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Abstract<wbr/>Opt<wbr/>ProblemBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_BaseOpBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Base<wbr/>OpBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_IOpBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/IOpBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_OpPeriodicBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Op<wbr/>PeriodicBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_OptProblemBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Opt<wbr/>ProblemBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_OptProblemOpenBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Opt<wbr/>Problem<wbr/>OpenBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_OptProblemPeriodicBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Opt<wbr/>Problem<wbr/>PeriodicBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplineOptimizationProblems_OptimizationProblemCtrlParameters.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bspline<wbr/>Optimization<wbr/>Problems/<wbr/>Optimization<wbr/>Problem<wbr/>Ctrl<wbr/>Parameters</span></a></li>
+<li><a href="../modules/bsplines_BSplineInterfaces.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/BSpline<wbr/>Interfaces</span></a></li>
+<li><a href="../modules/bsplines_BSpline_R1_to_R1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/BSpline_<wbr/>R1_<wbr/>to_<wbr/>R1</span></a></li>
+<li><a href="../modules/bsplines_BSpline_R1_to_R2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/BSpline_<wbr/>R1_<wbr/>to_<wbr/>R2</span></a></li>
+<li><a href="../modules/bsplines_BSpline_R1_to_R2_DifferentialProperties.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/BSpline_<wbr/>R1_<wbr/>to_<wbr/>R2_<wbr/>Differential<wbr/>Properties</span></a></li>
+<li><a href="../modules/bsplines_BSpline_R1_to_R2_degree_Raising.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/BSpline_<wbr/>R1_<wbr/>to_<wbr/>R2_<wbr/>degree_<wbr/>Raising</span></a></li>
+<li><a href="../modules/bsplines_BernsteinDecomposition_R1_to_R1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/<wbr/>Bernstein<wbr/>Decomposition_<wbr/>R1_<wbr/>to_<wbr/>R1</span></a></li>
+<li><a href="../modules/bsplines_BinomialCoefficient.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/<wbr/>Binomial<wbr/>Coefficient</span></a></li>
+<li><a href="../modules/bsplines_Piegl_Tiller_NURBS_Book.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>bsplines/<wbr/>Piegl_<wbr/>Tiller_<wbr/>NURBS_<wbr/>Book</span></a></li>
+<li><a href="../modules/chartcontrollers_AbsCurvatureSceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>Abs<wbr/>Curvature<wbr/>Scene<wbr/>Controller</span></a></li>
+<li><a href="../modules/chartcontrollers_ChartContentState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>Chart<wbr/>Content<wbr/>State</span></a></li>
+<li><a href="../modules/chartcontrollers_ChartController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>Chart<wbr/>Controller</span></a></li>
+<li><a href="../modules/chartcontrollers_ChartSceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>Chart<wbr/>Scene<wbr/>Controller</span></a></li>
+<li><a href="../modules/chartcontrollers_CurvatureSceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>Curvature<wbr/>Scene<wbr/>Controller</span></a></li>
+<li><a href="../modules/chartcontrollers_FunctionASceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>FunctionAScene<wbr/>Controller</span></a></li>
+<li><a href="../modules/chartcontrollers_FunctionBSceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>FunctionBScene<wbr/>Controller</span></a></li>
+<li><a href="../modules/chartcontrollers_FunctionBSceneControllerSqrtScaled.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>FunctionBScene<wbr/>Controller<wbr/>Sqrt<wbr/>Scaled</span></a></li>
+<li><a href="../modules/chartcontrollers_NoFunctionSceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>chartcontrollers/<wbr/>No<wbr/>Function<wbr/>Scene<wbr/>Controller</span></a></li>
+<li><a href="../modules/containers_AbstractPolygonWithVerticesR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Abstract<wbr/>Polygon<wbr/>With<wbr/>Vertices<wbr/>R1</span></a></li>
+<li><a href="../modules/containers_AdjacentOscillatingPolygons.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Adjacent<wbr/>Oscillating<wbr/>Polygons</span></a></li>
+<li><a href="../modules/containers_ChartDescriptorQueueItem.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Chart<wbr/>Descriptor<wbr/>Queue<wbr/>Item</span></a></li>
+<li><a href="../modules/containers_OscillatingPolygonWithVerticesR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Oscillating<wbr/>Polygon<wbr/>With<wbr/>Vertices<wbr/>R1</span></a></li>
+<li><a href="../modules/containers_PolygonWithVerticesR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Polygon<wbr/>With<wbr/>Vertices<wbr/>R1</span></a></li>
+<li><a href="../modules/containers_Queue.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Queue</span></a></li>
+<li><a href="../modules/containers_VertexR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>containers/<wbr/>Vertex<wbr/>R1</span></a></li>
+<li><a href="../modules/controllers_CurveConstraintSelectionState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Curve<wbr/>Constraint<wbr/>Selection<wbr/>State</span></a></li>
+<li><a href="../modules/controllers_CurveControlState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Curve<wbr/>Control<wbr/>State</span></a></li>
+<li><a href="../modules/controllers_CurveControlStrategyInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Curve<wbr/>Control<wbr/>Strategy<wbr/>Interface</span></a></li>
+<li><a href="../modules/controllers_CurveSceneController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Curve<wbr/>Scene<wbr/>Controller</span></a></li>
+<li><a href="../modules/controllers_CurveSceneControllerInteractionStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Curve<wbr/>Scene<wbr/>Controller<wbr/>Interaction<wbr/>Strategy</span></a></li>
+<li><a href="../modules/controllers_CurveShapeMonitoringStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Curve<wbr/>Shape<wbr/>Monitoring<wbr/>Strategy</span></a></li>
+<li><a href="../modules/controllers_DummyStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Dummy<wbr/>Strategy</span></a></li>
+<li><a href="../modules/controllers_NoSlidingStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>No<wbr/>Sliding<wbr/>Strategy</span></a></li>
+<li><a href="../modules/controllers_SceneControllerInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Scene<wbr/>Controller<wbr/>Interface</span></a></li>
+<li><a href="../modules/controllers_SlidingStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Sliding<wbr/>Strategy</span></a></li>
+<li><a href="../modules/controllers_SlidingStrategyForTest.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Sliding<wbr/>Strategy<wbr/>For<wbr/>Test</span></a></li>
+<li><a href="../modules/controllers_SlidingStrategyStrictlyInsideShapeSpace.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>controllers/<wbr/>Sliding<wbr/>Strategy<wbr/>Strictly<wbr/>Inside<wbr/>Shape<wbr/>Space</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_AbstractCurveDifferentialEventsExtractor.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Abstract<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Extractor</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_ClosedCurveDifferentialEventsExtractor.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Closed<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Extractor</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_ClosedCurveDifferentialEventsExtractorWithoutSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Closed<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Extractor<wbr/>Without<wbr/>Sequence</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_CurveAnalyzer.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Curve<wbr/>Analyzer</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_CurveAnalyzerInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Curve<wbr/>Analyzer<wbr/>Interface</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_CurveDifferentialEventsLocations.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Locations</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_CurveDifferentialEventsLocationsInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Locations<wbr/>Interface</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_CurveDifferentialEventsSequenceExtractorInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Sequence<wbr/>Extractor<wbr/>Interface</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>ExtractionCPClosest<wbr/>To<wbr/>Zero<wbr/>Under<wbr/>Event<wbr/>Sliding<wbr/>At<wbr/>Extremeties</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_ExtremumLocationClassifiier.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Extremum<wbr/>Location<wbr/>Classifiier</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_OpenCurveDifferentialEventsExtractor.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Open<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Extractor</span></a></li>
+<li><a href="../modules/curveShapeSpaceAnalysis_OpenCurveDifferentialEventsExtractorWithoutSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Analysis/<wbr/>Open<wbr/>Curve<wbr/>Differential<wbr/>Events<wbr/>Extractor<wbr/>Without<wbr/>Sequence</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_CurveConstraintStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Curve<wbr/>Constraint<wbr/>Strategy</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_CurveConstraints.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Curve<wbr/>Constraints</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_CurveShapeSpaceDescriptor.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Curve<wbr/>Shape<wbr/>Space<wbr/>Descriptor</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_CurveShapeSpaceNavigator.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Curve<wbr/>Shape<wbr/>Space<wbr/>Navigator</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_NavigationCurveModel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Navigation<wbr/>Curve<wbr/>Model</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_NavigationCurveModelInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Navigation<wbr/>Curve<wbr/>Model<wbr/>Interface</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_NavigationState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Navigation<wbr/>State</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_ShapeSpaceBoundaryEnforcer.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Shape<wbr/>Space<wbr/>Boundary<wbr/>Enforcer</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_ShapeSpaceDiffEventsConfigurator.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Shape<wbr/>Space<wbr/>Diff<wbr/>Events<wbr/>Configurator</span></a></li>
+<li><a href="../modules/curveShapeSpaceNavigation_ShapeSpaceDiffEventsStructure.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>curve<wbr/>Shape<wbr/>Space<wbr/>Navigation/<wbr/>Shape<wbr/>Space<wbr/>Diff<wbr/>Events<wbr/>Structure</span></a></li>
+<li><a href="../modules/designPatterns_CurveConstraintInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>design<wbr/>Patterns/<wbr/>Curve<wbr/>Constraint<wbr/>Interface</span></a></li>
+<li><a href="../modules/designPatterns_IShapeSpaceConfigurator.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>design<wbr/>Patterns/IShape<wbr/>Space<wbr/>Configurator</span></a></li>
+<li><a href="../modules/designPatterns_Observer.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>design<wbr/>Patterns/<wbr/>Observer</span></a></li>
+<li><a href="../modules/designPatterns_RenderFrameObserver.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>design<wbr/>Patterns/<wbr/>Render<wbr/>Frame<wbr/>Observer</span></a></li>
+<li><a href="../modules/designPatterns_SceneInteractionStrategy.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>design<wbr/>Patterns/<wbr/>Scene<wbr/>Interaction<wbr/>Strategy</span></a></li>
+<li><a href="../modules/designPatterns_SlidingEventsAtExtremities.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>design<wbr/>Patterns/<wbr/>Sliding<wbr/>Events<wbr/>At<wbr/>Extremities</span></a></li>
+<li><a href="../modules/errorProcessing_ErrorLoging.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>error<wbr/>Processing/<wbr/>Error<wbr/>Loging</span></a></li>
+<li><a href="../modules/filecontrollers_FileController.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>filecontrollers/<wbr/>File<wbr/>Controller</span></a></li>
+<li><a href="../modules/linearAlgebra_CholeskyDecomposition.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Cholesky<wbr/>Decomposition</span></a></li>
+<li><a href="../modules/linearAlgebra_DenseMatrix.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Dense<wbr/>Matrix</span></a></li>
+<li><a href="../modules/linearAlgebra_DiagonalMatrix.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Diagonal<wbr/>Matrix</span></a></li>
+<li><a href="../modules/linearAlgebra_MathVectorBasicOperations.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Math<wbr/>Vector<wbr/>Basic<wbr/>Operations</span></a></li>
+<li><a href="../modules/linearAlgebra_MatrixInterfaces.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Matrix<wbr/>Interfaces</span></a></li>
+<li><a href="../modules/linearAlgebra_SquareMatrix.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Square<wbr/>Matrix</span></a></li>
+<li><a href="../modules/linearAlgebra_SymmetricMatrix.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>linear<wbr/>Algebra/<wbr/>Symmetric<wbr/>Matrix</span></a></li>
+<li><a href="../modules/main.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>main</span></a></li>
+<li><a href="../modules/mathVector_CylindricalCoordinates.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>math<wbr/>Vector/<wbr/>Cylindrical<wbr/>Coordinates</span></a></li>
+<li><a href="../modules/mathVector_RotationMatrix.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>math<wbr/>Vector/<wbr/>Rotation<wbr/>Matrix</span></a></li>
+<li><a href="../modules/mathVector_Vector2d.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>math<wbr/>Vector/<wbr/>Vector2d</span></a></li>
+<li><a href="../modules/mathVector_Vector3d.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>math<wbr/>Vector/<wbr/>Vector3d</span></a></li>
+<li><a href="../modules/mathVector_VectorInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>math<wbr/>Vector/<wbr/>Vector<wbr/>Interface</span></a></li>
+<li><a href="../modules/mathVector_VectorSpace.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>math<wbr/>Vector/<wbr/>Vector<wbr/>Space</span></a></li>
+<li><a href="../modules/mathematics_Optimizer.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>mathematics/<wbr/>Optimizer</span></a></li>
+<li><a href="../modules/mathematics_Tagged_Vector_2d.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>mathematics/<wbr/>Tagged_<wbr/>Vector_<wbr/>2d</span></a></li>
+<li><a href="../modules/mathematics_TrustRegionSubproblem.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>mathematics/<wbr/>Trust<wbr/>Region<wbr/>Subproblem</span></a></li>
+<li><a href="../modules/mathematics_Vector_2d.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>mathematics/<wbr/>Vector_<wbr/>2d</span></a></li>
+<li><a href="../modules/models_CurveModel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>models/<wbr/>Curve<wbr/>Model</span></a></li>
+<li><a href="../modules/models_CurveModelObserver.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>models/<wbr/>Curve<wbr/>Model<wbr/>Observer</span></a></li>
+<li><a href="../modules/models_CurveModels2D.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>models/<wbr/>Curve<wbr/>Models2D</span></a></li>
+<li><a href="../modules/namedConstants_KnotSequences.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>named<wbr/>Constants/<wbr/>Knot<wbr/>Sequences</span></a></li>
+<li><a href="../modules/namedConstants_Knots.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>named<wbr/>Constants/<wbr/>Knots</span></a></li>
+<li><a href="../modules/newBsplines_AbstractBSplineR1toR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>AbstractBSpline<wbr/>R1to<wbr/>R1</span></a></li>
+<li><a href="../modules/newBsplines_AbstractBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>AbstractBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/newBsplines_AbstractBSplineR1toR2DifferentialProperties.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>AbstractBSpline<wbr/>R1to<wbr/>R2<wbr/>Differential<wbr/>Properties</span></a></li>
+<li><a href="../modules/newBsplines_AbstractBSplineR1toR3.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>AbstractBSpline<wbr/>R1to<wbr/>R3</span></a></li>
+<li>
+<details class="tsd-index-accordion" open data-key="newBsplines/AbstractIncreasingOpenKnotSequence"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg><a href="../modules/newBsplines_AbstractIncreasingOpenKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Abstract<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence</span></a></summary>
+<div class="tsd-accordion-details">
+<ul class="tsd-nested-navigation">
+<li><a href="newBsplines_AbstractIncreasingOpenKnotSequence.AbstractIncreasingOpenKnotSequence.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-128"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)"></path></g></svg><span>Abstract<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence</span></a></li></ul></div></details></li>
+<li><a href="../modules/newBsplines_AbstractKnotIndex.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Abstract<wbr/>Knot<wbr/>Index</span></a></li>
+<li><a href="../modules/newBsplines_AbstractKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Abstract<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_AbstractOpenKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Abstract<wbr/>Open<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_AbstractPeriodicKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Abstract<wbr/>Periodic<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_AbstractStrictlyIncreasingOpenKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Abstract<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R1</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR1Interface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R1<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR2DifferentialProperties.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R2<wbr/>Differential<wbr/>Properties</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR2DifferentialPropertiesInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R2<wbr/>Differential<wbr/>Properties<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR2Interface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R2<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toR3.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>R3</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toRnConstructorInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>Rn<wbr/>Constructor<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR1toRxInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R1to<wbr/>Rx<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR2toCylCoord.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R2to<wbr/>Cyl<wbr/>Coord</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR2toR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R2to<wbr/>R1</span></a></li>
+<li><a href="../modules/newBsplines_BSplineR2toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/BSpline<wbr/>R2to<wbr/>R2</span></a></li>
+<li><a href="../modules/newBsplines_BernsteinDecompositionR1toR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Bernstein<wbr/>Decomposition<wbr/>R1to<wbr/>R1</span></a></li>
+<li><a href="../modules/newBsplines_BinomialCoefficient.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Binomial<wbr/>Coefficient</span></a></li>
+<li><a href="../modules/newBsplines_IncreasingKnotSequenceInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Increasing<wbr/>Knot<wbr/>Sequence<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_IncreasingOpenKnotSequenceClosedCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence<wbr/>Closed<wbr/>Curve</span></a></li>
+<li><a href="../modules/newBsplines_IncreasingOpenKnotSequenceInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_IncreasingOpenKnotSequenceOpenCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence<wbr/>Open<wbr/>Curve</span></a></li>
+<li><a href="../modules/newBsplines_IncreasingPeriodicKnotSequenceClosedCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Increasing<wbr/>Periodic<wbr/>Knot<wbr/>Sequence<wbr/>Closed<wbr/>Curve</span></a></li>
+<li><a href="../modules/newBsplines_Knot.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot</span></a></li>
+<li><a href="../modules/newBsplines_KnotIndexConstructorInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Index<wbr/>Constructor<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_KnotIndexIncreasingSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Index<wbr/>Increasing<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_KnotIndexStrictlyIncreasingSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Index<wbr/>Strictly<wbr/>Increasing<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_adaptParameterNumberArray.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/adapt<wbr/>Parameter<wbr/>Number<wbr/>Array</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromIncreasingOpentoIncreasingPeriodicKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Increasing<wbr/>Opento<wbr/>Increasing<wbr/>Periodic<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Increasing<wbr/>Periodic<wbr/>To<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>SequenceCC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Increasing<wbr/>Periodic<wbr/>To<wbr/>Strictly<wbr/>Increasing<wbr/>Periodic<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Increasing<wbr/>To<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>SequenceCC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Increasing<wbr/>To<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>SequenceOC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromInputParametersToIncreasingOpenKnotSequenceCC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Input<wbr/>Parameters<wbr/>To<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>SequenceCC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Input<wbr/>Parameters<wbr/>To<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>SequenceCC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Strictly<wbr/>Increasing<wbr/>Periodic<wbr/>To<wbr/>Increasing<wbr/>Periodic<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Strictly<wbr/>Increasing<wbr/>Periodic<wbr/>To<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>SequenceCC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromStrictlyIncreasingToIncreasingKnotSequenceCC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Strictly<wbr/>Increasing<wbr/>To<wbr/>Increasing<wbr/>Knot<wbr/>SequenceCC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceAndUtilities_fromStrictlyIncreasingtToIncreasingKnotSequenceOC.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>And<wbr/>Utilities/from<wbr/>Strictly<wbr/>Increasingt<wbr/>To<wbr/>Increasing<wbr/>Knot<wbr/>SequenceOC</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceConstructorInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>Constructor<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_KnotSequenceIterators.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Knot<wbr/>Sequence<wbr/>Iterators</span></a></li>
+<li><a href="../modules/newBsplines_PeriodicBSplineR1toR1.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>PeriodicBSpline<wbr/>R1to<wbr/>R1</span></a></li>
+<li><a href="../modules/newBsplines_PeriodicBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>PeriodicBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/newBsplines_PeriodicBSplineR1toR2DifferentialProperties.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>PeriodicBSpline<wbr/>R1to<wbr/>R2<wbr/>Differential<wbr/>Properties</span></a></li>
+<li><a href="../modules/newBsplines_PeriodicBSplineR1toR2withOpenKnotSequence.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>PeriodicBSpline<wbr/>R1to<wbr/>R2with<wbr/>Open<wbr/>Knot<wbr/>Sequence</span></a></li>
+<li><a href="../modules/newBsplines_Piegl_Tiller_NURBS_Book.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Piegl_<wbr/>Tiller_<wbr/>NURBS_<wbr/>Book</span></a></li>
+<li><a href="../modules/newBsplines_RationalBSplineR1toR2.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>RationalBSpline<wbr/>R1to<wbr/>R2</span></a></li>
+<li><a href="../modules/newBsplines_RationalBSplineR1toR2Adapter.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>RationalBSpline<wbr/>R1to<wbr/>R2<wbr/>Adapter</span></a></li>
+<li><a href="../modules/newBsplines_StrictlyIncreasingKnotSequenceInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Strictly<wbr/>Increasing<wbr/>Knot<wbr/>Sequence<wbr/>Interface</span></a></li>
+<li><a href="../modules/newBsplines_StrictlyIncreasingOpenKnotSequenceClosedCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence<wbr/>Closed<wbr/>Curve</span></a></li>
+<li><a href="../modules/newBsplines_StrictlyIncreasingOpenKnotSequenceOpenCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Strictly<wbr/>Increasing<wbr/>Open<wbr/>Knot<wbr/>Sequence<wbr/>Open<wbr/>Curve</span></a></li>
+<li><a href="../modules/newBsplines_StrictlyIncreasingPeriodicKnotSequenceClosedCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Bsplines/<wbr/>Strictly<wbr/>Increasing<wbr/>Periodic<wbr/>Knot<wbr/>Sequence<wbr/>Closed<wbr/>Curve</span></a></li>
+<li><a href="../modules/newDesignPatterns_Observer.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Design<wbr/>Patterns/<wbr/>Observer</span></a></li>
+<li><a href="../modules/newDesignPatterns_RenderFrameObserver.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Design<wbr/>Patterns/<wbr/>Render<wbr/>Frame<wbr/>Observer</span></a></li>
+<li><a href="../modules/newModels_AbstractCurveModel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Abstract<wbr/>Curve<wbr/>Model</span></a></li>
+<li><a href="../modules/newModels_ClosedCurveModel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Closed<wbr/>Curve<wbr/>Model</span></a></li>
+<li><a href="../modules/newModels_ClosedCurveModelAlternative01.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Closed<wbr/>Curve<wbr/>Model<wbr/>Alternative01</span></a></li>
+<li><a href="../modules/newModels_ClosedCurveModelHessian.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Closed<wbr/>Curve<wbr/>Model<wbr/>Hessian</span></a></li>
+<li><a href="../modules/newModels_ClosedCurveModelQuasiNewton.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Closed<wbr/>Curve<wbr/>Model<wbr/>Quasi<wbr/>Newton</span></a></li>
+<li><a href="../modules/newModels_CurveModel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Curve<wbr/>Model</span></a></li>
+<li><a href="../modules/newModels_CurveModel3d.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Curve<wbr/>Model3d</span></a></li>
+<li><a href="../modules/newModels_CurveModelAlternative01.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Curve<wbr/>Model<wbr/>Alternative01</span></a></li>
+<li><a href="../modules/newModels_CurveModelHessian.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Curve<wbr/>Model<wbr/>Hessian</span></a></li>
+<li><a href="../modules/newModels_CurveModelInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Curve<wbr/>Model<wbr/>Interface</span></a></li>
+<li><a href="../modules/newModels_CurveModelQuasiNewton.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Curve<wbr/>Model<wbr/>Quasi<wbr/>Newton</span></a></li>
+<li><a href="../modules/newModels_SimpleCurveModel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>new<wbr/>Models/<wbr/>Simple<wbr/>Curve<wbr/>Model</span></a></li>
+<li><a href="../modules/optimizationProblemFacade_OptimizationProblemInterface.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>optimization<wbr/>Problem<wbr/>Facade/<wbr/>Optimization<wbr/>Problem<wbr/>Interface</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_ComparatorOfSequencesDiffEvents.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Comparator<wbr/>Of<wbr/>Sequences<wbr/>Diff<wbr/>Events</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_ComparatorOfSequencesOfIntervals.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Comparator<wbr/>Of<wbr/>Sequences<wbr/>Of<wbr/>Intervals</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_DifferentialEvent.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Differential<wbr/>Event</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_DifferentialEventVariation.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Differential<wbr/>Event<wbr/>Variation</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_LocalizerOfDifferentialEvents.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Localizer<wbr/>Of<wbr/>Differential<wbr/>Events</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_MaxIntervalVariation.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Max<wbr/>Interval<wbr/>Variation</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_ModifiedDifferentialEvents.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Modified<wbr/>Differential<wbr/>Events</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_NeighboringEvents.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Neighboring<wbr/>Events</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_SequenceOfDifferentialEvents.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Sequence<wbr/>Of<wbr/>Differential<wbr/>Events</span></a></li>
+<li><a href="../modules/sequenceOfDifferentialEvents_SequenceOfIntervals.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>sequence<wbr/>Of<wbr/>Differential<wbr/>Events/<wbr/>Sequence<wbr/>Of<wbr/>Intervals</span></a></li>
+<li><a href="../modules/shapeNavigableCurve_CurveCategory.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>shape<wbr/>Navigable<wbr/>Curve/<wbr/>Curve<wbr/>Category</span></a></li>
+<li><a href="../modules/shapeNavigableCurve_EventMgmtAtCurveExtremities.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>shape<wbr/>Navigable<wbr/>Curve/<wbr/>Event<wbr/>Mgmt<wbr/>At<wbr/>Curve<wbr/>Extremities</span></a></li>
+<li><a href="../modules/shapeNavigableCurve_EventStateAtCurveExtremity.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>shape<wbr/>Navigable<wbr/>Curve/<wbr/>Event<wbr/>State<wbr/>At<wbr/>Curve<wbr/>Extremity</span></a></li>
+<li><a href="../modules/shapeNavigableCurve_ShapeNavigableCurve.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>shape<wbr/>Navigable<wbr/>Curve/<wbr/>Shape<wbr/>Navigable<wbr/>Curve</span></a></li>
+<li><a href="../modules/userInterfaceController_UserInterfaceEventListener.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>user<wbr/>Interface<wbr/>Controller/<wbr/>User<wbr/>Interface<wbr/>Event<wbr/>Listener</span></a></li>
+<li><a href="../modules/views_AbstractGraphicalEntityView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Abstract<wbr/>Graphical<wbr/>Entity<wbr/>View</span></a></li>
+<li><a href="../modules/views_AbstractMouseSelectableButtonView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Abstract<wbr/>Mouse<wbr/>Selectable<wbr/>Button<wbr/>View</span></a></li>
+<li><a href="../modules/views_AbstractMouseSelectableGraphicEntityView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Abstract<wbr/>Mouse<wbr/>Selectable<wbr/>Graphic<wbr/>Entity<wbr/>View</span></a></li>
+<li><a href="../modules/views_AbstractMouseSelectablePointView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Abstract<wbr/>Mouse<wbr/>Selectable<wbr/>Point<wbr/>View</span></a></li>
+<li><a href="../modules/views_AbstractPointView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Abstract<wbr/>Point<wbr/>View</span></a></li>
+<li><a href="../modules/views_ClampedControlPointView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Clamped<wbr/>Control<wbr/>Point<wbr/>View</span></a></li>
+<li><a href="../modules/views_ClickButtonView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Click<wbr/>Button<wbr/>View</span></a></li>
+<li><a href="../modules/views_ControlPointsView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Control<wbr/>Points<wbr/>View</span></a></li>
+<li><a href="../modules/views_ControlPolygonView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Control<wbr/>Polygon<wbr/>View</span></a></li>
+<li><a href="../modules/views_CurvatureExtremaView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Curvature<wbr/>Extrema<wbr/>View</span></a></li>
+<li><a href="../modules/views_CurveKnotsView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Curve<wbr/>Knots<wbr/>View</span></a></li>
+<li><a href="../modules/views_CurveView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Curve<wbr/>View</span></a></li>
+<li><a href="../modules/views_HighlightedControlPolygonView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Highlighted<wbr/>Control<wbr/>Polygon<wbr/>View</span></a></li>
+<li><a href="../modules/views_InflectionsView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Inflections<wbr/>View</span></a></li>
+<li><a href="../modules/views_PhantomCurveView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Phantom<wbr/>Curve<wbr/>View</span></a></li>
+<li><a href="../modules/views_SelectedDifferentialEventsView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Selected<wbr/>Differential<wbr/>Events<wbr/>View</span></a></li>
+<li><a href="../modules/views_SelectedEnteringShapeSpaceCurvExtremView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Selected<wbr/>Entering<wbr/>Shape<wbr/>Space<wbr/>Curv<wbr/>Extrem<wbr/>View</span></a></li>
+<li><a href="../modules/views_SelectedEnteringShapeSpaceInflectionView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Selected<wbr/>Entering<wbr/>Shape<wbr/>Space<wbr/>Inflection<wbr/>View</span></a></li>
+<li><a href="../modules/views_SelectedSlipOutOfShapeSpaceCurvExtremView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Selected<wbr/>Slip<wbr/>Out<wbr/>Of<wbr/>Shape<wbr/>Space<wbr/>Curv<wbr/>Extrem<wbr/>View</span></a></li>
+<li><a href="../modules/views_SelectedSlipOutOfShapeSpaceInflectionView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Selected<wbr/>Slip<wbr/>Out<wbr/>Of<wbr/>Shape<wbr/>Space<wbr/>Inflection<wbr/>View</span></a></li>
+<li><a href="../modules/views_TransitionCurvatureExtremaView.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>views/<wbr/>Transition<wbr/>Curvature<wbr/>Extrema<wbr/>View</span></a></li>
+<li><a href="../modules/webgl_cuon_utils.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>webgl/cuon-<wbr/>utils</span></a></li>
+<li><a href="../modules/webgl_webgl_utils.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>webgl/webgl-<wbr/>utils</span></a></li></ul></nav></div></div></div>
+<div class="tsd-generator">
+<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
+<div class="overlay"></div></body></html>

@@ -4,7 +4,7 @@ import { findSpan } from '../../src/newBsplines/Piegl_Tiller_NURBS_Book';
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from '../../src/newBsplines/KnotSequenceConstructorInterface';
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from '../../src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC';
 import { KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity } from '../../src/namedConstants/KnotSequences';
-import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_NULL_KNOT_SEQUENCE, EM_NON_INCREASING_KNOT_VALUES, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT } from '../../src/ErrorMessages/KnotSequences';
+import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_NULL_KNOT_SEQUENCE, EM_NON_INCREASING_KNOT_VALUES, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_SEQUENCE_ORIGIN_REMOVAL } from '../../src/ErrorMessages/KnotSequences';
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from '../../src/WarningMessages/KnotSequences';
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from '../namedConstants/GeneralPurpose';
 import { TOL_KNOT_COINCIDENCE } from '../../src/newBsplines/AbstractBSplineR1toR2';
@@ -1043,6 +1043,16 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             // test without knot sequence consistency check
             expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(-1), false)).to.throw(EM_KNOT_INDEX_VALUE)
             expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(seqStrInc.length()), false)).to.throw(EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE)
+        });
+
+        it('cannot decrement the multiplicity of the knot at sequence origin when the knot index is out of range with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
+            const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+            const maxMultiplicityOrder = 4
+            const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+            const seqStrInc = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(seq)
+            const indexOrigin = seqStrInc.indexKnotOrigin
+            expect(seq.isSequenceUpToC0Discontinuity).to.eql(false)
+            expect(() => seq.decrementKnotMultiplicity(indexOrigin)).to.throw(EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS)
         });
 
         it('cannot decrement the multiplicity of a knot when the knot index is out of range with constructor type ' + INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, () => {
