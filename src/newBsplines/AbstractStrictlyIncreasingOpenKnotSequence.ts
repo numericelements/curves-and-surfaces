@@ -1,12 +1,14 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequence } from "./AbstractOpenKnotSequence";
 import { Knot } from "./Knot";
-import { StrictlyIncreasingOpenKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
+import { StrictlyIncreasingKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
 import { AbstractStrictlyIncreasingOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, StrictlyIncreasingOpenKnotSequence, STRICTLYINCREASINGOPENKNOTSEQUENCE, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_KNOT_MULTIPLICITY_OUT_OF_RANGE, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_NOT_NORMALIZED_BASIS, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_SIZENORMALIZED_BSPLINEBASIS } from "../ErrorMessages/KnotSequences"
 import { NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
+import { adaptParameterInsertKnot } from "./KnotSequenceAndUtilities/adaptParameterInsertKnot";
+import { adaptParameterRaiseKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity";
 
 export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
@@ -63,7 +65,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         }
     }
 
-    abstract clone(): StrictlyIncreasingOpenKnotSequenceInterface;
+    abstract clone(): StrictlyIncreasingKnotSequenceInterface;
 
     abstract checkNonUniformKnotMultiplicityOrder(): void;
 
@@ -113,21 +115,13 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         if(knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS || knotParameters.type === STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS) {
             this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
             const periodicKnotLength = normalizedBasisAtEnd.knot.knotIndex - normalizedBasisAtStart.knot.knotIndex;
-            if(this._maxMultiplicityOrder === 2 && periodicKnotLength < 3) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
-            if((periodicKnotLength + 1) <= (1 + this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin))) {
-                let cumulative_multiplicities = 0;
-                for(let i = this._indexKnotOrigin.knotIndex + 1; i < periodicKnotLength - 1; i++) {
-                    cumulative_multiplicities+= knotParameters.multiplicities[i];
-                }
-                if(cumulative_multiplicities < (this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin))) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
+            if(this._maxMultiplicityOrder === 2 && periodicKnotLength < 3) this.throwRangeErrorMessage("generateKnotSequence", EM_SIZENORMALIZED_BSPLINEBASIS);
+            let cumulative_multiplicities = 0;
+            for(let i = this._indexKnotOrigin.knotIndex + 1; i < this._indexKnotOrigin.knotIndex + periodicKnotLength; i++) {
+                cumulative_multiplicities+= knotParameters.multiplicities[i];
             }
+            if(cumulative_multiplicities < (this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin))) this.throwRangeErrorMessage("generateKnotSequence", EM_SIZENORMALIZED_BSPLINEBASIS);
         }
-    }
-
-    revertSequence(): number[] {
-        const seq = this.clone();
-        seq.revertKnotSequence();
-        return seq.distinctAbscissae();
     }
 
     length(): number {
@@ -153,16 +147,13 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         return abscissa;
     }
 
-    incrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1): boolean {
-        let increment = true;
-        if(index.knotIndex < 0 || index.knotIndex > (this.knotSequence.length - 1)) {
-            const error = new ErrorLog(this.constructor.name, "incrementKnotMultiplicity", "the index parameter is out of range. Cannot increment knot multiplicity.");
-            error.logMessage();
-            increment = false;
-        } else {
-            this.knotSequence[index.knotIndex].multiplicity += multiplicity;
-            this.checkMaxMultiplicityOrderConsistency();
-        }
-        return increment;
+    @adaptParameterRaiseKnotMultiplicity()
+    raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number = 1, checkSequenceConsistency: boolean = true): void {
+        return super.raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices as Array<KnotIndexStrictlyIncreasingSequence>, multiplicity, checkSequenceConsistency);
+    }
+
+    @adaptParameterInsertKnot()
+    insertKnotAbscissaArrayMutSeq(abscissa: number | number[], multiplicity: number = 1): void {
+        return super.insertKnotAbscissaArrayMutSeq(abscissa as number[], multiplicity);
     }
 }

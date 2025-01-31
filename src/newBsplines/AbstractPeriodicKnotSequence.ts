@@ -1,7 +1,7 @@
 import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot } from "./Knot";
 import { AbstractPeriodicKnotSequenceClosedCurve_type, NO_KNOT_PERIODIC_CURVE, Uniform_PeriodicKnotSequence, UNIFORM_PERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
+import { EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
@@ -131,6 +131,30 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         }
         this.checkUniformityOfKnotMultiplicity();
         this.checkNonUniformKnotMultiplicityOrder();
+    }
+
+    insertKnotMutSeq(abscissae: number | number[], multiplicity: number = 1): void {
+        if(!Array.isArray(abscissae)) abscissae = [abscissae];
+        for(const abscissa of abscissae) {
+            if(this.isAbscissaCoincidingWithKnot(abscissa)) {
+                this.throwRangeErrorMessage("insertKnot", EM_ABSCISSA_TOO_CLOSE_TO_KNOT);
+            } else if(abscissa < this.knotSequence[0].abscissa) {
+                this.throwRangeErrorMessage("insertKnot", EM_KNOT_INSERTION_UNDER_SEQORIGIN);
+            } else if (abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
+                this.throwRangeErrorMessage("insertKnot", EM_KNOT_INSERTION_OVER_UMAX);
+            }
+            this.maxMultiplicityOrderInputParamAssessment(multiplicity, "insertKnot");
+            const knot = new Knot(abscissa, multiplicity);
+            let i = 0;
+            while(i < (this.knotSequence.length - 1)) {
+                if(this.knotSequence[i].abscissa < abscissa && abscissa < this.knotSequence[i + 1].abscissa) break;
+                i++;
+            }
+            this.knotSequence.splice((i + 1), 0, knot);
+            this.checkUniformityOfKnotSpacing();
+            this.checkUniformityOfKnotMultiplicity();
+            this.checkNonUniformKnotMultiplicityOrder();
+        }
     }
 
 }

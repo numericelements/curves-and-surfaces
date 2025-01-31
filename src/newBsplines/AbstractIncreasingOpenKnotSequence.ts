@@ -7,7 +7,9 @@ import { NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_N
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
-import { adaptParameter } from "./KnotSequenceAndUtilities/adaptParameterNumberArray";
+import { adaptParameterRaiseKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity";
+import { adaptParameterInsertKnot } from "./KnotSequenceAndUtilities/adaptParameterInsertKnot";
+import { adaptParameterDecrementKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterDecrementKnotMultiplicity";
 
 
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
@@ -183,9 +185,19 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         return knots;
     }
 
-    @adaptParameter()
+    @adaptParameterDecrementKnotMultiplicity()
+    decrementKnotMultiplicityKnotArrayMutSeq(index: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, checkSequenceConsistency: boolean = true): void {
+        return super.decrementKnotMultiplicityKnotArrayMutSeq(index as Array<KnotIndexStrictlyIncreasingSequence>, checkSequenceConsistency);
+    }
+
+    @adaptParameterRaiseKnotMultiplicity()
     raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number = 1, checkSequenceConsistency: boolean = true): void {
         return super.raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices as Array<KnotIndexStrictlyIncreasingSequence>, multiplicity, checkSequenceConsistency);
+    }
+
+    @adaptParameterInsertKnot()
+    insertKnotAbscissaArrayMutSeq(abscissa: number | number[], multiplicity: number = 1): void {
+        return super.insertKnotAbscissaArrayMutSeq(abscissa as number[], multiplicity);
     }
 
 }

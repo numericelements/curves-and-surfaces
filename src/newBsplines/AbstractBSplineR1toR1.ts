@@ -184,7 +184,8 @@ export abstract class AbstractBSplineR1toR1 implements BSplineR1toR1Interface {
                 const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
                 this._increasingKnotSequence = updatedSeq.clone();
             } else if(multiplicity === 0 && t === 0) {
-                this._increasingKnotSequence.insertKnot(u, 1);
+                const updatedSeq = this._increasingKnotSequence.insertKnot(u, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
                 const newIndex = this._increasingKnotSequence.findSpan(u);
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             } else {

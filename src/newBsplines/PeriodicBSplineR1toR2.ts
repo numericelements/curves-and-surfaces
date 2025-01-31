@@ -441,7 +441,8 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                     const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
                     this._increasingKnotSequence = updatedSeq.clone();
                 } else if(multiplicity === 0 && t === 0) {
-                    this._increasingKnotSequence.insertKnot(u, 1);
+                    const updatedSeq = this._increasingKnotSequence.insertKnot(u, 1);
+                    this._increasingKnotSequence = updatedSeq.clone();
                     const newIndex = this._increasingKnotSequence.findSpan(u);
                     indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
                 }

@@ -273,7 +273,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
                 const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
                 this._increasingKnotSequence = updatedSeq.clone();
             } else if(multiplicity === 0 && t === 0) {
-                this._increasingKnotSequence.insertKnot(u, 1);
+                const updatedSeq = this._increasingKnotSequence.insertKnot(u, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
                 const newIndex = this._increasingKnotSequence.findSpan(u);
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             } else {
@@ -348,7 +349,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
                 const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
                 this._increasingKnotSequence = updatedSeq.clone();
             } else if(multiplicity === 0 && t === 0) {
-                this._increasingKnotSequence.insertKnot(u, 1);
+                const updatedSeq = this._increasingKnotSequence.insertKnot(u, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
                 const newIndex = this._increasingKnotSequence.findSpan(u);
                 newIndexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             } else {
@@ -459,7 +461,8 @@ export abstract class AbstractBSplineR1toR2 implements BSplineR1toR2Interface {
                 const updatedSeq = this._increasingKnotSequence.raiseKnotMultiplicity(indexStrictInc, 1);
                 this._increasingKnotSequence = updatedSeq.clone();
             } else if(multiplicity === 0 && t === 0) {
-                this._increasingKnotSequence.insertKnot(u, 1);
+                const updatedSeq = this._increasingKnotSequence.insertKnot(u, 1);
+                this._increasingKnotSequence = updatedSeq.clone();
                 const newIndex = this._increasingKnotSequence.findSpan(u);
                 indexStrictInc = this._increasingKnotSequence.toKnotIndexStrictlyIncreasingSequence(newIndex);
             }

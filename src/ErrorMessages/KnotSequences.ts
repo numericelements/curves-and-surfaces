@@ -104,7 +104,8 @@ export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT = "Knot inter
 // Knot intervals on the right hand side of the origin (closure point) are not consistently set with respect to the distribution of knots in the normalized basis
 export const EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT = "Knot intervals are not periodically distributed around the closure point (right hand side). This sequence cannot be processed.";
 
-
+// An abscissa differs from the abscissae of all the knots of the sequence but it is too close from one of them to able to create a new knot independent of the others
+export const EM_ABSCISSA_TOO_CLOSE_TO_KNOT = "Abscissa is too close from an existing knot: please, raise multiplicity of an existing knot.";
 
 // Increasing open knot sequences
 // The size of the increasing knot sequence generated is incompatible with the multiplicity orders computed and associated with the strictly increasing knot sequence set up internally

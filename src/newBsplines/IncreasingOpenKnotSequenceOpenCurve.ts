@@ -6,7 +6,6 @@ import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
-import { adaptParameter } from "./KnotSequenceAndUtilities/adaptParameterNumberArray";
 
 
 export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenKnotSequence {
@@ -79,9 +78,9 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         return newKnotSequence;
     }
 
-    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean = true): IncreasingOpenKnotSequenceOpenCurve {
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, checkSequenceConsistency: boolean = true): IncreasingOpenKnotSequenceOpenCurve {
         const newKnotSequence = this.clone();
-        newKnotSequence.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
+        newKnotSequence.decrementKnotMultiplicityKnotArrayMutSeq(index, checkSequenceConsistency);
         return newKnotSequence;
     }
 
@@ -91,9 +90,24 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         return newKnotSequence;
     }
 
-}
+    insertKnot(arrayAbscissae: number | number[], multplicity = 1): IncreasingOpenKnotSequenceOpenCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.insertKnotAbscissaArrayMutSeq(arrayAbscissae, multplicity);
+        return newKnotSequence;
+    }
 
-export function deepCopyIncreasingKnotSequenceOpenCurve(knotSeq: IncreasingOpenKnotSequenceOpenCurve): number[] {
-    const abscissae = knotSeq.allAbscissae;
-    return abscissae;
+    updateKnotSequenceThroughNormalizedBasisAnalysis(): IncreasingOpenKnotSequenceOpenCurve {
+        const previousKnotSequence = this.knotSequence.slice();
+        this.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeq();
+        const knotAbscissae: number[] = [];
+        for(const knot of this.allAbscissae) {
+            knotAbscissae.push(knot);
+        }
+        let updatedSeq = new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knotAbscissae});
+        if(this._isSequenceUpToC0Discontinuity)
+            updatedSeq = new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knotAbscissae});
+        this.knotSequence = previousKnotSequence;
+        return updatedSeq;
+    }
+
 }

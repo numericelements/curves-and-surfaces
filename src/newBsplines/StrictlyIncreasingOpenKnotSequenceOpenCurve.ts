@@ -20,10 +20,6 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         return this._isSequenceUpToC0Discontinuity;
     }
 
-    set isSequenceUpToC0Discontinuity(value: boolean) {
-        this._isSequenceUpToC0Discontinuity = value;
-    }
-
     checkCurveOrigin(): void {
         if(this.knotSequence[0].abscissa !== KNOT_SEQUENCE_ORIGIN && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
             this.throwRangeErrorMessage("checkCurveOrigin", EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE);
@@ -82,9 +78,31 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         return newKnotSequence;
     }
 
-    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1, checkSequenceConsistency: boolean = true): StrictlyIncreasingOpenKnotSequenceOpenCurve {
+    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number = 1, checkSequenceConsistency: boolean = true): StrictlyIncreasingOpenKnotSequenceOpenCurve {
         const newKnotSequence = this.clone();
-        newKnotSequence.raiseKnotMultiplicityMutSeq(index, multiplicity, checkSequenceConsistency);
+        newKnotSequence.raiseKnotMultiplicityKnotArrayMutSeq(index, multiplicity, checkSequenceConsistency);
         return newKnotSequence;
+    }
+
+    insertKnot(abscissae: number | number[], multiplicity: number = 1): StrictlyIncreasingOpenKnotSequenceOpenCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.insertKnotAbscissaArrayMutSeq(abscissae, multiplicity);
+        return newKnotSequence;
+    }
+
+    updateKnotSequenceThroughNormalizedBasisAnalysis(): StrictlyIncreasingOpenKnotSequenceOpenCurve {
+        const previousKnotSequence = this.knotSequence.slice();
+        this.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeq();
+        const knotAbscissae: number[] = [];
+        const multiplicities: number[] = [];
+        for(const knot of this.knotSequence) {
+            if(knot !== undefined) {
+                knotAbscissae.push(knot.abscissa);
+                multiplicities.push(knot.multiplicity);
+            }
+        }
+        const updatedSeq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: knotAbscissae, multiplicities: multiplicities});
+        this.knotSequence = previousKnotSequence;
+        return updatedSeq;
     }
 }

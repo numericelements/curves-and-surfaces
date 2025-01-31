@@ -140,4 +140,10 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         newKnotSequence.decrementKnotMultiplicityMutSeq(index);
         return newKnotSequence;
     }
+
+    insertKnot(abscissae: number | number[], multiplicity: number = 1): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.insertKnotMutSeq(abscissae, multiplicity);
+        return newKnotSequence;
+    }
 }

@@ -929,7 +929,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
             expect(seq.isKnotMultiplicityUniform).to.eql(false)
             expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
-            expect(() => seq.findSpan(-0.1)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
+            expect(() => seq.findSpan(KNOT_SEQUENCE_ORIGIN - 0.1)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
         });
 
         it('can find the span index in the knot sequence if the abscissa is over the knot sequence period', () => {

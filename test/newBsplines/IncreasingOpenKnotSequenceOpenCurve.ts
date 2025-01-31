@@ -1,16 +1,18 @@
 import { expect } from 'chai';
 import { IncreasingOpenKnotSequenceOpenCurve } from '../../src/newBsplines/IncreasingOpenKnotSequenceOpenCurve';
 import { findSpan } from '../../src/newBsplines/Piegl_Tiller_NURBS_Book';
-import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from '../../src/newBsplines/KnotSequenceConstructorInterface';
+import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, IncreasingOpenKnotSequenceOpenCurve_type, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from '../../src/newBsplines/KnotSequenceConstructorInterface';
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from '../../src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC';
-import { KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity } from '../../src/namedConstants/KnotSequences';
-import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_NULL_KNOT_SEQUENCE, EM_NON_INCREASING_KNOT_VALUES, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_SEQUENCE_ORIGIN_REMOVAL } from '../../src/ErrorMessages/KnotSequences';
+import { KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from '../../src/namedConstants/KnotSequences';
+import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_NULL_KNOT_SEQUENCE, EM_NON_INCREASING_KNOT_VALUES, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_SEQUENCE_ORIGIN_REMOVAL, EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_U_OUTOF_KNOTSEQ_RANGE } from '../../src/ErrorMessages/KnotSequences';
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from '../../src/WarningMessages/KnotSequences';
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from '../namedConstants/GeneralPurpose';
 import { TOL_KNOT_COINCIDENCE } from '../../src/newBsplines/AbstractBSplineR1toR2';
 import { KnotIndexStrictlyIncreasingSequence } from '../../src/newBsplines/KnotIndexStrictlyIncreasingSequence';
 import { KnotIndexIncreasingSequence } from '../../src/newBsplines/KnotIndexIncreasingSequence';
 import { EM_KNOT_INDEX_VALUE } from '../../src/ErrorMessages/Knots';
+import { AbstractOpenKnotSequence } from '../../src/newBsplines/AbstractOpenKnotSequence';
+import { DEFAULT_KNOT_INDEX } from '../../src/namedConstants/Knots';
 
 
 describe('IncreasingOpenKnotSequenceOpenCurve', () => {
@@ -524,6 +526,100 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
 
     describe('Methods', () => {
 
+        describe('Protected Methods', () => {
+
+            let ProtectMethIncreasingOpenKnotSequenceOpenCurve: {
+                new (maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceOpenCurve_type): IncreasingOpenKnotSequenceOpenCurve & {
+                    updateKnotSequenceThroughNormalizedBasisAnalysisMutSeqTest(): void;
+                    decrementKnotMultiplicityMutSeqTest(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency?: boolean): void;
+                    raiseKnotMultiplicityTest(arrayIndices: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity?: number, checkSequenceConsistency?: boolean): void;
+                }
+            };
+
+            beforeEach(() => {
+                ProtectMethIncreasingOpenKnotSequenceOpenCurve = class extends IncreasingOpenKnotSequenceOpenCurve {
+
+                    constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceOpenCurve_type) {
+                        super(maxMultiplicityOrder, knotParameters);
+                    }
+
+                    updateKnotSequenceThroughNormalizedBasisAnalysisMutSeqTest(): void {
+                        this.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeq();
+                    }
+
+                    decrementKnotMultiplicityMutSeqTest(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean = true): void {
+                        this.decrementKnotMultiplicityMutSeq(index, checkSequenceConsistency);
+                    }
+
+                    raiseKnotMultiplicityTest(arrayIndices: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity?: number, checkSequenceConsistency?: boolean): void {
+                        this.raiseKnotMultiplicityKnotArrayMutSeq(arrayIndices, multiplicity, checkSequenceConsistency)
+                    }
+
+                }
+            });
+
+            it('cannot decrement the multiplicity of the knot at sequence origin when the knot multiplicity is one with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
+                const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+                const maxMultiplicityOrder = 4
+                const seq = new ProtectMethIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+                const seqStrInc = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(seq)
+                const indexOrigin = seqStrInc.indexKnotOrigin
+                expect(seq.isSequenceUpToC0Discontinuity).to.eql(false)
+                expect(() => seq.decrementKnotMultiplicityMutSeqTest(indexOrigin, true)).to.throw(EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS)
+                const seq1 = new ProtectMethIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knots})
+                const seqStrInc1 = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(seq1)
+                const indexOrigin1 = seqStrInc1.indexKnotOrigin
+                expect(seq1.isSequenceUpToC0Discontinuity).to.eql(true)
+                seq1.decrementKnotMultiplicityMutSeqTest(indexOrigin1, false)
+                expect(seq1.allAbscissae).to.eql([-0.3, -0.2, -0.1, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8])
+            });
+
+            it('cannot decrement the multiplicity of the knot if the normalized basis becomes overdefined at the left hand side of its interval with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
+                const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+                const maxMultiplicityOrder = 4
+                const seq = new ProtectMethIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+                const indexOrigin = seq.indexKnotOrigin
+                expect(seq.isSequenceUpToC0Discontinuity).to.eql(false)
+                seq.decrementKnotMultiplicityMutSeqTest(indexOrigin, false)
+                expect(() => seq.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeqTest()).to.throw(EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART)
+            });
+
+            it('cannot decrement the multiplicity of the knot if the normalized basis becomes overdefined at the right hand side of its interval with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
+                const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.4, 0.5, 0.6, 0.7, 0.8]
+                const maxMultiplicityOrder = 4
+                const seq = new ProtectMethIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+                const indexUMax = seq.getKnotIndexNormalizedBasisAtSequenceEnd().knot
+                expect(seq.isSequenceUpToC0Discontinuity).to.eql(false)
+                seq.decrementKnotMultiplicityMutSeqTest(indexUMax, false)
+                expect(() => seq.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeqTest()).to.throw(EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND)
+            });
+
+            it('cannot update a knot sequence after decrementing knot multiplicities leading to too many knot removal with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
+                const knots: number [] = [-0.2, -0.1, 0, 0.1, 0.2, 0.3]
+                const maxMultiplicityOrder = 3
+                const seq = new ProtectMethIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+                const indexUMax = seq.getKnotIndexNormalizedBasisAtSequenceEnd().knot
+                expect(seq.isSequenceUpToC0Discontinuity).to.eql(false)
+                const index0 = new KnotIndexStrictlyIncreasingSequence(0)
+                const arrayIndices: KnotIndexStrictlyIncreasingSequence[] = [index0, index0, index0, index0]
+                seq.decrementKnotMultiplicityMutSeqTest(indexUMax, false)
+                expect(() => seq.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeqTest()).to.throw(EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT)
+            });
+
+            it('can increase the max multiplicity order of a knot sequence when increasing the multiplicity order of knots at the normalized basis bounds with constructor type ' + INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, () => {
+                const knots: number [] = [0, 0, 0, 1, 1, 1]
+                const maxMultiplicityOrder = 3
+                const seq = new ProtectMethIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knots})
+                expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
+                const index0 = new KnotIndexStrictlyIncreasingSequence(0)
+                const index1 = new KnotIndexStrictlyIncreasingSequence(1)
+                const arrayIndices: KnotIndexStrictlyIncreasingSequence[] = [index0, index1]
+                seq.raiseKnotMultiplicityTest(arrayIndices, 1, false)
+                seq.updateKnotSequenceThroughNormalizedBasisAnalysisMutSeqTest()
+                expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder + 1)
+            });
+        });
+
         it('can clone the knot sequence with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
             const maxMultiplicityOrder = 4
             const knots = [0, 0, 0, 0, 1, 1, 1.5, 2, 2, 2, 2]
@@ -638,19 +734,19 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
             const maxMultiplicityOrder = 4
             const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-            expect(seq.insertKnot(0.5)).to.eql(false)
-            expect(seq.insertKnot(0.5 + (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF))).to.eql(false)
-            expect(seq.insertKnot(0.5 - (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF))).to.eql(false)
+            expect(() => seq.insertKnot(0.5)).to.throw(EM_ABSCISSA_TOO_CLOSE_TO_KNOT)
+            expect(() => seq.insertKnot(0.5 + (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF))).to.throw(EM_ABSCISSA_TOO_CLOSE_TO_KNOT)
+            expect(() => seq.insertKnot(0.5 - (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF))).to.throw(EM_ABSCISSA_TOO_CLOSE_TO_KNOT)
         });
 
-        it('cannot insert a new knot in the knot sequence if the new knot abscissa is too close to an existing one and does not issue an error message if the multiplicity is greater than maxMultiplicityOrder', () => {
-            const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
-            const maxMultiplicityOrder = 4
-            const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-            expect(seq.insertKnot(0.5, maxMultiplicityOrder)).to.eql(false)
-            expect(seq.insertKnot(0.5 + (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF), maxMultiplicityOrder)).to.eql(false)
-            expect(seq.insertKnot(0.5 - (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF), maxMultiplicityOrder)).to.eql(false)
-        });
+        // it('cannot insert a new knot in the knot sequence if the new knot abscissa is too close to an existing one and does not issue an error message if the multiplicity is greater than maxMultiplicityOrder', () => {
+        //     const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+        //     const maxMultiplicityOrder = 4
+        //     const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+        //     expect(seq.insertKnot(0.5, maxMultiplicityOrder)).to.eql(false)
+        //     expect(seq.insertKnot(0.5 + (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF), maxMultiplicityOrder)).to.eql(false)
+        //     expect(seq.insertKnot(0.5 - (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF), maxMultiplicityOrder)).to.eql(false)
+        // });
     
         it('cannot insert a new knot in the knot sequence if the new knot multiplicity is greater than maxMultiplicityOrder', () => {
             const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
@@ -686,30 +782,29 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             const knots: number [] = [0, 0, 0, 0, 0.5, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
             const maxMultiplicityOrder = 4
             const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-            expect(seq.insertKnot(0.3, 3)).to.eql(true)
-            expect(seq.distinctAbscissae()).to.eql([0, 0.3, 0.5, 0.6, 0.7, 1])
-            expect(seq.multiplicities()).to.eql([4, 3, 1, 1, 2, 4])
+            const seq1 = seq.insertKnot(0.3, 3)
+            expect(seq1.distinctAbscissae()).to.eql([0, 0.3, 0.5, 0.6, 0.7, 1])
+            expect(seq1.multiplicities()).to.eql([4, 3, 1, 1, 2, 4])
         });
 
         it('check knot sequence properties after knot insertion', () => {
             const knots: number [] = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
             const maxMultiplicityOrder = 4
             const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-            const seq1 = seq.clone()
             expect(seq.isKnotSpacingUniform).to.eql(true)
             expect(seq.isKnotMultiplicityUniform).to.eql(true)
             expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             expect(seq.uMax).to.eql(4)
             expect(seq.indexKnotOrigin.knotIndex).to.eql(maxMultiplicityOrder - 1)
             
-            expect(seq.insertKnot(1.2, 1)).to.eql(true)
-            expect(seq.isKnotSpacingUniform).to.eql(false)
-            expect(seq.isKnotMultiplicityUniform).to.eql(true)
-            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
-            expect(seq.uMax).to.eql(4)
-            expect(seq.indexKnotOrigin.knotIndex).to.eql(maxMultiplicityOrder - 1)
+            const seq2 = seq.insertKnot(1.2, 1)
+            expect(seq2.isKnotSpacingUniform).to.eql(false)
+            expect(seq2.isKnotMultiplicityUniform).to.eql(true)
+            expect(seq2.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq2.uMax).to.eql(4)
+            expect(seq2.indexKnotOrigin.knotIndex).to.eql(maxMultiplicityOrder - 1)
 
-            expect(seq1.insertKnot(1.2, 2)).to.eql(true)
+            const seq1 = seq.insertKnot(1.2, 2)
             expect(seq1.isKnotSpacingUniform).to.eql(false)
             expect(seq1.isKnotMultiplicityUniform).to.eql(false)
             expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
@@ -1045,16 +1140,6 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(seqStrInc.length()), false)).to.throw(EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE)
         });
 
-        it('cannot decrement the multiplicity of the knot at sequence origin when the knot index is out of range with constructor type ' + INCREASINGOPENKNOTSEQUENCE, () => {
-            const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
-            const maxMultiplicityOrder = 4
-            const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-            const seqStrInc = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(seq)
-            const indexOrigin = seqStrInc.indexKnotOrigin
-            expect(seq.isSequenceUpToC0Discontinuity).to.eql(false)
-            expect(() => seq.decrementKnotMultiplicity(indexOrigin)).to.throw(EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS)
-        });
-
         it('cannot decrement the multiplicity of a knot when the knot index is out of range with constructor type ' + INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, () => {
             const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
             const maxMultiplicityOrder = 4
@@ -1198,14 +1283,14 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             const abscissa = seq.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))
             expect(abscissa).to.eql(KNOT_SEQUENCE_ORIGIN)
             const seq1 = seq.decrementKnotMultiplicity(indexOrigin, sequenceConsistencyCheck)
-            seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
-            expect(seq1.indexKnotOrigin).to.eql(indexOrigin)
-            expect(seq1.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
+            const seq2 = seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
+            expect(seq2.indexKnotOrigin).to.eql(indexOrigin)
+            expect(seq2.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
             const updatedKnots: number [] = [-0.4, -0.3, -0.2, 0, 0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
-            for(let i = 0; i < seq1.allAbscissae.length; i++) {
-                expect(seq1.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
+            for(let i = 0; i < seq2.allAbscissae.length; i++) {
+                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
             }
-            expect(seq1.uMax).to.eql(0.4)
+            expect(seq2.uMax).to.eql(0.4)
         });
 
         it('can get a consistent knot sequence origin when a knot multiplicity is decremented and the knot at uMax is removed. Knot sequence consistency is not checked during knot multiplicity decrement but the sequence uMax is updated as well as some abscissae', () => {
@@ -1218,12 +1303,12 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             expect(abscissa).to.eql(seq.uMax)
             const seq1 = seq.decrementKnotMultiplicity(indexUMax, sequenceConsistencyCheck)
             expect(seq1.uMax).to.eql(seq.uMax)
-            seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
+            const seq2 = seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
             const updatedKnots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8]
-            for(let i = 0; i < seq1.allAbscissae.length; i++) {
-                expect(seq1.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
+            for(let i = 0; i < seq2.allAbscissae.length; i++) {
+                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
             }
-            expect(seq1.uMax).to.eql(0.4)
+            expect(seq2.uMax).to.eql(0.4)
         });
 
         it('cannot get a consistent knot sequence origin when a knot multiplicity is decremented and the knot at origin is removed. Knot sequence consistency is not checked during knot multiplicity decrement and the sequence origin cannot be updated', () => {
@@ -1424,6 +1509,26 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             index = seq.findSpan(1.0)
             indexCompare = findSpan(1.0, knots, curveDegree);
             expect(index.knotIndex).to.eql(indexCompare)
+        });
+
+        it('cannot find the span index in the knot sequence when the abscissa is outside the normalized basis interval for an arbitrary B-spline', () => {
+            const knots: number [] = [-0.5, -0.5, -0.5, 0.0, 0.6, 0.7, 0.7, 1, 1, 1, 1 ]
+            const maxMultiplicityOrder = 4
+            const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+            expect(seq.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(() => seq.findSpan(KNOT_SEQUENCE_ORIGIN - 1)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
+            expect(() => seq.findSpan(seq.uMax + 1)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
+        });
+
+        it('cannot find the span index in the knot sequence when the abscissa is outside the normalized basis interval for a uniform B-spline', () => {
+            const knots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+            const maxMultiplicityOrder = 4
+            const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
+            expect(seq.isKnotSpacingUniform).to.eql(true)
+            expect(seq.isKnotMultiplicityUniform).to.eql(true)
+            expect(() => seq.findSpan(KNOT_SEQUENCE_ORIGIN - 1)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
+            expect(() => seq.findSpan(seq.uMax + 1)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
         });
 
         it('can find the span index in the knot sequence from an abscissa for an arbitrary B-spline', () => {

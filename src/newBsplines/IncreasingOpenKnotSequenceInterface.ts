@@ -6,6 +6,7 @@ import { KnotSequenceInterface } from "./KnotSequenceInterface";
 // export interface IncreasingOpenKnotSequenceInterface extends KnotSequenceInterface {
 export interface IncreasingOpenKnotSequenceInterface extends IncreasingKnotSequenceInterface {
 
+    indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
     uMax: number;
     allAbscissae: number[];
     isKnotMultiplicityNonUniform: boolean;
@@ -17,7 +18,7 @@ export interface IncreasingOpenKnotSequenceInterface extends IncreasingKnotSeque
     toKnotIndexIncreasingSequence(index: KnotIndexStrictlyIncreasingSequence): KnotIndexIncreasingSequence;
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence;
     findSpan(u: number): KnotIndexIncreasingSequence;
-    insertKnot(abscissa: number, multiplicity: number): boolean;
+    insertKnot(abscissa: number, multiplicity: number): IncreasingOpenKnotSequenceInterface;
     raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number): IncreasingOpenKnotSequenceInterface;
     decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, checkSequenceConsistency: boolean): IncreasingOpenKnotSequenceInterface;
     updateKnotSequenceThroughNormalizedBasisAnalysis(): void;
