@@ -36,9 +36,9 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         this._isKnotMultiplicityNonUniform = false;
     }
 
-    checkCurveOrigin(): void {
-        if(this.knotSequence[0].abscissa !== 0.0) {
-            this.throwRangeErrorMessage('checkCurveOrigin', EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
+    checkNormalizedBasisOrigin(): void {
+        if(this.knotSequence[0].abscissa !== KNOT_SEQUENCE_ORIGIN) {
+            this.throwRangeErrorMessage('checkNormalizedBasisOrigin', EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
         }
     }
 
@@ -50,21 +50,10 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         return this.knotSequence[this.knotSequence.length - 1].abscissa;
     }
 
-    length(): number {
-        return this.knotSequence.length;
-    }
-
     checkKnotMultiplicitiesAtNormalizedBasisBoundaries(): void {
         if(this.knotSequence[0].multiplicity !== this.knotSequence[this.knotSequence.length - 1].multiplicity) {
             this.throwRangeErrorMessage("checkKnotMultiplicitiesAtNormalizedBasisBoundaries", EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER);
         }
-    }
-
-    isAbscissaCoincidingWithKnot(abscissa: number): boolean {
-        if(abscissa < KNOT_SEQUENCE_ORIGIN || abscissa > this._uMax) {
-            this.throwRangeErrorMessage("isAbscissaCoincidingWithKnot", EM_U_OUTOF_KNOTSEQ_RANGE);
-        }
-        return super.isAbscissaCoincidingWithKnot(abscissa);
     }
 
     computeKnotSequenceFromMaxMultiplicityOrder(): void {
@@ -88,29 +77,32 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         this._uMax = this.knotSequence[this.knotSequence.length - 1].abscissa;
     }
 
-    decrementKnotMultiplicityMutSeq(index: KnotIndexStrictlyIncreasingSequence): void {
-        this.strictlyIncKnotIndexInputParamAssessment(index, "decrementKnotMultiplicityMutSeq");
-        if(this.knotSequence[index.knotIndex].multiplicity === 1) {
-            if(index.knotIndex === 0 || index.knotIndex === this.knotSequence.length - 1) {
-                this.throwRangeErrorMessage("decrementKnotMultiplicityMutSeq", EM_SEQUENCE_ORIGIN_REMOVAL);
-            }
-            const abscissae = this.distinctAbscissae();
-            const multiplicities = this.multiplicities();
-            abscissae.splice(index.knotIndex, 1);
-            multiplicities.splice(index.knotIndex, 1);
-            this.knotSequence = [];
-            let i = 0;
-            for(const abscissa of abscissae) {
-                const knot = new Knot(abscissa, multiplicities[i]);
-                this.knotSequence.push(knot);
-                i++;
-            }
-        } else {
-            this.knotSequence[index.knotIndex].multiplicity--;
-            if(index.knotIndex === 0) {
-                this.knotSequence[this.knotSequence.length - 1].multiplicity--;
-            } else if(index.knotIndex === (this.knotSequence.length - 1)) {
-                this.knotSequence[0].multiplicity--;
+    decrementKnotMultiplicityMutSeq(index: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>): void {
+        if(!Array.isArray(index)) index = [index];
+        for(const ind of index) {
+            this.strictlyIncKnotIndexInputParamAssessment(ind, "decrementKnotMultiplicityMutSeq");
+            if(this.knotSequence[ind.knotIndex].multiplicity === 1) {
+                if(ind.knotIndex === 0 || ind.knotIndex === this.knotSequence.length - 1) {
+                    this.throwRangeErrorMessage("decrementKnotMultiplicityMutSeq", EM_SEQUENCE_ORIGIN_REMOVAL);
+                }
+                const abscissae = this.distinctAbscissae();
+                const multiplicities = this.multiplicities();
+                abscissae.splice(ind.knotIndex, 1);
+                multiplicities.splice(ind.knotIndex, 1);
+                this.knotSequence = [];
+                let i = 0;
+                for(const abscissa of abscissae) {
+                    const knot = new Knot(abscissa, multiplicities[i]);
+                    this.knotSequence.push(knot);
+                    i++;
+                }
+            } else {
+                this.knotSequence[ind.knotIndex].multiplicity--;
+                if(ind.knotIndex === 0) {
+                    this.knotSequence[this.knotSequence.length - 1].multiplicity--;
+                } else if(ind.knotIndex === (this.knotSequence.length - 1)) {
+                    this.knotSequence[0].multiplicity--;
+                }
             }
         }
         this.checkUniformityOfKnotSpacing();
@@ -121,9 +113,6 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
     raiseKnotMultiplicityArrayMutSeq(indicesArray: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number): void {
         if(!Array.isArray(indicesArray)) indicesArray = [indicesArray];
         for(const index of indicesArray) {
-            if(index.knotIndex < 0) {
-                this.throwRangeErrorMessage("raiseKnotMultiplicity", EM_KNOTINDEX_INC_SEQ_NEGATIVE);
-            }
             const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
             this.knotSequence[indexWithinPeriod].multiplicity += multiplicity;
             this.checkMaxMultiplicityOrderConsistency();
@@ -138,7 +127,8 @@ export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence 
         for(const abscissa of abscissae) {
             if(this.isAbscissaCoincidingWithKnot(abscissa)) {
                 this.throwRangeErrorMessage("insertKnot", EM_ABSCISSA_TOO_CLOSE_TO_KNOT);
-            } else if(abscissa < this.knotSequence[0].abscissa) {
+            }
+            if(abscissa < this.knotSequence[0].abscissa) {
                 this.throwRangeErrorMessage("insertKnot", EM_KNOT_INSERTION_UNDER_SEQORIGIN);
             } else if (abscissa > this.knotSequence[this.knotSequence.length - 1].abscissa) {
                 this.throwRangeErrorMessage("insertKnot", EM_KNOT_INSERTION_OVER_UMAX);

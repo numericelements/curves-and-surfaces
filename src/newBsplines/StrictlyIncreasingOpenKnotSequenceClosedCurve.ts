@@ -20,7 +20,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         // The validity of the knot sequence should follow the given sequence of calls
         // to make sure that the sequence origin is correctly set first since it is used
         // when checking the degree consistency and knot multiplicities outside the effective curve interval
-        this.checkCurveOrigin();
+        this.updateNormalizedBasisOrigin();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkKnotIntervalConsistency();
         this.checkUniformityOfKnotSpacing();
@@ -90,6 +90,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         }
         i = 0;
         cumulativeMultiplicity = 0;
+        const multiplicityAtRightBound = this.knotSequence[indexEnd].multiplicity;
         while((indexEnd + i) < (this.knotSequence.length - 1)) {
             const interval1 = this.knotSequence[indexKnotOrigin + (i + 1)].abscissa - this.knotSequence[indexKnotOrigin + i].abscissa;
             const multiplicity1 = this.knotSequence[indexKnotOrigin + (i + 1)].multiplicity;
@@ -102,7 +103,7 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
             }
             if((indexEnd + i) < (this.knotSequence.length - 2)) {
                 cumulativeMultiplicity += multiplicity1;
-            } else if(cumulativeMultiplicity + multiplicity2 + multiplicityAtOrigin !== this._maxMultiplicityOrder) {
+            } else if(cumulativeMultiplicity + multiplicity2 + multiplicityAtRightBound !== this._maxMultiplicityOrder) {
                 this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT);
             }
             i++;
@@ -194,13 +195,14 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
                         if(knot.abscissa === this.knotSequence[this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1].abscissa) {
                             index = this.knotSequence.length - this._indexKnotOrigin.knotIndex - 1;
                         }
-                        return new KnotIndexStrictlyIncreasingSequence(index - 1);
+                        index -= 1;
+                        break;
                     }
                 }
+                return new KnotIndexStrictlyIncreasingSequence(index);
             }
             const indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
             index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
-            return new KnotIndexStrictlyIncreasingSequence(index);
         }
         return new KnotIndexStrictlyIncreasingSequence(index);
     }

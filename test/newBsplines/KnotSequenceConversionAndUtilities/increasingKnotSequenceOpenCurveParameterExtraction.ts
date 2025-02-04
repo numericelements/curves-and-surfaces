@@ -11,7 +11,7 @@ describe('Extraction of major knot sequence parameters from an increasing open k
         const maxMultiplicityOrder = 4
         const knots = [0, 0, 0, 0, 1, 1, 1, 1]
         const seq = new IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots})
-        const increasingSeq: increasingKnotSequenceExtractionInterface = increasingKnotSequenceParameterExtraction(seq);
+        const increasingSeq = increasingKnotSequenceParameterExtraction(seq);
         expect(seq.uMax).to.eql(knots[knots.length - 1])
         expect(increasingSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
         expect(increasingSeq.knots).to.eql(knots)

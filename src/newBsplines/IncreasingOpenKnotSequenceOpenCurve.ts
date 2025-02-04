@@ -13,7 +13,7 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceOpenCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
 
-        if(knotParameters.type !== INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY) this.checkOriginOfNormalizedBasis();
+        if(knotParameters.type !== INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY) this.updateNormalizedBasisOrigin();
         this.checkNonUniformKnotMultiplicityOrder();
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
@@ -61,13 +61,14 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
                         }
                         const curveDegree = this._maxMultiplicityOrder - 1;
                         if(this.isKnotMultiplicityUniform && index === (this.knotSequence.length - curveDegree)) index -= 1;
-                        return new KnotIndexIncreasingSequence(index - 1);
+                        index -= 1;
+                        break;
                     }
                 }
+                return new KnotIndexIncreasingSequence(index);
             }
             const indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
             index = this.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
-            return new KnotIndexIncreasingSequence(index);
         }
         return new KnotIndexIncreasingSequence(index);
     }

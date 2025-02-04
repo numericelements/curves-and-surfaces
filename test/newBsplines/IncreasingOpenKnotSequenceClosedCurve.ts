@@ -9,6 +9,7 @@ import { KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity, KNOT_SE
 import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "../../src/newBsplines/KnotIndexIncreasingSequence";
 import { EM_KNOT_INDEX_VALUE } from "../../src/ErrorMessages/Knots";
+import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from "../../src/WarningMessages/KnotSequences";
 
 describe('IncreasingOpenKnotSequenceClosedCurve', () => {
 
@@ -1459,8 +1460,15 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
             const maxMultiplicityOrder = 4
             const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots})
             expect(seq.knotMultiplicityAtAbscissa(0.1)).to.eql(0)
-            // const multiplicity = seq.knotMultiplicityAtAbscissa(0.1)
-            // expect(() => seq.knotMultiplicityAtAbscissa(0.1)).to.eql(WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE)
+            // test the warning message issued by the method
+            const originalConsoleLog = console.log;
+            let capturedMessage = '';
+            console.log = (message: string) => {
+                capturedMessage = message;
+            };
+            seq.knotMultiplicityAtAbscissa(0.1)
+            expect(capturedMessage.includes(WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE)).to.eql(true);
+            console.log = originalConsoleLog;
         });
 
 

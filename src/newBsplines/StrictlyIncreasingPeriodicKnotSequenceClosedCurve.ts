@@ -2,7 +2,7 @@ import { KNOT_COINCIDENCE_TOLERANCE, KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZE
 import { AbstractPeriodicKnotSequence } from "./AbstractPeriodicKnotSequence";
 import { Knot } from "./Knot";
 import { StrictIncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequenceClosedCurve_type, STRICTLYINCREASINGPERIODICKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
-import { EM_KNOTINDEX_INC_SEQ_NEGATIVE, EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
+import { EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
 export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
@@ -19,7 +19,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         this.checkUniformityOfKnotMultiplicity();
         this.checkUniformityOfKnotSpacing();
         this.checkNonUniformKnotMultiplicityOrder();
-        this.checkCurveOrigin();
+        this.checkNormalizedBasisOrigin();
     }
 
     get allAbscissae(): number[] {
@@ -74,7 +74,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
             this.throwRangeErrorMessage("generateStrictlyIncreasingSequence", EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS)
         }
         this._uMax =  this.knotSequence[this.knotSequence.length - 1].abscissa;
-        this.checkCurveOrigin();
+        this.checkNormalizedBasisOrigin();
         this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
     }
 
@@ -87,20 +87,6 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
             i++;
         }
         return abscissa;
-    }
-
-    raiseKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence, multiplicity: number = 1) {
-        const indexPeriod =  new KnotIndexStrictlyIncreasingSequence(index.knotIndex % (this.allAbscissae.length - 1));
-        if(indexPeriod.knotIndex < 0) {
-            this.throwRangeErrorMessage("raiseKnotMultiplicity", EM_KNOTINDEX_INC_SEQ_NEGATIVE);
-        }
-        const indexWithinPeriod = index.knotIndex % (this.knotSequence.length - 1);
-        this.knotSequence[indexPeriod.knotIndex].multiplicity += multiplicity;
-        if(indexWithinPeriod === 0) this.knotSequence[this.knotSequence.length - 1].multiplicity += multiplicity;
-        this.checkMaxMultiplicityOrderConsistency();
-        this.checkUniformityOfKnotMultiplicity();
-        this.checkNonUniformKnotMultiplicityOrder();
-        return;
     }
 
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {
@@ -119,12 +105,13 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
                         if(knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
                             index = this.knotSequence.length - 1;
                         }
-                        return new KnotIndexStrictlyIncreasingSequence(index - 1);
+                        index -= 1;
+                        break;
                     }
                 }
+                return new KnotIndexStrictlyIncreasingSequence(index);
             }
             index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u);
-            return new KnotIndexStrictlyIncreasingSequence(index);
         }
         return new KnotIndexStrictlyIncreasingSequence(index);
     }
@@ -135,7 +122,13 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         return newKnotSequence;
     }
 
-    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
+    raiseKnotMultiplicity(indicesArray: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>, multiplicity: number = 1): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
+        const newKnotSequence = this.clone();
+        newKnotSequence.raiseKnotMultiplicityArrayMutSeq(indicesArray, multiplicity);
+        return newKnotSequence;
+    }
+
+    decrementKnotMultiplicity(index: KnotIndexStrictlyIncreasingSequence | Array<KnotIndexStrictlyIncreasingSequence>): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
         const newKnotSequence = this.clone();
         newKnotSequence.decrementKnotMultiplicityMutSeq(index);
         return newKnotSequence;

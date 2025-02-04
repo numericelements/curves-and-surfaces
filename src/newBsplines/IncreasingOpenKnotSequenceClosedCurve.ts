@@ -25,7 +25,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         this.checkUniformityOfKnotSpacing();
         if(knotParameters.type === INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS || knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVE
             || knotParameters.type === INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS) {
-            this.checkCurveOrigin();
+            this.updateNormalizedBasisOrigin();
             this.checkKnotMultiplicitiesAtNormalizedBasisBoundaries();
             this.checkKnotIntervalConsistency();
         }
@@ -55,7 +55,7 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder || (this._maxMultiplicityOrder === 2 && knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1))) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
     }
 
-    checkKnotIntervalConsistency(): void {
+    protected checkKnotIntervalConsistency(): void {
         if(this.knotSequence[0].multiplicity >= this._maxMultiplicityOrder && this.knotSequence[this.knotSequence.length - 1].multiplicity >= this._maxMultiplicityOrder) return;
 
         if(this.knotSequence[this._indexKnotOrigin.knotIndex].abscissa !== KNOT_SEQUENCE_ORIGIN) this.throwRangeErrorMessage("checkKnotIntervalConsistency", EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE);
@@ -182,7 +182,6 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
                         } else if(knot.abscissa === this._uMax) {
                             index -= knot.multiplicity;
                         }
-                        // if(this._isKnotMultiplicityUniform && index === (this.knotSequence.length - this._maxMultiplicityOrder + 1)) index -= 1;
                         index -= 1;
                         break;
                     }

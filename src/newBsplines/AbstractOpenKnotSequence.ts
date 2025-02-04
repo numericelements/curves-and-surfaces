@@ -3,7 +3,7 @@ import { AbstractKnotSequence } from "./AbstractKnotSequence";
 import { Knot } from "./Knot";
 import { AbstractOpenKnotSequence_type, NO_KNOT_CLOSED_CURVE, NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, Uniform_OpenKnotSequence, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE, UniformlySpreadInterKnots_OpenKnotSequence } from "./KnotSequenceConstructorInterface";
 import { KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA, NormalizedBasisAtSequenceExtremity } from "../namedConstants/KnotSequences";
-import { EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_ABSCISSA_TOO_CLOSE_TO_KNOT } from "../ErrorMessages/KnotSequences"
+import { EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_ABSCISSA_AND_INDEX_ORIGIN_KNOT_SEQUENCE_INCONSISTENT } from "../ErrorMessages/KnotSequences"
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from "../WarningMessages/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
@@ -274,6 +274,12 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         }
     }
 
+    checkNormalizedBasisOrigin(normalizedBasisAtStart: {knot: KnotIndexStrictlyIncreasingSequence}): void {
+        if(normalizedBasisAtStart.knot.knotIndex !== this._indexKnotOrigin.knotIndex) {
+            this.throwRangeErrorMessage("checkNormalizedBasisOrigin", EM_ABSCISSA_AND_INDEX_ORIGIN_KNOT_SEQUENCE_INCONSISTENT);
+        }
+    }
+
     /**
      * Computes a minimal knot sequence for an open curve.
      * 
@@ -304,7 +310,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * // Results in knot sequence [0,0,1,1]
      */
     protected computeKnotSequenceFromMaxMultiplicityOrderOCurve(): void {
-        const minValueMaxMultiplicityOrder = 1;
+        const minValueMaxMultiplicityOrder = 2;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
         this.knotSequence.push(new Knot(0, this._maxMultiplicityOrder));
         this.knotSequence.push(new Knot(1, this._maxMultiplicityOrder));
@@ -470,7 +476,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
             }
         }
         if(multiplicity === 0) {
-            const warning = new WarningLog(this.constructor.name, "getMultiplicityOfKnotAt", WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE);
+            const warning = new WarningLog(this.constructor.name, "knotMultiplicityAtAbscissa", WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE);
             warning.logMessage();
         }
         return multiplicity;

@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "../../src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 import { NO_KNOT_PERIODIC_CURVE, STRICTLYINCREASINGPERIODICKNOTSEQUENCE, UNIFORM_PERIODICKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
-import { EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_NON_STRICTLY_INCREASING_VALUES, EM_NULL_KNOT_SEQUENCE, EM_NULL_MULTIPLICITY_ARRAY, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_SIZENORMALIZED_BSPLINEBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
+import { EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_NON_STRICTLY_INCREASING_VALUES, EM_NULL_KNOT_SEQUENCE, EM_NULL_MULTIPLICITY_ARRAY, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SEQUENCE_ORIGIN_REMOVAL, EM_SIZENORMALIZED_BSPLINEBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
 import { KNOT_COINCIDENCE_TOLERANCE, KNOT_SEQUENCE_ORIGIN } from "../../src/namedConstants/KnotSequences";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from "../namedConstants/GeneralPurpose";
 import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/KnotIndexStrictlyIncreasingSequence";
@@ -54,7 +54,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             it('can check that the origin of a knot sequence coincides with OPEN_KNOT_SEQUENCE_ORIGIN when initialized with ' + NO_KNOT_PERIODIC_CURVE, () => {
                 const maxMultiplicityOrder = 2;
                 const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: NO_KNOT_PERIODIC_CURVE})
-                expect(() => seq.checkCurveOrigin()).to.not.throw()
+                expect(() => seq.checkNormalizedBasisOrigin()).to.not.throw()
             });
 
             it('can get the uMax of a knot sequence initialized with ' + NO_KNOT_PERIODIC_CURVE, () => {
@@ -118,7 +118,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
                 const maxMultiplicityOrder = 2;
                 const BsplBasisSize = 3
                 const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: UNIFORM_PERIODICKNOTSEQUENCE, BsplBasisSize: BsplBasisSize})
-                expect(() => seq.checkCurveOrigin()).to.not.throw()
+                expect(() => seq.checkNormalizedBasisOrigin()).to.not.throw()
             });
 
             it('can get the u interval upper bound produced by the initializer ' + UNIFORM_PERIODICKNOTSEQUENCE, () => {
@@ -561,6 +561,20 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             expect(seq.multiplicities()).to.eql(multiplicities)
         });
 
+        it('can get the knot sequence length', () => {
+            const maxMultiplicityOrder = 3
+            const periodicKnots = [0, 0.5, 0.6, 0.7, 1]
+            const multiplicities = [2, 1, 1, 2, 2]
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
+            expect(seq.length()).to.eql(periodicKnots.length)
+            const periodicKnots1 = [0, 1]
+            const multiplicities1 = [3, 3]
+            const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots1, multiplicities: multiplicities1})
+            expect(seq1.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
+            expect(seq1.length()).to.eql(periodicKnots1.length)
+        });
+
         it('can get the period of a knot sequence conforming to a non-uniform B-spline', () => {
             const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]
             const multiplicities = [3, 1, 1, 2, 3];
@@ -576,7 +590,7 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
             expect(seq.getPeriod()).to.eql(seq.lastKnot())
         });
-    
+
         it('cannot get the knot abscissa from a sequence index when the index is out of range with negative values', () => {
             const maxMultiplicityOrder = 3
             const periodicKnots = [0, 0.5, 0.6, 0.7, 1]
@@ -631,17 +645,6 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
                 expect(seq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i))).to.eql(multiplicities[i])
                 cumulativeMult += multiplicities[i]
             }
-        });
-
-        it('cannot check if an abscissa coincides with a knot belonging to the interval of the curve if this abscissa is outside the interval of the normalized basis', () => {
-            const periodicKnots: number [] = [0, 1, 2, 3, 4, 5]
-            const multiplicities = [1, 1, 1, 1, 1, 1];
-            const maxMultiplicityOrder = 3
-            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
-            let abscissae = 5.5;
-            expect(() => seq.isAbscissaCoincidingWithKnot(abscissae)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
-            abscissae = -0.5;
-            expect(() => seq.isAbscissaCoincidingWithKnot(abscissae)).to.throw(EM_U_OUTOF_KNOTSEQ_RANGE)
         });
 
         it('can check if an abscissa coincides with a knot belonging to the interval of the normalized basis', () => {
@@ -728,6 +731,87 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
                 expect(seqReReversed1.abscissaAtIndex(index)).to.be.closeTo(seq1.abscissaAtIndex(index), KNOT_COINCIDENCE_TOLERANCE)
             }
             expect(seq1.multiplicities()).to.eql(seqReReversed1.multiplicities())
+        });
+
+        it('cannot insert a new knot in the knot sequence if the new knot abscissa is too close to an existing one', () => {
+            const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]
+            const multiplicities = [3, 1, 1, 2, 3];
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(() => seq.insertKnot(0.5)).to.throw(EM_ABSCISSA_TOO_CLOSE_TO_KNOT)
+            expect(() => seq.insertKnot(0.5 + (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF))).to.throw(EM_ABSCISSA_TOO_CLOSE_TO_KNOT)
+            expect(() => seq.insertKnot(0.5 - (KNOT_COINCIDENCE_TOLERANCE/COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF))).to.throw(EM_ABSCISSA_TOO_CLOSE_TO_KNOT)
+        });
+
+        it('cannot insert a new knot in the knot sequence if the new knot multiplicity is greater than maxMultiplicityOrder', () => {
+            const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]
+            const multiplicities = [3, 1, 1, 2, 3];
+            const maxMultiplicityOrder = 3
+            const newKnotAbscissa = 0.3;
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(() => seq.insertKnot(newKnotAbscissa, 5)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
+        });
+
+        it('cannot insert a new knot outside the knot sequence definition interval [0, uMax]: case over uMax', () => {
+            const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]
+            const multiplicities = [3, 1, 1, 2, 3];
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(() => seq.insertKnot(1.2, 1)).to.throw(EM_KNOT_INSERTION_OVER_UMAX)
+
+            const knots1: number [] = [0, 1, 2, 3, 4]
+            const multiplicities1 = [1, 1, 1, 1, 1];
+            const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1, multiplicities: multiplicities1})
+            expect(() => seq1.insertKnot(4.2, 1)).to.throw(EM_KNOT_INSERTION_OVER_UMAX)
+        });
+
+        it('cannot insert a new knot outside the knot sequence definition interval [0, uMax]: case lower than sequence origin', () => {
+            const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]
+            const multiplicities = [3, 1, 1, 2, 3];
+            const maxMultiplicityOrder = 4
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(() => seq.insertKnot(-0.2, 1)).to.throw(EM_KNOT_INSERTION_UNDER_SEQORIGIN)
+
+            const knots1: number [] = [0, 1, 2, 3, 4]
+            const multiplicities1 = [1, 1, 1, 1, 1];
+            const seq1 = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knots1, multiplicities: multiplicities1})
+            expect(() => seq1.insertKnot(-0.2, 1)).to.throw(EM_KNOT_INSERTION_UNDER_SEQORIGIN)
+        });
+
+        it('can insert a new knot in the knot sequence if the new knot abscissa is distinct from the existing ones', () => {
+            const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]
+            const multiplicities = [3, 1, 1, 2, 3];
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const seq1 = seq.insertKnot(0.3, 3)
+            expect(seq1.distinctAbscissae()).to.eql([0, 0.3, 0.5, 0.6, 0.7, 1])
+            expect(seq1.multiplicities()).to.eql([3, 3, 1, 1, 2, 3])
+        });
+
+        it('check knot sequence properties after knot insertion', () => {
+            const periodicKnots: number [] = [0, 1, 2, 3, 4]
+            const multiplicities = [1, 1, 1, 1, 1];
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(seq.isKnotSpacingUniform).to.eql(true)
+            expect(seq.isKnotMultiplicityUniform).to.eql(true)
+            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq.uMax).to.eql(periodicKnots[periodicKnots.length - 1])
+            expect(seq.allAbscissae[0]).to.eql(KNOT_SEQUENCE_ORIGIN)
+            
+            const seq2 = seq.insertKnot(1.2, 1)
+            expect(seq2.isKnotSpacingUniform).to.eql(false)
+            expect(seq2.isKnotMultiplicityUniform).to.eql(true)
+            expect(seq2.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq2.uMax).to.eql(periodicKnots[periodicKnots.length - 1])
+            expect(seq2.allAbscissae[0]).to.eql(KNOT_SEQUENCE_ORIGIN)
+
+            const seq1 = seq.insertKnot(1.2, 2)
+            expect(seq1.isKnotSpacingUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq1.uMax).to.eql(periodicKnots[periodicKnots.length - 1])
+            expect(seq1.allAbscissae[0]).to.eql(KNOT_SEQUENCE_ORIGIN)
         });
 
         it('cannot decrement the multiplicity of a knot when the knot index is out of range with constructor type ' + STRICTLYINCREASINGPERIODICKNOTSEQUENCE, () => {
@@ -858,13 +942,13 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
             expect(seq.multiplicities()).to.eql(multiplicities)
             let index = new KnotIndexStrictlyIncreasingSequence(1)
-            seq.raiseKnotMultiplicity(index, 1)
-            expect(seq.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1, 1])
-            expect(seq.knotMultiplicity(index)).to.eql(2)
+            const seq1 = seq.raiseKnotMultiplicity(index, 1)
+            expect(seq1.multiplicities()).to.eql([1, 2, 1, 1, 1, 1, 1, 1, 1])
+            expect(seq1.knotMultiplicity(index)).to.eql(2)
             index = new KnotIndexStrictlyIncreasingSequence(0)
-            seq.raiseKnotMultiplicity(index, 1)
-            expect(seq.multiplicities()).to.eql([2, 2, 1, 1, 1, 1, 1, 1, 2])
-            expect(seq.knotMultiplicity(index)).to.eql(2)
+            const seq2 = seq1.raiseKnotMultiplicity(index, 1)
+            expect(seq2.multiplicities()).to.eql([2, 2, 1, 1, 1, 1, 1, 1, 2])
+            expect(seq2.knotMultiplicity(index)).to.eql(2)
         });
 
         it('check the knot sequence property update after raising the multiplicity of a knot of a uniform multiplicity sequence with constructor type ' + STRICTLYINCREASINGPERIODICKNOTSEQUENCE, () => {
@@ -875,11 +959,10 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             expect(seq.isKnotMultiplicityUniform).to.eql(true)
             expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
             for(let i = maxMultiplicityOrder; i < (seq.length() - maxMultiplicityOrder - 1); i++) {
-                const seq1 = seq.clone()
                 const index = new KnotIndexStrictlyIncreasingSequence(i)
-                seq1.raiseKnotMultiplicity(index, 1)
+                const seq1 = seq.raiseKnotMultiplicity(index, 1)
                 expect(seq1.isKnotMultiplicityUniform).to.eql(false)
-                expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
+                expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
             }
         });
 
@@ -905,9 +988,9 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const maxMultiplicityOrder = 3
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
             const index = seq.findSpan(0.2)
-            seq.raiseKnotMultiplicity(index, 1)
-            expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1])
-            expect(() => seq.raiseKnotMultiplicity(index, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
+            const seq1 = seq.raiseKnotMultiplicity(index, 1)
+            expect(seq1.multiplicities()).to.eql([1, 1, 2, 1, 1, 1])
+            expect(() => seq1.raiseKnotMultiplicity(index, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
         });
 
         it('can raise the multiplicity of an extreme knot with constructor type ' + STRICTLYINCREASINGPERIODICKNOTSEQUENCE, () => {
@@ -916,11 +999,114 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             const maxMultiplicityOrder = 3
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
             const indexStrictInc = new KnotIndexStrictlyIncreasingSequence(0)
-            seq.raiseKnotMultiplicity(indexStrictInc, 1)
-            expect(seq.multiplicities()).to.eql([2, 1, 1, 1, 1, 2])
-            expect(() => seq.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
+            const seq1 = seq.raiseKnotMultiplicity(indexStrictInc, 1)
+            expect(seq1.multiplicities()).to.eql([2, 1, 1, 1, 1, 2])
+            expect(() => seq1.raiseKnotMultiplicity(indexStrictInc, 2)).to.throw(EM_MAXMULTIPLICITY_ORDER_KNOT)
         });
 
+        it('cannot decrement the multiplicity of a knot when the knot index is out of range with constructor type ' + STRICTLYINCREASINGPERIODICKNOTSEQUENCE, () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [1, 1, 2, 1, 1, 1];
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(-1))).to.throw(EM_KNOT_INDEX_VALUE)
+            expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(seq.length()))).to.throw(EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE)
+        });
+
+        it('can decrement the multiplicity of a knot when the knot index is an extreme knot with constructor type: ' + STRICTLYINCREASINGPERIODICKNOTSEQUENCE, () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [3, 1, 2, 1, 1, 3]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const seq1 = seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0))
+            const newMultiplicities = [2, 1, 2, 1, 1, 2]
+            expect(seq1.multiplicities()).to.eql(newMultiplicities)
+            const lastIndex = new KnotIndexStrictlyIncreasingSequence(seq.length() - 1)
+            const seq2 = seq.decrementKnotMultiplicity(lastIndex)
+            expect(seq2.multiplicities()).to.eql(newMultiplicities)
+        });
+
+        it('can decrement the multiplicity of an existing knot when the knot multiplicity is one whatever the knot index when the knot sequence consistency is unchecked', () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [1, 1, 1, 1, 1, 1]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            for(let i = 1; i < seq.distinctAbscissae().length - 1; i++) {
+                const seq1 = seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i))
+                expect(seq1.length()).to.eql(seq.length() - 1)
+            }
+        });
+
+        it('can decrement the multiplicity of an existing knot when its multiplicity is greater than one and the knot is strictly inside the normalized basis interval', () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [1, 1, 2, 1, 1, 1]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            for(let i = 1; i < seq.distinctAbscissae().length - 1; i++) {
+                const seq1 = seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(i))
+                if(seq.multiplicities()[i] === 1) {
+                    expect(seq1.length()).to.eql(seq.length() - 1)
+                } else {
+                    expect(seq1.multiplicities()[i]).to.eql(seq.multiplicities()[i] - 1)
+                }
+            }
+        });
+
+        it('can decrement the multiplicity of an existing knot and get updated knot spacing property of the sequence', () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [1, 1, 2, 1, 1, 1]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const abscissa = 0.3
+            const indexStrictInc = seq.findSpan(abscissa)
+            expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1])
+            expect(seq.isKnotSpacingUniform).to.eql(true)
+            const seq1 = seq.decrementKnotMultiplicity(indexStrictInc)
+            expect(seq1.isKnotSpacingUniform).to.eql(false)
+        });
+
+        it('can decrement the multiplicity of an existing knot and get updated knot multiplicity uniformity property of the sequence', () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [1, 1, 2, 1, 1, 1]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const abscissa = 0.2
+            const indexStrictInc = seq.findSpan(abscissa)
+            expect(seq.multiplicities()).to.eql([1, 1, 2, 1, 1, 1])
+            expect(seq.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq.isKnotSpacingUniform).to.eql(true)
+            const seq1 = seq.decrementKnotMultiplicity(indexStrictInc)
+            expect(seq1.isKnotSpacingUniform).to.eql(true)
+            expect(seq1.isKnotMultiplicityUniform).to.eql(true)
+            expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
+        });
+
+        it('cannot decrement the multiplicity of an existing knot at sequence extremities and remove it when its multiplicity equals one', () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+            const multiplicities = [1, 1, 2, 1, 1, 1]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0))).to.throw(EM_SEQUENCE_ORIGIN_REMOVAL)
+            expect(() => seq.decrementKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(seq.distinctAbscissae().length - 1))).to.throw(EM_SEQUENCE_ORIGIN_REMOVAL)
+        });
+
+        it('can decrement the multiplicity of an existing knot and get updated non uniform knot multiplicity property of the sequence when the knot sequence  consistency is not checked', () => {
+            const periodicKnots: number [] = [0, 0.1, 0.2, 0.3, 0.4, 0.8]
+            const multiplicities = [3, 1, 2, 1, 1, 3]
+            const maxMultiplicityOrder = 3
+            const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities})
+            const indexStrictInc = new KnotIndexStrictlyIncreasingSequence(seq.length() - 1)
+            expect(seq.multiplicities()).to.eql([3, 1, 2, 1, 1, 3])
+            expect(seq.isKnotSpacingUniform).to.eql(false)
+            expect(seq.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
+            const seq1 = seq.decrementKnotMultiplicity(indexStrictInc)
+            expect(seq1.isKnotSpacingUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityUniform).to.eql(false)
+            expect(seq1.isKnotMultiplicityNonUniform).to.eql(false)
+            expect(seq1.multiplicities()).to.eql([2, 1, 2, 1, 1, 2])
+        });
 
         it('cannot find the span index in the knot sequence if the abscissa is negative', () => {
             const periodicKnots: number [] = [0, 0.5, 0.6, 0.7, 1]

@@ -1,12 +1,13 @@
 import { expect } from "chai";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { NO_KNOT_OPEN_CURVE, STRICTLYINCREASINGOPENKNOTSEQUENCE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
-import { EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOT_MULTIPLICITY_OUT_OF_RANGE, EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NON_STRICTLY_INCREASING_VALUES, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_NOT_NORMALIZED_BASIS, EM_NULL_KNOT_SEQUENCE, EM_NULL_MULTIPLICITY_ARRAY, EM_SIZENORMALIZED_BSPLINEBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
+import { EM_ABSCISSA_AND_INDEX_ORIGIN_KNOT_SEQUENCE_INCONSISTENT, EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOT_MULTIPLICITY_OUT_OF_RANGE, EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NON_STRICTLY_INCREASING_VALUES, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_NOT_NORMALIZED_BASIS, EM_NULL_KNOT_SEQUENCE, EM_NULL_MULTIPLICITY_ARRAY, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from "../namedConstants/GeneralPurpose";
 import { KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN } from "../../src/namedConstants/KnotSequences";
 import { TOL_KNOT_COINCIDENCE } from "../../src/newBsplines/AbstractBSplineR1toR2";
 import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/KnotIndexStrictlyIncreasingSequence";
 import { EM_KNOT_INDEX_VALUE } from "../../src/ErrorMessages/Knots";
+import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from "../../src/WarningMessages/KnotSequences";
 
 describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
 
@@ -19,8 +20,13 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
                 expect(() => new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: NO_KNOT_OPEN_CURVE})).to.throw(EM_MAXMULTIPLICITY_ORDER_SEQUENCE)
             });
 
+            it('cannot initialize a knot sequence with a maximal multiplicity order equal to one for a constructor type ' + NO_KNOT_OPEN_CURVE, () => {
+                const maxMultiplicityOrder = 1
+                expect(() => new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: NO_KNOT_OPEN_CURVE})).to.throw(EM_MAXMULTIPLICITY_ORDER_SEQUENCE)
+            });
+
             it('can be initialized without a knot sequence with initializer ' + NO_KNOT_OPEN_CURVE, () => {
-                for(let i = 1; i < 4; i++) {
+                for(let i = 2; i < 4; i++) {
                     const maxMultiplicityOrder = i
                     const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: NO_KNOT_OPEN_CURVE})
                     const knots: number[] = [0, 1]
@@ -670,6 +676,16 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
             maxMultiplicityOrder = 3;
             const seq1 = new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: knots1, multiplicities: multiplicities1});
             expect(seq1.length()).to.eql(2)
+        });
+
+        it('cannot solely update the abscissa origin of a knot sequence after some knot multiplicity increase', () => {
+            const knots: number [] = [-2, -1, 0, 0.5, 0.6, 0.7, 1, 2, 3, 4]
+            const multiplicities: number [] = [1, 1, 2, 1, 1, 2, 1, 1, 1, 1]
+            const maxMultiplicityOrder = 4
+            const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knots, multiplicities: multiplicities})
+            const checkSequenceConsistency = false
+            const seq1 = seq.raiseKnotMultiplicity(new KnotIndexStrictlyIncreasingSequence(2), 1, checkSequenceConsistency)
+            expect(() => seq1.updateNormalizedBasisOrigin()).to.throw(EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE)
         });
 
         it('can get the distinct abscissae of a knot sequence', () => {
@@ -1392,8 +1408,15 @@ describe('StrictlyIncreasingOpenKnotSequenceOpenCurve', () => {
             const maxMultiplicityOrder = 4
             const seq = new StrictlyIncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE, knots: knots, multiplicities: multiplicities})
             expect(seq.knotMultiplicityAtAbscissa(0.1)).to.eql(0)
-            // const multiplicity = seq.knotMultiplicityAtAbscissa(0.1)
-            // expect(() => seq.knotMultiplicityAtAbscissa(0.1)).to.eql(WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE)
+            // test the warning message issued by the method
+            const originalConsoleLog = console.log;
+            let capturedMessage = '';
+            console.log = (message: string) => {
+                capturedMessage = message;
+            };
+            seq.knotMultiplicityAtAbscissa(0.1)
+            expect(capturedMessage.includes(WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE)).to.eql(true);
+            console.log = originalConsoleLog;
         });
     
         it('cannot find the span index in the knot sequence when the abscissa is outside the normalized basis interval for a non uniform B-spline', () => {

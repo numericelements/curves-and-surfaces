@@ -9,7 +9,7 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
     
     constructor(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceOpenCurve_type) {
         super(maxMultiplicityOrder, knotParameters);
-        this.checkCurveOrigin();
+        this.updateNormalizedBasisOrigin();
         this.checkMaxMultiplicityOrderConsistency();
         this.checkNonUniformKnotMultiplicityOrder();
         this.checkUniformityOfKnotMultiplicity();
@@ -20,11 +20,11 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
         return this._isSequenceUpToC0Discontinuity;
     }
 
-    checkCurveOrigin(): void {
+    updateNormalizedBasisOrigin(): void {
         if(this.knotSequence[0].abscissa !== KNOT_SEQUENCE_ORIGIN && this._maxMultiplicityOrder === this.knotSequence[0].multiplicity) {
             this.throwRangeErrorMessage("checkCurveOrigin", EM_INCONSISTENT_ORIGIN_NONUNIFORM_KNOT_SEQUENCE);
         } else if(this.knotSequence[0].abscissa !== KNOT_SEQUENCE_ORIGIN) {
-            super.checkCurveOrigin();
+            super.updateNormalizedBasisOrigin();
         }
     }
 
@@ -55,13 +55,14 @@ export class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictl
                         if(knot.abscissa === this.knotSequence[this.knotSequence.length - 1].abscissa) {
                             index = this.knotSequence.length - 1;
                         }
-                        return new KnotIndexStrictlyIncreasingSequence(index - 1);
+                        index -= 1;
+                        break;
                     }
                 }
+                return new KnotIndexStrictlyIncreasingSequence(index);
             }
             const indexAtUmax = this.getKnotIndexNormalizedBasisAtSequenceEnd();
             index = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, indexAtUmax.knot.knotIndex);
-            return new KnotIndexStrictlyIncreasingSequence(index);
         }
         return new KnotIndexStrictlyIncreasingSequence(index);
     }

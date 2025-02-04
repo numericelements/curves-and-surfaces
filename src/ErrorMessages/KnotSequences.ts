@@ -115,6 +115,8 @@ export const EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ = "I
 // The knot index defining the left bound of the normalized basis of the knot sequence is associated with an abscissa differing from OPEN_KNOT_SEQUENCE_ORIGIN, ie: 0.0 
 export const EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE = "The abscissa defining the origin of the normalized basis of the knot sequence is not 0.0. The knot sequence is not consistent. Cannot proceed.";
 
+// The knot index specifying the origin of the knot sequence is inconsistent with the abscissa of the origin of the knot sequence
+export const EM_ABSCISSA_AND_INDEX_ORIGIN_KNOT_SEQUENCE_INCONSISTENT = "The abscissa of the origin of the knot sequence is inconsistent with the knot index specifying the origin. Cannot proceed.";
 
 // Increasing open knot sequences of closed curves
 // The multiplicity orders of the knots at the left and right bounds of the normalized basis are not equal
