@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from '../../../src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve';
 import { fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence } from '../../../src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToIncreasingPeriodicKnotSequence';
 import { KnotIndexIncreasingSequence } from '../../../src/newBsplines/KnotIndexIncreasingSequence';
-import { TOL_KNOT_COINCIDENCE } from '../../../src/newBsplines/AbstractBSplineR1toR2';
 import { STRICTLYINCREASINGPERIODICKNOTSEQUENCE } from '../../../src/newBsplines/KnotSequenceConstructorInterface';
 import { KnotIndexStrictlyIncreasingSequence } from '../../../src/newBsplines/KnotIndexStrictlyIncreasingSequence';
+import { KNOT_COINCIDENCE_TOLERANCE } from '../../../src/namedConstants/KnotSequences';
 
 
 describe('Conversions from a strictly increasing periodic knot sequence of a closed curve to an increasing periodic knot sequence of a closed curve', () => {
@@ -31,9 +31,9 @@ describe('Conversions from a strictly increasing periodic knot sequence of a clo
                     for(let indexStrInc = 0; indexStrInc < periodicKnots.length; indexStrInc++) {
                         for(let knot = 0; knot < multiplicities1[indexStrInc]; knot++) {
                             if(indexStrInc < periodicKnots.length - 1) {
-                                expect(incSeq.abscissaAtIndex(new KnotIndexIncreasingSequence(cumulativeMultiplicity + knot))).to.be.closeTo((periodicKnots[indexStrInc]), TOL_KNOT_COINCIDENCE)
+                                expect(incSeq.abscissaAtIndex(new KnotIndexIncreasingSequence(cumulativeMultiplicity + knot))).to.be.closeTo((periodicKnots[indexStrInc]), KNOT_COINCIDENCE_TOLERANCE)
                             } else {
-                                expect(incSeq.getPeriod()).to.be.closeTo((periodicKnots[indexStrInc]), TOL_KNOT_COINCIDENCE)
+                                expect(incSeq.getPeriod()).to.be.closeTo((periodicKnots[indexStrInc]), KNOT_COINCIDENCE_TOLERANCE)
                             }
                         }
                         let multiplicity = incSeq.knotMultiplicity((new KnotIndexStrictlyIncreasingSequence(indexStrInc)))

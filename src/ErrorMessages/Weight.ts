@@ -1,0 +1,2 @@
+export const EM_WEIGHT_VALUE_STRICTLY_POSITIVE = 'A weight value cannot be negative or null. Cannot proceed.';
+export const EM_WEIGHT_VALUE_POSITIVE = 'A weight value cannot be negative. Cannot proceed.';

@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "../../src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { NO_KNOT_CLOSED_CURVE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, StrictlyIncreasingOpenKnotSequenceClosedCurve_type, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, UNIFORM_OPENKNOTSEQUENCE } from "../../src/newBsplines/KnotSequenceConstructorInterface";
 import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT, EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_KNOT_MULTIPLICITIES_AT_NORMALIZED_BASIS_BOUNDS_DIFFER, EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT, EM_NON_STRICTLY_INCREASING_VALUES, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_NOT_NORMALIZED_BASIS, EM_NULL_KNOT_SEQUENCE, EM_NULL_MULTIPLICITY_ARRAY, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_SIZENORMALIZED_BSPLINEBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../../src/ErrorMessages/KnotSequences";
-import { TOL_KNOT_COINCIDENCE } from "../../src/newBsplines/AbstractBSplineR1toR2";
 import { fromStrictlyIncreasingToIncreasingKnotSequenceCC } from "../../src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingToIncreasingKnotSequenceCC";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from "../namedConstants/GeneralPurpose";
 import { KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN } from "../../src/namedConstants/KnotSequences";
@@ -403,7 +402,7 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
                     const abscissae = [-0.3].concat(periodicKnots).concat([1.5, 1.6])
                     expect(seq.distinctAbscissae().length).to.eql(abscissae.length)
                     for(let i = 0; i < seq1.length; i++) {
-                            expect(seq1[i]).to.be.closeTo(abscissae[i], TOL_KNOT_COINCIDENCE)
+                            expect(seq1[i]).to.be.closeTo(abscissae[i], KNOT_COINCIDENCE_TOLERANCE)
                     }
                     expect(seq.multiplicities()).to.eql([2].concat(multiplicities).concat([1, 1]))
                 });
@@ -1790,7 +1789,7 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
             const updatedKnots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
             const updatedMultiplicities: number [] = [1, 1, 1, 1, 2, 1, 1, 1, 2, 1]
             for(let i = 0; i < seq2.allAbscissae.length; i++) {
-                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
+                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
                 expect(seq2.multiplicities()[i]).to.eql(updatedMultiplicities[i])
             }
             expect(seq2.uMax).to.eql(0.4)
@@ -1811,7 +1810,7 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
             const updatedKnots: number [] = [-0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
             const updatedMultiplicities: number [] = [2, 1, 1, 1, 2, 1, 1, 1, 2]
             for(let i = 0; i < seq2.allAbscissae.length; i++) {
-                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
+                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
                 expect(seq2.multiplicities()[i]).to.eql(updatedMultiplicities[i])
             }
             expect(seq2.uMax).to.eql(0.4)

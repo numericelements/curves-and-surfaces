@@ -7,7 +7,6 @@ import { KNOT_SEQUENCE_ORIGIN, KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequ
 import { EM_MAXMULTIPLICITY_ORDER_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_MAXMULTIPLICITY_ORDER_KNOT, EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT, EM_NULL_KNOT_SEQUENCE, EM_NON_INCREASING_KNOT_VALUES, EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE, EM_CUMULATIVE_KNOTMULTIPLICITY_ATSTART, EM_CUMULATIVE_KNOTMULTIPLICITY_ATEND, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INSERTION_UNDER_SEQORIGIN, EM_MAXMULTIPLICITY_ORDER_ATKNOT, EM_MULTIPLICITY_ORDER_MODIFYING_NORMALIZED_BASIS, EM_SIZE_KNOTSEQ_INCOMPATIBLE_SIZE_INTERNAL_STRICTLYINC_KNOTSEQ, EM_KNOTINDEX_INC_SEQ_TOO_LARGE, EM_INDICES_FOR_EXTRACTION_OUTOF_RANGE, EM_NOT_NORMALIZED_BASIS, EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT, EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_U_OUTOF_KNOTSEQ_RANGE, EM_ABSCISSA_AND_INDEX_ORIGIN_KNOT_SEQUENCE_INCONSISTENT, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE } from '../../src/ErrorMessages/KnotSequences';
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from '../../src/WarningMessages/KnotSequences';
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from '../namedConstants/GeneralPurpose';
-import { TOL_KNOT_COINCIDENCE } from '../../src/newBsplines/AbstractBSplineR1toR2';
 import { KnotIndexStrictlyIncreasingSequence } from '../../src/newBsplines/KnotIndexStrictlyIncreasingSequence';
 import { KnotIndexIncreasingSequence } from '../../src/newBsplines/KnotIndexIncreasingSequence';
 import { EM_KNOT_INDEX_VALUE } from '../../src/ErrorMessages/Knots';
@@ -1346,7 +1345,7 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             expect(seq2.abscissaAtIndex(seq.toKnotIndexIncreasingSequence(indexOrigin))).to.eql(KNOT_SEQUENCE_ORIGIN)
             const updatedKnots: number [] = [-0.4, -0.3, -0.2, 0, 0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
             for(let i = 0; i < seq2.allAbscissae.length; i++) {
-                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
+                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
             }
             expect(seq2.uMax).to.eql(0.4)
         });
@@ -1364,7 +1363,7 @@ describe('IncreasingOpenKnotSequenceOpenCurve', () => {
             const seq2 = seq1.updateKnotSequenceThroughNormalizedBasisAnalysis()
             const updatedKnots: number [] = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8]
             for(let i = 0; i < seq2.allAbscissae.length; i++) {
-                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], TOL_KNOT_COINCIDENCE)
+                expect(seq2.allAbscissae[i]).to.be.closeTo(updatedKnots[i], KNOT_COINCIDENCE_TOLERANCE)
             }
             expect(seq2.uMax).to.eql(0.4)
         });
