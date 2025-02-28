@@ -1,4 +1,4 @@
-import { COMPLEX, ComplexVector, COMPLEXVECTOR2D, RealVector, REALVECTOR2D, RealVector2D, Scalar, Vector, Vector2D } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, ComplexVector, COMPLEXVECTOR2D, COMPLEXVECTOR3D, RealVector, REALVECTOR2D, RealVector2D, REALVECTOR3D, Scalar, Vector, Vector2D, Vector3D } from "./VectorSpaceConstructorInterface";
 
 // ------------ Type Guards ------------
 
@@ -18,6 +18,16 @@ export function isVector1D(v: Vector): v is Scalar {
 export function isVector2D(v: Vector): v is Vector2D {
     if (typeof v === 'number') return false;
     return v.type === REALVECTOR2D || v.type === COMPLEXVECTOR2D;
+}
+
+/**
+ * Checks if the vector contains real numbers
+ * @param v Vector to check
+ * @returns True if vector contains real numbers
+ */
+export function isVector3D(v: Vector): v is Vector3D {
+    if (typeof v === 'number') return false;
+    return v.type === REALVECTOR3D || v.type === COMPLEXVECTOR3D;
 }
 
 

@@ -3,6 +3,7 @@
  * Implements mathematical vector space axioms for real and complex numbers
  */
 
+import { isVector1D, isVector2D, isVector3D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
@@ -106,33 +107,33 @@ export class ComplexOps {
     /**
      * Adds two complex numbers
      */
-    // static add(a: Complex, b: Complex): Complex {
-    //     return [a[0] + b[0], a[1] + b[1]];
-    // }
+    static add(a: Complex, b: Complex): Complex {
+        return {type: COMPLEX, real: a.real + b.real, imaginery: a.imaginery + b.imaginery};
+    }
 
     /**
      * Multiplies two complex numbers
      */
-    // static multiply(a: Complex, b: Complex): Complex {
-    //     return [
-    //         a[0] * b[0] - a[1] * b[1],
-    //         a[0] * b[1] + a[1] * b[0]
-    //     ];
-    // }
+    static multiply(a: Complex, b: Complex): Complex {
+        return {type: COMPLEX, 
+            real: a.real * b.real - a.imaginery * b.imaginery,
+            imaginery: a.real * b.imaginery + a.imaginery * b.real
+        };
+    }
 
     /**
      * Subtracts two complex numbers
      */
-    // static subtract(a: Complex, b: Complex): Complex {
-    //     return [a[0] - b[0], a[1] - b[1]];
-    // }
+    static subtract(a: Complex, b: Complex): Complex {
+        return {type: COMPLEX, real: a.real - b.real, imaginery: a.imaginery - b.imaginery};
+    }
 
     /**
      * Returns the complex conjugate
      */
-    // static conjugate(a: Complex): Complex {
-    //     return [a[0], -a[1]];
-    // }
+    static conjugate(a: Complex): Complex {
+        return {type: COMPLEX, real: a.real, imaginery: -a.imaginery};
+    }
 }
 
 // ------------ Vector Space Interface ------------
@@ -151,8 +152,8 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
     /** Scalar multiplication */
     scale(scalar: K, v: V): V;
     
-    /** Vector subtraction (derived operation) */
-    subtract(a: V, b: V): V;
+    // /** Vector subtraction (derived operation) */
+    // subtract(a: V, b: V): V;
     
     /** Dimension of the vector space */
     dimension(): number;
@@ -163,101 +164,164 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
 /**
  * Implementation of a real vector space
  */
-// export class RealVectorSpace implements VectorSpace<Real, RealVector> {
-//     private readonly dim: number;
+export class RealVectorSpace implements VectorSpace<Real, RealVector> {
+    private readonly dim: number;
 
-//     constructor(dimension: number) {
-//         if (dimension < 1) {
-//             throw new Error('Dimension must be positive');
-//         }
-//         this.dim = dimension;
-//     }
+    constructor(dimension: number) {
+        if (dimension < 1) {
+            throw new Error('Dimension must be positive');
+        }
+        this.dim = dimension;
+    }
 
-//     // zero(): RealVector {
-//     //     return this.dim === 1 ? 0 : new Array(this.dim).fill(0);
-//     // }
+    zero(): RealVector {
+        if(this.dim === 1) {
+            return 0;
+        } else if (this.dim === 2) {
+            return {type: REALVECTOR2D, coordinates: [0, 0]};
+        } else if (this.dim === 3) {
+            return {type: REALVECTOR3D, coordinates: [0, 0, 0]};
+        } else if (this.dim === 4) {
+            return {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
+        } else {
+            throw new Error('Dimension not supported');
+        }
+    }
 
-//     // add(a: RealVector, b: RealVector): RealVector {
-//     //     if (typeof a === 'number' && typeof b === 'number') {
-//     //         return a + b;
-//     //     }
-//     //     return (a as number[]).map((val, i) => val + (b as number[])[i]);
-//     // }
+    add(a: RealVector, b: RealVector): RealVector {
+        if (typeof a === 'number' && typeof b === 'number') {
+            return a + b;
+        } else if ((isVector2D(a) && isVector2D(b)) || (isVector3D(a) && isVector3D(b))) {
+            const result = [];
+            for(let i = 0; i < a.coordinates.length; i++) {
+                result.push(a.coordinates[i] + b.coordinates[i]);
+            }
+            if(isVector2D(a)) {
+                return {type: REALVECTOR2D, coordinates: [result[0], result[1]]};
+            } else if(isVector3D(a)) {
+                return {type: REALVECTOR3D, coordinates: [result[0], result[1], result[2]]};
+            } else {
+            throw new Error('Vectors are out of the list of RealVector types.');
+            }
+        } else {
+            throw new Error('Vectors must have the same dimension');
+        }
+    }
 
-//     // scale(scalar: Real, v: RealVector): RealVector {
-//     //     if (typeof v === 'number') {
-//     //         return scalar * v;
-//     //     }
-//     //     return (v as number[]).map(val => scalar * val);
-//     // }
+    scale(scalar: Real, v: RealVector): RealVector {
+        if (typeof v === 'number') {
+            return scalar * v;
+        } else if (isVector2D(v)) {
+            return {type: REALVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1]]};
+        } else if (isVector3D(v)) {
+            return {type: REALVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2]]};
+        } else {
+            throw new Error('Vector is out of the list of RealVector types.');
+        }
+    }
 
-//     // subtract(a: RealVector, b: RealVector): RealVector {
-//     //     if (typeof a === 'number' && typeof b === 'number') {
-//     //         return a - b;
-//     //     }
-//     //     return (a as number[]).map((val, i) => val - (b as number[])[i]);
-//     // }
+    // subtract(a: RealVector, b: RealVector): RealVector {
+    //     if (typeof a === 'number' && typeof b === 'number') {
+    //         return a - b;
+    //     }
+    //     return (a as number[]).map((val, i) => val - (b as number[])[i]);
+    // }
 
-//     dimension(): number {
-//         return this.dim;
-//     }
-// }
+    dimension(): number {
+        return this.dim;
+    }
+}
 
-// export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
-//     private readonly dim: number;
+export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
+    private readonly dim: number;
 
-//     constructor(dimension: number) {
-//         if (dimension < 1) {
-//             throw new Error('Dimension must be positive');
-//         }
-//         this.dim = dimension;
-//     }
+    constructor(dimension: number) {
+        if (dimension < 1) {
+            throw new Error('Dimension must be positive');
+        }
+        this.dim = dimension;
+    }
 
-//     zero(): ComplexVector {
-//         return this.dim === 1 ? [0, 0] : Array(this.dim).fill([0, 0]);
-//     }
+    zero(): ComplexVector {
+        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginery: 0};
+        if(this.dim === 1) {
+            return nullComplex;
+        } else if (this.dim === 2) {
+            return {type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex]};
+        } else if (this.dim === 3) {
+            return {type: COMPLEXVECTOR3D, coordinates: [nullComplex, nullComplex, nullComplex]};
+        } else {
+            throw new Error('Dimension not supported');
+        }
+    }
 
-//     // add(a: ComplexVector, b: ComplexVector): ComplexVector {
-//     //     if (isVector1D(a) && isVector1D(b)) {
-//     //         return ComplexOps.add(a as Complex, b as Complex);
-//     //     }
-//     //     return (a as Complex[]).map((val, i) => 
-//     //         ComplexOps.add(val, (b as Complex[])[i])
-//     //     );
-//     // }
+    add(a: ComplexVector, b: ComplexVector): ComplexVector {
+        if (isVector1D(a) && isVector1D(b)) {
+            return ComplexOps.add(a as Complex, b as Complex);
+        } else if(isVector2D(a) && isVector2D(b)) {
+            return {type: COMPLEXVECTOR2D, coordinates: [
+                ComplexOps.add(a.coordinates[0], b.coordinates[0]),
+                ComplexOps.add(a.coordinates[1], b.coordinates[1])
+            ]};
+        } else if(isVector3D(a) && isVector3D(b)) {
+            return {type: COMPLEXVECTOR3D, coordinates: [
+                ComplexOps.add(a.coordinates[0], b.coordinates[0]),
+                ComplexOps.add(a.coordinates[1], b.coordinates[1]),
+                ComplexOps.add(a.coordinates[2], b.coordinates[2])
+            ]};
+        } else {
+            throw new Error('Vectors must have the same dimension');
+        }
+    }
 
-//     // Overloaded scale method
-//     scale(scalar: Complex, vector: Complex[]): Complex[];
-//     scale(scalar: number, vector: Complex[]): Complex[];
-//     // Implementation of the scale method
-//     scale(scalar: Complex | number, vector: Complex[]): Complex[] {
-//         if (typeof scalar === 'number') {
-//         // Directly scale the real part of the complex vector
-//         return vector.map(([real, imag]) => [
-//             real * scalar, // Scale real part
-//             imag * scalar, // Scale imaginary part
-//         ]);
-//         } else {
-//         // Handle the case where scalar is a complex number
-//         return vector.map(([real, imag]) => [
-//             real * scalar[0] - imag * scalar[1], // Real part
-//             real * scalar[1] + imag * scalar[0], // Imaginary part
-//         ]);
-//         }
-//     }
+    // Overloaded scale method
+    scale(scalar: Complex, vector: ComplexVector): ComplexVector;
+    scale(scalar: number, vector: ComplexVector): ComplexVector;
+    // Implementation of the scale method
+    scale(scalar: Complex | number, vector: ComplexVector): ComplexVector {
+        if (typeof scalar === 'number') {
+            if(isVector1D(vector)) {
+                return {type: COMPLEX, real: scalar * vector.real, imaginery: scalar * vector.imaginery};
+            } else if(isVector2D(vector)) {
+                // Directly scale the real part of the complex vector
+                return {type: vector.type, coordinates: [
+                    {type: COMPLEX, real: vector.coordinates[0].real * scalar, imaginery: vector.coordinates[0].imaginery * scalar},
+                    {type: COMPLEX, real: vector.coordinates[1].real * scalar, imaginery: vector.coordinates[1].imaginery * scalar}
+                ]};
+            } else if(isVector3D(vector)) {
+                return {type: vector.type, coordinates: [
+                    {type: COMPLEX, real: vector.coordinates[0].real * scalar, imaginery: vector.coordinates[0].imaginery * scalar},
+                    {type: COMPLEX, real: vector.coordinates[1].real * scalar, imaginery: vector.coordinates[1].imaginery * scalar},
+                    {type: COMPLEX, real: vector.coordinates[2].real * scalar, imaginery: vector.coordinates[2].imaginery * scalar}
+                ]};
+            } else {
+                throw new Error('Vector is out of the list of ComplexVector types.');
+            }
+        } else if(scalar.type === COMPLEX) {
+            if(isVector1D(vector)) {
+                return {type: COMPLEX,
+                    real: vector.real * scalar.real - vector.imaginery * scalar.imaginery,
+                    imaginery: vector.real * scalar.imaginery + vector.imaginery * scalar.real}
+            } else {
+                throw new Error('Scalar is out of the list of Complex types.');
+            }
+        } else {
+            throw new Error('Scalar is out of the list of Complex types.');
+        }
+    }
 
 
 
-//     subtract(a: ComplexVector, b: ComplexVector): ComplexVector {
-//         if (isVector1D(a) && isVector1D(b)) {
-//             return ComplexOps.subtract(a as Complex, b as Complex);
-//         }
-//         return (a as Complex[]).map((val, i) => 
-//             ComplexOps.subtract(val, (b as Complex[])[i])
-//         );
-//     }
+    // subtract(a: ComplexVector, b: ComplexVector): ComplexVector {
+    //     if (isVector1D(a) && isVector1D(b)) {
+    //         return ComplexOps.subtract(a as Complex, b as Complex);
+    //     }
+    //     return (a as Complex[]).map((val, i) => 
+    //         ComplexOps.subtract(val, (b as Complex[])[i])
+    //     );
+    // }
 
-//     dimension() {
-//         return this.dim
-//     }
-// }
+    dimension() {
+        return this.dim;
+    }
+}
