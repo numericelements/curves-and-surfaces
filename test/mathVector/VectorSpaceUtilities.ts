@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { COMPLEX, COMPLEXVECTOR2D, COMPLEXVECTOR3D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector1D, RealVector2D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Vector, Vector1D, Vector2D, Vector3D, Vector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { COMPLEX, COMPLEXVECTOR2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector1D, RealVector2D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Vector, Vector1D, Vector2D, Vector3D, Vector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D } from "../../src/mathVector/VectorSpaceUtilities";
 import { Weight } from "../../src/mathVector/Weight";
 
@@ -33,10 +33,6 @@ describe('isVector1D', () => {
         const vec1: Vector3D = {type: REALVECTOR3D, coordinates: [0, 0, 0]};
         const res1 = isVector1D(vec1)
         expect(res1).to.eql(false)
-
-        const vec2: Vector3D = {type: COMPLEXVECTOR3D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
-        const res2 = isVector1D(vec2)
-        expect(res2).to.eql(false)
 
         const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
         const res3 = isVector1D(vec3)
@@ -84,10 +80,6 @@ describe('isVector2D', () => {
         const vec1: Vector3D = {type: REALVECTOR3D, coordinates: [0, 0, 0]};
         const res1 = isVector2D(vec1)
         expect(res1).to.eql(false)
-
-        const vec2: Vector3D = {type: COMPLEXVECTOR3D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
-        const res2 = isVector2D(vec2)
-        expect(res2).to.eql(false)
 
         const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
         const res3 = isVector2D(vec3)

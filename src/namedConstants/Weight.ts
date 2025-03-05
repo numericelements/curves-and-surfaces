@@ -1,1 +1,1 @@
-export const DEFAULT_WEIGHT_VALUE = -1;
+export const DEFAULT_WEIGHT_VALUE = 1;
