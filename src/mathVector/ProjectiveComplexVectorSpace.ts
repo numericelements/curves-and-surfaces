@@ -19,7 +19,7 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
         this.dim = dimension;
     }
 
-    zero(): ProjectiveComplexVector {
+    defaultVect(): ProjectiveComplexVector {
         const nullComplex: Complex = {type: COMPLEX, real: 0, imaginery: 0};
         const defaultComplexWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginery: new Weight()};
         if(this.dim === MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {

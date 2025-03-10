@@ -18,7 +18,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         this.dim = dimension;
     }
 
-    zero(): ComplexVector {
+    defaultVect(): ComplexVector {
         const nullComplex: Complex = {type: COMPLEX, real: 0, imaginery: 0};
         if(this.dim === MIN_DIMENSION_COMPLEXVECTORSPACE) {
             return nullComplex;
@@ -53,7 +53,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
             if(isVector1D(vector)) {
                 return {type: COMPLEX, real: scalar * vector.real, imaginery: scalar * vector.imaginery};
             } else if(isVector2D(vector)) {
-                const result = (vector.coordinates as Complex[]).map((val, i) => ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginery * scalar}));
+                const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginery * scalar}));
                 return {type: vector.type, coordinates: [
                     {type: COMPLEX, real: result[0].real, imaginery: result[0].imaginery},
                     {type: COMPLEX, real: result[1].real, imaginery: result[1].imaginery}
@@ -65,10 +65,17 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         } else if(scalar.type === COMPLEX) {
             if(isVector1D(vector)) {
                 return {type: COMPLEX,
-                    real: vector.real * scalar.real - vector.imaginery * scalar.imaginery,
-                    imaginery: vector.real * scalar.imaginery + vector.imaginery * scalar.real}
+                    real: ComplexOperators.multiply(scalar, vector).real,
+                    imaginery: ComplexOperators.multiply(scalar, vector).imaginery}
+            } else if(isVector2D(vector)) {
+                const result = vector.coordinates.map((val) => ComplexOperators.multiply(scalar, val));
+                return {type: vector.type, coordinates: [
+                    {type: COMPLEX, real: result[0].real, imaginery: result[0].imaginery},
+                    {type: COMPLEX, real: result[1].real, imaginery: result[1].imaginery}
+                ]};
             } else {
-                throw new Error('Scalar is out of the list of Complex types.');
+                const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+                throw new RangeError(error.generateMessageString());
             }
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR);

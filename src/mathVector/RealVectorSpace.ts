@@ -1,4 +1,4 @@
-import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_OUT_RANGE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
+import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_OUT_RANGE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
 import { COMPLEX, ComplexVector, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, Real, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, VectorSpace, WEIGHT } from "./VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D, isVector3D, isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
@@ -19,15 +19,15 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
     }
 
     areSameDimension(v1: RealVector, v2: RealVector): boolean {
-        if((isVector1D(v1) && isVector1D(v2)) ||
-            (isVector2D(v1) && isVector2D(v2)) ||
-            (isVector3D(v1) && isVector3D(v2)) ||
-            (isVector4D(v1) && isVector4D(v2))) {
+        if((isVector1D(v1) && isVector1D(v2) && this.dim === MIN_DIMENSION_REALVECTORSPACE) ||
+            (isVector2D(v1) && isVector2D(v2) && this.dim === 2) ||
+            (isVector3D(v1) && isVector3D(v2) && this.dim === 3) ||
+            (isVector4D(v1) && isVector4D(v2) && this.dim === MAX_DIMENSION_REALVECTORSPACE)) {
             return true;
         } else return false;
     }
 
-    zero(): RealVector {
+    defaultVect(): RealVector {
         if(this.dim === MIN_DIMENSION_REALVECTORSPACE) {
             return 0;
         } else if (this.dim === 2) {
@@ -37,7 +37,7 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
         } else if (this.dim === MAX_DIMENSION_REALVECTORSPACE) {
             return {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
         } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'zero', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+            const error = sendRangeErrorMessage(this.constructor.name, 'defaultVect', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
     }
@@ -105,6 +105,83 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
 
     dimension(): number {
         return this.dim;
+    }
+
+    norm(v: RealVector): number {
+        if (typeof v === 'number') {
+            return Math.abs(v);
+        } else if (isVector2D(v) || isVector3D(v) || isVector4D(v)) {
+            let result = 0;
+            for(const component of v.coordinates) {
+                result += Math.pow(component, 2);
+            }
+            result = Math.sqrt(result);
+            return result;
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'norm', EM_REALVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    normalize(v: RealVector): RealVector {
+        if (typeof v === 'number') {
+            return v / this.norm(v);
+        } else if (isVector2D(v) || isVector3D(v) || isVector4D(v)) {
+            const norm = this.norm(v);
+            const result = (v.coordinates as number[]).map(val => val / norm);
+            if(isVector2D(v)) {
+                return {type: REALVECTOR2D, coordinates: [result[0], result[1]]};
+            } else if(isVector3D(v)) {
+                return {type: REALVECTOR3D, coordinates: [result[0], result[1], result[2]]};
+            } else {
+                return {type: REALVECTOR4D, coordinates: [result[0], result[1], result[2], result[3]]};
+            } 
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'normalize', EM_REALVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    crossProduct(a: RealVector, b: RealVector): RealVector {
+        if (typeof a === 'number' && typeof b === 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1);
+            throw new RangeError(error.generateMessageString());
+        } else if(isVector2D(a) && isVector2D(b)) {
+            return (a.coordinates[0] * b.coordinates[1]) - (a.coordinates[1] * b.coordinates[0]);
+        } else if(isVector3D(a) && isVector3D(b)) {
+            const result = [
+                (a.coordinates[1] * b.coordinates[2]) - (a.coordinates[2] * b.coordinates[1]),
+                (a.coordinates[2] * b.coordinates[0]) - (a.coordinates[0] * b.coordinates[2]),
+                (a.coordinates[0] * b.coordinates[1]) - (a.coordinates[1] * b.coordinates[0])
+            ];
+            return {type: REALVECTOR3D, coordinates: [result[0], result[1], result[2]]};
+        } else if (isVector4D(a) && isVector4D(b)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4);
+            throw new RangeError(error.generateMessageString());
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_REALVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    dot(a: RealVector, b: RealVector): number {
+        if (typeof a === 'number' && typeof b === 'number') {
+            return a * b;
+        } else if ((isVector2D(a) && isVector2D(b)) ||
+                (isVector3D(a) && isVector3D(b)) ||
+                (isVector4D(a) && isVector4D(b))) {
+            let result = 0;
+            for(let i = 0; i < a.coordinates.length; i++) {
+                result += a.coordinates[i] * b.coordinates[i];
+            }
+            return result;
+        } else if ((typeof a === 'number' && !(typeof b === 'number')) || (isVector2D(a) && !isVector2D(b)) || (isVector3D(a) && !isVector3D(b)) || (isVector4D(a) && !isVector4D(b))) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'dot', EM_REALVECTORS_DIFFERENT_DIM);
+            throw new RangeError(error.generateMessageString());
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'dot', EM_REALVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
 
     fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight = new Weight()): ProjectiveVector {

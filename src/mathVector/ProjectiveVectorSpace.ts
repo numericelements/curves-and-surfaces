@@ -26,7 +26,7 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
         } else return false;
     }
 
-    zero(): ProjectiveVector {
+    defaultVect(): ProjectiveVector {
         if (this.dim === 3) {
             return {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight()}]};
         } else if (this.dim === 4) {

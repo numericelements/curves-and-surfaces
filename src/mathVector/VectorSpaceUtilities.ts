@@ -57,7 +57,8 @@ export function isRealVector(v: Vector): v is RealVector {
  * @returns True if vector contains complex numbers and belongs to a complex vector space
  */
 export function isComplexVector(v: Vector): v is ComplexVector {
-    return typeof v === 'number' || v.type === COMPLEXVECTOR2D;
+    if (typeof v === 'number') return false;
+    return v.type === COMPLEX || v.type === COMPLEXVECTOR2D;
 }
 
 /**
@@ -106,7 +107,7 @@ export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
             return true;
         } else return false;
     } else if(isProjectiveComplexVector(v1) && isProjectiveComplexVector(v2)) {
-        if((isVector1D(v1) && isVector1D(v2))) {
+        if((isVector2D(v1) && isVector2D(v2))) {
             return true;
         } else return false;
     } else return false;

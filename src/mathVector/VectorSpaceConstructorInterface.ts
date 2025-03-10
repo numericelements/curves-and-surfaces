@@ -109,7 +109,7 @@ export interface ProjectiveComplexVector1D {
  */
 export interface VectorSpace<K extends Scalar, V extends Vector> {
     /** Additive identity element (zero vector) */
-    zero(): V;
+    defaultVect(): V;
     
     /** Vector addition (commutative group operation) */
     add(a: V, b: V): V;
