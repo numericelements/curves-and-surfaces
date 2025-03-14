@@ -24,6 +24,8 @@ export const CLOSED_BSPL_CP_PERIODICKNOTSEQ_INTERFACE = "ClosedBSpline_CP_Period
 export const BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "OpenBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity";
 export const CLOSED_BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity";
 
+export const BSPL_PH_QUINTIC_LINE_CIRCLE = "OpenBSpline_PH_quintic_line_circle";
+
 
 export interface BSpline_CP {
     type: 'OpenBSPL_CP_No_KnotSequence';
@@ -129,6 +131,14 @@ export interface ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity {
     type: 'ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity';
     controlPoints: number[];
     knotSequence: OpenKnotSequenceUpToC0DiscontinuityCCurveInterfaceAllCPK_type;
+}
+
+export interface OpenBSpline_PH_quintic_line_circle {
+    type: 'OpenBSpline_PH_quintic_line_circle';
+    refPoint: ControlPoints;
+    lineDir: Vector;
+    circle: Vector;
+    circleRadius: number;
 }
 
 export type ControlPoints = Vector;

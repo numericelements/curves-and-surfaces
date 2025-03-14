@@ -88,6 +88,17 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
         return this.dim;
     }
 
+    clone(v: ProjectiveVector): ProjectiveVector {
+        if(isVector3D(v)) {
+            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, value: new Weight(v.coordinates[2].value.weight)}]};
+        } else if(isVector4D(v)) {
+            return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, value: new Weight(v.coordinates[3].value.weight)}]};
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'zero', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {
         const result: number[] = [];
         const weight = (v.coordinates[v.coordinates.length - 1] as Weight_Interface).value.weight

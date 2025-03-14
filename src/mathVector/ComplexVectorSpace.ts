@@ -101,6 +101,20 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         return this.dim;
     }
 
+    clone(vector: ComplexVector): ComplexVector {
+        if(isVector1D(vector)) {
+            return {type: COMPLEX, real: vector.real, imaginery: vector.imaginery};
+        } else if(isVector2D(vector)) {
+            return {type: COMPLEXVECTOR2D, coordinates: [
+                {type: COMPLEX, real: vector.coordinates[0].real, imaginery: vector.coordinates[0].imaginery},
+                {type: COMPLEX, real: vector.coordinates[1].real, imaginery: vector.coordinates[1].imaginery}
+            ]};
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'clone', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
     fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector): RealVector {
         if(isVector1D(vector)) {
             return {type: REALVECTOR2D, coordinates: [vector.real, vector.imaginery]};

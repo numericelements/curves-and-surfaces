@@ -117,9 +117,12 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
     /** Scalar multiplication */
     scale(scalar: K, v: V): V;
     
-    // /** Vector subtraction (derived operation) */
+    /** Vector subtraction (derived operation) */
     subtract(a: V, b: V): V;
     
     /** Dimension of the vector space */
     dimension(): number;
+
+    /** Duplicate vector */
+    clone(v: V): V;
 }

@@ -90,6 +90,13 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
         return this.dim;
     }
 
+    clone(vector: ProjectiveComplexVector): ProjectiveComplexVector {
+        return {type: vector.type, coordinates: [
+            {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginery: vector.coordinates[0].imaginery},
+            {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginery: vector.coordinates[1].imaginery}
+        ]};
+    }
+
     fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector: ProjectiveComplexVector): ComplexVector {
         if(isVector2D(vector)) {
             let real = 0;
