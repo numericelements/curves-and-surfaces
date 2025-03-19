@@ -1,0 +1,3 @@
+export const EM_WEIGHT_MANAGER_WEIGHT_TYPE_ERROR = "Weight type is invalid because it is assigned the possibility to be possitive whereas the weight manager is set to strictly positive weight management.";
+export const EM_WEIGHT_SUBTRACTION_ERROR = "Weight subtraction produces a negative weight. Cannot proceed.";
+export const EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS = "Subtracting strictly positive weights produces a null weight. Cannot proceed.";

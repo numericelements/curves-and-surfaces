@@ -3,3 +3,6 @@
 // This constant accounts for the roundoffs of the floating point computations to set a test:
 // n * COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF < VAL is an example of version accounting for these roundoffs
 export const COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF = 1.1;
+
+// Tolerance for comparison of two numbers
+export const TOLERANCE_FLOAT = 1e-10;

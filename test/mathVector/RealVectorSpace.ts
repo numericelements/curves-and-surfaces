@@ -2,10 +2,9 @@ import { expect } from "chai";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../src/namedConstants/RealVectorSpace";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/RealVectorSpace";
-import { Complex, COMPLEX, ComplexVector, ProjectiveVector, ProjectiveVector2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, RealVector1D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D, REALVECTOR4D, RealVector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { COMPLEX, ComplexVector, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, RealVector1D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D, REALVECTOR4D, RealVector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D, isVector3D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { Weight } from "../../src/mathVector/Weight";
-import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 
 describe('RealVectorSpace', () => {
 
@@ -63,6 +62,13 @@ describe('RealVectorSpace', () => {
         it('can check that two RealVectors are not of same dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 0]};
+            const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
+            expect(realVectorSpace.areSameDimension(vec1, vec2)).to.eql(false)
+        });
+
+        it('can check that two RealVectors of same dimension but not in the current RealVectorSpace are not declared as such', () => {
+            const realVectorSpace = new RealVectorSpace(2);
+            const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 1]};
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
             expect(realVectorSpace.areSameDimension(vec1, vec2)).to.eql(false)
         });

@@ -1,0 +1,2 @@
+export const WM_WEIGHT_WITH_POSITIVE_VALUE_STATUS = "At least one weight may have a null value whereas weight management is set to strictly positive weights.";
+export const WM_WEIGHT_WITH_STRICTLY_POSITIVE_VALUE_STATUS = "At least one weight has a strictly positive status whereas weight management is set to positive weights.";
