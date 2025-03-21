@@ -352,7 +352,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
     }
 
     areSameDimension(v1: ProjectiveVector, v2: ProjectiveVector): boolean {
-        if(isVector3D(v1) && isVector3D(v2)) return true;
+        if(isVector4D(v1) && isVector4D(v2)) return true;
         return false;
     }
 
@@ -432,7 +432,6 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
     
     constructor(dimension: number, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
         this.dim = dimension;
-        console.log("dim = ", this.dim);
         this._weightManagement = weightManagement;
         if (dimension < MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
