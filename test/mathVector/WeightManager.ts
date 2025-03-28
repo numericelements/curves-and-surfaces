@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { WeightManager } from "../../src/mathVector/WeightManager";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
-import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_WEIGHT_MANAGER_WEIGHT_TYPE_ERROR, EM_WEIGHT_SUBTRACTION_ERROR } from "../../src/ErrorMessages/WeightManager";
+import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGATIVE, EM_SCALE_FACTOR_NEGATIVE_OR_NULL, EM_WEIGHT_MANAGER_WEIGHT_TYPE_ERROR, EM_WEIGHT_SUBTRACTION_ERROR } from "../../src/ErrorMessages/WeightManager";
 import { WM_WEIGHT_WITH_POSITIVE_VALUE_STATUS, WM_WEIGHT_WITH_STRICTLY_POSITIVE_VALUE_STATUS } from "../../src/WarningMessages/WeightManager";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
@@ -59,7 +59,7 @@ describe('WeightManager', () => {
                 const newWeight3 = weightManager2.setWeightStatus(weight);
                 expect(newWeight3.strictlyPositive).to.eql(true)
                 const newWeight5 = weightManager2.setWeightStatus(weight1);
-                expect(newWeight5.strictlyPositive).to.eql(false)
+                expect(newWeight5.strictlyPositive).to.eql(false);
             });
         });
 
@@ -165,7 +165,7 @@ describe('WeightManager', () => {
             expect(newWeight.weight).to.be.closeTo(COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF * NULL_WEIGHT_TOLERANCE, TOLERANCE_FLOAT)
         });
 
-        it(' can subtract weights and obtain a null weight if the weight difference is under the null weight threshold under ' + WeightManagement.AllPositiveWeights + ' management' , () => {
+        it('can subtract weights and obtain a null weight if the weight difference is under the null weight threshold under ' + WeightManagement.AllPositiveWeights + ' management' , () => {
             const weight = new Weight();
             const value = DEFAULT_WEIGHT_VALUE - 1e-11;
             const weight1 = new Weight(value, true);
@@ -196,6 +196,132 @@ describe('WeightManager', () => {
             const newWeight = weightManager.subtractWeights(weight, weight1);
             expect(newWeight.strictlyPositive).to.eql(true)
             expect(newWeight.weight).to.be.closeTo(COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF * NULL_WEIGHT_TOLERANCE, TOLERANCE_FLOAT)
+        });
+
+        it(`cannot scale weight if the scale factor is negative or null under ${WeightManagement.AllStrictlyPositiveWeights} management`, () => {
+            const weight = new Weight();
+            let scale = -1;
+            const weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.scaleWeight(weight, scale)).to.throw(EM_SCALE_FACTOR_NEGATIVE_OR_NULL)
+            scale = 0;
+            expect(() => weightManager.scaleWeight(weight, scale)).to.throw(EM_SCALE_FACTOR_NEGATIVE_OR_NULL)
+        });
+
+        it(`can scale weight if the scale factor is strictly positive under ${WeightManagement.AllStrictlyPositiveWeights} management`, () => {
+            const weight = new Weight();
+            let scale = 2;
+            const weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            const newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(scale * DEFAULT_WEIGHT_VALUE)
+            expect(newWeight.strictlyPositive).to.eql(true)
+        });
+
+        it(`cannot scale weight if the scale factor is negative under ${WeightManagement.AllPositiveWeights} management`, () => {
+            const weight = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            let scale = -1;
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.scaleWeight(weight, scale)).to.throw(EM_SCALE_FACTOR_NEGATIVE)
+        });
+
+        it(`can scale weight if the scale factor is negative and produces a weight smaller than ${NULL_WEIGHT_TOLERANCE} tolerance under ${WeightManagement.AllPositiveWeights} management`, () => {
+            const value = NULL_WEIGHT_TOLERANCE / 3;
+            const weight = new Weight(value, false);
+            let scale = -2;
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            const newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(0)
+            expect(newWeight.strictlyPositive).to.eql(false)
+        });
+
+        it(`can scale weight if the scale factor is strictly positive  or null under ${WeightManagement.AllPositiveWeights} management`, () => {
+            const weight = new Weight();
+            let scale = 2;
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            let newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(scale * DEFAULT_WEIGHT_VALUE)
+            expect(newWeight.strictlyPositive).to.eql(false)
+            scale = 0;
+            newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(0)
+            expect(newWeight.strictlyPositive).to.eql(false)
+        });
+
+        it(`cannot scale weight if the scale factor is negative under ${WeightManagement.SomeNullWeights} management`, () => {
+            const weight = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            let scale = -1;
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.scaleWeight(weight, scale)).to.throw(EM_SCALE_FACTOR_NEGATIVE)
+        });
+
+        it(`can scale weight if the scale factor is negative and produces a weight smaller than ${NULL_WEIGHT_TOLERANCE} tolerance under ${WeightManagement.SomeNullWeights} management`, () => {
+            const value = NULL_WEIGHT_TOLERANCE / 3;
+            const weight = new Weight(value, false);
+            let scale = -2;
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            const newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(0)
+            expect(newWeight.strictlyPositive).to.eql(false)
+        });
+
+        it(`can scale weight if the scale factor is strictly positive or null under ${WeightManagement.SomeNullWeights} management`, () => {
+            const weight = new Weight();
+            let scale = 2;
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            let newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(scale * DEFAULT_WEIGHT_VALUE)
+            expect(newWeight.strictlyPositive).to.eql(true)
+            scale = 0;
+            newWeight = weightManager.scaleWeight(weight, scale);
+            expect(newWeight.weight).to.eql(0)
+            expect(newWeight.strictlyPositive).to.eql(false)
+        });
+
+        it(`can clone weight under ${WeightManagement.AllStrictlyPositiveWeights} management`, () => {
+            const value = 10;
+            let weight = new Weight(value);
+            const weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            const newWeight = weightManager.cloneWeight(weight);
+            expect(newWeight.weight).to.eql(weight.weight)
+            expect(newWeight.strictlyPositive).to.eql(weight.strictlyPositive)
+            weight.weight = DEFAULT_WEIGHT_VALUE;
+            expect(newWeight.weight).to.eql(value)
+        });
+
+        it(`can clone weight under ${WeightManagement.AllPositiveWeights} management`, () => {
+            const value = 10;
+            let weight = new Weight(value, false);
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            const newWeight = weightManager.cloneWeight(weight);
+            expect(newWeight.weight).to.eql(weight.weight)
+            expect(newWeight.strictlyPositive).to.eql(weight.strictlyPositive)
+            weight.weight = DEFAULT_WEIGHT_VALUE;
+            expect(newWeight.weight).to.eql(value)
+        });
+
+        it(`can clone weight under ${WeightManagement.SomeNullWeights} management`, () => {
+            const value = 10;
+            let weight = new Weight(value, false);
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            const newWeight = weightManager.cloneWeight(weight);
+            expect(newWeight.weight).to.eql(weight.weight)
+            expect(newWeight.strictlyPositive).to.eql(weight.strictlyPositive)
+            weight.weight = DEFAULT_WEIGHT_VALUE;
+            expect(newWeight.weight).to.eql(value)
+            const weight1 = new Weight(value);
+            const newWeight1 = weightManager.cloneWeight(weight1);
+            expect(newWeight1.weight).to.eql(weight1.weight)
+            expect(newWeight1.strictlyPositive).to.eql(weight1.strictlyPositive)
         });
 
         it('can check if two weights are under same weight management for ' +  WeightManagement.AllStrictlyPositiveWeights + ' management' , () => {
