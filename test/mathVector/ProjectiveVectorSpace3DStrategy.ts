@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { COMPLEX, COMPLEXWEIGHT, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector2D, PROJECTIVEVECTOR2D, REALVECTOR2D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { ProjectiveVectorSpace3DStrategy } from "../../src/mathVector/ProjectiveVectorSpace3DStrategy";
-import { createTestVector } from "./ProjectiveVectorSpaceTestFactory";
+import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
@@ -19,7 +19,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
 
             it(`can add two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const vec2 = vectorSpace.defaultVect();
                 const result = vectorSpace.add(vec1, vec2);
                 // Check coordinates
@@ -28,7 +28,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can subtract two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const vec2 = vectorSpace.defaultVect();
                 const result = vectorSpace.subtract(vec1, vec2);
                 // Check coordinates
@@ -37,7 +37,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can scale a ${PROJECTIVEVECTOR2D} vector and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 2;
                 const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
@@ -47,7 +47,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector into the Real vector space ${REALVECTOR2D}`, () => {
                 const weight = 2;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, true);
                 const result = vectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1);
                 expect(typeof result).to.not.eql('number');
                 if(typeof result !== 'number') {
@@ -59,7 +59,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
                 const weight = 2;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, true) as ProjectiveVector2D;
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, true) as ProjectiveVector2D;
                 const result = vectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
@@ -96,9 +96,9 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
 
             it(`can add two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 0, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const vec2 = vectorSpace.defaultVect();
-                const vec3 = createTestVector(PROJECTIVEVECTOR2D, 0, false);
+                const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const result = vectorSpace.add(vec1, vec2);
                 const result1 = vectorSpace.add(vec1, vec3);
                 // Check coordinates
@@ -110,9 +110,9 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can subtract two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const vec2 = vectorSpace.defaultVect();
-                const vec3 = createTestVector(PROJECTIVEVECTOR2D, 0, false);
+                const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const result = vectorSpace.subtract(vec1, vec2);
                 const result1 = vectorSpace.subtract(vec1, vec3);
                 // Check coordinates
@@ -124,7 +124,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a strictly positive value and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const scale = 2;
                 const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
@@ -133,7 +133,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a null value and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const scale = 0;
                 const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
@@ -143,7 +143,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with strictly positive weight into the Real vector space ${REALVECTOR2D}`, () => {
                 const weight = 2;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, false);
                 const result = vectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1);
                 expect(typeof result).to.not.eql('number');
                 if(typeof result !== 'number') {
@@ -154,7 +154,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the Real vector space ${REALVECTOR2D}`, () => {
                 const weight = 0;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, false);
                 const result = vectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1);
                 expect(typeof result).to.not.eql('number');
                 if(typeof result !== 'number') {
@@ -166,7 +166,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with strictly positive weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
                 const weight = 2;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, false) as ProjectiveVector2D;
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, false) as ProjectiveVector2D;
                 const result = vectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
@@ -179,7 +179,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
                 const weight = 0;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, false) as ProjectiveVector2D;
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, false) as ProjectiveVector2D;
                 const result = vectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
@@ -222,9 +222,9 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
 
             it(`can add two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 0, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const vec2 = vectorSpace.defaultVect();
-                const vec3 = createTestVector(PROJECTIVEVECTOR2D, 0, false);
+                const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const result = vectorSpace.add(vec1, vec2);
                 const result1 = vectorSpace.add(vec1, vec3);
                 // Check coordinates
@@ -236,9 +236,9 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can subtract two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const vec2 = vectorSpace.defaultVect();
-                const vec3 = createTestVector(PROJECTIVEVECTOR2D, 0, false);
+                const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const result = vectorSpace.subtract(vec1, vec2);
                 const result1 = vectorSpace.subtract(vec1, vec3);
                 // Check coordinates
@@ -250,7 +250,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             })
 
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a strictly positive value and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 2;
                 const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
@@ -259,7 +259,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a null value and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, 2, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 0;
                 const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
@@ -269,7 +269,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with strictly positive weight into the Real vector space ${REALVECTOR2D}`, () => {
                 const weight = 2;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, true);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, true);
                 const result = vectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1);
                 expect(typeof result).to.not.eql('number');
                 if(typeof result !== 'number') {
@@ -281,7 +281,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the Real vector space ${REALVECTOR2D}`, () => {
                 const weight = 0;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, false);
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, false);
                 const result = vectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1);
                 expect(typeof result).to.not.eql('number');
                 if(typeof result !== 'number') {
@@ -293,7 +293,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with strictly positive weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
                 const weight = 2;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, true) as ProjectiveVector2D;
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, true) as ProjectiveVector2D;
                 const result = vectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
@@ -306,7 +306,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
                 const weight = 0;
-                const vec1 = createTestVector(PROJECTIVEVECTOR2D, weight, false) as ProjectiveVector2D;
+                const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, weight, false) as ProjectiveVector2D;
                 const result = vectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);

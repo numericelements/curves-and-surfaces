@@ -18,11 +18,11 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
             const weight2 = v2.coordinates[2].value;
             return weightManager.isSameWeightManagement(weight1, weight2);
         } else {
-            if(!this.areSameDimension(v1, v2)) {
-                const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
+            if(!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(error.generateMessageString());
             }
-            const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
             throw new RangeError(error.generateMessageString());
         }
     }
@@ -63,12 +63,13 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
 
     subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector {
         if(isVector3D(a) && isVector3D(b)) {
-            const diffWeights = weightManager.subtractWeights(a.coordinates[2].value, b.coordinates[2].value);
-            return {type: PROJECTIVEVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], {type: WEIGHT, value: diffWeights}]};
-        } else {
-            if(weightManager.weightManagement === 'AllStrictlyPositiveWeights') {
-                throw new RangeError(EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
+            try {
+                const diffWeights = weightManager.subtractWeights(a.coordinates[2].value, b.coordinates[2].value);
+                return {type: PROJECTIVEVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], {type: WEIGHT, value: diffWeights}]};
+            } catch(error) {
+                throw error;
             }
+        } else {
             throw new RangeError();
         }
     }

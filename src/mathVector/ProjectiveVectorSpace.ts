@@ -39,15 +39,9 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
     constructor(dimension: number, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
         this.dim = dimension;
         this._weightManagement = weightManagement;
-        if (dimension < MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
-        }
-
         // Create weight manager
         this.weightManager = new WeightManager(weightManagement);
       
-        // Select appropriate strategy based on dimension
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy();
@@ -102,7 +96,6 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
             throw new RangeError(message.generateMessageString());
         }
-
     }
 
     defaultVect(): ProjectiveVector {
@@ -160,7 +153,7 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
     }
 
     clone(v: ProjectiveVector): ProjectiveVector {
-        try{
+        try {
             return this.strategy.clone(v, this.weightManager);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
@@ -169,7 +162,12 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
     }
 
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {
-      return this.strategy.fromProjectiveVectorSpaceToRealVectorSpace(v);
+        try {
+            return this.strategy.fromProjectiveVectorSpaceToRealVectorSpace(v);
+        } catch (error) {
+            const message = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveVectorSpaceToRealVectorSpace', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(message.generateMessageString());
+        }
     }
 
     fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector {
