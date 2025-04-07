@@ -79,7 +79,7 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
     }
 
     defaultVect(): RealVector {
-      return this.strategy.defaultVect();
+        return this.strategy.defaultVect();
     }
     
     add(a: RealVector, b: RealVector): RealVector {
