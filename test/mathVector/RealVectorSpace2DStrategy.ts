@@ -187,7 +187,7 @@ describe('RealVectorSpace2DStrategy', () => {
             const vec1 = createTestRealVector(vectorType, [1, 2])
             const vec2: ComplexVector = vectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1);
             expect(vec2.type).to.eql(COMPLEX);
-            expect(vec2).to.eql({type: COMPLEX, real: 1, imaginery: 2});
+            expect(vec2).to.eql({type: COMPLEX, real: 1, imaginary: 2});
         });
 
         it('cannot transform a RealVector out of the current vector space into a ComplexVector', () => {

@@ -26,7 +26,7 @@ export type Real = number;
 export interface Complex {
     type: typeof COMPLEX;
     real: number;
-    imaginery: number;
+    imaginary: number;
 }
 
 export interface Weight_Interface {
@@ -37,7 +37,7 @@ export interface Weight_Interface {
 export interface ComplexWeight {
     type: typeof COMPLEXWEIGHT;
     real: Weight;
-    imaginery: Weight;
+    imaginary: Weight;
 }
 
 

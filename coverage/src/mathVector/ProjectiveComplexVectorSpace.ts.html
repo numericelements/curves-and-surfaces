@@ -323,8 +323,8 @@
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    defaultVect(): ProjectiveComplexVector {</span>
-<span class="cstat-no" title="statement not covered" >        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginery: 0};</span>
-<span class="cstat-no" title="statement not covered" >        const defaultComplexWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginery: new Weight()};</span>
+<span class="cstat-no" title="statement not covered" >        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginary: 0};</span>
+<span class="cstat-no" title="statement not covered" >        const defaultComplexWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()};</span>
 <span class="cstat-no" title="statement not covered" >        if(this.dim === MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {</span>
 <span class="cstat-no" title="statement not covered" >            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [nullComplex, defaultComplexWeight]};</span>
 <span class="cstat-no" title="statement not covered" >        } else {</span>
@@ -352,10 +352,10 @@
 <span class="cstat-no" title="statement not covered" >    scale(scalar: Complex | number, vector: ProjectiveComplexVector): ProjectiveComplexVector {</span>
 <span class="cstat-no" title="statement not covered" >        if (typeof scalar === 'number') {</span>
 <span class="cstat-no" title="statement not covered" >            if(isVector2D(vector)) {</span>
-<span class="cstat-no" title="statement not covered" >                const result = (vector.coordinates as Complex[]).map((val, i) =&gt; ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginery * scalar}));</span>
+<span class="cstat-no" title="statement not covered" >                const result = (vector.coordinates as Complex[]).map((val, i) =&gt; ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginary * scalar}));</span>
 <span class="cstat-no" title="statement not covered" >                return {type: vector.type, coordinates: [</span>
-<span class="cstat-no" title="statement not covered" >                    {type: COMPLEX, real: result[0].real, imaginery: result[0].imaginery},</span>
-<span class="cstat-no" title="statement not covered" >                    {type: COMPLEXWEIGHT, real: new Weight(result[1].real), imaginery: new Weight(result[1].imaginery)}</span>
+<span class="cstat-no" title="statement not covered" >                    {type: COMPLEX, real: result[0].real, imaginary: result[0].imaginery},</span>
+<span class="cstat-no" title="statement not covered" >                    {type: COMPLEXWEIGHT, real: new Weight(result[1].real), imaginary: new Weight(result[1].imaginery)}</span>
 <span class="cstat-no" title="statement not covered" >                ]};</span>
 <span class="cstat-no" title="statement not covered" >            } else {</span>
 <span class="cstat-no" title="statement not covered" >                const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE);</span>
@@ -364,8 +364,8 @@
 <span class="cstat-no" title="statement not covered" >        } else if(scalar.type === COMPLEX) {</span>
 <span class="cstat-no" title="statement not covered" >            if(isVector2D(vector)) {</span>
 <span class="cstat-no" title="statement not covered" >                return {type: vector.type, coordinates: [</span>
-<span class="cstat-no" title="statement not covered" >                    {type: COMPLEX, real: ComplexOperators.multiply(vector.coordinates[0], scalar).real, imaginery: ComplexOperators.multiply(vector.coordinates[0], scalar).imaginery},</span>
-<span class="cstat-no" title="statement not covered" >                    {type: COMPLEXWEIGHT, real: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).real, imaginery: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).imaginery}]}</span>
+<span class="cstat-no" title="statement not covered" >                    {type: COMPLEX, real: ComplexOperators.multiply(vector.coordinates[0], scalar).real, imaginary: ComplexOperators.multiply(vector.coordinates[0], scalar).imaginary},</span>
+<span class="cstat-no" title="statement not covered" >                    {type: COMPLEXWEIGHT, real: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).real, imaginary: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).imaginary}]}</span>
 <span class="cstat-no" title="statement not covered" >            } else {</span>
 <span class="cstat-no" title="statement not covered" >                throw new Error('Scalar is out of the list of Complex types.');</span>
 <span class="cstat-no" title="statement not covered" >            }</span>
@@ -395,8 +395,8 @@
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    clone(vector: ProjectiveComplexVector): ProjectiveComplexVector {</span>
 <span class="cstat-no" title="statement not covered" >        return {type: vector.type, coordinates: [</span>
-<span class="cstat-no" title="statement not covered" >            {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginery: vector.coordinates[0].imaginery},</span>
-<span class="cstat-no" title="statement not covered" >            {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginery: vector.coordinates[1].imaginery}</span>
+<span class="cstat-no" title="statement not covered" >            {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary},</span>
+<span class="cstat-no" title="statement not covered" >            {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginary: vector.coordinates[1].imaginary}</span>
 <span class="cstat-no" title="statement not covered" >        ]};</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -409,12 +409,12 @@
 <span class="cstat-no" title="statement not covered" >            } else {</span>
 <span class="cstat-no" title="statement not covered" >                real = vector.coordinates[0].real / vector.coordinates[1].real.weight;</span>
 <span class="cstat-no" title="statement not covered" >            }</span>
-<span class="cstat-no" title="statement not covered" >            if(vector.coordinates[1].imaginery.weight === 0) {</span>
-<span class="cstat-no" title="statement not covered" >                imaginery = vector.coordinates[0].imaginery;</span>
+<span class="cstat-no" title="statement not covered" >            if(vector.coordinates[1].imaginary.weight === 0) {</span>
+<span class="cstat-no" title="statement not covered" >                imaginery = vector.coordinates[0].imaginary;</span>
 <span class="cstat-no" title="statement not covered" >            } else {</span>
-<span class="cstat-no" title="statement not covered" >                imaginery = vector.coordinates[0].imaginery / vector.coordinates[1].imaginery.weight;</span>
+<span class="cstat-no" title="statement not covered" >                imaginery = vector.coordinates[0].imaginary / vector.coordinates[1].imaginary.weight;</span>
 <span class="cstat-no" title="statement not covered" >            }</span>
-<span class="cstat-no" title="statement not covered" >            return {type: COMPLEX, real: real, imaginery: imaginery};</span>
+<span class="cstat-no" title="statement not covered" >            return {type: COMPLEX, real: real, imaginary: imaginery};</span>
 <span class="cstat-no" title="statement not covered" >        } else {</span>
 <span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE);</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
@@ -427,7 +427,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-07T12:03:29.865Z
+                at 2025-04-12T08:59:51.588Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

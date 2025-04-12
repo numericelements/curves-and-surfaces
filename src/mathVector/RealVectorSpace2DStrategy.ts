@@ -116,7 +116,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy {
 
     fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector {
         if(isVector2D(v)) {
-            return {type: COMPLEX, real: v.coordinates[0], imaginery: v.coordinates[1]};
+            return {type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]};
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToComplexVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());

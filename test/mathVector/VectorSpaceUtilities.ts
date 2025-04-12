@@ -19,7 +19,7 @@ describe('isVector1D', () => {
         const res3 = isVector1D(vec3)
         expect(res3).to.eql(true)
 
-        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res2 = isVector1D(vec2)
         expect(res2).to.eql(true)
     });
@@ -29,11 +29,11 @@ describe('isVector1D', () => {
         const res1 = isVector1D(vec1)
         expect(res1).to.eql(false)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isVector1D(vec2)
         expect(res2).to.eql(false)
 
-        const vec3: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec3: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res3 = isVector1D(vec3)
         expect(res3).to.eql(false)
     });
@@ -67,11 +67,11 @@ describe('isVector2D', () => {
         const res3 = isVector2D(vec3)
         expect(res3).to.eql(true)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isVector2D(vec2)
         expect(res2).to.eql(true)
 
-        const vec1: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec1: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isVector2D(vec1)
         expect(res1).to.eql(true)
     });
@@ -85,7 +85,7 @@ describe('isVector2D', () => {
         const res3 = isVector2D(vec3)
         expect(res3).to.eql(false)
 
-        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res2 = isVector2D(vec2)
         expect(res2).to.eql(false)
     });
@@ -132,7 +132,7 @@ describe('isVector3D', () => {
         const res3 = isVector3D(vec3)
         expect(res3).to.eql(false)
 
-        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res2 = isVector3D(vec2)
         expect(res2).to.eql(false)
     });
@@ -142,11 +142,11 @@ describe('isVector3D', () => {
         const res3 = isVector3D(vec3)
         expect(res3).to.eql(false)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isVector3D(vec2)
         expect(res2).to.eql(false)
 
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isVector3D(vec4)
         expect(res1).to.eql(false)
     });
@@ -183,7 +183,7 @@ describe('isVector4D', () => {
         const res3 = isVector4D(vec3)
         expect(res3).to.eql(false)
 
-        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res2 = isVector4D(vec2)
         expect(res2).to.eql(false)
     });
@@ -193,11 +193,11 @@ describe('isVector4D', () => {
         const res3 = isVector4D(vec3)
         expect(res3).to.eql(false)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isVector4D(vec2)
         expect(res2).to.eql(false)
 
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isVector4D(vec4)
         expect(res1).to.eql(false)
     });
@@ -234,11 +234,11 @@ describe('isRealVector', () => {
     });
 
     it('checks that a Vector describing a ComplexVector is not of type RealVector', () => {
-        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res1 = isRealVector(vec1)
         expect(res1).to.eql(false)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isRealVector(vec2)
         expect(res2).to.eql(false)
     });
@@ -254,7 +254,7 @@ describe('isRealVector', () => {
     });
 
     it('checks that a Vector describing a ProjectiveComplexVector is not of type RealVector', () => {
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isRealVector(vec4)
         expect(res1).to.eql(false)
     });
@@ -263,11 +263,11 @@ describe('isRealVector', () => {
 describe('isComplexVector', () => {
 
     it('checks that a ComplexVector is effectively of type ' + COMPLEX + ' or ' + COMPLEXVECTOR2D, () => {
-        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res1 = isComplexVector(vec1)
         expect(res1).to.eql(true)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isComplexVector(vec2)
         expect(res2).to.eql(true)
     });
@@ -301,7 +301,7 @@ describe('isComplexVector', () => {
     });
 
     it('checks that a Vector describing a ProjectiveComplexVector is not of type ComplexVector', () => {
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isComplexVector(vec4)
         expect(res1).to.eql(false)
     });
@@ -339,17 +339,17 @@ describe('isProjectiveVector', () => {
     });
 
     it('checks that a Vector describing a ComplexVector is not of type ProjectiveVector', () => {
-        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res1 = isProjectiveVector(vec1)
         expect(res1).to.eql(false)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isProjectiveVector(vec2)
         expect(res2).to.eql(false)
     });
 
     it('checks that a Vector describing a ProjectiveComplexVector is not of type isProjectiveVector', () => {
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isProjectiveVector(vec4)
         expect(res1).to.eql(false)
     });
@@ -359,7 +359,7 @@ describe('isProjectiveVector', () => {
 describe('isProjectiveComplexVector', () => {
 
     it('checks that a ProjectiveComplexVector is effectively of type ' + PROJECTIVECOMPLEXVECTOR1D, () => {
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res1 = isProjectiveComplexVector(vec4)
         expect(res1).to.eql(true)
     });
@@ -383,11 +383,11 @@ describe('isProjectiveComplexVector', () => {
     });
 
     it('checks that a Vector describing a ComplexVector is not of type ProjectiveComplexVector', () => {
-        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const res1 = isProjectiveComplexVector(vec1)
         expect(res1).to.eql(false)
 
-        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec2: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
         const res2 = isProjectiveComplexVector(vec2)
         expect(res2).to.eql(false)
     });
@@ -466,9 +466,9 @@ describe('areSameVSpaceAndDimension', () => {
     it('case of Vectors of different types ', () => {
         const vec1: Vector1D = 0;
 
-        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
+        const vec2: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
         const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
-        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
 
         const res1 = areSameVSpaceAndDimension(vec1, vec2)
         expect(res1).to.eql(false)
@@ -479,20 +479,20 @@ describe('areSameVSpaceAndDimension', () => {
     });
 
     it('case of ComplexVectors of same dimesions ' + MIN_DIMENSION_COMPLEXVECTORSPACE + ' through ' + MAX_DIMENSION_COMPLEXVECTORSPACE, () => {
-        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
-        const vec2: Vector1D = {type: COMPLEX, real: 1, imaginery: 0};
+        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
+        const vec2: Vector1D = {type: COMPLEX, real: 1, imaginary: 0};
         const res = areSameVSpaceAndDimension(vec1, vec2);
         expect(res).to.eql(true)
 
-        const vec3: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
-        const vec4: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 1, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 1}]};
+        const vec3: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
+        const vec4: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 1, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 1}]};
         const res1 = areSameVSpaceAndDimension(vec3, vec4)
         expect(res1).to.eql(true)
     });
 
     it('case of ComplexVectors of different dimesions ranging from ' + MIN_DIMENSION_COMPLEXVECTORSPACE + ' through ' + MAX_DIMENSION_COMPLEXVECTORSPACE, () => {
-        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginery: 0};
-        const vec3: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEX, real: 0, imaginery: 0}]};
+        const vec1: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
+        const vec3: Vector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEX, real: 0, imaginary: 0}]};
 
         const res1 = areSameVSpaceAndDimension(vec1, vec3)
         expect(res1).to.eql(false)
@@ -519,8 +519,8 @@ describe('areSameVSpaceAndDimension', () => {
     });
 
     it('case of ProjectiveComplexVectors of same dimesions ' + MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE + ' through ' + MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, () => {
-        const vec1: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
-        const vec2: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginery: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginery: new Weight(1)}]};
+        const vec1: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
+        const vec2: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
         const res = areSameVSpaceAndDimension(vec1, vec2);
         expect(res).to.eql(true)
     });

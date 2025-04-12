@@ -64,10 +64,10 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
-                expect(result.coordinates[0].imaginery).to.eql(vec1.coordinates[1]);
+                expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
                 expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].value);
-                expect(result.coordinates[1].imaginery).to.eql(vec1.coordinates[2].value);
+                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].value);
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {
@@ -171,10 +171,10 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
-                expect(result.coordinates[0].imaginery).to.eql(vec1.coordinates[1]);
+                expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
                 expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].value);
-                expect(result.coordinates[1].imaginery).to.eql(vec1.coordinates[2].value);
+                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].value);
             });
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
@@ -184,10 +184,10 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
-                expect(result.coordinates[0].imaginery).to.eql(vec1.coordinates[1]);
+                expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
                 expect(result.coordinates[1].real).to.eql(new Weight(0, false));
-                expect(result.coordinates[1].imaginery).to.eql(new Weight(0, false));
+                expect(result.coordinates[1].imaginary).to.eql(new Weight(0, false));
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {
@@ -298,10 +298,10 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
-                expect(result.coordinates[0].imaginery).to.eql(vec1.coordinates[1]);
+                expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
                 expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].value);
-                expect(result.coordinates[1].imaginery).to.eql(vec1.coordinates[2].value);
+                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].value);
             });
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
@@ -311,10 +311,10 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
-                expect(result.coordinates[0].imaginery).to.eql(vec1.coordinates[1]);
+                expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
                 expect(result.coordinates[1].real).to.eql(new Weight(0, false));
-                expect(result.coordinates[1].imaginery).to.eql(new Weight(0, false));
+                expect(result.coordinates[1].imaginary).to.eql(new Weight(0, false));
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {

@@ -1,5 +1,7 @@
-import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH } from "../ErrorMessages/ComplexVectorSpace";
+import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE } from "../ErrorMessages/ComplexVectorSpace";
+import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
+import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
 import { COMPLEX, Complex, ComplexVector, COMPLEXVECTOR2D, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
@@ -69,6 +71,35 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         return vect;
     }
 
+    createComplexWeight(a: number, b: number): ComplexWeight {
+        try {
+            const realWeight = this.createWeight(a);
+            const imagWeight = this.createWeight(b);
+            return { type: COMPLEXWEIGHT, real: realWeight, imaginary: imagWeight };
+        } catch(error) {
+            if(error instanceof RangeError && error.message.includes(EM_WEIGHT_VALUE_STRICTLY_POSITIVE) && a < 0) {
+                const message = sendRangeErrorMessage(this.constructor.name, 'createComplexWeight', EM_REALWEIGHT_NEGATIVE);
+                throw new RangeError(message.generateMessageString());
+            } else {
+                const message = sendRangeErrorMessage(this.constructor.name, 'createComplexWeight', EM_IMAGINARYWEIGHT_NEGATIVE);
+                throw new RangeError(message.generateMessageString());
+            }
+        }
+    }
+
+    private createWeight(a: number): Weight {
+        let weight;
+        if(Math.abs(a) < NULL_WEIGHT_TOLERANCE) {
+            a = 0;
+        }
+        if(a === 0) {
+            weight = new Weight(0, false);
+        } else {
+            weight = new Weight(a);
+        }
+        return weight;
+    }
+
     defaultVect(): ComplexVector {
         return this.strategy.defaultVect();
     }
@@ -78,7 +109,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
             return this.strategy.add(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
             const message2 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTORS_DIFFERENT_DIM);
@@ -86,49 +117,14 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         }
     }
 
-    // Overloaded scale method
     scale(scalar: Complex, vector: ComplexVector): ComplexVector;
     scale(scalar: number, vector: ComplexVector): ComplexVector;
-    // Implementation of the scale method
     scale(scalar: Complex | number, vector: ComplexVector): ComplexVector {
-        if (typeof scalar === 'number' || scalar.type === COMPLEX) {
-            try {
-                return this.strategy.scale(scalar, vector);
-            } catch(error) {
-                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
-                throw new RangeError(message.generateMessageString());
-            }
-
-            // if(isVector1D(vector)) {
-            //     return {type: COMPLEX, real: scalar * vector.real, imaginery: scalar * vector.imaginery};
-            // } else if(isVector2D(vector)) {
-            //     const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginery * scalar}));
-            //     return {type: vector.type, coordinates: [
-            //         {type: COMPLEX, real: result[0].real, imaginery: result[0].imaginery},
-            //         {type: COMPLEX, real: result[1].real, imaginery: result[1].imaginery}
-            //     ]};
-            // } else {
-            //     const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
-            //     throw new RangeError(error.generateMessageString());
-            // }
-        // } else if(scalar.type === COMPLEX) {
-        //     if(isVector1D(vector)) {
-        //         return {type: COMPLEX,
-        //             real: ComplexOperators.multiply(scalar, vector).real,
-        //             imaginery: ComplexOperators.multiply(scalar, vector).imaginery}
-        //     } else if(isVector2D(vector)) {
-        //         const result = vector.coordinates.map((val) => ComplexOperators.multiply(scalar, val));
-        //         return {type: vector.type, coordinates: [
-        //             {type: COMPLEX, real: result[0].real, imaginery: result[0].imaginery},
-        //             {type: COMPLEX, real: result[1].real, imaginery: result[1].imaginery}
-        //         ]};
-        //     } else {
-        //         const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
-        //         throw new RangeError(error.generateMessageString());
-        //     }
-        } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.scale(scalar, vector);
+        } catch(error) {
+            const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(message.generateMessageString());
         }
     }
 
@@ -137,7 +133,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
             return this.strategy.subtract(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
             const message2 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXVECTORS_DIFFERENT_DIM);
@@ -146,16 +142,11 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
     }
 
     clone(vector: ComplexVector): ComplexVector {
-        if(isVector1D(vector)) {
-            return {type: COMPLEX, real: vector.real, imaginery: vector.imaginery};
-        } else if(isVector2D(vector)) {
-            return {type: COMPLEXVECTOR2D, coordinates: [
-                {type: COMPLEX, real: vector.coordinates[0].real, imaginery: vector.coordinates[0].imaginery},
-                {type: COMPLEX, real: vector.coordinates[1].real, imaginery: vector.coordinates[1].imaginery}
-            ]};
-        } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'clone', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.clone(vector);
+        } catch(error) {
+            const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+            throw new RangeError(message.generateMessageString());
         }
     }
 
@@ -163,7 +154,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         return this.strategy.fromComplexVectorSpaceToRealVectorSpace(vector);
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginery: new Weight()}): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
         return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight);
     }
 }

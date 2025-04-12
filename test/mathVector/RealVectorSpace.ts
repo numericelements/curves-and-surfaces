@@ -361,7 +361,7 @@ describe('RealVectorSpace', () => {
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 2]};
             const vec2: ComplexVector = realVectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1);
             expect(vec2.type).to.eql(COMPLEX);
-            expect(vec2).to.eql({type: COMPLEX, real: 1, imaginery: 2});
+            expect(vec2).to.eql({type: COMPLEX, real: 1, imaginary: 2});
         });
 
         it('cannot transform a 1D RealVector into a ComplexVector in a ComplexVectorSpace', () => {

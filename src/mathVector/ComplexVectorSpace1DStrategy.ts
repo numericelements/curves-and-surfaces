@@ -20,12 +20,12 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy 
     }
 
     createVector(coordinates: number[][]): Complex {
-        let vector: Complex = {type: COMPLEX, real: coordinates[0][0], imaginery: coordinates[0][1]};
+        let vector: Complex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
         return vector;
     }
 
     defaultVect(): ComplexVector {
-        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginery: 0};
+        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginary: 0};
         return nullComplex;
     }
 
@@ -38,20 +38,20 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy 
     }
 
     // Overloaded scale method
-    scale(scalar: Complex, vector: ComplexVector): Complex;
-    scale(scalar: number, vector: ComplexVector): Complex;
-    scale(scalar: Complex | number, vector: ComplexVector): Complex {
-        if (typeof scalar === 'number') {
+    scale(scaleFactor: Complex, vector: ComplexVector): Complex;
+    scale(scaleFactor: number, vector: ComplexVector): Complex;
+    scale(scaleFactor: Complex | number, vector: ComplexVector): Complex {
+        if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
-                return {type: COMPLEX, real: scalar * vector.real, imaginery: scalar * vector.imaginery};
+                return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
             } else {
                 throw new RangeError();
             }
         } else {
             if(isVector1D(vector)) {
                 return {type: COMPLEX,
-                    real: ComplexOperators.multiply(scalar, vector).real,
-                    imaginery: ComplexOperators.multiply(scalar, vector).imaginery}
+                    real: ComplexOperators.multiply(scaleFactor, vector).real,
+                    imaginary: ComplexOperators.multiply(scaleFactor, vector).imaginary}
             } else {
                 throw new RangeError();
             }
@@ -68,7 +68,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy 
 
     clone(vector: ComplexVector): ComplexVector {
         if(isVector1D(vector)) {
-            return {type: COMPLEX, real: vector.real, imaginery: vector.imaginery};
+            return {type: COMPLEX, real: vector.real, imaginary: vector.imaginary};
         } else {
             throw new RangeError();
         }
@@ -76,14 +76,14 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy 
 
     fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector): RealVector {
         if(isVector1D(vector)) {
-            return {type: REALVECTOR2D, coordinates: [vector.real, vector.imaginery]};
+            return {type: REALVECTOR2D, coordinates: [vector.real, vector.imaginary]};
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToRealVectorSpace', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginery: new Weight()}): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
         if(isVector1D(vector)) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [vector, weight]};
         } else {

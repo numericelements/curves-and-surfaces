@@ -15,14 +15,14 @@ export class ComplexOperators {
      * Creates a complex number from two real numbers
      */
     static createComplex(real: number, imaginery: number): Complex {
-        return {type: COMPLEX, real: real, imaginery: imaginery};
+        return {type: COMPLEX, real: real, imaginary: imaginery};
     }
 
     /**
      * Adds two complex numbers
      */
     static add(a: Complex, b: Complex): Complex {
-        return {type: COMPLEX, real: a.real + b.real, imaginery: a.imaginery + b.imaginery};
+        return {type: COMPLEX, real: a.real + b.real, imaginary: a.imaginary + b.imaginary};
     }
 
     /**
@@ -30,8 +30,8 @@ export class ComplexOperators {
      */
     static multiply(a: Complex, b: Complex): Complex {
         return {type: COMPLEX, 
-            real: a.real * b.real - a.imaginery * b.imaginery,
-            imaginery: a.real * b.imaginery + a.imaginery * b.real
+            real: a.real * b.real - a.imaginary * b.imaginary,
+            imaginary: a.real * b.imaginary + a.imaginary * b.real
         };
     }
 
@@ -39,14 +39,14 @@ export class ComplexOperators {
      * Subtracts two complex numbers
      */
     static subtract(a: Complex, b: Complex): Complex {
-        return {type: COMPLEX, real: a.real - b.real, imaginery: a.imaginery - b.imaginery};
+        return {type: COMPLEX, real: a.real - b.real, imaginary: a.imaginary - b.imaginary};
     }
 
     /**
      * Returns the complex conjugate
      */
     static conjugate(a: Complex): Complex {
-        return {type: COMPLEX, real: a.real, imaginery: -a.imaginery};
+        return {type: COMPLEX, real: a.real, imaginary: -a.imaginary};
     }
 
     /**
@@ -55,7 +55,7 @@ export class ComplexOperators {
      * @returns
      */
     static magnitude(a: Complex): number {
-        return Math.sqrt(a.real * a.real + a.imaginery * a.imaginery);
+        return Math.sqrt(a.real * a.real + a.imaginary * a.imaginary);
     }
 
     /**
@@ -63,15 +63,15 @@ export class ComplexOperators {
      */
     static addWeights(a: ComplexWeight, b: ComplexWeight): ComplexWeight {
         const realRes = a.real.weight + b.real.weight;
-        const imagineryRes = a.imaginery.weight + b.imaginery.weight;
+        const imagineryRes = a.imaginary.weight + b.imaginary.weight;
         if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) >= NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(imagineryRes)};
+            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(imagineryRes)};
         } else if(Math.abs(realRes) >= NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) < NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginery: new Weight(0, false)};
+            return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginary: new Weight(0, false)};
         } else if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) < NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(0, false)};
+            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
         }
-        return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginery: new Weight(imagineryRes)};
+        return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginary: new Weight(imagineryRes)};
     }
 
     /**
@@ -79,13 +79,13 @@ export class ComplexOperators {
      */
     static subtractWeights(a: ComplexWeight, b: ComplexWeight): ComplexWeight {
         const realRes = a.real.weight - b.real.weight;
-        const imagineryRes = a.imaginery.weight - b.imaginery.weight;
+        const imagineryRes = a.imaginary.weight - b.imaginary.weight;
         if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && imagineryRes >= NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(imagineryRes)};
+            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(imagineryRes)};
         } else if(realRes >= NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) < NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginery: new Weight(0, false)};
+            return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginary: new Weight(0, false)};
         } else if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) < NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(0, false)};
+            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
         }
         if(realRes < 0 || imagineryRes < 0) {
             let error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_ADD_NEGATIVE_REAL);
@@ -96,21 +96,21 @@ export class ComplexOperators {
             }
             throw new RangeError(error.generateMessageString());
         }
-        return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginery: new Weight(imagineryRes)};
+        return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginary: new Weight(imagineryRes)};
     }
 
     /**
      * Multiplies a complex weight by a complex number
      */
     static multiplyWeight(a: Complex, b: ComplexWeight): ComplexWeight {
-        const realRes = a.real * b.real.weight - a.imaginery * b.imaginery.weight;
-        const imagineryRes = a.real * b.imaginery.weight + a.imaginery * b.real.weight;
+        const realRes = a.real * b.real.weight - a.imaginary * b.imaginary.weight;
+        const imagineryRes = a.real * b.imaginary.weight + a.imaginary * b.real.weight;
         if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && imagineryRes >= NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(imagineryRes)};
+            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(imagineryRes)};
         } else if(realRes >= NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) < NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginery: new Weight(0, false)};
+            return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginary: new Weight(0, false)};
         } else if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && Math.abs(imagineryRes) < NULL_WEIGHT_TOLERANCE) {
-            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(0, false)};
+            return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
         }
         if(realRes < 0 || imagineryRes < 0) {
             let error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_ADD_NEGATIVE_REAL);
@@ -121,14 +121,14 @@ export class ComplexOperators {
             }
             throw new RangeError(error.generateMessageString());
         }
-        return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginery: new Weight(imagineryRes)};
+        return {type: COMPLEXWEIGHT, real: new Weight(realRes), imaginary: new Weight(imagineryRes)};
     }
 
     static clone(a: Complex): Complex {
-        return {type: COMPLEX, real: a.real, imaginery: a.imaginery};
+        return {type: COMPLEX, real: a.real, imaginary: a.imaginary};
     }
 
     static cloneWeight(a: ComplexWeight): ComplexWeight {
-        return {type: COMPLEXWEIGHT, real: new Weight(a.real.weight), imaginery: new Weight(a.imaginery.weight)};
+        return {type: COMPLEXWEIGHT, real: new Weight(a.real.weight), imaginary: new Weight(a.imaginary.weight)};
     }
 }

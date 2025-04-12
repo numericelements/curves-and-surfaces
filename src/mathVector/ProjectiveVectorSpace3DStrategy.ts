@@ -118,11 +118,11 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
             const result: number[] = [];
             const weight = v.coordinates[2].value;
             if(weight.weight === 0) {
-                const cWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginery: new Weight(0, false)};
-                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginery: v.coordinates[1]}, cWeight]};  
+                const cWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
+                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]}, cWeight]};  
             } else {
-                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginery: v.coordinates[1]},
-                {type: COMPLEXWEIGHT, real: weight, imaginery: weight}]};
+                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]},
+                {type: COMPLEXWEIGHT, real: weight, imaginary: weight}]};
             }
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveVectorSpaceToProjectiveComplexVectorSpace', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);

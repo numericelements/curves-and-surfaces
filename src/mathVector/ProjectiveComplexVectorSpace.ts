@@ -20,8 +20,8 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
     }
 
     defaultVect(): ProjectiveComplexVector {
-        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginery: 0};
-        const defaultComplexWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginery: new Weight()};
+        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginary: 0};
+        const defaultComplexWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()};
         if(this.dim === MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [nullComplex, defaultComplexWeight]};
         } else {
@@ -49,10 +49,10 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
     scale(scalar: Complex | number, vector: ProjectiveComplexVector): ProjectiveComplexVector {
         if (typeof scalar === 'number') {
             if(isVector2D(vector)) {
-                const result = (vector.coordinates as Complex[]).map((val, i) => ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginery * scalar}));
+                const result = (vector.coordinates as Complex[]).map((val, i) => ({type: COMPLEX, real: val.real * scalar, imaginery: val.imaginary * scalar}));
                 return {type: vector.type, coordinates: [
-                    {type: COMPLEX, real: result[0].real, imaginery: result[0].imaginery},
-                    {type: COMPLEXWEIGHT, real: new Weight(result[1].real), imaginery: new Weight(result[1].imaginery)}
+                    {type: COMPLEX, real: result[0].real, imaginary: result[0].imaginery},
+                    {type: COMPLEXWEIGHT, real: new Weight(result[1].real), imaginary: new Weight(result[1].imaginery)}
                 ]};
             } else {
                 const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE);
@@ -61,8 +61,8 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
         } else if(scalar.type === COMPLEX) {
             if(isVector2D(vector)) {
                 return {type: vector.type, coordinates: [
-                    {type: COMPLEX, real: ComplexOperators.multiply(vector.coordinates[0], scalar).real, imaginery: ComplexOperators.multiply(vector.coordinates[0], scalar).imaginery},
-                    {type: COMPLEXWEIGHT, real: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).real, imaginery: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).imaginery}]}
+                    {type: COMPLEX, real: ComplexOperators.multiply(vector.coordinates[0], scalar).real, imaginary: ComplexOperators.multiply(vector.coordinates[0], scalar).imaginary},
+                    {type: COMPLEXWEIGHT, real: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).real, imaginary: ComplexOperators.multiplyWeight(scalar, vector.coordinates[1]).imaginary}]}
             } else {
                 throw new Error('Scalar is out of the list of Complex types.');
             }
@@ -92,8 +92,8 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
 
     clone(vector: ProjectiveComplexVector): ProjectiveComplexVector {
         return {type: vector.type, coordinates: [
-            {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginery: vector.coordinates[0].imaginery},
-            {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginery: vector.coordinates[1].imaginery}
+            {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary},
+            {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginary: vector.coordinates[1].imaginary}
         ]};
     }
 
@@ -106,12 +106,12 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
             } else {
                 real = vector.coordinates[0].real / vector.coordinates[1].real.weight;
             }
-            if(vector.coordinates[1].imaginery.weight === 0) {
-                imaginery = vector.coordinates[0].imaginery;
+            if(vector.coordinates[1].imaginary.weight === 0) {
+                imaginery = vector.coordinates[0].imaginary;
             } else {
-                imaginery = vector.coordinates[0].imaginery / vector.coordinates[1].imaginery.weight;
+                imaginery = vector.coordinates[0].imaginary / vector.coordinates[1].imaginary.weight;
             }
-            return {type: COMPLEX, real: real, imaginery: imaginery};
+            return {type: COMPLEX, real: real, imaginary: imaginery};
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
