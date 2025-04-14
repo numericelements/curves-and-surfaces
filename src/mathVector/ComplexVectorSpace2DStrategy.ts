@@ -47,10 +47,10 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy 
     scale(scaleFactor: Complex | number, vector: ComplexVector): ComplexVector2D {
         if (typeof scaleFactor === 'number') {
             if(isVector2D(vector)) {
-                const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scaleFactor, imaginery: val.imaginary * scaleFactor}));
+                const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scaleFactor, imaginary: val.imaginary * scaleFactor}));
                 return {type: vector.type, coordinates: [
-                    {type: COMPLEX, real: result[0].real, imaginary: result[0].imaginery},
-                    {type: COMPLEX, real: result[1].real, imaginary: result[1].imaginery}
+                    {type: COMPLEX, real: result[0].real, imaginary: result[0].imaginary},
+                    {type: COMPLEX, real: result[1].real, imaginary: result[1].imaginary}
                 ]};
             } else {
                 throw new RangeError();

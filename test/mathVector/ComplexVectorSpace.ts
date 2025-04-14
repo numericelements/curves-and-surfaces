@@ -1,12 +1,11 @@
 import { expect } from "chai";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { Complex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT, REALVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
+import { Complex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { createCommonComplexVectorSpaceTests } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
 import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../../src/ErrorMessages/Weight";
 
 describe('ComplexVectorSpace', () => {
 

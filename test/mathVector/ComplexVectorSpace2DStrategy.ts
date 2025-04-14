@@ -1,10 +1,9 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { Complex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, ComplexWeight, COMPLEXWEIGHT, PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { Complex, COMPLEX, ComplexVector2D, COMPLEXVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { ComplexVectorSpace2DStrategy } from "../../src/mathVector/ComplexVectorSpace2DStrategy";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
-import { Weight } from "../../src/mathVector/Weight";
 
 
 describe('ComplexVectorSpace2DStrategy', () => {

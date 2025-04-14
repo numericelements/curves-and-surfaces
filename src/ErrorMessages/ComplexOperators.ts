@@ -1,3 +1,3 @@
-export const EM_COMPLEXWEIGHT_ADD_NEGATIVE_REAL = 'The subtraction of complex weights results into a negative real part. Cannot proceed';
-export const EM_COMPLEXWEIGHT_ADD_NEGATIVE_IMAGINERY = 'The subtraction of complex weights results into a negative imaginery part. Cannot proceed';
-export const EM_COMPLEXWEIGHT_ADD_NEGATIVE_REAL_IMAGINERY = 'The subtraction of complex weights results into a negative real and imaginery parts. Cannot proceed';
+export const EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL = 'The subtraction of complex weights results into a negative real part. Cannot proceed';
+export const EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY = 'The subtraction of complex weights results into a negative imaginary part. Cannot proceed';
+export const EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY = 'The subtraction of complex weights results into a negative real and imaginary parts. Cannot proceed';

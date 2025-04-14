@@ -1,6 +1,5 @@
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
-import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../ErrorMessages/WeightManager";
-import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
 import { COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, REALVECTOR2D, WEIGHT } from "./VectorSpaceConstructorInterface";
