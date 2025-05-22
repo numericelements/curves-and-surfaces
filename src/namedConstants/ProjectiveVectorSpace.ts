@@ -4,7 +4,7 @@ export const NULL_WEIGHT_TOLERANCE = 1e-10;
 
 export enum WeightManagement {
     /**
-     * All vectors in the projective vector space are must have strictly positive weights.
+     * All vectors in the projective vector space must have strictly positive weights.
      */
     AllStrictlyPositiveWeights = 'AllStrictlyPositiveWeights', 
     /**

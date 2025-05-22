@@ -3,8 +3,8 @@
  * Named constants for knot indices constructor types
  */
 
-export const KNOT_INDEX_INCREASING_SEQUENCE = "KnotIndexIncreasingSequence";
-export const KNOT_INDEX_STRICTLY_INCREASING_SEQUENCE = "KnotIndexStrictlyIncreasingSequence";
+export const KNOT_INDEX_INCREASING_SEQUENCE = "KnotIndexIncreasingSequence" as const;
+export const KNOT_INDEX_STRICTLY_INCREASING_SEQUENCE = "KnotIndexStrictlyIncreasingSequence" as const;
 
 /**
  * Represents a knot index in an increasing sequence

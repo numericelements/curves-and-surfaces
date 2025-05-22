@@ -80,6 +80,22 @@ describe('Conversions from a strictly increasing periodic knot sequence of a clo
         expect(strIncSeq.multiplicities()).to.eql([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     });
 
+        it('can convert a strictly increasing sequence to a strictly increasing open knot sequence of closed curve. Case of non uniform knot sequence', () => {
+        const maxMultiplicityOrder = 4
+        const periodicKnots = [0, 1]
+        const multiplicities = [maxMultiplicityOrder - 1, maxMultiplicityOrder - 1]
+        const strictIncPeriodicSeq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities});
+        expect(strictIncPeriodicSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder - 1)
+        expect(strictIncPeriodicSeq.distinctAbscissae()).to.eql(periodicKnots)
+        expect(strictIncPeriodicSeq.multiplicities()).to.eql(multiplicities)
+        const strIncSeq = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(strictIncPeriodicSeq);
+        expect(strIncSeq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
+        expect(strIncSeq.distinctAbscissae().length).to.eql(periodicKnots.length + 2)
+        expect(strIncSeq.distinctAbscissae()).to.eql([-1, 0, 1, 2])
+        expect(strIncSeq.multiplicities().length).to.eql(multiplicities.length + 2 )
+        expect(strIncSeq.multiplicities()).to.eql([1, maxMultiplicityOrder - 1, maxMultiplicityOrder - 1, 1])
+    });
+
     it('can check the preservation of non uniform spacing property when converting a strictly increasing sequence to a strictly increasing open knot sequence of closed curve', () => {
         const maxMultiplicityOrder = 4
         const periodicKnots = [0, 0.5, 1.2, 2.1, 3.3, 5]

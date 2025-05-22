@@ -207,7 +207,7 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
         
             it('can be initialized with type constructor ' + INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, () => {
                 const maxMultiplicityOrder = 2;
-                const periodicKnots = [0, 1, 2]
+                const periodicKnots = [0, 1, 2, 3]
                 const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnots})
                 expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
                 const seq1: number[] = [];
@@ -220,24 +220,24 @@ describe('IncreasingOpenKnotSequenceClosedCurve', () => {
 
             it('can get the properties of the knot sequence initialized with ' + INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, () => {
                 const maxMultiplicityOrder = 2;
-                const periodicKnots = [0, 1, 2]
+                const periodicKnots = [0, 1, 2, 3]
                 const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnots})
                 expect(seq.isKnotSpacingUniform).to.eql(true)
                 expect(seq.isKnotMultiplicityUniform).to.eql(true)
                 expect(seq.isKnotMultiplicityNonUniform).to.eql(false)
-                expect(seq.uMax).to.eql(2)
+                expect(seq.uMax).to.eql(3)
             });
 
             it('can get the knot index of the knot sequence origin initialized with ' + INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, () => {
                 const maxMultiplicityOrder = 2;
-                const periodicKnots = [0, 1, 2]
+                const periodicKnots = [0, 1, 2, 3]
                 const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnots})
                 expect(seq.indexKnotOrigin.knotIndex).to.eql(maxMultiplicityOrder - 1)
             });
 
             it('can get the uMax of the knot sequence origin initialized with ' + INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, () => {
                 const maxMultiplicityOrder = 2;
-                const periodicKnots = [0, 1, 2]
+                const periodicKnots = [0, 1, 2, 3]
                 const seq = new IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnots})
                 expect(seq.uMax).to.eql(seq.length() - maxMultiplicityOrder - 1)
             });

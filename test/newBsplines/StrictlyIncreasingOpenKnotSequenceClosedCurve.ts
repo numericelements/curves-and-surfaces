@@ -5,7 +5,7 @@ import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_ABSCISSA_TOO_CLOSE_TO_KNOT, 
 import { fromStrictlyIncreasingToIncreasingKnotSequenceCC } from "../../src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingToIncreasingKnotSequenceCC";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF } from "../namedConstants/GeneralPurpose";
 import { KNOT_COINCIDENCE_TOLERANCE, NormalizedBasisAtSequenceExtremity, KNOT_SEQUENCE_ORIGIN } from "../../src/namedConstants/KnotSequences";
-import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from "../../src/WarningMessages/KnotSequences";
+import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE, WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES } from "../../src/WarningMessages/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "../../src/newBsplines/KnotIndexStrictlyIncreasingSequence";
 import { EM_KNOT_INDEX_VALUE } from "../../src/ErrorMessages/Knots";
 
@@ -429,6 +429,21 @@ describe('StrictlyIncreasingOpenKnotSequenceClosedCurve', () => {
         });
 
         describe(STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, () => {
+
+            it('can initialize a knot sequence with no intermediate knot and a knot multiplicity greater than one at basis boundaries' + STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, () => {
+                const maxMultiplicityOrder = 3
+                const knots: number [] = [-1, 0, 1, 2]
+                const multiplicities: number [] = [1, 2, 2, 1]
+                // test the warning message issued by the constructor
+                const originalConsoleLog = console.log;
+                let capturedMessage = '';
+                console.log = (message: string) => {
+                    capturedMessage = message;
+                };
+                const seq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knots, multiplicities: multiplicities})
+                expect(capturedMessage.includes(WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES)).to.eql(true);
+                console.log = originalConsoleLog;
+            });
 
             it('cannot initialize a knot sequence with a maximal multiplicity order smaller than one for a constructor type ' + STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, () => {
                 const maxMultiplicityOrder = 0

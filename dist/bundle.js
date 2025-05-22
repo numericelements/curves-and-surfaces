@@ -38567,10 +38567,12 @@ exports.EM_KNOT_INCREMENT_DECREMENT = "Knot multiplicity cannot be incremented/d
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE = void 0;
+exports.WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES = exports.WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE = void 0;
 // All knot sequences
 // The abscissa specified for a request or a knot sequence operation has not been found into the sequence
 exports.WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE = "Knot abscissa cannot be found into the knot sequence.";
+// When no, or not enough, intermediate knots exist between the end knots of an open knot sequence of a closed curve, some geometric constraints on the control polygon vertices must exist to describe a closed curve
+exports.WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES = "Geometric constraints must exist on control polygon vertices to produce a closed curve.";
 
 
 /***/ }),
@@ -55079,6 +55081,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractStrictlyIncreasingOpenKnotSequence = void 0;
+const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 const AbstractOpenKnotSequence_1 = __webpack_require__(/*! ./AbstractOpenKnotSequence */ "./src/newBsplines/AbstractOpenKnotSequence.ts");
 const Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
@@ -55088,6 +55091,7 @@ const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ./KnotInde
 const Knots_1 = __webpack_require__(/*! ../namedConstants/Knots */ "./src/namedConstants/Knots.ts");
 const adaptParameterInsertKnot_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/adaptParameterInsertKnot */ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterInsertKnot.ts");
 const adaptParameterRaiseKnotMultiplicity_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity */ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity.ts");
+const KnotSequences_3 = __webpack_require__(/*! ../WarningMessages/KnotSequences */ "./src/WarningMessages/KnotSequences.ts");
 class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence_1.AbstractOpenKnotSequence {
     constructor(maxMultiplicityOrder, knotParameters) {
         super(maxMultiplicityOrder, knotParameters);
@@ -55197,8 +55201,12 @@ class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequenc
             for (let i = this._indexKnotOrigin.knotIndex + 1; i < this._indexKnotOrigin.knotIndex + periodicKnotLength; i++) {
                 cumulative_multiplicities += knotParameters.multiplicities[i];
             }
-            if (cumulative_multiplicities < (this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin)))
-                this.throwRangeErrorMessage("generateKnotSequence", KnotSequences_1.EM_SIZENORMALIZED_BSPLINEBASIS);
+            if (cumulative_multiplicities < (this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin))) {
+                const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "generateKnotSequence", KnotSequences_3.WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES);
+                warning.logMessage();
+                if (this.knotMultiplicity(this._indexKnotOrigin) === 1)
+                    this.throwRangeErrorMessage("generateKnotSequence", KnotSequences_1.EM_SIZENORMALIZED_BSPLINEBASIS);
+            }
         }
     }
     length() {
@@ -56387,7 +56395,7 @@ const Knot_1 = __webpack_require__(/*! ./Knot */ "./src/newBsplines/Knot.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const KnotSequences_2 = __webpack_require__(/*! ../ErrorMessages/KnotSequences */ "./src/ErrorMessages/KnotSequences.ts");
 const fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC.ts");
-const fromInputParametersToIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/fromInputParametersToIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromInputParametersToIncreasingOpenKnotSequenceCC.ts");
+const prepareIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC.ts");
 const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ./KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
 const KnotIndexIncreasingSequence_1 = __webpack_require__(/*! ./KnotIndexIncreasingSequence */ "./src/newBsplines/KnotIndexIncreasingSequence.ts");
 const StrictlyIncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts");
@@ -56501,11 +56509,9 @@ class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSe
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
         this.constructorInputArrayAssessment(knotParameters);
         this.checkKnotIncreasingValues(knotParameters.periodicKnots);
-        const openSequence = (0, fromInputParametersToIncreasingOpenKnotSequenceCC_1.fromInputParametersToIncreasingOpenKnotSequenceCC)(this._maxMultiplicityOrder, knotParameters);
-        const knots = openSequence.distinctAbscissae();
-        const multiplicities = openSequence.multiplicities();
-        for (let i = 0; i < knots.length; i++) {
-            this.knotSequence.push(new Knot_1.Knot(knots[i], multiplicities[i]));
+        const openSequence = (0, prepareIncreasingOpenKnotSequenceCC_1.prepareIncreasingOpenKnotSequenceCC)(this._maxMultiplicityOrder, knotParameters);
+        for (let i = 0; i < openSequence.knots.length; i++) {
+            this.knotSequence.push(new Knot_1.Knot(openSequence.knots[i], openSequence.multiplicities[i]));
         }
         this._uMax = knotParameters.periodicKnots[knotParameters.periodicKnots.length - 1];
         this._indexKnotOrigin.knotIndex = openSequence.indexKnotOrigin.knotIndex;
@@ -57504,71 +57510,6 @@ exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC = fromIncreasingToS
 
 /***/ }),
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromInputParametersToIncreasingOpenKnotSequenceCC.ts":
-/*!*******************************************************************************************************!*\
-  !*** ./src/newBsplines/KnotSequenceAndUtilities/fromInputParametersToIncreasingOpenKnotSequenceCC.ts ***!
-  \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fromInputParametersToIncreasingOpenKnotSequenceCC = void 0;
-const KnotSequences_1 = __webpack_require__(/*! ../../namedConstants/KnotSequences */ "./src/namedConstants/KnotSequences.ts");
-const IncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../IncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts");
-const IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../IncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts");
-const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
-const fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC.ts");
-function fromInputParametersToIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
-    let multiplicityFirstKnot = 0;
-    let i = 0;
-    while (knotParameters.periodicKnots[i] === KnotSequences_1.KNOT_SEQUENCE_ORIGIN) {
-        i++;
-        multiplicityFirstKnot++;
-    }
-    if (multiplicityFirstKnot < maxMultiplicityOrder) {
-        const periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots });
-        const openSequence = (0, fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC_1.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC)(periodicSeq);
-        return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae });
-    }
-    else {
-        return new IncreasingOpenKnotSequenceClosedCurve_1.IncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotParameters.periodicKnots });
-    }
-}
-exports.fromInputParametersToIncreasingOpenKnotSequenceCC = fromInputParametersToIncreasingOpenKnotSequenceCC;
-
-
-/***/ }),
-
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC.ts":
-/*!***************************************************************************************************************!*\
-  !*** ./src/newBsplines/KnotSequenceAndUtilities/fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC.ts ***!
-  \***************************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC = void 0;
-const fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts");
-const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
-const StrictlyIncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts");
-const StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts");
-function fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
-    if (knotParameters.multiplicities[0] < maxMultiplicityOrder) {
-        const strictIncPeriodicSeq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1.StrictlyIncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities });
-        const openSequence = (0, fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC)(strictIncPeriodicSeq);
-        return new StrictlyIncreasingOpenKnotSequenceClosedCurve_1.StrictlyIncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: openSequence.allAbscissae, multiplicities: openSequence.multiplicities() });
-    }
-    else {
-        return new StrictlyIncreasingOpenKnotSequenceClosedCurve_1.StrictlyIncreasingOpenKnotSequenceClosedCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities });
-    }
-}
-exports.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC = fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC;
-
-
-/***/ }),
-
 /***/ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts":
 /*!**************************************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts ***!
@@ -57579,74 +57520,14 @@ exports.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC = fromInputPar
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC = void 0;
-const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts");
+const prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq_1 = __webpack_require__(/*! ./prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq */ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts");
 function fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(strictIncSeq) {
-    const knotsOpenSequence = [];
-    const multiplicitiesOpenSequence = [];
     const maxMultOrder = strictIncSeq.maxMultiplicityOrder;
-    const lastIndex = strictIncSeq.length() - 1;
-    const lastAbscissa = strictIncSeq.uMax;
-    const multiplicityAtOrigin = strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
-    let nbComplementaryKnots = maxMultOrder - (multiplicityAtOrigin - 1);
-    let index = 0;
-    while (index < nbComplementaryKnots) {
-        const multiplicityExcess = nbComplementaryKnots - strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(lastIndex - (index + 1))) - index;
-        if (multiplicityExcess <= 0) {
-            nbComplementaryKnots = index + 1;
-            break;
-        }
-        else if (multiplicityExcess < (nbComplementaryKnots - (index + 1))) {
-            nbComplementaryKnots = nbComplementaryKnots - multiplicityExcess;
-            index++;
-        }
-        else {
-            index++;
-        }
-    }
-    let cumulativeMultiplicityFromOrigin = multiplicityAtOrigin;
-    for (let i = 0; i < nbComplementaryKnots; i++) {
-        knotsOpenSequence.splice(0, 0, (strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(lastIndex - (i + 1))) - lastAbscissa));
-        let multiplicityCurrentKnot = strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(lastIndex - (i + 1)));
-        if ((cumulativeMultiplicityFromOrigin + multiplicityCurrentKnot) > maxMultOrder) {
-            multiplicityCurrentKnot = maxMultOrder - cumulativeMultiplicityFromOrigin + 1;
-        }
-        cumulativeMultiplicityFromOrigin += multiplicityCurrentKnot;
-        multiplicitiesOpenSequence.splice(0, 0, multiplicityCurrentKnot);
-    }
-    for (const knot of strictIncSeq) {
-        if (knot !== undefined) {
-            knotsOpenSequence.push(knot.abscissa);
-            multiplicitiesOpenSequence.push(knot.multiplicity);
-        }
-    }
-    nbComplementaryKnots = maxMultOrder - (multiplicityAtOrigin - 1);
-    index = 0;
-    while (index < nbComplementaryKnots) {
-        const multiplicityExcess = nbComplementaryKnots - strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(index + 1)) - index;
-        if (multiplicityExcess <= 0) {
-            nbComplementaryKnots = index + 1;
-            break;
-        }
-        else if (multiplicityExcess < (nbComplementaryKnots - (index + 1))) {
-            nbComplementaryKnots = nbComplementaryKnots - multiplicityExcess;
-            index++;
-        }
-        else {
-            index++;
-        }
-    }
-    cumulativeMultiplicityFromOrigin = multiplicityAtOrigin;
-    for (let i = 0; i < nbComplementaryKnots; i++) {
-        knotsOpenSequence.push(lastAbscissa + (strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(i + 1)) - strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0))));
-        let multiplicityCurrentKnot = strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(i + 1));
-        if ((cumulativeMultiplicityFromOrigin + multiplicityCurrentKnot) > maxMultOrder) {
-            multiplicityCurrentKnot = maxMultOrder - cumulativeMultiplicityFromOrigin + 1;
-        }
-        cumulativeMultiplicityFromOrigin += multiplicityCurrentKnot;
-        multiplicitiesOpenSequence.push(multiplicityCurrentKnot);
-    }
+    const openSeqParams = (0, prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq_1.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq)(strictIncSeq);
+    const knotsOpenSequence = openSeqParams.knots;
+    const multiplicitiesOpenSequence = openSeqParams.multiplicities;
     return new StrictlyIncreasingOpenKnotSequenceClosedCurve_1.StrictlyIncreasingOpenKnotSequenceClosedCurve(maxMultOrder + 1, { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: knotsOpenSequence, multiplicities: multiplicitiesOpenSequence });
 }
 exports.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC;
@@ -57721,6 +57602,208 @@ exports.fromStrictlyIncreasingtToIncreasingKnotSequenceOC = fromStrictlyIncreasi
 
 /***/ }),
 
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts":
+/*!*****************************************************************************************************************!*\
+  !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts ***!
+  \*****************************************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq = void 0;
+const fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1 = __webpack_require__(/*! ../KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence */ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.ts");
+const fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts");
+function prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq(increasingSeq) {
+    const strictlyIncPeriodicSeq = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(increasingSeq);
+    const strictlyIncSeq = (0, fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC)(strictlyIncPeriodicSeq);
+    return { knots: strictlyIncSeq.allAbscissae, multiplicities: strictlyIncSeq.multiplicities(), uMax: strictlyIncSeq.uMax, indexKnotOrigin: strictlyIncSeq.indexKnotOrigin };
+}
+exports.prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq = prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC.ts":
+/*!*****************************************************************************************!*\
+  !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC.ts ***!
+  \*****************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareIncreasingOpenKnotSequenceCC = void 0;
+const KnotSequences_1 = __webpack_require__(/*! ../../ErrorMessages/KnotSequences */ "./src/ErrorMessages/KnotSequences.ts");
+const ErrorLoging_1 = __webpack_require__(/*! ../../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+const KnotSequences_2 = __webpack_require__(/*! ../../namedConstants/KnotSequences */ "./src/namedConstants/KnotSequences.ts");
+const IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../IncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts");
+const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
+const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
+const prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq_1 = __webpack_require__(/*! ./prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq */ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts");
+function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
+    let multiplicityFirstKnot = 0;
+    let i = 0;
+    while (knotParameters.periodicKnots[i] === KnotSequences_2.KNOT_SEQUENCE_ORIGIN) {
+        i++;
+        multiplicityFirstKnot++;
+    }
+    if (multiplicityFirstKnot < maxMultiplicityOrder) {
+        const periodicSeq = new IncreasingPeriodicKnotSequenceClosedCurve_1.IncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots });
+        const openSequence = (0, prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq_1.prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq)(periodicSeq);
+        return { knots: openSequence.knots, multiplicities: openSequence.multiplicities, uMax: openSequence.uMax, indexKnotOrigin: openSequence.indexKnotOrigin };
+    }
+    else if (multiplicityFirstKnot === maxMultiplicityOrder) {
+        const knots = [];
+        const multiplicities = [];
+        knots.push(knotParameters.periodicKnots[0]);
+        multiplicities.push(1);
+        for (let i = 1; i < knotParameters.periodicKnots.length; i++) {
+            if (knotParameters.periodicKnots[i] === knots[knots.length - 1]) {
+                multiplicities[multiplicities.length - 1]++;
+            }
+            else {
+                knots.push(knotParameters.periodicKnots[i]);
+                multiplicities.push(1);
+            }
+        }
+        return { knots: knots, multiplicities: multiplicities, uMax: knotParameters.periodicKnots[knotParameters.periodicKnots.length - 1], indexKnotOrigin: new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0) };
+    }
+    else {
+        const error = new ErrorLoging_1.ErrorLog('function', 'prepareIncreasingOpenKnotSequenceCC');
+        error.addMessage(KnotSequences_1.EM_MAXMULTIPLICITY_ORDER_KNOT);
+        console.log(error.generateMessageString());
+        throw new RangeError(error.generateMessageString());
+    }
+}
+exports.prepareIncreasingOpenKnotSequenceCC = prepareIncreasingOpenKnotSequenceCC;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts":
+/*!*********************************************************************************************************************************!*\
+  !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts ***!
+  \*********************************************************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq = void 0;
+const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
+function prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq(strictIncSeq) {
+    const knotsOpenSequence = [];
+    const multiplicitiesOpenSequence = [];
+    const maxMultOrder = strictIncSeq.maxMultiplicityOrder;
+    const lastIndex = strictIncSeq.length() - 1;
+    const lastAbscissa = strictIncSeq.uMax;
+    const multiplicityAtOrigin = strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
+    let nbComplementaryKnots = maxMultOrder - (multiplicityAtOrigin - 1);
+    let index = 0;
+    while (index < nbComplementaryKnots) {
+        const multiplicityExcess = nbComplementaryKnots - strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(lastIndex - (index + 1))) - index;
+        if (multiplicityExcess <= 0) {
+            nbComplementaryKnots = index + 1;
+            break;
+        }
+        else if (multiplicityExcess < (nbComplementaryKnots - (index + 1))) {
+            nbComplementaryKnots = nbComplementaryKnots - multiplicityExcess;
+            index++;
+        }
+        else {
+            index++;
+        }
+    }
+    let cumulativeMultiplicityFromOrigin = multiplicityAtOrigin;
+    for (let i = 0; i < nbComplementaryKnots; i++) {
+        knotsOpenSequence.splice(0, 0, (strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(lastIndex - (i + 1))) - lastAbscissa));
+        let multiplicityCurrentKnot = strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(lastIndex - (i + 1)));
+        if ((cumulativeMultiplicityFromOrigin + multiplicityCurrentKnot) > maxMultOrder) {
+            multiplicityCurrentKnot = maxMultOrder - cumulativeMultiplicityFromOrigin + 1;
+        }
+        cumulativeMultiplicityFromOrigin += multiplicityCurrentKnot;
+        multiplicitiesOpenSequence.splice(0, 0, multiplicityCurrentKnot);
+    }
+    for (const knot of strictIncSeq) {
+        if (knot !== undefined) {
+            knotsOpenSequence.push(knot.abscissa);
+            multiplicitiesOpenSequence.push(knot.multiplicity);
+        }
+    }
+    nbComplementaryKnots = maxMultOrder - (multiplicityAtOrigin - 1);
+    index = 0;
+    while (index < nbComplementaryKnots) {
+        const multiplicityExcess = nbComplementaryKnots - strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(index + 1)) - index;
+        if (multiplicityExcess <= 0) {
+            nbComplementaryKnots = index + 1;
+            break;
+        }
+        else if (multiplicityExcess < (nbComplementaryKnots - (index + 1))) {
+            nbComplementaryKnots = nbComplementaryKnots - multiplicityExcess;
+            index++;
+        }
+        else {
+            index++;
+        }
+    }
+    cumulativeMultiplicityFromOrigin = multiplicityAtOrigin;
+    for (let i = 0; i < nbComplementaryKnots; i++) {
+        if ((i + 1) === lastIndex) {
+            knotsOpenSequence.push(lastAbscissa + (lastAbscissa - strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0))));
+        }
+        else {
+            knotsOpenSequence.push(lastAbscissa + (strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(i + 1)) - strictIncSeq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0))));
+        }
+        let multiplicityCurrentKnot = strictIncSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(i + 1));
+        if ((cumulativeMultiplicityFromOrigin + multiplicityCurrentKnot) > maxMultOrder) {
+            multiplicityCurrentKnot = maxMultOrder - cumulativeMultiplicityFromOrigin + 1;
+        }
+        cumulativeMultiplicityFromOrigin += multiplicityCurrentKnot;
+        multiplicitiesOpenSequence.push(multiplicityCurrentKnot);
+    }
+    return { knots: knotsOpenSequence, multiplicities: multiplicitiesOpenSequence };
+}
+exports.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq = prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq;
+
+
+/***/ }),
+
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC.ts":
+/*!*************************************************************************************************!*\
+  !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC.ts ***!
+  \*************************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareStrictlyIncreasingOpenKnotSequenceCC = void 0;
+const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
+const StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts");
+const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
+const prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq_1 = __webpack_require__(/*! ./prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq */ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts");
+const KnotSequences_1 = __webpack_require__(/*! ../../namedConstants/KnotSequences */ "./src/namedConstants/KnotSequences.ts");
+function prepareStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
+    if (knotParameters.multiplicities[0] < maxMultiplicityOrder) {
+        const strictIncPeriodicSeq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1.StrictlyIncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities });
+        const openSequence = (0, prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq_1.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq)(strictIncPeriodicSeq);
+        let indexOrigin = Infinity;
+        for (let index = 0; index < openSequence.knots.length; index++) {
+            if (openSequence.knots[index] > (KnotSequences_1.KNOT_SEQUENCE_ORIGIN - KnotSequences_1.KNOT_COINCIDENCE_TOLERANCE) && openSequence.knots[index] < (KnotSequences_1.KNOT_SEQUENCE_ORIGIN + KnotSequences_1.KNOT_COINCIDENCE_TOLERANCE))
+                indexOrigin = index;
+        }
+        return { knots: openSequence.knots, multiplicities: openSequence.multiplicities, uMax: strictIncPeriodicSeq.uMax, indexKnotOrigin: new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(indexOrigin) };
+    }
+    else {
+        return { knots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities, uMax: knotParameters.periodicKnots[knotParameters.periodicKnots.length - 1], indexKnotOrigin: new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0) };
+    }
+}
+exports.prepareStrictlyIncreasingOpenKnotSequenceCC = prepareStrictlyIncreasingOpenKnotSequenceCC;
+
+
+/***/ }),
+
 /***/ "./src/newBsplines/KnotSequenceConstructorInterface.ts":
 /*!*************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceConstructorInterface.ts ***!
@@ -57737,7 +57820,7 @@ exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = exports.INCREASINGPERIODICKNOTS
 /**
  * Identifies an open knot sequence dedicated to increasing and strictly increasing sequences describing open curves.
  *
- * @constant {string} NO_KNOT_OPEN_CURVE
+ * @constant {No_Knot_OpenCurve} NO_KNOT_OPEN_CURVE
  * @description
  * Used to specify a knot sequence where:
  * - There are only two knots at positions 0 and 1
@@ -57754,7 +57837,7 @@ exports.NO_KNOT_OPEN_CURVE = 'No_Knot_OpenCurve';
 /**
  * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing closed curves.
  *
- * @constant {string} NO_KNOT_CLOSED_CURVE
+ * @constant {No_Knot_ClosedCurve} NO_KNOT_CLOSED_CURVE
  * @description
  * Used to specify a knot sequence where:
  * - All knots are uniformly spaced
@@ -57772,7 +57855,7 @@ exports.NO_KNOT_CLOSED_CURVE = 'No_Knot_ClosedCurve';
 /**
  * Identifies a uniform open knot sequence type that can be applied to open or closed curves.
  *
- * @constant {string} UNIFORM_OPENKNOTSEQUENCE
+ * @constant {Uniform_OpenKnotSequence} UNIFORM_OPENKNOTSEQUENCE
  * @description
  * Used to specify an open knot sequence that can be increaing or stricly increasing where:
  * - All knots are uniformly spaced
@@ -57791,7 +57874,7 @@ exports.UNIFORM_OPENKNOTSEQUENCE = 'Uniform_OpenKnotSequence';
 /**
  * Identifies an open knot sequence with uniformly spread interior knots and non uniform multiplicity of the extreme knots.
  *
- * @constant {string} UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE
+ * @constant {UniformlySpreadInterKnots_OpenKnotSequence} UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE
  * @description
  * Used to specify a knot sequence where:
  * - End knots have multiplicity equal to maxMultiplicityOrder
@@ -57810,7 +57893,7 @@ exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_
 /**
  * Identifies an increasing open knot sequence type to describe open curves or surfaces.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCE
+ * @constant {IncreasingOpenKnotSequence} INCREASINGOPENKNOTSEQUENCE
  * @description
  * Used to specify an increasing open knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -57831,7 +57914,7 @@ exports.INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence';
 /**
  * Identifies an increasing open knot sequence type to describe open curves or surfaces and may contain internal C0 discontinuities.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
+ * @constant {IncreasingOpenKnotSequenceUpToC0Discontinuity} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
  * @description
  * Used to specify an increasing open knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -57857,7 +57940,7 @@ exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKnotSequ
 /**
  * Identifies an increasing open knot sequence type for closed curves or surfaces with periodic knots specified only.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCECLOSEDCURVE
+ * @constant {IncreasingOpenKnotSequenceClosedCurve} INCREASINGOPENKNOTSEQUENCECLOSEDCURVE
  * @description
  * Used to specify an increasing open knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -57886,7 +57969,7 @@ exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequenceClose
 /**
  * Identifies an increasing open knot sequence type for closed curves with all knots specified.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+ * @constant {IncreasingOpenKnotSequenceClosedCurve_allKnots} INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
  * @description
  * Used to specify an increasing open knot sequence for closed curves where:
  * - Knots form a non-decreasing sequence
@@ -57912,7 +57995,7 @@ exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSeque
 /**
  * Identifies an increasing open knot sequence type for closed curves/surface with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
+ * @constant {IncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
  * @description
  * Represents an open knot sequence type for closed curves that:
  * - Knots form a non-decreasing sequence
@@ -57940,7 +58023,7 @@ exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = 'In
 /**
  * Identifies a strictly increasing open knot sequence type that describes open curves/surfaces.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE
+ * @constant {StrictlyIncreasingOpenKnotSequence} STRICTLYINCREASINGOPENKNOTSEQUENCE
  * @description
  * Used to specify a strictly open knot sequence where:
  * - Knots form a strictly increasing sequence (No repeated knot abscissa allowed)
@@ -57971,7 +58054,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSequence
 /**
  * Identifies a strictly increasing open knot sequence type to describe open curves/surfaces and may contain internal C0 discontinuities.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
+ * @constant {StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
  * @description
  * Used to specify a strictly increasing knot sequence where:
  * - Knots form a strictly increasing sequence
@@ -58003,7 +58086,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'StrictlyIncrea
 /**
  * Identifies a strictly increasing open knot sequence type for closed curves or surfaces with periodic knots only.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE
+ * @constant {StrictlyIncreasingOpenKnotSequenceClosedCurve} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE
  * @description
  * Used to specify a knot sequence where:
  * - Knots form a strictly increasing sequence
@@ -58035,7 +58118,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasingOpenK
 /**
  * Identifies a strictly increasing open knot sequence type for closed curves/surfaces with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+ * @constant {StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
  * @description
  * Used to specify a strictly increasing knot sequence type for closed curves where:
  * - Knots form a strictly increasing sequence
@@ -58063,7 +58146,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIncreas
 /**
  * Identifies a strictly increasing open knot sequence type for closed curves/surfaces with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
+ * @constant {StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
  * @description
  * Used to specify a strictly increasing knot sequence type for closed curves where:
  * - Knots form a strictly increasing sequence
@@ -58091,7 +58174,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNO
 /**
  * Identifies a periodic knot sequence dedicated to increasing and strictly increasing sequences describing closed curves.
  *
- * @constant {string} NO_KNOT_PERIODIC_CURVE
+ * @constant {No_Knot_PeriodicCurve} NO_KNOT_PERIODIC_CURVE
  * @description
  * Used to specify a periodic knot sequence where:
  * - Knots abscissa are spread with uniform spacing across the normalized basis interval
@@ -58114,7 +58197,7 @@ exports.NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
 /**
  * Identifies a uniform periodic knot sequence type that can be applied to closed curves. The knot sequence is of increasing type.
  *
- * @constant {string} UNIFORM_PERIODICKNOTSEQUENCE
+ * @constant {Uniform_PeriodicKnotSequence} UNIFORM_PERIODICKNOTSEQUENCE
  * @description
  * Used to specify an periodic knot sequence that is increaing where:
  * - All knots are uniformly spaced
@@ -58134,7 +58217,7 @@ exports.UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
 /**
  * Identifies an increasing periodic knot sequence type to describe closed curves or surfaces.
  *
- * @constant {string} INCREASINGPERIODICKNOTSEQUENCE
+ * @constant {IncreasingPeriodicKnotSequence} INCREASINGPERIODICKNOTSEQUENCE
  * @description
  * Used to specify an increasing periodic knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -58160,7 +58243,7 @@ exports.INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
 /**
  * Identifies a strictly increasing periodic knot sequence type that describes closed curves/surfaces.
  *
- * @constant {string} STRICTLYINCREASINGPERIODICKNOTSEQUENCE
+ * @constant {StrictIncreasingPeriodicKnotSequence} STRICTLYINCREASINGPERIODICKNOTSEQUENCE
  * @description
  * Used to specify a strictly periodic knot sequence where:
  * - Knots form a strictly increasing sequence (No repeated knot abscissa allowed)
@@ -60161,7 +60244,7 @@ const AbstractStrictlyIncreasingOpenKnotSequence_1 = __webpack_require__(/*! ./A
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts");
 const KnotSequences_2 = __webpack_require__(/*! ../ErrorMessages/KnotSequences */ "./src/ErrorMessages/KnotSequences.ts");
-const fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC.ts");
+const prepareStrictlyIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC.ts");
 const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ./KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
 const KnotIndexIncreasingSequence_1 = __webpack_require__(/*! ./KnotIndexIncreasingSequence */ "./src/newBsplines/KnotIndexIncreasingSequence.ts");
 class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequence_1.AbstractStrictlyIncreasingOpenKnotSequence {
@@ -60271,25 +60354,29 @@ class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncr
         this.constructorInputArrayAssessment(knotParameters);
         this.checkKnotStrictlyIncreasingValues(knotParameters.periodicKnots);
         if (this._maxMultiplicityOrder === 2 && knotParameters.periodicKnots.length < 3)
-            this.throwRangeErrorMessage("constructor", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
+            this.throwRangeErrorMessage("computeKnotSequenceFromPeriodicKnotSequence", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
         if (this._maxMultiplicityOrder > 2) {
+            for (const multiplicity of knotParameters.multiplicities) {
+                if (multiplicity > this._maxMultiplicityOrder)
+                    this.throwRangeErrorMessage("computeKnotSequenceFromPeriodicKnotSequence", KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_KNOT);
+            }
             if (knotParameters.periodicKnots.length <= (1 + this._maxMultiplicityOrder - knotParameters.multiplicities[0])) {
                 let cumulative_multiplicities = 0;
                 for (let i = 1; i < knotParameters.periodicKnots.length - 1; i++) {
                     cumulative_multiplicities += knotParameters.multiplicities[i];
                 }
                 if (cumulative_multiplicities < (this._maxMultiplicityOrder - knotParameters.multiplicities[0]))
-                    this.throwRangeErrorMessage("constructor", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
+                    this.throwRangeErrorMessage("computeKnotSequenceFromPeriodicKnotSequence", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
             }
         }
-        const openSequence = (0, fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC_1.fromInputParametersToStrictlyIncreasingOpenKnotSequenceCC)(this._maxMultiplicityOrder, knotParameters);
-        const knots = openSequence.distinctAbscissae();
-        const multiplicities = openSequence.multiplicities();
+        const openSequence = (0, prepareStrictlyIncreasingOpenKnotSequenceCC_1.prepareStrictlyIncreasingOpenKnotSequenceCC)(this._maxMultiplicityOrder, knotParameters);
+        const knots = openSequence.knots;
+        const multiplicities = openSequence.multiplicities;
         for (let i = 0; i < knots.length; i++) {
             this.knotSequence.push(new Knot_1.Knot(knots[i], multiplicities[i]));
         }
-        this._uMax = openSequence._uMax;
-        this._indexKnotOrigin = openSequence._indexKnotOrigin;
+        this._uMax = openSequence.uMax;
+        this._indexKnotOrigin = openSequence.indexKnotOrigin;
     }
     isAbscissaCoincidingWithKnot(abscissa) {
         let coincident = false;

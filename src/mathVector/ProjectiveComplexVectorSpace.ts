@@ -138,12 +138,8 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
             }
         } else {
             const scaledWeight = ComplexOperators.multiplyWeight(scaleFactor, vector.coordinates[1]);
-            if(this._weightManagement === WeightManagement.AllPositiveWeights) {
-                if(scaledWeight.real.strictlyPositive === true && scaledWeight.imaginary.strictlyPositive === false) {
-                    scaledWeight.real = new Weight(scaledWeight.real.weight, false);
-                } else if(scaledWeight.real.strictlyPositive === false && scaledWeight.imaginary.strictlyPositive === true) {
-                    scaledWeight.imaginary = new Weight(scaledWeight.imaginary.weight, false);
-                }
+            if(this._weightManagement === WeightManagement.AllPositiveWeights && (scaledWeight.real.strictlyPositive === false && scaledWeight.imaginary.strictlyPositive === true)) {
+                scaledWeight.imaginary = new Weight(scaledWeight.imaginary.weight, false);
             } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
                 if(scaledWeight.real.strictlyPositive === false || scaledWeight.imaginary.strictlyPositive === false) {
                     const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);

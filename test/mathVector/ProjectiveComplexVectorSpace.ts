@@ -455,7 +455,7 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(res.coordinates[1].imaginary).to.eql(new Weight(1.5, true));
         });
 
-        it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} producing some null weight`, () => {
+        it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} producing some null real weight`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(3)}]};
             const scaleFactor: Complex = {type: COMPLEX, real: 2, imaginary: 1};
@@ -467,6 +467,13 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
             expect(res.coordinates[1].real).to.eql(new Weight(0, false));
             expect(res.coordinates[1].imaginary).to.eql(new Weight(7.5, false));
+        });
+
+        it(`cannot scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllStrictlyPositiveWeights} producing some null imaginery weight when the scale factor is a null complex`, () => {
+            const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights);
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(3)}]};
+            const scaleFactor: Complex = {type: COMPLEX, real: 0, imaginary: 0};
+            expect(() => projectiveVectorSpace.scale(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
         });
 
         it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} producing some null weight based on ${NULL_WEIGHT_TOLERANCE}`, () => {

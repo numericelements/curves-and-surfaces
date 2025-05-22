@@ -622,16 +622,17 @@ describe('StrictlyIncreasingPeriodicKnotSequenceClosedCurve', () => {
             expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(periodicKnots.length - 1))).to.eql(KNOT_SEQUENCE_ORIGIN)
         });
 
-        it('can obtain the knot abscissa given the knot index for a uniform knot sequence whatever the index greater than the period', () => {
-            const periodicKnots = [0, 1, 2, 3, 4, 5];
-            const multiplicities = [1, 1, 1, 1, 1, 1];
+        it('can obtain the knot abscissa given the knot index for a non uniform knot sequence. The last knot corresponding to the period returns the knot sequence origin :' + KNOT_SEQUENCE_ORIGIN, () => {
+            const periodicKnots = [0, 1];
+            const multiplicities = [2, 2];
             const maxMultiplicityOrder = 2;
             const seq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: periodicKnots, multiplicities: multiplicities});
             expect(seq.maxMultiplicityOrder).to.eql(maxMultiplicityOrder)
             expect(seq.allAbscissae.length).to.eql(periodicKnots.length)
-            for(let i = periodicKnots.length - 1; i < 2 * (periodicKnots.length - 1); i++) {
-                expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(i))).to.eql(periodicKnots[i - (periodicKnots.length - 1)])
+            for(let i = 0; i < (periodicKnots.length - 1); i++) {
+                expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(i))).to.eql(periodicKnots[i])
             }
+            expect(seq.abscissaAtIndex(new KnotIndexStrictlyIncreasingSequence(periodicKnots.length - 1))).to.eql(KNOT_SEQUENCE_ORIGIN)
         });
 
         it('can get the knot multiplicity from a knot sequence index', () => {

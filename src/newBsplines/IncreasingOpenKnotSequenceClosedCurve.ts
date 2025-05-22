@@ -4,7 +4,7 @@ import { Knot } from "./Knot";
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVE, IncreasingOpenKnotSequenceClosedCurve_type, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, Uniform_OpenKnotSequence, IncreasingOpenKnotSequenceCCurve, STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";
 import { EM_ABSCISSA_OUT_OF_KNOT_SEQUENCE_RANGE, EM_INCORRECT_MULTIPLICITY_AT_FIRST_KNOT, EM_INCORRECT_MULTIPLICITY_AT_LAST_KNOT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_LEFT, EM_NO_PERIODICITY_KNOTINTERVALS_SEQUENCE_CLOSURE_RIGHT, EM_ORIGIN_NORMALIZEDKNOT_SEQUENCE, EM_SIZENORMALIZED_BSPLINEBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC";
-import { fromInputParametersToIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/fromInputParametersToIncreasingOpenKnotSequenceCC";
+import { prepareIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
@@ -119,11 +119,9 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
         this.constructorInputArrayAssessment(knotParameters);
         this.checkKnotIncreasingValues(knotParameters.periodicKnots);
-        const openSequence = fromInputParametersToIncreasingOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
-        const knots = openSequence.distinctAbscissae();
-        const multiplicities = openSequence.multiplicities();
-        for(let i = 0; i < knots.length; i++) {
-            this.knotSequence.push(new Knot(knots[i], multiplicities[i]));
+        const openSequence = prepareIncreasingOpenKnotSequenceCC(this._maxMultiplicityOrder, knotParameters);
+        for(let i = 0; i < openSequence.knots.length; i++) {
+            this.knotSequence.push(new Knot(openSequence.knots[i], openSequence.multiplicities[i]));
         }
         this._uMax = knotParameters.periodicKnots[knotParameters.periodicKnots.length - 1];
         this._indexKnotOrigin.knotIndex = openSequence.indexKnotOrigin.knotIndex;

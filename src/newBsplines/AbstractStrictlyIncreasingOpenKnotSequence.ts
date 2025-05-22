@@ -1,4 +1,4 @@
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequence } from "./AbstractOpenKnotSequence";
 import { Knot } from "./Knot";
 import { StrictlyIncreasingKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
@@ -9,6 +9,7 @@ import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasi
 import { DEFAULT_KNOT_ABSCISSA_VALUE, DEFAULT_KNOT_INDEX } from "../namedConstants/Knots";
 import { adaptParameterInsertKnot } from "./KnotSequenceAndUtilities/adaptParameterInsertKnot";
 import { adaptParameterRaiseKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity";
+import { WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES } from "../WarningMessages/KnotSequences";
 
 export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
@@ -117,9 +118,13 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
             if(this._maxMultiplicityOrder === 2 && periodicKnotLength < 3) this.throwRangeErrorMessage("generateKnotSequence", EM_SIZENORMALIZED_BSPLINEBASIS);
             let cumulative_multiplicities = 0;
             for(let i = this._indexKnotOrigin.knotIndex + 1; i < this._indexKnotOrigin.knotIndex + periodicKnotLength; i++) {
-                cumulative_multiplicities+= knotParameters.multiplicities[i];
+                cumulative_multiplicities += knotParameters.multiplicities[i];
             }
-            if(cumulative_multiplicities < (this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin))) this.throwRangeErrorMessage("generateKnotSequence", EM_SIZENORMALIZED_BSPLINEBASIS);
+            if(cumulative_multiplicities < (this._maxMultiplicityOrder - this.knotMultiplicity(this._indexKnotOrigin))) {
+                const warning = new WarningLog(this.constructor.name, "generateKnotSequence", WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES);
+                warning.logMessage();
+                if(this.knotMultiplicity(this._indexKnotOrigin) === 1) this.throwRangeErrorMessage("generateKnotSequence", EM_SIZENORMALIZED_BSPLINEBASIS);
+            }
         }
     }
 

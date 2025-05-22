@@ -12,6 +12,7 @@ import { adaptParameterInsertKnot } from "./KnotSequenceAndUtilities/adaptParame
 import { adaptParameterDecrementKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterDecrementKnotMultiplicity";
 
 
+
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
     protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
