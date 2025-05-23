@@ -8,7 +8,6 @@ import { prepareIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUtilities/
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
-import { fromStrictlyIncreasingToIncreasingKnotSequenceCC } from "./KnotSequenceAndUtilities/fromStrictlyIncreasingToIncreasingKnotSequenceCC";
 
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequence {
 
@@ -244,10 +243,11 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
                 }
             }
             let strctIncSeq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnotAbscissae, multiplicities: periodicKnotMultiplicities});
-            newKnotSequence = fromStrictlyIncreasingToIncreasingKnotSequenceCC(strctIncSeq);
+            const incSeqAbscissae = strctIncSeq.toIncreasingSeqOfAbscissae();
             if(this._isSequenceUpToC0Discontinuity) {
-                strctIncSeq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strctIncSeq.distinctAbscissae(), multiplicities: strctIncSeq.multiplicities()});
-                newKnotSequence = fromStrictlyIncreasingToIncreasingKnotSequenceCC(strctIncSeq);
+                return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: incSeqAbscissae});
+            } else {
+                return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: incSeqAbscissae});
             }
         }
         return newKnotSequence;
@@ -276,13 +276,13 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
                 periodicKnotMultiplicities.push(this.knotSequence[i].multiplicity);
             }
         }
-        let strctIncSeq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnotAbscissae, multiplicities: periodicKnotMultiplicities});
-        let updatedSeq = fromStrictlyIncreasingToIncreasingKnotSequenceCC(strctIncSeq);
-        if(this._isSequenceUpToC0Discontinuity) {
-            strctIncSeq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strctIncSeq.distinctAbscissae(), multiplicities: strctIncSeq.multiplicities()});
-            updatedSeq = fromStrictlyIncreasingToIncreasingKnotSequenceCC(strctIncSeq);
-        }
         this.knotSequence = previousKnotSequence;
-        return updatedSeq;
+        let strctIncSeq = new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE, periodicKnots: periodicKnotAbscissae, multiplicities: periodicKnotMultiplicities});
+        const incSeqAbscissae = strctIncSeq.toIncreasingSeqOfAbscissae();
+        if(this._isSequenceUpToC0Discontinuity) {
+            return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: incSeqAbscissae});
+        } else {
+            return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: incSeqAbscissae});
+        }
     }
 }

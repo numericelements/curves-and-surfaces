@@ -210,6 +210,18 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         return new KnotIndexStrictlyIncreasingSequence(index);
     }
 
+    toIncreasingSeqOfAbscissae(): number[] {
+        const incKnotAbscissae: number[] = [];
+        for (const knot of this) {
+            if(knot !== undefined) {
+                for(let i = 0; i < knot.multiplicity; i++) {
+                    incKnotAbscissae.push(knot.abscissa);
+                }
+            }
+        }
+        return incKnotAbscissae;
+    }
+
     revertKnotSequence(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
         const newKnotSequence = this.clone();
         newKnotSequence.revertKnotSpacing();
